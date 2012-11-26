@@ -16,6 +16,8 @@
 
 package org.jetbrains.jet.lang.resolve.java.scope;
 
+import com.google.common.collect.Lists;
+import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
 import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor;
@@ -29,8 +31,9 @@ import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.Name;
 
 import java.util.Collection;
+import java.util.List;
 
-import static org.jetbrains.jet.lang.resolve.java.scope.ScopeUtils.computeAllPackageDeclarations;
+import static org.jetbrains.jet.lang.resolve.java.DescriptorSearchRule.IGNORE_IF_FOUND_IN_KOTLIN;
 
 public abstract class JavaPackageScope extends JavaBaseScope {
 
@@ -78,10 +81,37 @@ public abstract class JavaPackageScope extends JavaBaseScope {
     @NotNull
     @Override
     protected Collection<DeclarationDescriptor> computeAllDescriptors() {
-        Collection<DeclarationDescriptor> result = super.computeAllDescriptors();
-        result.addAll(computeAllPackageDeclarations(declarationProvider.getPsiPackage(),
-                                                    semanticServices,
-                                                    DescriptorUtils.getFQName(descriptor).toSafe()));
+        List<DeclarationDescriptor> result = Lists.newArrayList();
+        result.addAll(super.computeAllDescriptors());
+        FqName packageFqName = DescriptorUtils.getFQName(descriptor).toSafe();
+        result.addAll(computeClasses(packageFqName));
+        result.addAll(computeNamespaces(packageFqName));
+        return result;
+    }
+
+    @NotNull
+    private Collection<NamespaceDescriptor> computeNamespaces(@NotNull FqName packageFqName) {
+        List<NamespaceDescriptor> result = Lists.newArrayList();
+        for (Name packageName : declarationProvider.getDeclaredPackages()) {
+            NamespaceDescriptor namespaceDescriptor = getResolver().resolveNamespace(packageFqName.child(packageName),
+                                                                                     IGNORE_IF_FOUND_IN_KOTLIN);
+            if (namespaceDescriptor != null) {
+                result.add(namespaceDescriptor);
+            }
+        }
+        return result;
+    }
+
+    @NotNull
+    private Collection<ClassDescriptor> computeClasses(@NotNull FqName packageFqName) {
+        List<ClassDescriptor> result = Lists.newArrayList();
+        for (Name className : declarationProvider.getDeclaredClasses()) {
+            ProgressIndicatorProvider.checkCanceled();
+            ClassDescriptor classDescriptor = getResolver().resolveClass(packageFqName.child(className), IGNORE_IF_FOUND_IN_KOTLIN);
+            if (classDescriptor != null) {
+                result.add(classDescriptor);
+            }
+        }
         return result;
     }
 }

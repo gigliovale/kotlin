@@ -19,20 +19,24 @@ package org.jetbrains.jet.lang.resolve.java.provider;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jet.lang.resolve.name.Name;
+
+import java.util.Collection;
 
 import static org.jetbrains.jet.lang.resolve.java.provider.DeclarationOrigin.KOTLIN;
+import static org.jetbrains.jet.lang.resolve.java.provider.PsiDeclarationProviderFactory.createDeclarationProviderForNamespaceWithoutMembers;
 
 public final class KotlinNamespacePsiDeclarationProvider extends ClassPsiDeclarationProviderImpl implements PackagePsiDeclarationProvider {
 
     @NotNull
-    private final PackagePsiDeclarationProvider packagePsiDeclarationProvider;
+    private final PackagePsiDeclarationProviderImpl packagePsiDeclarationProvider;
 
     public KotlinNamespacePsiDeclarationProvider(
             @NotNull PsiPackage psiPackage,
             @NotNull PsiClass psiClass
     ) {
         super(psiClass, true);
-        this.packagePsiDeclarationProvider = PsiDeclarationProviderFactory.createDeclarationProviderForNamespaceWithoutMembers(psiPackage);
+        this.packagePsiDeclarationProvider = createDeclarationProviderForNamespaceWithoutMembers(psiPackage);
     }
 
     @NotNull
@@ -43,9 +47,22 @@ public final class KotlinNamespacePsiDeclarationProvider extends ClassPsiDeclara
 
     @NotNull
     @Override
+    public Collection<Name> getDeclaredClasses() {
+        return packagePsiDeclarationProvider.getDeclaredClasses();
+    }
+
+    @NotNull
+    @Override
+    public Collection<Name> getDeclaredPackages() {
+        return packagePsiDeclarationProvider.getDeclaredPackages();
+    }
+
+    @NotNull
+    @Override
     protected MembersCache buildMembersCache() {
         MembersCache cacheWithMembers = super.buildMembersCache();
-        MembersCache.buildMembersByNameCache(cacheWithMembers, null, packagePsiDeclarationProvider.getPsiPackage(), true, getDeclarationOrigin() == KOTLIN);
+        MembersCache.buildMembersByNameCache(cacheWithMembers, null, packagePsiDeclarationProvider.getPsiPackage(), true,
+                                             getDeclarationOrigin() == KOTLIN);
         return cacheWithMembers;
     }
 

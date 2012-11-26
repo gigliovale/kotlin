@@ -16,8 +16,17 @@
 
 package org.jetbrains.jet.lang.resolve.java.provider;
 
+import com.google.common.collect.Lists;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPackage;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jet.lang.resolve.java.JetJavaMirrorMarker;
+import org.jetbrains.jet.lang.resolve.java.JvmAbi;
+import org.jetbrains.jet.lang.resolve.name.Name;
+
+import java.util.Collection;
+import java.util.List;
 
 import static org.jetbrains.jet.lang.resolve.java.provider.DeclarationOrigin.JAVA;
 import static org.jetbrains.jet.lang.resolve.java.provider.DeclarationOrigin.KOTLIN;
@@ -37,6 +46,45 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
     @Override
     public PsiPackage getPsiPackage() {
         return psiPackage;
+    }
+
+    @NotNull
+    @Override
+    public Collection<Name> getDeclaredClasses() {
+        List<Name> result = Lists.newArrayList();
+        for (PsiClass psiClass : getPsiPackage().getClasses()) {
+            if (getDeclarationOrigin() == KOTLIN && JvmAbi.PACKAGE_CLASS.equals(psiClass.getName())) {
+                continue;
+            }
+
+            if (psiClass instanceof JetJavaMirrorMarker) {
+                continue;
+            }
+
+            // TODO: Temp hack for collection function descriptors from java
+            if (JvmAbi.PACKAGE_CLASS.equals(psiClass.getName())) {
+                continue;
+            }
+
+            if (!psiClass.hasModifierProperty(PsiModifier.PUBLIC)) {
+                continue;
+            }
+
+            result.add(Name.identifier(psiClass.getName()));
+        }
+        return result;
+    }
+
+    @NotNull
+    @Override
+    public Collection<Name> getDeclaredPackages() {
+        List<Name> result = Lists.newArrayList();
+        for (PsiPackage psiSubPackage : getPsiPackage().getSubPackages()) {
+            String subPackageName = psiSubPackage.getName();
+            assert subPackageName != null : "All packages except root package must have names";
+            result.add(Name.identifier(subPackageName));
+        }
+        return result;
     }
 
     @NotNull

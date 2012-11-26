@@ -43,7 +43,7 @@ public final class PsiDeclarationProviderFactory {
     }
 
     @NotNull
-    public static PackagePsiDeclarationProvider createDeclarationProviderForNamespaceWithoutMembers(@NotNull PsiPackage psiPackage) {
+    public static PackagePsiDeclarationProviderImpl createDeclarationProviderForNamespaceWithoutMembers(@NotNull PsiPackage psiPackage) {
         return new PackagePsiDeclarationProviderImpl(psiPackage);
     }
 

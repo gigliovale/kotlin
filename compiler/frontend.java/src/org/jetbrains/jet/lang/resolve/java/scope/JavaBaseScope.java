@@ -38,7 +38,7 @@ import java.util.Set;
 public abstract class JavaBaseScope extends JetScopeImpl {
 
     @NotNull
-    protected final JavaSemanticServices semanticServices;
+    private final JavaDescriptorResolver descriptorResolver;
     @NotNull
     protected final PsiDeclarationProvider declarationProvider;
     @NotNull
@@ -55,10 +55,10 @@ public abstract class JavaBaseScope extends JetScopeImpl {
 
     protected JavaBaseScope(
             @NotNull ClassOrNamespaceDescriptor descriptor,
-            @NotNull JavaSemanticServices semanticServices,
-            @NotNull PsiDeclarationProvider declarationProvider
+            @NotNull PsiDeclarationProvider declarationProvider,
+            @NotNull JavaDescriptorResolver resolver
     ) {
-        this.semanticServices = semanticServices;
+        this.descriptorResolver = resolver;
         this.declarationProvider = declarationProvider;
         this.descriptor = descriptor;
     }
@@ -149,7 +149,7 @@ public abstract class JavaBaseScope extends JetScopeImpl {
 
     @NotNull
     protected JavaDescriptorResolver getResolver() {
-        return semanticServices.getDescriptorResolver();
+        return descriptorResolver;
     }
 
     //TODO: remove this method

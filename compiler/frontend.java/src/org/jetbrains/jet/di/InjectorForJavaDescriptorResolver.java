@@ -125,7 +125,7 @@ public class InjectorForJavaDescriptorResolver {
         javaCompileTimeConstResolver.setAnnotationResolver(javaAnnotationResolver);
         javaCompileTimeConstResolver.setClassResolver(javaClassResolver);
 
-        javaClassObjectResolver.setSemanticServices(javaSemanticServices);
+        javaClassObjectResolver.setDescriptorResolver(javaDescriptorResolver);
         javaClassObjectResolver.setSupertypesResolver(javaSupertypeResolver);
         javaClassObjectResolver.setTrace(bindingTrace);
 

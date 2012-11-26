@@ -25,7 +25,7 @@ import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.java.DescriptorSearchRule;
-import org.jetbrains.jet.lang.resolve.java.JavaSemanticServices;
+import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.java.provider.PackagePsiDeclarationProvider;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -46,9 +46,9 @@ public abstract class JavaPackageScope extends JavaBaseScope {
             @NotNull NamespaceDescriptor descriptor,
             @NotNull PackagePsiDeclarationProvider declarationProvider,
             @NotNull FqName packageFQN,
-            @NotNull JavaSemanticServices semanticServices
+            @NotNull JavaDescriptorResolver descriptorResolver
     ) {
-        super(descriptor, semanticServices, declarationProvider);
+        super(descriptor, declarationProvider, descriptorResolver);
         this.declarationProvider = declarationProvider;
         this.packageFQN = packageFQN;
     }

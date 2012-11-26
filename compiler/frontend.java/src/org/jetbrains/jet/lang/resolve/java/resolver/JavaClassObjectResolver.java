@@ -25,7 +25,7 @@ import org.jetbrains.jet.lang.descriptors.Modality;
 import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.java.DescriptorResolverUtils;
-import org.jetbrains.jet.lang.resolve.java.JavaSemanticServices;
+import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.java.JvmAbi;
 import org.jetbrains.jet.lang.resolve.java.descriptor.ClassDescriptorFromJvmBytecode;
 import org.jetbrains.jet.lang.resolve.java.provider.ClassPsiDeclarationProvider;
@@ -51,7 +51,7 @@ import static org.jetbrains.jet.lang.resolve.java.DescriptorResolverUtils.isInne
 public final class JavaClassObjectResolver {
 
     private BindingTrace trace;
-    private JavaSemanticServices semanticServices;
+    private JavaDescriptorResolver descriptorResolver;
     private JavaSupertypeResolver supertypesResolver;
 
     @Inject
@@ -65,8 +65,8 @@ public final class JavaClassObjectResolver {
     }
 
     @Inject
-    public void setSemanticServices(JavaSemanticServices semanticServices) {
-        this.semanticServices = semanticServices;
+    public void setDescriptorResolver(JavaDescriptorResolver descriptorResolver) {
+        this.descriptorResolver = descriptorResolver;
     }
 
     @Nullable
@@ -161,7 +161,8 @@ public final class JavaClassObjectResolver {
         classObjectDescriptor.setVisibility(containing.getVisibility());
         classObjectDescriptor.setTypeParameterDescriptors(Collections.<TypeParameterDescriptor>emptyList());
         classObjectDescriptor.createTypeConstructor();
-        JavaClassNonStaticMembersScope classMembersScope = new JavaClassNonStaticMembersScope(classObjectDescriptor, data, semanticServices);
+        JavaClassNonStaticMembersScope classMembersScope =
+                new JavaClassNonStaticMembersScope(classObjectDescriptor, data, descriptorResolver);
         WritableScopeImpl writableScope =
                 new WritableScopeImpl(classMembersScope, classObjectDescriptor, RedeclarationHandler.THROW_EXCEPTION, fqName.toString());
         writableScope.changeLockLevel(WritableScope.LockLevel.BOTH);

@@ -234,7 +234,8 @@ public final class JavaClassResolver {
         classDescriptor.setVisibility(DescriptorResolverUtils.resolveVisibility(psiClass, jetClassAnnotation));
         classDescriptor.setModality(resolveModality(psiClass, classDescriptor));
         classDescriptor.createTypeConstructor();
-        JavaClassNonStaticMembersScope membersScope = new JavaClassNonStaticMembersScope(classDescriptor, classData, semanticServices);
+        JavaClassNonStaticMembersScope membersScope = new JavaClassNonStaticMembersScope(classDescriptor, classData,
+                                                                                         semanticServices.getDescriptorResolver());
         classDescriptor.setScopeForMemberLookup(membersScope);
         classDescriptor.setScopeForConstructorResolve(membersScope);
 

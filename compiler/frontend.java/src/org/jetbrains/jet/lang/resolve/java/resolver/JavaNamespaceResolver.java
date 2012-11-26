@@ -152,11 +152,11 @@ public final class JavaNamespaceResolver {
             if (psiClass == null) {
                 return new JavaPackageScopeWithoutMembers(namespaceDescriptor,
                                                           createDeclarationProviderForNamespaceWithoutMembers(psiPackage),
-                                                          fqName, javaSemanticServices);
+                                                          fqName, javaSemanticServices.getDescriptorResolver());
             }
             return new JavaScopeForKotlinNamespace(namespaceDescriptor,
                                                    createDeclarationForKotlinNamespace(psiPackage, psiClass),
-                                                   fqName, javaSemanticServices);
+                                                   fqName, javaSemanticServices.getDescriptorResolver());
         }
 
         PsiClass psiClass = psiClassFinder.findPsiClass(fqName, PsiClassFinder.RuntimeClassesHandleMode.IGNORE);
@@ -171,7 +171,7 @@ public final class JavaNamespaceResolver {
         trace.record(JavaBindingContext.JAVA_NAMESPACE_KIND, namespaceDescriptor, JavaNamespaceKind.CLASS_STATICS);
         return new JavaClassStaticMembersScope(namespaceDescriptor,
                                                createDeclarationProviderForClassStaticMembers(psiClass),
-                                               fqName, javaSemanticServices);
+                                               fqName, javaSemanticServices.getDescriptorResolver());
     }
 
     private void cache(@NotNull FqName fqName, @Nullable JavaBaseScope packageScope) {

@@ -43,7 +43,6 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
     }
 
     @NotNull
-    @Override
     public PsiPackage getPsiPackage() {
         return psiPackage;
     }

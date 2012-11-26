@@ -26,10 +26,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.java.JavaSemanticServices;
-import org.jetbrains.jet.lang.resolve.java.provider.ClassPsiDeclarationProvider;
-import org.jetbrains.jet.lang.resolve.java.provider.NamedMembers;
-import org.jetbrains.jet.lang.resolve.java.provider.PackagePsiDeclarationProvider;
-import org.jetbrains.jet.lang.resolve.java.provider.PsiDeclarationProvider;
+import org.jetbrains.jet.lang.resolve.java.provider.*;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.JetScopeImpl;
 
@@ -161,8 +158,8 @@ public abstract class JavaBaseScope extends JetScopeImpl {
         if (declarationProvider instanceof ClassPsiDeclarationProvider) {
             return ((ClassPsiDeclarationProvider) declarationProvider).getPsiClass();
         }
-        if (declarationProvider instanceof PackagePsiDeclarationProvider) {
-            return ((PackagePsiDeclarationProvider) declarationProvider).getPsiPackage();
+        if (declarationProvider instanceof PackagePsiDeclarationProviderImpl) {
+            return ((PackagePsiDeclarationProviderImpl) declarationProvider).getPsiPackage();
         }
         throw new IllegalStateException();
     }

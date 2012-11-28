@@ -28,6 +28,7 @@ import org.jetbrains.jet.lang.resolve.java.provider.PsiDeclarationProvider;
 import org.jetbrains.jet.lang.resolve.java.resolver.*;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.Name;
+import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 import org.jetbrains.jet.lang.types.DependencyClassByQualifiedNameResolver;
 import org.jetbrains.jet.lang.types.JetType;
 
@@ -129,11 +130,6 @@ public class JavaDescriptorResolver implements DependencyClassByQualifiedNameRes
         return namespaceResolver.resolveNamespace(qualifiedName, parentModule);
     }
 
-    @NotNull
-    public Collection<NamespaceDescriptor> resolveNamespaces(@NotNull FqName fqName) {
-        return namespaceResolver.resolveNamespace(fqName).values();
-    }
-
     @Override
     public NamespaceDescriptor resolveNamespace(@NotNull FqName qualifiedName) {
         return namespaceResolver.resolveNamespace(qualifiedName).get(JAVA_MODULE);
@@ -154,9 +150,9 @@ public class JavaDescriptorResolver implements DependencyClassByQualifiedNameRes
     }
 
     public static class ValueParameterDescriptors {
+
         private final JetType receiverType;
         private final List<ValueParameterDescriptor> descriptors;
-
         public ValueParameterDescriptors(@Nullable JetType receiverType, @NotNull List<ValueParameterDescriptor> descriptors) {
             this.receiverType = receiverType;
             this.descriptors = descriptors;
@@ -171,8 +167,8 @@ public class JavaDescriptorResolver implements DependencyClassByQualifiedNameRes
         public List<ValueParameterDescriptor> getDescriptors() {
             return descriptors;
         }
-    }
 
+    }
     @NotNull
     public Set<FunctionDescriptor> resolveFunctionGroup(
             @NotNull Name methodName,
@@ -196,5 +192,12 @@ public class JavaDescriptorResolver implements DependencyClassByQualifiedNameRes
         //TODO: throw meaningful exception?
         assert virtualFile != null;
         return moduleDescriptorProvider.getModule(virtualFile);
+    }
+
+    public void importScopesFromJavaNamespaces(@NotNull WritableScope scopeToImportTo, @NotNull FqName fqName) {
+        Collection<NamespaceDescriptor> allNamespacesFromJavaAndBinaries = namespaceResolver.resolveNamespace(fqName).values();
+        for (NamespaceDescriptor namespaceToMergeIn : allNamespacesFromJavaAndBinaries) {
+            scopeToImportTo.importScope(namespaceToMergeIn.getMemberScope());
+        }
     }
 }

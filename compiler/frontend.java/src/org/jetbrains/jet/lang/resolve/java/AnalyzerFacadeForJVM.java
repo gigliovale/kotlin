@@ -120,10 +120,7 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
                     namespaceMemberScope.importScope(KotlinBuiltIns.getInstance().getBuiltInsScope());
                 }
                 if (psiClassFinder.findPsiPackage(fqName) != null) {
-                    Collection<NamespaceDescriptor> allNamespacesFromJavaAndBinaries = javaDescriptorResolver.resolveNamespaces(fqName);
-                    for (NamespaceDescriptor namespaceToMergeIn : allNamespacesFromJavaAndBinaries) {
-                        namespaceMemberScope.importScope(namespaceToMergeIn.getMemberScope());
-                    }
+                    javaDescriptorResolver.importScopesFromJavaNamespaces(namespaceMemberScope, fqName);
                 }
             }
 

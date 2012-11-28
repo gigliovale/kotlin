@@ -1,3 +1,3 @@
 package aaa
 
-fun hello() = 17
+public fun hello(): Int = 17

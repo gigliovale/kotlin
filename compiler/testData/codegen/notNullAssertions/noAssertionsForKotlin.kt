@@ -1,13 +1,13 @@
-class A {
-    val x: Int = 42
+public class A {
+    public val x: Int = 42
     
-    fun foo(): String = ""
+    public fun foo(): String = ""
     
     class object {
-        val y: Any? = 239
+        public val y: Any? = 239
         
-        fun bar(): String = ""
+        public fun bar(): String = ""
     }
 }
 
-fun baz(): String = ""
+public fun baz(): String = ""

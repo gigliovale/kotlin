@@ -57,7 +57,7 @@ public class NamespaceDescriptorImpl extends AbstractNamespaceDescriptorImpl {
     @NotNull
     @Override
     public FqName getQualifiedName() {
-        return DescriptorUtils.getFQName(this).toSafe();
+        return DescriptorUtils.getFQName(this);
     }
 
     private NamespaceLikeBuilder builder = null;

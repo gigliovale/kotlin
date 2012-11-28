@@ -105,13 +105,13 @@ public class LazyResolveTestUtil {
                     @NotNull NamespaceDescriptor namespaceDescriptor,
                     @NotNull WritableScope namespaceMemberScope
             ) {
-                FqName fqName = DescriptorUtils.getFQName(namespaceDescriptor).toSafe();
+                FqName fqName = DescriptorUtils.getFQName(namespaceDescriptor);
                 if (new FqName("jet").equals(fqName)) {
                     namespaceMemberScope.importScope(KotlinBuiltIns.getInstance().getBuiltInsScope());
                 }
                 if (psiClassFinder.findPsiPackage(fqName) != null) {
                     for (NamespaceDescriptor namespaceToMergeIn : javaDescriptorResolver
-                            .resolveNamespaces(DescriptorUtils.getFQName(namespaceDescriptor).toSafe())) {
+                            .resolveNamespaces(DescriptorUtils.getFQName(namespaceDescriptor))) {
                         namespaceMemberScope.importScope(namespaceToMergeIn.getMemberScope());
                     }
                 }

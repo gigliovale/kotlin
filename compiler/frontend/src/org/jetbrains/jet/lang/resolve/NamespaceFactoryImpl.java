@@ -157,7 +157,7 @@ public class NamespaceFactoryImpl implements NamespaceFactory {
                                                                       @NotNull Name name,
                                                                       @Nullable JetReferenceExpression expression,
                                                                       @NotNull RedeclarationHandler handler) {
-        FqName ownerFqName = DescriptorUtils.getFQName(owner).toSafe();
+        FqName ownerFqName = DescriptorUtils.getFQName(owner);
         FqName fqName = ownerFqName.child(name);
         // !!!
         NamespaceDescriptorImpl namespaceDescriptor = (NamespaceDescriptorImpl) owner.getMemberScope().getDeclaredNamespace(name);

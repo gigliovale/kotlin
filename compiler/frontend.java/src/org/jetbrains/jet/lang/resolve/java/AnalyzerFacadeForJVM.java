@@ -115,7 +115,7 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
                     @NotNull NamespaceDescriptor namespaceDescriptor,
                     @NotNull WritableScope namespaceMemberScope
             ) {
-                FqName fqName = DescriptorUtils.getFQName(namespaceDescriptor).toSafe();
+                FqName fqName = DescriptorUtils.getFQName(namespaceDescriptor);
                 if (new FqName("jet").equals(fqName)) {
                     namespaceMemberScope.importScope(KotlinBuiltIns.getInstance().getBuiltInsScope());
                 }

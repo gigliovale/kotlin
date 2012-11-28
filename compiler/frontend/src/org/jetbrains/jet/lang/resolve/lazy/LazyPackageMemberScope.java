@@ -48,7 +48,7 @@ public class LazyPackageMemberScope extends AbstractLazyMemberScope<NamespaceDes
         if (!declarationProvider.isPackageDeclared(name)) return null;
 
         PackageMemberDeclarationProvider packageMemberDeclarationProvider = resolveSession.getDeclarationProviderFactory().getPackageMemberDeclarationProvider(
-                DescriptorUtils.getFQName(thisDescriptor).child(name).toSafe());
+                DescriptorUtils.getFQName(thisDescriptor).child(name));
         assert packageMemberDeclarationProvider != null : "Package is declared, but declaration provider is not found: " + name;
         NamespaceDescriptor namespaceDescriptor = new LazyPackageDescriptor(thisDescriptor, name, resolveSession, packageMemberDeclarationProvider);
 
@@ -61,7 +61,7 @@ public class LazyPackageMemberScope extends AbstractLazyMemberScope<NamespaceDes
     @Override
     public ClassifierDescriptor getClassifier(@NotNull Name name) {
         // TODO: creating an FqName every time may be a performance problem
-        Name actualName = resolveSession.resolveClassifierAlias(DescriptorUtils.getFQName(thisDescriptor).toSafe(), name);
+        Name actualName = resolveSession.resolveClassifierAlias(DescriptorUtils.getFQName(thisDescriptor), name);
         return super.getClassifier(actualName);
     }
 

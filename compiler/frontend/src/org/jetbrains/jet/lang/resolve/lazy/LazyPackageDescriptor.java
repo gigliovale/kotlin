@@ -58,7 +58,7 @@ public class LazyPackageDescriptor extends AbstractNamespaceDescriptorImpl imple
     @NotNull
     @Override
     public FqName getQualifiedName() {
-        return DescriptorUtils.getFQName(this).toSafe();
+        return DescriptorUtils.getFQName(this);
     }
 
     @Override

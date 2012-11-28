@@ -94,7 +94,7 @@ public class JsConfiguration implements ModuleConfiguration {
     private void extendScopeWithPreAnalyzedContextForTests(@NotNull NamespaceDescriptor namespaceDescriptor,
             @NotNull WritableScope namespaceMemberScope) {
         if (isNamespaceImportedByDefault(namespaceDescriptor) || isRootNamespace(namespaceDescriptor)) {
-            FqName descriptorName = DescriptorUtils.getFQName(namespaceDescriptor).toSafe();
+            FqName descriptorName = DescriptorUtils.getFQName(namespaceDescriptor);
             NamespaceDescriptor alreadyAnalyzedNamespace = preanalyzedContext.get(BindingContext.FQNAME_TO_NAMESPACE_DESCRIPTOR, descriptorName);
             namespaceMemberScope.importScope(alreadyAnalyzedNamespace.getMemberScope());
         }
@@ -102,7 +102,7 @@ public class JsConfiguration implements ModuleConfiguration {
 
     private static boolean isNamespaceImportedByDefault(@NotNull NamespaceDescriptor namespaceDescriptor) {
         for (ImportPath path : DEFAULT_IMPORT_PATHS) {
-            if (path.fqnPart().equals(DescriptorUtils.getFQName(namespaceDescriptor).toSafe())) {
+            if (path.fqnPart().equals(DescriptorUtils.getFQName(namespaceDescriptor))) {
                 return true;
             }
         }

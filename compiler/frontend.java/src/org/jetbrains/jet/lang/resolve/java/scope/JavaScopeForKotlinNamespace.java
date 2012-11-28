@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.resolve.java.scope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
 import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.java.provider.KotlinNamespacePsiDeclarationProvider;
@@ -36,9 +37,10 @@ public final class JavaScopeForKotlinNamespace extends JavaPackageScope {
             @NotNull NamespaceDescriptor descriptor,
             @NotNull KotlinNamespacePsiDeclarationProvider declarationProvider,
             @NotNull FqName packageFQN,
+            @NotNull ModuleDescriptor parentModule,
             @NotNull JavaDescriptorResolver descriptorResolver
     ) {
-        super(descriptor, declarationProvider, packageFQN, descriptorResolver);
+        super(descriptor, declarationProvider, packageFQN, parentModule, descriptorResolver);
         this.declarationProvider = declarationProvider;
     }
 

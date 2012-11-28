@@ -19,10 +19,7 @@ package org.jetbrains.jet.lang.resolve.java.scope;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.progress.ProgressIndicatorProvider;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
-import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor;
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
-import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
+import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.java.DescriptorSearchRule;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
@@ -41,16 +38,20 @@ public abstract class JavaPackageScope extends JavaBaseScope {
     private final PackagePsiDeclarationProvider declarationProvider;
     @NotNull
     private final FqName packageFQN;
+    @NotNull
+    private final ModuleDescriptor parentModule;
 
     protected JavaPackageScope(
             @NotNull NamespaceDescriptor descriptor,
             @NotNull PackagePsiDeclarationProvider declarationProvider,
             @NotNull FqName packageFQN,
+            @NotNull ModuleDescriptor parentModule,
             @NotNull JavaDescriptorResolver descriptorResolver
     ) {
         super(descriptor, declarationProvider, descriptorResolver);
         this.declarationProvider = declarationProvider;
         this.packageFQN = packageFQN;
+        this.parentModule = parentModule;
     }
 
     @Override
@@ -75,7 +76,7 @@ public abstract class JavaPackageScope extends JavaBaseScope {
 
     @Override
     public NamespaceDescriptor getNamespace(@NotNull Name name) {
-        return getResolver().resolveNamespace(packageFQN.child(name), DescriptorSearchRule.INCLUDE_KOTLIN);
+        return getResolver().resolveNamespace(packageFQN.child(name), parentModule);
     }
 
     @NotNull
@@ -93,8 +94,7 @@ public abstract class JavaPackageScope extends JavaBaseScope {
     private Collection<NamespaceDescriptor> computeNamespaces(@NotNull FqName packageFqName) {
         List<NamespaceDescriptor> result = Lists.newArrayList();
         for (Name packageName : declarationProvider.getDeclaredPackages()) {
-            NamespaceDescriptor namespaceDescriptor = getResolver().resolveNamespace(packageFqName.child(packageName),
-                                                                                     IGNORE_IF_FOUND_IN_KOTLIN);
+            NamespaceDescriptor namespaceDescriptor = getResolver().resolveNamespace(packageFqName.child(packageName), parentModule);
             if (namespaceDescriptor != null) {
                 result.add(namespaceDescriptor);
             }

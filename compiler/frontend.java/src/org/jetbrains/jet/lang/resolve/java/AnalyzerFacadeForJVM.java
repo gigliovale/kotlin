@@ -40,7 +40,6 @@ import org.jetbrains.jet.lang.resolve.lazy.FileBasedDeclarationProviderFactory;
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.Name;
-import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
@@ -121,9 +120,10 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
                     namespaceMemberScope.importScope(KotlinBuiltIns.getInstance().getBuiltInsScope());
                 }
                 if (psiClassFinder.findPsiPackage(fqName) != null) {
-                    JetScope javaPackageScope = javaDescriptorResolver.getJavaPackageScope(namespaceDescriptor);
-                    assert javaPackageScope != null;
-                    namespaceMemberScope.importScope(javaPackageScope);
+                    Collection<NamespaceDescriptor> allNamespacesFromJavaAndBinaries = javaDescriptorResolver.resolveNamespaces(fqName);
+                    for (NamespaceDescriptor namespaceToMergeIn : allNamespacesFromJavaAndBinaries) {
+                        namespaceMemberScope.importScope(namespaceToMergeIn.getMemberScope());
+                    }
                 }
             }
 

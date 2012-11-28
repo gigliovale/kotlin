@@ -363,7 +363,8 @@ public final class JavaClassResolver {
     @NotNull
     private ClassOrNamespaceDescriptor resolveParentNamespace(@NotNull PsiClass psiClass) {
         FqName namespaceFqName = getFqName(psiClass).parent();
-        NamespaceDescriptor parentNamespace = namespaceResolver.resolveNamespace(namespaceFqName, DescriptorSearchRule.INCLUDE_KOTLIN);
+        ModuleDescriptor parentModule = semanticServices.getDescriptorResolver().getModuleForClass(psiClass);
+        NamespaceDescriptor parentNamespace = namespaceResolver.resolveNamespace(namespaceFqName, parentModule);
         if (parentNamespace == null) {
             throw new IllegalStateException("cannot resolve namespace " + namespaceFqName +
                                             ", required to be container for " + getFqName(psiClass));

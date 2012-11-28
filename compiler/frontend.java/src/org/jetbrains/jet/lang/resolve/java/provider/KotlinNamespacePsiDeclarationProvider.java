@@ -18,6 +18,7 @@ package org.jetbrains.jet.lang.resolve.java.provider;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.resolve.name.Name;
 
@@ -33,10 +34,11 @@ public final class KotlinNamespacePsiDeclarationProvider extends ClassPsiDeclara
 
     public KotlinNamespacePsiDeclarationProvider(
             @NotNull PsiPackage psiPackage,
-            @NotNull PsiClass psiClass
+            @NotNull PsiClass psiClass,
+            @NotNull GlobalSearchScope searchScope
     ) {
         super(psiClass, true);
-        this.packagePsiDeclarationProvider = createDeclarationProviderForNamespaceWithoutMembers(psiPackage);
+        this.packagePsiDeclarationProvider = createDeclarationProviderForNamespaceWithoutMembers(psiPackage, searchScope);
     }
 
     @NotNull

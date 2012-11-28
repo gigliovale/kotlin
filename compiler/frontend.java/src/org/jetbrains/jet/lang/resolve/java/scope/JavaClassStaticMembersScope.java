@@ -18,6 +18,7 @@ package org.jetbrains.jet.lang.resolve.java.scope;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.resolve.java.DescriptorSearchRule;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
@@ -41,6 +42,7 @@ public final class JavaClassStaticMembersScope extends JavaClassMembersScope {
 
     @Override
     public NamespaceDescriptor getNamespace(@NotNull Name name) {
-        return getResolver().resolveNamespace(packageFQN.child(name), DescriptorSearchRule.INCLUDE_KOTLIN);
+        ModuleDescriptor parentModule = getResolver().getModuleForClass(declarationProvider.getPsiClass());
+        return getResolver().resolveNamespace(packageFQN.child(name), parentModule);
     }
 }

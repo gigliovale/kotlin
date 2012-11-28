@@ -18,8 +18,10 @@ package org.jetbrains.jet.lang.resolve.java.provider;
 
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 
+//TODO: remove class
 public final class PsiDeclarationProviderFactory {
     private PsiDeclarationProviderFactory() {
     }
@@ -37,14 +39,18 @@ public final class PsiDeclarationProviderFactory {
     @NotNull
     public static KotlinNamespacePsiDeclarationProvider createDeclarationForKotlinNamespace(
             @NotNull PsiPackage psiPackage,
-            @NotNull PsiClass psiClass
+            @NotNull PsiClass psiClass,
+            @NotNull GlobalSearchScope searchScope
     ) {
-        return new KotlinNamespacePsiDeclarationProvider(psiPackage, psiClass);
+        return new KotlinNamespacePsiDeclarationProvider(psiPackage, psiClass, searchScope);
     }
 
     @NotNull
-    public static PackagePsiDeclarationProviderImpl createDeclarationProviderForNamespaceWithoutMembers(@NotNull PsiPackage psiPackage) {
-        return new PackagePsiDeclarationProviderImpl(psiPackage);
+    public static PackagePsiDeclarationProviderImpl createDeclarationProviderForNamespaceWithoutMembers(
+            @NotNull PsiPackage psiPackage,
+            @NotNull GlobalSearchScope searchScope
+    ) {
+        return new PackagePsiDeclarationProviderImpl(psiPackage, searchScope);
     }
 
     @NotNull

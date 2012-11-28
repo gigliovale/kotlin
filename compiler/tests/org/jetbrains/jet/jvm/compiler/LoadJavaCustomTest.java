@@ -32,11 +32,7 @@ import org.jetbrains.jet.di.InjectorForJavaSemanticServices;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
-import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
-import org.jetbrains.jet.lang.resolve.BindingContext;
-import org.jetbrains.jet.lang.resolve.BindingTrace;
-import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
-import org.jetbrains.jet.lang.resolve.java.DescriptorSearchRule;
+import org.jetbrains.jet.lang.resolve.*;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.lazy.KotlinTestWithEnvironment;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -48,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.jet.jvm.compiler.LoadDescriptorUtil.compileJavaAndLoadTestNamespaceAndBindingContextFromBinary;
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 import static org.jetbrains.jet.test.util.NamespaceComparator.compareNamespaceWithFile;
 
 /*
@@ -149,7 +146,8 @@ public final class LoadJavaCustomTest extends KotlinTestWithEnvironment {
         public void testSubclassingKotlinInJava() throws Exception {
             File dir = new File(PATH + "/subclassingKotlinInJava");
 
-            InjectorForJavaSemanticServices injectorForJava = new InjectorForJavaSemanticServices(getProject());
+            InjectorForJavaSemanticServices injectorForJava =
+                    new InjectorForJavaSemanticServices(getProject(), createDefaultModuleDescriptorProvider(getProject()));
 
             // we need the same binding trace for resolve from Java and Kotlin
             BindingTrace bindingTrace = injectorForJava.getBindingTrace();
@@ -158,13 +156,13 @@ public final class LoadJavaCustomTest extends KotlinTestWithEnvironment {
                     getProject(),
                     new TopDownAnalysisParameters(Predicates.<PsiFile>alwaysFalse(), false, false, Collections.<AnalyzerScriptParameter>emptyList()),
                     bindingTrace,
-                    new ModuleDescriptor(Name.special("<test module>")));
+                    new ModuleDescriptor(Name.special("<test module>")),
+                    createDefaultModuleDescriptorProvider(getProject()));
 
             injectorForAnalyzer.getTopDownAnalyzer().analyzeFiles(getEnvironment().getSourceFiles(), Collections.<AnalyzerScriptParameter>emptyList());
 
             JavaDescriptorResolver javaDescriptorResolver = injectorForJava.getJavaDescriptorResolver();
-            NamespaceDescriptor namespaceDescriptor = javaDescriptorResolver.resolveNamespace(
-                    LoadDescriptorUtil.TEST_PACKAGE_FQNAME, DescriptorSearchRule.INCLUDE_KOTLIN);
+            NamespaceDescriptor namespaceDescriptor = javaDescriptorResolver.resolveNamespace(LoadDescriptorUtil.TEST_PACKAGE_FQNAME);
             assert namespaceDescriptor != null;
 
             compareNamespaceWithFile(namespaceDescriptor, NamespaceComparator.DONT_INCLUDE_METHODS_OF_OBJECT,

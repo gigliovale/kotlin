@@ -25,8 +25,8 @@ import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.psi.JetImportDirective;
 import org.jetbrains.jet.lang.psi.JetPsiFactory;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
+import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.ImportPath;
-import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 
 import javax.annotation.PostConstruct;
@@ -69,9 +69,10 @@ public class JavaBridgeConfiguration implements ModuleConfiguration {
 
     @Override
     public void extendNamespaceScope(@NotNull BindingTrace trace, @NotNull NamespaceDescriptor namespaceDescriptor, @NotNull WritableScope namespaceMemberScope) {
-        JetScope javaPackageScope = javaSemanticServices.getDescriptorResolver().getJavaPackageScope(namespaceDescriptor);
-        if (javaPackageScope != null) {
-            namespaceMemberScope.importScope(javaPackageScope);
+        Collection<NamespaceDescriptor> namespaceDescriptors = javaSemanticServices.getDescriptorResolver().resolveNamespaces(
+                DescriptorUtils.getFQName(namespaceDescriptor).toSafe());
+        for (NamespaceDescriptor namespaceToMergeIn : namespaceDescriptors) {
+            namespaceMemberScope.importScope(namespaceToMergeIn.getMemberScope());
         }
         delegateConfiguration.extendNamespaceScope(trace, namespaceDescriptor, namespaceMemberScope);
     }

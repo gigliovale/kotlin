@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiModifier;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.resolve.java.JetJavaMirrorMarker;
 import org.jetbrains.jet.lang.resolve.java.JvmAbi;
@@ -35,11 +36,16 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
 
     @NotNull
     private final PsiPackage psiPackage;
+    @NotNull
+    private final GlobalSearchScope searchScope;
+
 
     /*package private*/ PackagePsiDeclarationProviderImpl(
-            @NotNull PsiPackage psiPackage
+            @NotNull PsiPackage psiPackage,
+            @NotNull GlobalSearchScope searchScope
     ) {
         this.psiPackage = psiPackage;
+        this.searchScope = searchScope;
     }
 
     @NotNull
@@ -51,7 +57,7 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
     @Override
     public Collection<Name> getDeclaredClasses() {
         List<Name> result = Lists.newArrayList();
-        for (PsiClass psiClass : getPsiPackage().getClasses()) {
+        for (PsiClass psiClass : getPsiPackage().getClasses(searchScope)) {
             if (getDeclarationOrigin() == KOTLIN && JvmAbi.PACKAGE_CLASS.equals(psiClass.getName())) {
                 continue;
             }

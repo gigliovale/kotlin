@@ -16,20 +16,29 @@
 
 package org.jetbrains.jet.jvm.compiler;
 
+import com.google.common.base.Predicates;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetTestUtils;
 import org.jetbrains.jet.TestJdkKind;
+import org.jetbrains.jet.analyzer.AnalyzeExhaust;
 import org.jetbrains.jet.cli.jvm.compiler.CompileEnvironmentUtil;
 import org.jetbrains.jet.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.jet.codegen.ClassFileFactory;
 import org.jetbrains.jet.codegen.GenerationUtils;
 import org.jetbrains.jet.config.CompilerConfiguration;
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.psi.JetFile;
+import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
+import org.jetbrains.jet.lang.resolve.AnalyzingUtils;
+import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM;
+import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.test.TestCaseWithTmpdir;
 
 import java.io.File;
@@ -37,6 +46,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createModuleDescriptorProviderForOneModule;
 
 public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWithTmpdir {
     private File aDir;
@@ -59,7 +71,7 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
 
     private void invokeMain() throws Exception {
         URLClassLoader classLoader = new URLClassLoader(
-                new URL[]{ aDir.toURI().toURL(), bDir.toURI().toURL() },
+                new URL[] {aDir.toURI().toURL(), bDir.toURI().toURL()},
                 AbstractCompileKotlinAgainstKotlinTest.class.getClassLoader()
         );
         Class<?> clazz = classLoader.loadClass("namespace");
@@ -89,7 +101,21 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
 
         JetFile psiFile = JetTestUtils.createFile(file.getName(), text, jetCoreEnvironment.getProject());
 
-        ClassFileFactory classFileFactory = GenerationUtils.compileFileGetClassFileFactoryForTest(psiFile);
+        AnalyzingUtils.checkForSyntacticErrors(psiFile);
+
+        Project project = psiFile.getProject();
+        ModuleDescriptor module = new ModuleDescriptor(Name.special("<module>"));
+        AnalyzeExhaust analyzeExhaust = AnalyzerFacadeForJVM
+                .analyzeFilesWithJavaIntegration(project, Collections.singleton(psiFile), Collections.<AnalyzerScriptParameter>emptyList(),
+                                                 Predicates.<PsiFile>alwaysTrue(), false,
+                                                 module,
+                                                 createModuleDescriptorProviderForOneModule(project, module)
+                );
+
+        AnalyzingUtils.throwExceptionOnErrors(analyzeExhaust.getBindingContext());
+
+        ClassFileFactory classFileFactory = GenerationUtils
+                .compileFilesGetGenerationState(psiFile.getProject(), analyzeExhaust, Collections.singletonList(psiFile)).getFactory();
 
         CompileEnvironmentUtil.writeToOutputDirectory(classFileFactory, outputDir);
 

@@ -3,17 +3,17 @@ package kotlin
 import java.util.*
 
 /** Returns the size of the collection */
-val Collection<*>.size : Int
+public val Collection<*>.size : Int
     get() = size()
 
 /** Returns true if this collection is empty */
-val Collection<*>.empty : Boolean
+public val Collection<*>.empty : Boolean
     get() = isEmpty()
 
-val Collection<*>.indices : IntRange
+public val Collection<*>.indices : IntRange
     get() = 0..size-1
 
-val Int.indices: IntRange
+public val Int.indices: IntRange
     get() = 0..this-1
 
 /**
@@ -70,7 +70,7 @@ public inline fun <in T> List<T>.sort(transform: fun(T) : java.lang.Comparable<*
  *
  * @includeFunctionBody ../../test/ListTest.kt first
  */
-val <T> List<T>.first : T?
+public val <T> List<T>.first : T?
     get() = this.head
 
 
@@ -79,7 +79,7 @@ val <T> List<T>.first : T?
  *
  * @includeFunctionBody ../../test/ListTest.kt last
  */
-val <T> List<T>.last : T?
+public val <T> List<T>.last : T?
     get() {
       val s = this.size
       return if (s > 0) this.get(s - 1) else null
@@ -90,7 +90,7 @@ val <T> List<T>.last : T?
  *
  * @includeFunctionBody ../../test/ListTest.kt lastIndex
  */
-val <T> List<T>.lastIndex : Int
+public val <T> List<T>.lastIndex : Int
     get() = this.size - 1
 
 /**
@@ -106,7 +106,7 @@ val <T> List<T>.head : T?
  *
  * @includeFunctionBody ../../test/ListTest.kt tail
  */
-val <T> List<T>.tail : List<T>
+public val <T> List<T>.tail : List<T>
     get() {
         return this.drop(1)
     }

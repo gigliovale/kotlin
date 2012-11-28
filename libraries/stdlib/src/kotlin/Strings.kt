@@ -46,8 +46,8 @@ public inline fun String?.orEmpty(): String = this ?: ""
 
 // "Extension functions" for CharSequence
 
-inline val CharSequence.size : Int
-get() = this.length
+public inline val CharSequence.size : Int
+    get() = this.length
 
 /**
  * Counts the number of characters which match the given predicate

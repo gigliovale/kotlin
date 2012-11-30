@@ -96,9 +96,9 @@ public class GenerateInjectors {
         DependencyInjectorGenerator generator = new DependencyInjectorGenerator(false);
         generator.implementInterface(InjectorForTopDownAnalyzer.class);
         generateInjectorForTopDownAnalyzerCommon(generator);
-        generator.addField(false, ModuleDescriptorProvider.class, null,
-                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory" +
-                                               ".createDefaultModuleDescriptorProvider(project)"));
+
+        generator.addParameter(ModuleDescriptorProvider.class);
+
         generator.addField(true, ModuleConfiguration.class, null, new InstantiateType(JavaBridgeConfiguration.class));
         generator.addField(JavaDescriptorResolver.class);
         generator.addField(PsiClassFinderImpl.class);
@@ -114,6 +114,7 @@ public class GenerateInjectors {
         generator.addPublicParameter(Project.class);
         generator.addPublicParameter(BindingTrace.class);
         generator.addPublicParameter(ModuleDescriptor.class);
+        generator.addParameter(ModuleDescriptorProvider.class);
 
 
         // Fields
@@ -121,9 +122,6 @@ public class GenerateInjectors {
         generator.addPublicField(JavaSemanticServices.class);
         generator.addPublicField(JavaDescriptorResolver.class);
         generator.addPublicField(PsiClassFinderImpl.class);
-        generator.addField(false, ModuleDescriptorProvider.class, null,
-                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory" +
-                                               ".createDefaultModuleDescriptorProvider(project)"));
 
 
         generator.generate("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForJavaDescriptorResolver",
@@ -189,13 +187,10 @@ public class GenerateInjectors {
         generator.addField(false, ModuleDescriptor.class, null,
                            new GivenExpression("new org.jetbrains.jet.lang.descriptors.ModuleDescriptor(" +
                                                "org.jetbrains.jet.lang.resolve.name.Name.special(\"<dummy>\"))"));
-        generator.addField(false, ModuleDescriptorProvider.class, null,
-                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory" +
-                                               ".createDefaultModuleDescriptorProvider(project)"));
 
         // Parameters
         generator.addPublicParameter(Project.class);
-
+        generator.addParameter(ModuleDescriptorProvider.class);
 
         generator.generate("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForJavaSemanticServices",
                            GenerateInjectors.class);

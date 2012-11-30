@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.JAVA_MODULE;
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 
 public class JetTypeCheckerTest extends JetLiteFixture {
 
@@ -629,7 +630,8 @@ public class JetTypeCheckerTest extends JetLiteFixture {
     private WritableScopeImpl addImports(JetScope scope) {
         WritableScopeImpl writableScope = new WritableScopeImpl(
                 scope, scope.getContainingDeclaration(), RedeclarationHandler.DO_NOTHING, "JetTypeCheckerTest.addImports");
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(getProject());
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(getProject(),
+                                                                                       createDefaultModuleDescriptorProvider(getProject()));
         JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
         writableScope.importScope(javaDescriptorResolver.resolveNamespace(FqName.ROOT, JAVA_MODULE).getMemberScope());
         writableScope.importScope(javaDescriptorResolver.resolveNamespace(new FqName("java.lang"), JAVA_MODULE).getMemberScope());

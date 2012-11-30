@@ -48,6 +48,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
+
 public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
 
     INSTANCE;
@@ -84,7 +86,8 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
         ModuleDescriptor javaModule = new ModuleDescriptor(Name.special("<java module>"));
 
         BindingTraceContext javaResolverTrace = new BindingTraceContext();
-        InjectorForJavaDescriptorResolver injector = new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace, javaModule);
+        InjectorForJavaDescriptorResolver injector = new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace, javaModule,
+                                                                               createDefaultModuleDescriptorProvider(fileProject));
 
         final PsiClassFinder psiClassFinder = injector.getPsiClassFinder();
 
@@ -193,7 +196,8 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
 
         InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
                 project, topDownAnalysisParameters,
-                new ObservableBindingTrace(bindingTraceContext), owner);
+                new ObservableBindingTrace(bindingTraceContext), owner,
+                createDefaultModuleDescriptorProvider(project));
         try {
             injector.getTopDownAnalyzer().analyzeFiles(files, scriptParameters);
             BodiesResolveContext bodiesResolveContext = storeContextForBodiesResolve ?

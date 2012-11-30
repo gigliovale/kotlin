@@ -16,6 +16,7 @@
 
 package org.jetbrains.jet.jvm.compiler;
 
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.ConfigurationKind;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 
 public abstract class AbstractJavaResolverDescriptorTest extends TestCaseWithTmpdir {
 
@@ -76,7 +79,9 @@ public abstract class AbstractJavaResolverDescriptorTest extends TestCaseWithTmp
                 new JetCoreEnvironment(myTestRootDisposable, JetTestUtils.compilerConfigurationForTests(
                         ConfigurationKind.JDK_ONLY, TestJdkKind.MOCK_JDK, JetTestUtils.getAnnotationsJar(), tmpdir));
 
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(jetCoreEnvironment.getProject());
+        Project project = jetCoreEnvironment.getProject();
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
+                                                                                       createDefaultModuleDescriptorProvider(project));
         javaDescriptorResolver = injector.getJavaDescriptorResolver();
     }
 }

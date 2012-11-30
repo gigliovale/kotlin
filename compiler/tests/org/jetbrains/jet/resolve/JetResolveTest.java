@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 import static org.jetbrains.jet.lang.types.expressions.ExpressionTypingUtils.resolveFakeCall;
 
 public class JetResolveTest extends ExtensibleResolveTestCase {
@@ -125,7 +126,8 @@ public class JetResolveTest extends ExtensibleResolveTestCase {
     @NotNull
     private PsiClass findClass(String qualifiedName) {
         Project project = getProject();
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
+                                                                                       createDefaultModuleDescriptorProvider(project));
         return injector.getPsiClassFinder().findPsiClass(new FqName(qualifiedName), PsiClassFinder.RuntimeClassesHandleMode.THROW);
     }
 

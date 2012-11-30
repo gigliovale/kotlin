@@ -66,6 +66,8 @@ import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
+
 public class ReplInterpreter {
 
     private int lineNumber = 0;
@@ -94,7 +96,8 @@ public class ReplInterpreter {
                 false,
                 true,
                 Collections.<AnalyzerScriptParameter>emptyList());
-        injector = new InjectorForTopDownAnalyzerForJvm(project, topDownAnalysisParameters, trace, module);
+        injector = new InjectorForTopDownAnalyzerForJvm(project, topDownAnalysisParameters,
+                                                        trace, module, createDefaultModuleDescriptorProvider(project));
 
         List<URL> classpath = Lists.newArrayList();
 

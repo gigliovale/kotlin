@@ -19,6 +19,7 @@ package org.jetbrains.jet.jvm.compiler.longTest;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -40,6 +41,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 
 public class ResolveDescriptorsFromExternalLibraries {
 
@@ -152,7 +155,9 @@ public class ResolveDescriptorsFromExternalLibraries {
         }
 
 
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(jetCoreEnvironment.getProject());
+        Project project = jetCoreEnvironment.getProject();
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
+                                                                                       createDefaultModuleDescriptorProvider(project));
 
         boolean hasErrors;
         try {

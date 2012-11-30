@@ -63,13 +63,15 @@ public class TestlibTest extends CodegenTestCase {
         try {
             setUp();
             return doBuildSuite();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw ExceptionUtils.rethrow(e);
         }
         finally {
             try {
                 tearDown();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 throw ExceptionUtils.rethrow(e);
             }
         }
@@ -87,68 +89,69 @@ public class TestlibTest extends CodegenTestCase {
 
             final GeneratedClassLoader loader = new GeneratedClassLoader(
                     classFileFactory,
-                    new URLClassLoader(new URL[]{ForTestCompileRuntime.runtimeJarForTests().toURI().toURL(), junitJar.toURI().toURL()},
+                    new URLClassLoader(new URL[] {ForTestCompileRuntime.runtimeJarForTests().toURI().toURL(), junitJar.toURI().toURL()},
                                        TestCase.class.getClassLoader()));
 
             JetTypeMapper typeMapper = generationState.getTypeMapper();
-            TestSuite suite = new TestSuite("stdlib_test");
             try {
-                for(JetFile jetFile : myEnvironment.getSourceFiles()) {
-                    for(JetDeclaration decl : jetFile.getDeclarations()) {
-                        if (decl instanceof JetClass) {
-                            JetClass jetClass = (JetClass) decl;
-
-                            ClassDescriptor descriptor = (ClassDescriptor) generationState.getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, jetClass);
-                            Set<JetType> allSuperTypes = new THashSet<JetType>();
-                            DescriptorUtils.addSuperTypes(descriptor.getDefaultType(), allSuperTypes);
-
-                            for(JetType type : allSuperTypes) {
-                                String internalName = typeMapper.mapType(type, JetTypeMapperMode.IMPL).getInternalName();
-                                if(internalName.equals("junit/framework/Test")) {
-                                    String name = typeMapper.mapType(descriptor.getDefaultType(), JetTypeMapperMode.IMPL).getInternalName();
-                                    System.out.println(name);
-                                    Class<TestCase> aClass = (Class<TestCase>) loader.loadClass(name.replace('/', '.'));
-                                    if ((aClass.getModifiers() & Modifier.ABSTRACT) == 0
-                                     && (aClass.getModifiers() & Modifier.PUBLIC) != 0) {
-                                        try {
-                                            Constructor<TestCase> constructor = aClass.getConstructor();
-                                            if (constructor != null && (constructor.getModifiers() & Modifier.PUBLIC) != 0) {
-                                                suite.addTestSuite(aClass);
-                                            }
-                                        }
-                                        //catch (final VerifyError e) {
-                                        //    suite.addTest(new TestCase(aClass.getName()) {
-                                        //        @Override
-                                        //        public int countTestCases() {
-                                        //            return 1;
-                                        //        }
-                                        //
-                                        //        @Override
-                                        //        public void run(TestResult result) {
-                                        //            result.addError(this, new RuntimeException(e));
-                                        //        }
-                                        //    });
-                                        //}
-                                        catch (NoSuchMethodException e) {
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
+                return buildTestSuite(generationState, loader, typeMapper);
             }
             finally {
                 typeMapper = null;
             }
-
-            return suite;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw ExceptionUtils.rethrow(e);
         }
     }
-    
+
+    private TestSuite buildTestSuite(GenerationState generationState, GeneratedClassLoader loader, JetTypeMapper typeMapper)
+            throws ClassNotFoundException {
+        TestSuite suite = new TestSuite("stdlib_test");
+        for (JetFile jetFile : myEnvironment.getSourceFiles()) {
+            for (JetDeclaration decl : jetFile.getDeclarations()) {
+                if (decl instanceof JetClass) {
+                    ClassDescriptor classDescriptor =
+                            (ClassDescriptor) generationState.getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, decl);
+                    mayBeAddTestCaseToTheSuite(loader, typeMapper, suite, classDescriptor);
+                }
+            }
+        }
+        return suite;
+    }
+
+    private static void mayBeAddTestCaseToTheSuite(
+            GeneratedClassLoader loader,
+            JetTypeMapper typeMapper,
+            TestSuite suite,
+            ClassDescriptor classDescriptor
+    ) throws ClassNotFoundException {
+
+        Set<JetType> allSuperTypes = new THashSet<JetType>();
+        DescriptorUtils.addSuperTypes(classDescriptor.getDefaultType(), allSuperTypes);
+
+        for (JetType type : allSuperTypes) {
+            String internalName = typeMapper.mapType(type, JetTypeMapperMode.IMPL).getInternalName();
+            if (internalName.equals("junit/framework/Test")) {
+                String name = typeMapper.mapType(classDescriptor.getDefaultType(), JetTypeMapperMode.IMPL).getInternalName();
+                System.out.println(name);
+                Class<TestCase> aClass = (Class<TestCase>) loader.loadClass(name.replace('/', '.'));
+                if ((aClass.getModifiers() & Modifier.ABSTRACT) == 0
+                    && (aClass.getModifiers() & Modifier.PUBLIC) != 0) {
+                    try {
+                        Constructor<TestCase> constructor = aClass.getConstructor();
+                        if (constructor != null && (constructor.getModifiers() & Modifier.PUBLIC) != 0) {
+                            suite.addTestSuite(aClass);
+                        }
+                    }
+                    catch (NoSuchMethodException e) {
+                    }
+                }
+                break;
+            }
+        }
+    }
+
     @Override
     public void setUp() throws Exception {
         super.setUp();

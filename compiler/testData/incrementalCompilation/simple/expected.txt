@@ -1,0 +1,13 @@
+package test
+
+public open class A {
+    public constructor A()
+}
+
+public open class B : test.A {
+    public constructor B()
+}
+
+internal final class C : test.B {
+    public constructor C()
+}

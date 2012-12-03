@@ -166,8 +166,7 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
             AnalyzingUtils.checkForSyntacticErrors(file); 
         }
        
-        AnalyzeExhaust analyzeExhaust = analyzeFilesWithJavaIntegration(
-                project, files, scriptParameters, filesToAnalyzeCompletely, false);
+        AnalyzeExhaust analyzeExhaust = analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, false);
 
         AnalyzingUtils.throwExceptionOnErrors(analyzeExhaust.getBindingContext());
 
@@ -180,24 +179,41 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
             List<AnalyzerScriptParameter> scriptParameters,
             Predicate<PsiFile> filesToAnalyzeCompletely
     ) {
-        return analyzeFilesWithJavaIntegration(
-                project, files, scriptParameters, filesToAnalyzeCompletely, false);
+        return analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, false);
     }
 
     public static AnalyzeExhaust analyzeFilesWithJavaIntegration(
-            Project project, Collection<JetFile> files, List<AnalyzerScriptParameter> scriptParameters, Predicate<PsiFile> filesToAnalyzeCompletely,
-            boolean storeContextForBodiesResolve) {
-        BindingTraceContext bindingTraceContext = new BindingTraceContext();
+        Project project,
+        Collection<JetFile> files,
+        List<AnalyzerScriptParameter> scriptParameters,
+        Predicate<PsiFile> filesToAnalyzeCompletely,
+        boolean storeContextForBodiesResolve
+) {
+        return analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, storeContextForBodiesResolve,
+                                               new ModuleDescriptor(Name.special("<module>")),
+                                               createDefaultModuleDescriptorProvider(project)
+        );
+    }
 
-        final ModuleDescriptor owner = new ModuleDescriptor(Name.special("<module>"));
+    public static AnalyzeExhaust analyzeFilesWithJavaIntegration(
+            Project project,
+            Collection<JetFile> files,
+            List<AnalyzerScriptParameter> scriptParameters,
+            Predicate<PsiFile> filesToAnalyzeCompletely,
+            boolean storeContextForBodiesResolve,
+            ModuleDescriptor kotlinModuleToBeCompiled,
+            ModuleDescriptorProvider moduleDescriptorProvider
+    ) {
+        BindingTraceContext bindingTraceContext = new BindingTraceContext();
 
         TopDownAnalysisParameters topDownAnalysisParameters = new TopDownAnalysisParameters(
                 filesToAnalyzeCompletely, false, false, scriptParameters);
 
         InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
                 project, topDownAnalysisParameters,
-                new ObservableBindingTrace(bindingTraceContext), owner,
-                createDefaultModuleDescriptorProvider(project));
+                new ObservableBindingTrace(bindingTraceContext),
+                kotlinModuleToBeCompiled,
+                moduleDescriptorProvider);
         try {
             injector.getTopDownAnalyzer().analyzeFiles(files, scriptParameters);
             BodiesResolveContext bodiesResolveContext = storeContextForBodiesResolve ?

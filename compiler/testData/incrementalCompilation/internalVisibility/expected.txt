@@ -1,0 +1,9 @@
+package test
+
+internal open class A {
+    public constructor A()
+}
+
+internal open class B : test.A {
+    public constructor B()
+}

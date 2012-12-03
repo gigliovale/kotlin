@@ -35,6 +35,7 @@ public final class ModuleDescriptorProviderFactory {
     @NotNull
     public static final ModuleDescriptor JAVA_MODULE = new ModuleDescriptor(Name.special("<java_root>"));
 
+    // puts every java file read under dummy JAVA_MODULE
     @NotNull
     public static ModuleDescriptorProvider createDefaultModuleDescriptorProvider(@NotNull final Project project) {
 
@@ -66,6 +67,34 @@ public final class ModuleDescriptorProviderFactory {
                     return javaSearchScope;
                 }
                 throw new IllegalStateException();
+            }
+        };
+    }
+
+    // puts everything under specified module
+    @NotNull
+    public static ModuleDescriptorProvider createModuleDescriptorProviderForOneModule(
+            @NotNull final Project project,
+            @NotNull final ModuleDescriptor kotlinModule
+    ) {
+        return new ModuleDescriptorProvider() {
+            @NotNull
+            @Override
+            public ModuleDescriptor getModule(@NotNull VirtualFile file) {
+                return kotlinModule;
+            }
+
+            @NotNull
+            @Override
+            public Collection<ModuleDescriptor> getAllModules() {
+                return Collections.singletonList(kotlinModule);
+            }
+
+            @NotNull
+            @Override
+            public GlobalSearchScope getSearchScopeForModule(@NotNull ModuleDescriptor descriptor) {
+                assert kotlinModule == descriptor;
+                return GlobalSearchScope.allScope(project);
             }
         };
     }

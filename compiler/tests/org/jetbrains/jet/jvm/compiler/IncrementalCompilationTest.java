@@ -19,9 +19,7 @@ package org.jetbrains.jet.jvm.compiler;
 import com.google.common.base.Predicates;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.TestJdkKind;
@@ -34,16 +32,12 @@ import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
-import org.jetbrains.jet.lang.resolve.AnalyzingUtils;
-import org.jetbrains.jet.lang.resolve.BindingContext;
-import org.jetbrains.jet.lang.resolve.ModuleDescriptorProvider;
+import org.jetbrains.jet.lang.resolve.*;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.test.TestCaseWithTmpdir;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Collections;
 
 import static org.jetbrains.jet.JetTestUtils.compilerConfigurationForTests;
@@ -74,7 +68,8 @@ public class IncrementalCompilationTest extends TestCaseWithTmpdir {
         Project project = environment.getProject();
         JetFile jetFile = createFile(project, FileUtil.loadFile(file, true));
         ModuleDescriptor kotlinModule = new ModuleDescriptor(Name.special("<module>"));
-        ModuleDescriptorProvider moduleDescriptorProvider = createModuleDescriptorProvider(project, kotlinModule);
+        ModuleDescriptorProvider moduleDescriptorProvider = ModuleDescriptorProviderFactory
+                .createModuleDescriptorProviderForOneModule(project, kotlinModule);
         AnalyzeExhaust exhaust = analyzeFilesWithJavaIntegration(project, Collections.singletonList(jetFile),
                                                                  Collections.<AnalyzerScriptParameter>emptyList(),
                                                                  Predicates.<PsiFile>alwaysTrue(),
@@ -85,33 +80,6 @@ public class IncrementalCompilationTest extends TestCaseWithTmpdir {
         ClassFileFactory classFileFactory = state.getFactory();
         CompileEnvironmentUtil.writeToOutputDirectory(classFileFactory, tmpdir);
         return exhaust;
-    }
-
-    @NotNull
-    private static ModuleDescriptorProvider createModuleDescriptorProvider(
-            @NotNull final Project project,
-            @NotNull final ModuleDescriptor kotlinModule
-    ) {
-        return new ModuleDescriptorProvider() {
-            @NotNull
-            @Override
-            public ModuleDescriptor getModule(@NotNull VirtualFile file) {
-                return kotlinModule;
-            }
-
-            @NotNull
-            @Override
-            public Collection<ModuleDescriptor> getAllModules() {
-                return Collections.singletonList(kotlinModule);
-            }
-
-            @NotNull
-            @Override
-            public GlobalSearchScope getSearchScopeForModule(@NotNull ModuleDescriptor descriptor) {
-                assert kotlinModule == descriptor;
-                return GlobalSearchScope.allScope(project);
-            }
-        };
     }
 
     public void testSimple() throws Exception {

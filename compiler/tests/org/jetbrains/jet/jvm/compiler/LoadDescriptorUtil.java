@@ -104,8 +104,6 @@ public final class LoadDescriptorUtil {
             @NotNull Disposable disposable,
             @NotNull ConfigurationKind configurationKind
     ) {
-        Disposer.dispose(disposable);
-
         CompilerConfiguration configuration = JetTestUtils.compilerConfigurationForTests(
                 configurationKind, TestJdkKind.MOCK_JDK, JetTestUtils.getAnnotationsJar(), outDir,
                 ForTestCompileRuntime.runtimeJarForTests());

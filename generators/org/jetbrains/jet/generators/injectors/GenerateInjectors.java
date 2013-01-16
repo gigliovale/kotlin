@@ -113,7 +113,6 @@ public class GenerateInjectors {
         // Parameters
         generator.addPublicParameter(Project.class);
         generator.addPublicParameter(BindingTrace.class);
-        generator.addPublicParameter(ModuleDescriptor.class);
         generator.addParameter(ModuleDescriptorProvider.class);
 
 

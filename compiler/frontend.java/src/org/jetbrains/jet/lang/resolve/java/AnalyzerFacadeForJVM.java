@@ -86,8 +86,8 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
         ModuleDescriptor javaModule = new ModuleDescriptor(Name.special("<java module>"));
 
         BindingTraceContext javaResolverTrace = new BindingTraceContext();
-        InjectorForJavaDescriptorResolver injector = new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace, javaModule,
-                                                                               createDefaultModuleDescriptorProvider(fileProject));
+        InjectorForJavaDescriptorResolver injector =
+                new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace, createDefaultModuleDescriptorProvider(fileProject));
 
         final PsiClassFinder psiClassFinder = injector.getPsiClassFinder();
 

@@ -19,7 +19,6 @@ package org.jetbrains.jet.di;
 
 import com.intellij.openapi.project.Project;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.resolve.ModuleDescriptorProvider;
 import org.jetbrains.jet.lang.resolve.java.JavaBridgeConfiguration;
 import org.jetbrains.jet.lang.resolve.java.JavaSemanticServices;
@@ -46,7 +45,6 @@ public class InjectorForJavaDescriptorResolver {
 
     private final Project project;
     private final BindingTrace bindingTrace;
-    private final ModuleDescriptor moduleDescriptor;
     private final ModuleDescriptorProvider moduleDescriptorProvider;
     private JavaBridgeConfiguration javaBridgeConfiguration;
     private JavaSemanticServices javaSemanticServices;
@@ -69,12 +67,10 @@ public class InjectorForJavaDescriptorResolver {
     public InjectorForJavaDescriptorResolver(
         @NotNull Project project,
         @NotNull BindingTrace bindingTrace,
-        @NotNull ModuleDescriptor moduleDescriptor,
         @NotNull ModuleDescriptorProvider moduleDescriptorProvider
     ) {
         this.project = project;
         this.bindingTrace = bindingTrace;
-        this.moduleDescriptor = moduleDescriptor;
         this.moduleDescriptorProvider = moduleDescriptorProvider;
         this.javaBridgeConfiguration = new JavaBridgeConfiguration();
         this.javaSemanticServices = new JavaSemanticServices();
@@ -181,10 +177,6 @@ public class InjectorForJavaDescriptorResolver {
 
     public BindingTrace getBindingTrace() {
         return this.bindingTrace;
-    }
-
-    public ModuleDescriptor getModuleDescriptor() {
-        return this.moduleDescriptor;
     }
 
     public JavaSemanticServices getJavaSemanticServices() {

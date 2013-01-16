@@ -83,8 +83,7 @@ public class LazyResolveTestUtil {
 
         final Project project = environment.getProject();
         InjectorForJavaDescriptorResolver injector =
-                new InjectorForJavaDescriptorResolver(project, new BindingTraceContext(), javaModule,
-                                                      createDefaultModuleDescriptorProvider(project));
+                new InjectorForJavaDescriptorResolver(project, new BindingTraceContext(), createDefaultModuleDescriptorProvider(project));
         final PsiClassFinder psiClassFinder = injector.getPsiClassFinder();
         final JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
 

@@ -57,7 +57,7 @@ public final class KotlinNamespacePsiDeclarationProvider extends ClassPsiDeclara
     @Override
     protected MembersCache buildMembersCache() {
         MembersCache cacheWithMembers = super.buildMembersCache();
-        MembersCache.buildMembersByNameCache(cacheWithMembers, null, packagePsiDeclarationProvider.getPsiPackage(), true,
+        MembersCache.buildMembersByNameCache(cacheWithMembers, null, packagePsiDeclarationProvider.getPsiClasses(), true,
                                              getDeclarationOrigin() == KOTLIN);
         return cacheWithMembers;
     }

@@ -17,6 +17,7 @@
 package org.jetbrains.jet.lang.resolve.java.provider;
 
 import com.intellij.psi.*;
+import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.resolve.java.JvmAbi;
@@ -59,25 +60,24 @@ public final class MembersCache {
 
     @NotNull
     public static MembersCache buildMembersByNameCache(
-            @NotNull MembersCache membersCache, @Nullable PsiClass psiClass,
-            @Nullable PsiPackage psiPackage,
+            @NotNull MembersCache membersCache,
+            @Nullable ClassPsiDeclarationProvider classPsiDeclarationProvider,
+            @NotNull Collection<PsiClass> psiClassesCandidatesForObjects,
             boolean staticMembers,
             boolean isKotlin
     ) {
-        if (psiClass != null) {
-            membersCache.new ClassMemberProcessor(new PsiClassWrapper(psiClass), staticMembers, isKotlin).process();
+        if (classPsiDeclarationProvider != null) {
+            membersCache.new ClassMemberProcessor(new PsiClassWrapper(classPsiDeclarationProvider.getPsiClass()), staticMembers, isKotlin).process();
         }
-        //TODO:
-        PsiClass[] classes = psiPackage != null ? psiPackage.getClasses() : psiClass.getInnerClasses();
-        membersCache.new ObjectClassProcessor(classes).process();
+        membersCache.new ObjectClassProcessor(psiClassesCandidatesForObjects).process();
         return membersCache;
     }
 
     private class ObjectClassProcessor {
         @NotNull
-        private final PsiClass[] psiClasses;
+        private final Collection<PsiClass> psiClasses;
 
-        private ObjectClassProcessor(@NotNull PsiClass[] classes) {
+        private ObjectClassProcessor(@NotNull Collection<PsiClass> classes) {
             psiClasses = classes;
         }
 

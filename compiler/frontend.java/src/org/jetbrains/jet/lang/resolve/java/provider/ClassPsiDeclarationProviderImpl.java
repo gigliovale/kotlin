@@ -1,9 +1,12 @@
 package org.jetbrains.jet.lang.resolve.java.provider;
 
+import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.resolve.java.DescriptorResolverUtils;
+
+import java.util.Collections;
 
 import static org.jetbrains.jet.lang.resolve.java.provider.DeclarationOrigin.JAVA;
 import static org.jetbrains.jet.lang.resolve.java.provider.DeclarationOrigin.KOTLIN;
@@ -27,7 +30,8 @@ public class ClassPsiDeclarationProviderImpl extends PsiDeclarationProviderBase 
     @Override
     @NotNull
     protected MembersCache buildMembersCache() {
-        return MembersCache.buildMembersByNameCache(new MembersCache(), psiClass, null, staticMembers, getDeclarationOrigin() == KOTLIN);
+        return MembersCache.buildMembersByNameCache(new MembersCache(), this, Lists.newArrayList(psiClass.getInnerClasses()),
+                                                    staticMembers, getDeclarationOrigin() == KOTLIN);
     }
 
     @Override

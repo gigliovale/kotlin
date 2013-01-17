@@ -16,6 +16,8 @@
 
 package org.jetbrains.jet.lang.resolve.java.provider;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiModifier;
@@ -56,7 +58,30 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
     @NotNull
     @Override
     public Collection<Name> getDeclaredClasses() {
+        return Collections2.transform(getPsiClasses(), new Function<PsiClass, Name>() {
+            @Override
+            public Name apply(PsiClass input) {
+                return Name.identifier(input.getName());
+            }
+        });
+    }
+
+    @NotNull
+    @Override
+    public Collection<Name> getDeclaredPackages() {
         List<Name> result = Lists.newArrayList();
+        for (PsiPackage psiSubPackage : getPsiPackage().getSubPackages()) {
+            String subPackageName = psiSubPackage.getName();
+            assert subPackageName != null : "All packages except root package must have names";
+            result.add(Name.identifier(subPackageName));
+        }
+        return result;
+    }
+
+    //NOTE: may be better to cache the result
+    @NotNull
+    public Collection<PsiClass> getPsiClasses() {
+        List<PsiClass> result = Lists.newArrayList();
         for (PsiClass psiClass : getPsiPackage().getClasses(searchScope)) {
             if (getDeclarationOrigin() == KOTLIN && JvmAbi.PACKAGE_CLASS.equals(psiClass.getName())) {
                 continue;
@@ -75,19 +100,7 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
                 continue;
             }
 
-            result.add(Name.identifier(psiClass.getName()));
-        }
-        return result;
-    }
-
-    @NotNull
-    @Override
-    public Collection<Name> getDeclaredPackages() {
-        List<Name> result = Lists.newArrayList();
-        for (PsiPackage psiSubPackage : getPsiPackage().getSubPackages()) {
-            String subPackageName = psiSubPackage.getName();
-            assert subPackageName != null : "All packages except root package must have names";
-            result.add(Name.identifier(subPackageName));
+            result.add(psiClass);
         }
         return result;
     }
@@ -95,7 +108,7 @@ public final class PackagePsiDeclarationProviderImpl extends PsiDeclarationProvi
     @NotNull
     @Override
     protected MembersCache buildMembersCache() {
-        return MembersCache.buildMembersByNameCache(new MembersCache(), null, getPsiPackage(), true, getDeclarationOrigin() == KOTLIN);
+        return MembersCache.buildMembersByNameCache(new MembersCache(), null, getPsiClasses(), true, getDeclarationOrigin() == KOTLIN);
     }
 
     @NotNull

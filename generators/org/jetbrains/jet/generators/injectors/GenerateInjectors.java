@@ -77,6 +77,7 @@ public class GenerateInjectors {
     private static void generateInjectorForTopDownAnalyzerBasic() throws IOException {
         DependencyInjectorGenerator generator = new DependencyInjectorGenerator(false);
         generateInjectorForTopDownAnalyzerCommon(generator);
+        generator.addParameter(ModuleDescriptor.class);
         generator.addParameter(ModuleConfiguration.class);
         generator.addField(DependencyClassByQualifiedNameResolverDummyImpl.class);
         generator.addField(NamespaceFactoryImpl.class);
@@ -86,6 +87,7 @@ public class GenerateInjectors {
     private static void generateInjectorForTopDownAnalyzerForJs() throws IOException {
         DependencyInjectorGenerator generator = new DependencyInjectorGenerator(false);
         generateInjectorForTopDownAnalyzerCommon(generator);
+        generator.addParameter(ModuleDescriptor.class);
         generator.addPublicParameter(ModuleConfiguration.class);
         generator.addField(DependencyClassByQualifiedNameResolverDummyImpl.class);
         generator.addField(NamespaceFactoryImpl.class);
@@ -96,6 +98,8 @@ public class GenerateInjectors {
         DependencyInjectorGenerator generator = new DependencyInjectorGenerator(false);
         generator.implementInterface(InjectorForTopDownAnalyzer.class);
         generateInjectorForTopDownAnalyzerCommon(generator);
+        generator.addField(false, ModuleDescriptor.class, "moduleToAnalyze",
+                           new GivenExpression("moduleDescriptorProvider.getCurrentModule()"));
 
         generator.addParameter(ModuleDescriptorProvider.class);
 
@@ -140,7 +144,6 @@ public class GenerateInjectors {
         generator.addPublicParameter(Project.class);
         generator.addPublicParameter(TopDownAnalysisParameters.class);
         generator.addPublicParameter(BindingTrace.class);
-        generator.addParameter(ModuleDescriptor.class);
     }
 
     private static void generateMacroInjector() throws IOException {
@@ -184,7 +187,7 @@ public class GenerateInjectors {
         generator.addField(JavaBridgeConfiguration.class);
         generator.addPublicField(PsiClassFinderImpl.class);
         generator.addField(false, ModuleDescriptorProvider.class, null,
-                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider(project)"));
+                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider(project, \"dummy\")"));
 
         // Parameters
         generator.addPublicParameter(Project.class);

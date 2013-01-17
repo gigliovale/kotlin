@@ -16,6 +16,7 @@
 
 package org.jetbrains.jet.lang.resolve;
 
+import com.google.common.collect.Lists;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.search.DelegatingGlobalSearchScope;
@@ -29,17 +30,29 @@ import java.util.Collection;
 import java.util.Collections;
 
 public final class ModuleDescriptorProviderFactory {
+
+    public static final String JAVA_MODULE_NAME = "<java_root>";
+
     private ModuleDescriptorProviderFactory() {
     }
 
+    // puts every java file read under dummy javaModule and every kotlin file under kotlinModule
     @NotNull
-    public static final ModuleDescriptor JAVA_MODULE = new ModuleDescriptor(Name.special("<java_root>"));
+    public static ModuleDescriptorProvider createDefaultModuleDescriptorProvider(
+            @NotNull final Project project, @NotNull String moduleName
+    ) {
+        return createDefaultModuleDescriptorProvider(project, new ModuleDescriptor(Name.special("<" + moduleName + ">")));
+    }
 
-    // puts every java file read under dummy JAVA_MODULE
+    // puts every java file read under dummy javaModule and every kotlin file under kotlinModule
     @NotNull
-    public static ModuleDescriptorProvider createDefaultModuleDescriptorProvider(@NotNull final Project project) {
-
+    public static ModuleDescriptorProvider createDefaultModuleDescriptorProvider(
+            @NotNull final Project project,
+            @NotNull final ModuleDescriptor kotlinModule
+    ) {
         return new ModuleDescriptorProvider() {
+            @NotNull
+            public final ModuleDescriptor javaModule = new ModuleDescriptor(Name.special(JAVA_MODULE_NAME));
             @NotNull
             private final GlobalSearchScope javaSearchScope = new DelegatingGlobalSearchScope(GlobalSearchScope.allScope(project)) {
                 @Override
@@ -48,25 +61,38 @@ public final class ModuleDescriptorProviderFactory {
                 }
             };
 
+            private final GlobalSearchScope kotlinSearchScope = new DelegatingGlobalSearchScope(GlobalSearchScope.allScope(project)) {
+                @Override
+                public boolean contains(VirtualFile file) {
+                    return myBaseScope.contains(file) && file.getFileType() == JetFileType.INSTANCE;
+                }
+            };
+
             @NotNull
             @Override
             public ModuleDescriptor getModule(@NotNull VirtualFile file) {
-                return JAVA_MODULE;
+                return javaSearchScope.contains(file) ? javaModule : kotlinModule;
             }
 
             @NotNull
             @Override
             public Collection<ModuleDescriptor> getAllModules() {
-                return Collections.singletonList(JAVA_MODULE);
+                return Lists.newArrayList(kotlinModule, javaModule);
             }
 
             @NotNull
             @Override
             public GlobalSearchScope getSearchScopeForModule(@NotNull ModuleDescriptor descriptor) {
-                if (descriptor == JAVA_MODULE) {
+                if (descriptor == javaModule) {
                     return javaSearchScope;
                 }
-                throw new IllegalStateException();
+                return kotlinSearchScope;
+            }
+
+            @NotNull
+            @Override
+            public ModuleDescriptor getCurrentModule() {
+                return kotlinModule;
             }
         };
     }
@@ -74,27 +100,41 @@ public final class ModuleDescriptorProviderFactory {
     // puts everything under specified module
     @NotNull
     public static ModuleDescriptorProvider createModuleDescriptorProviderForOneModule(
+            @NotNull Project project, @NotNull String moduleName
+    ) {
+        return createModuleDescriptorProviderForOneModule(project, new ModuleDescriptor(Name.special("<" + moduleName + ">")));
+    }
+
+    // puts everything under specified module
+    @NotNull
+    public static ModuleDescriptorProvider createModuleDescriptorProviderForOneModule(
             @NotNull final Project project,
-            @NotNull final ModuleDescriptor kotlinModule
+            @NotNull final ModuleDescriptor module
     ) {
         return new ModuleDescriptorProvider() {
             @NotNull
             @Override
             public ModuleDescriptor getModule(@NotNull VirtualFile file) {
-                return kotlinModule;
+                return module;
             }
 
             @NotNull
             @Override
             public Collection<ModuleDescriptor> getAllModules() {
-                return Collections.singletonList(kotlinModule);
+                return Collections.singletonList(module);
             }
 
             @NotNull
             @Override
             public GlobalSearchScope getSearchScopeForModule(@NotNull ModuleDescriptor descriptor) {
-                assert kotlinModule == descriptor;
+                assert module == descriptor;
                 return GlobalSearchScope.allScope(project);
+            }
+
+            @NotNull
+            @Override
+            public ModuleDescriptor getCurrentModule() {
+                return module;
             }
         };
     }

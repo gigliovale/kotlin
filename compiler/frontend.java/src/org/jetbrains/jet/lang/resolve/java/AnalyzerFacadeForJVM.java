@@ -49,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createModuleDescriptorProviderForOneModule;
 
 public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
 
@@ -83,11 +84,10 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
     @NotNull
     @Override
     public ResolveSession getLazyResolveSession(@NotNull final Project fileProject, @NotNull Collection<JetFile> files) {
-        ModuleDescriptor javaModule = new ModuleDescriptor(Name.special("<java module>"));
-
         BindingTraceContext javaResolverTrace = new BindingTraceContext();
         InjectorForJavaDescriptorResolver injector =
-                new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace, createDefaultModuleDescriptorProvider(fileProject));
+                new InjectorForJavaDescriptorResolver(fileProject, javaResolverTrace,
+                                                      createModuleDescriptorProviderForOneModule(fileProject, "java module"));
 
         final PsiClassFinder psiClassFinder = injector.getPsiClassFinder();
 
@@ -190,8 +190,7 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
         boolean storeContextForBodiesResolve
 ) {
         return analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, storeContextForBodiesResolve,
-                                               new ModuleDescriptor(Name.special("<module>")),
-                                               createDefaultModuleDescriptorProvider(project)
+                                               createDefaultModuleDescriptorProvider(project, "module")
         );
     }
 
@@ -201,7 +200,6 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
             List<AnalyzerScriptParameter> scriptParameters,
             Predicate<PsiFile> filesToAnalyzeCompletely,
             boolean storeContextForBodiesResolve,
-            ModuleDescriptor kotlinModuleToBeCompiled,
             ModuleDescriptorProvider moduleDescriptorProvider
     ) {
         BindingTraceContext bindingTraceContext = new BindingTraceContext();
@@ -212,7 +210,6 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
         InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
                 project, topDownAnalysisParameters,
                 new ObservableBindingTrace(bindingTraceContext),
-                kotlinModuleToBeCompiled,
                 moduleDescriptorProvider);
         try {
             injector.getTopDownAnalyzer().analyzeFiles(files, scriptParameters);

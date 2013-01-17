@@ -24,7 +24,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.CompileCompilerDependenciesTest;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetTestUtils;
 import org.jetbrains.jet.TestJdkKind;
@@ -40,7 +39,6 @@ import org.jetbrains.jet.codegen.state.JetTypeMapperMode;
 import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.psi.JetClass;
 import org.jetbrains.jet.lang.psi.JetDeclaration;
 import org.jetbrains.jet.lang.psi.JetFile;
@@ -48,7 +46,6 @@ import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM;
-import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.parsing.JetParsingTest;
 import org.jetbrains.jet.utils.ExceptionUtils;
@@ -120,13 +117,11 @@ public class TestlibTest extends CodegenTestCase {
         // we need to compile our test code as if it is in the same module with our library code
         // but compiled library is in runtime jar
         // so we hack ModuleDescriptorProvider so it always returns the same module
-        ModuleDescriptor kotlinModuleToBeCompiled = new ModuleDescriptor(Name.special("<module>"));
         final AnalyzeExhaust analyzeExhaust = AnalyzerFacadeForJVM
                 .analyzeFilesWithJavaIntegration(project, files, Collections.<AnalyzerScriptParameter>emptyList(),
                                                  Predicates.<PsiFile>alwaysTrue(),
                                                  false,
-                                                 kotlinModuleToBeCompiled,
-                                                 createModuleDescriptorProviderForOneModule(project, kotlinModuleToBeCompiled)
+                                                 createModuleDescriptorProviderForOneModule(project, "module")
                 );
         return GenerationUtils.compileFilesGetGenerationState(project, analyzeExhaust, files);
     }

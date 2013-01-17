@@ -40,7 +40,6 @@ import org.jetbrains.jet.codegen.CompilationErrorHandler;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptorImpl;
 import org.jetbrains.jet.lang.descriptors.NamespaceLikeBuilderDummy;
 import org.jetbrains.jet.lang.descriptors.ScriptDescriptor;
@@ -48,7 +47,6 @@ import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.*;
 import org.jetbrains.jet.lang.resolve.java.JvmClassName;
 import org.jetbrains.jet.lang.resolve.name.FqName;
-import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl;
@@ -70,6 +68,8 @@ import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.cre
 
 public class ReplInterpreter {
 
+    @NotNull
+    private final ModuleDescriptorProvider moduleDescriptorProvider;
     private int lineNumber = 0;
     @Nullable
     private JetScope lastLineScope;
@@ -83,21 +83,19 @@ public class ReplInterpreter {
     private final JetCoreEnvironment jetCoreEnvironment;
     @NotNull
     private final BindingTraceContext trace;
-    @NotNull
-    private final ModuleDescriptor module;
 
     public ReplInterpreter(@NotNull Disposable disposable, @NotNull CompilerConfiguration configuration) {
         jetCoreEnvironment = new JetCoreEnvironment(disposable, configuration);
         Project project = jetCoreEnvironment.getProject();
         trace = new BindingTraceContext();
-        module = new ModuleDescriptor(Name.special("<repl>"));
         TopDownAnalysisParameters topDownAnalysisParameters = new TopDownAnalysisParameters(
                 Predicates.<PsiFile>alwaysTrue(),
                 false,
                 true,
                 Collections.<AnalyzerScriptParameter>emptyList());
+        moduleDescriptorProvider = createDefaultModuleDescriptorProvider(project, "repl");
         injector = new InjectorForTopDownAnalyzerForJvm(project, topDownAnalysisParameters,
-                                                        trace, module, createDefaultModuleDescriptorProvider(project));
+                                                        trace, moduleDescriptorProvider);
 
         List<URL> classpath = Lists.newArrayList();
 
@@ -272,7 +270,7 @@ public class ReplInterpreter {
     @Nullable
     private ScriptDescriptor doAnalyze(@NotNull JetFile psiFile, @NotNull MessageCollector messageCollector) {
         final WritableScope scope = new WritableScopeImpl(
-                JetScope.EMPTY, module,
+                JetScope.EMPTY, moduleDescriptorProvider.getCurrentModule(),
                 new TraceBasedRedeclarationHandler(trace), "Root scope in analyzeNamespace");
 
         scope.changeLockLevel(WritableScope.LockLevel.BOTH);

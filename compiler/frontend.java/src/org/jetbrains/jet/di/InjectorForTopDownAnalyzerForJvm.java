@@ -76,7 +76,7 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
     private final Project project;
     private final TopDownAnalysisParameters topDownAnalysisParameters;
     private final BindingTrace bindingTrace;
-    private final ModuleDescriptor moduleDescriptor;
+    private ModuleDescriptor moduleToAnalyze;
     private final ModuleDescriptorProvider moduleDescriptorProvider;
     private JavaBridgeConfiguration moduleConfiguration;
     private JavaDescriptorResolver javaDescriptorResolver;
@@ -115,7 +115,6 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         @NotNull Project project,
         @NotNull TopDownAnalysisParameters topDownAnalysisParameters,
         @NotNull BindingTrace bindingTrace,
-        @NotNull ModuleDescriptor moduleDescriptor,
         @NotNull ModuleDescriptorProvider moduleDescriptorProvider
     ) {
         this.topDownAnalyzer = new TopDownAnalyzer();
@@ -127,7 +126,7 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         this.project = project;
         this.topDownAnalysisParameters = topDownAnalysisParameters;
         this.bindingTrace = bindingTrace;
-        this.moduleDescriptor = moduleDescriptor;
+        this.moduleToAnalyze = moduleDescriptorProvider.getCurrentModule();
         this.moduleDescriptorProvider = moduleDescriptorProvider;
         this.moduleConfiguration = new JavaBridgeConfiguration();
         this.javaDescriptorResolver = new JavaDescriptorResolver();
@@ -165,7 +164,7 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         this.topDownAnalyzer.setBodyResolver(bodyResolver);
         this.topDownAnalyzer.setContext(topDownAnalysisContext);
         this.topDownAnalyzer.setDeclarationResolver(declarationResolver);
-        this.topDownAnalyzer.setModuleDescriptor(moduleDescriptor);
+        this.topDownAnalyzer.setModuleDescriptor(moduleToAnalyze);
         this.topDownAnalyzer.setNamespaceFactory(namespaceFactory);
         this.topDownAnalyzer.setOverloadResolver(overloadResolver);
         this.topDownAnalyzer.setOverrideResolver(overrideResolver);
@@ -208,7 +207,7 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         psiClassFinder.setProject(project);
 
         this.namespaceFactory.setConfiguration(moduleConfiguration);
-        this.namespaceFactory.setModuleDescriptor(moduleDescriptor);
+        this.namespaceFactory.setModuleDescriptor(moduleToAnalyze);
         this.namespaceFactory.setTrace(bindingTrace);
 
         declarationResolver.setAnnotationResolver(annotationResolver);

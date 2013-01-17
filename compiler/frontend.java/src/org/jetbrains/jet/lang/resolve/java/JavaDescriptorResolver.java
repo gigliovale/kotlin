@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.ModuleDescriptorProvider;
+import org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory;
 import org.jetbrains.jet.lang.resolve.java.provider.ClassPsiDeclarationProvider;
 import org.jetbrains.jet.lang.resolve.java.provider.PsiDeclarationProvider;
 import org.jetbrains.jet.lang.resolve.java.resolver.*;
@@ -35,9 +36,8 @@ import org.jetbrains.jet.lang.types.JetType;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.JAVA_MODULE;
 
 public class JavaDescriptorResolver implements DependencyClassByQualifiedNameResolver {
 
@@ -132,7 +132,15 @@ public class JavaDescriptorResolver implements DependencyClassByQualifiedNameRes
 
     @Override
     public NamespaceDescriptor resolveNamespace(@NotNull FqName qualifiedName) {
-        return namespaceResolver.resolveNamespace(qualifiedName).get(JAVA_MODULE);
+        //TODO: this is a hacky way to support existing code
+        Map<ModuleDescriptor,NamespaceDescriptor> moduleToNamespace = namespaceResolver.resolveNamespace(qualifiedName);
+        for (Map.Entry<ModuleDescriptor, NamespaceDescriptor> moduleAndNamespace : moduleToNamespace.entrySet()) {
+            ModuleDescriptor module = moduleAndNamespace.getKey();
+            if (module.getName().getName().equals(ModuleDescriptorProviderFactory.JAVA_MODULE_NAME)) {
+                return moduleAndNamespace.getValue();
+            }
+        }
+        return null;
     }
 
     @NotNull

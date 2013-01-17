@@ -67,8 +67,8 @@ public class LazyResolveTestUtil {
         TopDownAnalysisParameters params = new TopDownAnalysisParameters(
                 Predicates.<PsiFile>alwaysTrue(), false, false, Collections.<AnalyzerScriptParameter>emptyList());
         Project project = environment.getProject();
-        return new InjectorForTopDownAnalyzerForJvm(project, params, new BindingTraceContext(), module,
-                                                    createDefaultModuleDescriptorProvider(project));
+        return new InjectorForTopDownAnalyzerForJvm(project, params, new BindingTraceContext(),
+                                                    createDefaultModuleDescriptorProvider(project, module));
     }
 
     public static ModuleDescriptor resolveEagerly(List<JetFile> files, JetCoreEnvironment environment) {
@@ -79,11 +79,10 @@ public class LazyResolveTestUtil {
     }
 
     public static ModuleDescriptor resolveLazily(List<JetFile> files, JetCoreEnvironment environment) {
-        ModuleDescriptor javaModule = new ModuleDescriptor(Name.special("<java module>"));
-
         final Project project = environment.getProject();
         InjectorForJavaDescriptorResolver injector =
-                new InjectorForJavaDescriptorResolver(project, new BindingTraceContext(), createDefaultModuleDescriptorProvider(project));
+                new InjectorForJavaDescriptorResolver(project, new BindingTraceContext(),
+                                                      createDefaultModuleDescriptorProvider(project, "java module"));
         final PsiClassFinder psiClassFinder = injector.getPsiClassFinder();
         final JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
 

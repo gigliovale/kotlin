@@ -29,11 +29,11 @@ import org.jetbrains.jet.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.jet.codegen.ClassFileFactory;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.config.CompilerConfiguration;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
 import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.resolve.*;
-import org.jetbrains.jet.lang.resolve.name.Name;
+import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
+import org.jetbrains.jet.lang.resolve.AnalyzingUtils;
+import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.test.TestCaseWithTmpdir;
 
 import java.io.File;
@@ -45,6 +45,7 @@ import static org.jetbrains.jet.codegen.GenerationUtils.compileFilesGetGeneratio
 import static org.jetbrains.jet.jvm.compiler.LoadDescriptorUtil.TEST_PACKAGE_FQNAME;
 import static org.jetbrains.jet.jvm.compiler.LoadDescriptorUtil.loadTestNamespaceAndBindingContextFromBinaries;
 import static org.jetbrains.jet.lang.psi.JetPsiFactory.createFile;
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createModuleDescriptorProviderForOneModule;
 import static org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration;
 import static org.jetbrains.jet.test.util.NamespaceComparator.DONT_INCLUDE_METHODS_OF_OBJECT;
 import static org.jetbrains.jet.test.util.NamespaceComparator.compareNamespaces;
@@ -67,14 +68,11 @@ public class IncrementalCompilationTest extends TestCaseWithTmpdir {
         JetCoreEnvironment environment = new JetCoreEnvironment(getTestRootDisposable(), compilerConfiguration);
         Project project = environment.getProject();
         JetFile jetFile = createFile(project, FileUtil.loadFile(file, true));
-        ModuleDescriptor kotlinModule = new ModuleDescriptor(Name.special("<module>"));
-        ModuleDescriptorProvider moduleDescriptorProvider = ModuleDescriptorProviderFactory
-                .createModuleDescriptorProviderForOneModule(project, kotlinModule);
         AnalyzeExhaust exhaust = analyzeFilesWithJavaIntegration(project, Collections.singletonList(jetFile),
                                                                  Collections.<AnalyzerScriptParameter>emptyList(),
                                                                  Predicates.<PsiFile>alwaysTrue(),
                                                                  false,
-                                                                 kotlinModule, moduleDescriptorProvider);
+                                                                 createModuleDescriptorProviderForOneModule(project, "module"));
         AnalyzingUtils.throwExceptionOnErrors(exhaust.getBindingContext());
         GenerationState state = compileFilesGetGenerationState(project, exhaust, Collections.singletonList(jetFile));
         ClassFileFactory classFileFactory = state.getFactory();

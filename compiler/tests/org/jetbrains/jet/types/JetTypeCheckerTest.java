@@ -54,8 +54,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.JAVA_MODULE;
-
 public class JetTypeCheckerTest extends JetLiteFixture {
 
     private KotlinBuiltIns builtIns;
@@ -631,8 +629,8 @@ public class JetTypeCheckerTest extends JetLiteFixture {
                 scope, scope.getContainingDeclaration(), RedeclarationHandler.DO_NOTHING, "JetTypeCheckerTest.addImports");
         InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(getProject());
         JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
-        writableScope.importScope(javaDescriptorResolver.resolveNamespace(FqName.ROOT, JAVA_MODULE).getMemberScope());
-        writableScope.importScope(javaDescriptorResolver.resolveNamespace(new FqName("java.lang"), JAVA_MODULE).getMemberScope());
+        writableScope.importScope(javaDescriptorResolver.resolveNamespace(FqName.ROOT).getMemberScope());
+        writableScope.importScope(javaDescriptorResolver.resolveNamespace(new FqName("java.lang")).getMemberScope());
         writableScope.changeLockLevel(WritableScope.LockLevel.BOTH);
         writableScope.importScope(builtIns.getBuiltInsScope());
         return writableScope;

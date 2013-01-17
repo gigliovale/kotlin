@@ -17,7 +17,9 @@
 package org.jetbrains.jet.jvm.compiler;
 
 import com.google.common.base.Predicates;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
@@ -25,20 +27,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetTestUtils;
 import org.jetbrains.jet.TestJdkKind;
+import org.jetbrains.jet.analyzer.AnalyzeExhaust;
 import org.jetbrains.jet.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.di.InjectorForJavaSemanticServices;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
+import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.lazy.KotlinTestWithEnvironment;
-import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.test.util.NamespaceComparator;
 
 import java.io.File;
@@ -46,8 +48,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jetbrains.jet.JetTestUtils.compilerConfigurationForTests;
 import static org.jetbrains.jet.jvm.compiler.LoadDescriptorUtil.compileJavaAndLoadTestNamespaceAndBindingContextFromBinary;
+import static org.jetbrains.jet.lang.psi.JetPsiFactory.createFile;
 import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createModuleDescriptorProviderForOneModule;
+import static org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration;
 import static org.jetbrains.jet.test.util.NamespaceComparator.compareNamespaceWithFile;
 
 /*
@@ -147,30 +153,23 @@ public final class LoadJavaCustomTest extends KotlinTestWithEnvironment {
         }
 
         public void testSubclassingKotlinInJava() throws Exception {
+
+            AnalyzeExhaust exhaust = analyzeFilesWithJavaIntegration(getProject(), getEnvironment().getSourceFiles(),
+                                                                     Collections.<AnalyzerScriptParameter>emptyList(),
+                                                                     Predicates.<PsiFile>alwaysTrue(),
+                                                                     false,
+                                                                     createModuleDescriptorProviderForOneModule(getProject(), "module"));
+
+            NamespaceDescriptor namespace =
+                    exhaust.getBindingContext().get(BindingContext.FQNAME_TO_NAMESPACE_DESCRIPTOR, LoadDescriptorUtil.TEST_PACKAGE_FQNAME);
+
             File dir = new File(PATH + "/subclassingKotlinInJava");
 
-            InjectorForJavaSemanticServices injectorForJava = new InjectorForJavaSemanticServices(getProject());
-
-            // we need the same binding trace for resolve from Java and Kotlin
-            BindingTrace bindingTrace = injectorForJava.getBindingTrace();
-
-            InjectorForTopDownAnalyzerForJvm injectorForAnalyzer = new InjectorForTopDownAnalyzerForJvm(
-                    getProject(),
-                    new TopDownAnalysisParameters(Predicates.<PsiFile>alwaysFalse(), false, false, Collections.<AnalyzerScriptParameter>emptyList()),
-                    bindingTrace,
-                    new ModuleDescriptor(Name.special("<test module>")),
-                    createDefaultModuleDescriptorProvider(getProject()));
-
-            injectorForAnalyzer.getTopDownAnalyzer().analyzeFiles(getEnvironment().getSourceFiles(), Collections.<AnalyzerScriptParameter>emptyList());
-
-            JavaDescriptorResolver javaDescriptorResolver = injectorForJava.getJavaDescriptorResolver();
-            NamespaceDescriptor namespaceDescriptor = javaDescriptorResolver.resolveNamespace(LoadDescriptorUtil.TEST_PACKAGE_FQNAME);
-            assert namespaceDescriptor != null;
-
-            compareNamespaceWithFile(namespaceDescriptor, NamespaceComparator.DONT_INCLUDE_METHODS_OF_OBJECT,
+            assert namespace != null;
+            compareNamespaceWithFile(namespace, NamespaceComparator.DONT_INCLUDE_METHODS_OF_OBJECT,
                                      new File(dir, "expected.txt"));
 
-            ExpectedLoadErrorsUtil.checkForLoadErrors(namespaceDescriptor, bindingTrace.getBindingContext());
+            ExpectedLoadErrorsUtil.checkForLoadErrors(namespace, exhaust.getBindingContext());
         }
     }
 }

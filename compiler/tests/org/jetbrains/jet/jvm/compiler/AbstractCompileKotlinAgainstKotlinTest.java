@@ -104,12 +104,10 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends TestCaseWit
         AnalyzingUtils.checkForSyntacticErrors(psiFile);
 
         Project project = psiFile.getProject();
-        ModuleDescriptor module = new ModuleDescriptor(Name.special("<module>"));
         AnalyzeExhaust analyzeExhaust = AnalyzerFacadeForJVM
                 .analyzeFilesWithJavaIntegration(project, Collections.singleton(psiFile), Collections.<AnalyzerScriptParameter>emptyList(),
                                                  Predicates.<PsiFile>alwaysTrue(), false,
-                                                 module,
-                                                 createModuleDescriptorProviderForOneModule(project, module)
+                                                 createModuleDescriptorProviderForOneModule(project, "module")
                 );
 
         AnalyzingUtils.throwExceptionOnErrors(analyzeExhaust.getBindingContext());

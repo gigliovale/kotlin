@@ -72,7 +72,7 @@ public class InjectorForJavaSemanticServices {
         this.bindingTrace = new org.jetbrains.jet.lang.resolve.BindingTraceContext();
         this.javaBridgeConfiguration = new JavaBridgeConfiguration();
         this.psiClassFinder = new PsiClassFinderImpl();
-        this.moduleDescriptorProvider = org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider(project);
+        this.moduleDescriptorProvider = org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider(project, "dummy");
         this.project = project;
         this.javaTypeTransformer = new JavaTypeTransformer();
         this.javaClassResolver = new JavaClassResolver();

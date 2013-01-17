@@ -18,7 +18,6 @@ package org.jetbrains.jet.jvm.compiler;
 
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +50,6 @@ import java.util.Collections;
 import static org.jetbrains.jet.JetTestUtils.createEnvironmentWithMockJdkAndIdeaAnnotations;
 import static org.jetbrains.jet.codegen.GenerationUtils.compileFilesGetGenerationState;
 import static org.jetbrains.jet.lang.psi.JetPsiFactory.createFile;
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 
 public final class LoadDescriptorUtil {
 
@@ -109,8 +107,7 @@ public final class LoadDescriptorUtil {
                 ForTestCompileRuntime.runtimeJarForTests());
         JetCoreEnvironment jetCoreEnvironment = new JetCoreEnvironment(disposable, configuration);
         Project project = jetCoreEnvironment.getProject();
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
-                                                                                       createDefaultModuleDescriptorProvider(project));
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
         JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
         NamespaceDescriptor namespaceDescriptor = javaDescriptorResolver.resolveNamespace(TEST_PACKAGE_FQNAME);
         assert namespaceDescriptor != null;

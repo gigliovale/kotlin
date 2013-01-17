@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
-
 public abstract class AbstractJavaResolverDescriptorTest extends TestCaseWithTmpdir {
 
     protected JavaDescriptorResolver javaDescriptorResolver;
@@ -80,8 +78,7 @@ public abstract class AbstractJavaResolverDescriptorTest extends TestCaseWithTmp
                         ConfigurationKind.JDK_ONLY, TestJdkKind.MOCK_JDK, JetTestUtils.getAnnotationsJar(), tmpdir));
 
         Project project = jetCoreEnvironment.getProject();
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
-                                                                                       createDefaultModuleDescriptorProvider(project));
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
         javaDescriptorResolver = injector.getJavaDescriptorResolver();
     }
 }

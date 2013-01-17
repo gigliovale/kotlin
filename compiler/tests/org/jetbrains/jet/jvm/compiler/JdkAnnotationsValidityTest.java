@@ -51,8 +51,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
-
 public class JdkAnnotationsValidityTest extends UsefulTestCase {
 
     private static final int CLASSES_IN_CHUNK = 500;
@@ -73,9 +71,7 @@ public class JdkAnnotationsValidityTest extends UsefulTestCase {
             try {
                 JetCoreEnvironment commonEnvironment = createEnvironment(parentDisposable);
 
-                InjectorForJavaSemanticServices injector =
-                        new InjectorForJavaSemanticServices(commonEnvironment.getProject(),
-                                                            createDefaultModuleDescriptorProvider(commonEnvironment.getProject()));
+                InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(commonEnvironment.getProject());
 
                 BindingContext bindingContext = injector.getBindingTrace().getBindingContext();
                 JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();

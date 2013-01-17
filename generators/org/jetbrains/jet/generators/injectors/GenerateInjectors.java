@@ -183,13 +183,11 @@ public class GenerateInjectors {
                            new GivenExpression("new org.jetbrains.jet.lang.resolve.BindingTraceContext()"));
         generator.addField(JavaBridgeConfiguration.class);
         generator.addPublicField(PsiClassFinderImpl.class);
-        generator.addField(false, ModuleDescriptor.class, null,
-                           new GivenExpression("new org.jetbrains.jet.lang.descriptors.ModuleDescriptor(" +
-                                               "org.jetbrains.jet.lang.resolve.name.Name.special(\"<dummy>\"))"));
+        generator.addField(false, ModuleDescriptorProvider.class, null,
+                           new GivenExpression("org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider(project)"));
 
         // Parameters
         generator.addPublicParameter(Project.class);
-        generator.addParameter(ModuleDescriptorProvider.class);
 
         generator.generate("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForJavaSemanticServices",
                            GenerateInjectors.class);

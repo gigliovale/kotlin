@@ -43,11 +43,9 @@ import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.JetIcons;
 import org.jetbrains.jet.renderer.DescriptorRenderer;
 import org.jetbrains.jet.renderer.DescriptorRendererBuilder;
-import org.jetbrains.jet.renderer.DescriptorRendererImpl;
 
 import javax.swing.*;
 
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 import static org.jetbrains.jet.plugin.codeInsight.ktSignature.KotlinSignatureUtil.*;
 
 public class AddKotlinSignatureAnnotation extends BaseIntentionAction implements Iconable {
@@ -149,8 +147,7 @@ public class AddKotlinSignatureAnnotation extends BaseIntentionAction implements
 
     @NotNull
     private static String getDefaultSignature(@NotNull Project project, @NotNull PsiMember psiMember) {
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
-                                                                                       createDefaultModuleDescriptorProvider(project));
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
         JavaDescriptorResolver javaDescriptorResolver = injector.getJavaDescriptorResolver();
 
         PsiClass containingClass = psiMember.getContainingClass();

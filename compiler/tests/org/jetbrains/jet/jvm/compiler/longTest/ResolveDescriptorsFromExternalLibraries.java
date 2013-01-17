@@ -27,7 +27,10 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.*;
+import org.jetbrains.jet.ConfigurationKind;
+import org.jetbrains.jet.JetTestUtils;
+import org.jetbrains.jet.TestJdkKind;
+import org.jetbrains.jet.TimeUtils;
 import org.jetbrains.jet.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.di.InjectorForJavaSemanticServices;
@@ -41,8 +44,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
 
 public class ResolveDescriptorsFromExternalLibraries {
 
@@ -156,8 +157,7 @@ public class ResolveDescriptorsFromExternalLibraries {
 
 
         Project project = jetCoreEnvironment.getProject();
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
-                                                                                       createDefaultModuleDescriptorProvider(project));
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
 
         boolean hasErrors;
         try {

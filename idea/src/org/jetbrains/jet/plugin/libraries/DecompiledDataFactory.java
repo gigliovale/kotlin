@@ -44,8 +44,6 @@ import org.jetbrains.jet.renderer.DescriptorRendererBuilder;
 
 import java.util.*;
 
-import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createDefaultModuleDescriptorProvider;
-
 public class DecompiledDataFactory {
     private static final String JET_CLASS = JetClass.class.getName();
     private static final String JET_METHOD = JetMethod.class.getName();
@@ -64,8 +62,8 @@ public class DecompiledDataFactory {
     private DecompiledDataFactory(ClsFileImpl clsFile) {
         this.clsFile = clsFile;
         Project project = this.clsFile.getProject();
-        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project,
-                                                                                       createDefaultModuleDescriptorProvider(project));
+        InjectorForJavaSemanticServices injector = new InjectorForJavaSemanticServices(project);
+
         bindingContext = injector.getBindingTrace().getBindingContext();
         javaDescriptorResolver = injector.getJavaDescriptorResolver();
     }

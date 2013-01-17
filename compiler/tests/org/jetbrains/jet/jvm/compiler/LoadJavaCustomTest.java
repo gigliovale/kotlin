@@ -32,7 +32,10 @@ import org.jetbrains.jet.di.InjectorForJavaSemanticServices;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.descriptors.NamespaceDescriptor;
-import org.jetbrains.jet.lang.resolve.*;
+import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
+import org.jetbrains.jet.lang.resolve.BindingContext;
+import org.jetbrains.jet.lang.resolve.BindingTrace;
+import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.lazy.KotlinTestWithEnvironment;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -146,8 +149,7 @@ public final class LoadJavaCustomTest extends KotlinTestWithEnvironment {
         public void testSubclassingKotlinInJava() throws Exception {
             File dir = new File(PATH + "/subclassingKotlinInJava");
 
-            InjectorForJavaSemanticServices injectorForJava =
-                    new InjectorForJavaSemanticServices(getProject(), createDefaultModuleDescriptorProvider(getProject()));
+            InjectorForJavaSemanticServices injectorForJava = new InjectorForJavaSemanticServices(getProject());
 
             // we need the same binding trace for resolve from Java and Kotlin
             BindingTrace bindingTrace = injectorForJava.getBindingTrace();

@@ -44,6 +44,7 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.jet.plugin.project.ModuleDescriptorProviderForIdeaPlugin;
 import org.jetbrains.jet.renderer.DescriptorRenderer;
 import org.jetbrains.jet.util.slicedmap.ReadOnlySlice;
 
@@ -66,11 +67,16 @@ public class JetSourceNavigationHelper {
         }
         final Project project = declaration.getProject();
         final List<JetFile> libraryFiles = findAllSourceFilesWhichContainIdentifier(declaration);
+        if (libraryFiles.isEmpty()) {
+            return null;
+        }
         BindingContext bindingContext = AnalyzerFacadeForJVM.INSTANCE.analyzeFiles(
                 project,
                 libraryFiles,
                 Collections.<AnalyzerScriptParameter>emptyList(),
-                Predicates.<PsiFile>alwaysTrue()).getBindingContext();
+                Predicates.<PsiFile>alwaysTrue(),
+                ModuleDescriptorProviderForIdeaPlugin.fromFile(libraryFiles.iterator().next())
+        ).getBindingContext();
         D descriptor = bindingContext.get(slice, fqName);
         if (descriptor != null) {
             return new Pair<BindingContext, D>(bindingContext, descriptor);

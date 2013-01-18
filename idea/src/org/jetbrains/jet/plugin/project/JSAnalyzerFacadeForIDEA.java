@@ -27,6 +27,7 @@ import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.BodiesResolveContext;
+import org.jetbrains.jet.lang.resolve.ModuleDescriptorProvider;
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession;
 import org.jetbrains.k2js.analyze.AnalyzerFacadeForJS;
 
@@ -46,7 +47,8 @@ public enum JSAnalyzerFacadeForIDEA implements AnalyzerFacade {
             @NotNull Project project,
             @NotNull Collection<JetFile> files,
             @NotNull List<AnalyzerScriptParameter> scriptParameters,
-            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely
+            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely,
+            @NotNull ModuleDescriptorProvider moduleDescriptorProvider
     ) {
         return AnalyzerFacadeForJS.analyzeFiles(files, filesToAnalyzeCompletely, new IDEAConfig(project), true);
     }

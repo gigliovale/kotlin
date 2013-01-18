@@ -25,6 +25,7 @@ import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.AnalyzerScriptParameter;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.BodiesResolveContext;
+import org.jetbrains.jet.lang.resolve.ModuleDescriptorProvider;
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession;
 
 import java.util.Collection;
@@ -37,7 +38,8 @@ public interface AnalyzerFacade {
             @NotNull Project project,
             @NotNull Collection<JetFile> files,
             @NotNull List<AnalyzerScriptParameter> scriptParameters,
-            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely
+            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely,
+            @NotNull ModuleDescriptorProvider moduleDescriptorProvider
     );
 
     @NotNull

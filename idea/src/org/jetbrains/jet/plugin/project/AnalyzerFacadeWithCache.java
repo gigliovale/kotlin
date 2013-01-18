@@ -105,7 +105,8 @@ public final class AnalyzerFacadeWithCache {
                                             new JetFilesProvider.SameJetFilePredicate(file),
                                             new DelegatingBindingTrace(analyzeExhaustHeaders.getBindingContext(), "trace to resolve bodies in file", file.getName()),
                                             context,
-                                            moduleConfiguration);
+                                            moduleConfiguration
+                                    );
 
                                     return new Result<AnalyzeExhaust>(exhaust, PsiModificationTracker.MODIFICATION_COUNT);
                                 }
@@ -156,7 +157,8 @@ public final class AnalyzerFacadeWithCache {
                                     .analyzeFiles(fileToCache.getProject(),
                                             declarationProvider.fun(fileToCache),
                                             Collections.<AnalyzerScriptParameter>emptyList(),
-                                            Predicates.<PsiFile>alwaysFalse());
+                                            Predicates.<PsiFile>alwaysFalse(),
+                                            ModuleDescriptorProviderForIdeaPlugin.fromFile(fileToCache));
 
                             return new Result<AnalyzeExhaust>(exhaust, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT);
                         }

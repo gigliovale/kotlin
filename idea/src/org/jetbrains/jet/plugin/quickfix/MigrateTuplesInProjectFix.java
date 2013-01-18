@@ -39,6 +39,7 @@ import org.jetbrains.jet.lang.resolve.DelegatingBindingTrace;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.project.AnalyzerFacadeProvider;
+import org.jetbrains.jet.plugin.project.ModuleDescriptorProviderForIdeaPlugin;
 import org.jetbrains.jet.plugin.project.PluginJetFilesProvider;
 
 import java.util.Collection;
@@ -87,7 +88,8 @@ public class MigrateTuplesInProjectFix extends JetIntentionAction<PsiElement> {
                 initialFile.getProject(),
                 files,
                 Collections.<AnalyzerScriptParameter>emptyList(),
-                Predicates.<PsiFile>alwaysFalse());
+                Predicates.<PsiFile>alwaysFalse(),
+                ModuleDescriptorProviderForIdeaPlugin.fromFile(initialFile));
 
         BodiesResolveContext context = analyzeExhaustHeaders.getBodiesResolveContext();
         ModuleConfiguration moduleConfiguration = analyzeExhaustHeaders.getModuleConfiguration();
@@ -100,7 +102,8 @@ public class MigrateTuplesInProjectFix extends JetIntentionAction<PsiElement> {
                 Predicates.<PsiFile>alwaysTrue(),
                 new DelegatingBindingTrace(analyzeExhaustHeaders.getBindingContext(), "trace in migrate tuples fix"),
                 context,
-                moduleConfiguration);
+                moduleConfiguration
+        );
     }
 
     private void replaceTupleComponentCalls(JetFile file, final BindingContext context) {

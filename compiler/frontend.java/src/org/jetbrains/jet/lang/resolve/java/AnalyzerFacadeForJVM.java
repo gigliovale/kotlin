@@ -60,21 +60,25 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
 
     @Override
     @NotNull
-    public AnalyzeExhaust analyzeFiles(@NotNull Project project,
+    public AnalyzeExhaust analyzeFiles(
+            @NotNull Project project,
             @NotNull Collection<JetFile> files,
             @NotNull List<AnalyzerScriptParameter> scriptParameters,
-            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely) {
-        return analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, true);
+            @NotNull Predicate<PsiFile> filesToAnalyzeCompletely,
+            @NotNull ModuleDescriptorProvider moduleDescriptorProvider
+    ) {
+        return analyzeFilesWithJavaIntegration(project, files, scriptParameters, filesToAnalyzeCompletely, true, moduleDescriptorProvider);
     }
 
     @NotNull
     @Override
-    public AnalyzeExhaust analyzeBodiesInFiles(@NotNull Project project,
-                                               @NotNull List<AnalyzerScriptParameter> scriptParameters,
-                                               @NotNull Predicate<PsiFile> filesForBodiesResolve,
-                                               @NotNull BindingTrace headersTraceContext,
-                                               @NotNull BodiesResolveContext bodiesResolveContext,
-                                               @NotNull ModuleConfiguration configuration
+    public AnalyzeExhaust analyzeBodiesInFiles(
+            @NotNull Project project,
+            @NotNull List<AnalyzerScriptParameter> scriptParameters,
+            @NotNull Predicate<PsiFile> filesForBodiesResolve,
+            @NotNull BindingTrace headersTraceContext,
+            @NotNull BodiesResolveContext bodiesResolveContext,
+            @NotNull ModuleConfiguration configuration
     ) {
         return AnalyzerFacadeForEverything.analyzeBodiesInFilesWithJavaIntegration(
                 project, scriptParameters, filesForBodiesResolve,

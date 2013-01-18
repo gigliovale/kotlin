@@ -31,6 +31,7 @@ import java.util.*;
 import static org.jetbrains.jet.lang.diagnostics.Errors.AMBIGUOUS_LABEL;
 import static org.jetbrains.jet.lang.resolve.BindingContext.AMBIGUOUS_LABEL_TARGET;
 import static org.jetbrains.jet.lang.resolve.BindingContext.DECLARATION_TO_DESCRIPTOR;
+import static org.jetbrains.jet.lang.resolve.DescriptorUtils.getFQName;
 
 public class BindingContextUtils {
     private BindingContextUtils() {
@@ -139,6 +140,9 @@ public class BindingContextUtils {
         if (descriptor instanceof CallableMemberDescriptor) {
             return callableDescriptorToDeclaration(context, (CallableMemberDescriptor) descriptor);
         }
+        else if (descriptor instanceof NamespaceDescriptor) {
+            return namespaceDescriptorToDeclaration(context, (NamespaceDescriptor) descriptor);
+        }
         else if (descriptor instanceof ClassDescriptor) {
             return classDescriptorToDeclaration(context, (ClassDescriptor) descriptor);
         }
@@ -152,6 +156,7 @@ public class BindingContextUtils {
         if (descriptor instanceof CallableMemberDescriptor) {
             return callableDescriptorToDeclarations(context, (CallableMemberDescriptor) descriptor);
         }
+
         else {
             PsiElement psiElement = descriptorToDeclaration(context, descriptor);
             if (psiElement != null) {
@@ -160,6 +165,11 @@ public class BindingContextUtils {
                 return Lists.newArrayList();
             }
         }
+    }
+
+    @Nullable
+    private static PsiElement namespaceDescriptorToDeclaration(@NotNull BindingContext context, @NotNull NamespaceDescriptor descriptor) {
+        return context.get(BindingContext.NAMESPACE_FQNAME_TO_PSI, getFQName(descriptor));
     }
 
     @Nullable

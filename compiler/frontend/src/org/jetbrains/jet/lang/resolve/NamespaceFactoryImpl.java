@@ -40,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import static org.jetbrains.jet.lang.resolve.BindingContext.*;
+import static org.jetbrains.jet.lang.resolve.DescriptorUtils.getFQName;
 
 public class NamespaceFactoryImpl implements NamespaceFactory {
 
@@ -157,7 +158,7 @@ public class NamespaceFactoryImpl implements NamespaceFactory {
                                                                       @NotNull Name name,
                                                                       @Nullable JetReferenceExpression expression,
                                                                       @NotNull RedeclarationHandler handler) {
-        FqName ownerFqName = DescriptorUtils.getFQName(owner);
+        FqName ownerFqName = getFQName(owner);
         FqName fqName = ownerFqName.child(name);
         // !!!
         NamespaceDescriptorImpl namespaceDescriptor = (NamespaceDescriptorImpl) owner.getMemberScope().getDeclaredNamespace(name);
@@ -193,7 +194,7 @@ public class NamespaceFactoryImpl implements NamespaceFactory {
         configuration.extendNamespaceScope(trace, namespaceDescriptor, scope);
         owner.addNamespace(namespaceDescriptor);
         if (expression != null) {
-            trace.record(BindingContext.NAMESPACE, expression, namespaceDescriptor);
+            trace.record(BindingContext.NAMESPACE_FQNAME_TO_PSI, getFQName(namespaceDescriptor), expression);
         }
         return namespaceDescriptor;
     }

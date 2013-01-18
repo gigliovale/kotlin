@@ -128,7 +128,7 @@ public final class JavaNamespaceResolver {
             return null;
         }
 
-        trace.record(BindingContext.NAMESPACE, newScope.getPsiElement(), javaNamespaceDescriptor);
+        trace.record(BindingContext.NAMESPACE_FQNAME_TO_PSI, fqName, newScope.getPsiElement());
 
         javaNamespaceDescriptor.setMemberScope(newScope);
 

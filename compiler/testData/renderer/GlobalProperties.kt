@@ -16,7 +16,6 @@ deprecated("") val deprecatedVal = 5
 public val <T> T.extWithTwoUpperBounds: Int where T: CharSequence, T: Number
 get() {}
 
-//package rendererTest defined in root package
 //public val pub : jet.String defined in rendererTest
 //internal var int : jet.String defined in rendererTest
 //internal val int2 : jet.Int defined in rendererTest

@@ -19,7 +19,6 @@ fun <P> funTypeParameterWithTwoUpperBounds() where P : Foo, P : Bar = 17
 
 deprecated("") fun deprecatedFun()
 
-//package rendererTest defined in root package
 //public fun pub() : Unit defined in rendererTest
 //internal fun int() : jet.String defined in rendererTest
 //internal fun int2(vararg ints : jet.Int) : jet.Int defined in rendererTest

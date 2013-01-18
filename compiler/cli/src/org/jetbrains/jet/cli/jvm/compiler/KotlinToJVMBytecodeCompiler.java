@@ -39,6 +39,7 @@ import org.jetbrains.jet.codegen.state.GenerationStrategy;
 import org.jetbrains.jet.codegen.state.Progress;
 import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
 import org.jetbrains.jet.lang.parsing.JetScriptDefinition;
 import org.jetbrains.jet.lang.parsing.JetScriptDefinitionProvider;
 import org.jetbrains.jet.lang.psi.JetFile;
@@ -65,6 +66,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.jetbrains.jet.lang.resolve.ModuleDescriptorProviderFactory.createModuleDescriptorProviderForOneModule;
 
 public class KotlinToJVMBytecodeCompiler {
 
@@ -311,11 +314,14 @@ public class KotlinToJVMBytecodeCompiler {
                     @NotNull
                     @Override
                     public AnalyzeExhaust invoke() {
+                        Project project = environment.getProject();
                         return AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                                environment.getProject(),
+                                project,
                                 environment.getSourceFiles(),
                                 scriptParameters,
-                                filesToAnalyzeCompletely
+                                filesToAnalyzeCompletely,
+                                false,
+                                createModuleDescriptorProviderForOneModule(project, "module for cli")
                         );
                     }
                 }, environment.getSourceFiles()

@@ -8,16 +8,80 @@
         <val name="value" val="&quot;fun apply(p0 : T) : Unit&quot;" />
       </annotation>
     </item>
+    <item name='org.gradle.api.Project java.io.File getBuildDir()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.io.File getBuildFile()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.Project java.io.File getRootDir()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.Object getGroup()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.Object getStatus()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.Object getVersion()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.String getDescription()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.String getName()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.lang.String getPath()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.util.List&lt;java.lang.String&gt; getDefaultTasks()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.util.Map&lt;java.lang.String,org.gradle.api.Project&gt; getChildProjects()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.util.Set&lt;org.gradle.api.Project&gt; getDependsOnProjects()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project java.util.Set&lt;org.gradle.api.Project&gt; getSubprojects()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.Project findProject(java.lang.String)'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.Project getParent()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.Project getProject()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.Project getRootProject()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.ProjectState getState()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.artifacts.dsl.DependencyHandler getDependencies()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.artifacts.dsl.RepositoryHandler getRepositories()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
     <item name="org.gradle.api.Project org.gradle.api.file.ConfigurableFileCollection files(java.lang.Object...)">
       <annotation name="org.jetbrains.annotations.NotNull" />
     </item>
     <item name="org.gradle.api.Project org.gradle.api.initialization.dsl.ScriptHandler getBuildscript()">
-      <annotation name="jet.runtime.typeinfo.KotlinSignature">
-        <val name="value" val="&quot;fun getBuildscript() : ScriptHandler&quot;" />
-      </annotation>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.invocation.Gradle getGradle()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
     </item>
     <item name="org.gradle.api.Project org.gradle.api.logging.Logger getLogger()">
       <annotation name="org.jetbrains.annotations.NotNull" />
+    </item>
+    <item name='org.gradle.api.Project org.gradle.api.logging.LoggingManager getLogging()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
     </item>
     <item name="org.gradle.api.Project org.gradle.api.plugins.Convention getConvention()">
       <annotation name="org.jetbrains.annotations.NotNull" />
@@ -27,6 +91,18 @@
     </item>
     <item name="org.gradle.api.Project org.gradle.api.plugins.PluginContainer getPlugins()">
       <annotation name="org.jetbrains.annotations.NotNull" />
+    </item>
+    <item name='org.gradle.api.Project void setDescription(java.lang.String) 0'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.Project void setGroup(java.lang.Object) 0'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project void setStatus(java.lang.Object) 0'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.Project void setVersion(java.lang.Object) 0'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
     </item>
 </root>
 

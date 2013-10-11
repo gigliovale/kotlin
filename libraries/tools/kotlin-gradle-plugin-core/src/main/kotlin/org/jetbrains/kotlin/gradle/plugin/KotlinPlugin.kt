@@ -37,6 +37,8 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.Dependency
 import java.util.HashSet
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.ArtifactRepository
 
 val DEFAULT_ANNOTATIONS = "org.jebrains.kotlin.gradle.defaultAnnotations"
 
@@ -52,9 +54,21 @@ open class KotlinPlugin: Plugin<Project> {
         configureKDoc(project, javaPluginConvention)
 
         val version = project.getProperties()!!.get("kotlin.gradle.plugin.version") as String
-        project.getExtensions().add(DEFAULT_ANNOTATIONS, GradleUtils.resolveDependencies(project, "org.jetbrains.kotlin:kotlin-jdk-annotations:$version"))
-    }
+        project.getExtensions().add(DEFAULT_ANNOTATIONS, resolveDependencies(project, "org.jetbrains.kotlin:kotlin-jdk-annotations:$version"))
 
+        val isSnapshot = version.contains("SNAPSHOT")
+        val repositoryHandler = project.getBuildscript().getRepositories()
+        if (isSnapshot) {
+            for (rep in repositoryHandler) {
+                project.getRepositories().add(rep)
+            }
+        }
+        else {
+            project.getRepositories().add(repositoryHandler.mavenCentral())
+        }
+        project.getDependencies().add("compile", "org.jetbrains.kotlin:kotlin-stdlib:$version")
+        project.getDependencies().add("testCompile", "org.jetbrains.kotlin:kotlin-stdlib:$version")
+    }
 
     private fun configureSourceSetDefaults(project: ProjectInternal,
                                            javaBasePlugin: JavaBasePlugin,
@@ -128,12 +142,12 @@ open class KotlinAndroidPlugin: Plugin<Project> {
 
     val log = Logging.getLogger(getClass())
 
-    public override fun apply(p0: Project) {
+    public override fun apply(target: Project) {
 
-        val project = p0 as ProjectInternal
+        val project = target as ProjectInternal
         val ext = project.getExtensions().getByName("android") as BaseExtension
 
-        ext.getSourceSets()?.all(object : Action<AndroidSourceSet> {
+        ext.getSourceSets().all(object : Action<AndroidSourceSet> {
             override fun execute(sourceSet: AndroidSourceSet?) {
                 if (sourceSet is ExtensionAware) {
                     val sourceSetName = sourceSet.getName()
@@ -170,7 +184,7 @@ open class KotlinAndroidPlugin: Plugin<Project> {
 
         })
         val version = project.getProperties()!!.get("kotlin.gradle.plugin.version") as String
-        project.getExtensions().add(DEFAULT_ANNOTATIONS, GradleUtils.resolveDependencies(project, "org.jetbrains.kotlin:kotlin-jdk-annotations:$version",
+        project.getExtensions().add(DEFAULT_ANNOTATIONS, resolveDependencies(project, "org.jetbrains.kotlin:kotlin-jdk-annotations:$version",
                                                                                                                 "org.jetbrains.kotlin:kotlin-android-sdk-annotations:$version"));
     }
 
@@ -272,17 +286,4 @@ open class KSpec<T: Any?>(val predicate: (T) -> Boolean): Spec<T> {
     }
 }
 
-open class GradleUtils() {
-    class object {
-        public fun resolveDependencies(project: Project, vararg coordinates: String): Collection<File> {
-            val dependencyHandler : DependencyHandler = project.getBuildscript().getDependencies()
-            val configurationsContainer : ConfigurationContainer = project.getBuildscript().getConfigurations()
-
-            val deps = coordinates.map { dependencyHandler.create(it) }
-            val configuration = configurationsContainer.detachedConfiguration(*deps.copyToArray())
-
-            return configuration.getResolvedConfiguration().getFiles(KSpec({ dep -> true }))!!
-        }
-    }
-}
 

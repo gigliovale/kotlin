@@ -1,10 +1,22 @@
 <root>
+    <item name='org.gradle.api.initialization.dsl.ScriptHandler java.io.File getSourceFile()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+    <item name='org.gradle.api.initialization.dsl.ScriptHandler java.lang.ClassLoader getClassLoader()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.initialization.dsl.ScriptHandler java.net.URI getSourceURI()'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
     <item name='org.gradle.api.initialization.dsl.ScriptHandler org.gradle.api.artifacts.ConfigurationContainer getConfigurations()'>
         <annotation name='jet.runtime.typeinfo.KotlinSignature'>
             <val name="value" val="&quot;fun getConfigurations() : ConfigurationContainer&quot;"/>
         </annotation>
     </item>
     <item name='org.gradle.api.initialization.dsl.ScriptHandler org.gradle.api.artifacts.dsl.DependencyHandler getDependencies()'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+    <item name='org.gradle.api.initialization.dsl.ScriptHandler org.gradle.api.artifacts.dsl.RepositoryHandler getRepositories()'>
         <annotation name='org.jetbrains.annotations.NotNull'/>
     </item>
 </root>

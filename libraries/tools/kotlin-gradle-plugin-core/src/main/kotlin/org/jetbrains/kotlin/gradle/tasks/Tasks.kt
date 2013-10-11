@@ -40,7 +40,7 @@ public open class KotlinCompile(): AbstractCompile() {
     override fun setSource(source: Any?) {
         srcDirsRoots.clear()
         if (source is SourceDirectorySet) {
-            srcDirsRoots.addAll(source.getSrcDirs()!!)
+            srcDirsRoots.addAll(source.getSrcDirs())
         }
         super.setSource(source)
     }
@@ -49,7 +49,7 @@ public open class KotlinCompile(): AbstractCompile() {
     override fun source(vararg sources: Any?): SourceTask? {
         for (source in sources) {
             if (source is SourceDirectorySet) {
-                srcDirsRoots.addAll(source.getSrcDirs()!!)
+                srcDirsRoots.addAll(source.getSrcDirs())
             }
         }
         return super.source(sources)
@@ -129,6 +129,7 @@ public open class KotlinCompile(): AbstractCompile() {
     }
 
     fun getAnnotations(): Collection<File> {
+        [suppress("UNCHECKED_CAST")]
         val annotations = getProject().getExtensions().getByName(DEFAULT_ANNOTATIONS) as Collection<File>
 
         if (!annotations.isEmpty()) {
@@ -228,6 +229,8 @@ public open class KDoc(): SourceTask() {
 }
 
 class GradleMessageCollector(val logger : Logger): MessageCollector {
+
+    [suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")]
     public override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
         val path = location.getPath()
         val hasLocation = path != null && location.getLine() > 0 && location.getColumn() > 0

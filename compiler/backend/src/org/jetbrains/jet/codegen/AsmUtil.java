@@ -23,6 +23,7 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.codegen.binding.CalculatedClosure;
+import org.jetbrains.jet.codegen.binding.CodegenBinding;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.codegen.state.JetTypeMapper;
 import org.jetbrains.jet.lang.descriptors.*;
@@ -713,10 +714,11 @@ public class AsmUtil {
 
     public static void writeOuterClassAndEnclosingMethod(
             @NotNull ClassDescriptor descriptor,
+            @NotNull DeclarationDescriptor originalDescriptor,
             @NotNull JetTypeMapper typeMapper,
             @NotNull ClassBuilder v
     ) {
-        String outerClassName = getOuterClassName(descriptor, typeMapper);
+        String outerClassName = getOuterClassName(descriptor, originalDescriptor, typeMapper);
         FunctionDescriptor function = isDeclarationInsideInlineFunction(descriptor)
                                       ? null
                                       : DescriptorUtils.getParentOfType(descriptor, FunctionDescriptor.class);
@@ -731,13 +733,21 @@ public class AsmUtil {
     }
 
     @NotNull
-    private static String getOuterClassName(@NotNull ClassDescriptor classDescriptor, @NotNull JetTypeMapper typeMapper) {
-        ClassDescriptor container = DescriptorUtils.getParentOfType(classDescriptor, ClassDescriptor.class);
-        if (container != null) {
-            return typeMapper.mapClass(container).getInternalName();
+    private static String getOuterClassName(@NotNull ClassDescriptor classDescriptor, @NotNull DeclarationDescriptor originalDescriptor, @NotNull JetTypeMapper typeMapper) {
+        DeclarationDescriptor container = classDescriptor.getContainingDeclaration();
+        while (container != null) {
+            if (container instanceof ClassDescriptor) {
+                return typeMapper.mapClass((ClassDescriptor)container).getInternalName();
+            } else if (CodegenBinding.isLocalFun(container)) {
+                ClassDescriptor descriptor =
+                        CodegenBinding.anonymousClassForFunction(typeMapper.getBindingContext(), (FunctionDescriptor) container);
+                return typeMapper.mapClass(descriptor).getInternalName();
+            }
+
+            container = container.getContainingDeclaration();
         }
 
-        JetFile containingFile = BindingContextUtils.getContainingFile(typeMapper.getBindingContext(), classDescriptor);
+        JetFile containingFile = BindingContextUtils.getContainingFile(typeMapper.getBindingContext(), originalDescriptor);
         assert containingFile != null : "Containing file should be present for " + classDescriptor;
         return PackageCodegen.getPackagePartInternalName(containingFile);
     }

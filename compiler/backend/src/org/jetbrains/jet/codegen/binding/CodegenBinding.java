@@ -280,9 +280,14 @@ public class CodegenBinding {
     }
 
     public static boolean isLocalNamedFun(DeclarationDescriptor fd) {
+        return isLocalFun(fd) && !fd.getName().isSpecial();
+    }
+
+    /*named or not*/
+    public static boolean isLocalFun(DeclarationDescriptor fd) {
         if (fd instanceof FunctionDescriptor) {
             FunctionDescriptor descriptor = (FunctionDescriptor) fd;
-            return descriptor.getVisibility() == Visibilities.LOCAL && !descriptor.getName().isSpecial();
+            return descriptor.getVisibility() == Visibilities.LOCAL;
         }
         return false;
     }

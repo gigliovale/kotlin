@@ -104,6 +104,8 @@ class CodegenAnnotatingVisitor extends JetVisitorVoid {
         classDescriptor.initialize(JetScope.EMPTY, Collections.<ConstructorDescriptor>emptySet(), null);
 
         bindingTrace.record(CLASS_FOR_FUNCTION, funDescriptor, classDescriptor);
+        //bindingTrace.record(CLASS, desTo, classDescriptor);
+
         return classDescriptor;
     }
 

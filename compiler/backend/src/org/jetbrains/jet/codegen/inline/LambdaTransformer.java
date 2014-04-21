@@ -305,7 +305,7 @@ public class LambdaTransformer {
 
     @NotNull
     public String getNewFieldName(@NotNull String oldName) {
-        if (oldName.equals("this$0")) {
+        if (InlineCodegenUtil.THIS$0.equals(oldName)) {
             //"this$0" couldn't clash and we should keep this name invariant for further transformations
             return oldName;
         }

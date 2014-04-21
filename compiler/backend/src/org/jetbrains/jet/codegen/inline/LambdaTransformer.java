@@ -259,7 +259,7 @@ public class LambdaTransformer {
 
         //load captured parameters (NB: there is also could be object fields)
         while (cur != null) {
-            if (cur.getType() == AbstractInsnNode.FIELD_INSN) {
+            if (cur instanceof FieldInsnNode && cur.getOpcode() == Opcodes.PUTFIELD && InlineCodegenUtil.isCapturedFieldName(((FieldInsnNode) cur).name)) {
                 FieldInsnNode fieldNode = (FieldInsnNode) cur;
                 CapturedParamInfo info = builder.addCapturedParam(owner, fieldNode.name, Type.getType(fieldNode.desc), false, null);
 

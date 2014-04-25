@@ -248,7 +248,9 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         // Do not emit enclosing method in "light-classes mode" since currently we genenerate local light classes as if they're top level
         if (isLocalOrAnonymousClass && getState().getClassBuilderMode() != ClassBuilderMode.LIGHT_CLASSES) {
             String outerClassName = getOuterClassName(descriptor, typeMapper);
-            FunctionDescriptor function = DescriptorUtils.getParentOfType(descriptor, FunctionDescriptor.class);
+            FunctionDescriptor function = AsmUtil.isDeclarationInsideInlineFunction(descriptor)
+                                          ? null
+                                          : DescriptorUtils.getParentOfType(descriptor, FunctionDescriptor.class);
 
             if (function != null) {
                 Method method = typeMapper.mapSignature(function).getAsmMethod();

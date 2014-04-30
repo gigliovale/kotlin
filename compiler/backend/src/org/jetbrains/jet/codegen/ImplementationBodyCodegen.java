@@ -247,33 +247,8 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                                           !(parentDescriptor instanceof PackageFragmentDescriptor || parentDescriptor instanceof ClassDescriptor);
         // Do not emit enclosing method in "light-classes mode" since currently we genenerate local light classes as if they're top level
         if (isLocalOrAnonymousClass && getState().getClassBuilderMode() != ClassBuilderMode.LIGHT_CLASSES) {
-            String outerClassName = getOuterClassName(descriptor, typeMapper);
-            FunctionDescriptor function = AsmUtil.isDeclarationInsideInlineFunction(descriptor)
-                                          ? null
-                                          : DescriptorUtils.getParentOfType(descriptor, FunctionDescriptor.class);
-
-            if (function != null) {
-                Method method = typeMapper.mapSignature(function).getAsmMethod();
-                v.visitOuterClass(outerClassName, method.getName(), method.getDescriptor());
-            }
-            else {
-                assert isObjectLiteral
-                        : "Function descriptor could be null only for object literal in package: " + descriptor.getName();
-                v.visitOuterClass(outerClassName, null, null);
-            }
+            writeOuterClassAndEnclosingMethod(descriptor, typeMapper, v);
         }
-    }
-
-    @NotNull
-    private static String getOuterClassName(@NotNull ClassDescriptor classDescriptor, @NotNull JetTypeMapper typeMapper) {
-        ClassDescriptor container = DescriptorUtils.getParentOfType(classDescriptor, ClassDescriptor.class);
-        if (container != null) {
-            return typeMapper.mapClass(container).getInternalName();
-        }
-
-        JetFile containingFile = BindingContextUtils.getContainingFile(typeMapper.getBindingContext(), classDescriptor);
-        assert containingFile != null : "Containing file should be present for " + classDescriptor;
-        return PackageCodegen.getPackagePartInternalName(containingFile);
     }
 
     private void writeInnerClasses() {
@@ -1055,7 +1030,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
             PropertyDescriptor property = info.descriptor;
 
             FieldVisitor fv = v.newField(null, ACC_STATIC | ACC_FINAL | ACC_PUBLIC, context.getFieldName(property),
-                                              typeMapper.mapType(property).getDescriptor(), null, info.defaultValue);
+                                         typeMapper.mapType(property).getDescriptor(), null, info.defaultValue);
 
             AnnotationCodegen.forField(fv, typeMapper).genAnnotations(property);
 
@@ -1122,18 +1097,24 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         final JvmMethodSignature constructorSignature = typeMapper.mapSignature(constructorDescriptor);
 
         functionCodegen.generateMethod(myClass, constructorSignature, constructorDescriptor, constructorContext,
-                   new FunctionGenerationStrategy.CodegenBased<ConstructorDescriptor>(state, constructorDescriptor) {
-                       @NotNull
-                       @Override
-                       protected FrameMap createFrameMap(@NotNull JetTypeMapper typeMapper, @NotNull MethodContext context) {
-                           return new ConstructorFrameMap(constructorSignature);
-                       }
+                                       new FunctionGenerationStrategy.CodegenBased<ConstructorDescriptor>(state, constructorDescriptor) {
+                                           @NotNull
+                                           @Override
+                                           protected FrameMap createFrameMap(
+                                                   @NotNull JetTypeMapper typeMapper,
+                                                   @NotNull MethodContext context
+                                           ) {
+                                               return new ConstructorFrameMap(constructorSignature);
+                                           }
 
-                       @Override
-                       public void doGenerateBody(@NotNull ExpressionCodegen codegen, @NotNull JvmMethodSignature signature) {
-                           generatePrimaryConstructorImpl(callableDescriptor, codegen, closure);
-                       }
-                   }
+                                           @Override
+                                           public void doGenerateBody(
+                                                   @NotNull ExpressionCodegen codegen,
+                                                   @NotNull JvmMethodSignature signature
+                                           ) {
+                                               generatePrimaryConstructorImpl(callableDescriptor, codegen, closure);
+                                           }
+                                       }
         );
 
         functionCodegen.generateDefaultIfNeeded(constructorContext, constructorSignature, constructorDescriptor,

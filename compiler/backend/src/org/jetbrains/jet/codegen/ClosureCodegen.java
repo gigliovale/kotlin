@@ -141,6 +141,8 @@ public class ClosureCodegen extends ParentCodegenAwareImpl {
                                    context.getContextKind(),
                                    DefaultParameterValueLoader.DEFAULT);
 
+        AsmUtil.writeOuterClassAndEnclosingMethod(anonymousClassForFunction(bindingContext, funDescriptor), typeMapper, cv);
+
         cv.done();
     }
 

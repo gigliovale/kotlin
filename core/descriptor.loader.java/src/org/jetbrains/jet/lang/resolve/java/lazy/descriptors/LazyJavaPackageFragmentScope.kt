@@ -22,7 +22,6 @@ import org.jetbrains.jet.lang.resolve.name.Name
 import java.util.Collections
 import org.jetbrains.jet.lang.resolve.java.lazy.LazyJavaResolverContext
 import org.jetbrains.jet.lang.resolve.java.lazy.withTypes
-import org.jetbrains.jet.lang.resolve.java.lazy.TypeParameterResolver
 import org.jetbrains.jet.lang.resolve.java.structure.JavaPackage
 import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.utils.flatten
@@ -33,12 +32,16 @@ import org.jetbrains.jet.lang.resolve.java.lazy.findJavaClass
 import org.jetbrains.jet.lang.resolve.java.lazy.findClassInJava
 import org.jetbrains.jet.lang.resolve.java.PackageClassUtils
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
-import org.jetbrains.jet.storage.NotNullLazyValue
+import org.jetbrains.jet.lang.resolve.java.descriptor.JavaPackageFragmentDescriptor
+import org.jetbrains.jet.lang.resolve.java.sam.SingleAbstractMethodUtils
+import org.jetbrains.jet.lang.resolve.java.structure.JavaMethod
+import org.jetbrains.jet.lang.types.JetType
+import org.jetbrains.jet.lang.resolve.java.lazy.descriptors.LazyJavaMemberScope.MethodSignatureData
 
 public abstract class LazyJavaPackageFragmentScope(
         c: LazyJavaResolverContext,
         packageFragment: LazyJavaPackageFragment
-) : LazyJavaMemberScope(c.withTypes(), packageFragment) {
+) : LazyJavaMemberScope<JavaPackageFragmentDescriptor>(c.withTypes(), packageFragment) {
     
     protected val fqName: FqName = DescriptorUtils.getFqName(packageFragment).toSafe()
     private val classes = c.storageManager.createMemoizedFunctionWithNullableValues<Name, ClassDescriptor> {
@@ -81,6 +84,26 @@ public abstract class LazyJavaPackageFragmentScope(
     abstract fun getSubPackages(): Collection<FqName>
 
     override fun getImplicitReceiversHierarchy(): List<ReceiverParameterDescriptor> = listOf()
+
+    override fun computeNonDeclaredFunctions(result: MutableCollection<SimpleFunctionDescriptor>, name: Name) {
+        val klass = c.javaClassResolver.resolveClassByFqName(_containingDeclaration.fqName.child(name))
+        if (klass is LazyJavaClassDescriptor && klass.getFunctionTypeForSamInterface() != null) {
+            result.add(SingleAbstractMethodUtils.createSamConstructorFunction(_containingDeclaration, klass))
+        }
+    }
+
+    override fun getMethodSignatureData(
+            method: JavaMethod, methodTypeParameters: List<TypeParameterDescriptor>, returnType: JetType,
+            valueParameters: LazyJavaMemberScope.ResolvedValueParameters
+    ): LazyJavaMemberScope.MethodSignatureData {
+        val effectiveSignature = c.externalSignatureResolver.resolveAlternativeMethodSignature(
+                method, false, returnType, null, valueParameters.descriptors, methodTypeParameters, false)
+        return MethodSignatureData(effectiveSignature, listOf(), effectiveSignature.getErrors())
+    }
+
+    override fun computeNonDeclaredProperties(name: Name, result: MutableCollection<PropertyDescriptor>) {
+        //no undeclared properties
+    }
 
     override fun getContainingDeclaration()= super.getContainingDeclaration() as LazyJavaPackageFragment
 }

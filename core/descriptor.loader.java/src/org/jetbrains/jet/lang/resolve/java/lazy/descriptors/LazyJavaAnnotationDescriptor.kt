@@ -61,11 +61,10 @@ class LazyJavaAnnotationDescriptor(
 
     private val _fqName = c.storageManager.createNullableLazyValue { javaAnnotation.getFqName() }
     private val _type = c.storageManager.createLazyValue {() : JetType ->
-        val fqName = _fqName()
-        if (fqName == null) return@createLazyValue ErrorUtils.createErrorType("No fqName: $javaAnnotation")
-        val annotationClass = JavaToKotlinClassMap.getInstance().mapKotlinClass(fqName, TypeUsage.MEMBER_SIGNATURE_INVARIANT)
-                                ?: c.javaClassResolver.resolveClassByFqName(fqName)
-        annotationClass?.getDefaultType() ?: ErrorUtils.createErrorType(fqName.asString())
+        val javaClass = javaAnnotation.resolve()
+        val annotationClass = javaClass?.let { c.javaClassResolver.resolveClass(it) }
+                ?: ErrorUtils.createErrorClass("Unresolved: $javaAnnotation")
+        annotationClass.getDefaultType()
     }
 
     override fun getType(): JetType = _type()
@@ -145,10 +144,9 @@ class LazyJavaAnnotationDescriptor(
 
         if (!element.isEnumEntry()) return null
 
-        val fqName = element.getContainingClass().getFqName()
-        if (fqName == null) return null
+        val containingJavaClassClass = element.getContainingClass()
 
-        val enumClass = c.javaClassResolver.resolveClassByFqName(fqName)
+        val enumClass = c.javaClassResolver.resolveClass(containingJavaClassClass)
         if (enumClass == null) return null
 
         val classifier = enumClass.getUnsubstitutedInnerClassesScope().getClassifier(element.getName())

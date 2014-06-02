@@ -62,9 +62,12 @@ class LazyJavaAnnotationDescriptor(
 
     private val _fqName = c.storageManager.createNullableLazyValue { javaAnnotation.getFqName() }
     private val _type = c.storageManager.createLazyValue {() : JetType ->
-        val javaClass = javaAnnotation.resolve()
-        val annotationClass = javaClass?.let { c.javaClassResolver.resolveClass(it) }
-                ?: ErrorUtils.createErrorClass("Unresolved: $javaAnnotation")
+        val fqName = _fqName()
+        if (fqName == null) return@createLazyValue ErrorUtils.createErrorType("No fqName: $javaAnnotation")
+        val annotationClass =
+                JavaToKotlinClassMap.getInstance().mapKotlinClass(fqName, TypeUsage.MEMBER_SIGNATURE_INVARIANT)
+                        ?: javaAnnotation.resolve()?.let { javaClass -> c.javaClassResolver.resolveClass(javaClass) }
+                        ?: ErrorUtils.createErrorClass("Unresolved: $javaAnnotation")
         annotationClass.getDefaultType()
     }
 

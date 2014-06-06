@@ -52,6 +52,8 @@ import com.intellij.openapi.module.impl.scopes.LibraryScope
 import org.jetbrains.jet.lang.psi.JetCodeFragment
 import org.jetbrains.jet.plugin.codeInsight.ShortenReferences
 import org.jetbrains.jet.lang.psi.JetElement
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.projectRoots.Sdk
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
@@ -85,7 +87,7 @@ private data class ModuleSourcesInfo(val project: Project, val module: Module) :
                 }
                 is JdkOrderEntry -> {
                     //TODO: null?
-                    SdkInfo(project, orderEntry)
+                    SdkInfo(project, orderEntry.getJdk()!!)
                 }
                 else -> {
                     null
@@ -100,7 +102,14 @@ private data class LibraryInfo(val project: Project, val library: Library) : Plu
 
     override fun filesScope() = LibraryWithoutSourcesScope(project, library)
 
-    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> {
+        //TODO: correct dependencies
+        //val sdk = ProjectRootManager.getInstance(project)!!.getProjectSdk()
+        //TODO: Think on this
+        val orderEntry = ModuleManager.getInstance(project).getModules().stream().flatMap { ModuleRootManager.getInstance(it).getOrderEntries().stream() }.firstOrNull { it is JdkOrderEntry } as? JdkOrderEntry
+        val sdk = orderEntry?.getJdk()
+        return if (sdk != null) listOf(SdkInfo(project, sdk), this) else listOf(this)
+    }
 }
 
 private data class LibrarySourcesInfo(val project: Project, val library: Library) : PluginModuleInfo() {
@@ -108,14 +117,16 @@ private data class LibrarySourcesInfo(val project: Project, val library: Library
 
     override fun filesScope() = GlobalSearchScope.EMPTY_SCOPE
 
-    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this, LibraryInfo(project, library))
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> {
+        return listOf(this) + LibraryInfo(project, library).dependencies()
+    }
 }
 
-private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: JdkOrderEntry) : PluginModuleInfo() {
+private data class SdkInfo(val project: Project, val sdk: Sdk) : PluginModuleInfo() {
     //TODO: null?
-    override val name: Name = Name.special("<library ${sdk.getJdk()!!.getName()}>")
+    override val name: Name = Name.special("<library ${sdk.getName()}>")
 
-    override fun filesScope() = JdkScope(project, sdk)
+    override fun filesScope() = SdkScope(project, sdk)
 
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
 }
@@ -141,7 +152,8 @@ fun createMappingForProject(
     val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(project, it) }
     val ideaLibraries = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<LibraryOrderEntry>()).map { /*TODO: null*/it.getLibrary()!! } }.toSet()
     val libraries = ideaLibraries.keysToMap { LibraryInfo(project, it) }
-    val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(project, it) } }
+    val sdks = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<JdkOrderEntry>()).map { /*TODO: null*/it.getJdk()!! } }
+    val sdkInfos = sdks.keysToMap { SdkInfo(project, it) }
     val modules = (modulesSources.values() + libraries.values() + sdkInfos.values()).toHashSet()
     val syntheticFilesModules = syntheticFiles.keysToMap { it.getModuleInfo()!! }
     modules.addAll(syntheticFilesModules.values())
@@ -182,12 +194,17 @@ class ModuleSetup(private val descriptorByModule: Map<PluginModuleInfo, ModuleDe
 }
 
 //TODO: duplication with LibraryScope
-private data class LibraryWithoutSourcesScope(project: Project, private val library: Library)
-: LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array<VirtualFile>()) {
+private data class LibraryWithoutSourcesScope(project: Project, private val library: Library) :
+        LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array<VirtualFile>()) {
 }
 
-//is it nullable?
-private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
+//TODO: deal with android scope
+private data class SdkScope(project: Project, private val sdk: Sdk) :
+        LibraryScopeBase(project, sdk.getRootProvider().getFiles(OrderRootType.CLASSES), array<VirtualFile>())
+
+//TODO: is it nullable?
+//TODO: should be private
+fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
     if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
     if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
@@ -219,7 +236,7 @@ private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
                 LibraryInfo(project, library)
             }
         }
-        is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry)
+        is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry.getJdk()!!)
         else -> NotUnderSourceRootModuleInfo
     }
 }

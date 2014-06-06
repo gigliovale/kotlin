@@ -80,8 +80,6 @@ private class SessionAndSetup(
         val setup: AnalyzerFacade.Setup
 )
 
-private class ModuleAwareCache(val mm: ModuleSetup, val sessionsForBodies: Map<Module, ResolveSessionForBodies>)
-
 private class KotlinResolveCache(
         val project: Project,
         setupProvider: () -> CachedValueProvider.Result<ModuleSetup>

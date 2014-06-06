@@ -38,6 +38,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.jet.lang.resolve.java.lazy.ModuleClassResolver
 import org.jetbrains.jet.lang.resolve.kotlin.DeserializationGlobalContextForJava
 import org.jetbrains.jet.lang.resolve.java.lazy.SingleModuleClassResolver
+import org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinderFactory
 
 // NOTE: After making changes, you need to re-generate the injectors.
 //       To do that, you can run main in this file.
@@ -199,7 +200,7 @@ private fun generatorForModuleAwareLazyResolveWithJava() =
             )
 
             field(javaClass<VirtualFileFinder>(),
-                  init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
+                  init = GivenExpression(javaClass<VirtualFileFinderFactory>().getName() + ".SERVICE.getInstance(project).create(globalSearchScope)"))
             fields(
                     javaClass<JavaClassFinderImpl>(),
                     javaClass<TraceBasedExternalSignatureResolver>(),

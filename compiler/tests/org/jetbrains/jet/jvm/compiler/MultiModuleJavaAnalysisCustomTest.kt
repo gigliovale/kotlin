@@ -93,7 +93,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
             TestModule(name, kotlinFiles, javaFilesScope) {
                 // module c depends on [c, b, a], b on [b, a], a on [a], order is irrelevant
                 modules.filter { other ->
-                    this._name.first() <= other._name.first()
+                    this._name.first() >= other._name.first()
                 }
             }
         }

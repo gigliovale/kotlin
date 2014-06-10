@@ -46,6 +46,9 @@ import org.jetbrains.kotlin.util.sure
 import com.intellij.psi.PsiElement
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
+import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
+import org.jetbrains.jet.asJava.unwrapped
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo>
 
@@ -150,10 +153,13 @@ class ModuleSetup(val descriptorByModule: Map<Module, ModuleDescriptor>,
 
 //TODO: duplication with LibraryScope
 private data class LibraryWithoutSourcesScope(project: Project, private val library: Library)
-: LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array()) {
+: LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array<VirtualFile>()) {
 }
 
 private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
+    //TODO: clearer code
+    if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
+
     //TODO: deal with non physical file
     //TODO: can be clearer and more optimal?
     //TODO: utilities for transforming entry to info

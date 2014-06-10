@@ -139,7 +139,7 @@ fun createMappingForProject(
 
     val ideaModules = ModuleManager.getInstance(project).getSortedModules().toList()
     val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(project, it) }
-    val ideaLibraries = LibraryTablesRegistrar.getInstance()!!.getLibraryTable(project).getLibraries().toList()
+    val ideaLibraries = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<LibraryOrderEntry>()).map { /*TODO: null*/it.getLibrary()!! } }.toSet()
     val libraries = ideaLibraries.keysToMap { LibraryInfo(project, it) }
     val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(project, it) } }
     val modules = (modulesSources.values() + libraries.values() + sdkInfos.values()).toHashSet()

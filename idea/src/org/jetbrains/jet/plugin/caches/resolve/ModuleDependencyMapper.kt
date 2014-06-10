@@ -101,7 +101,7 @@ private data class LibraryInfo(val project: Project, val library: Library) : Plu
 
     override fun syntheticFilesScope() = LibraryScope(project, library)
 
-    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf()
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
 }
 
 private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: JdkOrderEntry) : PluginModuleInfo() {
@@ -110,7 +110,7 @@ private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: Jd
 
     override fun filesScope() = JdkScope(project, sdk)
 
-    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf()
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
 }
 
 

@@ -90,22 +90,13 @@ private class KotlinResolveCache(
     private val setupCache = SynchronizedCachedValue(project, setupProvider, trackValue = false)
 
     public fun getLazyResolveSession(element: JetElement): ResolveSessionForBodies {
-        return setupCache.getValue().resolveSessionForBodiesByModule(element.module())
+        //TODO: can be null, what do we do?
+        return setupCache.getValue().resolveSessionForBodiesByModule(element.getModuleInfo()!!)
     }
 
     //TODO: temp
     public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSessionForBodies? {
-        val mapping = setupCache.getValue()
-        val module = mapping.descriptorByModule.entrySet().firstOrNull { it.value == moduleDescriptor }?.key ?: return null
-        return setupCache.getValue().resolveSessionForBodiesByModule(module)
-    }
-
-    private fun PsiElement.module(): Module {
-        //TODO: should be module info here
-        //TODO: deal with non physical file
-        val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
-        //TODO: deal with null module
-        return ProjectFileIndex.SERVICE.getInstance(project).getModuleForFile(virtualFile)!!
+        return setupCache.getValue().resolveSessionForBodiesByModuleDescriptor(moduleDescriptor)
     }
 
     public fun <T> get(element: PsiElement, extension: CacheExtension<T>): T {

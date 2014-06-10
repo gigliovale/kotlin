@@ -130,25 +130,29 @@ fun createMappingForProject(
     }
     val analysisSetup = analyzerFacade.setupAnalysis(globalContext, project, modules, jvmPlatformParameters)
 
-    val moduleToBodiesResolveSession = ideaModules.keysToMap {
+    val moduleToBodiesResolveSession = modules.keysToMap {
         module ->
-        val descriptor = analysisSetup.descriptorByModule[ModuleSourcesInfo(module)]!!
+        val descriptor = analysisSetup.descriptorByModule[module]!!
         val analyzer = analysisSetup.analyzerByModuleDescriptor[descriptor]!!
         ResolveSessionForBodies(project, analyzer.lazyResolveSession)
     }
-    val descriptorByModule = analysisSetup.descriptorByModule.keySet().filterIsInstance(javaClass<ModuleSourcesInfo>()).map { it.module }.keysToMap { analysisSetup.descriptorByModule[ModuleSourcesInfo(it)]!! }
-    return ModuleSetup(descriptorByModule, analysisSetup.analyzerByModuleDescriptor, moduleToBodiesResolveSession)
+    return ModuleSetup(analysisSetup.descriptorByModule, analysisSetup.analyzerByModuleDescriptor, moduleToBodiesResolveSession)
 }
 
 //TODO: actually nullable
-class ModuleSetup(val descriptorByModule: Map<Module, ModuleDescriptor>,
-                  val setupByModuleDescriptor: Map<ModuleDescriptor, JvmAnalyzer>,
-                  val bodiesResolveByModule: Map<Module, ResolveSessionForBodies>
+class ModuleSetup(private val descriptorByModule: Map<PluginModuleInfo, ModuleDescriptor>,
+                  private val setupByModuleDescriptor: Map<ModuleDescriptor, JvmAnalyzer>,
+                  private val bodiesResolveByModule: Map<PluginModuleInfo, ResolveSessionForBodies>
 ) {
-    fun descriptorByModule(module: Module) = descriptorByModule[module]!!
-    fun setupByModule(module: Module) = setupByModuleDescriptor[descriptorByModule[module]!!]!!
-    fun resolveSessionForBodiesByModule(module: Module) = bodiesResolveByModule[module]!!
-    val modules: Collection<Module> = descriptorByModule.keySet()
+    fun descriptorByModule(module: PluginModuleInfo) = descriptorByModule[module]!!
+    fun setupByModule(module: PluginModuleInfo) = setupByModuleDescriptor[descriptorByModule[module]!!]!!
+    fun setupByDescriptor(module: ModuleDescriptor) = setupByModuleDescriptor[module]!!
+    fun resolveSessionForBodiesByModule(module: PluginModuleInfo) = bodiesResolveByModule[module]!!
+    fun resolveSessionForBodiesByModuleDescriptor(module: ModuleDescriptor): ResolveSessionForBodies? {
+        val moduleInfo = descriptorByModule.entrySet().firstOrNull() { it.value == module }?.key ?: return null
+        return bodiesResolveByModule[moduleInfo]
+    }
+    val modules: Collection<PluginModuleInfo> = descriptorByModule.keySet()
 }
 
 //TODO: duplication with LibraryScope

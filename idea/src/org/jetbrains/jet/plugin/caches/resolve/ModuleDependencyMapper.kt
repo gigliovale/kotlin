@@ -33,7 +33,6 @@ import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzer
-import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.libraries.Library
@@ -49,23 +48,31 @@ import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
 import org.jetbrains.jet.asJava.unwrapped
+import com.intellij.openapi.module.impl.scopes.LibraryScope
 
-private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo>
+private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
+    //TODO: add project to this fun and remove from classes params?
+    abstract fun filesScope(): GlobalSearchScope
+    // scope to accept synthetic files to this module
+    open fun syntheticFilesScope() = filesScope()
+}
 
-private data class ModuleSourcesInfo(val module: Module) : PluginModuleInfo() {
+private data class ModuleSourcesInfo(val project: Project, val module: Module) : PluginModuleInfo() {
     override val name = Name.special("<sources for module ${module.getName()}>")
+
+    override fun filesScope() = GlobalSearchScope.moduleScope(module)
 
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> {
         return ModuleRootManager.getInstance(module).getOrderEntries().map {
             orderEntry ->
             when (orderEntry) {
                 is ModuleSourceOrderEntry -> {
-                    ModuleSourcesInfo(orderEntry.getRootModel().getModule())
+                    ModuleSourcesInfo(project, orderEntry.getRootModel().getModule())
                 }
                 is ModuleOrderEntry -> {
                     val dependencyModule = orderEntry.getModule()
                     //TODO: null?
-                    ModuleSourcesInfo(dependencyModule!!)
+                    ModuleSourcesInfo(project, dependencyModule!!)
                 }
                 is LibraryOrderEntry -> {
                     //TODO: null?
@@ -73,11 +80,11 @@ private data class ModuleSourcesInfo(val module: Module) : PluginModuleInfo() {
                     val isKotlinRuntime = library.getName() == "KotlinJavaRuntime"
                     if (isKotlinRuntime) {
                     }
-                    LibraryInfo(library)
+                    LibraryInfo(project, library)
                 }
                 is JdkOrderEntry -> {
                     //TODO: null?
-                    SdkInfo(orderEntry)
+                    SdkInfo(project, orderEntry)
                 }
                 else -> {
                     null
@@ -87,15 +94,21 @@ private data class ModuleSourcesInfo(val module: Module) : PluginModuleInfo() {
     }
 }
 
-private data class LibraryInfo(val library: Library) : PluginModuleInfo() {
+private data class LibraryInfo(val project: Project, val library: Library) : PluginModuleInfo() {
     override val name: Name = Name.special("<library ${library.getName()}>")
+
+    override fun filesScope() = LibraryWithoutSourcesScope(project, library)
+
+    override fun syntheticFilesScope() = LibraryScope(project, library)
 
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf()
 }
 
-private data class SdkInfo(/*TODO: param name*/val sdk: JdkOrderEntry) : PluginModuleInfo() {
+private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: JdkOrderEntry) : PluginModuleInfo() {
     //TODO: null?
     override val name: Name = Name.special("<library ${sdk.getJdk()!!.getName()}>")
+
+    override fun filesScope() = JdkScope(project, sdk)
 
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf()
 }
@@ -109,20 +122,13 @@ fun createMappingForProject(
 ): ModuleSetup {
 
     val ideaModules = ModuleManager.getInstance(project).getSortedModules().toList()
-    val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(it) }
+    val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(project, it) }
     val ideaLibraries = LibraryTablesRegistrar.getInstance()!!.getLibraryTable(project).getLibraries().toList()
-    val libraries = ideaLibraries.keysToMap { LibraryInfo(it) }
-    val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(it) } }
+    val libraries = ideaLibraries.keysToMap { LibraryInfo(project, it) }
+    val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(project, it) } }
     val modules = modulesSources.values() + libraries.values() + sdkInfos.values()
     val jvmPlatformParameters = {(module: PluginModuleInfo) ->
-        val scope = when (module) {
-            is ModuleSourcesInfo -> GlobalSearchScope.moduleScope(module.module)
-            is LibraryInfo -> LibraryWithoutSourcesScope(project, module.library)
-            is SdkInfo -> JdkScope(project, module.sdk)
-            else -> throw IllegalStateException()
-        }
-
-        JvmPlatformParameters(syntheticFilesProvider(scope), scope) {
+        JvmPlatformParameters(syntheticFilesProvider(module.syntheticFilesScope()), module.filesScope()) {
             javaClass ->
             val psiClass = (javaClass as JavaClassImpl).getPsi()
             psiClass.getModuleInfo().sure("Module not found for ${psiClass.getName()} in ${psiClass.getContainingFile()}")
@@ -164,21 +170,22 @@ private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
     if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
 
+    val project = getProject()
     //TODO: deal with non physical file
     //TODO: can be clearer and more optimal?
     //TODO: utilities for transforming entry to info
     val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
-    val projectFileIndex = ProjectFileIndex.SERVICE.getInstance(getProject())
+    val projectFileIndex = ProjectFileIndex.SERVICE.getInstance(project)
     val orderEntries = projectFileIndex.getOrderEntriesForFile(virtualFile)
     val moduleSourceOrderEntry = orderEntries.filterIsInstance(javaClass<ModuleSourceOrderEntry>()).firstOrNull()
     if (moduleSourceOrderEntry != null) {
-        return ModuleSourcesInfo(moduleSourceOrderEntry.getRootModel().getModule())
+        return ModuleSourcesInfo(project, moduleSourceOrderEntry.getRootModel().getModule())
     }
     val libraryOrSdkOrderEntry = orderEntries.filterIsInstance(javaClass<LibraryOrSdkOrderEntry>()).firstOrNull()
     return when (libraryOrSdkOrderEntry) {
         //TODO: deal with null again
-        is LibraryOrderEntry -> LibraryInfo(libraryOrSdkOrderEntry.getLibrary().sure("bla bla"))
-        is JdkOrderEntry -> SdkInfo(libraryOrSdkOrderEntry)
+        is LibraryOrderEntry -> LibraryInfo(project, libraryOrSdkOrderEntry.getLibrary().sure("bla bla"))
+        is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry)
         else -> null
     }
 }

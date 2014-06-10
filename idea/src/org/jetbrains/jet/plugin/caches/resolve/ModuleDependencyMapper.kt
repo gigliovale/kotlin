@@ -49,6 +49,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
 import org.jetbrains.jet.asJava.unwrapped
 import com.intellij.openapi.module.impl.scopes.LibraryScope
+import org.jetbrains.jet.lang.psi.JetCodeFragment
+import org.jetbrains.jet.plugin.codeInsight.ShortenReferences
+import org.jetbrains.jet.lang.psi.JetElement
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
@@ -186,7 +189,12 @@ private data class LibraryWithoutSourcesScope(project: Project, private val libr
 private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
     if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
+    if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
 
+    val contextElement = (this as? JetElement)?.getContainingFile()?.getUserData(ShortenReferences.CONTEXT_FOR_SYNTHETIC_CODE_ELEMENT)
+    if (contextElement != null) {
+        return contextElement.getModuleInfo()
+    }
     val project = getProject()
     //TODO: deal with non physical file
     //TODO: can be clearer and more optimal?

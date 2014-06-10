@@ -37,10 +37,11 @@ import com.intellij.openapi.module.ModuleUtilCore
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.module.impl.scopes.LibraryScope
 import org.jetbrains.jet.analyzer.new.ModuleInfo
 import com.intellij.openapi.roots.JdkOrderEntry
 import com.intellij.openapi.module.impl.scopes.JdkScope
+import com.intellij.openapi.module.impl.scopes.LibraryScopeBase
+import com.intellij.openapi.roots.OrderRootType
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo>
 
@@ -104,12 +105,12 @@ fun createMappingForProject(
     val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(it) }
     val ideaLibraries = LibraryTablesRegistrar.getInstance()!!.getLibraryTable(project).getLibraries().toList()
     val libraries = ideaLibraries.keysToMap { LibraryInfo(it) }
-    val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().find { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(it) } }
+    val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(it) } }
     val modules = modulesSources.values() + libraries.values() + sdkInfos.values()
     val jvmPlatformParameters = {(module: PluginModuleInfo) ->
         val scope = when (module) {
             is ModuleSourcesInfo -> GlobalSearchScope.moduleScope(module.module)
-            is LibraryInfo -> LibraryScope(project, module.library)
+            is LibraryInfo -> LibraryWithoutSourcesScope(project, module.library)
             is SdkInfo -> JdkScope(project, module.sdk)
             else -> throw IllegalStateException()
         }
@@ -141,4 +142,9 @@ class ModuleSetup(val descriptorByModule: Map<Module, ModuleDescriptor>,
     fun setupByModule(module: Module) = setupByModuleDescriptor[descriptorByModule[module]!!]!!
     fun resolveSessionForBodiesByModule(module: Module) = bodiesResolveByModule[module]!!
     val modules: Collection<Module> = descriptorByModule.keySet()
+}
+
+//TODO: duplication with LibraryScope
+private data class LibraryWithoutSourcesScope(project: Project, private val library: Library)
+: LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array()) {
 }

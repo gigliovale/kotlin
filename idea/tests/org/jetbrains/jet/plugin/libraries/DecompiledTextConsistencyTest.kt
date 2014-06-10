@@ -34,6 +34,7 @@ import org.jetbrains.jet.lang.resolve.resolveTopLevelClass
 import org.jetbrains.jet.lang.descriptors.CallableMemberDescriptor
 import org.jetbrains.jet.plugin.caches.resolve.KotlinCacheService
 import org.jetbrains.jet.plugin.project.TargetPlatform
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public class DecompiledTextConsistencyTest : JetLightCodeInsightFixtureTestCase() {
 
@@ -58,7 +59,8 @@ public class DecompiledTextConsistencyTest : JetLightCodeInsightFixtureTestCase(
 }
 
 class ProjectBasedResolverForDecompiler(project: Project) : ResolverForDecompiler {
-    val module = KotlinCacheService.getInstance(project).getGlobalLazyResolveSession(TargetPlatform.JVM).getModuleDescriptor()
+    //TODO:
+    val module: ModuleDescriptor = throw IllegalStateException()
 
     override fun resolveTopLevelClass(classFqName: FqName): ClassDescriptor? {
         return module.resolveTopLevelClass(classFqName)

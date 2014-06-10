@@ -75,49 +75,7 @@ public class KotlinSignatureInJavaMarkerProvider implements LineMarkerProvider {
 
     @Override
     public void collectSlowLineMarkers(@NotNull List<PsiElement> elements, @NotNull Collection<LineMarkerInfo> result) {
-        if (elements.isEmpty()) {
-            return;
-        }
-
-        Project project = elements.get(0).getProject();
-        if (!isMarkersEnabled(project)) {
-            return;
-        }
-
-        if (!ProjectStructureUtil.hasJvmKotlinModules(project)) {
-            return;
-        }
-
-        Module module = ModuleUtilCore.findModuleForPsiElement(elements.get(0));
-        if (module != null && !ProjectStructureUtil.isUsedInKotlinJavaModule(module)) {
-            return;
-        }
-
-        BindingContext bindingContext = ResolvePackage.getLazyResolveSession(project, TargetPlatform.JVM).getBindingContext();
-
-        JavaDescriptorResolver javaDescriptorResolver = JavaResolveExtension.INSTANCE$.get(project);
-
-        for (PsiElement element : elements) {
-            if (!(element instanceof PsiMember)) {
-                continue;
-            }
-
-            PsiMember member = (PsiMember) element;
-            if (member.hasModifierProperty(PsiModifier.PRIVATE)) {
-                continue;
-            }
-
-            DeclarationDescriptor memberDescriptor = getDescriptorForMember(javaDescriptorResolver, member, bindingContext);
-
-            if (memberDescriptor == null) continue;
-
-            List<String> errors = bindingContext.get(JavaBindingContext.LOAD_FROM_JAVA_SIGNATURE_ERRORS, memberDescriptor);
-            boolean hasSignatureAnnotation = KotlinSignatureUtil.findKotlinSignatureAnnotation(element) != null;
-
-            if (errors != null || hasSignatureAnnotation) {
-                result.add(new MyLineMarkerInfo((PsiModifierListOwner) element, errors, hasSignatureAnnotation));
-            }
-        }
+        //TODO
     }
 
     @Nullable

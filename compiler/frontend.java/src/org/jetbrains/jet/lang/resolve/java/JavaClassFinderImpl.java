@@ -38,6 +38,8 @@ import javax.inject.Inject;
 public class JavaClassFinderImpl implements JavaClassFinder {
     @NotNull
     private Project project;
+    @NotNull
+    private GlobalSearchScope baseScope;
 
     private GlobalSearchScope javaSearchScope;
     private JavaPsiFacadeKotlinHacks javaFacade;
@@ -47,9 +49,14 @@ public class JavaClassFinderImpl implements JavaClassFinder {
         this.project = project;
     }
 
+    @Inject
+    public void setScope(@NotNull GlobalSearchScope scope) {
+        this.baseScope = scope;
+    }
+
     @PostConstruct
     public void initialize() {
-        javaSearchScope = new DelegatingGlobalSearchScope(GlobalSearchScope.allScope(project)) {
+        javaSearchScope = new DelegatingGlobalSearchScope(baseScope) {
             @Override
             public boolean contains(VirtualFile file) {
                 return myBaseScope.contains(file) && file.getFileType() != JetFileType.INSTANCE;

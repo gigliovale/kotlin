@@ -64,6 +64,10 @@ import org.jetbrains.jet.analyzer.analyzeInContext
 import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import org.jetbrains.jet.lang.types.TypeUtils
 import org.jetbrains.jet.lang.resolve.scopes.ChainedScope
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.ProjectFileIndex
+import org.jetbrains.kotlin.util.sure
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public trait CacheExtension<T> {
     val platform: TargetPlatform
@@ -76,31 +80,52 @@ private class SessionAndSetup(
         val setup: AnalyzerFacade.Setup
 )
 
+private class ModuleAwareCache(val mm: ModuleSetup, val sessionsForBodies: Map<Module, ResolveSessionForBodies>)
+
 private class KotlinResolveCache(
         val project: Project,
-        setupProvider: () -> CachedValueProvider.Result<SessionAndSetup>
+        setupProvider: () -> CachedValueProvider.Result<ModuleSetup>
 ) {
 
     private val setupCache = SynchronizedCachedValue(project, setupProvider, trackValue = false)
 
-    public fun getLazyResolveSession(): ResolveSessionForBodies = setupCache.getValue().resolveSessionForBodies
+    public fun getLazyResolveSession(element: JetElement): ResolveSessionForBodies {
+        return setupCache.getValue().resolveSessionForBodiesByModule(element.module())
+    }
 
-    public fun <T> get(extension: CacheExtension<T>): T {
-        val sessionAndSetup = setupCache.getValue()
-        assert(extension.platform == sessionAndSetup.platform,
-               "Extension $extension declares platfrom ${extension.platform} which is incompatible with ${sessionAndSetup.platform}")
-        return extension.getData(sessionAndSetup.setup)
+    //TODO: temp
+    public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSessionForBodies? {
+        val mapping = setupCache.getValue()
+        val module = mapping.descriptorByModule.entrySet().firstOrNull { it.value == moduleDescriptor }?.key ?: return null
+        return setupCache.getValue().resolveSessionForBodiesByModule(module)
+    }
+
+    private fun PsiElement.module(): Module {
+        //TODO: deal with non physical file
+        val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
+        //TODO: deal with null module
+        return ProjectFileIndex.SERVICE.getInstance(project).getModuleForFile(virtualFile)!!
+    }
+
+    public fun <T> get(element: PsiElement, extension: CacheExtension<T>): T {
+        //val cache = setupCache.getValue()
+        //val setup = cache.setupByModule(element.module())
+        ////TODO: platform
+        //assert(extension.platform == sessionAndSetup.platform,
+        //       "Extension $extension declares platfrom ${extension.platform} which is incompatible with ${sessionAndSetup.platform}")
+        //return extension.getData(setup)
+        throw UnsupportedOperationException()
     }
 
     private val analysisResults = CachedValuesManager.getManager(project).createCachedValue ({
-        val resolveSession = getLazyResolveSession()
+
         val results = object : SLRUCache<JetFile, PerFileAnalysisCache>(2, 3) {
             override fun createValue(file: JetFile?): PerFileAnalysisCache {
-                return PerFileAnalysisCache(file!!, resolveSession)
+                return PerFileAnalysisCache(file!!, getLazyResolveSession(file))
             }
         }
-
-        CachedValueProvider.Result(results, PsiModificationTracker.MODIFICATION_COUNT, resolveSession.getExceptionTracker())
+        //TODO: collective exception tracker
+        CachedValueProvider.Result(results, PsiModificationTracker.MODIFICATION_COUNT)
     }, false)
 
     fun getAnalysisResultsForElements(elements: Collection<JetElement>): AnalyzeExhaust {
@@ -118,7 +143,8 @@ private class KotlinResolveCache(
         return if (error != null)
                    AnalyzeExhaust.error(bindingContext, error.getError())
                else
-                   AnalyzeExhaust.success(bindingContext, getLazyResolveSession().getModuleDescriptor())
+                    //TODO: first!!
+                   AnalyzeExhaust.success(bindingContext, getLazyResolveSession(elements.first()).getModuleDescriptor())
     }
 }
 
@@ -244,6 +270,7 @@ private object KotlinResolveDataProvider {
             }
 
             val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), "Trace for resolution of " + analyzableElement)
+
             val injector = InjectorForTopDownAnalyzerForJvm(
                     project,
                     SimpleGlobalContext(resolveSession.getStorageManager(), resolveSession.getExceptionTracker()),

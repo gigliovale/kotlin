@@ -46,6 +46,7 @@ public interface AnalyzerFacade {
         }
     }
 
+    //TODO: scope and files seem to provide similar information
     @NotNull
     Setup createSetup(
             @NotNull Project project,

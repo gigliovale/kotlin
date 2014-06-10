@@ -53,7 +53,8 @@ import java.util.*;
 
 public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
 
-    INSTANCE;
+    INSTANCE {
+    };
 
     public static final List<ImportPath> DEFAULT_IMPORTS = ImmutableList.of(
             new ImportPath("java.lang.*"),

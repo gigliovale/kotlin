@@ -27,7 +27,15 @@ import java.util.Collection;
 
 public enum JSAnalyzerFacadeForIDEA implements AnalyzerFacade {
 
-    INSTANCE;
+    INSTANCE {
+        @NotNull
+        @Override
+        public Setup createSetup(
+                @NotNull Project project, @NotNull Collection<JetFile> syntheticFiles, @NotNull GlobalSearchScope filesScope
+        ) {
+            throw new UnsupportedOperationException("#createSetup");
+        }
+    };
 
     private JSAnalyzerFacadeForIDEA() {
     }

@@ -43,6 +43,8 @@ import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzer
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.plugin.stubindex.JetSourceFilterScope
 import org.jetbrains.kotlin.util.sure
+import com.intellij.psi.PsiElement
+import org.jetbrains.jet.lang.resolve.CompositeBindingContext
 
 private val LOG = Logger.getInstance(javaClass<KotlinCacheService>())
 
@@ -65,7 +67,6 @@ fun JetElement.getBindingContext(): BindingContext {
 }
 
 fun DeclarationDescriptor.getBindingContext(project: Project): BindingContext? {
-    //TODO: module is null for package views
     return KotlinCacheService.getInstance(project).getGlobalLazyResolveSession(DescriptorUtils.getContainingModule(this), JVM)?.getBindingContext()
 }
 

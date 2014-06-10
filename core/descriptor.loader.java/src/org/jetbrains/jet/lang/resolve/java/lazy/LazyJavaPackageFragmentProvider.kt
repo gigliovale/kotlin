@@ -108,8 +108,14 @@ public class LazyJavaPackageFragmentProvider(
         override fun resolveClass(javaClass: JavaClass): ClassDescriptor? {
             val fqName = javaClass.getFqName()
             if (fqName != null) {
+                if (javaClass.getOriginKind() == JavaClass.OriginKind.KOTLIN_LIGHT_CLASS) {
+                    return c.javaResolverCache.getClassResolvedFromSource(fqName)
+                }
+                //TODO: temp assertion
                 val ourJavaClass = c.finder.findClass(fqName)
-                assert(ourJavaClass == javaClass, "$fqName")
+                if (ourJavaClass != javaClass) {
+                    throw AssertionError("$fqName")
+                }
             }
             val outerClass = javaClass.getOuterClass()
             if (outerClass == null) {

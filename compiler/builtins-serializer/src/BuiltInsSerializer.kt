@@ -42,6 +42,7 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.utils.recursePostOrder
+import com.intellij.psi.search.GlobalSearchScope
 
 public class BuiltInsSerializer(val out: PrintStream?) {
     private var totalSize = 0
@@ -68,7 +69,10 @@ public class BuiltInsSerializer(val out: PrintStream?) {
 
         val files = environment.getSourceFiles()
 
-        val session = AnalyzerFacadeForJVM.createLazyResolveSession(environment.getProject(), files, BindingTraceContext(), false)
+        val session = AnalyzerFacadeForJVM.createSetup(
+                environment.getProject(), files, GlobalSearchScope.EMPTY_SCOPE, BindingTraceContext(), false
+        ).getLazyResolveSession()
+        
         val module = session.getModuleDescriptor()
 
         // We don't use FileUtil because it spawns JNA initialization, which fails because we don't have (and don't want to have) its

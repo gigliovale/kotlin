@@ -20,16 +20,20 @@ import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.jet.lang.resolve.java.structure.JavaClass
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor
+import kotlin.properties.Delegates
+import javax.inject.Inject
 
 trait ModuleClassResolver {
     fun resolveClass(javaClass: JavaClass): ClassDescriptor?
 }
 
-public class DefaultModuleClassResolver(): ModuleClassResolver {
+public class SingleModuleClassResolver() : ModuleClassResolver {
     override fun resolveClass(javaClass: JavaClass): ClassDescriptor? {
-        //TODO:
-        throw UnsupportedOperationException()
+        return resolver!!.resolveClass(javaClass)
     }
+
+    var resolver: JavaDescriptorResolver? = null
+        [Inject] set
 }
 
 public class ModuleClassResolverImpl(val analyzerByJavaClass: (JavaClass) -> JavaDescriptorResolver): ModuleClassResolver {

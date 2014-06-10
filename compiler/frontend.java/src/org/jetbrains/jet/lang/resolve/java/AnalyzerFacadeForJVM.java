@@ -37,7 +37,6 @@ import org.jetbrains.jet.lang.descriptors.impl.CompositePackageFragmentProvider;
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
-import org.jetbrains.jet.lang.resolve.BindingTraceContext;
 import org.jetbrains.jet.lang.resolve.ImportPath;
 import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap;
@@ -82,32 +81,6 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
     }
 
     @NotNull
-    @Override
-    public JvmSetup createSetup(
-            @NotNull Project fileProject,
-            @NotNull Collection<JetFile> syntheticFiles,
-            @NotNull GlobalSearchScope filesScope
-    ) {
-        return createSetup(fileProject, syntheticFiles, filesScope, new BindingTraceContext(), true);
-    }
-
-    @NotNull
-    public static ResolveSession createLazyResolveSession(
-            @NotNull Project project,
-            @NotNull Collection<JetFile> files,
-            @NotNull BindingTrace trace,
-            boolean addBuiltIns
-    ) {
-        List<VirtualFile> virtualFiles = KotlinPackage.map(files, new Function1<JetFile, VirtualFile>() {
-            @Override
-            public VirtualFile invoke(JetFile file) {
-                return file.getVirtualFile();
-            }
-        });
-        return createSetup(project, Collections.<JetFile>emptyList(),
-                           GlobalSearchScope.filesScope(project, virtualFiles), trace, addBuiltIns).getLazyResolveSession();
-    }
-
     public static JvmSetup createSetup(
             @NotNull Project project,
             @NotNull Collection<JetFile> syntheticFiles,

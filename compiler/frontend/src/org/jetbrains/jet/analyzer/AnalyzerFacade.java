@@ -45,12 +45,4 @@ public interface AnalyzerFacade {
             return resolveSession;
         }
     }
-
-    //TODO: scope and files seem to provide similar information
-    @NotNull
-    Setup createSetup(
-            @NotNull Project project,
-            @NotNull Collection<JetFile> syntheticFiles,
-            @NotNull GlobalSearchScope filesScope
-    );
 }

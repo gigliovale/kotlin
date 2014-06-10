@@ -101,6 +101,7 @@ private class KotlinResolveCache(
     }
 
     private fun PsiElement.module(): Module {
+        //TODO: should be module info here
         //TODO: deal with non physical file
         val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
         //TODO: deal with null module

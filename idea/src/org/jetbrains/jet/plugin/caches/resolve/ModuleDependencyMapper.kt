@@ -42,6 +42,10 @@ import com.intellij.openapi.roots.JdkOrderEntry
 import com.intellij.openapi.module.impl.scopes.JdkScope
 import com.intellij.openapi.module.impl.scopes.LibraryScopeBase
 import com.intellij.openapi.roots.OrderRootType
+import org.jetbrains.kotlin.util.sure
+import com.intellij.psi.PsiElement
+import com.intellij.openapi.roots.ProjectFileIndex
+import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo>
 
@@ -117,8 +121,8 @@ fun createMappingForProject(
 
         JvmPlatformParameters(syntheticFilesProvider(scope), scope) {
             javaClass ->
-            val ideaModule = ModuleUtilCore.findModuleForPsiElement((javaClass as JavaClassImpl).getPsi())!!
-            modulesSources[ideaModule]!!
+            val psiClass = (javaClass as JavaClassImpl).getPsi()
+            psiClass.getModuleInfo().sure("Module not found for ${psiClass.getName()} in ${psiClass.getContainingFile()}")
         }
     }
     val analysisSetup = analyzerFacade.setupAnalysis(globalContext, project, modules, jvmPlatformParameters)
@@ -147,4 +151,24 @@ class ModuleSetup(val descriptorByModule: Map<Module, ModuleDescriptor>,
 //TODO: duplication with LibraryScope
 private data class LibraryWithoutSourcesScope(project: Project, private val library: Library)
 : LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array()) {
+}
+
+private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
+    //TODO: deal with non physical file
+    //TODO: can be clearer and more optimal?
+    //TODO: utilities for transforming entry to info
+    val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
+    val projectFileIndex = ProjectFileIndex.SERVICE.getInstance(getProject())
+    val orderEntries = projectFileIndex.getOrderEntriesForFile(virtualFile)
+    val moduleSourceOrderEntry = orderEntries.filterIsInstance(javaClass<ModuleSourceOrderEntry>()).firstOrNull()
+    if (moduleSourceOrderEntry != null) {
+        return ModuleSourcesInfo(moduleSourceOrderEntry.getRootModel().getModule())
+    }
+    val libraryOrSdkOrderEntry = orderEntries.filterIsInstance(javaClass<LibraryOrSdkOrderEntry>()).firstOrNull()
+    return when (libraryOrSdkOrderEntry) {
+        //TODO: deal with null again
+        is LibraryOrderEntry -> LibraryInfo(libraryOrSdkOrderEntry.getLibrary().sure("bla bla"))
+        is JdkOrderEntry -> SdkInfo(libraryOrSdkOrderEntry)
+        else -> null
+    }
 }

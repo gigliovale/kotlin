@@ -114,7 +114,7 @@ public class LazyJavaPackageFragmentProvider(
                 //TODO: temp assertion
                 val ourJavaClass = c.finder.findClass(fqName)
                 if (ourJavaClass != javaClass) {
-                    throw AssertionError("$fqName")
+                   // throw AssertionError("$fqName")
                 }
             }
             val outerClass = javaClass.getOuterClass()

@@ -53,8 +53,6 @@ import com.intellij.openapi.module.impl.scopes.LibraryScope
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
     abstract fun filesScope(): GlobalSearchScope
-    // scope to accept synthetic files to this module
-    open fun syntheticFilesScope() = filesScope()
 }
 
 private data class ModuleSourcesInfo(val project: Project, val module: Module) : PluginModuleInfo() {
@@ -99,9 +97,15 @@ private data class LibraryInfo(val project: Project, val library: Library) : Plu
 
     override fun filesScope() = LibraryWithoutSourcesScope(project, library)
 
-    override fun syntheticFilesScope() = LibraryScope(project, library)
-
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
+}
+
+private data class LibrarySourcesInfo(val project: Project, val library: Library) : PluginModuleInfo() {
+    override val name: Name = Name.special("<sources for library ${library.getName()}>")
+
+    override fun filesScope() = GlobalSearchScope.EMPTY_SCOPE
+
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this, LibraryInfo(project, library))
 }
 
 private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: JdkOrderEntry) : PluginModuleInfo() {
@@ -113,12 +117,21 @@ private data class SdkInfo(val project: Project, /*TODO: param name*/val sdk: Jd
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
 }
 
+private object NotUnderSourceRootModuleInfo : PluginModuleInfo() {
+    override val name: Name = Name.special("<special module for files not under source root>")
+
+    override fun filesScope() = GlobalSearchScope.EMPTY_SCOPE
+
+    //TODO: provide dependency on runtime
+    override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> = listOf(this)
+}
+
 
 fun createMappingForProject(
         globalContext: GlobalContext,
         project: Project,
         analyzerFacade: JvmAnalyzerFacade,
-        syntheticFilesProvider: (GlobalSearchScope) -> Collection<JetFile>
+        syntheticFiles: Collection<JetFile>
 ): ModuleSetup {
 
     val ideaModules = ModuleManager.getInstance(project).getSortedModules().toList()
@@ -126,9 +139,12 @@ fun createMappingForProject(
     val ideaLibraries = LibraryTablesRegistrar.getInstance()!!.getLibraryTable(project).getLibraries().toList()
     val libraries = ideaLibraries.keysToMap { LibraryInfo(project, it) }
     val sdkInfos = ideaModules.keysToMap { (ModuleRootManager.getInstance(it).getOrderEntries().first { it is JdkOrderEntry } as JdkOrderEntry).let { SdkInfo(project, it) } }
-    val modules = modulesSources.values() + libraries.values() + sdkInfos.values()
+    val modules = (modulesSources.values() + libraries.values() + sdkInfos.values()).toHashSet()
+    val syntheticFilesModules = syntheticFiles.keysToMap { it.getModuleInfo()!! }
+    modules.addAll(syntheticFilesModules.values())
+
     val jvmPlatformParameters = {(module: PluginModuleInfo) ->
-        JvmPlatformParameters(syntheticFilesProvider(module.syntheticFilesScope()), module.filesScope()) {
+        JvmPlatformParameters(syntheticFiles.filter { syntheticFilesModules[it] == module }, module.filesScope()) {
             javaClass ->
             val psiClass = (javaClass as JavaClassImpl).getPsi()
             psiClass.getModuleInfo().sure("Module not found for ${psiClass.getName()} in ${psiClass.getContainingFile()}")
@@ -166,6 +182,7 @@ private data class LibraryWithoutSourcesScope(project: Project, private val libr
 : LibraryScopeBase(project, library.getFiles(OrderRootType.CLASSES), array<VirtualFile>()) {
 }
 
+//is it nullable?
 private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
     if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
@@ -183,9 +200,17 @@ private fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     }
     val libraryOrSdkOrderEntry = orderEntries.filterIsInstance(javaClass<LibraryOrSdkOrderEntry>()).firstOrNull()
     return when (libraryOrSdkOrderEntry) {
-        //TODO: deal with null again
-        is LibraryOrderEntry -> LibraryInfo(project, libraryOrSdkOrderEntry.getLibrary().sure("bla bla"))
+        is LibraryOrderEntry -> {
+            //TODO: deal with null again
+            val library: Library = libraryOrSdkOrderEntry.getLibrary().sure("bla bla")
+            if (ProjectFileIndex.SERVICE.getInstance(project).isInLibrarySource(virtualFile)) {
+                LibrarySourcesInfo(project, library)
+            }
+            else {
+                LibraryInfo(project, library)
+            }
+        }
         is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry)
-        else -> null
+        else -> NotUnderSourceRootModuleInfo
     }
 }

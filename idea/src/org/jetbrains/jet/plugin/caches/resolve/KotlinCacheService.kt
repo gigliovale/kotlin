@@ -83,11 +83,8 @@ class KotlinCacheService(val project: Project) {
 
     private fun globalResolveSessionProvider(platform: TargetPlatform, syntheticFiles: Collection<JetFile> = listOf()) = {
         val globalContext = GlobalContext()
-        val syntheticFilesByScopeProvider: (GlobalSearchScope) -> Collection<JetFile> = { scope ->
-            syntheticFiles.filter { it.getOriginalFile().getVirtualFile().sure("Should be based on physical file") in scope }
-        }
         //TODO: provide correct analyzer
-        val moduleMapping = createMappingForProject(globalContext, project, JvmAnalyzerFacade(), syntheticFilesByScopeProvider)
+        val moduleMapping = createMappingForProject(globalContext, project, JvmAnalyzerFacade(), syntheticFiles)
         //TODO: collective exception tracking
         CachedValueProvider.Result.create(
                 moduleMapping,

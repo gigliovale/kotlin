@@ -20,11 +20,6 @@ import org.jetbrains.jet.analyzer.new.AnalyzerFacade
 import org.jetbrains.jet.analyzer.new.ResolverForModule
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 import org.jetbrains.jet.analyzer.new.PlatformModuleParameters
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptorBase
-import org.jetbrains.jet.analyzer.new.ResolverForProject
-import org.jetbrains.jet.lang.resolve.ImportPath
-import org.jetbrains.jet.lang.PlatformToKotlinClassMap
-import org.jetbrains.jet.analyzer.new.AnalysisSetup
 import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap
 import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService
@@ -73,7 +68,7 @@ public class JvmAnalyzerFacade() : AnalyzerFacade<JvmResolverForModule, JvmPlatf
         val resolveSession = injector.getResolveSession()!!
         val javaDescriptorResolver = injector.getJavaDescriptorResolver()!!
         val providersForSources = listOf(resolveSession.getPackageFragmentProvider(), javaDescriptorResolver.getPackageFragmentProvider())
-        moduleDescriptor.setPackageFragmentProviderForSources(CompositePackageFragmentProvider(providersForSources))
+        moduleDescriptor.initialize(CompositePackageFragmentProvider(providersForSources))
         return JvmResolverForModule(injector.getResolveSession()!!, injector.getJavaDescriptorResolver()!!)
 
     }

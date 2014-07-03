@@ -36,13 +36,15 @@ import com.intellij.openapi.Disposable
 import org.jetbrains.jet.cli.common.CLIConfigurationKeys
 import org.jetbrains.jet.config.CommonConfigurationKeys
 import org.jetbrains.jet.cli.common.messages.MessageCollector
-import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM
-import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.utils.recursePostOrder
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
+import org.jetbrains.jet.context.GlobalContext
+import org.jetbrains.jet.analyzer.new.ModuleInfo
+import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
 
 public class BuiltInsSerializer(val out: PrintStream?) {
     private var totalSize = 0
@@ -58,6 +60,12 @@ public class BuiltInsSerializer(val out: PrintStream?) {
         }
     }
 
+    private class BuiltinsSourcesModule : ModuleInfo<BuiltinsSourcesModule> {
+        override val name: Name = Name.special("<module for resolving builtin source files>")
+        override fun dependencies() = listOf(this)
+        override fun dependencyOnBuiltins(): ModuleInfo.DependencyOnBuiltins = ModuleInfo.DependenciesOnBuiltins.NONE
+    }
+
     fun serialize(disposable: Disposable, destDir: File, srcDirs: Collection<File>) {
         val configuration = CompilerConfiguration()
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
@@ -69,11 +77,14 @@ public class BuiltInsSerializer(val out: PrintStream?) {
 
         val files = environment.getSourceFiles()
 
-        val session = AnalyzerFacadeForJVM.createSetup(
-                environment.getProject(), files, GlobalSearchScope.EMPTY_SCOPE, BindingTraceContext(), false
-        ).getLazyResolveSession()
-        
-        val module = session.getModuleDescriptor()
+        val builtInModule = BuiltinsSourcesModule()
+        val params = {
+            (builtInModule: BuiltinsSourcesModule) ->
+            JvmPlatformParameters(files, GlobalSearchScope.EMPTY_SCOPE, { throw IllegalStateException() })
+        }
+        val resolver = JvmAnalyzerFacade().setupResolverForProject(GlobalContext(), environment.getProject(), listOf(builtInModule), params)
+
+        val moduleDescriptor = resolver.descriptorByModule[builtInModule]!!
 
         // We don't use FileUtil because it spawns JNA initialization, which fails because we don't have (and don't want to have) its
         // native libraries in the compiler jar (libjnidispatch.so / jnidispatch.dll / ...)
@@ -85,7 +96,7 @@ public class BuiltInsSerializer(val out: PrintStream?) {
 
         files.map { it.getPackageFqName() }.toSet().forEach {
             fqName ->
-            serializePackage(module, fqName, destDir)
+            serializePackage(moduleDescriptor, fqName, destDir)
         }
 
         out?.println("Total bytes written: $totalSize to $totalFiles files")

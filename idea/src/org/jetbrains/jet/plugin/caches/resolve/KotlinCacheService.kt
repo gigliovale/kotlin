@@ -39,7 +39,7 @@ import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzer
+import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.plugin.stubindex.JetSourceFilterScope
 import org.jetbrains.kotlin.util.sure

@@ -17,9 +17,13 @@
 package org.jetbrains.jet.lang.resolve.java.new
 
 import org.jetbrains.jet.analyzer.new.AnalyzerFacade
-import org.jetbrains.jet.analyzer.new.Analyzer
+import org.jetbrains.jet.analyzer.new.ResolverForModule
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 import org.jetbrains.jet.analyzer.new.PlatformModuleParameters
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptorBase
+import org.jetbrains.jet.analyzer.new.ResolverForProject
+import org.jetbrains.jet.lang.resolve.ImportPath
+import org.jetbrains.jet.lang.PlatformToKotlinClassMap
 import org.jetbrains.jet.analyzer.new.AnalysisSetup
 import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap
@@ -36,11 +40,12 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
 import org.jetbrains.jet.lang.resolve.java.lazy.ModuleClassResolverImpl
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.jet.analyzer.new.ResolverForProject
 
-public class JvmAnalyzer(
+public class JvmResolverForModule(
         public override val lazyResolveSession: ResolveSession,
         public val javaDescriptorResolver: JavaDescriptorResolver
-) : Analyzer
+) : ResolverForModule
 
 public class JvmPlatformParameters<M>(
         public val syntheticFiles: Collection<JetFile>,
@@ -48,9 +53,11 @@ public class JvmPlatformParameters<M>(
         public val moduleByJavaClass: (JavaClass) -> M
 ) : PlatformModuleParameters
 
-public class JvmAnalyzerFacade() : AnalyzerFacade<JvmAnalyzer, JvmPlatformParameters<*>> {
-    override fun <M> createAnalyzerForModule(project: Project, globalContext: GlobalContext, moduleDescriptor: ModuleDescriptorImpl,
-                                             platformParameters: JvmPlatformParameters<*>, setup: AnalysisSetup<M, JvmAnalyzer>): JvmAnalyzer {
+public class JvmAnalyzerFacade() : AnalyzerFacade<JvmResolverForModule, JvmPlatformParameters<*>> {
+    override fun <M> createResolverForModule(
+            project: Project, globalContext: GlobalContext, moduleDescriptor: ModuleDescriptorImpl,
+            platformParameters: JvmPlatformParameters<*>, setup: ResolverForProject<M, JvmResolverForModule>
+    ): JvmResolverForModule {
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(
                 project, globalContext.storageManager, platformParameters.syntheticFiles, platformParameters.moduleScope
         )
@@ -66,8 +73,8 @@ public class JvmAnalyzerFacade() : AnalyzerFacade<JvmAnalyzer, JvmPlatformParame
         val resolveSession = injector.getResolveSession()!!
         val javaDescriptorResolver = injector.getJavaDescriptorResolver()!!
         val providersForSources = listOf(resolveSession.getPackageFragmentProvider(), javaDescriptorResolver.getPackageFragmentProvider())
-        moduleDescriptor.initialize(CompositePackageFragmentProvider(providersForSources))
-        return JvmAnalyzer(injector.getResolveSession()!!, injector.getJavaDescriptorResolver()!!)
+        moduleDescriptor.setPackageFragmentProviderForSources(CompositePackageFragmentProvider(providersForSources))
+        return JvmResolverForModule(injector.getResolveSession()!!, injector.getJavaDescriptorResolver()!!)
 
     }
 

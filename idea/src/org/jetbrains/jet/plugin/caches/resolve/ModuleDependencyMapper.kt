@@ -32,7 +32,7 @@ import com.intellij.openapi.roots.LibraryOrderEntry
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzer
+import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.libraries.Library
@@ -153,20 +153,21 @@ fun createMappingForProject(
             psiClass.getModuleInfo().sure("Module not found for ${psiClass.getName()} in ${psiClass.getContainingFile()}")
         }
     }
-    val analysisSetup = analyzerFacade.setupAnalysis(globalContext, project, modules, jvmPlatformParameters)
+    val resolverForProject = analyzerFacade.setupResolverForProject(globalContext, project, modules, jvmPlatformParameters)
 
     val moduleToBodiesResolveSession = modules.keysToMap {
         module ->
-        val descriptor = analysisSetup.descriptorByModule[module]!!
-        val analyzer = analysisSetup.analyzerByModuleDescriptor[descriptor]!!
+        val descriptor = resolverForProject.descriptorByModule[module]!!
+        val analyzer = resolverForProject.analyzerByModuleDescriptor[descriptor]!!
         ResolveSessionForBodies(project, analyzer.lazyResolveSession)
     }
-    return ModuleSetup(analysisSetup.descriptorByModule, analysisSetup.analyzerByModuleDescriptor, moduleToBodiesResolveSession)
+    return ModuleSetup(resolverForProject.descriptorByModule, resolverForProject.analyzerByModuleDescriptor, moduleToBodiesResolveSession)
 }
 
 //TODO: actually nullable
+//TODO: rename
 class ModuleSetup(private val descriptorByModule: Map<PluginModuleInfo, ModuleDescriptor>,
-                  private val setupByModuleDescriptor: Map<ModuleDescriptor, JvmAnalyzer>,
+                  private val setupByModuleDescriptor: Map<ModuleDescriptor, JvmResolverForModule>,
                   private val bodiesResolveByModule: Map<PluginModuleInfo, ResolveSessionForBodies>
 ) {
     fun descriptorByModule(module: PluginModuleInfo) = descriptorByModule[module]!!

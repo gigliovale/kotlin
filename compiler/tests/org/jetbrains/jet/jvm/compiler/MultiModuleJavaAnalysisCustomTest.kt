@@ -37,8 +37,8 @@ import org.jetbrains.jet.cli.jvm.JVMConfigurationKeys
 import com.intellij.psi.search.DelegatingGlobalSearchScope
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzer
-import org.jetbrains.jet.analyzer.new.AnalysisSetup
+import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
+import org.jetbrains.jet.analyzer.new.ResolverForProject
 import org.jetbrains.jet.analyzer.new.ModuleInfo
 import java.util.ArrayList
 
@@ -56,7 +56,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         val moduleDirs = File(PATH_TO_TEST_ROOT_DIR).listFiles { it.isDirectory() }!!
         val environment = createEnvironment(moduleDirs)
         val modules = setupModules(environment, moduleDirs)
-        val analysis = JvmAnalyzerFacade().setupAnalysis<TestModule>(GlobalContext(), environment.getProject(), modules) {
+        val resolverForProject = JvmAnalyzerFacade().setupResolverForProject<TestModule>(GlobalContext(), environment.getProject(), modules) {
             module ->
             JvmPlatformParameters(module.kotlinFiles, module.javaFilesScope) {
                 javaClass ->
@@ -65,7 +65,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
             }
         }
 
-        performChecks(analysis, modules)
+        performChecks(resolverForProject, modules)
     }
 
 
@@ -99,10 +99,10 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         }
     }
 
-    private fun performChecks(analysis: AnalysisSetup<TestModule, JvmAnalyzer>, modules: List<TestModule>) {
+    private fun performChecks(resolverForProject: ResolverForProject<TestModule, JvmResolverForModule>, modules: List<TestModule>) {
         modules.forEach {
             module ->
-            val moduleDescriptor = analysis.descriptorByModule[module]!!
+            val moduleDescriptor = resolverForProject.descriptorByModule[module]!!
             val kotlinPackage = moduleDescriptor.getPackage(FqName.topLevel(Name.identifier("test")))!!
             val kotlinClass
                     = kotlinPackage.getMemberScope().getClassifier(Name.identifier("Kotlin${module._name.toUpperCase()}")) as ClassDescriptor

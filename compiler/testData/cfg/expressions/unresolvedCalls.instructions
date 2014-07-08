@@ -1,0 +1,63 @@
+== test ==
+fun test(a: Any) {
+    foo
+    foo(1, 2)
+    a.foo(1, 2)
+    foo[0, 1]
+    ++foo
+    foo + 1
+    object O: Foo(1, 2)
+}
+---------------------
+L0:
+  1 <START>
+    v(a: Any)
+    magic[FAKE_INITIALIZER](a: Any) -> <v0>
+    w(a|<v0>)
+  2 mark({ foo foo(1, 2) a.foo(1, 2) foo[0, 1] ++foo foo + 1 object O: Foo(1, 2) })
+    error(foo, No resolved call)
+    mark(foo)
+    magic[UNRESOLVED_CALL](foo) -> <v1>
+    error(foo(1, 2), No resolved call)
+    r(1) -> <v2>
+    r(2) -> <v3>
+    mark(foo(1, 2))
+    magic[UNRESOLVED_CALL](foo(1, 2)|<v2>, <v3>) -> <v4>
+    mark(a.foo(1, 2))
+    error(foo(1, 2), No resolved call)
+    r(a) -> <v5>
+    r(1) -> <v6>
+    r(2) -> <v7>
+    mark(foo(1, 2))
+    magic[UNRESOLVED_CALL](foo(1, 2)|<v5>, <v6>, <v7>) -> <v8>
+    mark(foo[0, 1])
+    error(foo[0, 1], No resolved call)
+    error(foo, No resolved call)
+    mark(foo)
+    magic[UNRESOLVED_CALL](foo) -> <v9>
+    r(0) -> <v10>
+    r(1) -> <v11>
+    mark(foo[0, 1])
+    magic[UNRESOLVED_CALL](foo[0, 1]|<v9>, <v10>, <v11>) -> <v12>
+    error(++foo, No resolved call)
+    error(foo, No resolved call)
+    mark(foo)
+    magic[UNRESOLVED_CALL](foo) -> <v13>
+    mark(++foo)
+    magic[UNRESOLVED_CALL](++foo|<v13>) -> <v14>
+    error(foo + 1, No resolved call)
+    error(foo, No resolved call)
+    mark(foo)
+    magic[UNRESOLVED_CALL](foo) -> <v15>
+    r(1) -> <v16>
+    mark(foo + 1)
+    magic[UNRESOLVED_CALL](foo + 1|<v15>, <v16>) -> <v17>
+    error(Foo(1, 2), No resolved call)
+    magic[UNRESOLVED_CALL](Foo(1, 2)) -> <v18>
+L1:
+  1 <END>                                                                              NEXT:[<SINK>]
+error:
+    <ERROR>                                                                            PREV:[]
+sink:
+    <SINK>                                                                             PREV:[<ERROR>, <END>]
+=====================

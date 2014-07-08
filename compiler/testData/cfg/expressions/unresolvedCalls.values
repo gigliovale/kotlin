@@ -1,0 +1,32 @@
+== test ==
+fun test(a: Any) {
+    foo
+    foo(1, 2)
+    a.foo(1, 2)
+    foo[0, 1]
+    ++foo
+    foo + 1
+    object O: Foo(1, 2)
+}
+---------------------
+              <v0>: {<: Any}   NEW: magic[FAKE_INITIALIZER](a: Any) -> <v0>
+foo           <v1>: *          NEW: magic[UNRESOLVED_CALL](foo) -> <v1>
+1             <v2>: *          NEW: r(1) -> <v2>
+2             <v3>: *          NEW: r(2) -> <v3>
+foo(1, 2)     <v4>: *          NEW: magic[UNRESOLVED_CALL](foo(1, 2)|<v2>, <v3>) -> <v4>
+a             <v5>: *          NEW: r(a) -> <v5>
+1             <v6>: *          NEW: r(1) -> <v6>
+2             <v7>: *          NEW: r(2) -> <v7>
+foo(1, 2)     <v8>: *          NEW: magic[UNRESOLVED_CALL](foo(1, 2)|<v5>, <v6>, <v7>) -> <v8>
+a.foo(1, 2)   <v8>: *          COPY
+foo           <v9>: *          NEW: magic[UNRESOLVED_CALL](foo) -> <v9>
+0             <v10>: *         NEW: r(0) -> <v10>
+1             <v11>: *         NEW: r(1) -> <v11>
+foo[0, 1]     <v12>: *         NEW: magic[UNRESOLVED_CALL](foo[0, 1]|<v9>, <v10>, <v11>) -> <v12>
+foo           <v13>: *         NEW: magic[UNRESOLVED_CALL](foo) -> <v13>
+++foo         <v14>: *         NEW: magic[UNRESOLVED_CALL](++foo|<v13>) -> <v14>
+foo           <v15>: *         NEW: magic[UNRESOLVED_CALL](foo) -> <v15>
+1             <v16>: *         NEW: r(1) -> <v16>
+foo + 1       <v17>: *         NEW: magic[UNRESOLVED_CALL](foo + 1|<v15>, <v16>) -> <v17>
+Foo(1, 2)     <v18>: *         NEW: magic[UNRESOLVED_CALL](Foo(1, 2)) -> <v18>
+=====================

@@ -10,6 +10,7 @@ L0:
     w(arg|<v0>)
   2 mark({ a })
     error(a, No resolved call)
+    mark(a)
     magic[UNRESOLVED_CALL](a) -> <v1>
 L1:
   1 <END>                                                   NEXT:[<SINK>]

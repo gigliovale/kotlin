@@ -12,6 +12,7 @@ L0:
     mark(a.foo)
     error(foo, No resolved call)
     r(a) -> <v1>
+    mark(foo)
     magic[UNRESOLVED_CALL](foo|<v1>) -> <v2>
 L1:
   1 <END>                                       NEXT:[<SINK>]

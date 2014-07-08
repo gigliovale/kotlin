@@ -20,8 +20,7 @@ true                                                                   <v5>: Boo
 b = true                                                               !<v6>: *                                                                                                
 { b = true }                                                           !<v6>: *                     COPY                                                                       
 if (1 < 2) { b = false } else { b = true }                             <v7>: *                      NEW: merge(if (1 < 2) { b = false } else { b = true }|!<v4>, !<v6>) -> <v7>
-use                                                                    !<v9>: *                                                                                                
-b                                                                      <v8>: *                      NEW: r(b) -> <v8>                                                          
-use(b)                                                                 <v10>: *                     NEW: magic[UNRESOLVED_CALL](use(b)|<v8>, !<v9>) -> <v10>                   
-{ val b: Boolean if (1 < 2) { b = false } else { b = true } use(b) }   <v10>: *                     COPY                                                                       
+b                                                                      <v8>: *                      NEW: r(b) -> <v8>
+use(b)                                                                 <v9>: *                      NEW: magic[UNRESOLVED_CALL](use(b)|<v8>) -> <v9>
+{ val b: Boolean if (1 < 2) { b = false } else { b = true } use(b) }   <v9>: *                      COPY
 =====================

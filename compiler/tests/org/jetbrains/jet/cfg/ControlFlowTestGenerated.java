@@ -532,9 +532,9 @@ public class ControlFlowTestGenerated extends AbstractControlFlowTest {
             doTest(fileName);
         }
         
-        @TestMetadata("unresolvedCall.kt")
-        public void testUnresolvedCall() throws Exception {
-            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cfg/expressions/unresolvedCall.kt");
+        @TestMetadata("unresolvedCalls.kt")
+        public void testUnresolvedCalls() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cfg/expressions/unresolvedCalls.kt");
             doTest(fileName);
         }
         

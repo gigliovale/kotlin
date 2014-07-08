@@ -32,9 +32,8 @@ L3 ['if' expression result]:
   2 merge(if (1 < 2) { b = false } else { b = true }|!<v4>, !<v6>) -> <v7>        INIT: in: {b=ID} out: {b=ID}
     error(use(b), No resolved call)                                                                               USE: in: {b=READ} out: {b=READ}
     r(b) -> <v8>                                                                                                  USE: in: {} out: {b=READ}
-    error(use, No resolved call)
     mark(use(b))
-    magic[UNRESOLVED_CALL](use(b)|<v8>, !<v9>) -> <v10>
+    magic[UNRESOLVED_CALL](use(b)|<v8>) -> <v9>
 L1:
   1 <END>                                                                         INIT: in: {} out: {}
 error:

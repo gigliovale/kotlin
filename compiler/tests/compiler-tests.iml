@@ -20,5 +20,6 @@
     <orderEntry type="module" module-name="util" />
     <orderEntry type="module" module-name="builtins-serializer" />
     <orderEntry type="module" module-name="js.frontend" scope="TEST" />
+    <orderEntry type="module" module-name="frontend.android" scope="TEST" />
   </component>
 </module>

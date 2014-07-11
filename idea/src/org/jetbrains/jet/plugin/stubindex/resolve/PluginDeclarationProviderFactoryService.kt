@@ -32,7 +32,7 @@ public class PluginDeclarationProviderFactoryService : DeclarationProviderFactor
             syntheticFiles: Collection<JetFile>,
             filesScope: GlobalSearchScope
     ): DeclarationProviderFactory {
-        return PluginDeclarationProviderFactory(project, JetSourceFilterScope.kotlinSources(filesScope, project),
+        return PluginDeclarationProviderFactory(project, JetSourceFilterScope.kotlinSourcesAndJsLibraries(filesScope, project),
                                                 storageManager, syntheticFiles)
     }
 }

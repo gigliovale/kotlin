@@ -27,26 +27,47 @@ import org.jetbrains.jet.plugin.JetFileType;
 import org.jetbrains.jet.plugin.JetPluginUtil;
 
 public class JetSourceFilterScope extends DelegatingGlobalSearchScope {
+
+    @NotNull private final Mode mode;
+
+    private enum Mode {
+        ONLY_MODULE_CONTENT_SOURCES(false, false),
+        MODULE_CONTEXT_SOURCES_AND_JS_LIBS(false, true),
+        ALL_KOTLIN_SOURCES(true, true);
+
+        Mode(boolean librarySources, boolean libraryClasses) {
+            includeLibrarySources = librarySources;
+            includeSourcesUnderLibraryClasses = libraryClasses;
+        }
+
+        private final boolean includeSourcesUnderLibraryClasses;
+        private final boolean includeLibrarySources;
+    }
+
     //TODO: better utilities naming
     @NotNull
     public static GlobalSearchScope kotlinSourcesAndLibraries(@NotNull GlobalSearchScope delegate, @NotNull Project project) {
-        return new JetSourceFilterScope(delegate, true, project);
+        return new JetSourceFilterScope(delegate, Mode.ALL_KOTLIN_SOURCES, project);
     }
 
     @NotNull
     public static GlobalSearchScope kotlinSources(@NotNull GlobalSearchScope delegate, @NotNull Project project) {
-        return new JetSourceFilterScope(delegate, false, project);
+        return new JetSourceFilterScope(delegate, Mode.ONLY_MODULE_CONTENT_SOURCES, project);
+    }
+
+    @NotNull
+    public static GlobalSearchScope kotlinSourcesAndJsLibraries(@NotNull GlobalSearchScope delegate, @NotNull Project project) {
+        return new JetSourceFilterScope(delegate, Mode.MODULE_CONTEXT_SOURCES_AND_JS_LIBS, project);
     }
 
     private final ProjectFileIndex index;
     private final Project project;
-    private final boolean includeLibraries;
 
-    private JetSourceFilterScope(@NotNull GlobalSearchScope delegate, boolean includeLibraries, @NotNull Project project) {
+    private JetSourceFilterScope(@NotNull GlobalSearchScope delegate, @NotNull Mode mode, @NotNull Project project) {
         super(delegate);
-        this.includeLibraries = includeLibraries;
         this.index = ProjectRootManager.getInstance(project).getFileIndex();
         this.project = project;
+        this.mode = mode;
     }
 
     @Override
@@ -55,11 +76,14 @@ public class JetSourceFilterScope extends DelegatingGlobalSearchScope {
             return false;
         }
 
+        if (!file.getFileType().equals(JetFileType.INSTANCE)) return false;
+
         if (JetPluginUtil.isKtFileInGradleProjectInWrongFolder(file, project)) {
             return false;
         }
 
-        return file.getFileType().equals(JetFileType.INSTANCE) &&
-               (index.isInSourceContent(file) || index.isInLibraryClasses(file) || includeLibraries && index.isInLibrarySource(file));
+        return index.isInSourceContent(file)
+               || index.isInLibraryClasses(file) && mode.includeSourcesUnderLibraryClasses
+               || index.isInLibrarySource(file) && mode.includeLibrarySources;
     }
 }

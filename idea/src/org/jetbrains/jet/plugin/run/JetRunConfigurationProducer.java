@@ -25,15 +25,19 @@ import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.util.NotNullFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.analyzer.AnalyzerFacade;
+import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
 import org.jetbrains.jet.lang.psi.JetFile;
+import org.jetbrains.jet.lang.psi.JetNamedFunction;
 import org.jetbrains.jet.lang.resolve.java.PackageClassUtils;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.plugin.JetPluginUtil;
-import org.jetbrains.jet.plugin.project.AnalyzerFacadeProvider;
+import org.jetbrains.jet.plugin.MainFunctionDetector;
+import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 import org.jetbrains.jet.plugin.project.ProjectStructureUtil;
+import org.jetbrains.jet.plugin.project.ResolveSessionForBodies;
 
 import java.util.List;
 
@@ -79,13 +83,18 @@ public class JetRunConfigurationProducer extends RuntimeConfigurationProducer im
         PsiFile psiFile = location.getPsiElement().getContainingFile();
         if (psiFile instanceof JetFile) {
             JetFile jetFile = (JetFile) psiFile;
-            //TODO:
-            throw new UnsupportedOperationException();
-            //ResolveSession resolveSession = facade.createSetup(jetFile.getProject(), new ModuleDescriptorImpl(""), Collections.singleton(jetFile), ).getLazyResolveSession();
-            //MainFunctionDetector mainFunctionDetector = new MainFunctionDetector(resolveSession);
-            //if (mainFunctionDetector.hasMain(jetFile.getDeclarations())) {
-            //    return jetFile;
-            //}
+            final ResolveSessionForBodies session = ResolvePackage.getLazyResolveSession(jetFile);
+            MainFunctionDetector mainFunctionDetector = new MainFunctionDetector(
+                    new NotNullFunction<JetNamedFunction, FunctionDescriptor>() {
+                        @NotNull
+                        @Override
+                        public FunctionDescriptor fun(JetNamedFunction function) {
+                            return (FunctionDescriptor) session.resolveToDescriptor(function);
+                        }
+                    });
+            if (mainFunctionDetector.hasMain(jetFile.getDeclarations())) {
+                return jetFile;
+            }
         }
 
         return null;

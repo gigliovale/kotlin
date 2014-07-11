@@ -16,7 +16,6 @@
 
 package org.jetbrains.jet.plugin.stubindex;
 
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -28,6 +27,7 @@ import org.jetbrains.jet.plugin.JetFileType;
 import org.jetbrains.jet.plugin.JetPluginUtil;
 
 public class JetSourceFilterScope extends DelegatingGlobalSearchScope {
+    //TODO: better utilities naming
     @NotNull
     public static GlobalSearchScope kotlinSourcesAndLibraries(@NotNull GlobalSearchScope delegate, @NotNull Project project) {
         return new JetSourceFilterScope(delegate, true, project);
@@ -55,15 +55,11 @@ public class JetSourceFilterScope extends DelegatingGlobalSearchScope {
             return false;
         }
 
-        if (includeLibraries && StdFileTypes.CLASS == file.getFileType()) {
-            return index.isInLibraryClasses(file);
-        }
-
         if (JetPluginUtil.isKtFileInGradleProjectInWrongFolder(file, project)) {
             return false;
         }
 
         return file.getFileType().equals(JetFileType.INSTANCE) &&
-               (index.isInSourceContent(file) || includeLibraries && index.isInLibrarySource(file));
+               (index.isInSourceContent(file) || index.isInLibraryClasses(file) || includeLibraries && index.isInLibrarySource(file));
     }
 }

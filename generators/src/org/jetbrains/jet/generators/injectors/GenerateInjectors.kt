@@ -101,7 +101,7 @@ private fun generatorForTopDownAnalyzerForJvm() =
             publicField(javaClass<DeserializationGlobalContextForJava>())
 
             field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".projectScope(project)"))
+                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
             fields(
                     javaClass<JavaClassFinderImpl>(),
                     javaClass<TraceBasedExternalSignatureResolver>(),
@@ -132,7 +132,7 @@ private fun generatorForJavaDescriptorResolver() =
             publicField(javaClass<JavaClassFinderImpl>())
 
             field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".projectScope(project)"))
+                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
 
             fields(
                     javaClass<TraceBasedExternalSignatureResolver>(),
@@ -165,7 +165,7 @@ private fun generatorForLazyResolveWithJava() =
             )
 
             field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".projectScope(project)"))
+                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
             field(javaClass<VirtualFileFinder>(),
                   init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
             fields(

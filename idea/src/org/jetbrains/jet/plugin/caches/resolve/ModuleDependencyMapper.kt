@@ -30,15 +30,11 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import com.intellij.openapi.roots.ModuleOrderEntry
 import com.intellij.openapi.roots.LibraryOrderEntry
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
-import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.jet.analyzer.new.ModuleInfo
 import com.intellij.openapi.roots.JdkOrderEntry
-import com.intellij.openapi.module.impl.scopes.JdkScope
 import com.intellij.openapi.module.impl.scopes.LibraryScopeBase
 import com.intellij.openapi.roots.OrderRootType
 import org.jetbrains.kotlin.util.sure
@@ -48,12 +44,12 @@ import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
 import org.jetbrains.jet.asJava.unwrapped
-import com.intellij.openapi.module.impl.scopes.LibraryScope
 import org.jetbrains.jet.lang.psi.JetCodeFragment
 import org.jetbrains.jet.plugin.codeInsight.ShortenReferences
 import org.jetbrains.jet.lang.psi.JetElement
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.projectRoots.Sdk
+import org.jetbrains.jet.analyzer.new.AnalyzerFacade
+import org.jetbrains.jet.analyzer.new.ResolverForModule
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
@@ -144,7 +140,7 @@ private object NotUnderSourceRootModuleInfo : PluginModuleInfo() {
 fun createMappingForProject(
         globalContext: GlobalContext,
         project: Project,
-        analyzerFacade: JvmAnalyzerFacade,
+        analyzerFacade: AnalyzerFacade<*, *>,
         syntheticFiles: Collection<JetFile>
 ): ModuleSetup {
 
@@ -179,7 +175,7 @@ fun createMappingForProject(
 //TODO: actually nullable
 //TODO: rename
 class ModuleSetup(private val descriptorByModule: Map<PluginModuleInfo, ModuleDescriptor>,
-                  private val setupByModuleDescriptor: Map<ModuleDescriptor, JvmResolverForModule>,
+                  private val setupByModuleDescriptor: Map<ModuleDescriptor, ResolverForModule>,
                   private val bodiesResolveByModule: Map<PluginModuleInfo, ResolveSessionForBodies>
 ) {
     fun descriptorByModule(module: PluginModuleInfo) = descriptorByModule[module]!!

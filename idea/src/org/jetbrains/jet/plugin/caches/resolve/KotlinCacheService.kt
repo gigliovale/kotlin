@@ -83,8 +83,8 @@ class KotlinCacheService(val project: Project) {
 
     private fun globalResolveSessionProvider(platform: TargetPlatform, syntheticFiles: Collection<JetFile> = listOf()) = {
         val globalContext = GlobalContext()
-        //TODO: provide correct analyzer
-        val moduleMapping = createMappingForProject(globalContext, project, JvmAnalyzerFacade(), syntheticFiles)
+        val analyzerFacade = AnalyzerFacadeProvider.getAnalyzerFacade(platform)
+        val moduleMapping = createMappingForProject(globalContext, project, analyzerFacade, syntheticFiles)
         //TODO: collective exception tracking
         CachedValueProvider.Result.create(
                 moduleMapping,

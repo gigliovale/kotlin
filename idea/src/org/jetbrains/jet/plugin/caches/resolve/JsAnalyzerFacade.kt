@@ -36,18 +36,17 @@ public class JsResolverForModule(
         override val lazyResolveSession: ResolveSession
 ) : ResolverForModule
 
-public class JsPlatformParameters<M>(
-        public val syntheticFiles: Collection<JetFile>,
-        public val moduleScope: GlobalSearchScope
-) : PlatformModuleParameters
+//TODO: is it needed?
+public class JsPlatformParameters<M>(syntheticFiles: Collection<JetFile>, moduleScope: GlobalSearchScope) :
+        PlatformModuleParameters(syntheticFiles, moduleScope)
 
-public class JsAnalyzerFacade() : AnalyzerFacade<JsResolverForModule, JsPlatformParameters<*>> {
+public class JsAnalyzerFacade() : AnalyzerFacade<JsResolverForModule, PlatformModuleParameters> {
 
     override fun <M> createResolverForModule(
             project: Project,
             globalContext: GlobalContext,
             moduleDescriptor: ModuleDescriptorBase,
-            platformParameters: JsPlatformParameters<out Any?>,
+            platformParameters: PlatformModuleParameters,
             setup: ResolverForProject<M, JsResolverForModule>
     ): JsResolverForModule {
         val declarationProviderFactory = DeclarationProviderFactoryService.createDeclarationProviderFactory(
@@ -56,6 +55,7 @@ public class JsAnalyzerFacade() : AnalyzerFacade<JsResolverForModule, JsPlatform
 
         val injector = InjectorForLazyResolve(project, globalContext, moduleDescriptor, declarationProviderFactory, BindingTraceContext())
         val resolveSession = injector.getResolveSession()!!
+        moduleDescriptor.setPackageFragmentProviderForSources(resolveSession.getPackageFragmentProvider())
         return JsResolverForModule(resolveSession)
     }
 

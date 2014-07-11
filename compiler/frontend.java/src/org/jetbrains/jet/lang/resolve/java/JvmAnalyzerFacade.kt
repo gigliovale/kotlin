@@ -43,10 +43,10 @@ public class JvmResolverForModule(
 ) : ResolverForModule
 
 public class JvmPlatformParameters<M>(
-        public val syntheticFiles: Collection<JetFile>,
-        public val moduleScope: GlobalSearchScope,
+        syntheticFiles: Collection<JetFile>,
+        moduleScope: GlobalSearchScope,
         public val moduleByJavaClass: (JavaClass) -> M
-) : PlatformModuleParameters
+) : PlatformModuleParameters(syntheticFiles, moduleScope)
 
 public class JvmAnalyzerFacade() : AnalyzerFacade<JvmResolverForModule, JvmPlatformParameters<*>> {
     override fun <M> createResolverForModule(

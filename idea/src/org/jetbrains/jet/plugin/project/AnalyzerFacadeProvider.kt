@@ -19,9 +19,14 @@ package org.jetbrains.jet.plugin.project
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.analyzer.new.AnalyzerFacade
 import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
+import org.jetbrains.jet.plugin.caches.resolve.JsAnalyzerFacade
 
 public object AnalyzerFacadeProvider {
     public fun getAnalyzerFacade(targetPlatform: TargetPlatform): AnalyzerFacade<*, *> {
-        return if (targetPlatform == TargetPlatform.JVM) JvmAnalyzerFacade() else throw UnsupportedOperationException("Only jvm supported temporarily")
+        return when (targetPlatform) {
+            TargetPlatform.JVM -> JvmAnalyzerFacade()
+            TargetPlatform.JS -> JsAnalyzerFacade()
+            else -> throw IllegalArgumentException("Unsupported platfrom: $targetPlatform")
+        }
     }
 }

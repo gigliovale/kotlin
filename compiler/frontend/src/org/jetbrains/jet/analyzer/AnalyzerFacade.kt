@@ -27,6 +27,8 @@ import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
 import java.util.ArrayList
+import org.jetbrains.jet.lang.psi.JetFile
+import com.intellij.psi.search.GlobalSearchScope
 
 //TODO: ResolverForModule
 public trait ResolverForModule {
@@ -47,7 +49,10 @@ public class ResolverForProjectImpl<M, A : ResolverForModule>(
     override val analyzerByModuleDescriptor: MutableMap<ModuleDescriptor, A> = HashMap()
 }
 
-public trait PlatformModuleParameters
+public open class PlatformModuleParameters(
+        public val syntheticFiles: Collection<JetFile>,
+        public val moduleScope: GlobalSearchScope
+)
 
 public trait ModuleInfo<T : ModuleInfo<T>> {
     val name: Name

@@ -255,7 +255,7 @@ private fun generatorForBodyResolve() =
 private fun generatorForLazyResolve() =
         generator("compiler/frontend/src", "org.jetbrains.jet.di", "InjectorForLazyResolve") {
             parameter(javaClass<Project>())
-            parameter(javaClass<GlobalContextImpl>(), useAsContext = true)
+            parameter(javaClass<GlobalContext>(), useAsContext = true)
             parameter(javaClass<ModuleDescriptorImpl>(), useAsContext = true)
             parameter(javaClass<DeclarationProviderFactory>())
             parameter(javaClass<BindingTrace>())

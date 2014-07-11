@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
+import java.util.ArrayList
 
 //TODO: ResolverForModule
 public trait ResolverForModule {
@@ -54,11 +55,26 @@ public trait ModuleInfo<T : ModuleInfo<T>> {
     fun dependencyOnBuiltins(): DependencyOnBuiltins = DependenciesOnBuiltins.LAST
 
     //TODO: modifyDependencies(OrderedMap [ModuleInfo -> ModuleDescriptor])
-    public trait DependencyOnBuiltins
+    public trait DependencyOnBuiltins {
+        fun adjustDependencies(builtinsModule: ModuleDescriptor, dependencies: MutableList<ModuleDescriptor>)
+    }
 
     public enum class DependenciesOnBuiltins: DependencyOnBuiltins {
-        NONE
-        LAST
+
+        override fun adjustDependencies(builtinsModule: ModuleDescriptor, dependencies: MutableList<ModuleDescriptor>) {
+            //TODO: report bug
+        }
+
+        NONE {
+            override fun adjustDependencies(builtinsModule: ModuleDescriptor, dependencies: MutableList<ModuleDescriptor>) {
+                //do nothing
+            }
+        }
+        LAST {
+            override fun adjustDependencies(builtinsModule: ModuleDescriptor, dependencies: MutableList<ModuleDescriptor>) {
+                dependencies.add(builtinsModule)
+            }
+        }
     }
 }
 
@@ -88,17 +104,9 @@ public trait AnalyzerFacade<A : ResolverForModule, P : PlatformModuleParameters>
             modules.forEach {
                 module ->
                 val currentModule = resolverForProject.descriptorByModule[module]!!
-                module.dependencies().forEach {
-                    dependency ->
-                    val dependencyDescriptor = resolverForProject.descriptorByModule[dependency]!!
-                    currentModule.addDependencyOnModule(dependencyDescriptor)
-                }
-                //TODO: more
-                when (module.dependencyOnBuiltins()) {
-                    ModuleInfo.DependenciesOnBuiltins.LAST -> {
-                        currentModule.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule())
-                    }
-                }
+                val dependenciesDescriptors = module.dependencies().mapTo(ArrayList<ModuleDescriptorImpl>()) { dependency -> resolverForProject.descriptorByModule[dependency]!! }
+                module.dependencyOnBuiltins().adjustDependencies(KotlinBuiltIns.getInstance().getBuiltInsModule(), dependenciesDescriptors)
+                dependenciesDescriptors.forEach { currentModule.addDependencyOnModule(it) }
             }
         }
 

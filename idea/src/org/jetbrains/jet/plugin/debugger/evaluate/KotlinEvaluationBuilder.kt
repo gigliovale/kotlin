@@ -24,7 +24,6 @@ import com.intellij.debugger.engine.evaluation.expression.*
 import org.jetbrains.jet.lang.resolve.AnalyzingUtils
 import org.jetbrains.jet.codegen.state.GenerationState
 import org.jetbrains.jet.codegen.ClassBuilderFactories
-import java.util.Collections
 import org.jetbrains.jet.codegen.KotlinCodegenFacade
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.testFramework.LightVirtualFile
@@ -59,10 +58,10 @@ import com.sun.jdi.ObjectReference
 import com.intellij.debugger.engine.SuspendContext
 import org.jetbrains.jet.plugin.debugger.evaluate.KotlinEvaluateExpressionCache.*
 import org.jetbrains.jet.lang.resolve.BindingContext
-import com.sun.jdi.StackFrame
 import com.sun.jdi.VirtualMachine
 import org.jetbrains.jet.codegen.AsmUtil
 import com.sun.jdi.InvalidStackFrameException
+import org.jetbrains.jet.lang.psi.ANALYSIS_CONTEXT
 
 private val RECEIVER_NAME = "\$receiver"
 private val THIS_NAME = "this"
@@ -282,6 +281,7 @@ private fun createFileForDebugger(codeFragment: JetCodeFragment,
     val jetFile = (PsiFileFactory.getInstance(codeFragment.getProject()) as PsiFileFactoryImpl)
             .trySetupPsiForFile(virtualFile, JetLanguage.INSTANCE, true, false) as JetFile
     jetFile.skipVisibilityCheck = true
+    jetFile.putUserData(ANALYSIS_CONTEXT, codeFragment)
     return jetFile
 }
 

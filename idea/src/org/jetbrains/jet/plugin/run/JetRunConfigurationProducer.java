@@ -79,7 +79,6 @@ public class JetRunConfigurationProducer extends RuntimeConfigurationProducer im
         PsiFile psiFile = location.getPsiElement().getContainingFile();
         if (psiFile instanceof JetFile) {
             JetFile jetFile = (JetFile) psiFile;
-            AnalyzerFacade facade = AnalyzerFacadeProvider.getAnalyzerFacadeForFile(jetFile);
             //TODO:
             throw new UnsupportedOperationException();
             //ResolveSession resolveSession = facade.createSetup(jetFile.getProject(), new ModuleDescriptorImpl(""), Collections.singleton(jetFile), ).getLazyResolveSession();

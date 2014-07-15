@@ -212,10 +212,6 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
         println("Should not analyze element: ${getText()} in file ${containingFile?.getName() ?: " no file"}")
         println(doNotAnalyze)
     }
-    val contextElement = containingFile?.getUserData(ShortenReferences.CONTEXT_FOR_SYNTHETIC_CODE_ELEMENT)
-    if (contextElement != null) {
-        return contextElement.getModuleInfo()
-    }
     val project = getProject()
     //TODO: deal with non physical file
     //TODO: can be clearer and more optimal?

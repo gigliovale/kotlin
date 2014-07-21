@@ -50,7 +50,7 @@ import org.jetbrains.jet.lang.psi.JetElement
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.jet.analyzer.new.AnalyzerFacade
 import org.jetbrains.jet.analyzer.new.ResolverForModule
-import org.jetbrains.jet.lang.psi.JetPsiFactory
+import org.jetbrains.jet.lang.psi.*
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
@@ -207,7 +207,7 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
 
     val containingFile = (this as? JetElement)?.getContainingFile()
-    val doNotAnalyze = containingFile?.getUserData(JetPsiFactory.DO_NOT_ANALYZE)
+    val doNotAnalyze = containingFile?.getUserData(DO_NOT_ANALYZE)
     if (doNotAnalyze != null) {
         println("Should not analyze element: ${getText()} in file ${containingFile?.getName() ?: " no file"}")
         println(doNotAnalyze)

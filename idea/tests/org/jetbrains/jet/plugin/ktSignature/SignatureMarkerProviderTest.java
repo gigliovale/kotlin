@@ -26,11 +26,16 @@ import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.analyzer.AnalyzeExhaust;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
+import org.jetbrains.jet.lang.psi.JetElement;
 import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.BindingContext;
+import org.jetbrains.jet.lang.resolve.DescriptorUtils;
+import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
+import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.plugin.JetFileType;
 import org.jetbrains.jet.plugin.JetLightProjectDescriptor;
+import org.jetbrains.jet.plugin.caches.resolve.JavaResolveExtension;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 
 import static org.jetbrains.jet.lang.resolve.ResolvePackage.resolveTopLevelClass;
@@ -44,17 +49,18 @@ public class SignatureMarkerProviderTest extends LightCodeInsightFixtureTestCase
     }
 
     public void testReResolveJavaClass() {
-        Project project;
-        project = myFixture.getProject();
-
+        Project project = myFixture.getProject();
 
         PsiFile file = myFixture.configureByText(JetFileType.INSTANCE, "val t: Thread? = null");
+        ResolvePackage.getAnalysisResults((JetFile) file);
 
         PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass("java.lang.Thread", GlobalSearchScope.allScope(project));
-        AnalyzeExhaust analysisResults = ResolvePackage.getAnalysisResults((JetFile) file);
-        ClassDescriptor preResolvedClass = analysisResults.getBindingContext().get(BindingContext.CLASS, psiClass);
+        assert psiClass != null;
+        JavaDescriptorResolver resolver = JavaResolveExtension.INSTANCE$.get(project).invoke(psiClass);
+        ClassDescriptor preResolvedClass = resolver.resolveClass(new JavaClassImpl(psiClass));
 
-        ClassDescriptor reResolvedClass = resolveTopLevelClass(analysisResults.getModuleDescriptor(), new FqName("java.lang.Thread"));
+        assert preResolvedClass != null;
+        ClassDescriptor reResolvedClass = resolveTopLevelClass(DescriptorUtils.getContainingModule(preResolvedClass), new FqName("java.lang.Thread"));
 
         assertSame(preResolvedClass, reResolvedClass);
     }

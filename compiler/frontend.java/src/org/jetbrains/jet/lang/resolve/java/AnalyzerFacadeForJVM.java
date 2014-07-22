@@ -20,13 +20,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.analyzer.AnalyzeExhaust;
 import org.jetbrains.jet.context.ContextPackage;
 import org.jetbrains.jet.context.GlobalContext;
-import org.jetbrains.jet.context.GlobalContextImpl;
-import org.jetbrains.jet.di.InjectorForLazyResolveWithJava;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
 import org.jetbrains.jet.lang.descriptors.PackageFragmentProvider;
 import org.jetbrains.jet.lang.descriptors.impl.CompositePackageFragmentProvider;
@@ -38,14 +35,9 @@ import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap;
 import org.jetbrains.jet.lang.resolve.kotlin.incremental.IncrementalCache;
 import org.jetbrains.jet.lang.resolve.kotlin.incremental.IncrementalPackageFragmentProvider;
-import org.jetbrains.jet.lang.resolve.lazy.ResolveSession;
-import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactory;
-import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService;
 import org.jetbrains.jet.lang.resolve.name.Name;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -62,41 +54,6 @@ public enum AnalyzerFacadeForJVM  {
     );
 
     private AnalyzerFacadeForJVM() {
-    }
-
-    @NotNull
-    public static ResolveSession createResolveSessionForFiles(
-            @NotNull Project project,
-            @NotNull Collection<JetFile> syntheticFiles,
-            @NotNull GlobalSearchScope filesScope,
-            @NotNull BindingTrace trace,
-            boolean addBuiltIns
-    ) {
-        GlobalContextImpl globalContext = ContextPackage.GlobalContext();
-
-        DeclarationProviderFactory declarationProviderFactory = DeclarationProviderFactoryService.OBJECT$
-                .createDeclarationProviderFactory(project, globalContext.getStorageManager(), syntheticFiles, filesScope);
-
-        InjectorForLazyResolveWithJava resolveWithJava = new InjectorForLazyResolveWithJava(
-                project,
-                globalContext,
-                declarationProviderFactory,
-                trace);
-
-        ModuleDescriptorImpl module = resolveWithJava.getModule();
-        module.initialize(
-                new CompositePackageFragmentProvider(
-                        Arrays.asList(
-                                resolveWithJava.getResolveSession().getPackageFragmentProvider(),
-                                resolveWithJava.getJavaDescriptorResolver().getPackageFragmentProvider()
-                        )));
-
-        module.addDependencyOnModule(module);
-        if (addBuiltIns) {
-            module.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
-        }
-        module.seal();
-        return resolveWithJava.getResolveSession();
     }
 
     @NotNull

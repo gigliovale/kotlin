@@ -41,6 +41,8 @@ import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import java.util.List;
 import java.util.Set;
 
+import static org.jetbrains.jet.lang.resolve.lazy.LazyPackage.createResolveSessionForFiles;
+
 public class LazyResolveTestUtil {
     private LazyResolveTestUtil() {
     }
@@ -61,16 +63,18 @@ public class LazyResolveTestUtil {
         return injector.getModuleDescriptor();
     }
 
-    public static KotlinCodeAnalyzer resolveLazilyWithSession(List<JetFile> files, JetCoreEnvironment environment, boolean addBuiltIns) {
+    @NotNull
+    public static KotlinCodeAnalyzer resolveLazilyWithSession(
+            @NotNull List<JetFile> files,
+            @NotNull JetCoreEnvironment environment,
+            boolean addBuiltIns
+    ) {
         JetTestUtils.newTrace(environment);
 
         Project project = environment.getProject();
         CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(project);
-        BindingTrace sharedTrace = support.getTrace();
-
-        ResolveSession lazyResolveSession = AnalyzerFacadeForJVM.createResolveSessionForFiles(project, files, GlobalSearchScope.EMPTY_SCOPE,
-                                                                                              sharedTrace, addBuiltIns);
-        support.setModule((ModuleDescriptorImpl)lazyResolveSession.getModuleDescriptor());
+        ResolveSession lazyResolveSession = createResolveSessionForFiles(project, files, addBuiltIns);
+        support.setModule(lazyResolveSession.getModuleDescriptor());
 
         return lazyResolveSession;
     }

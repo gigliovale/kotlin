@@ -20,6 +20,7 @@ import org.jetbrains.jet.analyzer.new.AnalyzerFacade
 import org.jetbrains.jet.analyzer.new.ResolverForModule
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
 import org.jetbrains.jet.analyzer.new.PlatformModuleParameters
+import org.jetbrains.jet.analyzer.new.ResolverForProject
 import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap
 import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService

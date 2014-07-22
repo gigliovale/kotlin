@@ -44,7 +44,8 @@ import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFacto
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 

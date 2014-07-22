@@ -17,8 +17,6 @@
 package org.jetbrains.jet.plugin.caches.resolve
 
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
-import org.jetbrains.jet.analyzer.AnalyzerFacade
-import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.JvmSetup
 import org.jetbrains.jet.plugin.project.TargetPlatform
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement

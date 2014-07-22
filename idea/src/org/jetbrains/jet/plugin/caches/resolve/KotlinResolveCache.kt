@@ -38,7 +38,6 @@ import com.intellij.openapi.roots.libraries.LibraryUtil
 import org.jetbrains.jet.lang.resolve.LibrarySourceHacks
 import org.jetbrains.jet.plugin.project.TargetPlatform
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
-import org.jetbrains.jet.analyzer.AnalyzerFacade
 import java.util.HashMap
 import com.intellij.psi.PsiElement
 import org.jetbrains.jet.lang.resolve.BindingContext
@@ -64,9 +63,6 @@ import org.jetbrains.jet.analyzer.analyzeInContext
 import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import org.jetbrains.jet.lang.types.TypeUtils
 import org.jetbrains.jet.lang.resolve.scopes.ChainedScope
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.roots.ProjectFileIndex
-import org.jetbrains.kotlin.util.sure
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public trait CacheExtension<T> {

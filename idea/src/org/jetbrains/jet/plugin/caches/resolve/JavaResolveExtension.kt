@@ -21,13 +21,17 @@ import org.jetbrains.jet.analyzer.AnalyzerFacade
 import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.JvmSetup
 import org.jetbrains.jet.plugin.project.TargetPlatform
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
 
-object JavaResolveExtension : CacheExtension<JavaDescriptorResolver> {
+object JavaResolveExtension : CacheExtension<(PsiElement) -> JavaDescriptorResolver> {
     override val platform: TargetPlatform = TargetPlatform.JVM
 
-    override fun getData(setup: AnalyzerFacade.Setup): JavaDescriptorResolver {
-        return (setup as JvmSetup).getJavaDescriptorResolver()
+    override fun getData(setup: ModuleSetup): (PsiElement) -> JavaDescriptorResolver {
+        return {
+            (setup.setupByModule(it.getModuleInfo()!!) as JvmResolverForModule).javaDescriptorResolver
+        }
     }
 
-    public fun get(project: Project): JavaDescriptorResolver = KotlinCacheService.getInstance(project)[this]
+    public fun get(project: Project): (PsiElement) -> JavaDescriptorResolver = KotlinCacheService.getInstance(project)[this]
 }

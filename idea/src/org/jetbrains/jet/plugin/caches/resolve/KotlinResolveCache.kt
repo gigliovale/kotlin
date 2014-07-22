@@ -71,7 +71,7 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public trait CacheExtension<T> {
     val platform: TargetPlatform
-    fun getData(setup: AnalyzerFacade.Setup): T
+    fun getData(setup: ModuleSetup): T
 }
 
 private class SessionAndSetup(
@@ -97,14 +97,9 @@ private class KotlinResolveCache(
         return setupCache.getValue().resolveSessionForBodiesByModuleDescriptor(moduleDescriptor)
     }
 
-    public fun <T> get(element: PsiElement, extension: CacheExtension<T>): T {
-        //val cache = setupCache.getValue()
-        //val setup = cache.setupByModule(element.module())
-        ////TODO: platform
-        //assert(extension.platform == sessionAndSetup.platform,
-        //       "Extension $extension declares platfrom ${extension.platform} which is incompatible with ${sessionAndSetup.platform}")
-        //return extension.getData(setup)
-        throw UnsupportedOperationException()
+    public fun <T> get(extension: CacheExtension<T>): T {
+        val cache = setupCache.getValue()
+        return extension.getData(cache)
     }
 
     private val analysisResults = CachedValuesManager.getManager(project).createCachedValue ({

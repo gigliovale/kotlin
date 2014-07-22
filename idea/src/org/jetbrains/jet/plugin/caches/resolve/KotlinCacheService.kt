@@ -159,8 +159,7 @@ class KotlinCacheService(val project: Project) {
     }
 
     public fun <T> get(extension: CacheExtension<T>): T {
-        //TODO:
-        //return globalCachesPerPlatform[extension.platform]!![extension]
-        throw UnsupportedOperationException()
+        val kotlinResolveCache = globalCachesPerPlatform[extension.platform]
+        return kotlinResolveCache!![extension]
     }
 }

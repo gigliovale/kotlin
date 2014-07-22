@@ -19,14 +19,10 @@ package org.jetbrains.jet.lang.resolve.java;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
-import kotlin.Function1;
-import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.analyzer.AnalyzeExhaust;
-import org.jetbrains.jet.analyzer.AnalyzerFacade;
 import org.jetbrains.jet.context.ContextPackage;
 import org.jetbrains.jet.context.GlobalContext;
 import org.jetbrains.jet.context.GlobalContextImpl;
@@ -48,9 +44,11 @@ import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFacto
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
-import java.util.*;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
 
-public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
+public enum AnalyzerFacadeForJVM  {
 
     INSTANCE {
     };
@@ -62,26 +60,11 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
             new ImportPath("kotlin.io.*")
     );
 
-    public static class JvmSetup extends BasicSetup {
-
-        private final JavaDescriptorResolver javaDescriptorResolver;
-
-        public JvmSetup(@NotNull ResolveSession session, @NotNull JavaDescriptorResolver javaDescriptorResolver) {
-            super(session);
-            this.javaDescriptorResolver = javaDescriptorResolver;
-        }
-
-        @NotNull
-        public JavaDescriptorResolver getJavaDescriptorResolver() {
-            return javaDescriptorResolver;
-        }
-    }
-
     private AnalyzerFacadeForJVM() {
     }
 
     @NotNull
-    public static JvmSetup createSetup(
+    public static ResolveSession createResolveSessionForFiles(
             @NotNull Project project,
             @NotNull Collection<JetFile> syntheticFiles,
             @NotNull GlobalSearchScope filesScope,
@@ -112,7 +95,7 @@ public enum AnalyzerFacadeForJVM implements AnalyzerFacade {
             module.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
         }
         module.seal();
-        return new JvmSetup(resolveWithJava.getResolveSession(), resolveWithJava.getJavaDescriptorResolver());
+        return resolveWithJava.getResolveSession();
     }
 
     @NotNull

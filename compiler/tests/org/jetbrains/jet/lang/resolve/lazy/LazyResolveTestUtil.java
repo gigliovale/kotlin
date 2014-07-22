@@ -68,8 +68,8 @@ public class LazyResolveTestUtil {
         CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(project);
         BindingTrace sharedTrace = support.getTrace();
 
-        ResolveSession lazyResolveSession = AnalyzerFacadeForJVM.createSetup(project, files, GlobalSearchScope.EMPTY_SCOPE,
-                                                                             sharedTrace, addBuiltIns).getLazyResolveSession();
+        ResolveSession lazyResolveSession = AnalyzerFacadeForJVM.createResolveSessionForFiles(project, files, GlobalSearchScope.EMPTY_SCOPE,
+                                                                                              sharedTrace, addBuiltIns);
         support.setModule((ModuleDescriptorImpl)lazyResolveSession.getModuleDescriptor());
 
         return lazyResolveSession;

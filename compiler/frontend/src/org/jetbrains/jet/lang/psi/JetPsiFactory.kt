@@ -34,6 +34,7 @@ public fun JetPsiFactory(project: Project?): JetPsiFactory = JetPsiFactory(proje
 public fun JetPsiFactory(contextElement: JetElement): JetPsiFactory = JetPsiFactory(contextElement.getProject())
 
 public val DO_NOT_ANALYZE: Key<String> = Key.create("DO_NO_ANALYZE")
+public val ANALYSIS_CONTEXT: Key<JetElement> = Key.create("ANALYSIS_CONTEXT")
 
 public class JetPsiFactory(private val project: Project) {
 
@@ -124,6 +125,12 @@ public class JetPsiFactory(private val project: Project) {
         val sw = StringWriter()
         Exception().printStackTrace(PrintWriter(sw))
         file.putUserData(DO_NOT_ANALYZE, sw.toString())
+        return file as JetFile
+    }
+
+    public fun createAnalyzableFile(fileName: String, text: String, contextToAnalyzeIn: JetElement): JetFile {
+        val file = PsiFileFactory.getInstance(project).createFileFromText(fileName, JetFileType.INSTANCE, text, LocalTimeCounter.currentTime(), false)
+        file.putUserData(ANALYSIS_CONTEXT, contextToAnalyzeIn)
         return file as JetFile
     }
 

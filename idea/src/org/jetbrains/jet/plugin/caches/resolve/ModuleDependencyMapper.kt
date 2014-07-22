@@ -207,6 +207,9 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
 
     val containingFile = (this as? JetElement)?.getContainingFile()
+    val context = containingFile?.getUserData(ANALYSIS_CONTEXT)
+    if (context != null) return context.getModuleInfo()
+
     val doNotAnalyze = containingFile?.getUserData(DO_NOT_ANALYZE)
     if (doNotAnalyze != null) {
         println("Should not analyze element: ${getText()} in file ${containingFile?.getName() ?: " no file"}")

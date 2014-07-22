@@ -74,12 +74,6 @@ public trait CacheExtension<T> {
     fun getData(setup: ModuleSetup): T
 }
 
-private class SessionAndSetup(
-        val platform: TargetPlatform,
-        val resolveSessionForBodies: ResolveSessionForBodies,
-        val setup: AnalyzerFacade.Setup
-)
-
 private class KotlinResolveCache(
         val project: Project,
         setupProvider: () -> CachedValueProvider.Result<ModuleSetup>

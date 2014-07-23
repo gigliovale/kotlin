@@ -17,15 +17,15 @@
 package org.jetbrains.jet.plugin.caches.resolve
 
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
-import org.jetbrains.jet.analyzer.new.ResolverForModule
+import org.jetbrains.jet.analyzer.ResolverForModule
 import org.jetbrains.jet.lang.psi.JetFile
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.jet.analyzer.new.PlatformModuleParameters
-import org.jetbrains.jet.analyzer.new.AnalyzerFacade
+import org.jetbrains.jet.analyzer.PlatformModuleParameters
+import org.jetbrains.jet.analyzer.AnalyzerFacade
 import com.intellij.openapi.project.Project
 import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptorBase
-import org.jetbrains.jet.analyzer.new.ResolverForProject
+import org.jetbrains.jet.analyzer.ResolverForProject
 import org.jetbrains.k2js.analyze.AnalyzerFacadeForJS
 import org.jetbrains.jet.lang.PlatformToKotlinClassMap
 import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService

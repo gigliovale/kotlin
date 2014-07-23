@@ -16,9 +16,8 @@
 
 package org.jetbrains.jet.plugin.project
 
-import org.jetbrains.jet.lang.psi.JetFile
-import org.jetbrains.jet.analyzer.new.AnalyzerFacade
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
+import org.jetbrains.jet.analyzer.AnalyzerFacade
+import org.jetbrains.jet.lang.resolve.java.JvmAnalyzerFacade
 import org.jetbrains.jet.plugin.caches.resolve.JsAnalyzerFacade
 
 public object AnalyzerFacadeProvider {

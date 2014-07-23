@@ -33,18 +33,11 @@ import org.jetbrains.jet.plugin.project.TargetPlatform.*
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
 import org.jetbrains.jet.plugin.project.TargetPlatformDetector
 import org.jetbrains.jet.lang.psi.JetCodeFragment
-import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM
-import org.jetbrains.jet.utils.keysToMap
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
 import org.jetbrains.jet.plugin.stubindex.JetSourceFilterScope
-import org.jetbrains.kotlin.util.sure
-import com.intellij.psi.PsiElement
-import org.jetbrains.jet.lang.resolve.CompositeBindingContext
 
 private val LOG = Logger.getInstance(javaClass<KotlinCacheService>())
 

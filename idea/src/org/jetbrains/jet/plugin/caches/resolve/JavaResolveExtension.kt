@@ -20,7 +20,7 @@ import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
 import org.jetbrains.jet.plugin.project.TargetPlatform
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
+import org.jetbrains.jet.lang.resolve.java.JvmResolverForModule
 
 object JavaResolveExtension : CacheExtension<(PsiElement) -> JavaDescriptorResolver> {
     override val platform: TargetPlatform = TargetPlatform.JVM

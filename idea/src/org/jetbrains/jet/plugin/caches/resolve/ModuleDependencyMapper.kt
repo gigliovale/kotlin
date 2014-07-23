@@ -19,7 +19,6 @@ package org.jetbrains.jet.plugin.caches.resolve
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
 import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.context.GlobalContext
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleSourceOrderEntry
@@ -30,10 +29,10 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import com.intellij.openapi.roots.ModuleOrderEntry
 import com.intellij.openapi.roots.LibraryOrderEntry
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
-import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
+import org.jetbrains.jet.lang.resolve.java.JvmPlatformParameters
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaClassImpl
 import com.intellij.openapi.roots.libraries.Library
-import org.jetbrains.jet.analyzer.new.ModuleInfo
+import org.jetbrains.jet.analyzer.ModuleInfo
 import com.intellij.openapi.roots.JdkOrderEntry
 import com.intellij.openapi.module.impl.scopes.LibraryScopeBase
 import com.intellij.openapi.roots.OrderRootType
@@ -44,12 +43,9 @@ import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
 import org.jetbrains.jet.asJava.unwrapped
-import org.jetbrains.jet.lang.psi.JetCodeFragment
-import org.jetbrains.jet.plugin.codeInsight.ShortenReferences
-import org.jetbrains.jet.lang.psi.JetElement
 import com.intellij.openapi.projectRoots.Sdk
-import org.jetbrains.jet.analyzer.new.AnalyzerFacade
-import org.jetbrains.jet.analyzer.new.ResolverForModule
+import org.jetbrains.jet.analyzer.AnalyzerFacade
+import org.jetbrains.jet.analyzer.ResolverForModule
 import org.jetbrains.jet.lang.psi.*
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {

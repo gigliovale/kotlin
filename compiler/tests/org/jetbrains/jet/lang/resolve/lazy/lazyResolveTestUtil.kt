@@ -32,7 +32,7 @@ public fun createResolveSessionForFiles(
 ): ResolveSession {
     val globalContext = GlobalContext()
     val testModule = TestModule(addBuiltIns)
-    val resolverForProject = JvmAnalyzerFacade().setupResolverForProject(globalContext, project, listOf(testModule)) {
+    val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(globalContext, project, listOf(testModule)) {
         JvmPlatformParameters(syntheticFiles, GlobalSearchScope.allScope(project)) { testModule }
     }
     val moduleDescriptor = resolverForProject.descriptorByModule[testModule]

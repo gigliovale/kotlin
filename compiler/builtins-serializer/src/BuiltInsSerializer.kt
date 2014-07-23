@@ -82,7 +82,7 @@ public class BuiltInsSerializer(val out: PrintStream?) {
             (builtInModule: BuiltinsSourcesModule) ->
             JvmPlatformParameters(files, GlobalSearchScope.EMPTY_SCOPE, { throw IllegalStateException() })
         }
-        val resolver = JvmAnalyzerFacade().setupResolverForProject(GlobalContext(), environment.getProject(), listOf(builtInModule), params)
+        val resolver = JvmAnalyzerFacade.setupResolverForProject(GlobalContext(), environment.getProject(), listOf(builtInModule), params)
 
         val moduleDescriptor = resolver.descriptorByModule[builtInModule]!!
 

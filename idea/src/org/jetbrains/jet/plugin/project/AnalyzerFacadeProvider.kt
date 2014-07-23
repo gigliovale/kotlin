@@ -24,8 +24,8 @@ import org.jetbrains.jet.plugin.caches.resolve.JsAnalyzerFacade
 public object AnalyzerFacadeProvider {
     public fun getAnalyzerFacade(targetPlatform: TargetPlatform): AnalyzerFacade<*, *> {
         return when (targetPlatform) {
-            TargetPlatform.JVM -> JvmAnalyzerFacade()
-            TargetPlatform.JS -> JsAnalyzerFacade()
+            TargetPlatform.JVM -> JvmAnalyzerFacade
+            TargetPlatform.JS -> JsAnalyzerFacade
             else -> throw IllegalArgumentException("Unsupported platfrom: $targetPlatform")
         }
     }

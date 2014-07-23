@@ -40,7 +40,7 @@ public class JsResolverForModule(
 public class JsPlatformParameters<M>(syntheticFiles: Collection<JetFile>, moduleScope: GlobalSearchScope) :
         PlatformModuleParameters(syntheticFiles, moduleScope)
 
-public class JsAnalyzerFacade() : AnalyzerFacade<JsResolverForModule, PlatformModuleParameters> {
+public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformModuleParameters> {
 
     override fun <M> createResolverForModule(
             project: Project,

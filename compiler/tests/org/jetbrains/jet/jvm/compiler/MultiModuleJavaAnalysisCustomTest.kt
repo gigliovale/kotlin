@@ -56,7 +56,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         val moduleDirs = File(PATH_TO_TEST_ROOT_DIR).listFiles { it.isDirectory() }!!
         val environment = createEnvironment(moduleDirs)
         val modules = setupModules(environment, moduleDirs)
-        val resolverForProject = JvmAnalyzerFacade().setupResolverForProject<TestModule>(GlobalContext(), environment.getProject(), modules) {
+        val resolverForProject = JvmAnalyzerFacade.setupResolverForProject<TestModule>(GlobalContext(), environment.getProject(), modules) {
             module ->
             JvmPlatformParameters(module.kotlinFiles, module.javaFilesScope) {
                 javaClass ->

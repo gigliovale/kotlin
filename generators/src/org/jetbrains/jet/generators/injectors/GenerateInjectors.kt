@@ -59,7 +59,6 @@ public fun createInjectorGenerators(): List<DependencyInjectorGenerator> =
                 generatorForTopDownAnalyzerBasic(),
                 generatorForTopDownAnalyzerForJvm(),
                 generatorForJavaDescriptorResolver(),
-                generatorForLazyResolveWithJava(),
                 generatorForTopDownAnalyzerForJs(),
                 generatorForMacro(),
                 generatorForTests(),
@@ -146,39 +145,6 @@ private fun generatorForJavaDescriptorResolver() =
             )
             field(javaClass<VirtualFileFinder>(),
                   init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
-        }
-
-private fun generatorForLazyResolveWithJava() =
-        generator("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForLazyResolveWithJava") {
-            parameter(javaClass<Project>())
-            parameter(javaClass<GlobalContextImpl>(), useAsContext = true)
-            parameters(
-                    javaClass<DeclarationProviderFactory>(),
-                    javaClass<BindingTrace>()
-            )
-
-            publicField(javaClass<ModuleDescriptorImpl>(), name = "module", useAsContext = true,
-                        init = GivenExpression("org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.createJavaModule(\"<fake-jdr-module>\")"))
-            publicFields(
-                    javaClass<ResolveSession>(),
-                    javaClass<JavaDescriptorResolver>()
-            )
-
-            field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
-            field(javaClass<VirtualFileFinder>(),
-                  init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
-            fields(
-                    javaClass<JavaClassFinderImpl>(),
-                    javaClass<TraceBasedExternalSignatureResolver>(),
-                    javaClass<LazyResolveBasedCache>(),
-                    javaClass<TraceBasedErrorReporter>(),
-                    javaClass<PsiBasedMethodSignatureChecker>(),
-                    javaClass<PsiBasedExternalAnnotationResolver>(),
-                    javaClass<JavaPropertyInitializerEvaluatorImpl>(),
-                    javaClass<JavaSourceElementFactoryImpl>(),
-                    javaClass<SingleModuleClassResolver>()
-            )
         }
 
 private fun generatorForModuleAwareLazyResolveWithJava() =

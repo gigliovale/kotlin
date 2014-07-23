@@ -16,11 +16,11 @@
 
 package org.jetbrains.jet.jvm.compiler
 
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
+import org.jetbrains.jet.lang.resolve.java.JvmAnalyzerFacade
 import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.JetTestUtils
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
+import org.jetbrains.jet.lang.resolve.java.JvmPlatformParameters
 import org.jetbrains.jet.lang.psi.JetFile
 import java.io.File
 import com.intellij.psi.search.GlobalSearchScope
@@ -37,9 +37,9 @@ import org.jetbrains.jet.cli.jvm.JVMConfigurationKeys
 import com.intellij.psi.search.DelegatingGlobalSearchScope
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.resolve.java.new.JvmResolverForModule
-import org.jetbrains.jet.analyzer.new.ResolverForProject
-import org.jetbrains.jet.analyzer.new.ModuleInfo
+import org.jetbrains.jet.lang.resolve.java.JvmResolverForModule
+import org.jetbrains.jet.analyzer.ResolverForProject
+import org.jetbrains.jet.analyzer.ModuleInfo
 import java.util.ArrayList
 
 public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {

@@ -26,7 +26,6 @@ import org.jetbrains.jet.context.ContextPackage;
 import org.jetbrains.jet.context.GlobalContext;
 import org.jetbrains.jet.di.InjectorForTopDownAnalyzerForJvm;
 import org.jetbrains.jet.lang.descriptors.PackageFragmentProvider;
-import org.jetbrains.jet.lang.descriptors.impl.CompositePackageFragmentProvider;
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
@@ -101,6 +100,11 @@ public enum AnalyzerFacadeForJVM  {
 
     @NotNull
     public static ModuleDescriptorImpl createJavaModule(@NotNull String name) {
+        return new ModuleDescriptorImpl(Name.special(name), DEFAULT_IMPORTS, JavaToKotlinClassMap.getInstance());
+    }
+
+    @NotNull
+    public static ModuleDescriptorImpl createModule(@NotNull String name) {
         return new ModuleDescriptorImpl(Name.special(name), DEFAULT_IMPORTS, JavaToKotlinClassMap.getInstance());
     }
 }

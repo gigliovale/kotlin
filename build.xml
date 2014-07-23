@@ -631,4 +631,6 @@
         </zip>
         <echo message="##teamcity[publishArtifacts '${output.relative}/${output.name}.zip']"/>
     </target>
+    
+    <target name="build-artifacts" depends="zip"></target>
 </project>

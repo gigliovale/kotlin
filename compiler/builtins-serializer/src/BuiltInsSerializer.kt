@@ -41,10 +41,10 @@ import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.utils.recursePostOrder
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.jet.lang.resolve.java.new.JvmAnalyzerFacade
+import org.jetbrains.jet.lang.resolve.java.JvmAnalyzerFacade
 import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.analyzer.new.ModuleInfo
-import org.jetbrains.jet.lang.resolve.java.new.JvmPlatformParameters
+import org.jetbrains.jet.analyzer.ModuleInfo
+import org.jetbrains.jet.lang.resolve.java.JvmPlatformParameters
 
 public class BuiltInsSerializer(val out: PrintStream?) {
     private var totalSize = 0

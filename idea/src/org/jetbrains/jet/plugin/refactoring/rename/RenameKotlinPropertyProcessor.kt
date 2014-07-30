@@ -42,6 +42,8 @@ import org.jetbrains.jet.lang.resolve.OverrideResolver
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
 import org.jetbrains.jet.plugin.util.application.runReadAction
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import org.jetbrains.jet.lang.resolve.android.isAndroidSyntheticElement
+import com.intellij.openapi.components.ServiceManager
 
 public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
     override fun canProcessElement(element: PsiElement): Boolean = element.namedUnwrappedElement is JetProperty
@@ -87,6 +89,11 @@ public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
 
         for (propertyMethod in propertyMethods) {
             addRenameElements(propertyMethod, jetProperty.getName(), newName, allRenames, scope)
+        }
+
+        if (isAndroidSyntheticElement(element)) {
+            val parser = ServiceManager.getService(element?.getProject()!!, javaClass<AndroidUIXmlParser>())
+            parser?.renameId(jetProperty.getName(), newName, allRenames)
         }
     }
 

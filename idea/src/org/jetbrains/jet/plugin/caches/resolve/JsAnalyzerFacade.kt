@@ -31,6 +31,7 @@ import org.jetbrains.jet.lang.PlatformToKotlinClassMap
 import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService
 import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import org.jetbrains.jet.di.InjectorForLazyResolve
+import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
 
 public class JsResolverForModule(
         override val lazyResolveSession: ResolveSession
@@ -45,7 +46,7 @@ public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformMod
     override fun <M> createResolverForModule(
             project: Project,
             globalContext: GlobalContext,
-            moduleDescriptor: ModuleDescriptorBase,
+            moduleDescriptor: ModuleDescriptorImpl,
             platformParameters: PlatformModuleParameters,
             setup: ResolverForProject<M, JsResolverForModule>
     ): JsResolverForModule {
@@ -55,7 +56,7 @@ public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformMod
 
         val injector = InjectorForLazyResolve(project, globalContext, moduleDescriptor, declarationProviderFactory, BindingTraceContext())
         val resolveSession = injector.getResolveSession()!!
-        moduleDescriptor.setPackageFragmentProviderForSources(resolveSession.getPackageFragmentProvider())
+        moduleDescriptor.initialize(resolveSession.getPackageFragmentProvider())
         return JsResolverForModule(resolveSession)
     }
 

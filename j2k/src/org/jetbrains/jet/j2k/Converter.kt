@@ -101,7 +101,7 @@ public class Converter private(val project: Project,
         val builder = CodeBuilder(element)
         builder.append(converted)
         if (postProcessor != null) {
-            return AfterConversionPass(project, postProcessor).run(builder.result)
+            return AfterConversionPass(project, postProcessor, element).run(builder.result)
         }
         else {
             return builder.result

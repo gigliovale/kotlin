@@ -121,6 +121,7 @@ public trait AnalyzerFacade<A : ResolverForModule, P : PlatformModuleParameters>
         }
 
         setupModuleDependencies()
+        resolverForProject.descriptorByModule.values().forEach { it.seal() }
 
         fun initializeResolverForProject() {
             modules.forEach {

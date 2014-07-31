@@ -245,7 +245,7 @@ public class JetCoreEnvironment {
                 configuration.getList(CommonConfigurationKeys.SCRIPT_DEFINITIONS_KEY));
 
         String s = configuration.get(JVMConfigurationKeys.ANDROID_RES_PATH);
-        project.registerService(AndroidUIXmlParser.class, new CliAndroidUIXmlParser(project, s));
+        project.registerService(AndroidUIXmlProcessor.class, new CliAndroidUIXmlProcessor(project, s));
         project.registerService(VirtualFileFinderFactory.class, new CliVirtualFileFinderFactory(classPath));
     }
 

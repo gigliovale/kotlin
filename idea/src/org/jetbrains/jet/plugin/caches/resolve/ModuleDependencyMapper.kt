@@ -47,10 +47,42 @@ import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.jet.analyzer.AnalyzerFacade
 import org.jetbrains.jet.analyzer.ResolverForModule
 import org.jetbrains.jet.lang.psi.*
+import com.intellij.openapi.roots.OrderEntry
+import java.util.ArrayList
+import com.intellij.openapi.roots.ExportableOrderEntry
+import java.util.LinkedHashSet
 
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
     abstract fun filesScope(): GlobalSearchScope
+}
+
+private fun orderEntryToModuleInfo(project: Project, orderEntry: OrderEntry): PluginModuleInfo? {
+    return when (orderEntry) {
+        is ModuleSourceOrderEntry -> {
+            ModuleSourcesInfo(project, orderEntry.getRootModel().getModule())
+        }
+        is ModuleOrderEntry -> {
+            val dependencyModule = orderEntry.getModule()
+            //TODO: null?
+            ModuleSourcesInfo(project, dependencyModule!!)
+        }
+        is LibraryOrderEntry -> {
+            //TODO: null?
+            val library = orderEntry.getLibrary()!!
+            val isKotlinRuntime = library.getName() == "KotlinJavaRuntime"
+            if (isKotlinRuntime) {
+            }
+            LibraryInfo(project, library)
+        }
+        is JdkOrderEntry -> {
+            //TODO: null?
+            SdkInfo(project, orderEntry.getJdk()!!)
+        }
+        else -> {
+            null
+        }
+    }
 }
 
 private data class ModuleSourcesInfo(val project: Project, val module: Module) : PluginModuleInfo() {
@@ -59,34 +91,28 @@ private data class ModuleSourcesInfo(val project: Project, val module: Module) :
     override fun filesScope() = GlobalSearchScope.moduleScope(module)
 
     override fun dependencies(): List<ModuleInfo<PluginModuleInfo>> {
-        return ModuleRootManager.getInstance(module).getOrderEntries().map {
-            orderEntry ->
-            when (orderEntry) {
-                is ModuleSourceOrderEntry -> {
-                    ModuleSourcesInfo(project, orderEntry.getRootModel().getModule())
-                }
-                is ModuleOrderEntry -> {
-                    val dependencyModule = orderEntry.getModule()
-                    //TODO: null?
-                    ModuleSourcesInfo(project, dependencyModule!!)
-                }
-                is LibraryOrderEntry -> {
-                    //TODO: null?
-                    val library = orderEntry.getLibrary()!!
-                    val isKotlinRuntime = library.getName() == "KotlinJavaRuntime"
-                    if (isKotlinRuntime) {
-                    }
-                    LibraryInfo(project, library)
-                }
-                is JdkOrderEntry -> {
-                    //TODO: null?
-                    SdkInfo(project, orderEntry.getJdk()!!)
-                }
-                else -> {
-                    null
-                }
+        return collectModuleDependencies(module).mapTo(LinkedHashSet<PluginModuleInfo?>(), { orderEntryToModuleInfo(project, it) }).toList().filterNotNull()
+    }
+
+    private fun collectModuleDependencies(module: Module, exportedOnly: Boolean = false): List<OrderEntry> {
+        val result = ArrayList<OrderEntry>()
+        val entries = ModuleRootManager.getInstance(module).getOrderEntries()
+        entries.flatMapTo(result) { entry ->
+            val isExported = entry is ExportableOrderEntry && entry.isExported()
+            if (!isExported && exportedOnly) {
+                listOf()
             }
-        }.filterNotNull()
+            else if (entry in result) {
+                listOf()
+            }
+            else if (entry is ModuleOrderEntry) {
+                listOf(entry) + collectModuleDependencies(entry.getModule()!!, exportedOnly = true)
+            }
+            else {
+                listOf(entry)
+            }
+        }
+        return result
     }
 }
 

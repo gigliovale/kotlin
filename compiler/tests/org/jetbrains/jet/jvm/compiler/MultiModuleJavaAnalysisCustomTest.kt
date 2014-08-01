@@ -48,8 +48,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
                              val _dependencies: TestModule.() -> List<TestModule>) :
             ModuleInfo<TestModule> {
         override fun dependencies() = _dependencies()
-        override val name = Name.identifier(_name)
-
+        override val name = Name.special("<$_name>")
     }
 
     fun testJavaEntitiesBelongToCorrectModule() {
@@ -150,10 +149,10 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
 
     private fun checkDescriptor(javaClassDescriptor: DeclarationDescriptor, context: DeclarationDescriptor) {
         val descriptorName = javaClassDescriptor.getName().asString()
-        val expectedModuleName = descriptorName.toLowerCase().first().toString()
+        val expectedModuleName = "<${descriptorName.toLowerCase().first().toString()}>"
         val moduleName = DescriptorUtils.getContainingModule(javaClassDescriptor).getName().asString()
         Assert.assertEquals(
-                "Java class $descriptorName in $context should be in module $expectedModuleName, but instead was in $moduleName",
+                "Java class $descriptorName in $context should be in module expectedModuleName, but instead was in $moduleName",
                 expectedModuleName, moduleName
         )
     }

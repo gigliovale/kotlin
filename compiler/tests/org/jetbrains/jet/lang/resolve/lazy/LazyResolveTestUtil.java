@@ -74,7 +74,7 @@ public class LazyResolveTestUtil {
         Project project = environment.getProject();
         CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(project);
         ResolveSession lazyResolveSession = createResolveSessionForFiles(project, files, addBuiltIns);
-        support.setModule(lazyResolveSession.getModuleDescriptor());
+        support.setModule((ModuleDescriptorImpl) lazyResolveSession.getModuleDescriptor());
 
         return lazyResolveSession;
     }

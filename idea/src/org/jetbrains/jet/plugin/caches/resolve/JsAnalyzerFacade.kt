@@ -24,7 +24,6 @@ import org.jetbrains.jet.analyzer.PlatformModuleParameters
 import org.jetbrains.jet.analyzer.AnalyzerFacade
 import com.intellij.openapi.project.Project
 import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptorBase
 import org.jetbrains.jet.analyzer.ResolverForProject
 import org.jetbrains.k2js.analyze.AnalyzerFacadeForJS
 import org.jetbrains.jet.lang.PlatformToKotlinClassMap

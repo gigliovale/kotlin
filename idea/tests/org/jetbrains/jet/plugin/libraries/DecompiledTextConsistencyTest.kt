@@ -56,11 +56,16 @@ public class DecompiledTextConsistencyTest : JetLightCodeInsightFixtureTestCase(
 }
 
 class ProjectBasedResolverForDecompiler(project: Project) : ResolverForDecompiler {
-    val module: ModuleDescriptor = AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-            project, listOf(), BindingTraceContext(), { false },
-            AnalyzerFacadeForJVM.createJavaModule("<module for resolving stdlib with java top down analysis>"), null, null
-    ).getModuleDescriptor()
-
+    val module: ModuleDescriptor = run {
+        val module = AnalyzerFacadeForJVM.createJavaModule("<module for resolving stdlib with java top down analysis>")
+        module.addDependencyOnModule(module)
+        module.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule())
+        module.seal()
+        AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
+                project, listOf(), BindingTraceContext(), { false },
+                module, null, null
+        ).getModuleDescriptor()
+    }
     override fun resolveTopLevelClass(classFqName: FqName): ClassDescriptor? {
         return module.resolveTopLevelClass(classFqName)
     }

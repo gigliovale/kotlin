@@ -34,6 +34,8 @@ import org.jetbrains.jet.plugin.j2k.J2kPostProcessor
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.LightProjectDescriptor
 import org.jetbrains.jet.plugin.JetWithJdkAndRuntimeLightProjectDescriptor
+import com.intellij.psi.PsiJavaFile
+import com.intellij.psi.PsiFile
 
 abstract class AbstractJavaToKotlinConverterTest() : LightCodeInsightFixtureTestCase() {
     val testHeaderPattern = Pattern.compile("//(element|expression|statement|method|class|file|comp)\n")
@@ -122,14 +124,14 @@ abstract class AbstractJavaToKotlinConverterTest() : LightCodeInsightFixtureTest
     }
 
     private fun elementToKotlin(text: String, settings: ConverterSettings, project: Project): String {
-        val fileWithText = JavaToKotlinTranslator.createFile(project, text)
+        val fileWithText = createJavaFile(text)
         val converter = Converter.create(project, settings, FilesConversionScope(listOf(fileWithText)), J2kPostProcessor)
         val element = fileWithText.getFirstChild()!!
         return converter.elementToKotlin(element)
     }
 
     private fun fileToKotlin(text: String, settings: ConverterSettings, project: Project): String {
-        val file = JavaToKotlinTranslator.createFile(project, text)
+        val file = createJavaFile(text)
         val converter = Converter.create(project, settings, FilesConversionScope(listOf(file)), J2kPostProcessor)
         return converter.elementToKotlin(file)
     }
@@ -160,5 +162,9 @@ abstract class AbstractJavaToKotlinConverterTest() : LightCodeInsightFixtureTest
     private fun String.removeLastLine(): String {
         val lastNewLine = lastIndexOf('\n')
         return if (lastNewLine == -1) "" else substring(0, lastNewLine)
+    }
+
+    private fun createJavaFile(text: String): PsiJavaFile {
+        return myFixture.configureByText("converterTestFile.java", text) as PsiJavaFile
     }
 }

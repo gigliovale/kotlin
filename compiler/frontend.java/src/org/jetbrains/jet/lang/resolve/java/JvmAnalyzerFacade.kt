@@ -36,7 +36,6 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
 import org.jetbrains.jet.lang.resolve.java.lazy.ModuleClassResolverImpl
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.jet.analyzer.new.ResolverForProject
 
 public class JvmResolverForModule(
         public override val lazyResolveSession: ResolveSession,

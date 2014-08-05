@@ -276,6 +276,8 @@ public class KotlinJavaFileStubProvider<T extends WithFileStubAndExtraDiagnostic
         FqName packageFqName = stubGenerationStrategy.getPackageFqName();
         Collection<JetFile> files = stubGenerationStrategy.getFiles();
 
+        assert !files.isEmpty() : "No files for package " + stubGenerationStrategy.getPackageFqName();
+
         checkForBuiltIns(packageFqName, files);
 
         LightClassConstructionContext context = stubGenerationStrategy.getContext(files);

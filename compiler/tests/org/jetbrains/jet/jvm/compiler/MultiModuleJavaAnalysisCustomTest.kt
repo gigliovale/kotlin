@@ -121,6 +121,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         classDescriptor.getDefaultType().getMemberScope().getAllDescriptors().filterIsInstance(javaClass<CallableDescriptor>()).forEach {
             callable ->
             val name = callable.getName().asString()
+            //TODO: get rid of when
             when {
                 ("return" in name) -> {
                     checkDescriptor(callable.getReturnType()?.getConstructor()?.getDeclarationDescriptor()!!, callable)

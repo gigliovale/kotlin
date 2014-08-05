@@ -36,6 +36,6 @@ public class SingleModuleClassResolver() : ModuleClassResolver {
         [Inject] set
 }
 
-public class ModuleClassResolverImpl(val analyzerByJavaClass: (JavaClass) -> JavaDescriptorResolver): ModuleClassResolver {
-    override fun resolveClass(javaClass: JavaClass): ClassDescriptor? = analyzerByJavaClass(javaClass).resolveClass(javaClass)
+public class ModuleClassResolverImpl(private val descriptorResolverByJavaClass: (JavaClass) -> JavaDescriptorResolver): ModuleClassResolver {
+    override fun resolveClass(javaClass: JavaClass): ClassDescriptor? = descriptorResolverByJavaClass(javaClass).resolveClass(javaClass)
 }

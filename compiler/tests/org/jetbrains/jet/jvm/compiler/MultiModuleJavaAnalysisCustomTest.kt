@@ -40,7 +40,9 @@ import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.resolve.java.JvmResolverForModule
 import org.jetbrains.jet.analyzer.ResolverForProject
 import org.jetbrains.jet.analyzer.ModuleInfo
-import java.util.ArrayList
+import java.util.HashMap
+import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor
+import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
 
@@ -55,7 +57,7 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         val moduleDirs = File(PATH_TO_TEST_ROOT_DIR).listFiles { it.isDirectory() }!!
         val environment = createEnvironment(moduleDirs)
         val modules = setupModules(environment, moduleDirs)
-        val resolverForProject = JvmAnalyzerFacade.setupResolverForProject<TestModule>(GlobalContext(), environment.getProject(), modules) {
+        val resolverForProject = JvmAnalyzerFacade.setupResolverForProject(GlobalContext(), environment.getProject(), modules) {
             module ->
             JvmPlatformParameters(module.kotlinFiles, module.javaFilesScope) {
                 javaClass ->
@@ -67,19 +69,16 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         performChecks(resolverForProject, modules)
     }
 
-
     private fun createEnvironment(moduleDirs: Array<File>): JetCoreEnvironment {
         val configuration = CompilerConfiguration()
         configuration.addAll(JVMConfigurationKeys.CLASSPATH_KEY, moduleDirs.toList())
         return JetCoreEnvironment.createForTests(getTestRootDisposable()!!, configuration)
     }
 
-
     private fun setupModules(environment: JetCoreEnvironment, moduleDirs: Array<File>): List<TestModule> {
         val project = environment.getProject()
-        val modules = ArrayList<TestModule>()
-        return moduleDirs.mapTo(modules) {
-            dir ->
+        val modules = HashMap<String, TestModule>()
+        for (dir in moduleDirs) {
             val name = dir.getName()
             val kotlinFiles = JetTestUtils.loadToJetFiles(environment, dir.listFiles { it.extension == "kt" }?.toList().orEmpty())
             val javaFilesScope = object : DelegatingGlobalSearchScope(GlobalSearchScope.allScope(project)) {
@@ -89,29 +88,33 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
                     return file.getParent()!!.getParent()!!.getName() == name
                 }
             }
-            TestModule(name, kotlinFiles, javaFilesScope) {
-                // module c depends on [c, b, a], b on [b, a], a on [a], order is irrelevant
-                modules.filter { other ->
-                    this._name.first() >= other._name.first()
+            modules[name] = TestModule(name, kotlinFiles, javaFilesScope) {
+                when (this._name) {
+                    "a" -> listOf(this)
+                    "b" -> listOf(this, modules["a"]!!)
+                    "c" -> listOf(this, modules["b"]!!, modules["a"]!!)
+                    else -> throw IllegalStateException("$_name")
                 }
             }
         }
+        return modules.values().toList()
     }
 
     private fun performChecks(resolverForProject: ResolverForProject<TestModule, JvmResolverForModule>, modules: List<TestModule>) {
         modules.forEach {
             module ->
             val moduleDescriptor = resolverForProject.descriptorByModule[module]!!
-            val kotlinPackage = moduleDescriptor.getPackage(FqName.topLevel(Name.identifier("test")))!!
-            val kotlinClass
-                    = kotlinPackage.getMemberScope().getClassifier(Name.identifier("Kotlin${module._name.toUpperCase()}")) as ClassDescriptor
-            checkClass(kotlinClass)
 
-            val javaPackage = moduleDescriptor.getPackage(FqName.topLevel(Name.identifier("custom")))!!
-            val classFromJava
-                    = javaPackage.getMemberScope().getClassifier(Name.identifier(module._name.toUpperCase() + "Class")) as ClassDescriptor
-            checkClass(classFromJava)
+            checkClassInPackage(moduleDescriptor, "test", "Kotlin${module._name.toUpperCase()}")
+            checkClassInPackage(moduleDescriptor, "custom", "${module._name.toUpperCase()}Class")
         }
+    }
+
+    private fun checkClassInPackage(moduleDescriptor: ModuleDescriptor, packageName: String, className: String) {
+        val kotlinPackage = moduleDescriptor.getPackage(FqName(packageName))!!
+        val kotlinClassName = Name.identifier(className)
+        val kotlinClass = kotlinPackage.getMemberScope().getClassifier(kotlinClassName) as ClassDescriptor
+        checkClass(kotlinClass)
     }
 
     private fun checkClass(classDescriptor: ClassDescriptor) {
@@ -147,12 +150,12 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
         }
     }
 
-    private fun checkDescriptor(javaClassDescriptor: DeclarationDescriptor, context: DeclarationDescriptor) {
-        val descriptorName = javaClassDescriptor.getName().asString()
+    private fun checkDescriptor(referencedDescriptor: ClassifierDescriptor, context: DeclarationDescriptor) {
+        val descriptorName = referencedDescriptor.getName().asString()
         val expectedModuleName = "<${descriptorName.toLowerCase().first().toString()}>"
-        val moduleName = DescriptorUtils.getContainingModule(javaClassDescriptor).getName().asString()
+        val moduleName = DescriptorUtils.getContainingModule(referencedDescriptor).getName().asString()
         Assert.assertEquals(
-                "Java class $descriptorName in $context should be in module expectedModuleName, but instead was in $moduleName",
+                "Java class $descriptorName in $context should be in module $expectedModuleName, but instead was in $moduleName",
                 expectedModuleName, moduleName
         )
     }

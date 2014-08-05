@@ -155,7 +155,7 @@ private fun generatorForModuleAwareLazyResolveWithJava() =
             parameters(
                     javaClass<DeclarationProviderFactory>(),
                     javaClass<BindingTrace>(),
-                    javaClass<GlobalSearchScope>(),
+                    javaClass<GlobalSearchScope>(), //TODO: module own scope
                     javaClass<ModuleClassResolver>()
             )
             parameter(javaClass<ModuleDescriptorImpl>(), name = "module", useAsContext = true)

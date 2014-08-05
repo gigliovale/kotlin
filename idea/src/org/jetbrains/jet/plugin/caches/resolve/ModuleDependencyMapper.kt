@@ -52,6 +52,7 @@ import java.util.ArrayList
 import com.intellij.openapi.roots.ExportableOrderEntry
 import java.util.LinkedHashSet
 
+//TODO: Idea(Ide)ModuleInfo?
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
     //TODO: add project to this fun and remove from classes params?
     abstract fun filesScope(): GlobalSearchScope
@@ -167,26 +168,30 @@ fun createMappingForProject(
         syntheticFiles: Collection<JetFile>
 ): ModuleSetup {
 
-    val ideaModules = ModuleManager.getInstance(project).getSortedModules().toList()
-    val modulesSources = ideaModules.keysToMap { ModuleSourcesInfo(project, it) }
+    val ideaModules = ModuleManager.getInstance(project).getModules().toList()
+    val modulesSourcesInfos = ideaModules.keysToMap { ModuleSourcesInfo(project, it) }
+
     val ideaLibraries = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<LibraryOrderEntry>()).map { /*TODO: null*/it.getLibrary()!! } }.toSet()
-    val libraries = ideaLibraries.keysToMap { LibraryInfo(project, it) }
-    val sdks = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<JdkOrderEntry>()).map { /*TODO: null*/it.getJdk()!! } }
-    val sdkInfos = sdks.keysToMap { SdkInfo(project, it) }
-    val modules = (modulesSources.values() + libraries.values() + sdkInfos.values()).toHashSet()
-    val syntheticFilesModules = syntheticFiles.keysToMap { it.getModuleInfo()!! }
-    modules.addAll(syntheticFilesModules.values())
+    val librariesInfos = ideaLibraries.keysToMap { LibraryInfo(project, it) }
+
+    val ideaSdks = ideaModules.flatMap { ModuleRootManager.getInstance(it).getOrderEntries().filterIsInstance(javaClass<JdkOrderEntry>()).map { /*TODO: null*/it.getJdk()!! } }.toSet()
+    val sdksInfos = ideaSdks.keysToMap { SdkInfo(project, it) }
+
+    val allModuleInfos = (modulesSourcesInfos.values() + librariesInfos.values() + sdksInfos.values()).toHashSet()
+
+    val syntheticFilesByModule = syntheticFiles.groupBy { it.getModuleInfo()!! /*TODO: null?*/ }
+    allModuleInfos.addAll(syntheticFilesByModule.keySet())
 
     val jvmPlatformParameters = {(module: PluginModuleInfo) ->
-        JvmPlatformParameters(syntheticFiles.filter { syntheticFilesModules[it] == module }, module.filesScope()) {
+        JvmPlatformParameters(syntheticFilesByModule[module] ?: listOf(), module.filesScope()) {
             javaClass ->
             val psiClass = (javaClass as JavaClassImpl).getPsi()
             psiClass.getModuleInfo().sure("Module not found for ${psiClass.getName()} in ${psiClass.getContainingFile()}")
         }
     }
-    val resolverForProject = analyzerFacade.setupResolverForProject(globalContext, project, modules, jvmPlatformParameters)
+    val resolverForProject = analyzerFacade.setupResolverForProject(globalContext, project, allModuleInfos, jvmPlatformParameters)
 
-    val moduleToBodiesResolveSession = modules.keysToMap {
+    val moduleToBodiesResolveSession = allModuleInfos.keysToMap {
         module ->
         val descriptor = resolverForProject.descriptorByModule[module]!!
         val analyzer = resolverForProject.analyzerByModuleDescriptor[descriptor]!!
@@ -225,7 +230,7 @@ private data class SdkScope(project: Project, private val sdk: Sdk) :
 //TODO: should be private
 fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
-    if (this is KotlinLightElement<*, *>) return this.unwrapped?.getModuleInfo()
+    if (this is KotlinLightElement<*, *>) return this.origin?.getModuleInfo()
     if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
 
     val containingFile = (this as? JetElement)?.getContainingFile()
@@ -242,8 +247,11 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: can be clearer and more optimal?
     //TODO: utilities for transforming entry to info
     val virtualFile = getContainingFile().sure("${getText()}").getOriginalFile().getVirtualFile().sure("${getContainingFile()}")
+
     val projectFileIndex = ProjectFileIndex.SERVICE.getInstance(project)
     val orderEntries = projectFileIndex.getOrderEntriesForFile(virtualFile)
+
+    //TODO: can be multiple?
     val moduleSourceOrderEntry = orderEntries.filterIsInstance(javaClass<ModuleSourceOrderEntry>()).firstOrNull()
     if (moduleSourceOrderEntry != null) {
         return ModuleSourcesInfo(project, moduleSourceOrderEntry.getRootModel().getModule())
@@ -252,7 +260,7 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     return when (libraryOrSdkOrderEntry) {
         is LibraryOrderEntry -> {
             //TODO: deal with null again
-            val library: Library = libraryOrSdkOrderEntry.getLibrary().sure("bla bla")
+            val library = libraryOrSdkOrderEntry.getLibrary().sure("bla bla")
             if (ProjectFileIndex.SERVICE.getInstance(project).isInLibrarySource(virtualFile)) {
                 LibrarySourcesInfo(project, library)
             }
@@ -260,6 +268,7 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
                 LibraryInfo(project, library)
             }
         }
+        //TODO: JdkSources?
         is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry.getJdk()!!)
         else -> NotUnderSourceRootModuleInfo
     }

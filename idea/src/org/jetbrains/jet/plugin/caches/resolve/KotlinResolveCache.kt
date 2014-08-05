@@ -82,6 +82,13 @@ private class KotlinResolveCache(
         return setupCache.getValue().resolveSessionForBodiesByModule(element.getModuleInfo()!!)
     }
 
+    public fun getLazyResolveSessionForJavaElement(element: PsiElement): ResolveSessionForBodies {
+        //TODO: can be null, what do we do?
+        val moduleInfo = element.getModuleInfo()!!
+        println(moduleInfo)
+        return setupCache.getValue().resolveSessionForBodiesByModule(moduleInfo)
+    }
+
     //TODO: temp
     public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSessionForBodies? {
         return setupCache.getValue().resolveSessionForBodiesByModuleDescriptor(moduleDescriptor)

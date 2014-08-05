@@ -45,7 +45,6 @@ import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.JetIcons;
 import org.jetbrains.jet.plugin.caches.resolve.JavaResolveExtension;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
-import org.jetbrains.jet.plugin.project.TargetPlatform;
 import org.jetbrains.jet.renderer.DescriptorRenderer;
 import org.jetbrains.jet.renderer.DescriptorRendererBuilder;
 
@@ -168,7 +167,7 @@ public class KotlinSignatureAnnotationIntention extends BaseIntentionAction impl
 
     @NotNull
     private static String getDefaultSignature(@NotNull Project project, @NotNull PsiMember psiMember) {
-        BindingContext bindingContext = ResolvePackage.getLazyResolveSession(project, TargetPlatform.JVM).getBindingContext();
+        BindingContext bindingContext = ResolvePackage.getLazyResolveSessionForJavaElement(psiMember).getBindingContext();
         JavaDescriptorResolver javaDescriptorResolver = JavaResolveExtension.INSTANCE$.get(project).invoke(psiMember);
 
         PsiClass containingClass = psiMember.getContainingClass();

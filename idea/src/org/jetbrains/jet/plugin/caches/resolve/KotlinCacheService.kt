@@ -38,6 +38,7 @@ import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.plugin.stubindex.JetSourceFilterScope
+import com.intellij.psi.PsiElement
 
 private val LOG = Logger.getInstance(javaClass<KotlinCacheService>())
 
@@ -45,10 +46,8 @@ fun JetElement.getLazyResolveSession(): ResolveSessionForBodies {
     return KotlinCacheService.getInstance(getProject()).getLazyResolveSession(this)
 }
 
-fun Project.getLazyResolveSession(platform: TargetPlatform): ResolveSessionForBodies {
-    //TODO:
-    //return KotlinCacheService.getInstance(this).getGlobalLazyResolveSession(platform)
-    throw UnsupportedOperationException()
+fun PsiElement.getLazyResolveSessionForJavaElement(): ResolveSessionForBodies {
+    return KotlinCacheService.getInstance(getProject()).getGlobalLazyResolveSessionForJavaElement(this)
 }
 
 fun JetElement.getAnalysisResults(): AnalyzeExhaust {
@@ -112,6 +111,11 @@ class KotlinCacheService(val project: Project) {
 
     public fun getGlobalLazyResolveSession(file: JetFile, platform: TargetPlatform): ResolveSessionForBodies {
         return globalCachesPerPlatform[platform]!!.getLazyResolveSession(file)
+    }
+
+    public fun getGlobalLazyResolveSessionForJavaElement(element: PsiElement): ResolveSessionForBodies {
+        val cache = globalCachesPerPlatform[TargetPlatform.JVM]!!
+        return cache.getLazyResolveSessionForJavaElement(element)
     }
 
     public fun getGlobalLazyResolveSession(module: ModuleDescriptor, platform: TargetPlatform): ResolveSessionForBodies? {

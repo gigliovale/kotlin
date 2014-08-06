@@ -24,6 +24,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.MultiMap;
+import jet.runtime.typeinfo.JetValueParameter;
+import kotlin.Function1;
+import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.asJava.KotlinLightClassForExplicitDeclaration;
@@ -167,6 +170,28 @@ public class IDELightClassGenerationSupport extends LightClassGenerationSupport 
     @Override
     public Collection<JetFile> findFilesForPackage(@NotNull FqName fqName, @NotNull GlobalSearchScope searchScope) {
         return PackageIndexUtil.findFilesWithExactPackage(fqName, kotlinSources(searchScope, project), project);
+    }
+
+    @NotNull
+    @Override
+    public Map<GlobalSearchScope, Collection<JetFile>> findFilesForPackagesClasses(
+            @NotNull FqName fqName, @NotNull GlobalSearchScope wholeScope
+    ) {
+        Collection<JetFile> allFiles = findFilesForPackage(fqName, wholeScope);
+        Map<PluginModuleInfo, List<JetFile>> filesByInfo =
+                KotlinPackage.groupByTo(allFiles,
+                                        new LinkedHashMap<PluginModuleInfo, List<JetFile>>(),
+                                        new Function1<JetFile, PluginModuleInfo>() {
+                                            @Override
+                                            public PluginModuleInfo invoke(JetFile file) {
+                                                return ResolvePackage.getModuleInfo(file);
+                                            }
+                                        });
+        Map<GlobalSearchScope, Collection<JetFile>> result = new LinkedHashMap<GlobalSearchScope, Collection<JetFile>>();
+        for (Map.Entry<PluginModuleInfo, List<JetFile>> entry : filesByInfo.entrySet()) {
+            result.put(entry.getKey().filesScope(), new ArrayList<JetFile>(entry.getValue()));
+        }
+        return result;
     }
 
     @NotNull

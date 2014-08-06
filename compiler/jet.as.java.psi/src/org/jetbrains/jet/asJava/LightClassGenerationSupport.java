@@ -27,6 +27,7 @@ import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 
 import java.util.Collection;
+import java.util.Map;
 
 public abstract class LightClassGenerationSupport {
 
@@ -53,6 +54,9 @@ public abstract class LightClassGenerationSupport {
      */
     @NotNull
     public abstract Collection<JetFile> findFilesForPackage(@NotNull FqName fqName, @NotNull GlobalSearchScope searchScope);
+
+    @NotNull
+    public abstract Map<GlobalSearchScope, Collection<JetFile>> findFilesForPackagesClasses(@NotNull FqName fqName, @NotNull GlobalSearchScope wholeScope);
 
     // Returns only immediately declared classes/objects, package classes are not included (they have no declarations)
     @NotNull

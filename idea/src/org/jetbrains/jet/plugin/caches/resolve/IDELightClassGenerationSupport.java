@@ -24,7 +24,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.containers.MultiMap;
-import jet.runtime.typeinfo.JetValueParameter;
 import kotlin.Function1;
 import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
@@ -174,7 +173,7 @@ public class IDELightClassGenerationSupport extends LightClassGenerationSupport 
 
     @NotNull
     @Override
-    public Map<GlobalSearchScope, Collection<JetFile>> findFilesForPackagesClasses(
+    public List<KotlinLightPackageClassInfo> findPackageClassesInfos(
             @NotNull FqName fqName, @NotNull GlobalSearchScope wholeScope
     ) {
         Collection<JetFile> allFiles = findFilesForPackage(fqName, wholeScope);
@@ -187,9 +186,9 @@ public class IDELightClassGenerationSupport extends LightClassGenerationSupport 
                                                 return ResolvePackage.getModuleInfo(file);
                                             }
                                         });
-        Map<GlobalSearchScope, Collection<JetFile>> result = new LinkedHashMap<GlobalSearchScope, Collection<JetFile>>();
+        List<KotlinLightPackageClassInfo> result = new ArrayList<KotlinLightPackageClassInfo>();
         for (Map.Entry<PluginModuleInfo, List<JetFile>> entry : filesByInfo.entrySet()) {
-            result.put(entry.getKey().filesScope(), new ArrayList<JetFile>(entry.getValue()));
+            result.add(new KotlinLightPackageClassInfo(entry.getValue(), entry.getKey().filesScope()));
         }
         return result;
     }

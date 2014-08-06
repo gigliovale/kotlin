@@ -192,12 +192,10 @@ public class CliLightClassGenerationSupport extends LightClassGenerationSupport 
 
     @NotNull
     @Override
-    public Map<GlobalSearchScope, Collection<JetFile>> findFilesForPackagesClasses(
+    public List<KotlinLightPackageClassInfo> findPackageClassesInfos(
             @NotNull FqName fqName, @NotNull GlobalSearchScope wholeScope
     ) {
-        Map<GlobalSearchScope, Collection<JetFile>> map = new HashMap<GlobalSearchScope, Collection<JetFile>>();
-        map.put(wholeScope, findFilesForPackage(fqName, wholeScope));
-        return map;
+        return Arrays.asList(new KotlinLightPackageClassInfo(findFilesForPackage(fqName, wholeScope), wholeScope));
     }
 
     @Override

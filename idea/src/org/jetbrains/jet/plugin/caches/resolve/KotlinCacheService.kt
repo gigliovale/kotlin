@@ -58,10 +58,6 @@ fun JetElement.getBindingContext(): BindingContext {
     return getAnalysisResults().getBindingContext()
 }
 
-fun DeclarationDescriptor.getBindingContext(project: Project): BindingContext? {
-    return KotlinCacheService.getInstance(project).getGlobalLazyResolveSession(DescriptorUtils.getContainingModule(this), JVM)?.getBindingContext()
-}
-
 fun getAnalysisResultsForElements(elements: Collection<JetElement>): AnalyzeExhaust {
     if (elements.isEmpty()) return AnalyzeExhaust.EMPTY
     val element = elements.first()
@@ -116,10 +112,6 @@ class KotlinCacheService(val project: Project) {
     public fun getGlobalLazyResolveSessionForJavaElement(element: PsiElement): ResolveSessionForBodies {
         val cache = globalCachesPerPlatform[TargetPlatform.JVM]!!
         return cache.getLazyResolveSessionForJavaElement(element)
-    }
-
-    public fun getGlobalLazyResolveSession(module: ModuleDescriptor, platform: TargetPlatform): ResolveSessionForBodies? {
-        return globalCachesPerPlatform[platform]!!.getLazyResolveSession(module)
     }
 
     public fun getLazyResolveSession(element: JetElement): ResolveSessionForBodies {

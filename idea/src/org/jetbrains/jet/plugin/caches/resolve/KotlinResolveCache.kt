@@ -89,11 +89,6 @@ private class KotlinResolveCache(
         return setupCache.getValue().resolveSessionForBodiesByModule(moduleInfo)
     }
 
-    //TODO: temp
-    public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSessionForBodies? {
-        return setupCache.getValue().resolveSessionForBodiesByModuleDescriptor(moduleDescriptor)
-    }
-
     public fun <T> get(extension: CacheExtension<T>): T {
         val cache = setupCache.getValue()
         return extension.getData(cache)

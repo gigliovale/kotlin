@@ -41,7 +41,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.roots.LibraryOrSdkOrderEntry
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jet.lang.resolve.java.jetAsJava.KotlinLightElement
+import org.jetbrains.jet.lang.resolve.java.jetAsJava.*
 import org.jetbrains.jet.asJava.unwrapped
 import com.intellij.openapi.projectRoots.Sdk
 import org.jetbrains.jet.analyzer.AnalyzerFacade
@@ -51,6 +51,8 @@ import com.intellij.openapi.roots.OrderEntry
 import java.util.ArrayList
 import com.intellij.openapi.roots.ExportableOrderEntry
 import java.util.LinkedHashSet
+import org.jetbrains.jet.asJava.FakeLightClassForFileOfPackage
+import org.jetbrains.jet.asJava.KotlinLightClassForPackage
 
 //TODO: Idea(Ide)ModuleInfo?
 private abstract class PluginModuleInfo : ModuleInfo<PluginModuleInfo> {
@@ -230,7 +232,7 @@ private data class SdkScope(project: Project, private val sdk: Sdk) :
 //TODO: should be private
 fun PsiElement.getModuleInfo(): PluginModuleInfo? {
     //TODO: clearer code
-    if (this is KotlinLightElement<*, *>) return this.origin?.getModuleInfo()
+    if (this is KotlinLightElement<*, *>) return this.getPluginModuleInfo()
     if (this is JetCodeFragment) return this.getContext()?.getModuleInfo()
 
     val containingFile = (this as? JetElement)?.getContainingFile()
@@ -272,4 +274,14 @@ fun PsiElement.getModuleInfo(): PluginModuleInfo? {
         is JdkOrderEntry -> SdkInfo(project, libraryOrSdkOrderEntry.getJdk()!!)
         else -> NotUnderSourceRootModuleInfo
     }
+}
+
+//TODO: make member?
+public fun KotlinLightElement<*, *>.getPluginModuleInfo(): PluginModuleInfo {
+    val element = origin ?: when (this) {
+        is FakeLightClassForFileOfPackage -> this.getContainingFile()!!
+        is KotlinLightClassForPackage -> this.getFiles().first()
+        else -> throw IllegalStateException("Unknown light class is referenced by IDE lazy resolve: $javaClass")
+    }
+    return element.getModuleInfo()!!
 }

@@ -174,7 +174,7 @@ public class IDELightClassGenerationSupport extends LightClassGenerationSupport 
     @NotNull
     @Override
     public List<KotlinLightPackageClassInfo> findPackageClassesInfos(
-            @NotNull FqName fqName, @NotNull GlobalSearchScope wholeScope
+            @NotNull FqName fqName, @NotNull final GlobalSearchScope wholeScope
     ) {
         Collection<JetFile> allFiles = findFilesForPackage(fqName, wholeScope);
         Map<PluginModuleInfo, List<JetFile>> filesByInfo =
@@ -190,6 +190,14 @@ public class IDELightClassGenerationSupport extends LightClassGenerationSupport 
         for (Map.Entry<PluginModuleInfo, List<JetFile>> entry : filesByInfo.entrySet()) {
             result.add(new KotlinLightPackageClassInfo(entry.getValue(), entry.getKey().filesScope()));
         }
+        Collections.sort(result, new Comparator<KotlinLightPackageClassInfo>() {
+            @Override
+            public int compare(@NotNull KotlinLightPackageClassInfo info1, @NotNull KotlinLightPackageClassInfo info2) {
+                VirtualFile file1 = info1.getFiles().iterator().next().getVirtualFile();
+                VirtualFile file2 = info2.getFiles().iterator().next().getVirtualFile();
+                return -wholeScope.compare(file1, file2);
+            }
+        });
         return result;
     }
 

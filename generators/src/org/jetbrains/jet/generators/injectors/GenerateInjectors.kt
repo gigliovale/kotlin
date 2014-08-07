@@ -18,7 +18,6 @@ package org.jetbrains.jet.generators.injectors
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.context.GlobalContextImpl
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.jet.lang.resolve.*
@@ -39,6 +38,7 @@ import org.jetbrains.jet.lang.resolve.java.lazy.ModuleClassResolver
 import org.jetbrains.jet.lang.resolve.kotlin.DeserializationGlobalContextForJava
 import org.jetbrains.jet.lang.resolve.java.lazy.SingleModuleClassResolver
 import org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinderFactory
+import org.jetbrains.jet.storage.StorageManager
 
 // NOTE: After making changes, you need to re-generate the injectors.
 //       To do that, you can run main in this file.
@@ -93,14 +93,14 @@ private fun generatorForTopDownAnalyzerForJs() =
 
 private fun generatorForTopDownAnalyzerForJvm() =
         generator("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForTopDownAnalyzerForJvm") {
+            parameter(javaClass<GlobalSearchScope>())
+
             implementInterface(javaClass<InjectorForTopDownAnalyzer>())
             commonForTopDownAnalyzer()
 
             publicField(javaClass<JavaDescriptorResolver>())
             publicField(javaClass<DeserializationGlobalContextForJava>())
 
-            field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
             fields(
                     javaClass<JavaClassFinderImpl>(),
                     javaClass<TraceBasedExternalSignatureResolver>(),
@@ -113,25 +113,24 @@ private fun generatorForTopDownAnalyzerForJvm() =
                     javaClass<JavaSourceElementFactoryImpl>(),
                     javaClass<SingleModuleClassResolver>()
             )
-            field(javaClass<VirtualFileFinder>(), init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
+            field(javaClass<VirtualFileFinder>(),
+                  init = GivenExpression(javaClass<VirtualFileFinderFactory>().getName() + ".SERVICE.getInstance(project).create(globalSearchScope)"))
+
         }
 
 private fun generatorForJavaDescriptorResolver() =
         generator("compiler/frontend.java/src", "org.jetbrains.jet.di", "InjectorForJavaDescriptorResolver") {
+            //TODO: parameter order
             parameters(
                     javaClass<Project>(),
                     javaClass<BindingTrace>()
             )
+            parameter(javaClass<StorageManager>())
+            publicParameter(javaClass<ModuleDescriptorImpl>(), name = "module")
+            parameter(javaClass<GlobalSearchScope>())
 
-            publicField(javaClass<GlobalContextImpl>(), useAsContext = true,
-                        init = GivenExpression("org.jetbrains.jet.context.ContextPackage.GlobalContext()"))
-            publicField(javaClass<ModuleDescriptorImpl>(), name = "module",
-                        init = GivenExpression("org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM.createJavaModule(\"<fake-jdr-module>\")"))
             publicField(javaClass<JavaDescriptorResolver>())
             publicField(javaClass<JavaClassFinderImpl>())
-
-            field(javaClass <GlobalSearchScope>(),
-                  init = GivenExpression(javaClass<GlobalSearchScope>().getName() + ".allScope(project)"))
 
             fields(
                     javaClass<TraceBasedExternalSignatureResolver>(),
@@ -144,7 +143,7 @@ private fun generatorForJavaDescriptorResolver() =
                     javaClass<SingleModuleClassResolver>()
             )
             field(javaClass<VirtualFileFinder>(),
-                  init = GivenExpression(javaClass<VirtualFileFinder>().getName() + ".SERVICE.getInstance(project)"))
+                  init = GivenExpression(javaClass<VirtualFileFinderFactory>().getName() + ".SERVICE.getInstance(project).create(globalSearchScope)"))
         }
 
 private fun generatorForModuleAwareLazyResolveWithJava() =

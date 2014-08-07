@@ -16,6 +16,7 @@
 
 package org.jetbrains.jet.di;
 
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.jet.context.GlobalContext;
 import org.jetbrains.jet.storage.StorageManager;
@@ -27,7 +28,6 @@ import org.jetbrains.jet.lang.resolve.LazyTopDownAnalyzer;
 import org.jetbrains.jet.lang.resolve.MutablePackageFragmentProvider;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.kotlin.DeserializationGlobalContextForJava;
-import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.jet.lang.resolve.java.JavaClassFinderImpl;
 import org.jetbrains.jet.lang.resolve.java.resolver.TraceBasedExternalSignatureResolver;
 import org.jetbrains.jet.lang.resolve.java.resolver.TraceBasedJavaResolverCache;
@@ -81,6 +81,7 @@ import javax.annotation.PreDestroy;
 @SuppressWarnings("ALL")
 public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnalyzer {
     
+    private final GlobalSearchScope globalSearchScope;
     private final Project project;
     private final GlobalContext globalContext;
     private final StorageManager storageManager;
@@ -92,7 +93,6 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
     private final MutablePackageFragmentProvider mutablePackageFragmentProvider;
     private final JavaDescriptorResolver javaDescriptorResolver;
     private final DeserializationGlobalContextForJava deserializationGlobalContextForJava;
-    private final GlobalSearchScope globalSearchScope;
     private final JavaClassFinderImpl javaClassFinder;
     private final TraceBasedExternalSignatureResolver traceBasedExternalSignatureResolver;
     private final TraceBasedJavaResolverCache traceBasedJavaResolverCache;
@@ -141,11 +141,13 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
     private final ConstantDescriptorLoader constantDescriptorLoader;
     
     public InjectorForTopDownAnalyzerForJvm(
+        @NotNull GlobalSearchScope globalSearchScope,
         @NotNull Project project,
         @NotNull GlobalContext globalContext,
         @NotNull BindingTrace bindingTrace,
         @NotNull ModuleDescriptor moduleDescriptor
     ) {
+        this.globalSearchScope = globalSearchScope;
         this.project = project;
         this.globalContext = globalContext;
         this.storageManager = globalContext.getStorageManager();
@@ -156,7 +158,7 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         this.lazyTopDownAnalyzer = new LazyTopDownAnalyzer();
         this.mutablePackageFragmentProvider = new MutablePackageFragmentProvider(getModuleDescriptor());
         this.javaClassFinder = new JavaClassFinderImpl();
-        this.virtualFileFinder = org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinder.SERVICE.getInstance(project);
+        this.virtualFileFinder = org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinderFactory.SERVICE.getInstance(project).create(globalSearchScope);
         this.deserializedDescriptorResolver = new DeserializedDescriptorResolver();
         this.psiBasedExternalAnnotationResolver = new PsiBasedExternalAnnotationResolver();
         this.traceBasedExternalSignatureResolver = new TraceBasedExternalSignatureResolver();
@@ -173,7 +175,6 @@ public class InjectorForTopDownAnalyzerForJvm implements InjectorForTopDownAnaly
         this.annotationDescriptorLoader = new AnnotationDescriptorLoader();
         this.constantDescriptorLoader = new ConstantDescriptorLoader();
         this.deserializationGlobalContextForJava = new DeserializationGlobalContextForJava(storageManager, getModuleDescriptor(), javaClassDataFinder, annotationDescriptorLoader, constantDescriptorLoader, lazyJavaPackageFragmentProvider);
-        this.globalSearchScope = com.intellij.psi.search.GlobalSearchScope.allScope(project);
         this.bodyResolver = new BodyResolver();
         this.annotationResolver = new AnnotationResolver();
         this.callResolver = new CallResolver();

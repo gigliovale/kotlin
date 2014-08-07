@@ -17,10 +17,13 @@
 package org.jetbrains.jet.di;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
+import org.jetbrains.jet.lang.resolve.java.AnalyzerFacadeForJVM;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.jet.storage.LockBasedStorageManager;
 
 public class InjectorForJavaDescriptorResolverUtil {
     @NotNull
@@ -29,8 +32,11 @@ public class InjectorForJavaDescriptorResolverUtil {
             @NotNull BindingTrace bindingTrace,
             boolean dependendOnBuitlins
     ) {
-        InjectorForJavaDescriptorResolver injector = new InjectorForJavaDescriptorResolver(project, bindingTrace);
-        ModuleDescriptorImpl module = injector.getModule();
+        //tODO: module name
+        ModuleDescriptorImpl module = AnalyzerFacadeForJVM.createJavaModule("<module create>");
+        InjectorForJavaDescriptorResolver injector = new InjectorForJavaDescriptorResolver(
+                project, bindingTrace, LockBasedStorageManager.NO_LOCKS, module, GlobalSearchScope.allScope(project)
+        );
         module.initialize(injector.getJavaDescriptorResolver().getPackageFragmentProvider());
         module.addDependencyOnModule(module);
         if (dependendOnBuitlins) {

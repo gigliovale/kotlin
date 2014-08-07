@@ -17,6 +17,7 @@
 package org.jetbrains.jet.cli.jvm.compiler;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache;
@@ -26,11 +27,13 @@ import org.jetbrains.jet.lang.resolve.name.FqName;
 
 public class CliVirtualFileFinder extends VirtualFileKotlinClassFinder implements VirtualFileFinder {
 
-    @NotNull
     private final ClassPath classPath;
+    private final GlobalSearchScope scope;
 
-    public CliVirtualFileFinder(@NotNull ClassPath path) {
-        classPath = path;
+    //TODO: scope checks can be optimized
+    public CliVirtualFileFinder(@NotNull ClassPath path, @NotNull GlobalSearchScope scope) {
+        this.classPath = path;
+        this.scope = scope;
     }
 
     @Nullable
@@ -39,7 +42,7 @@ public class CliVirtualFileFinder extends VirtualFileKotlinClassFinder implement
         for (VirtualFile root : classPath) {
             VirtualFile fileInRoot = findFileInRoot(className.asString(), root, '.');
             //NOTE: currently we use VirtualFileFinder to find Kotlin binaries only
-            if (fileInRoot != null && KotlinBinaryClassCache.getKotlinBinaryClass(fileInRoot) != null) {
+            if (fileInRoot != null && scope.contains(fileInRoot) && KotlinBinaryClassCache.getKotlinBinaryClass(fileInRoot) != null) {
                 return fileInRoot;
             }
         }
@@ -50,7 +53,7 @@ public class CliVirtualFileFinder extends VirtualFileKotlinClassFinder implement
     public VirtualFile findVirtualFile(@NotNull String internalName) {
         for (VirtualFile root : classPath) {
             VirtualFile fileInRoot = findFileInRoot(internalName, root, '/');
-            if (fileInRoot != null) {
+            if (fileInRoot != null && scope.contains(fileInRoot)) {
                 return fileInRoot;
             }
         }

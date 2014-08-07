@@ -32,6 +32,6 @@ public final class CliVirtualFileFinderFactory implements VirtualFileFinderFacto
     @NotNull
     @Override
     public VirtualFileFinder create(@NotNull GlobalSearchScope scope) {
-        return new CliVirtualFileFinder(classPath);
+        return new CliVirtualFileFinder(classPath, scope);
     }
 }

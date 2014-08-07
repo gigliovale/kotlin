@@ -26,6 +26,7 @@ import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.PsiFileFactoryImpl;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.testFramework.LightVirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -108,7 +109,7 @@ public class ReplInterpreter {
                 new ExceptionTracker(), // dummy
                 Predicates.<PsiFile>alwaysTrue()
         );
-        injector = new InjectorForTopDownAnalyzerForJvm(project, topDownAnalysisParameters, trace, module);
+        injector = new InjectorForTopDownAnalyzerForJvm(GlobalSearchScope.allScope(project), project, topDownAnalysisParameters, trace, module);
         topDownAnalysisContext = new TopDownAnalysisContext(topDownAnalysisParameters);
         module.initialize(new CompositePackageFragmentProvider(
                 Arrays.asList(injector.getTopDownAnalyzer().getPackageFragmentProvider(),

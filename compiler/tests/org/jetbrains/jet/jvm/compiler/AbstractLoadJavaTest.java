@@ -17,9 +17,11 @@
 package org.jetbrains.jet.jvm.compiler;
 
 import com.google.common.base.Predicates;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.GlobalSearchScope;
 import junit.framework.ComparisonFailure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
@@ -44,7 +46,6 @@ import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
 import org.jetbrains.jet.lang.resolve.lazy.JvmResolveUtil;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.ExceptionTracker;
 import org.jetbrains.jet.storage.LockBasedStorageManager;
 import org.jetbrains.jet.test.TestCaseWithTmpdir;
@@ -155,8 +156,9 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
         configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, new File("compiler/tests")); // for @ExpectLoadError annotation
         JetCoreEnvironment environment = JetCoreEnvironment.createForTests(getTestRootDisposable(), configuration);
 
+        Project project = environment.getProject();
         // we need the same binding trace for resolve from Java and Kotlin
-        CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(environment.getProject());
+        CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(project);
         BindingTrace trace = support.getTrace();
         ModuleDescriptorImpl module = support.newModule();
 
@@ -168,7 +170,8 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
                 false
         );
         InjectorForTopDownAnalyzerForJvm injectorForAnalyzer = new InjectorForTopDownAnalyzerForJvm(
-                environment.getProject(),
+                GlobalSearchScope.allScope(project),
+                project,
                 parameters,
                 trace,
                 module);

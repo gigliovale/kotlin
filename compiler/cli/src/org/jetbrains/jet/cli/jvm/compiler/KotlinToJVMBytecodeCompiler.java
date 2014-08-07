@@ -20,11 +20,16 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ArrayUtil;
 import kotlin.Function0;
 import kotlin.Function1;
+import kotlin.KotlinPackage;
 import kotlin.Unit;
 import kotlin.modules.AllModules;
 import kotlin.modules.Module;
@@ -45,6 +50,7 @@ import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.codegen.state.Progress;
 import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
+import org.jetbrains.jet.di.InjectorForJavaDescriptorResolver;
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.jet.lang.parsing.JetScriptDefinition;
 import org.jetbrains.jet.lang.parsing.JetScriptDefinitionProvider;
@@ -61,6 +67,7 @@ import org.jetbrains.jet.lang.resolve.kotlin.incremental.IncrementalPackage;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.plugin.MainFunctionDetector;
+import org.jetbrains.jet.storage.LockBasedStorageManager;
 import org.jetbrains.jet.utils.KotlinPaths;
 
 import java.io.File;
@@ -281,20 +288,82 @@ public class KotlinToJVMBytecodeCompiler {
         return generate(environment, exhaust, environment.getSourceFiles(), null, null);
     }
 
+    //TODO: extract and kotlinify
+    private static final class RootsScope extends GlobalSearchScope {
+        private final List<String> roots;
+
+        private RootsScope(@NotNull List<String> roots) {
+            this.roots = roots;
+        }
+
+        @Override
+        public boolean contains(@NotNull VirtualFile file) {
+            //TODO: Should not be need, fix  com.intellij.openapi.vfs.impl.jar.CoreJarVirtualFile.getPath()
+            String path = FileUtil.toSystemIndependentName(file.getPath());
+            for (String root : roots) {
+                if (path.startsWith(root)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public int compare(@NotNull VirtualFile file1, @NotNull VirtualFile file2) {
+            return 0;
+        }
+
+        @Override
+        public boolean isSearchInModuleContent(@NotNull com.intellij.openapi.module.Module aModule) {
+            return true;
+        }
+
+        @Override
+        public boolean isSearchInLibraries() {
+            return true;
+        }
+
+        @NotNull
+        public static GlobalSearchScope getClassPathScope(@NotNull CompilerConfiguration compilerConfiguration) {
+            List<File> classPathFiles = compilerConfiguration.getList(JVMConfigurationKeys.CLASSPATH_KEY);
+            RootsScope wholeClassPathScope = new RootsScope(KotlinPackage.map(classPathFiles, new Function1<File, String>() {
+                @Override
+                public String invoke(@NotNull File file) {
+                    return FileUtil.toSystemIndependentName(file.getPath());
+                }
+            }));
+            return wholeClassPathScope;
+        }
+
+        @NotNull
+        public static RootsScope getSourcesScope(@NotNull CompilerConfiguration compilerConfiguration) {
+            return new RootsScope(KotlinPackage.map(
+                    compilerConfiguration.getList(CommonConfigurationKeys.SOURCE_ROOTS_KEY),
+                    new Function1<String, String>() {
+                        @Override
+                        public String invoke(@NotNull String root) {
+                            return FileUtil.toSystemIndependentName(root);
+                        }
+                    })
+            );
+        }
+    }
+
     @Nullable
     private static AnalyzeExhaust analyze(@NotNull final JetCoreEnvironment environment) {
+        final CompilerConfiguration configuration = environment.getConfiguration();
         AnalyzerWithCompilerReport analyzerWithCompilerReport = new AnalyzerWithCompilerReport(
-                environment.getConfiguration().get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY));
+                configuration.get(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY)
+        );
         analyzerWithCompilerReport.analyzeAndReport(
                 environment.getSourceFiles(), new Function0<AnalyzeExhaust>() {
                     @NotNull
                     @Override
                     public AnalyzeExhaust invoke() {
-                        CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(environment.getProject());
-                        BindingTrace sharedTrace = support.getTrace();
-                        ModuleDescriptorImpl sharedModule = support.newModule();
+                        Project project = environment.getProject();
+                        CliLightClassGenerationSupport support = CliLightClassGenerationSupport.getInstanceForCli(project);
                         IncrementalCacheProvider incrementalCacheProvider = IncrementalCacheProvider.OBJECT$.getInstance();
-                        File incrementalCacheBaseDir = environment.getConfiguration().get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR);
+                        File incrementalCacheBaseDir = configuration.get(JVMConfigurationKeys.INCREMENTAL_CACHE_BASE_DIR);
                         final IncrementalCache incrementalCache;
                         if (incrementalCacheProvider != null && incrementalCacheBaseDir != null) {
                             incrementalCache = incrementalCacheProvider.getIncrementalCache(incrementalCacheBaseDir);
@@ -309,14 +378,22 @@ public class KotlinToJVMBytecodeCompiler {
                             incrementalCache = null;
                         }
 
+                        BindingTrace sharedTrace = support.getTrace();
+                        ModuleDescriptorImpl sourcesModule = AnalyzerFacadeForJVM.createModule("<cli module>");
+                        sourcesModule.addDependencyOnModule(sourcesModule);
+                        sourcesModule.addDependencyOnModule(createClassPathModule(project, configuration, sharedTrace));
+                        sourcesModule.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
+                        sourcesModule.seal();
+                        CliLightClassGenerationSupport.getInstanceForCli(project).setModule(sourcesModule);
 
                         return AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                                environment.getProject(),
+                                project,
                                 environment.getSourceFiles(),
                                 sharedTrace,
                                 Predicates.<PsiFile>alwaysTrue(),
-                                sharedModule,
-                                environment.getConfiguration().get(JVMConfigurationKeys.MODULE_IDS),
+                                sourcesModule,
+                                GlobalSearchScope.EMPTY_SCOPE,
+                                configuration.get(JVMConfigurationKeys.MODULE_IDS),
                                 incrementalCache
                         );
                     }
@@ -328,11 +405,27 @@ public class KotlinToJVMBytecodeCompiler {
 
         CompilerPluginContext context = new CompilerPluginContext(environment.getProject(), exhaust.getBindingContext(),
                                                                   environment.getSourceFiles());
-        for (CompilerPlugin plugin : environment.getConfiguration().getList(CLIConfigurationKeys.COMPILER_PLUGINS)) {
+        for (CompilerPlugin plugin : configuration.getList(CLIConfigurationKeys.COMPILER_PLUGINS)) {
             plugin.processFiles(context);
         }
 
         return analyzerWithCompilerReport.hasErrors() ? null : exhaust;
+    }
+
+    private static ModuleDescriptorImpl createClassPathModule(
+            Project project,
+            CompilerConfiguration configuration,
+            BindingTrace trace
+    ) {
+        ModuleDescriptorImpl classPathModule = AnalyzerFacadeForJVM.createJavaModule("<module for classpath>");
+        classPathModule.addDependencyOnModule(classPathModule);
+        classPathModule.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
+        classPathModule.seal();
+        InjectorForJavaDescriptorResolver injectorForClassPath =
+                new InjectorForJavaDescriptorResolver(project, trace, LockBasedStorageManager.NO_LOCKS,
+                                                      classPathModule, RootsScope.getClassPathScope(configuration));
+        classPathModule.initialize(injectorForClassPath.getJavaDescriptorResolver().getPackageFragmentProvider());
+        return classPathModule;
     }
 
     @NotNull

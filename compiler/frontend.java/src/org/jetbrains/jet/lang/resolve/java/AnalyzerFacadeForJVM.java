@@ -20,6 +20,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.analyzer.AnalyzeExhaust;
 import org.jetbrains.jet.context.ContextPackage;
@@ -57,11 +58,27 @@ public enum AnalyzerFacadeForJVM  {
 
     @NotNull
     public static AnalyzeExhaust analyzeFilesWithJavaIntegration(
+        Project project,
+        Collection<JetFile> files,
+        BindingTrace trace,
+        Predicate<PsiFile> filesToAnalyzeCompletely,
+        ModuleDescriptorImpl module,
+        List<String> moduleIds,
+        IncrementalCache incrementalCache
+) {
+        return analyzeFilesWithJavaIntegration(
+                project, files, trace, filesToAnalyzeCompletely, module, GlobalSearchScope.allScope(project), moduleIds, incrementalCache
+        );
+    }
+
+    @NotNull
+    public static AnalyzeExhaust analyzeFilesWithJavaIntegration(
             Project project,
             Collection<JetFile> files,
             BindingTrace trace,
             Predicate<PsiFile> filesToAnalyzeCompletely,
             ModuleDescriptorImpl module,
+            GlobalSearchScope filesScope,
             List<String> moduleIds,
             IncrementalCache incrementalCache
     ) {
@@ -74,7 +91,7 @@ public enum AnalyzerFacadeForJVM  {
                 false
         );
 
-        InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(project, topDownAnalysisParameters, trace, module);
+        InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(filesScope, project, topDownAnalysisParameters, trace, module);
         try {
             List<PackageFragmentProvider> additionalProviders = new ArrayList<PackageFragmentProvider>();
 

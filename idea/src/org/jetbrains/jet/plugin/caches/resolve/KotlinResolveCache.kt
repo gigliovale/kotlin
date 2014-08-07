@@ -63,7 +63,6 @@ import org.jetbrains.jet.analyzer.analyzeInContext
 import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import org.jetbrains.jet.lang.types.TypeUtils
 import org.jetbrains.jet.lang.resolve.scopes.ChainedScope
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 
 public trait CacheExtension<T> {
     val platform: TargetPlatform
@@ -249,6 +248,7 @@ private object KotlinResolveDataProvider {
             val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), "Trace for resolution of " + analyzableElement)
 
             val injector = InjectorForTopDownAnalyzerForJvm(
+                    analyzableElement.getModuleInfo()!!.filesScope(), //TODO: this is some weird usage
                     project,
                     SimpleGlobalContext(resolveSession.getStorageManager(), resolveSession.getExceptionTracker()),
                     trace,

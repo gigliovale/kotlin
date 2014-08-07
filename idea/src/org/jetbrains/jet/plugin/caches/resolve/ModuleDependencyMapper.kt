@@ -208,10 +208,10 @@ class ModuleSetup(private val descriptorByModule: Map<PluginModuleInfo, ModuleDe
                   private val setupByModuleDescriptor: Map<ModuleDescriptor, ResolverForModule>,
                   private val bodiesResolveByModule: Map<PluginModuleInfo, ResolveSessionForBodies>
 ) {
-    fun descriptorByModule(module: PluginModuleInfo) = descriptorByModule[module]!!
-    fun setupByModule(module: PluginModuleInfo) = setupByModuleDescriptor[descriptorByModule[module]!!]!!
-    fun setupByDescriptor(module: ModuleDescriptor) = setupByModuleDescriptor[module]!!
-    fun resolveSessionForBodiesByModule(module: PluginModuleInfo) = bodiesResolveByModule[module]!!
+    fun descriptorByModule(module: PluginModuleInfo) = descriptorByModule[module].sure("$module")
+    fun setupByModule(module: PluginModuleInfo) = setupByModuleDescriptor[descriptorByModule[module]!!].sure("$module")
+    fun setupByDescriptor(module: ModuleDescriptor) = setupByModuleDescriptor[module].sure("$module")
+    fun resolveSessionForBodiesByModule(module: PluginModuleInfo) = bodiesResolveByModule[module].sure("$module")
     fun resolveSessionForBodiesByModuleDescriptor(module: ModuleDescriptor): ResolveSessionForBodies? {
         val moduleInfo = descriptorByModule.entrySet().firstOrNull() { it.value == module }?.key ?: return null
         return bodiesResolveByModule[moduleInfo]

@@ -76,7 +76,11 @@ public class KotlinModuleScriptBuilderFactory implements KotlinModuleDescription
 
             dependencyProvider.processClassPath(new DependencyProcessor() {
                 @Override
-                public void processClassPathSection(@NotNull String sectionDescription, @NotNull Collection<File> files) {
+                public void processClassPathSection(
+                        @NotNull String sectionDescription,
+                        @NotNull Collection<File> files,
+                        boolean isOwnModule
+                ) {
                     script.append("        // " + sectionDescription + "\n");
                     for (File file : files) {
                         if (directoriesToFilterOut.contains(file)) {

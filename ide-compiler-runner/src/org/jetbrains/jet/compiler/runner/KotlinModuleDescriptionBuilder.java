@@ -41,7 +41,7 @@ public interface KotlinModuleDescriptionBuilder {
     }
 
     interface DependencyProcessor {
-        void processClassPathSection(String sectionDescription, Collection<File> files);
+        void processClassPathSection(String sectionDescription, Collection<File> files, boolean isOwnModule);
         void processAnnotationRoots(List<File> files);
     }
 }

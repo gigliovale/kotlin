@@ -16,6 +16,7 @@
 
 package org.jetbrains.jet.jps.build;
 
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.containers.ContainerUtil;
@@ -31,14 +32,12 @@ import org.jetbrains.jps.builders.logging.ProjectBuilderLogger;
 import org.jetbrains.jps.incremental.CompileContext;
 import org.jetbrains.jps.incremental.ModuleBuildTarget;
 import org.jetbrains.jps.model.java.JpsAnnotationRootType;
+import org.jetbrains.jps.model.java.JpsJavaDependenciesEnumerator;
 import org.jetbrains.jps.model.java.JpsJavaSdkType;
 import org.jetbrains.jps.model.library.JpsLibrary;
 import org.jetbrains.jps.model.library.sdk.JpsSdk;
 import org.jetbrains.jps.model.library.sdk.JpsSdkType;
-import org.jetbrains.jps.model.module.JpsDependencyElement;
-import org.jetbrains.jps.model.module.JpsLibraryDependency;
-import org.jetbrains.jps.model.module.JpsModule;
-import org.jetbrains.jps.model.module.JpsSdkDependency;
+import org.jetbrains.jps.model.module.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -122,8 +121,9 @@ public class KotlinBuilderModuleScriptGenerator {
         return new DependencyProvider() {
             @Override
             public void processClassPath(@NotNull DependencyProcessor processor) {
-                processor.processClassPathSection("Classpath", findClassPathRoots(target));
-                processor.processClassPathSection("Java Source Roots", findSourceRoots(context, target));
+                processor.processClassPathSection("Classpath", findClassPathRoots(target), false);
+                processor.processClassPathSection("Java Source Roots", findSourceRoots(context, target), true);
+                processor.processClassPathSection("Own Module Classes Roots", findOwnClassPathRoots(target), true);
                 processor.processAnnotationRoots(findAnnotationRoots(target));
             }
         };
@@ -131,8 +131,42 @@ public class KotlinBuilderModuleScriptGenerator {
 
     @NotNull
     private static Collection<File> findClassPathRoots(@NotNull ModuleBuildTarget target) {
+        return notInSameModule(target, getAllDependencies(target)).classes().getRoots();
+    }
 
-        return getAllDependencies(target).classes().getRoots();
+    @NotNull
+    private static Collection<File> findOwnClassPathRoots(@NotNull ModuleBuildTarget target) {
+        return inSameModule(target, getAllDependencies(target)).classes().getRoots();
+    }
+
+    @NotNull
+    private static JpsJavaDependenciesEnumerator inSameModule(
+            @NotNull final ModuleBuildTarget target,
+            @NotNull JpsJavaDependenciesEnumerator dependencies
+    ) {
+        return dependencies.satisfying(new Condition<JpsDependencyElement>() {
+            @Override
+            public boolean value(JpsDependencyElement element) {
+                return isInSameModule(element, target);
+            }
+        });
+    }
+
+    @NotNull
+    private static JpsJavaDependenciesEnumerator notInSameModule(
+            final ModuleBuildTarget target,
+            JpsJavaDependenciesEnumerator dependencies
+    ) {
+        return dependencies.satisfying(new Condition<JpsDependencyElement>() {
+            @Override
+            public boolean value(JpsDependencyElement element) {
+                return !isInSameModule(element, target);
+            }
+        });
+    }
+
+    private static boolean isInSameModule(JpsDependencyElement element, ModuleBuildTarget target) {
+        return target.isTests() && element instanceof JpsModuleSourceDependency && element.getContainingModule().equals(target.getModule());
     }
 
     @NotNull

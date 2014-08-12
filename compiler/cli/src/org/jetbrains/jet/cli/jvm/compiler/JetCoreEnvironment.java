@@ -199,6 +199,9 @@ public class JetCoreEnvironment {
         for (File path : configuration.getList(JVMConfigurationKeys.CLASSPATH_KEY)) {
             addToClasspath(path);
         }
+        for (File path : configuration.getList(JVMConfigurationKeys.OWN_CLASSPATH_KEY)) {
+            addToClasspath(path);
+        }
         for (File path : configuration.getList(JVMConfigurationKeys.ANNOTATIONS_PATH_KEY)) {
             addExternalAnnotationsRoot(path);
         }

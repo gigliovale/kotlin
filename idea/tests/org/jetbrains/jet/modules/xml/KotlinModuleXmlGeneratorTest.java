@@ -35,7 +35,7 @@ public class KotlinModuleXmlGeneratorTest extends TestCase {
                     @Override
                     public void processClassPath(@NotNull KotlinModuleDescriptionBuilder.DependencyProcessor processor) {
                         processor.processAnnotationRoots(Arrays.asList(new File("a1/f1"), new File("a2")));
-                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")));
+                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")), false);
                     }
                 },
                 Arrays.asList(new File("s1"), new File("s2")),
@@ -52,7 +52,7 @@ public class KotlinModuleXmlGeneratorTest extends TestCase {
                     @Override
                     public void processClassPath(@NotNull KotlinModuleDescriptionBuilder.DependencyProcessor processor) {
                         processor.processAnnotationRoots(Arrays.asList(new File("a1/f1"), new File("a2")));
-                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")));
+                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")), false);
                     }
                 },
                 Arrays.asList(new File("s1"), new File("s2")),
@@ -70,7 +70,7 @@ public class KotlinModuleXmlGeneratorTest extends TestCase {
                     @Override
                     public void processClassPath(@NotNull KotlinModuleDescriptionBuilder.DependencyProcessor processor) {
                         processor.processAnnotationRoots(Arrays.asList(new File("a1/f1"), new File("a2")));
-                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")));
+                        processor.processClassPathSection("s1", Arrays.asList(new File("cp1"), new File("cp2")), false);
                     }
                 },
                 Arrays.asList(new File("s1"), new File("s2")),
@@ -83,7 +83,7 @@ public class KotlinModuleXmlGeneratorTest extends TestCase {
                     @Override
                     public void processClassPath(@NotNull KotlinModuleDescriptionBuilder.DependencyProcessor processor) {
                         processor.processAnnotationRoots(Arrays.asList(new File("a12/f12"), new File("a22")));
-                        processor.processClassPathSection("s12", Arrays.asList(new File("cp12"), new File("cp22")));
+                        processor.processClassPathSection("s12", Arrays.asList(new File("cp12"), new File("cp22")), false);
                     }
                 },
                 Arrays.asList(new File("s12"), new File("s22")),

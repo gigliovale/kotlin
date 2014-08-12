@@ -176,6 +176,10 @@ public class KotlinToJVMBytecodeCompiler {
                 configuration.add(JVMConfigurationKeys.CLASSPATH_KEY, new File(classpathRoot));
             }
 
+            for (String ownClassPathRoot : module.getOwnClasspathRoots()) {
+                configuration.add(JVMConfigurationKeys.OWN_CLASSPATH_KEY, new File(ownClassPathRoot));
+            }
+
             for (String annotationsRoot : module.getAnnotationsRoots()) {
                 configuration.add(JVMConfigurationKeys.ANNOTATIONS_PATH_KEY, new File(annotationsRoot));
             }
@@ -336,6 +340,18 @@ public class KotlinToJVMBytecodeCompiler {
         }
 
         @NotNull
+        public static GlobalSearchScope getOwnClassPathScope(@NotNull CompilerConfiguration compilerConfiguration) {
+            List<File> classPathFiles = compilerConfiguration.getList(JVMConfigurationKeys.OWN_CLASSPATH_KEY);
+            RootsScope wholeClassPathScope = new RootsScope(KotlinPackage.map(classPathFiles, new Function1<File, String>() {
+                @Override
+                public String invoke(@NotNull File file) {
+                    return FileUtil.toSystemIndependentName(file.getPath());
+                }
+            }));
+            return wholeClassPathScope;
+        }
+
+        @NotNull
         public static RootsScope getSourcesScope(@NotNull CompilerConfiguration compilerConfiguration) {
             return new RootsScope(KotlinPackage.map(
                     compilerConfiguration.getList(CommonConfigurationKeys.SOURCE_ROOTS_KEY),
@@ -381,18 +397,19 @@ public class KotlinToJVMBytecodeCompiler {
                         BindingTrace sharedTrace = support.getTrace();
                         ModuleDescriptorImpl sourcesModule = AnalyzerFacadeForJVM.createModule("<cli module>");
                         sourcesModule.addDependencyOnModule(sourcesModule);
-                        sourcesModule.addDependencyOnModule(createClassPathModule(project, configuration, sharedTrace));
+                        sourcesModule.addDependencyOnModule(createClassPathModule(project, configuration));
                         sourcesModule.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
                         sourcesModule.seal();
                         CliLightClassGenerationSupport.getInstanceForCli(project).setModule(sourcesModule);
 
+                        //TODO: correct module class resolver
                         return AnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
                                 project,
                                 environment.getSourceFiles(),
                                 sharedTrace,
                                 Predicates.<PsiFile>alwaysTrue(),
                                 sourcesModule,
-                                GlobalSearchScope.EMPTY_SCOPE,
+                                RootsScope.getOwnClassPathScope(configuration),
                                 configuration.get(JVMConfigurationKeys.MODULE_IDS),
                                 incrementalCache
                         );
@@ -412,17 +429,17 @@ public class KotlinToJVMBytecodeCompiler {
         return analyzerWithCompilerReport.hasErrors() ? null : exhaust;
     }
 
+    @NotNull
     private static ModuleDescriptorImpl createClassPathModule(
             Project project,
-            CompilerConfiguration configuration,
-            BindingTrace trace
+            CompilerConfiguration configuration
     ) {
         ModuleDescriptorImpl classPathModule = AnalyzerFacadeForJVM.createJavaModule("<module for classpath>");
         classPathModule.addDependencyOnModule(classPathModule);
         classPathModule.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
         classPathModule.seal();
         InjectorForJavaDescriptorResolver injectorForClassPath =
-                new InjectorForJavaDescriptorResolver(project, trace, LockBasedStorageManager.NO_LOCKS,
+                new InjectorForJavaDescriptorResolver(project, new BindingTraceContext(), LockBasedStorageManager.NO_LOCKS,
                                                       classPathModule, RootsScope.getClassPathScope(configuration));
         classPathModule.initialize(injectorForClassPath.getJavaDescriptorResolver().getPackageFragmentProvider());
         return classPathModule;

@@ -89,7 +89,11 @@ public class KotlinModuleXmlBuilderFactory implements KotlinModuleDescriptionBui
 
             dependencyProvider.processClassPath(new DependencyProcessor() {
                 @Override
-                public void processClassPathSection(@NotNull String sectionDescription, @NotNull Collection<File> files) {
+                public void processClassPathSection(
+                        @NotNull String sectionDescription,
+                        @NotNull Collection<File> files,
+                        boolean isOwnModule
+                ) {
                     p.println("<!-- ", sectionDescription, " -->");
                     for (File file : files) {
                         boolean isOutput = directoriesToFilterOut.contains(file) && !IncrementalCompilation.ENABLED;
@@ -102,7 +106,11 @@ public class KotlinModuleXmlBuilderFactory implements KotlinModuleDescriptionBui
                             p.pushIndent();
                         }
 
-                        p.println("<", CLASSPATH, " ", PATH, "=\"", getEscapedPath(file), "\"/>");
+                        p.println("<", CLASSPATH, " ", PATH, "=\"", getEscapedPath(file), "\"");
+                        if (isOwnModule) {
+                            p.println(OWN_MODULE, "=\"true\"");
+                        }
+                        p.println("/>");
 
                         if (isOutput) {
                             p.popIndent();

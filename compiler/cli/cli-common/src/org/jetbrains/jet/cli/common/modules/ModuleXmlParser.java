@@ -47,6 +47,7 @@ public class ModuleXmlParser {
     public static final String SOURCES = "sources";
     public static final String PATH = "path";
     public static final String CLASSPATH = "classpath";
+    public static final String OWN_MODULE = "ownModule";
     public static final String EXTERNAL_ANNOTATIONS = "externalAnnotations";
 
     @NotNull
@@ -156,7 +157,14 @@ public class ModuleXmlParser {
             }
             else if (CLASSPATH.equalsIgnoreCase(qName)) {
                 String path = getAttribute(attributes, PATH, qName);
-                moduleBuilder.addClasspathEntry(path);
+                String ownModule = attributes.getValue(OWN_MODULE);
+                boolean isOwnModuleClasspath = ownModule != null && ownModule.equals("true");
+                if (isOwnModuleClasspath) {
+                    moduleBuilder.addOwnClasspathEntry(path);
+                }
+                else {
+                    moduleBuilder.addClasspathEntry(path);
+                }
             }
             else if (EXTERNAL_ANNOTATIONS.equalsIgnoreCase(qName)) {
                 String path = getAttribute(attributes, PATH, qName);

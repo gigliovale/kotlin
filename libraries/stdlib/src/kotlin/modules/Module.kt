@@ -9,5 +9,7 @@ public trait Module {
 
     public fun getClasspathRoots(): List<String>
 
+    public fun getOwnClasspathRoots(): List<String>
+
     public fun getAnnotationsRoots(): List<String>
 }

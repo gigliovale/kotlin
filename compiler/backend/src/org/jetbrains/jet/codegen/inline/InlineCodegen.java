@@ -208,6 +208,8 @@ public class InlineCodegen implements CallGenerator {
         //through generation captured parameters will be added to invocationParamBuilder
         putClosureParametersOnStack();
 
+        addInlineMarker(true);
+
         Parameters parameters = invocationParamBuilder.buildParameters();
 
         InliningContext info = new RootInliningContext(expressionMap,
@@ -246,6 +248,9 @@ public class InlineCodegen implements CallGenerator {
         generateAndInsertFinallyBlocks(adapter, infos);
 
         adapter.accept(new InliningInstructionAdapter(codegen.v));
+
+        addInlineMarker(false);
+
         return result;
     }
 
@@ -508,6 +513,10 @@ public class InlineCodegen implements CallGenerator {
 
             InlineCodegenUtil.insertNodeBefore(finallyNode, intoNode, insertPoint.beforeIns);
         }
+    }
+
+    public void addInlineMarker(boolean isStartNotEnd) {
+        codegen.v.visitMethodInsn(Opcodes.INVOKESTATIC, "kotlin/jvm/internal/InlineMarker", (isStartNotEnd ? "before" : "after") + "InlineCall", "()V", false);
     }
 
 }

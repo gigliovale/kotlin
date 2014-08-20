@@ -26,4 +26,12 @@ public class InlineMarker {
 
     }
 
+    public static void beforeLambdaCall() {
+
+    }
+
+    public static void afterLambdaCall() {
+
+    }
+
 }

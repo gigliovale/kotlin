@@ -59,6 +59,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import static org.jetbrains.jet.codegen.AsmUtil.*;
+import static org.jetbrains.jet.codegen.inline.InlineCodegenUtil.addInlineMarker;
 
 public class InlineCodegen implements CallGenerator {
     private final GenerationState state;
@@ -208,7 +209,7 @@ public class InlineCodegen implements CallGenerator {
         //through generation captured parameters will be added to invocationParamBuilder
         putClosureParametersOnStack();
 
-        addInlineMarker(true);
+        addInlineMarker(codegen.v, true, true);
 
         Parameters parameters = invocationParamBuilder.buildParameters();
 
@@ -249,7 +250,7 @@ public class InlineCodegen implements CallGenerator {
 
         adapter.accept(new InliningInstructionAdapter(codegen.v));
 
-        addInlineMarker(false);
+        addInlineMarker(codegen.v, true, false);
 
         return result;
     }
@@ -513,10 +514,6 @@ public class InlineCodegen implements CallGenerator {
 
             InlineCodegenUtil.insertNodeBefore(finallyNode, intoNode, insertPoint.beforeIns);
         }
-    }
-
-    public void addInlineMarker(boolean isStartNotEnd) {
-        codegen.v.visitMethodInsn(Opcodes.INVOKESTATIC, "kotlin/jvm/internal/InlineMarker", (isStartNotEnd ? "before" : "after") + "InlineCall", "()V", false);
     }
 
 }

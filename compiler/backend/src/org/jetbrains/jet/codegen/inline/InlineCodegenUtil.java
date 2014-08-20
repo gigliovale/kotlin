@@ -311,4 +311,15 @@ public class InlineCodegenUtil {
     public static MethodNode createEmptyMethodNode() {
         return new MethodNode(API, 0, "fake", "()V", null, null);
     }
+
+    public static void addInlineMarker(
+            @NotNull InstructionAdapter v,
+            boolean isFunctionCallNotLambda,
+            boolean isStartNotEnd
+    ) {
+        v.visitMethodInsn(Opcodes.INVOKESTATIC, "kotlin/jvm/internal/InlineMarker",
+                          (isStartNotEnd ? "before" : "after") + (isFunctionCallNotLambda ? "Inline" : "Lambda") + "Call",
+                          "()V", false);
+
+    }
 }

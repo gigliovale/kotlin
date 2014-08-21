@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KotlinLazyResolver">
+    <output-path>$PROJECT_DIR$/out/artifacts/KotlinLazyResolver</output-path>
+    <root id="archive" name="kotlin-lazy-resolver.jar">
+      <element id="module-output" name="ide-lazy-resolve" />
+      <element id="dir-copy" path="$PROJECT_DIR$/idea/ide-lazy-resolve" />
+    </root>
+  </artifact>
+</component>

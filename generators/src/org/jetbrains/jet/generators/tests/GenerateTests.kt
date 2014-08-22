@@ -136,6 +136,7 @@ import org.jetbrains.jet.types.AbstractJetTypeBindingTest
 import org.jetbrains.jet.plugin.debugger.evaluate.AbstractCodeFragmentCompletionHandlerTest
 import org.jetbrains.jet.plugin.coverage.AbstractKotlinCoverageOutputFilesTest
 import org.jetbrains.k2js.test.semantics.AbstractDynamicTest
+import org.jetbrains.jet.lang.resolve.android.AbstractAndroidXml2KConversionTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -301,6 +302,11 @@ fun main(args: Array<String>) {
 
         testClass(javaClass<AbstractJetTypeBindingTest>()) {
             model("type/binding")
+        }
+
+        testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
+            model("android/converter/simple", recursive = false, extension = null)
+            model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
         }
     }
 

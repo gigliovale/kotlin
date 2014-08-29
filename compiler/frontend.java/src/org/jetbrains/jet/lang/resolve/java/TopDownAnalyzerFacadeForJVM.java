@@ -18,7 +18,6 @@ package org.jetbrains.jet.lang.resolve.java;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -35,7 +34,6 @@ import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.ImportPath;
 import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
-import org.jetbrains.jet.lang.resolve.android.AndroidUIXmlProcessor;
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap;
 import org.jetbrains.jet.lang.resolve.kotlin.incremental.IncrementalPackageFragmentProvider;
 import org.jetbrains.jet.lang.resolve.kotlin.incremental.cache.IncrementalCache;
@@ -44,6 +42,8 @@ import org.jetbrains.jet.lang.resolve.lazy.declarations.FileBasedDeclarationProv
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.LockBasedStorageManager;
+
+import org.jetbrains.jet.lang.resolve.android.AndroidPackage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -163,12 +163,5 @@ public enum TopDownAnalyzerFacadeForJVM {
         module.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
         module.seal();
         return module;
-    }
-
-    private static Collection<JetFile> searchAndAddAndroidDeclarations(Project project, Collection<JetFile> files) {
-        AndroidUIXmlProcessor parser = ServiceManager.getService(project, AndroidUIXmlProcessor.class);
-        JetFile file = parser.parseToPsi(project);
-        if (file != null) files.add(file);
-        return files;
     }
 }

@@ -62,6 +62,8 @@ public class InternalFinallyBlockInliner {
     @NotNull
     private final MethodNode inlineFun;
 
+    private final boolean useAlternativeSemantic;
+
     private final List<TryCatchBlockNodeInfo> inlineFunTryBlockInfo;
 
     private final ListMultimap<LabelNode, TryCatchBlockNodeInfo> tryBlockStarts = LinkedListMultimap.create();
@@ -73,6 +75,7 @@ public class InternalFinallyBlockInliner {
     private InternalFinallyBlockInliner(@NotNull MethodNode inlineFun, List<TryCatchBlockNodeInfo> inlineFunTryBlockInfo) {
         this.inlineFun = inlineFun;
         this.inlineFunTryBlockInfo = inlineFunTryBlockInfo;
+        useAlternativeSemantic = Boolean.valueOf(System.getProperty("NLR_ALT"));
     }
 
     private int initAndGetVarIndexForNonLocalReturnValue() {
@@ -145,21 +148,26 @@ public class InternalFinallyBlockInliner {
                 //Writing finally block body to temporary node
                 AbstractInsnNode currentIns = finallyInfo.startIns;
                 while (currentIns != finallyInfo.endInsExclusive) {
-                    //This condition allows another model for non-local returns processing
-                    if (false && InlineCodegenUtil.isReturnOpcode(currentIns.getOpcode()) && !InlineCodegenUtil.isMarkedReturn(currentIns)) {
-                        //substitute all local returns in finally finallyInfo with non-local one lambdaFinallyBlocks try finallyInfo
-                        //TODO same for jumps
-                        Type localReturnType = InlineCodegenUtil.getReturnType(currentIns.getOpcode());
-                        substituteReturnValueInFinally(nextTempNonLocalVarIndex, nonLocalReturnType, finallyBlockCopy,
-                                                       localReturnType, true);
+                    boolean isInsOrJumpInsideFinally =
+                            !(currentIns instanceof JumpInsnNode) ||
+                            labelsInsideFinally.contains(((JumpInsnNode) currentIns).label);
 
-                        instrInsertFinallyBefore.accept(finallyBlockCopy);
-                        curIns.accept(finallyBlockCopy);
+                    if (useAlternativeSemantic) {
+                        boolean isReturnForSubstitution =
+                                InlineCodegenUtil.isReturnOpcode(currentIns.getOpcode()) && !InlineCodegenUtil.isMarkedReturn(currentIns);
+                        if (!isInsOrJumpInsideFinally || isReturnForSubstitution) {
+                            //substitute all local returns and jumps outside finally with non-local return
+                            Type localReturnType = InlineCodegenUtil.getReturnType(currentIns.getOpcode());
+                            substituteReturnValueInFinally(nextTempNonLocalVarIndex, nonLocalReturnType, finallyBlockCopy,
+                                                           localReturnType, isReturnForSubstitution);
+
+                            instrInsertFinallyBefore.accept(finallyBlockCopy);
+                            curIns.accept(finallyBlockCopy);
+                        } else {
+                            currentIns.accept(finallyBlockCopy); //VISIT
+                        }
                     }
                     else {
-                        boolean isInsOrJumpInsideFinally =
-                                !(currentIns instanceof JumpInsnNode) ||
-                                labelsInsideFinally.contains(((JumpInsnNode) currentIns).label);
 
                         if (isInsOrJumpInsideFinally) {
                             currentIns.accept(finallyBlockCopy); //VISIT

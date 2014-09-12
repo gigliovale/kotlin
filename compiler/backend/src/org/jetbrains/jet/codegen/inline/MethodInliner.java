@@ -117,7 +117,7 @@ public class MethodInliner {
         resultNode.visitLabel(end);
 
         if (inliningContext.isRoot()) {
-            InternalFinallyBlockInliner.processInlineFunFinallyBlocks(resultNode, lambdasFinallyBlocks);
+            InternalFinallyBlockInliner.processInlineFunFinallyBlocks(resultNode, lambdasFinallyBlocks, inliningContext.state.isNlrAlternativeSemantic());
         }
 
         processReturns(resultNode, labelOwner, remapReturn, end);

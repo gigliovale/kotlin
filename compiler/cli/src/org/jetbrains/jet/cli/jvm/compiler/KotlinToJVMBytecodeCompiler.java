@@ -41,7 +41,6 @@ import org.jetbrains.jet.cli.jvm.JVMConfigurationKeys;
 import org.jetbrains.jet.codegen.*;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.codegen.state.Progress;
-import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.jet.lang.parsing.JetScriptDefinition;
@@ -354,8 +353,8 @@ public class KotlinToJVMBytecodeCompiler {
                 packagesWithRemovedFiles,
                 moduleId,
                 diagnosticHolder,
-                outputDirectory
-        );
+                outputDirectory,
+                configuration.get(JVMConfigurationKeys.NLR_ALT, false));
         KotlinCodegenFacade.compileCorrectFiles(generationState, CompilationErrorHandler.THROW_EXCEPTION);
         AnalyzerWithCompilerReport.reportDiagnostics(
                 new FilteredJvmDiagnostics(

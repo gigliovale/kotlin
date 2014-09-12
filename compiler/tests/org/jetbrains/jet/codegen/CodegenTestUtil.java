@@ -72,8 +72,8 @@ public class CodegenTestUtil {
                 null,
                 null,
                 forExtraDiagnostics,
-                null
-        );
+                null,
+                false);
         KotlinCodegenFacade.compileCorrectFiles(state, CompilationErrorHandler.THROW_EXCEPTION);
 
         // For JVM-specific errors

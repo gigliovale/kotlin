@@ -41,6 +41,9 @@ public class JVMConfigurationKeys {
     public static final CompilerConfigurationKey<Boolean> DISABLE_OPTIMIZATION =
             CompilerConfigurationKey.create("disable optimization");
 
+    public static final CompilerConfigurationKey<Boolean> NLR_ALT =
+            CompilerConfigurationKey.create("alternative nlr semantics");
+
     public static final CompilerConfigurationKey<IncrementalCacheProvider> INCREMENTAL_CACHE_PROVIDER =
             CompilerConfigurationKey.create("incremental cache provider");
 

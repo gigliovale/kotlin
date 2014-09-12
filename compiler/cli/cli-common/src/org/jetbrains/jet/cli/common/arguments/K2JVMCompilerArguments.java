@@ -69,6 +69,9 @@ public class K2JVMCompilerArguments extends CommonCompilerArguments {
     @Argument(value = "Xno-optimize", description = "Disable optimizations")
     public boolean noOptimize;
 
+    @Argument(value = "Xnlr-alt", description = "Alternative non-local return semantics")
+    public boolean nlrAlt;
+
     @Override
     @NotNull
     public String executableScriptFileName() {

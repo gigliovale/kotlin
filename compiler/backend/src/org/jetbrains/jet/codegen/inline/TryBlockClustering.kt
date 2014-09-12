@@ -21,7 +21,6 @@ import org.jetbrains.org.objectweb.asm.tree.TryCatchBlockNode
 import org.jetbrains.org.objectweb.asm.tree.LabelNode
 import org.jetbrains.org.objectweb.asm.tree.AbstractInsnNode
 import org.jetbrains.jet.codegen.inline.InlineCodegenUtil.*
-import kotlin.properties.Delegates
 
 enum class TryCatchPosition {
     START

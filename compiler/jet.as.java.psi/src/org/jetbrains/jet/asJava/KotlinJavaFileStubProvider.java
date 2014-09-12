@@ -301,8 +301,8 @@ public class KotlinJavaFileStubProvider<T extends WithFileStubAndExtraDiagnostic
                     null,
                     null,
                     forExtraDiagnostics,
-                    null
-            );
+                    null,
+                    false);
             KotlinCodegenFacade.prepareForCompilation(state);
 
             bindingContext = state.getBindingContext();

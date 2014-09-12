@@ -173,6 +173,7 @@ public class K2JVMCompiler extends CLICompiler<K2JVMCompilerArguments> {
         configuration.put(JVMConfigurationKeys.DISABLE_PARAM_ASSERTIONS, arguments.noParamAssertions);
         configuration.put(JVMConfigurationKeys.DISABLE_INLINE, arguments.noInline);
         configuration.put(JVMConfigurationKeys.DISABLE_OPTIMIZATION, arguments.noOptimize);
+        configuration.put(JVMConfigurationKeys.NLR_ALT, arguments.nlrAlt);
     }
 
     /**

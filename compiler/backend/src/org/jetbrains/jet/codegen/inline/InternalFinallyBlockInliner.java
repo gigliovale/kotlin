@@ -47,7 +47,7 @@ public class InternalFinallyBlockInliner {
         }
     }
 
-    public static void processInlineFunFinallyBlocks(@NotNull MethodNode inlineFun, int lambdaTryCatchBlockNodes) {
+    public static void processInlineFunFinallyBlocks(@NotNull MethodNode inlineFun, int lambdaTryCatchBlockNodes, boolean alternativeSemantic) {
         int index = 0;
         List<TryCatchBlockNodeInfo> inlineFunTryBlockInfo = new ArrayList<TryCatchBlockNodeInfo>();
         for (TryCatchBlockNode block : inlineFun.tryCatchBlocks) {
@@ -55,7 +55,7 @@ public class InternalFinallyBlockInliner {
         }
 
         if (hasFinallyBlocks(inlineFunTryBlockInfo)) {
-            new InternalFinallyBlockInliner(inlineFun, inlineFunTryBlockInfo).processInlineFunFinallyBlocks();
+            new InternalFinallyBlockInliner(inlineFun, inlineFunTryBlockInfo, alternativeSemantic).processInlineFunFinallyBlocks();
         }
     }
 
@@ -72,10 +72,14 @@ public class InternalFinallyBlockInliner {
 
     //lambdaTryCatchBlockNodes is number of TryCatchBlockNodes that was inlined with lambdas into function
     //due to code generation specific they placed before function TryCatchBlockNodes
-    private InternalFinallyBlockInliner(@NotNull MethodNode inlineFun, List<TryCatchBlockNodeInfo> inlineFunTryBlockInfo) {
+    private InternalFinallyBlockInliner(
+            @NotNull MethodNode inlineFun,
+            List<TryCatchBlockNodeInfo> inlineFunTryBlockInfo,
+            boolean alternativeSemantic
+    ) {
         this.inlineFun = inlineFun;
         this.inlineFunTryBlockInfo = inlineFunTryBlockInfo;
-        useAlternativeSemantic = Boolean.valueOf(System.getProperty("NLR_ALT"));
+        useAlternativeSemantic = alternativeSemantic;
     }
 
     private int initAndGetVarIndexForNonLocalReturnValue() {

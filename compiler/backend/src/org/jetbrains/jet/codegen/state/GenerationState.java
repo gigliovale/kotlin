@@ -95,6 +95,8 @@ public class GenerationState {
 
     private final boolean disableInline;
 
+    private final boolean nlrAlternativeSemantic;
+
     @Nullable
     private List<ScriptDescriptor> earlierScriptsForReplInterpreter;
 
@@ -120,7 +122,7 @@ public class GenerationState {
             @NotNull List<JetFile> files
     ) {
         this(project, builderFactory, Progress.DEAF, module, bindingContext, files, true, true, GenerateClassFilter.GENERATE_ALL,
-             false, false, null, null, DiagnosticHolder.DO_NOTHING, null);
+             false, false, null, null, DiagnosticHolder.DO_NOTHING, null, false);
     }
 
     public GenerationState(
@@ -138,7 +140,8 @@ public class GenerationState {
             @Nullable Collection<FqName> packagesWithRemovedFiles,
             @Nullable String moduleId,
             @NotNull DiagnosticHolder diagnostics,
-            @Nullable File outDirectory
+            @Nullable File outDirectory,
+            boolean nlrAltrernativeSemantic
     ) {
         this.project = project;
         this.progress = progress;
@@ -170,6 +173,7 @@ public class GenerationState {
 
         ReflectionTypes reflectionTypes = new ReflectionTypes(module);
         this.runtimeTypes = new JvmRuntimeTypes(reflectionTypes);
+        this.nlrAlternativeSemantic = nlrAltrernativeSemantic;
     }
 
     @NotNull
@@ -292,5 +296,9 @@ public class GenerationState {
     @Nullable
     public File getOutDirectory() {
         return outDirectory;
+    }
+
+    public boolean isNlrAlternativeSemantic() {
+        return nlrAlternativeSemantic;
     }
 }

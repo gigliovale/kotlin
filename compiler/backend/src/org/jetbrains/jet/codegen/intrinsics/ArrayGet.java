@@ -17,12 +17,16 @@
 package org.jetbrains.jet.codegen.intrinsics;
 
 import com.intellij.psi.PsiElement;
+import kotlin.ExtensionFunction1;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.org.objectweb.asm.Type;
-import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
+import org.jetbrains.jet.codegen.CallableMethod;
 import org.jetbrains.jet.codegen.ExpressionCodegen;
+import org.jetbrains.jet.codegen.ExtendedCallable;
 import org.jetbrains.jet.codegen.StackValue;
 import org.jetbrains.jet.lang.psi.JetExpression;
+import org.jetbrains.org.objectweb.asm.Type;
+import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 
 import java.util.List;
 
@@ -47,5 +51,26 @@ public class ArrayGet extends IntrinsicMethod {
         v.aload(type);
 
         return type;
+    }
+
+    @Override
+    public boolean supportCallable() {
+        return true;
+    }
+
+    @NotNull
+    @Override
+    public IntrinsicCallable toCallable(@NotNull CallableMethod method) {
+        return new MappedCallable(method, new ExtensionFunction1<MappedCallable, InstructionAdapter, Unit>() {
+            @Override
+            public Unit invoke(
+                    MappedCallable callable,
+                    InstructionAdapter adapter
+            ) {
+                Type type = correctElementType(callable.calcReceiverType());
+                adapter.aload(type);
+                return Unit.INSTANCE$;
+            }
+        });
     }
 }

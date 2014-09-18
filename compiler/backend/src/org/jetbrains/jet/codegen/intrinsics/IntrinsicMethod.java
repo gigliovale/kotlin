@@ -21,10 +21,7 @@ import com.google.common.collect.Lists;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.codegen.Callable;
-import org.jetbrains.jet.codegen.ExpressionCodegen;
-import org.jetbrains.jet.codegen.ExtendedCallable;
-import org.jetbrains.jet.codegen.StackValue;
+import org.jetbrains.jet.codegen.*;
 import org.jetbrains.jet.codegen.context.CodegenContext;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
@@ -63,7 +60,15 @@ public abstract class IntrinsicMethod implements Callable {
         return false;
     }
 
-    public ExtendedCallable toCallable(GenerationState state, FunctionDescriptor fd, CodegenContext<?> context) {
+    @NotNull
+    public ExtendedCallable toCallable(@NotNull GenerationState state, @NotNull FunctionDescriptor fd, boolean isSuperCall, @NotNull CodegenContext<?> context) {
+        IntrinsicCallable callable = toCallable(state.getTypeMapper().mapToCallableMethod(fd, isSuperCall, context));
+        callable.setIsSuperCall(isSuperCall);
+        return callable;
+    }
+
+    @NotNull
+    public IntrinsicCallable toCallable(@NotNull CallableMethod method) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

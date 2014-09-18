@@ -36,7 +36,7 @@ public interface CallGenerator {
         @Override
         public void genCall(
                 @NotNull ExtendedCallable callableMethod,
-                @Nullable @NotNull ResolvedCall<?> resolvedCall,
+                @Nullable ResolvedCall<?> resolvedCall,
                 boolean callDefault,
                 @NotNull ExpressionCodegen codegen
         ) {

@@ -17,7 +17,11 @@
 package org.jetbrains.jet.codegen.intrinsics;
 
 import com.intellij.psi.PsiElement;
+import kotlin.ExtensionFunction1;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jet.codegen.CallableMethod;
+import org.jetbrains.jet.codegen.ExtendedCallable;
 import org.jetbrains.org.objectweb.asm.Type;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 import org.jetbrains.jet.codegen.ExpressionCodegen;
@@ -47,5 +51,26 @@ public class ArraySet extends IntrinsicMethod {
 
         v.astore(type);
         return Type.VOID_TYPE;
+    }
+
+    @Override
+    public boolean supportCallable() {
+        return true;
+    }
+
+    @NotNull
+    @Override
+    public IntrinsicCallable toCallable(@NotNull CallableMethod method) {
+        return new MappedCallable(method, new ExtensionFunction1<MappedCallable, InstructionAdapter, Unit>() {
+            @Override
+            public Unit invoke(
+                    MappedCallable callable,
+                    InstructionAdapter adapter
+            ) {
+                Type type = correctElementType(callable.calcReceiverType());
+                adapter.astore(type);
+                return Unit.INSTANCE$;
+            }
+        });
     }
 }

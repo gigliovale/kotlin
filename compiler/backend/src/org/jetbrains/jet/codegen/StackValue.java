@@ -104,6 +104,7 @@ public abstract class StackValue {
         return new Shared(index, type);
     }
 
+    @NotNull
     public static StackValue onStack(Type type) {
         return type == Type.VOID_TYPE ? none() : new OnStack(type);
     }
@@ -112,10 +113,12 @@ public abstract class StackValue {
         return new Constant(value, type);
     }
 
+    @NotNull
     public static StackValue cmp(IElementType opToken, Type type) {
         return type.getSort() == Type.OBJECT ? new ObjectCompare(opToken, type) : new NumberCompare(opToken, type);
     }
 
+    @NotNull
     public static StackValue not(StackValue stackValue) {
         return new Invert(stackValue);
     }
@@ -217,7 +220,7 @@ public abstract class StackValue {
         }
     }
 
-    protected void coerceTo(Type toType, InstructionAdapter v) {
+    protected void coerceTo(@NotNull Type toType, @NotNull InstructionAdapter v) {
         coerce(this.type, toType, v);
     }
 
@@ -225,7 +228,7 @@ public abstract class StackValue {
         coerce(topOfStackType, this.type, v);
     }
 
-    public static void coerce(Type fromType, Type toType, InstructionAdapter v) {
+    public static void coerce(Type fromType, @NotNull Type toType, @NotNull InstructionAdapter v) {
         if (toType.equals(fromType)) return;
 
         if (toType.getSort() == Type.VOID) {
@@ -299,18 +302,22 @@ public abstract class StackValue {
         v.mark(end);
     }
 
+    @NotNull
     public static StackValue none() {
         return None.INSTANCE;
     }
 
+    @NotNull
     public static StackValue fieldForSharedVar(Type localType, Type classType, String fieldName) {
         return new FieldForSharedVar(localType, classType, fieldName);
     }
 
+    @NotNull
     public static StackValue composed(StackValue prefix, StackValue suffix) {
         return new Composed(prefix, suffix);
     }
 
+    @NotNull
     public static StackValue thisOrOuter(ExpressionCodegen codegen, ClassDescriptor descriptor, boolean isSuper, boolean isExplicit) {
         // Coerce this/super for traits to support traits with required classes.
         // Coerce explicit 'this' for the case when it is smartcasted.
@@ -327,10 +334,11 @@ public abstract class StackValue {
         return new PreIncrement(index, increment);
     }
 
+    @NotNull
     public static StackValue receiver(
-            ResolvedCall<?> resolvedCall,
+            @NotNull ResolvedCall<?> resolvedCall,
             StackValue receiver,
-            ExpressionCodegen codegen,
+            @NotNull ExpressionCodegen codegen,
             @Nullable ExtendedCallable callableMethod
     ) {
         if (resolvedCall.getThisObject().exists() || resolvedCall.getReceiverArgument().exists() || isLocalFunCall(callableMethod)) {
@@ -634,7 +642,7 @@ public abstract class StackValue {
                 throw new UnsupportedOperationException("no getter specified");
             }
             if (getter instanceof ExtendedCallable) {
-                ((CallableMethod) getter).invokeWithNotNullAssertion(v, state, resolvedGetCall);
+                ((ExtendedCallable) getter).invokeWithNotNullAssertion(v, state, resolvedGetCall);
             }
             else {
                 ((IntrinsicMethod) getter).generate(codegen, v, this.type, null, null, null);

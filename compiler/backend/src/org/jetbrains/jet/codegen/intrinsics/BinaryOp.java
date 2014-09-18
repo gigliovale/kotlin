@@ -81,16 +81,16 @@ public class BinaryOp extends IntrinsicMethod {
         return true;
     }
 
+    @NotNull
     @Override
-    public ExtendedCallable toCallable(GenerationState state, FunctionDescriptor fd, CodegenContext<?> context) {
-        CallableMethod method = state.getTypeMapper().mapToCallableMethod(fd, false, context);
+    public IntrinsicCallable toCallable(CallableMethod method) {
         Type returnType = method.getReturnType();
         assert isPrimitive(returnType) : "Return type of BinaryOp intrinsic should be of primitive type : " + returnType;
         assert method.getValueParameters().size() == 1;
         Type operandType = numberFunctionOperandType(returnType);
         Type paramType = shift() ? Type.INT_TYPE : operandType;
 
-        return new IntrinsicCallable(this, operandType, Lists.asList(paramType, new Type[0]), operandType) {
+        return new IntrinsicCallable(operandType, Lists.asList(paramType, new Type[0]), operandType, null) {
             @Override
             public void invokeIntrinsic(
                     @NotNull InstructionAdapter v

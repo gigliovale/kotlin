@@ -35,8 +35,8 @@ public interface CallGenerator {
 
         @Override
         public void genCall(
-                @NotNull CallableMethod callableMethod,
-                ResolvedCall<?> resolvedCall,
+                @NotNull ExtendedCallable callableMethod,
+                @Nullable @NotNull ResolvedCall<?> resolvedCall,
                 boolean callDefault,
                 @NotNull ExpressionCodegen codegen
         ) {
@@ -90,7 +90,7 @@ public interface CallGenerator {
         }
     }
 
-    void genCall(@NotNull CallableMethod callableMethod, @Nullable ResolvedCall<?> resolvedCall, boolean callDefault, @NotNull ExpressionCodegen codegen);
+    void genCall(@NotNull ExtendedCallable callableMethod, @Nullable ResolvedCall<?> resolvedCall, boolean callDefault, @NotNull ExpressionCodegen codegen);
 
     void genCallWithoutAssertions(@NotNull CallableMethod callableMethod, @NotNull ExpressionCodegen codegen);
 

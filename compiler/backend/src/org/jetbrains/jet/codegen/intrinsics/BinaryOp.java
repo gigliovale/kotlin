@@ -16,19 +16,25 @@
 
 package org.jetbrains.jet.codegen.intrinsics;
 
+import com.google.common.collect.Lists;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jet.codegen.CallableMethod;
+import org.jetbrains.jet.codegen.ExpressionCodegen;
+import org.jetbrains.jet.codegen.ExtendedCallable;
+import org.jetbrains.jet.codegen.StackValue;
+import org.jetbrains.jet.codegen.context.CodegenContext;
+import org.jetbrains.jet.codegen.state.GenerationState;
+import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
+import org.jetbrains.jet.lang.psi.JetExpression;
 import org.jetbrains.org.objectweb.asm.Type;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
-import org.jetbrains.jet.codegen.ExpressionCodegen;
-import org.jetbrains.jet.codegen.StackValue;
-import org.jetbrains.jet.lang.psi.JetExpression;
 
 import java.util.List;
 
-import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 import static org.jetbrains.jet.codegen.AsmUtil.isPrimitive;
 import static org.jetbrains.jet.codegen.AsmUtil.numberFunctionOperandType;
+import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
 public class BinaryOp extends IntrinsicMethod {
     private final int opcode;
@@ -68,5 +74,29 @@ public class BinaryOp extends IntrinsicMethod {
 
     private boolean shift() {
         return opcode == ISHL || opcode == ISHR || opcode == IUSHR;
+    }
+
+    @Override
+    public boolean supportCallable() {
+        return true;
+    }
+
+    @Override
+    public ExtendedCallable toCallable(GenerationState state, FunctionDescriptor fd, CodegenContext<?> context) {
+        CallableMethod method = state.getTypeMapper().mapToCallableMethod(fd, false, context);
+        Type returnType = method.getReturnType();
+        assert isPrimitive(returnType) : "Return type of BinaryOp intrinsic should be of primitive type : " + returnType;
+        assert method.getValueParameters().size() == 1;
+        Type operandType = numberFunctionOperandType(returnType);
+        Type paramType = shift() ? Type.INT_TYPE : operandType;
+
+        return new IntrinsicCallable(this, operandType, Lists.asList(paramType, new Type[0]), operandType) {
+            @Override
+            public void invokeIntrinsic(
+                    @NotNull InstructionAdapter v
+            ) {
+                v.visitInsn(getReturnType().getOpcode(opcode));
+            }
+        };
     }
 }

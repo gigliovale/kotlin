@@ -18,6 +18,7 @@ package org.jetbrains.jet.codegen;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ReadOnly;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.codegen.state.JetTypeMapper;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
@@ -36,7 +37,7 @@ import java.util.List;
 import static org.jetbrains.org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.jetbrains.org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-public class CallableMethod implements Callable {
+public class CallableMethod implements ExtendedCallable {
     private final Type owner;
     private final Type defaultImplOwner;
     private final Type defaultImplParam;
@@ -66,6 +67,7 @@ public class CallableMethod implements Callable {
         this.generateCalleeType = generateCalleeType;
     }
 
+    @Override
     @NotNull
     public Type getOwner() {
         return owner;
@@ -76,6 +78,8 @@ public class CallableMethod implements Callable {
         return signature.getValueParameters();
     }
 
+    @ReadOnly
+    @Override
     @NotNull
     public List<Type> getValueParameterTypes() {
         List<JvmMethodParameterSignature> valueParameters = signature.getValueParameters();
@@ -111,6 +115,7 @@ public class CallableMethod implements Callable {
         v.visitMethodInsn(getInvokeOpcode(), owner.getInternalName(), getAsmMethod().getName(), getAsmMethod().getDescriptor());
     }
 
+    @Override
     public void invokeWithNotNullAssertion(
             @NotNull InstructionAdapter v,
             @NotNull GenerationState state,
@@ -120,10 +125,12 @@ public class CallableMethod implements Callable {
         AsmUtil.genNotNullAssertionForMethod(v, state, resolvedCall);
     }
 
+    @Override
     public void invokeWithoutAssertions(@NotNull InstructionAdapter v) {
         invoke(v);
     }
 
+    @Override
     @Nullable
     public Type getGenerateCalleeType() {
         return generateCalleeType;
@@ -148,6 +155,7 @@ public class CallableMethod implements Callable {
         }
     }
 
+    @Override
     public void invokeDefaultWithNotNullAssertion(
             @NotNull InstructionAdapter v,
             @NotNull GenerationState state,
@@ -161,6 +169,7 @@ public class CallableMethod implements Callable {
         return thisClass != null && generateCalleeType == null;
     }
 
+    @Override
     @NotNull
     public Type getReturnType() {
         return signature.getReturnType();

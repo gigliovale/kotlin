@@ -331,7 +331,7 @@ public abstract class StackValue {
             ResolvedCall<?> resolvedCall,
             StackValue receiver,
             ExpressionCodegen codegen,
-            @Nullable CallableMethod callableMethod
+            @Nullable ExtendedCallable callableMethod
     ) {
         if (resolvedCall.getThisObject().exists() || resolvedCall.getReceiverArgument().exists() || isLocalFunCall(callableMethod)) {
             return new CallReceiver(resolvedCall, receiver, codegen, callableMethod, true);
@@ -340,7 +340,7 @@ public abstract class StackValue {
     }
 
     @Contract("null -> false")
-    private static boolean isLocalFunCall(@Nullable CallableMethod callableMethod) {
+    private static boolean isLocalFunCall(@Nullable ExtendedCallable callableMethod) {
         return callableMethod != null && callableMethod.getGenerateCalleeType() != null;
     }
 
@@ -633,7 +633,7 @@ public abstract class StackValue {
             if (getter == null) {
                 throw new UnsupportedOperationException("no getter specified");
             }
-            if (getter instanceof CallableMethod) {
+            if (getter instanceof ExtendedCallable) {
                 ((CallableMethod) getter).invokeWithNotNullAssertion(v, state, resolvedGetCall);
             }
             else {
@@ -647,7 +647,7 @@ public abstract class StackValue {
             if (setter == null) {
                 throw new UnsupportedOperationException("no setter specified");
             }
-            if (setter instanceof CallableMethod) {
+            if (setter instanceof ExtendedCallable) {
                 CallableMethod method = (CallableMethod) setter;
                 Method asmMethod = method.getAsmMethod();
                 Type[] argumentTypes = asmMethod.getArgumentTypes();
@@ -1081,14 +1081,14 @@ public abstract class StackValue {
         private final ResolvedCall<?> resolvedCall;
         private final StackValue receiver;
         private final ExpressionCodegen codegen;
-        private final CallableMethod callableMethod;
+        private final ExtendedCallable callableMethod;
         private final boolean putReceiverArgumentOnStack;
 
         public CallReceiver(
                 @NotNull ResolvedCall<?> resolvedCall,
                 @NotNull StackValue receiver,
                 @NotNull ExpressionCodegen codegen,
-                @Nullable CallableMethod callableMethod,
+                @Nullable ExtendedCallable callableMethod,
                 boolean putReceiverArgumentOnStack
         ) {
             super(calcType(resolvedCall, codegen.typeMapper, callableMethod));
@@ -1102,7 +1102,7 @@ public abstract class StackValue {
         private static Type calcType(
                 @NotNull ResolvedCall<?> resolvedCall,
                 @NotNull JetTypeMapper typeMapper,
-                @Nullable CallableMethod callableMethod
+                @Nullable ExtendedCallable callableMethod
         ) {
             CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
 

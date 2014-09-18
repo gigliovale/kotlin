@@ -110,7 +110,7 @@ public class InlineCodegen implements CallGenerator {
     }
 
     @Override
-    public void genCall(@NotNull CallableMethod callableMethod, @Nullable ResolvedCall<?> resolvedCall, boolean callDefault, @NotNull ExpressionCodegen codegen) {
+    public void genCall(@NotNull ExtendedCallable callableMethod, @Nullable ResolvedCall<?> resolvedCall, boolean callDefault, @NotNull ExpressionCodegen codegen) {
         MethodNode node = null;
 
         try {

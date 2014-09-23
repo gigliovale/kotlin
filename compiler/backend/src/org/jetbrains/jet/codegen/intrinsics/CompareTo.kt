@@ -67,29 +67,29 @@ public class CompareTo : IntrinsicMethod() {
     }
 
 
-//    override fun supportCallable(): Boolean {
-//        return false
-//    }
-//
-//    override fun toCallable(method: CallableMethod): IntrinsicCallable {
-//        val operandType = comparisonOperandType(method.calcReceiverType(), method.getValueParameterTypes().head)
-//        return IntrinsicCallable.binaryIntrinsic(method, operandType, receiverTransformer = {operandType}) {
-//            val `type` = comparisonOperandType(calcReceiverType()!!, method.getValueParameterTypes().head)
-//            if (`type` == Type.INT_TYPE) {
-//                it.invokestatic("kotlin/jvm/internal/Intrinsics", "compare", "(II)I", false)
-//            }
-//            else if (`type` == Type.LONG_TYPE) {
-//                it.invokestatic("kotlin/jvm/internal/Intrinsics", "compare", "(JJ)I", false)
-//            }
-//            else if (`type` == Type.FLOAT_TYPE) {
-//                it.invokestatic("java/lang/Float", "compare", "(FF)I", false)
-//            }
-//            else if (`type` == Type.DOUBLE_TYPE) {
-//                it.invokestatic("java/lang/Double", "compare", "(DD)I", false)
-//            }
-//            else {
-//                throw UnsupportedOperationException()
-//            }
-//        }
-//    }
+    override fun supportCallable(): Boolean {
+        return true
+    }
+
+    override fun toCallable(method: CallableMethod): IntrinsicCallable {
+        val operandType = comparisonOperandType(method.calcReceiverType(), method.getValueParameterTypes().head)
+        return IntrinsicCallable.binaryIntrinsic(method, operandType, receiverTransformer = {operandType}) {
+            val `type` = comparisonOperandType(calcReceiverType()!!, method.getValueParameterTypes().head)
+            if (`type` == Type.INT_TYPE) {
+                it.invokestatic("kotlin/jvm/internal/Intrinsics", "compare", "(II)I", false)
+            }
+            else if (`type` == Type.LONG_TYPE) {
+                it.invokestatic("kotlin/jvm/internal/Intrinsics", "compare", "(JJ)I", false)
+            }
+            else if (`type` == Type.FLOAT_TYPE) {
+                it.invokestatic("java/lang/Float", "compare", "(FF)I", false)
+            }
+            else if (`type` == Type.DOUBLE_TYPE) {
+                it.invokestatic("java/lang/Double", "compare", "(DD)I", false)
+            }
+            else {
+                throw UnsupportedOperationException()
+            }
+        }
+    }
 }

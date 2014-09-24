@@ -645,6 +645,7 @@ public abstract class StackValue {
                 ((ExtendedCallable) getter).invokeWithNotNullAssertion(v, state, resolvedGetCall);
             }
             else {
+                assert false;
                 ((IntrinsicMethod) getter).generate(codegen, v, this.type, null, null, null);
             }
             coerceTo(type, v);
@@ -667,6 +668,7 @@ public abstract class StackValue {
                 }
             }
             else {
+                assert false;
                 //noinspection ConstantConditions
                 ((IntrinsicMethod) setter).generate(codegen, v, null, null, null, null);
             }

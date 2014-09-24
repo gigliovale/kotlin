@@ -4,6 +4,7 @@ where advanced options include:
   -Xno-param-assertions      Don't generate not-null assertions on parameters of methods accessible from Java
   -Xno-inline                Disable method inlining
   -Xno-optimize              Disable optimizations
+  -Xnlr-alt                  Alternative non-local return semantics
 
 Advanced options are non-standard and may be changed or removed without any notice.
 OK

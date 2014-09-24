@@ -37,6 +37,7 @@ import org.jetbrains.jet.codegen.inline.NameGenerator;
 import org.jetbrains.jet.codegen.intrinsics.Concat;
 import org.jetbrains.jet.codegen.intrinsics.IntrinsicCallable;
 import org.jetbrains.jet.codegen.intrinsics.IntrinsicMethod;
+import org.jetbrains.jet.codegen.intrinsics.RangeTo;
 import org.jetbrains.jet.codegen.state.GenerationState;
 import org.jetbrains.jet.codegen.state.JetTypeMapper;
 import org.jetbrains.jet.codegen.when.SwitchCodegen;
@@ -2740,13 +2741,13 @@ public class ExpressionCodegen extends JetVisitor<StackValue, StackValue> implem
             ResolvedCall<?> resolvedCall = getResolvedCallWithAssert(expression, bindingContext);
             FunctionDescriptor descriptor = (FunctionDescriptor) resolvedCall.getResultingDescriptor();
 
-            //Callable callable = resolveToCallable(descriptor, false);
-            //if (callable instanceof IntrinsicMethod) {
-            //    Type returnType = typeMapper.mapType(descriptor);
-            //    ((IntrinsicMethod) callable).generate(this, v, returnType, expression,
-            //                                          Arrays.asList(expression.getLeft(), expression.getRight()), receiver);
-            //    return StackValue.onStack(returnType);
-            //}
+            Callable callable = resolveToCallable(descriptor, false);
+            if (callable instanceof Concat || callable instanceof RangeTo) {
+                Type returnType = typeMapper.mapType(descriptor);
+                ((IntrinsicMethod) callable).generate(this, v, returnType, expression,
+                                                      Arrays.asList(expression.getLeft(), expression.getRight()), receiver);
+                return StackValue.onStack(returnType);
+            }
 
             return invokeFunction(resolvedCall, receiver);
         }

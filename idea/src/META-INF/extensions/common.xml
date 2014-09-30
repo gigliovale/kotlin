@@ -8,5 +8,8 @@
                         interface="org.jetbrains.jet.lang.resolve.DiagnosticsWithSuppression$SuppressStringProvider"/>
         <extensionPoint name="diagnosticSuppressor"
                         interface="org.jetbrains.jet.lang.resolve.DiagnosticsWithSuppression$DiagnosticSuppressor"/>
+        <extensionPoint name="externalDeclarationsProvider"
+                        interface="org.jetbrains.jet.extensions.ExternalDeclarationsProvider"
+                        area="IDEA_PROJECT"/>
     </extensionPoints>
 </idea-plugin>

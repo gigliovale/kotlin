@@ -43,8 +43,6 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.LockBasedStorageManager;
 
-import org.jetbrains.jet.lang.resolve.android.AndroidPackage;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -108,11 +106,10 @@ public enum TopDownAnalyzerFacadeForJVM {
             @Nullable List<String> moduleIds,
             @Nullable IncrementalCacheProvider incrementalCacheProvider
     ) {
-        List<JetFile> filesToAnalyze = new ArrayList<JetFile>(files);
-        searchAndAddAndroidDeclarations(project, filesToAnalyze);
+        List<JetFile> allFiles = JvmAnalyzerFacade.getAllFilesToAnalyze(project, files);
 
         FileBasedDeclarationProviderFactory providerFactory =
-                new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), filesToAnalyze);
+                new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), allFiles);
 
         InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
                 project,
@@ -141,7 +138,7 @@ public enum TopDownAnalyzerFacadeForJVM {
             }
             additionalProviders.add(injector.getJavaDescriptorResolver().getPackageFragmentProvider());
 
-            injector.getLazyTopDownAnalyzer().analyzeFiles(topDownAnalysisParameters, filesToAnalyze, additionalProviders);
+            injector.getLazyTopDownAnalyzer().analyzeFiles(topDownAnalysisParameters, allFiles, additionalProviders);
             return AnalysisResult.success(trace.getBindingContext(), module);
         }
         finally {

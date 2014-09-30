@@ -50,6 +50,7 @@ import org.jetbrains.jet.cli.common.messages.CompilerMessageLocation;
 import org.jetbrains.jet.cli.common.messages.CompilerMessageSeverity;
 import org.jetbrains.jet.cli.common.messages.MessageCollector;
 import org.jetbrains.jet.cli.jvm.JVMConfigurationKeys;
+import org.jetbrains.jet.codegen.extensions.ExpressionCodegenExtension;
 import org.jetbrains.jet.config.CommonConfigurationKeys;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.extensions.ExternalDeclarationsProvider;
@@ -251,6 +252,7 @@ public class JetCoreEnvironment {
         }
 
         ExternalDeclarationsProvider.OBJECT$.registerExtensionPoint(project);
+        ExpressionCodegenExtension.OBJECT$.registerExtensionPoint(project);
     }
 
     // made public for Upsource

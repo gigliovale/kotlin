@@ -141,7 +141,8 @@ public abstract class AbstractLazyMemberScope<D extends DeclarationDescriptor, D
         Collection<JetNamedFunction> declarations = declarationProvider.getFunctionDeclarations(name);
         for (JetNamedFunction functionDeclaration : declarations) {
             JetScope resolutionScope = getScopeForMemberDeclarationResolution(functionDeclaration);
-            result.add(resolveSession.getDescriptorResolver().resolveFunctionDescriptorWithAnnotationArguments(
+            // why do we need arguments here?
+            result.add(resolveSession.getDescriptorResolver().resolveFunctionDescriptor(
                   thisDescriptor, resolutionScope,
                   functionDeclaration,
                   trace,

@@ -51,9 +51,13 @@ public class ImportInsertHelper {
         }
     }
 
-    public static void optimizeImportsOnTheFly(JetFile file) {
+    public static boolean optimizeImportsOnTheFly(JetFile file) {
         if (CodeInsightSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
             new OptimizeImportsProcessor(file.getProject(), file).runWithoutProgress();
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

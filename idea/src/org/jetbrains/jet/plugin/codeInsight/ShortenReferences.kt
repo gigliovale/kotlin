@@ -101,13 +101,13 @@ public object ShortenReferences {
 
     private fun process(elements: Iterable<JetElement>, elementFilter: (PsiElement) -> FilterResult) {
         for ((file, fileElements) in elements.groupBy { element -> element.getContainingJetFile() }) {
-            ImportInsertHelper.optimizeImportsOnTheFly(file)
+            val importInserter = ImportInserter(file)
 
             // first resolve all qualified references - optimization
             val referenceToContext = JetFileReferencesResolver.resolve(file, fileElements, resolveShortNames = false)
 
-            processElements(fileElements, ShortenTypesVisitor(file, elementFilter, referenceToContext))
-            processElements(fileElements, ShortenQualifiedExpressionsVisitor(file, elementFilter, referenceToContext))
+            processElements(fileElements, ShortenTypesVisitor(file, elementFilter, referenceToContext, importInserter))
+            processElements(fileElements, ShortenQualifiedExpressionsVisitor(file, elementFilter, referenceToContext, importInserter))
         }
     }
 
@@ -121,7 +121,8 @@ public object ShortenReferences {
     private abstract class ShorteningVisitor<T : JetElement>(
             val file: JetFile,
             val elementFilter: (PsiElement) -> FilterResult,
-            val resolveMap: Map<JetReferenceExpression, BindingContext>) : JetVisitorVoid() {
+            val resolveMap: Map<JetReferenceExpression, BindingContext>,
+            val importInserter: ImportInserter) : JetVisitorVoid() {
         protected val resolveSession: ResolveSessionForBodies
             get() = file.getLazyResolveSession()
 
@@ -148,8 +149,9 @@ public object ShortenReferences {
     private class ShortenTypesVisitor(
             file: JetFile,
             elementFilter: (PsiElement) -> FilterResult,
-            resolveMap: Map<JetReferenceExpression, BindingContext>
-    ) : ShorteningVisitor<JetUserType>(file, elementFilter, resolveMap) {
+            resolveMap: Map<JetReferenceExpression, BindingContext>,
+            importInserter: ImportInserter
+    ) : ShorteningVisitor<JetUserType>(file, elementFilter, resolveMap, importInserter) {
         private fun canShortenType(userType: JetUserType): Boolean {
             if (userType.getQualifier() == null) return false
             val referenceExpression = userType.getReferenceExpression()
@@ -167,13 +169,17 @@ public object ShortenReferences {
             if (targetByName == null) {
                 if (target.getContainingDeclaration() is ClassDescriptor) return false
 
-                addImport(target, file)
+                importInserter.addImport(target)
                 return true
             }
             else if (target.asString() == targetByName.asString()) {
                 return true
             }
             else {
+                if (importInserter.optimizeImports()) {
+                    return canShortenType(userType) // if we have optimized imports then try again
+                }
+
                 // leave FQ name
                 return false
             }
@@ -204,8 +210,9 @@ public object ShortenReferences {
     private class ShortenQualifiedExpressionsVisitor(
             file: JetFile,
             elementFilter: (PsiElement) -> FilterResult,
-            resolveMap: Map<JetReferenceExpression, BindingContext>
-    ) : ShorteningVisitor<JetQualifiedExpression>(file, elementFilter, resolveMap) {
+            resolveMap: Map<JetReferenceExpression, BindingContext>,
+            importInserter: ImportInserter
+    ) : ShorteningVisitor<JetQualifiedExpression>(file, elementFilter, resolveMap, importInserter) {
         private fun adjustDescriptor(it: DeclarationDescriptor): DeclarationDescriptor {
             return (it as? ConstructorDescriptor)?.getContainingDeclaration() ?: it
         }
@@ -234,18 +241,32 @@ public object ShortenReferences {
             val selectorCopy = selector.copy() as JetReferenceExpression
             val shortenedSelectorTargets = selectorCopy.getTargets(selectorCopy.analyzeInContext(scope))
 
-            return when (shortenedSelectorTargets.size) {
+            when (shortenedSelectorTargets.size) {
                 0 -> {
                     if (!isClassMember && isClassOrPackage) {
-                        addImport(selectorTarget, file)
+                        importInserter.addImport(selectorTarget)
                         return true
                     }
-                    false
+                    return false
                 }
 
-                1 -> selectorTarget == shortenedSelectorTargets.first()
+                1 -> {
+                    if (selectorTarget == shortenedSelectorTargets.first()) return true
 
-                else -> false
+                    if (importInserter.optimizeImports()) {
+                        return canShorten(qualifiedExpression) // if we have optimized imports then try again
+                    }
+
+                    return false
+                }
+
+                else -> {
+                    if (importInserter.optimizeImports()) {
+                        return canShorten(qualifiedExpression) // if we have optimized imports then try again
+                    }
+
+                    return false
+                }
             }
         }
 
@@ -267,7 +288,19 @@ public object ShortenReferences {
     private fun DeclarationDescriptor.asString()
             = DescriptorRenderer.FQ_NAMES_IN_TYPES.render(this)
 
-    private fun addImport(descriptor: DeclarationDescriptor, file: JetFile) {
-        ImportInsertHelper.writeImportToFile(ImportPath(DescriptorUtils.getFqNameSafe(descriptor), false), file)
+    // this class is needed to optimize imports only when we actually insert any import (optimization)
+    private class ImportInserter(val file: JetFile) {
+        private var optimizeImports = true
+
+        fun addImport(descriptor: DeclarationDescriptor) {
+            optimizeImports()
+            ImportInsertHelper.writeImportToFile(ImportPath(DescriptorUtils.getFqNameSafe(descriptor), false), file)
+        }
+
+        fun optimizeImports(): Boolean {
+            if (!optimizeImports) return false
+            optimizeImports = false
+            return ImportInsertHelper.optimizeImportsOnTheFly(file)
+        }
     }
 }

@@ -1,10 +1,9 @@
 <component name="ArtifactManager">
-  <artifact name="KotlinAndroidExtensionsPlugin">
-    <output-path>$PROJECT_DIR$/out/artifacts/KotlinAndroidExtensionsPlugin</output-path>
+  <artifact name="KotlinAndroidExtensions">
+    <output-path>$PROJECT_DIR$/out/artifacts/KotlinAndroidExtensions</output-path>
     <root id="root">
       <element id="directory" name="lib">
         <element id="archive" name="kotlin-android-extensions.jar">
-          <element id="module-output" name="android-compiler-plugin" />
           <element id="module-output" name="android-idea-plugin" />
         </element>
         <element id="directory" name="jps">

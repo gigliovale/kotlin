@@ -33,40 +33,34 @@ import org.jetbrains.jet.lexer.JetToken
 import org.jetbrains.jet.plugin.intentions.OperatorToFunctionIntention
 import org.jetbrains.jet.lang.resolve.BindingContext
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.jet.lang.psi.psiUtil.getParentByTypeAndBranch
-import org.jetbrains.jet.lang.resolve.android.isAndroidSyntheticElement
-import org.jetbrains.jet.plugin.android.XmlAttributeValueWrapper
-import org.jetbrains.android.dom.wrappers.ValueResourceElementWrapper
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.openapi.components.ServiceManager
-import org.jetbrains.jet.lang.resolve.android.AndroidUIXmlProcessor
 import com.intellij.psi.xml.XmlAttribute
 import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.jet.lang.resolve.dataClassUtils.isComponentLike
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 import org.jetbrains.jet.lang.psi.psiUtil.getParentOfTypeAndBranch
+import com.intellij.openapi.extensions.Extensions
+import org.jetbrains.jet.plugin.findUsages.handlers.KotlinIsReferenceToExtension
 
 public class JetSimpleNameReference(
         jetSimpleNameExpression: JetSimpleNameExpression
 ) : JetSimpleReference<JetSimpleNameExpression>(jetSimpleNameExpression) {
 
     override fun isReferenceTo(element: PsiElement?): Boolean {
-       val resolvedElement = resolve()
-       if (resolvedElement == null || element == null) {
-           return false
-       }
-       if (isAndroidSyntheticElement(resolvedElement)) {
-           if (element is ValueResourceElementWrapper) {
-               val resource = element.getValue()!!
-               return (resolvedElement as JetProperty).getName() == resource.substring(resource.indexOf('/')+1)
-           }
+        if (element != null) {
+            val extensions = Extensions.getArea(element.getProject()).getExtensionPoint(
+                    KotlinIsReferenceToExtension.EP_NAME).getExtensions()
+            for (extension in extensions) {
+                val value = extension.isReferenceTo(this, element)
+                if (value != null) {
+                    return value
+                }
+            }
+        }
 
-       }
-       else if (resolvedElement is LightElement && element is JetProperty) {
-           return resolvedElement.getName() == element.getName()
-       }
-       return super.isReferenceTo(element)
-   }
+        return super.isReferenceTo(element)
+    }
 
     override fun getRangeInElement(): TextRange = TextRange(0, getElement().getTextLength())
 
@@ -96,12 +90,17 @@ public class JetSimpleNameReference(
             JetTokens.FIELD_IDENTIFIER -> psiFactory.createFieldIdentifier(newElementName)
             JetTokens.LABEL_IDENTIFIER -> psiFactory.createClassLabel(newElementName)
             else -> {
-                if (newElementName.startsWith("@+id/")) {
-                    psiFactory.createNameIdentifier(newElementName.substring(newElementName.indexOf('/')+1))
+                val extensions = Extensions.getArea(expression.getProject()).getExtensionPoint(
+                        KotlinIsReferenceToExtension.EP_NAME).getExtensions()
+
+                var handled: PsiElement? = null
+                for (extension in extensions) {
+                    handled = extension.handleElementRename(this, psiFactory, newElementName)
+                    if (handled != null) {
+                        break
+                    }
                 }
-                else {
-                    psiFactory.createNameIdentifier(newElementName)
-                }
+                handled ?: psiFactory.createNameIdentifier(newElementName)
             }
         }
 

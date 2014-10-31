@@ -25,6 +25,8 @@ import com.intellij.psi.SingleRootFileViewProvider
 import org.jetbrains.jet.plugin.JetLanguage
 import kotlin.properties.Delegates
 import org.jetbrains.jet.plugin.decompiler.textBuilder.buildDecompiledText
+import org.jetbrains.jet.lang.psi.JetFile
+import com.intellij.lang.Language
 
 public class JetClassFileViewProvider(
         manager: PsiManager,
@@ -44,7 +46,7 @@ public class JetClassFileViewProvider(
         //TODO: check index that file is library file, as in ClassFileViewProvider
         if (isInternal) return null
 
-        return JetClsFile(this)
+        return JetFile(this, true)
     }
 
     override fun createCopy(copy: VirtualFile): SingleRootFileViewProvider {

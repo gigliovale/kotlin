@@ -17,7 +17,6 @@
 package org.jetbrains.jet.plugin.decompiler.stubBuilder
 
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.psi.stubs.elements.JetFileStubBuilder
 import com.intellij.psi.impl.DebugUtil
 import org.jetbrains.jet.lang.resolve.name.SpecialNames

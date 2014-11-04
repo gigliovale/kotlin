@@ -63,29 +63,28 @@ public abstract class CompiledStubBuilderBase(
         }
     }
 
-    protected fun createFileStub(): KotlinFileStubImpl {
+    protected abstract fun getInternalFqName(name: String): FqName?
+}
 
-        val fileStub = KotlinFileStubImpl(null, packageFqName.asString(), packageFqName.isRoot())
-        val packageDirectiveStub = KotlinPlaceHolderStubImpl<JetPackageDirective>(fileStub, JetStubElementTypes.PACKAGE_DIRECTIVE)
-        createStubForPackageName(packageDirectiveStub, packageFqName)
-        return fileStub
-    }
-    fun createStubForPackageName(packageDirectiveStub: KotlinPlaceHolderStubImpl<JetPackageDirective>, packageFqName: FqName) {
-        val segments = packageFqName.pathSegments().toArrayList()
-        var current: StubElement<out JetElement> = packageDirectiveStub
-        while (segments.notEmpty) {
-            val head = segments.first()
-            segments.remove(0)
-            if (segments.empty) {
-                current = KotlinNameReferenceExpressionStubImpl(current, head.asString().ref())
-            }
-            else {
-                current = KotlinPlaceHolderStubImpl<JetDotQualifiedExpression>(current, JetStubElementTypes.DOT_QUALIFIED_EXPRESSION)
-                KotlinNameReferenceExpressionStubImpl(current, head.asString().ref())
-            }
+public fun createFileStub(packageFqName: FqName): KotlinFileStubImpl {
+    val fileStub = KotlinFileStubImpl(null, packageFqName.asString(), packageFqName.isRoot())
+    val packageDirectiveStub = KotlinPlaceHolderStubImpl<JetPackageDirective>(fileStub, JetStubElementTypes.PACKAGE_DIRECTIVE)
+    createStubForPackageName(packageDirectiveStub, packageFqName)
+    return fileStub
+}
+
+private fun createStubForPackageName(packageDirectiveStub: KotlinPlaceHolderStubImpl<JetPackageDirective>, packageFqName: FqName) {
+    val segments = packageFqName.pathSegments().toArrayList()
+    var current: StubElement<out JetElement> = packageDirectiveStub
+    while (segments.notEmpty) {
+        val head = segments.first()
+        segments.remove(0)
+        if (segments.empty) {
+            current = KotlinNameReferenceExpressionStubImpl(current, head.asString().ref())
+        }
+        else {
+            current = KotlinPlaceHolderStubImpl<JetDotQualifiedExpression>(current, JetStubElementTypes.DOT_QUALIFIED_EXPRESSION)
+            KotlinNameReferenceExpressionStubImpl(current, head.asString().ref())
         }
     }
-
-
-    protected abstract fun getInternalFqName(name: String): FqName?
 }

@@ -31,7 +31,7 @@ public class CompiledPackageClassStubBuilder(packageData: PackageData, packageFq
     }
 
     public fun createStub(): KotlinFileStub {
-        val fileStub = createFileStub()
+        val fileStub = createFileStub(packageFqName)
         for (callableProto in packageProto.getMemberList()) {
             createCallableStub(fileStub, callableProto)
         }

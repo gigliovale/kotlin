@@ -54,7 +54,7 @@ public class KotlinClsStubBuilder : ClsStubBuilder() {
             ).createStub()
 
             KotlinClassHeader.Kind.CLASS -> {
-                val fileStub = KotlinFileStubImpl(null, packageFqName.asString(), packageFqName.isRoot())
+                val fileStub = createFileStub(packageFqName)
                 CompiledClassStubBuilder(JavaProtoBufUtil.readClassDataFrom(header.annotationData), classFqName, packageFqName, fileStub, file).createStub()
                 return fileStub
             }

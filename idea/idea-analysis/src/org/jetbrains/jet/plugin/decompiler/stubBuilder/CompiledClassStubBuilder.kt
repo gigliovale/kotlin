@@ -35,6 +35,16 @@ import org.jetbrains.jet.lang.psi.stubs.elements.JetStubElementTypes
 import com.intellij.util.io.StringRef
 import org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache
 import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil
+import org.jetbrains.jet.descriptors.serialization.SerializationPackage
+import org.jetbrains.jet.descriptors.serialization.visibility
+import org.jetbrains.jet.descriptors.serialization.modality
+import org.jetbrains.jet.descriptors.serialization.classKind
+import org.jetbrains.jet.lexer.JetModifierKeywordToken
+import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
+import org.jetbrains.jet.lexer.JetTokens
+import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Modality
+import com.intellij.psi.PsiNamedElement
+import org.jetbrains.jet.lang.psi.stubs.impl.KotlinModifierListStubImpl
 
 public class CompiledClassStubBuilder(
         classData: ClassData,
@@ -48,9 +58,36 @@ public class CompiledClassStubBuilder(
     override fun getInternalFqName(name: String) = null
 
     public fun createStub() {
+        fun modalityModifier(modality: Modality): JetModifierKeywordToken {
+            return when (modality) {
+                ProtoBuf.Modality.ABSTRACT -> JetTokens.ABSTRACT_KEYWORD
+                ProtoBuf.Modality.FINAL -> JetTokens.FINAL_KEYWORD
+                ProtoBuf.Visibility.OPEN -> JetTokens.OPEN_KEYWORD
+            //TODO: message
+                else -> throw IllegalStateException()
+            }
+        }
+
+        fun visibilityToModifier(visibility: Visibility): JetModifierKeywordToken {
+            return when (visibility) {
+                ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
+                ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
+                ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
+                ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
+            //TODO: what is extra visibility?
+                else -> throw IllegalStateException()
+            }
+        }
+
         val name = nameResolver.getName(classProto.getFqName())
         val flags = classProto.getFlags()
+        val modality = Flags.MODALITY.get(flags)
+        val modalityModifier = modalityModifier(modality)
+        val visibility = Flags.VISIBILITY.get(flags)
+        val visibilityModifier = visibilityToModifier(visibility)
         val kind = Flags.CLASS_KIND.get(flags)
+        val isInner = Flags.INNER.get(flags)
+
         val isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY
         //TODO: inner classes
         val classOrObjectStub: KotlinStubWithFqName<*>
@@ -72,6 +109,7 @@ public class CompiledClassStubBuilder(
                             true
                     )
         }
+        createModifierListStub(classOrObjectStub, classProto)
         val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(classOrObjectStub, JetStubElementTypes.CLASS_BODY)
 
         for (nestedNameIndex in classProto.getNestedClassNameList()) {
@@ -84,15 +122,15 @@ public class CompiledClassStubBuilder(
             CompiledClassStubBuilder(classData, classFqName, classFqName, classBody, nestedFile).createStub()
         }
 
-//        if (classProto.hasClassObject() && kind != ProtoBuf.Class.Kind.ENUM_CLASS) {
-//            // TODO enum
-//            val nestedFile = findNestedClassFile(file, Name.identifier(JvmAbi.CLASS_OBJECT_CLASS_NAME))
-//            val kotlinBinaryClass = KotlinBinaryClassCache.getKotlinBinaryClass(nestedFile)
-//            val classFqName = kotlinBinaryClass.getClassId().asSingleFqName().toSafe()
-//            val classData = JavaProtoBufUtil.readClassDataFrom(kotlinBinaryClass.getClassHeader().annotationData)
-//            // TODO package name is not needed
-//            CompiledClassStubBuilder(classData, classFqName, classFqName.parent(), classBody, nestedFile).createStub()
-//        }
+        //        if (classProto.hasClassObject() && kind != ProtoBuf.Class.Kind.ENUM_CLASS) {
+        //            // TODO enum
+        //            val nestedFile = findNestedClassFile(file, Name.identifier(JvmAbi.CLASS_OBJECT_CLASS_NAME))
+        //            val kotlinBinaryClass = KotlinBinaryClassCache.getKotlinBinaryClass(nestedFile)
+        //            val classFqName = kotlinBinaryClass.getClassId().asSingleFqName().toSafe()
+        //            val classData = JavaProtoBufUtil.readClassDataFrom(kotlinBinaryClass.getClassHeader().annotationData)
+        //            // TODO package name is not needed
+        //            CompiledClassStubBuilder(classData, classFqName, classFqName.parent(), classBody, nestedFile).createStub()
+        //        }
 
         //TODO: primary constructor
         for (callableProto in classProto.getMemberList()) {
@@ -113,6 +151,10 @@ public class CompiledClassStubBuilder(
         assert(dir != null)
 
         return dir!!.findChild(baseName + "$" + innerName.asString() + ".class")
+    }
+
+    fun createModifierListStub(classOrObjectStub: KotlinStubWithFqName<out PsiNamedElement>, classProto: ProtoBuf.Class) {
+        val modifierListStub = KotlinModifierListStubImpl(classOrObjectStub, )
     }
 }
 

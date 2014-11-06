@@ -62,26 +62,6 @@ public class CompiledClassStubBuilder(
         createConstructorStub()
         val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(rootStub, JetStubElementTypes.CLASS_BODY)
 
-        for (nestedNameIndex in classProto.getNestedClassNameList()) {
-            val nestedName = nameResolver.getName(nestedNameIndex)
-            val nestedFile = findNestedClassFile(file, nestedName)
-            val kotlinBinaryClass = KotlinBinaryClassCache.getKotlinBinaryClass(nestedFile)
-            val classFqName = kotlinBinaryClass.getClassId().asSingleFqName().toSafe()
-            val classData = JavaProtoBufUtil.readClassDataFrom(kotlinBinaryClass.getClassHeader().annotationData)
-            // TODO package name is not needed
-            CompiledClassStubBuilder(classData, classFqName, classFqName, classBody, nestedFile).createStub()
-        }
-
-        //        if (classProto.hasClassObject() && kind != ProtoBuf.Class.Kind.ENUM_CLASS) {
-        //            // TODO enum
-        //            val nestedFile = findNestedClassFile(file, Name.identifier(JvmAbi.CLASS_OBJECT_CLASS_NAME))
-        //            val kotlinBinaryClass = KotlinBinaryClassCache.getKotlinBinaryClass(nestedFile)
-        //            val classFqName = kotlinBinaryClass.getClassId().asSingleFqName().toSafe()
-        //            val classData = JavaProtoBufUtil.readClassDataFrom(kotlinBinaryClass.getClassHeader().annotationData)
-        //            // TODO package name is not needed
-        //            CompiledClassStubBuilder(classData, classFqName, classFqName.parent(), classBody, nestedFile).createStub()
-        //        }
-
         createMemberStubs(classBody)
     }
 

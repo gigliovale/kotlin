@@ -60,12 +60,11 @@ public class CompiledClassStubBuilder(
         createRootStub()
         createModifierListStub()
         createConstructorStub()
-        val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(rootStub, JetStubElementTypes.CLASS_BODY)
-
-        createMemberStubs(classBody)
+        createClassBodyAndMemberStubs()
     }
 
-    private fun createMemberStubs(classBody: KotlinPlaceHolderStubImpl<JetClassBody>) {
+    private fun createClassBodyAndMemberStubs() {
+        val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(rootStub, JetStubElementTypes.CLASS_BODY)
         for (callableProto in classProto.getMemberList()) {
             createCallableStub(classBody, callableProto)
         }
@@ -74,7 +73,6 @@ public class CompiledClassStubBuilder(
     private fun createRootStub() {
         val kind = Flags.CLASS_KIND.get(classProto.getFlags())
         val isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY
-        //TODO: inner classes
         val shortName = classFqName.shortName().asString().ref()
         if (kind == ProtoBuf.Class.Kind.OBJECT) {
             rootStub = KotlinObjectStubImpl(
@@ -142,7 +140,7 @@ public class CompiledClassStubBuilder(
             ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
             ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
             ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-            //TODO: support extra visibility
+        //TODO: support extra visibility
             else -> throw IllegalStateException("Unexpected visibility: $visibility")
         }
     }

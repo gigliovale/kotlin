@@ -29,7 +29,7 @@ import com.intellij.psi.PsiElement
 public class KotlinClassStubImpl(
         type: JetClassElementType,
         parent: StubElement<out PsiElement>,
-        private val qualifiedName: StringRef,
+        private val qualifiedName: StringRef?,
         private val name: StringRef,
         private val superNames: Array<StringRef>,
         private val isTrait: Boolean,

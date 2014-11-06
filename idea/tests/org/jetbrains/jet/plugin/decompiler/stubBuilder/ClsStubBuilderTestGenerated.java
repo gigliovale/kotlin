@@ -30,25 +30,21 @@ import java.util.regex.Pattern;
 @SuppressWarnings("all")
 @TestMetadata("idea/testData/decompiler/stubBuilder")
 @TestDataPath("$PROJECT_ROOT")
-@InnerTestClasses({ClsStubBuilderTestGenerated.ClassWithNoMembers.class})
 @RunWith(JUnit3RunnerWithInners.class)
 public class ClsStubBuilderTestGenerated extends AbstractClsStubBuilderTest {
     public void testAllFilesPresentInStubBuilder() throws Exception {
-        JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/decompiler/stubBuilder"), Pattern.compile("^(.+)\\.kt$"), true);
+        JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/decompiler/stubBuilder"), Pattern.compile("^([^\\.]+)$"), false);
     }
 
-    @TestMetadata("idea/testData/decompiler/stubBuilder/ClassWithNoMembers")
-    @TestDataPath("$PROJECT_ROOT")
-    @RunWith(JUnit3RunnerWithInners.class)
-    public static class ClassWithNoMembers extends AbstractClsStubBuilderTest {
-        public void testAllFilesPresentInClassWithNoMembers() throws Exception {
-            JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/decompiler/stubBuilder/ClassWithNoMembers"), Pattern.compile("^(.+)\\.kt$"), true);
-        }
+    @TestMetadata("ClassWithNoMembers")
+    public void testClassWithNoMembers() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/decompiler/stubBuilder/ClassWithNoMembers/");
+        doTest(fileName);
+    }
 
-        @TestMetadata("SimpleClassWithNoMembers.kt")
-        public void testSimpleClassWithNoMembers() throws Exception {
-            String fileName = JetTestUtils.navigationMetadata("idea/testData/decompiler/stubBuilder/ClassWithNoMembers/SimpleClassWithNoMembers.kt");
-            doTest(fileName);
-        }
+    @TestMetadata("SimpleFunctionPackage")
+    public void testSimpleFunctionPackage() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/decompiler/stubBuilder/SimpleFunctionPackage/");
+        doTest(fileName);
     }
 }

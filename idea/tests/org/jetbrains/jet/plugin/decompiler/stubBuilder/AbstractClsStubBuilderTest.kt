@@ -32,6 +32,7 @@ import com.google.common.io.Files
 import com.intellij.openapi.vfs.VirtualFile
 import org.junit.Assert
 
+//TODO: not clear that code in file and decompiled code differ
 public open class AbstractClsStubBuilderTest : LightCodeInsightFixtureTestCase() {
     fun doTest(sourcePath: String) {
         val classFile = getClassFileToDecompile(sourcePath)
@@ -39,6 +40,7 @@ public open class AbstractClsStubBuilderTest : LightCodeInsightFixtureTestCase()
         val psiFile = myFixture.configureByFile(classFile.getPath())
         val stubTreeFromDecompiledText = JetFileStubBuilder().buildStubTree(psiFile)
         Assert.assertEquals(stubTreeFromDecompiledText.serializeToString(), stubTreeFromCls.serializeToString())
+        //TODO: add comparison to file
     }
 
     //TODO: util
@@ -47,10 +49,10 @@ public open class AbstractClsStubBuilderTest : LightCodeInsightFixtureTestCase()
     }
 
     private fun getClassFileToDecompile(sourcePath: String): VirtualFile {
-        val sourceDir = File(sourcePath)
         //TODO: Review
         val outDir = JetTestUtils.tmpDir("libForStubTest-" + sourcePath)
-        MockLibraryUtil.compileKotlin(sourceDir.getParent(), outDir)
+        MockLibraryUtil.compileKotlin(sourcePath, outDir)
+        //TODO: refactor
         val classFileToDecompile = outDir.findTargetClassFile(Files.getNameWithoutExtension(sourcePath.split("/").last()))
         return LocalFileSystem.getInstance().refreshAndFindFileByIoFile(classFileToDecompile)!!
     }

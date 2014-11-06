@@ -578,7 +578,7 @@ fun main(args: Array<String>) {
         }
 
         testClass(javaClass<AbstractClsStubBuilderTest>()) {
-            model("decompiler/stubBuilder", extension = "kt")
+            model("decompiler/stubBuilder", extension = null, recursive = false)
         }
 
         testClass(javaClass<AbstractOptimizeImportsTest>()) {

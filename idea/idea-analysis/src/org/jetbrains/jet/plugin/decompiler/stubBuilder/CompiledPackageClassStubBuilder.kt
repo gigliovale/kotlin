@@ -27,7 +27,7 @@ public class CompiledPackageClassStubBuilder(
         packageFqName: FqName
 ) : CompiledStubBuilderBase(packageData.getNameResolver(), packageFqName) {
 
-    private val packageProto: ProtoBuf.Package = packageData.getPackageProto()
+    private val packageProto = packageData.getPackageProto()
 
     public fun createStub(): KotlinFileStub {
         val fileStub = createFileStub(packageFqName)

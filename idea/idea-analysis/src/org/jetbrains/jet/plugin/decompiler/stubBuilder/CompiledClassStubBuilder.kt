@@ -98,7 +98,7 @@ public class CompiledClassStubBuilder(
         val shortName = classFqName.shortName().asString().ref()
         if (kind == ProtoBuf.Class.Kind.OBJECT) {
             rootStub = KotlinObjectStubImpl(
-                    parent, shortName, classFqName, getSuperList(),
+                    parent, shortName, classFqName, getSuperTypeRefs(),
                     isTopLevel = true,
                     isClassObject = false,
                     isLocal = false,
@@ -108,7 +108,7 @@ public class CompiledClassStubBuilder(
         else {
             rootStub = KotlinClassStubImpl(
                     JetClassElementType.getStubType(isEnumEntry), parent, classFqName.asString().ref(), shortName,
-                    getSuperList(),
+                    getSuperTypeRefs(),
                     isTrait = kind == ProtoBuf.Class.Kind.TRAIT,
                     isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY,
                     isLocal = false,
@@ -117,17 +117,15 @@ public class CompiledClassStubBuilder(
         }
     }
 
-    //TODO: refactor
-    private fun getSuperList() = classProto.getSupertypeList().map {
-        type ->
-        assert(type.getConstructor().getKind() == ProtoBuf.Type.Constructor.Kind.CLASS)
-        val superFqName = nameResolver.getFqName(`type`.getConstructor().getId())
-        superFqName.asString()
-    }.filter {
-        it != "kotlin.Any"
-    }.map {
-        it.ref()
-    }.copyToArray()
+    private fun getSuperTypeRefs(): Array<StringRef> {
+        val superTypeStrings = classProto.getSupertypeList().map {
+            type ->
+            assert(type.getConstructor().getKind() == ProtoBuf.Type.Constructor.Kind.CLASS)
+            val superFqName = nameResolver.getFqName(`type`.getConstructor().getId())
+            superFqName.asString()
+        }
+        return superTypeStrings.filter { it != "kotlin.Any" }.map { it.ref() }.copyToArray()
+    }
 
     private fun findNestedClassFile(file: VirtualFile, innerName: Name): VirtualFile {
         val baseName = file.getNameWithoutExtension()

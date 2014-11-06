@@ -97,7 +97,12 @@ public class CompiledClassStubBuilder(
         val shortName = classFqName.shortName().asString().ref()
         if (kind == ProtoBuf.Class.Kind.OBJECT) {
             rootStub = KotlinObjectStubImpl(
-                    parent, shortName, classFqName, getSuperList(), true, false, false, false)
+                    parent, shortName, classFqName, getSuperList(),
+                    isTopLevel = true,
+                    isClassObject = false,
+                    isLocal = false,
+                    isObjectLiteral = false
+            )
         }
         else {
             rootStub =

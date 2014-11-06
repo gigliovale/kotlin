@@ -22,13 +22,12 @@ import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.jet.lang.psi.stubs.KotlinFileStub
 
-public class CompiledPackageClassStubBuilder(packageData: PackageData, packageFqName: FqName) : CompiledStubBuilderBase(packageData.getNameResolver(), packageFqName) {
+public class CompiledPackageClassStubBuilder(
+        packageData: PackageData,
+        packageFqName: FqName
+) : CompiledStubBuilderBase(packageData.getNameResolver(), packageFqName) {
 
-    private val packageProto: ProtoBuf.Package
-
-    {
-        this.packageProto = packageData.getPackageProto()
-    }
+    private val packageProto: ProtoBuf.Package = packageData.getPackageProto()
 
     public fun createStub(): KotlinFileStub {
         val fileStub = createFileStub(packageFqName)

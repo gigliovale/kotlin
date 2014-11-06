@@ -103,13 +103,6 @@ public class CompiledClassStubBuilder(
         return superTypeStrings.filter { it != "kotlin.Any" }.map { it.ref() }.copyToArray()
     }
 
-    private fun findNestedClassFile(file: VirtualFile, innerName: Name): VirtualFile {
-        val baseName = file.getNameWithoutExtension()
-        val dir = file.getParent()
-        assert(dir != null)
-        return dir!!.findChild(baseName + "$" + innerName.asString() + ".class")
-    }
-
     fun createModifierListStub() {
         val flags = classProto.getFlags()
         val modifiersArray = array(

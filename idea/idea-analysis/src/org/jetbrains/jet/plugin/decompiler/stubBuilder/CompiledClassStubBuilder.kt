@@ -25,7 +25,6 @@ import org.jetbrains.jet.lang.psi.stubs.KotlinStubWithFqName
 import org.jetbrains.jet.lang.psi.stubs.elements.JetClassElementType
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinClassStubImpl
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinObjectStubImpl
-import org.jetbrains.jet.lang.resolve.java.JvmAbi
 import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.resolve.name.Name
 import com.intellij.psi.PsiElement
@@ -35,16 +34,11 @@ import org.jetbrains.jet.lang.psi.stubs.elements.JetStubElementTypes
 import com.intellij.util.io.StringRef
 import org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache
 import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil
-import org.jetbrains.jet.descriptors.serialization.SerializationPackage
-import org.jetbrains.jet.descriptors.serialization.visibility
-import org.jetbrains.jet.descriptors.serialization.modality
-import org.jetbrains.jet.descriptors.serialization.classKind
 import org.jetbrains.jet.lexer.JetModifierKeywordToken
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Modality
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.jet.lang.psi.stubs.impl.KotlinModifierListStubImpl
 
 public class CompiledClassStubBuilder(
         classData: ClassData,
@@ -62,7 +56,7 @@ public class CompiledClassStubBuilder(
             return when (modality) {
                 ProtoBuf.Modality.ABSTRACT -> JetTokens.ABSTRACT_KEYWORD
                 ProtoBuf.Modality.FINAL -> JetTokens.FINAL_KEYWORD
-                ProtoBuf.Visibility.OPEN -> JetTokens.OPEN_KEYWORD
+                ProtoBuf.Modality.OPEN -> JetTokens.OPEN_KEYWORD
             //TODO: message
                 else -> throw IllegalStateException()
             }
@@ -154,7 +148,7 @@ public class CompiledClassStubBuilder(
     }
 
     fun createModifierListStub(classOrObjectStub: KotlinStubWithFqName<out PsiNamedElement>, classProto: ProtoBuf.Class) {
-        val modifierListStub = KotlinModifierListStubImpl(classOrObjectStub, )
+//        val modifierListStub = KotlinModifierListStubImpl(classOrObjectStub, )
     }
 }
 

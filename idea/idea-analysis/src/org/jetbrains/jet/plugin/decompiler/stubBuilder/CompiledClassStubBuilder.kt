@@ -32,8 +32,6 @@ import org.jetbrains.jet.lang.psi.JetClassBody
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinPlaceHolderStubImpl
 import org.jetbrains.jet.lang.psi.stubs.elements.JetStubElementTypes
 import com.intellij.util.io.StringRef
-import org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil
 import org.jetbrains.jet.lexer.JetModifierKeywordToken
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
 import org.jetbrains.jet.lexer.JetTokens

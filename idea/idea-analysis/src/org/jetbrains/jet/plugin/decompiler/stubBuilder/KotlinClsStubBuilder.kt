@@ -26,7 +26,6 @@ import org.jetbrains.jet.plugin.decompiler
 import org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache
 import org.jetbrains.jet.lang.resolve.kotlin.header.KotlinClassHeader
 import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil
-import org.jetbrains.jet.lang.psi.stubs.impl.KotlinFileStubImpl
 import org.jetbrains.jet.lang.psi.JetFile
 
 public class KotlinClsStubBuilder : ClsStubBuilder() {
@@ -39,27 +38,29 @@ public class KotlinClsStubBuilder : ClsStubBuilder() {
             return null
         }
 
-        return doBuildFileStub(file, content.getContent())
+        return doBuildFileStub(file)
     }
 
     throws(javaClass<ClsFormatException>())
-    fun doBuildFileStub(file: VirtualFile, bytes: ByteArray): PsiFileStub<JetFile>? {
+    fun doBuildFileStub(file: VirtualFile): PsiFileStub<JetFile>? {
         val kotlinBinaryClass = KotlinBinaryClassCache.getKotlinBinaryClass(file)
         val classFqName = kotlinBinaryClass.getClassId().asSingleFqName().toSafe()
         val header = kotlinBinaryClass.getClassHeader()
         val packageFqName = classFqName.parent()
-        when (header.kind) {
-            KotlinClassHeader.Kind.PACKAGE_FACADE -> return CompiledPackageClassStubBuilder(
+        return when (header.kind) {
+            KotlinClassHeader.Kind.PACKAGE_FACADE -> CompiledPackageClassStubBuilder(
                     JavaProtoBufUtil.readPackageDataFrom(header.annotationData), packageFqName
             ).createStub()
 
             KotlinClassHeader.Kind.CLASS -> {
                 val fileStub = createFileStub(packageFqName)
-                CompiledClassStubBuilder(JavaProtoBufUtil.readClassDataFrom(header.annotationData), classFqName, packageFqName, fileStub, file).createStub()
-                return fileStub
+                CompiledClassStubBuilder(
+                        JavaProtoBufUtil.readClassDataFrom(header.annotationData),
+                        classFqName, packageFqName, fileStub, file
+                ).createStub()
+                fileStub
             }
+            else -> throw IllegalStateException("Should have processed " + file.getPath() + " with ${header.kind}")
         }
-
-        throw IllegalStateException("Should have processed " + file.getPath() + " with ${header.kind}")
     }
 }

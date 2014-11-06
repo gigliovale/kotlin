@@ -46,18 +46,42 @@ public abstract class CompiledStubBuilderBase(
         val callableFqName = getInternalFqName(callableName)
         val callableNameRef = callableName.ref()
         when (callableKind) {
-            ProtoBuf.Callable.CallableKind.FUN -> KotlinFunctionStubImpl(
-                    parentStub, callableNameRef, callableFqName != null, callableFqName, callableProto.hasReceiverType(),
-                    true, true, true
-            )
+            ProtoBuf.Callable.CallableKind.FUN ->
+                KotlinFunctionStubImpl(
+                        parentStub,
+                        callableNameRef,
+                        isTopLevel = callableFqName != null,
+                        fqName = callableFqName,
+                        isExtension = callableProto.hasReceiverType(),
+                        hasBlockBody = true,
+                        hasBody = true,
+                        hasTypeParameterListBeforeFunctionName = true
+                )
             ProtoBuf.Callable.CallableKind.VAL ->
-                KotlinPropertyStubImpl(parentStub, callableNameRef, false, callableFqName != null,
-                                       false, false, false, false, true,
-                                       callableFqName)
+                KotlinPropertyStubImpl(
+                        parentStub, callableNameRef,
+                        isVar = false,
+                        isTopLevel = callableFqName != null,
+                        hasDelegate = false,
+                        hasDelegateExpression = false,
+                        hasInitializer = false,
+                        hasReceiverTypeRef = false,
+                        hasReturnTypeRef = true,
+                        fqName = callableFqName
+                )
             ProtoBuf.Callable.CallableKind.VAR ->
-                KotlinPropertyStubImpl(parentStub, callableNameRef, true, callableFqName != null,
-                                       false, false, false, false, true,
-                                       callableFqName)
+                KotlinPropertyStubImpl(
+                        parentStub,
+                        callableNameRef,
+                        isVar = true,
+                        isTopLevel = callableFqName != null,
+                        hasDelegate = false,
+                        hasDelegateExpression = false,
+                        hasInitializer = false,
+                        hasReceiverTypeRef = false,
+                        hasReturnTypeRef = true,
+                        fqName = callableFqName
+                )
 
             ProtoBuf.Callable.CallableKind.CONSTRUCTOR -> throw IllegalStateException("Stubs for constructors are not supported!")
         }

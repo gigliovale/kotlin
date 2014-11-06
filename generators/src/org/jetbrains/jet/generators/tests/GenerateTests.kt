@@ -311,20 +311,6 @@ fun main(args: Array<String>) {
         testClass(javaClass<AbstractJetTypeBindingTest>()) {
             model("type/binding")
         }
-
-        testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
-            model("android/converter/simple", recursive = false, extension = null)
-            model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
-        }
-
-        testClass(javaClass<AbstractAndroidBoxTest>()) {
-            model("codegen/android", recursive = false, extension = null, testMethod = "doCompileAgainstAndroidSdkTest")
-            model("codegen/android", recursive = false, extension = null, testMethod = "doFakeInvocationTest", testClassName = "Invoke")
-        }
-
-        testClass(javaClass<AbstractAndroidBytecodePersistenceTest>()) {
-            model("codegen/androidPersistence", recursive = false, extension = null)
-        }
     }
 
     testGroup("idea/tests", "idea/testData") {
@@ -673,26 +659,6 @@ fun main(args: Array<String>) {
         testClass(javaClass<AbstractKotlinCoverageOutputFilesTest>()) {
             model("coverage/outputFiles")
         }
-        
-        testClass(javaClass<AbstractCrossParserTest>()) {
-            model("android/crossParser", recursive = false, extension = null)
-        }
-
-        testClass(javaClass<AbstractAndroidCompletionTest>()) {
-            model("android/completion", recursive = false, extension = null)
-        }
-
-        testClass(javaClass<AbstractAndroidGotoTest>()) {
-            model("android/goto", recursive = false, extension = null)
-        }
-
-        testClass(javaClass<AbstractAndroidRenameTest>()) {
-            model("android/rename", recursive = false, extension = null)
-        }
-
-        testClass(javaClass<AbstractAndroidFindUsagesTest>()) {
-            model("android/findUsages", recursive = false, extension = null)
-        }
     }
 
     testGroup("idea/tests", "compiler/testData") {
@@ -723,7 +689,47 @@ fun main(args: Array<String>) {
             model("incremental/pureKotlin", extension = null, excludeParentDirs = true)
             model("incremental/withJava", extension = null, excludeParentDirs = true)
         }
+    }
 
+    testGroup("plugins/android-compiler-plugin/tests", "plugins/android-compiler-plugin/testData") {
+        testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
+            model("android/converter/simple", recursive = false, extension = null)
+            model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
+        }
+
+        testClass(javaClass<AbstractAndroidBoxTest>()) {
+            model("codegen/android", recursive = false, extension = null, testMethod = "doCompileAgainstAndroidSdkTest")
+            model("codegen/android", recursive = false, extension = null, testMethod = "doFakeInvocationTest", testClassName = "Invoke")
+        }
+
+        testClass(javaClass<AbstractAndroidBytecodePersistenceTest>()) {
+            model("codegen/androidPersistence", recursive = false, extension = null)
+        }
+    }
+
+    testGroup("plugins/android-idea-plugin/tests", "plugins/android-idea-plugin/testData") {
+        testClass(javaClass<AbstractCrossParserTest>()) {
+            model("android/crossParser", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidCompletionTest>()) {
+            model("android/completion", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidGotoTest>()) {
+            model("android/goto", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidRenameTest>()) {
+            model("android/rename", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidFindUsagesTest>()) {
+            model("android/findUsages", recursive = false, extension = null)
+        }
+    }
+
+    testGroup("plugins/android-jps-plugin/tests", "plugins/android-jps-plugin/testData") {
         testClass(javaClass<AbstractAndroidJpsTestCase>()) {
             model("android", recursive = false, extension = null)
         }

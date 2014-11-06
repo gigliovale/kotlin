@@ -56,9 +56,7 @@ public class CompiledClassStubBuilder(
 
     override fun getInternalFqName(name: String) = null
 
-
     public fun createStub() {
-
         createRootStub()
         createModifierListStub()
         createConstructorStub()
@@ -84,7 +82,10 @@ public class CompiledClassStubBuilder(
         //            CompiledClassStubBuilder(classData, classFqName, classFqName.parent(), classBody, nestedFile).createStub()
         //        }
 
-        //TODO: primary constructor
+        createMemberStubs(classBody)
+    }
+
+    private fun createMemberStubs(classBody: KotlinPlaceHolderStubImpl<JetClassBody>) {
         for (callableProto in classProto.getMemberList()) {
             createCallableStub(classBody, callableProto)
         }
@@ -105,18 +106,14 @@ public class CompiledClassStubBuilder(
             )
         }
         else {
-            rootStub =
-                    KotlinClassStubImpl(
-                            JetClassElementType.getStubType(isEnumEntry),
-                            parent,
-                            classFqName.asString().ref(),
-                            shortName,
-                            getSuperList(),
-                            kind == ProtoBuf.Class.Kind.TRAIT,
-                            kind == ProtoBuf.Class.Kind.ENUM_CLASS,
-                            false,
-                            true
-                    )
+            rootStub = KotlinClassStubImpl(
+                    JetClassElementType.getStubType(isEnumEntry), parent, classFqName.asString().ref(), shortName,
+                    getSuperList(),
+                    isTrait = kind == ProtoBuf.Class.Kind.TRAIT,
+                    isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY,
+                    isLocal = false,
+                    isTopLevel = true
+            )
         }
     }
 
@@ -136,7 +133,6 @@ public class CompiledClassStubBuilder(
         val baseName = file.getNameWithoutExtension()
         val dir = file.getParent()
         assert(dir != null)
-
         return dir!!.findChild(baseName + "$" + innerName.asString() + ".class")
     }
 
@@ -168,7 +164,7 @@ public class CompiledClassStubBuilder(
             ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
             ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
             ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-        //TODO: support extra visibility
+            //TODO: support extra visibility
             else -> throw IllegalStateException("Unexpected visibility: $visibility")
         }
     }

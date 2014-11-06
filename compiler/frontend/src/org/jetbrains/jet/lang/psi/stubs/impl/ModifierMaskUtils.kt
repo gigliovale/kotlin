@@ -48,7 +48,6 @@ public object ModifierMaskUtils {
 
     platformStatic public fun maskToString(mask: Int): String {
         val sb = StringBuilder()
-        sb.append(super.toString())
         sb.append("[")
         var first = true
         for (modifierKeyword in MODIFIER_KEYWORDS_ARRAY) {

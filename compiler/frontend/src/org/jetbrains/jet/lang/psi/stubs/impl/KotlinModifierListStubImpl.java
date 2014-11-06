@@ -44,6 +44,6 @@ public class KotlinModifierListStubImpl extends KotlinStubBaseImpl<JetModifierLi
     @NotNull
     @Override
     public String toString() {
-        return ModifierMaskUtils.maskToString(mask);
+        return super.toString() + ModifierMaskUtils.maskToString(mask);
     }
 }

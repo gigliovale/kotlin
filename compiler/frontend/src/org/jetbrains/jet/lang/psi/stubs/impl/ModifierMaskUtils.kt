@@ -27,11 +27,13 @@ public object ModifierMaskUtils {
         assert(MODIFIER_KEYWORDS_ARRAY.size <= 32, "Current implementation depends on the ability to represent modifier list as bit mask")
     }
 
-    platformStatic public fun computeMaskFromPsi(modifierList: JetModifierList): Int {
+    platformStatic public fun computeMaskFromModifierList(modifierList: JetModifierList): Int = computeMask { modifierList.hasModifier(it) }
+
+    platformStatic public fun computeMask(hasModifier: (JetModifierKeywordToken) -> Boolean): Int {
         var mask = 0
         val orderedKeywords = MODIFIER_KEYWORDS_ARRAY
         for ((index, modifierKeywordToken) in orderedKeywords.withIndices()) {
-            if (modifierList.hasModifier(modifierKeywordToken)) {
+            if (hasModifier(modifierKeywordToken)) {
                 mask = mask or (1 shl index)
             }
         }

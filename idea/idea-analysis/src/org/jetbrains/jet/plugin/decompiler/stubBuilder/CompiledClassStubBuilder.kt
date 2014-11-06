@@ -39,6 +39,10 @@ import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Modality
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.jet.lang.psi.stubs.impl.KotlinModifierListStubImpl
+import org.jetbrains.jet.lang.psi.stubs.impl.ModifierMaskUtils
+import org.jetbrains.jet.lang.psi.JetParameterList
+import kotlin.properties.Delegates
 
 public class CompiledClassStubBuilder(
         classData: ClassData,
@@ -48,63 +52,17 @@ public class CompiledClassStubBuilder(
         private val file: VirtualFile
 ) : CompiledStubBuilderBase(classData.getNameResolver(), packageFqName) {
     private val classProto = classData.getClassProto()
+    private var rootStub: KotlinStubWithFqName<out PsiNamedElement> by Delegates.notNull()
 
     override fun getInternalFqName(name: String) = null
 
+
     public fun createStub() {
-        fun modalityModifier(modality: Modality): JetModifierKeywordToken {
-            return when (modality) {
-                ProtoBuf.Modality.ABSTRACT -> JetTokens.ABSTRACT_KEYWORD
-                ProtoBuf.Modality.FINAL -> JetTokens.FINAL_KEYWORD
-                ProtoBuf.Modality.OPEN -> JetTokens.OPEN_KEYWORD
-            //TODO: message
-                else -> throw IllegalStateException()
-            }
-        }
 
-        fun visibilityToModifier(visibility: Visibility): JetModifierKeywordToken {
-            return when (visibility) {
-                ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-                ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
-                ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
-                ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-            //TODO: what is extra visibility?
-                else -> throw IllegalStateException()
-            }
-        }
-
-        val name = nameResolver.getName(classProto.getFqName())
-        val flags = classProto.getFlags()
-        val modality = Flags.MODALITY.get(flags)
-        val modalityModifier = modalityModifier(modality)
-        val visibility = Flags.VISIBILITY.get(flags)
-        val visibilityModifier = visibilityToModifier(visibility)
-        val kind = Flags.CLASS_KIND.get(flags)
-        val isInner = Flags.INNER.get(flags)
-
-        val isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY
-        //TODO: inner classes
-        val classOrObjectStub: KotlinStubWithFqName<*>
-        val superList = getSuperList()
-        if (kind == ProtoBuf.Class.Kind.OBJECT) {
-            classOrObjectStub = KotlinObjectStubImpl(parent, name.asString().ref(), classFqName, superList, true, false, false, false)
-        }
-        else {
-            classOrObjectStub =
-                    KotlinClassStubImpl(
-                            JetClassElementType.getStubType(isEnumEntry),
-                            parent,
-                            classFqName.asString().ref(),
-                            name.asString().ref(),
-                            superList,
-                            kind == ProtoBuf.Class.Kind.TRAIT,
-                            kind == ProtoBuf.Class.Kind.ENUM_CLASS,
-                            false,
-                            true
-                    )
-        }
-        createModifierListStub(classOrObjectStub, classProto)
-        val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(classOrObjectStub, JetStubElementTypes.CLASS_BODY)
+        createRootStub()
+        createModifierListStub()
+        createConstructorStub()
+        val classBody = KotlinPlaceHolderStubImpl<JetClassBody>(rootStub, JetStubElementTypes.CLASS_BODY)
 
         for (nestedNameIndex in classProto.getNestedClassNameList()) {
             val nestedName = nameResolver.getName(nestedNameIndex)
@@ -132,11 +90,41 @@ public class CompiledClassStubBuilder(
         }
     }
 
+    private fun createRootStub() {
+        val kind = Flags.CLASS_KIND.get(classProto.getFlags())
+        val isEnumEntry = kind == ProtoBuf.Class.Kind.ENUM_ENTRY
+        //TODO: inner classes
+        val shortName = classFqName.shortName().asString().ref()
+        if (kind == ProtoBuf.Class.Kind.OBJECT) {
+            rootStub = KotlinObjectStubImpl(
+                    parent, shortName, classFqName, getSuperList(), true, false, false, false)
+        }
+        else {
+            rootStub =
+                    KotlinClassStubImpl(
+                            JetClassElementType.getStubType(isEnumEntry),
+                            parent,
+                            classFqName.asString().ref(),
+                            shortName,
+                            getSuperList(),
+                            kind == ProtoBuf.Class.Kind.TRAIT,
+                            kind == ProtoBuf.Class.Kind.ENUM_CLASS,
+                            false,
+                            true
+                    )
+        }
+    }
+
+    //TODO: refactor
     private fun getSuperList() = classProto.getSupertypeList().map {
         type ->
         assert(type.getConstructor().getKind() == ProtoBuf.Type.Constructor.Kind.CLASS)
         val superFqName = nameResolver.getFqName(`type`.getConstructor().getId())
-        superFqName.asString().ref()
+        superFqName.asString()
+    }.filter {
+        it != "kotlin.Any"
+    }.map {
+        it.ref()
     }.copyToArray()
 
     private fun findNestedClassFile(file: VirtualFile, innerName: Name): VirtualFile {
@@ -147,8 +135,41 @@ public class CompiledClassStubBuilder(
         return dir!!.findChild(baseName + "$" + innerName.asString() + ".class")
     }
 
-    fun createModifierListStub(classOrObjectStub: KotlinStubWithFqName<out PsiNamedElement>, classProto: ProtoBuf.Class) {
-//        val modifierListStub = KotlinModifierListStubImpl(classOrObjectStub, )
+    fun createModifierListStub() {
+        val flags = classProto.getFlags()
+        val modifiersArray = array(
+                modalityToModifier(Flags.MODALITY.get(flags)),
+                visibilityToModifier(Flags.VISIBILITY.get(flags))
+        )
+        KotlinModifierListStubImpl(
+                rootStub,
+                ModifierMaskUtils.computeMask { it in modifiersArray },
+                JetStubElementTypes.MODIFIER_LIST
+        )
+    }
+
+    fun modalityToModifier(modality: Modality): JetModifierKeywordToken {
+        return when (modality) {
+            ProtoBuf.Modality.ABSTRACT -> JetTokens.ABSTRACT_KEYWORD
+            ProtoBuf.Modality.FINAL -> JetTokens.FINAL_KEYWORD
+            ProtoBuf.Modality.OPEN -> JetTokens.OPEN_KEYWORD
+            else -> throw IllegalStateException("Unexpected modality: $modality")
+        }
+    }
+
+    fun visibilityToModifier(visibility: Visibility): JetModifierKeywordToken {
+        return when (visibility) {
+            ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
+            ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
+            ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
+            ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
+        //TODO: support extra visibility
+            else -> throw IllegalStateException("Unexpected visibility: $visibility")
+        }
+    }
+
+    fun createConstructorStub() {
+        KotlinPlaceHolderStubImpl<JetParameterList>(rootStub, JetStubElementTypes.VALUE_PARAMETER_LIST)
     }
 }
 

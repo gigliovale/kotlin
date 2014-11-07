@@ -108,4 +108,5 @@ public class CompiledClassStubBuilder(
     }
 }
 
+//TODO: eliminate toString().ref
 fun String.ref() = StringRef.fromString(this)

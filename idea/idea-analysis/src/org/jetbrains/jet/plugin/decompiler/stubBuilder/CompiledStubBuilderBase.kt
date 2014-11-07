@@ -47,6 +47,7 @@ import org.jetbrains.jet.lexer.JetModifierKeywordToken
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
 import org.jetbrains.jet.lang.psi.JetParameterList
+import org.jetbrains.jet.lang.psi.stubs.impl.KotlinParameterStubImpl
 
 public abstract class CompiledStubBuilderBase(
         protected val nameResolver: NameResolver,
@@ -55,9 +56,29 @@ public abstract class CompiledStubBuilderBase(
     protected fun createCallableStub(parentStub: StubElement<out PsiElement>, callableProto: ProtoBuf.Callable) {
         val callableStub = doCreateCallableStub(callableProto, parentStub)
         createModifierListStub(callableStub, callableProto.getFlags(), ignoreModality = true)
-        KotlinPlaceHolderStubImpl<JetParameterList>(callableStub, JetStubElementTypes.VALUE_PARAMETER_LIST)
-        val typeReference = KotlinPlaceHolderStubImpl<JetTypeReference>(callableStub, JetStubElementTypes.TYPE_REFERENCE)
-        createTypeStub(callableProto.getReturnType(), typeReference)
+        createValueParametersStub(callableStub, callableProto)
+        createTypeReferenceStub(callableStub, callableProto.getReturnType())
+    }
+
+    private fun createTypeReferenceStub(parent: StubElement<out PsiElement>, typeProto: ProtoBuf.Type) {
+        val typeReference = KotlinPlaceHolderStubImpl<JetTypeReference>(parent, JetStubElementTypes.TYPE_REFERENCE)
+        createTypeStub(typeProto, typeReference)
+    }
+
+    private fun createValueParametersStub(callableStub: StubElement<out PsiElement>, callableProto: ProtoBuf.Callable) {
+        val parameterListStub = KotlinPlaceHolderStubImpl<JetParameterList>(callableStub, JetStubElementTypes.VALUE_PARAMETER_LIST)
+        for (valueParameter in callableProto.getValueParameterList()) {
+            val name = nameResolver.getName(valueParameter.getName())
+            val parameterStub = KotlinParameterStubImpl(
+                    parameterListStub,
+                    name = name.asString().ref(),
+                    fqName = null,
+                    hasDefaultValue = false,
+                    hasValOrValNode = false,
+                    isMutable = false
+            )
+            createTypeReferenceStub(parameterStub, valueParameter.getType())
+        }
     }
 
     private fun doCreateCallableStub(callableProto: ProtoBuf.Callable, parentStub: StubElement<out PsiElement>): StubElement<out PsiElement> {

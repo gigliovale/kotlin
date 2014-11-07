@@ -42,9 +42,9 @@ public class ClsStubBuilderTestGenerated extends AbstractClsStubBuilderTest {
         doTest(fileName);
     }
 
-    @TestMetadata("SimpleFunctionPackage")
-    public void testSimpleFunctionPackage() throws Exception {
-        String fileName = JetTestUtils.navigationMetadata("idea/testData/decompiler/stubBuilder/SimpleFunctionPackage/");
+    @TestMetadata("TopLevelMembersPackage")
+    public void testTopLevelMembersPackage() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/decompiler/stubBuilder/TopLevelMembersPackage/");
         doTest(fileName);
     }
 }

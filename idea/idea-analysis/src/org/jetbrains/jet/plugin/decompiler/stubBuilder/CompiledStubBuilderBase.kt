@@ -26,19 +26,12 @@ import org.jetbrains.jet.lang.psi.stubs.impl.KotlinPropertyStubImpl
 import org.jetbrains.jet.lang.resolve.name.FqName
 import com.intellij.psi.PsiElement
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinPlaceHolderStubImpl
-import org.jetbrains.jet.lang.psi.stubs.elements.JetStubElementType
 import org.jetbrains.jet.lang.psi.stubs.elements.JetStubElementTypes
 import org.jetbrains.jet.lang.psi.JetPackageDirective
-import org.jetbrains.jet.lang.psi.stubs.KotlinNameReferenceExpressionStub
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinNameReferenceExpressionStubImpl
-import org.jetbrains.jet.lang.psi.stubs.KotlinPlaceHolderStub
 import org.jetbrains.jet.lang.psi.JetElement
 import org.jetbrains.jet.lang.psi.JetDotQualifiedExpression
-import org.jetbrains.jet.lang.psi.stubs.elements.JetDotQualifiedExpressionElementType
-import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Type
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinUserTypeStubImpl
-import org.jetbrains.jet.lang.resolve.name.Name
-import java.util.ArrayList
 import org.jetbrains.jet.lang.psi.JetTypeReference
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinModifierListStubImpl
 import org.jetbrains.jet.lang.psi.stubs.impl.ModifierMaskUtils
@@ -48,6 +41,7 @@ import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Visibility
 import org.jetbrains.jet.lang.psi.JetParameterList
 import org.jetbrains.jet.lang.psi.stubs.impl.KotlinParameterStubImpl
+import org.jetbrains.jet.descriptors.serialization.ProtoBuf.Callable.CallableKind
 
 public abstract class CompiledStubBuilderBase(
         protected val nameResolver: NameResolver,
@@ -66,6 +60,9 @@ public abstract class CompiledStubBuilderBase(
     }
 
     private fun createValueParametersStub(callableStub: StubElement<out PsiElement>, callableProto: ProtoBuf.Callable) {
+        if (Flags.CALLABLE_KIND.get(callableProto.getFlags()) != CallableKind.FUN) {
+            return
+        }
         val parameterListStub = KotlinPlaceHolderStubImpl<JetParameterList>(callableStub, JetStubElementTypes.VALUE_PARAMETER_LIST)
         for (valueParameter in callableProto.getValueParameterList()) {
             val name = nameResolver.getName(valueParameter.getName())
@@ -98,6 +95,7 @@ public abstract class CompiledStubBuilderBase(
                         hasBody = true,
                         hasTypeParameterListBeforeFunctionName = false
                 )
+        //TODO: merge these two
             ProtoBuf.Callable.CallableKind.VAL ->
                 KotlinPropertyStubImpl(
                         parentStub, callableNameRef,
@@ -110,6 +108,7 @@ public abstract class CompiledStubBuilderBase(
                         hasReturnTypeRef = true,
                         fqName = callableFqName
                 )
+        //TODO: merge these two
             ProtoBuf.Callable.CallableKind.VAR ->
                 KotlinPropertyStubImpl(
                         parentStub,
@@ -229,7 +228,7 @@ private fun visibilityToModifier(visibility: Visibility): JetModifierKeywordToke
         ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
         ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
         ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
-        ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
+        ProtoBuf.Visibility.PUBLIC -> JetTokens.PUBLIC_KEYWORD
     //TODO: support extra visibility
         else -> throw IllegalStateException("Unexpected visibility: $visibility")
     }

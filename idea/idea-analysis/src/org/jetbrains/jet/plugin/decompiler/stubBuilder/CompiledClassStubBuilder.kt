@@ -56,7 +56,7 @@ public class CompiledClassStubBuilder(
 
     public fun createStub() {
         createRootStub()
-        createModifierListStub()
+        createModifierListStub(rootStub, classProto.getFlags())
         createConstructorStub()
         createClassBodyAndMemberStubs()
     }
@@ -97,43 +97,10 @@ public class CompiledClassStubBuilder(
         val superTypeStrings = classProto.getSupertypeList().map {
             type ->
             assert(type.getConstructor().getKind() == ProtoBuf.Type.Constructor.Kind.CLASS)
-            val superFqName = nameResolver.getFqName(`type`.getConstructor().getId())
+            val superFqName = nameResolver.getFqName(type.getConstructor().getId())
             superFqName.asString()
         }
         return superTypeStrings.filter { it != "kotlin.Any" }.map { it.ref() }.copyToArray()
-    }
-
-    fun createModifierListStub() {
-        val flags = classProto.getFlags()
-        val modifiersArray = array(
-                modalityToModifier(Flags.MODALITY.get(flags)),
-                visibilityToModifier(Flags.VISIBILITY.get(flags))
-        )
-        KotlinModifierListStubImpl(
-                rootStub,
-                ModifierMaskUtils.computeMask { it in modifiersArray },
-                JetStubElementTypes.MODIFIER_LIST
-        )
-    }
-
-    fun modalityToModifier(modality: Modality): JetModifierKeywordToken {
-        return when (modality) {
-            ProtoBuf.Modality.ABSTRACT -> JetTokens.ABSTRACT_KEYWORD
-            ProtoBuf.Modality.FINAL -> JetTokens.FINAL_KEYWORD
-            ProtoBuf.Modality.OPEN -> JetTokens.OPEN_KEYWORD
-            else -> throw IllegalStateException("Unexpected modality: $modality")
-        }
-    }
-
-    fun visibilityToModifier(visibility: Visibility): JetModifierKeywordToken {
-        return when (visibility) {
-            ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-            ProtoBuf.Visibility.INTERNAL -> JetTokens.INTERNAL_KEYWORD
-            ProtoBuf.Visibility.PROTECTED -> JetTokens.PROTECTED_KEYWORD
-            ProtoBuf.Visibility.PRIVATE -> JetTokens.PRIVATE_KEYWORD
-        //TODO: support extra visibility
-            else -> throw IllegalStateException("Unexpected visibility: $visibility")
-        }
     }
 
     fun createConstructorStub() {

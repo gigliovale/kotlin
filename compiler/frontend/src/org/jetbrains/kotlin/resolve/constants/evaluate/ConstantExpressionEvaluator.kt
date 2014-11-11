@@ -736,14 +736,34 @@ private class ConstantExpressionEvaluatorVisitor(
 
 private fun hasLongSuffix(text: String) = text.endsWith('l') || text.endsWith('L')
 
-public fun parseLong(text: String): Long? {
+public fun parseLong(text: String): Number? {
     try {
         fun substringLongSuffix(s: String) = if (hasLongSuffix(text)) s.substring(0, s.length() - 1) else s
         fun parseLong(text: String, radix: Int) = java.lang.Long.parseLong(substringLongSuffix(text), radix)
 
+        fun parseLongPossiblyViaBigInteger(number: String, radix: Int, charsPerByte: Int): Number {
+            val l = number.length()
+            if (l == 8 * charsPerByte) {
+                return BigInteger(number, radix).longValue()
+            }
+            val parsed = java.lang.Long.parseLong(substringLongSuffix(number), radix)
+            if (!hasLongSuffix(text)) {
+                if (l <= charsPerByte) {
+                    return parsed.toByte()
+                }
+                if (l <= 2 * charsPerByte) {
+                    return parsed.toShort()
+                }
+                if (l <= 4 * charsPerByte) {
+                    return parsed.toInt()
+                }
+            }
+            return parsed
+        }
+
         return when {
-            text.startsWith("0x") || text.startsWith("0X") -> parseLong(text.substring(2), 16)
-            text.startsWith("0b") || text.startsWith("0B") -> parseLong(text.substring(2), 2)
+            text.startsWith("0x") || text.startsWith("0X") -> parseLongPossiblyViaBigInteger(text.substring(2), 16, 2)
+            text.startsWith("0b") || text.startsWith("0B") -> parseLongPossiblyViaBigInteger(text.substring(2), 2, 8)
             else -> parseLong(text, 10)
         }
     }

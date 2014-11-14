@@ -13,7 +13,7 @@
           </element>
         </element>
         <element id="archive" name="android-compiler-plugin.jar">
-          <element id="extracted-dir" path="$PROJECT_DIR$/dist/kotlinc/lib/android-compiler-plugin.jar" path-in-jar="/" />
+          <element id="module-output" name="android-compiler-plugin" />
         </element>
       </element>
     </root>

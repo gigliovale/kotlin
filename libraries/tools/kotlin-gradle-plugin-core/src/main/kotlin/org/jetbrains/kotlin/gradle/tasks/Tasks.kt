@@ -37,9 +37,6 @@ public open class KotlinCompile(): AbstractCompile() {
 
     public var kotlinDestinationDir : File? = getDestinationDir()
 
-    public var resPath: String = ""
-    public var manifestPath: String = ""
-
     // override setSource to track source directory sets
     override fun setSource(source: Any?) {
         srcDirsSources.clear()
@@ -105,8 +102,8 @@ public open class KotlinCompile(): AbstractCompile() {
 
         args.freeArgs = sources.map { it.getAbsolutePath() }
 
-        args.androidRes = resPath
-        args.androidManifest = manifestPath
+        args.pluginClasspaths = kotlinOptions.pluginClasspaths
+        args.pluginOptions = kotlinOptions.pluginOptions
 
         if (StringUtils.isEmpty(kotlinOptions.classpath)) {
             val existingClasspathEntries = getClasspath().filter({ it != null && it.exists() })

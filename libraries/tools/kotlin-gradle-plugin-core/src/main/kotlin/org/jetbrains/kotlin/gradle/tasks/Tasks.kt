@@ -26,6 +26,7 @@ import org.gradle.api.Project
 import org.jetbrains.jet.config.Services
 import java.util.ServiceLoader
 
+
 public open class KotlinCompile(): AbstractCompile() {
 
     val srcDirsSources = HashSet<SourceDirectorySet>()
@@ -70,6 +71,15 @@ public open class KotlinCompile(): AbstractCompile() {
         return null
     }
 
+    private fun File.isJavaFile() = FilenameUtils.getExtension(getName()).equalsIgnoreCase("java")
+
+    private fun File.isKotlinFile(): Boolean {
+        return when (FilenameUtils.getExtension(getName()).toLowerCase()) {
+            "kt", "kts", "ktm" -> true
+            else -> false
+        }
+    }
+
     [TaskAction]
     override fun compile() {
 
@@ -82,12 +92,12 @@ public open class KotlinCompile(): AbstractCompile() {
 
         // collect source directory roots for all java files to allow cross compilation
         for (file in getSource()) {
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("java")) {
+            if (file.isJavaFile()) {
                 val javaRoot = findSrcDirRoot(file)
                 if (javaRoot != null) {
                     javaSrcRoots.add(javaRoot)
                 }
-            } else {
+            } else if (file.isKotlinFile()) {
                 sources.add(file)
             }
         }
@@ -155,7 +165,6 @@ public open class KotlinCompile(): AbstractCompile() {
         return concatenate(kotlinPluginOptions, argumentProviders.flatMap { it.getExtraArguments(project, this) })
     }
 }
-
 public open class KDoc(): SourceTask() {
 
     private val logger = Logging.getLogger(this.javaClass)

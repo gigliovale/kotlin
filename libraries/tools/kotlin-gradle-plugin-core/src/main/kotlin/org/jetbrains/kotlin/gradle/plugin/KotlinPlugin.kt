@@ -36,7 +36,9 @@ import org.gradle.api.initialization.dsl.ScriptHandler
 import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import javax.inject.Inject
 import org.jetbrains.kotlin.compiler.plugin.CliOption
-import org.jetbrains.kotlin.android.AndroidCommandLineProcessor
+import java.util.jar.JarFile
+import java.util.zip.ZipFile
+import java.io.IOException
 
 val DEFAULT_ANNOTATIONS = "org.jebrains.kotlin.gradle.defaultAnnotations"
 
@@ -167,10 +169,6 @@ open class KotlinAndroidPlugin [Inject] (val scriptHandler: ScriptHandler): Plug
         project.getExtensions().add(DEFAULT_ANNOTATIONS, GradleUtils(scriptHandler!!).resolveDependencies("org.jetbrains.kotlin:kotlin-android-sdk-annotations:$version"))
     }
 
-    private fun makePluginOption(option: CliOption, value: String): String {
-        return "plugin:${AndroidCommandLineProcessor.ANDROID_COMPILER_PLUGIN_ID}:${option.name}=$value"
-    }
-
     private fun processVariants(variants: DefaultDomainObjectSet<out BaseVariant>, project: Project, androidExt: BaseExtension): Unit {
         val logger = project.getLogger()
         val kotlinOptions = getExtention<K2JVMCompilerArguments>(androidExt, "kotlinOptions")
@@ -181,6 +179,21 @@ open class KotlinAndroidPlugin [Inject] (val scriptHandler: ScriptHandler): Plug
             sourceSets.getByName("instrumentTest")
         } catch (e: UnknownDomainObjectException) {
             sourceSets.getByName("androidTest")
+        }
+
+        val pluginServiceName = "META-INF/services/org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar"
+        val gradlePlugins = project.getBuildscript().getConfigurations().getByName("classpath").filter {
+            var file: JarFile? = null
+            try {
+                file = JarFile(it)
+                file!!.getEntry(pluginServiceName) != null
+            } finally {
+                try {
+                    file?.close()
+                } catch (e: IOException) {
+                    // Ignore close exception
+                }
+            }
         }
 
         for (variant in variants) {
@@ -196,16 +209,22 @@ open class KotlinAndroidPlugin [Inject] (val scriptHandler: ScriptHandler): Plug
                 val resourceDir = AndroidGradleWrapper.getResourceDirs(mainSourceSet).firstOrNull()
                 val manifestFile = AndroidGradleWrapper.getManifestFile(mainSourceSet)
 
-                if (resourceDir != null) {
-                    val layoutDir = File(resourceDir, "layout")
-                    kotlinOptions.pluginOptions = array(
-                            makePluginOption("androidRes", layoutDir.getAbsolutePath()),
-                            makePluginOption("androidManifest", manifestFile.getAbsolutePath())
-                    )
-                }
-
                 val kotlinTaskName = "compile${variantName.capitalize()}Kotlin"
                 val kotlinTask: KotlinCompile = project.getTasks().create(kotlinTaskName, javaClass<KotlinCompile>())
+
+                kotlinOptions.pluginClasspaths = gradlePlugins.map { it.getAbsolutePath() }.copyToArray()
+
+                if (gradlePlugins.any { it.getName().startsWith("kotlin-android-compiler-plugin-") }) {
+                    if (resourceDir != null) {
+                        val layoutDir = File(resourceDir, "layout")
+                        kotlinOptions.pluginOptions = array(
+                                makePluginOption("androidRes", layoutDir.getAbsolutePath()),
+                                makePluginOption("androidManifest", manifestFile.getAbsolutePath())
+                        )
+                        kotlinTask.source(layoutDir)
+                    }
+                }
+
                 kotlinTask.kotlinOptions = kotlinOptions
 
                 // store kotlin classes in separate directory. They will serve as class-path to java compiler

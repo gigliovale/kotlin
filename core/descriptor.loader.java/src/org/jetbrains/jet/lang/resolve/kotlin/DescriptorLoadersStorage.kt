@@ -47,18 +47,27 @@ public class DescriptorLoadersStorage(storageManager: StorageManager, private va
                 val signature = MemberSignature.fromFieldNameAndDesc(name, desc)
 
                 if (initializer != null) {
-                    val normalizedValue: Any = if (desc in "ZBCS") {
+                    val normalizedValue: Any
+                    if (desc in "ZBCS") {
                         val intValue = initializer as Int
-                        when (desc) {
-                            "Z" -> intValue != 0
-                            "B" -> intValue.toByte()
-                            "C" -> intValue.toChar()
-                            "S" -> intValue.toShort()
-                            else -> throw AssertionError(desc)
+                        if ("Z" == desc) {
+                            normalizedValue = intValue != 0
+                        }
+                        else if ("B" == desc) {
+                            normalizedValue = (intValue.toByte())
+                        }
+                        else if ("C" == desc) {
+                            normalizedValue = (intValue.toChar())
+                        }
+                        else if ("S" == desc) {
+                            normalizedValue = (intValue.toShort())
+                        }
+                        else {
+                            throw AssertionError(desc)
                         }
                     }
                     else {
-                        initializer
+                        normalizedValue = initializer
                     }
 
                     propertyConstants[signature] = createCompileTimeConstant(

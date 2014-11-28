@@ -61,7 +61,6 @@ import org.jetbrains.jps.android.AndroidJpsUtil
 import org.jetbrains.jps.android.model.JpsAndroidModuleExtension
 import org.jetbrains.jps.model.module.JpsModuleSourceRoot;
 import org.jetbrains.jps.model.module.JpsModule
-import org.gradle.tooling.BuildException
 
 public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     class object {

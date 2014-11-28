@@ -44,7 +44,7 @@
     <orderEntry type="module" module-name="kotlin-android-plugin" />
     <orderEntry type="module" module-name="js.frontend" />
     <orderEntry type="library" scope="PROVIDED" name="coverage-plugin" level="project" />
-    <orderEntry type="module" module-name="android-compiler-plugin" />
-    <orderEntry type="module" module-name="android-idea-plugin" />
+    <orderEntry type="module" module-name="android-compiler-plugin" scope="TEST" />
+    <orderEntry type="module" module-name="android-idea-plugin" scope="TEST" />
   </component>
 </module>

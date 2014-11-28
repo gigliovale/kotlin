@@ -29,12 +29,9 @@ import com.intellij.find.findUsages.JavaFindUsagesHandler
 import org.jetbrains.jet.plugin.findUsages.KotlinFunctionFindUsagesOptions
 import org.jetbrains.jet.plugin.findUsages.toJavaMethodOptions
 import com.intellij.openapi.actionSystem.DataContext
-import org.jetbrains.jet.lang.resolve.android.isAndroidSyntheticElement
 import com.intellij.openapi.components.ServiceManager
-import org.jetbrains.jet.lang.resolve.android.AndroidUIXmlProcessor
 import com.intellij.psi.xml.XmlAttribute
 import org.jetbrains.jet.lang.psi.JetProperty
-import org.jetbrains.android.util.AndroidResourceUtil
 import java.util.ArrayList
 import com.intellij.find.findUsages.JavaVariableFindUsagesOptions
 

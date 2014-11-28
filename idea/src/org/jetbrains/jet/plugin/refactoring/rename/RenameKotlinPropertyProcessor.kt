@@ -42,7 +42,6 @@ import org.jetbrains.jet.lang.resolve.OverrideResolver
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
 import org.jetbrains.jet.plugin.util.application.runReadAction
 import org.jetbrains.jet.plugin.caches.resolve.analyze
-import org.jetbrains.jet.lang.resolve.android.isAndroidSyntheticElement
 import com.intellij.openapi.components.ServiceManager
 
 public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {

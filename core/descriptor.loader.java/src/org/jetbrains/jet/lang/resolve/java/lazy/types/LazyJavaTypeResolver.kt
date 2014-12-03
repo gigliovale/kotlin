@@ -46,7 +46,7 @@ class LazyJavaTypeResolver(
         return when (javaType) {
             is JavaPrimitiveType -> {
                 val canonicalText = javaType.getCanonicalText()
-                val jetType = JavaToKotlinClassMap.INSTANCE.mapPrimitiveKotlinClass(canonicalText)
+                val jetType = c.javaToKotlinClassMap.mapPrimitiveKotlinClass(canonicalText)
                 assert(jetType != null, "Primitive type is not found: " + canonicalText)
                 jetType!!
             }
@@ -65,7 +65,7 @@ class LazyJavaTypeResolver(
     public fun transformArrayType(arrayType: JavaArrayType, attr: JavaTypeAttributes, isVararg: Boolean = false): JetType {
         val javaComponentType = arrayType.getComponentType()
         if (javaComponentType is JavaPrimitiveType) {
-            val jetType = JavaToKotlinClassMap.INSTANCE.mapPrimitiveKotlinClass("[" + javaComponentType.getCanonicalText())
+            val jetType = c.javaToKotlinClassMap.mapPrimitiveKotlinClass("[" + javaComponentType.getCanonicalText())
             if (jetType != null) {
                 return if (PLATFORM_TYPES && attr.allowFlexible)
                            FlexibleJavaClassifierTypeCapabilities.create(jetType, TypeUtils.makeNullable(jetType))
@@ -117,20 +117,19 @@ class LazyJavaTypeResolver(
                     val fqName = classifier.getFqName()
                             .sure("Class type should have a FQ name: " + classifier)
 
-                    val javaToKotlinClassMap = JavaToKotlinClassMap.INSTANCE
                     val howThisTypeIsUsedEffectively = when {
                         attr.flexibility == FLEXIBLE_LOWER_BOUND -> MEMBER_SIGNATURE_COVARIANT
                         attr.flexibility == FLEXIBLE_UPPER_BOUND -> MEMBER_SIGNATURE_CONTRAVARIANT
 
                         // This case has to be checked before isMarkedReadOnly/isMarkedMutable, because those two are slow
                         // not mapped, we don't care about being marked mutable/read-only
-                        javaToKotlinClassMap.mapPlatformClass(fqName).isEmpty() -> attr.howThisTypeIsUsed
+                        c.javaToKotlinClassMap.mapPlatformClass(fqName).isEmpty() -> attr.howThisTypeIsUsed
 
                         // Read (possibly external) annotations
                         else -> attr.howThisTypeIsUsedAccordingToAnnotations
                     }
 
-                    val classData = javaToKotlinClassMap.mapKotlinClass(fqName, howThisTypeIsUsedEffectively)
+                    val classData = c.javaToKotlinClassMap.mapKotlinClass(fqName, howThisTypeIsUsedEffectively)
                                     ?: c.moduleClassResolver.resolveClass(classifier)
 
                     classData?.getTypeConstructor()

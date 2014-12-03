@@ -23,7 +23,6 @@ import org.jetbrains.jet.analyzer.PlatformAnalysisParameters
 import org.jetbrains.jet.analyzer.ResolverForProject
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap
 import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService
-import org.jetbrains.jet.lang.resolve.BindingTraceContext
 import com.intellij.openapi.project.Project
 import org.jetbrains.jet.context.GlobalContext
 import org.jetbrains.jet.lang.descriptors.impl.CompositePackageFragmentProvider
@@ -34,6 +33,7 @@ import org.jetbrains.jet.analyzer.ModuleInfo
 import org.jetbrains.jet.analyzer.ModuleContent
 import org.jetbrains.jet.di.InjectorForLazyResolveWithJava
 import org.jetbrains.jet.lang.resolve.CodeAnalyzerInitializer
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 public class JvmResolverForModule(
         override val lazyResolveSession: ResolveSession,
@@ -78,6 +78,6 @@ public object JvmAnalyzerFacade : AnalyzerFacade<JvmResolverForModule, JvmPlatfo
     }
 
     override val defaultImports = TopDownAnalyzerFacadeForJVM.DEFAULT_IMPORTS
-    override val platformToKotlinClassMap = JavaToKotlinClassMap.INSTANCE
+    override val platformToKotlinClassMap = JavaToKotlinClassMap(KotlinBuiltIns.getInstance())
 
 }

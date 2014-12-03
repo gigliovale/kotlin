@@ -45,8 +45,11 @@ public class JvmRuntimeTypes {
     public JvmRuntimeTypes(@NotNull ReflectionTypes reflectionTypes) {
         this.reflectionTypes = reflectionTypes;
 
-        ModuleDescriptor fakeModule = new ModuleDescriptorImpl(Name.special("<fake module for functions impl>"),
-                                                               Collections.<ImportPath>emptyList(), JavaToKotlinClassMap.INSTANCE);
+        ModuleDescriptor fakeModule = new ModuleDescriptorImpl(
+                Name.special("<fake module for functions impl>"),
+                Collections.<ImportPath>emptyList(),
+                new JavaToKotlinClassMap(reflectionTypes.getBuiltIns())
+        );
 
         PackageFragmentDescriptor kotlinJvmInternal =
                 new MutablePackageFragmentDescriptor(fakeModule, new FqName("kotlin.jvm.internal"));

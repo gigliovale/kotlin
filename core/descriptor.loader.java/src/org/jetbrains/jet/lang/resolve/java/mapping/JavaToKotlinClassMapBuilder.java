@@ -31,29 +31,28 @@ public abstract class JavaToKotlinClassMapBuilder {
         BOTH
     }
 
-    protected void init() {
-        KotlinBuiltIns kotlinBuiltIns = KotlinBuiltIns.getInstance();
+    protected void init(KotlinBuiltIns builtIns) {
 
-        register(Object.class, KotlinBuiltIns.getInstance().getAny());
-        register(String.class, kotlinBuiltIns.getString());
-        register(CharSequence.class, kotlinBuiltIns.getCharSequence());
-        register(Throwable.class, kotlinBuiltIns.getThrowable());
-        register(Cloneable.class, kotlinBuiltIns.getCloneable());
-        register(Number.class, kotlinBuiltIns.getNumber());
-        register(Comparable.class, kotlinBuiltIns.getComparable());
-        register(Enum.class, kotlinBuiltIns.getEnum());
-        register(Annotation.class, kotlinBuiltIns.getAnnotation());
-        register(Deprecated.class, kotlinBuiltIns.getDeprecatedAnnotation(), Direction.JAVA_TO_KOTLIN);
-        register(Void.class, kotlinBuiltIns.getNothing(), Direction.KOTLIN_TO_JAVA);
+        register(Object.class, builtIns.getAny());
+        register(String.class, builtIns.getString());
+        register(CharSequence.class, builtIns.getCharSequence());
+        register(Throwable.class, builtIns.getThrowable());
+        register(Cloneable.class, builtIns.getCloneable());
+        register(Number.class, builtIns.getNumber());
+        register(Comparable.class, builtIns.getComparable());
+        register(Enum.class, builtIns.getEnum());
+        register(Annotation.class, builtIns.getAnnotation());
+        register(Deprecated.class, builtIns.getDeprecatedAnnotation(), Direction.JAVA_TO_KOTLIN);
+        register(Void.class, builtIns.getNothing(), Direction.KOTLIN_TO_JAVA);
 
-        register(Iterable.class, kotlinBuiltIns.getIterable(), kotlinBuiltIns.getMutableIterable());
-        register(Iterator.class, kotlinBuiltIns.getIterator(), kotlinBuiltIns.getMutableIterator());
-        register(Collection.class, kotlinBuiltIns.getCollection(), kotlinBuiltIns.getMutableCollection());
-        register(List.class, kotlinBuiltIns.getList(), kotlinBuiltIns.getMutableList());
-        register(Set.class, kotlinBuiltIns.getSet(), kotlinBuiltIns.getMutableSet());
-        register(Map.class, kotlinBuiltIns.getMap(), kotlinBuiltIns.getMutableMap());
-        register(Map.Entry.class, kotlinBuiltIns.getMapEntry(), kotlinBuiltIns.getMutableMapEntry());
-        register(ListIterator.class, kotlinBuiltIns.getListIterator(), kotlinBuiltIns.getMutableListIterator());
+        register(Iterable.class, builtIns.getIterable(), builtIns.getMutableIterable());
+        register(Iterator.class, builtIns.getIterator(), builtIns.getMutableIterator());
+        register(Collection.class, builtIns.getCollection(), builtIns.getMutableCollection());
+        register(List.class, builtIns.getList(), builtIns.getMutableList());
+        register(Set.class, builtIns.getSet(), builtIns.getMutableSet());
+        register(Map.class, builtIns.getMap(), builtIns.getMutableMap());
+        register(Map.Entry.class, builtIns.getMapEntry(), builtIns.getMutableMapEntry());
+        register(ListIterator.class, builtIns.getListIterator(), builtIns.getMutableListIterator());
     }
 
     /*package*/ void register(@NotNull Class<?> javaClass, @NotNull ClassDescriptor kotlinDescriptor) {

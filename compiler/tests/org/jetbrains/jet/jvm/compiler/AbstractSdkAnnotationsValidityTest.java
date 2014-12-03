@@ -33,6 +33,7 @@ import org.jetbrains.jet.lang.resolve.java.kotlinSignature.TypeTransformingVisit
 import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.renderer.DescriptorRenderer;
 
 import java.io.IOException;
@@ -76,7 +77,11 @@ public abstract class AbstractSdkAnnotationsValidityTest extends UsefulTestCase 
 
                 BindingContext bindingContext = trace.getBindingContext();
 
-                AlternativeSignatureErrorFindingVisitor visitor = new AlternativeSignatureErrorFindingVisitor(bindingContext, errors);
+                AlternativeSignatureErrorFindingVisitor visitor = new AlternativeSignatureErrorFindingVisitor(
+                        bindingContext,
+                        errors,
+                        injector.getModule().getBuiltIns()
+                );
 
                 int chunkStart = chunkIndex * CLASSES_IN_CHUNK;
                 for (FqName javaClass : affectedClasses.subList(chunkStart, Math.min(chunkStart + CLASSES_IN_CHUNK, affectedClasses.size()))) {
@@ -111,10 +116,12 @@ public abstract class AbstractSdkAnnotationsValidityTest extends UsefulTestCase 
     private static class AlternativeSignatureErrorFindingVisitor extends DeclarationDescriptorVisitorEmptyBodies<Void, Void> {
         private final BindingContext bindingContext;
         private final Map<String, List<String>> errors;
+        private final JavaToKotlinClassMap javaToKotlinClassMap;
 
-        public AlternativeSignatureErrorFindingVisitor(BindingContext bindingContext, Map<String, List<String>> errors) {
+        public AlternativeSignatureErrorFindingVisitor(BindingContext bindingContext, Map<String, List<String>> errors, KotlinBuiltIns builtIns) {
             this.bindingContext = bindingContext;
             this.errors = errors;
+            this.javaToKotlinClassMap = new JavaToKotlinClassMap(builtIns);
         }
 
         @Override
@@ -125,7 +132,7 @@ public abstract class AbstractSdkAnnotationsValidityTest extends UsefulTestCase 
         @Override
         public Void visitClassDescriptor(ClassDescriptor descriptor, Void data) {
             // skip java.util.Collection, etc.
-            if (!JavaToKotlinClassMap.INSTANCE.mapPlatformClass(DescriptorUtils.getFqNameSafe(descriptor)).isEmpty()) {
+            if (!javaToKotlinClassMap.mapPlatformClass(DescriptorUtils.getFqNameSafe(descriptor)).isEmpty()) {
                 return null;
             }
 

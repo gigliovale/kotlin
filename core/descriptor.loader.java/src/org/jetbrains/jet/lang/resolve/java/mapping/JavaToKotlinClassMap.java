@@ -33,20 +33,19 @@ import org.jetbrains.jet.lang.types.lang.PrimitiveType;
 import java.util.*;
 
 public class JavaToKotlinClassMap extends JavaToKotlinClassMapBuilder implements PlatformToKotlinClassMap {
-    public static final JavaToKotlinClassMap INSTANCE = new JavaToKotlinClassMap();
+    public static final JavaToKotlinClassMap INSTANCE = new JavaToKotlinClassMap(KotlinBuiltIns.getInstance());
 
     private final Map<FqName, ClassDescriptor> classDescriptorMap = new HashMap<FqName, ClassDescriptor>();
     private final Map<FqName, ClassDescriptor> classDescriptorMapForCovariantPositions = new HashMap<FqName, ClassDescriptor>();
     private final Map<String, JetType> primitiveTypesMap = new HashMap<String, JetType>();
     private final Map<FqName, Collection<ClassDescriptor>> packagesWithMappedClasses = new HashMap<FqName, Collection<ClassDescriptor>>();
 
-    private JavaToKotlinClassMap() {
-        init();
-        initPrimitives();
+    public JavaToKotlinClassMap(KotlinBuiltIns builtIns) {
+        init(builtIns);
+        initPrimitives(builtIns);
     }
 
-    private void initPrimitives() {
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
+    private void initPrimitives(KotlinBuiltIns builtIns) {
         for (JvmPrimitiveType jvmPrimitiveType : JvmPrimitiveType.values()) {
             PrimitiveType primitiveType = jvmPrimitiveType.getPrimitiveType();
             String name = jvmPrimitiveType.getName();
@@ -57,7 +56,7 @@ public class JavaToKotlinClassMap extends JavaToKotlinClassMapBuilder implements
             primitiveTypesMap.put("[" + name, builtIns.getPrimitiveArrayJetType(primitiveType));
             primitiveTypesMap.put(wrapperFqName.asString(), builtIns.getNullablePrimitiveJetType(primitiveType));
         }
-        primitiveTypesMap.put("void", KotlinBuiltIns.getInstance().getUnitType());
+        primitiveTypesMap.put("void", builtIns.getUnitType());
     }
 
     @Nullable

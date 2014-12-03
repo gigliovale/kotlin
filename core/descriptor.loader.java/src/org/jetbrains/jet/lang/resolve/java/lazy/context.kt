@@ -27,6 +27,7 @@ import org.jetbrains.jet.lang.resolve.java.structure.JavaPropertyInitializerEval
 import org.jetbrains.jet.lang.resolve.java.sources.JavaSourceElementFactory
 import org.jetbrains.jet.lang.resolve.java.structure.JavaTypeParameterListOwner
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.jet.lang.resolve.java.mapping.JavaToKotlinClassMap
 
 open class GlobalJavaResolverContext(
         val storageManager: StorageManager,
@@ -42,7 +43,8 @@ open class GlobalJavaResolverContext(
         val samConversionResolver: SamConversionResolver,
         val sourceElementFactory: JavaSourceElementFactory,
         val moduleClassResolver: ModuleClassResolver,
-        val builtIns: KotlinBuiltIns
+        val builtIns: KotlinBuiltIns,
+        val javaToKotlinClassMap: JavaToKotlinClassMap
 )
 
 open class LazyJavaResolverContext(
@@ -64,7 +66,8 @@ open class LazyJavaResolverContext(
         globalContext.samConversionResolver,
         globalContext.sourceElementFactory,
         globalContext.moduleClassResolver,
-        globalContext.builtIns
+        globalContext.builtIns,
+        globalContext.javaToKotlinClassMap
 ) {
     val typeResolver = LazyJavaTypeResolver(this, typeParameterResolver)
 }

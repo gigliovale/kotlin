@@ -49,7 +49,7 @@ public class KotlinToJavaTypesMap extends JavaToKotlinClassMapBuilder {
     private final Map<FqName, FqName> kotlinToJavaFqName = new HashMap<FqName, FqName>();
 
     private KotlinToJavaTypesMap() {
-        init();
+        init(KotlinBuiltIns.getInstance());
         initPrimitives();
     }
 

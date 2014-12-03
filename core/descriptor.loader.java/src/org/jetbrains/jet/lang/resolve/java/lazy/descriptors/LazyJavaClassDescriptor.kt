@@ -34,6 +34,7 @@ import org.jetbrains.jet.utils.*
 import org.jetbrains.jet.lang.resolve.java.descriptor.JavaClassDescriptor
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations
 import org.jetbrains.jet.lang.types.AbstractClassTypeConstructor
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 class LazyJavaClassDescriptor(
         private val outerC: LazyJavaResolverContext,
@@ -121,7 +122,7 @@ class LazyJavaClassDescriptor(
                     .filter { supertype -> !supertype.isError() && !KotlinBuiltIns.isAnyOrNullableAny(supertype) }
                     .toList()
                     .ifEmpty {
-                        listOf(KotlinBuiltIns.getInstance().getAnyType())
+                        listOf(builtIns.getAnyType())
                     }
         }
 

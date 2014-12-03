@@ -31,7 +31,6 @@ import org.jetbrains.jet.lang.resolve.java.lazy.resolveAnnotations
 import org.jetbrains.jet.lang.resolve.java.structure.JavaArrayType
 import org.jetbrains.jet.lang.resolve.java.resolver.TypeUsage
 import org.jetbrains.jet.lang.types.TypeUtils
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.resolve.java.lazy.hasNotNullAnnotation
 import org.jetbrains.jet.lang.resolve.java.lazy.types.LazyJavaTypeAttributes
 import org.jetbrains.jet.lang.resolve.java.structure.JavaValueParameter
@@ -46,6 +45,7 @@ import org.jetbrains.jet.lang.resolve.java.PLATFORM_TYPES
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations
 import org.jetbrains.jet.lang.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.jet.lang.resolve.scopes.DescriptorKindExclude.NonExtensions
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 public abstract class LazyJavaMemberScope(
         protected val c: LazyJavaResolverContext,
@@ -171,7 +171,7 @@ public abstract class LazyJavaMemberScope(
                     assert (paramType is JavaArrayType) { "Vararg parameter should be an array: $paramType" }
                     val arrayType = c.typeResolver.transformArrayType(paramType as JavaArrayType, typeUsage, true)
                     val outType = if (PLATFORM_TYPES) arrayType else TypeUtils.makeNotNullable(arrayType)
-                    outType to KotlinBuiltIns.getInstance().getArrayElementType(outType)
+                    outType to containingDeclaration.builtIns.getArrayElementType(outType)
                 }
                 else {
                     val jetType = c.typeResolver.transformJavaType(javaParameter.getType(), typeUsage)
@@ -183,7 +183,7 @@ public abstract class LazyJavaMemberScope(
 
             val name = if (function.getName().asString() == "equals" &&
                            jValueParameters.size() == 1 &&
-                           KotlinBuiltIns.getInstance().getNullableAnyType() == outType) {
+                           containingDeclaration.builtIns.getNullableAnyType() == outType) {
                 // This is a hack to prevent numerous warnings on Kotlin classes that inherit Java classes: if you override "equals" in such
                 // class without this hack, you'll be warned that in the superclass the name is "p0" (regardless of the fact that it's
                 // "other" in Any)

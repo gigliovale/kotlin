@@ -77,12 +77,12 @@ class LazyJavaTypeResolver(
 
         val howArgumentTypeIsUsed = if (isVararg) MEMBER_SIGNATURE_CONTRAVARIANT else TYPE_ARGUMENT
         val componentType = transformJavaType(javaComponentType, howArgumentTypeIsUsed.toAttributes(attr.allowFlexible))
-        val result = KotlinBuiltIns.getInstance().getArrayType(projectionKind, componentType)
+        val result = c.builtIns.getArrayType(projectionKind, componentType)
         return if (PLATFORM_TYPES && attr.allowFlexible)
             FlexibleJavaClassifierTypeCapabilities.create(
-                           KotlinBuiltIns.getInstance().getArrayType(INVARIANT, componentType),
+                           c.builtIns.getArrayType(INVARIANT, componentType),
                            TypeUtils.makeNullable(
-                                   KotlinBuiltIns.getInstance().getArrayType(OUT_VARIANCE, componentType)
+                                   c.builtIns.getArrayType(OUT_VARIANCE, componentType)
                            )
                    )
                else
@@ -192,7 +192,7 @@ class LazyJavaTypeResolver(
                         // C<*> = C<out C<out C<...>>>
                         // this way we lose some type information, even when the case is not so bad, but it doesn't seem to matter
                         val projectionKind = if (parameter.getVariance() == OUT_VARIANCE) INVARIANT else OUT_VARIANCE
-                        TypeProjectionImpl(projectionKind, KotlinBuiltIns.getInstance().getNullableAnyType())
+                        TypeProjectionImpl(projectionKind, c.builtIns.getNullableAnyType())
                     }
                     else
                         LazyStarProjection(c, parameter, attr)

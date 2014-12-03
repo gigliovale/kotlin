@@ -58,14 +58,15 @@ public class ArrayIterator extends IntrinsicMethod {
                 .get(BindingContext.REFERENCE_TARGET, (JetSimpleNameExpression) call.getCalleeExpression());
         assert funDescriptor != null;
         ClassDescriptor containingDeclaration = (ClassDescriptor) funDescriptor.getContainingDeclaration().getOriginal();
-        if (containingDeclaration.equals(KotlinBuiltIns.getInstance().getArray())) {
+        KotlinBuiltIns builtIns = codegen.getContext().getBuiltIns();
+        if (containingDeclaration.equals(builtIns.getArray())) {
             v.invokestatic("kotlin/jvm/internal/InternalPackage", "iterator", "([Ljava/lang/Object;)Ljava/util/Iterator;", false);
             return getType(Iterator.class);
         }
 
         for (JvmPrimitiveType jvmPrimitiveType : JvmPrimitiveType.values()) {
             PrimitiveType primitiveType = jvmPrimitiveType.getPrimitiveType();
-            ClassDescriptor arrayClass = KotlinBuiltIns.getInstance().getPrimitiveArrayClassDescriptor(primitiveType);
+            ClassDescriptor arrayClass = builtIns.getPrimitiveArrayClassDescriptor(primitiveType);
             if (containingDeclaration.equals(arrayClass)) {
                 FqName fqName = new FqName(BUILT_INS_PACKAGE_FQ_NAME + "." + primitiveType.getTypeName() + "Iterator");
                 String iteratorDesc = asmDescByFqNameWithoutInnerClasses(fqName);

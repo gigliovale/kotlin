@@ -40,6 +40,7 @@ import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeUtils;
 import org.jetbrains.jet.lang.types.TypesPackage;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.jet.lang.types.typeUtil.TypeUtilPackage;
 import org.jetbrains.org.objectweb.asm.*;
 
 import java.lang.annotation.Retention;
@@ -84,8 +85,10 @@ public abstract class AnnotationCodegen {
 
     private final JetTypeMapper typeMapper;
     private final BindingContext bindingContext;
+    private final KotlinBuiltIns builtIns;
 
-    private AnnotationCodegen(JetTypeMapper mapper) {
+    private AnnotationCodegen(KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        this.builtIns = builtIns;
         typeMapper = mapper;
         bindingContext = typeMapper.getBindingContext();
     }
@@ -306,7 +309,8 @@ public abstract class AnnotationCodegen {
             @Override
             public Void visitEnumValue(EnumValue value, Void data) {
                 String propertyName = value.getValue().getName().asString();
-                annotationVisitor.visitEnum(name, typeMapper.mapType(value.getType(KotlinBuiltIns.getInstance())).getDescriptor(), propertyName);
+                KotlinBuiltIns builtIns = TypeUtilPackage.getBuiltIns(expectedType);
+                annotationVisitor.visitEnum(name, typeMapper.mapType(value.getType(builtIns)).getDescriptor(), propertyName);
                 return null;
             }
 
@@ -314,7 +318,7 @@ public abstract class AnnotationCodegen {
             public Void visitArrayValue(ArrayValue value, Void data) {
                 AnnotationVisitor visitor = annotationVisitor.visitArray(name);
                 for (CompileTimeConstant<?> argument : value.getValue()) {
-                    genCompileTimeValue(null, argument, value.getType(KotlinBuiltIns.getInstance()), visitor);
+                    genCompileTimeValue(null, argument, value.getType(builtIns), visitor);
                 }
                 visitor.visitEnd();
                 return null;
@@ -390,8 +394,8 @@ public abstract class AnnotationCodegen {
     @NotNull
     abstract AnnotationVisitor visitAnnotation(String descr, boolean visible);
 
-    public static AnnotationCodegen forClass(final ClassVisitor cv, JetTypeMapper mapper) {
-        return new AnnotationCodegen(mapper) {
+    public static AnnotationCodegen forClass(final ClassVisitor cv, KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        return new AnnotationCodegen(builtIns, mapper) {
             @NotNull
             @Override
             AnnotationVisitor visitAnnotation(String descr, boolean visible) {
@@ -400,8 +404,8 @@ public abstract class AnnotationCodegen {
         };
     }
 
-    public static AnnotationCodegen forMethod(final MethodVisitor mv, JetTypeMapper mapper) {
-        return new AnnotationCodegen(mapper) {
+    public static AnnotationCodegen forMethod(final MethodVisitor mv, KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        return new AnnotationCodegen(builtIns, mapper) {
             @NotNull
             @Override
             AnnotationVisitor visitAnnotation(String descr, boolean visible) {
@@ -410,8 +414,8 @@ public abstract class AnnotationCodegen {
         };
     }
 
-    public static AnnotationCodegen forField(final FieldVisitor fv, JetTypeMapper mapper) {
-        return new AnnotationCodegen(mapper) {
+    public static AnnotationCodegen forField(final FieldVisitor fv, KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        return new AnnotationCodegen(builtIns, mapper) {
             @NotNull
             @Override
             AnnotationVisitor visitAnnotation(String descr, boolean visible) {
@@ -420,8 +424,8 @@ public abstract class AnnotationCodegen {
         };
     }
 
-    public static AnnotationCodegen forParameter(final int parameter, final MethodVisitor mv, JetTypeMapper mapper) {
-        return new AnnotationCodegen(mapper) {
+    public static AnnotationCodegen forParameter(final int parameter, final MethodVisitor mv, KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        return new AnnotationCodegen(builtIns, mapper) {
             @NotNull
             @Override
             AnnotationVisitor visitAnnotation(String descr, boolean visible) {
@@ -430,8 +434,8 @@ public abstract class AnnotationCodegen {
         };
     }
 
-    public static AnnotationCodegen forAnnotationDefaultValue(final MethodVisitor mv, JetTypeMapper mapper) {
-        return new AnnotationCodegen(mapper) {
+    public static AnnotationCodegen forAnnotationDefaultValue(final MethodVisitor mv, KotlinBuiltIns builtIns, JetTypeMapper mapper) {
+        return new AnnotationCodegen(builtIns, mapper) {
             @NotNull
             @Override
             AnnotationVisitor visitAnnotation(String descr, boolean visible) {

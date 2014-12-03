@@ -212,7 +212,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         writeInnerClasses();
 
-        AnnotationCodegen.forClass(v.getVisitor(), typeMapper).genAnnotations(descriptor, null);
+        AnnotationCodegen.forClass(v.getVisitor(), context.getBuiltIns(), typeMapper).genAnnotations(descriptor, null);
 
         generateReflectionObjectFieldIfNeeded();
     }
@@ -388,7 +388,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         if (superClassType == null) {
             if (descriptor.getKind() == ClassKind.ENUM_CLASS) {
-                superClassType = KotlinBuiltIns.getInstance().getEnumType(descriptor.getDefaultType());
+                superClassType = context.getBuiltIns().getEnumType(descriptor.getDefaultType());
                 superClassAsmType = typeMapper.mapType(superClassType);
             }
             if (descriptor.getKind() == ClassKind.ENUM_ENTRY) {
@@ -460,7 +460,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                 continue;
             }
 
-            JetType arrayType = KotlinBuiltIns.getInstance().getArrayType(function.getTypeParameters().get(0).getDefaultType());
+            JetType arrayType = context.getBuiltIns().getArrayType(function.getTypeParameters().get(0).getDefaultType());
             JetType returnType = function.getReturnType();
             assert returnType != null : function.toString();
             JetType paramType = function.getValueParameters().get(0).getType();
@@ -473,13 +473,12 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     }
 
     private void generateToArray() {
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
-        if (!isSubclass(descriptor, builtIns.getCollection())) return;
+        if (!isSubclass(descriptor, context.getBuiltIns().getCollection())) return;
 
         int access = descriptor.getKind() == ClassKind.TRAIT ?
                      ACC_PUBLIC | ACC_ABSTRACT :
                      ACC_PUBLIC;
-        if (CodegenUtil.getDeclaredFunctionByRawSignature(descriptor, Name.identifier("toArray"), builtIns.getArray()) == null) {
+        if (CodegenUtil.getDeclaredFunctionByRawSignature(descriptor, Name.identifier("toArray"), context.getBuiltIns().getArray()) == null) {
             MethodVisitor mv = v.newMethod(NO_ORIGIN, access, "toArray", "()[Ljava/lang/Object;", null, null);
 
             if (descriptor.getKind() != ClassKind.TRAIT) {
@@ -524,15 +523,16 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                 JetClassOrObject klass,
                 BindingContext bindingContext
         ) {
-            super(klass, bindingContext);
+            super(klass, bindingContext, context.getBuiltIns());
         }
 
         @Override
         public void generateEqualsMethod(@NotNull List<PropertyDescriptor> properties) {
+            KotlinBuiltIns builtIns = context.getBuiltIns();
             FunctionDescriptor equalsFunction = CodegenUtil.getDeclaredFunctionByRawSignature(
                     descriptor, Name.identifier(CodegenUtil.EQUALS_METHOD_NAME),
-                    KotlinBuiltIns.getInstance().getBoolean(),
-                    KotlinBuiltIns.getInstance().getAny()
+                    builtIns.getBoolean(),
+                    builtIns.getAny()
             );
             MethodContext context = ImplementationBodyCodegen.this.context.intoFunction(equalsFunction);
             MethodVisitor mv = v.newMethod(OtherOrigin(equalsFunction), ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
@@ -601,7 +601,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         public void generateHashCodeMethod(@NotNull List<PropertyDescriptor> properties) {
             FunctionDescriptor hashCodeFunction = CodegenUtil.getDeclaredFunctionByRawSignature(
                     descriptor, Name.identifier(CodegenUtil.HASH_CODE_METHOD_NAME),
-                    KotlinBuiltIns.getInstance().getInt()
+                    context.getBuiltIns().getInt()
             );
             MethodContext context = ImplementationBodyCodegen.this.context.intoFunction(hashCodeFunction);
             MethodVisitor mv = v.newMethod(OtherOrigin(hashCodeFunction), ACC_PUBLIC, "hashCode", "()I", null, null);
@@ -653,7 +653,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         public void generateToStringMethod(@NotNull List<PropertyDescriptor> properties) {
             FunctionDescriptor toString = CodegenUtil.getDeclaredFunctionByRawSignature(
                     descriptor, Name.identifier(CodegenUtil.TO_STRING_METHOD_NAME),
-                    KotlinBuiltIns.getInstance().getString()
+                    context.getBuiltIns().getString()
             );
             MethodContext context = ImplementationBodyCodegen.this.context.intoFunction(toString);
             MethodVisitor mv = v.newMethod(OtherOrigin(toString), ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
@@ -818,7 +818,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     }
 
     private void generateEnumValuesMethod() {
-        Type type = typeMapper.mapType(KotlinBuiltIns.getInstance().getArrayType(descriptor.getDefaultType()));
+        Type type = typeMapper.mapType(context.getBuiltIns().getArrayType(descriptor.getDefaultType()));
 
         FunctionDescriptor valuesFunction =
                 KotlinPackage.single(descriptor.getStaticScope().getFunctions(ENUM_VALUES), new Function1<FunctionDescriptor, Boolean>() {
@@ -1035,7 +1035,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                                          type.getDescriptor(), typeMapper.mapFieldSignature(property.getType()),
                                          info.defaultValue);
 
-            AnnotationCodegen.forField(fv, typeMapper).genAnnotations(property, type);
+            AnnotationCodegen.forField(fv, context.getBuiltIns(), typeMapper).genAnnotations(property, type);
 
             //This field are always static and final so if it has constant initializer don't do anything in clinit,
             //field would be initialized via default value in v.newField(...) - see JVM SPEC Ch.4
@@ -1409,7 +1409,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                             reg += argTypes[i].getSize();
                         }
 
-                        if (KotlinBuiltIns.getInstance().isCloneable(containingTrait) && traitMethod.getName().equals("clone")) {
+                        if (context.getBuiltIns().isCloneable(containingTrait) && traitMethod.getName().equals("clone")) {
                             // A special hack for Cloneable: there's no kotlin/Cloneable$$TImpl class at runtime,
                             // and its 'clone' method is actually located in java/lang/Object
                             iv.invokespecial("java/lang/Object", "clone", "()Ljava/lang/Object;", false);
@@ -1539,7 +1539,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
             ClassDescriptor entryDescriptor = bindingContext.get(BindingContext.CLASS, declaration);
             FieldVisitor fv = v.newField(OtherOrigin(declaration, entryDescriptor), ACC_PUBLIC | ACC_ENUM | ACC_STATIC | ACC_FINAL,
                                          name, classAsmType.getDescriptor(), null, null);
-            AnnotationCodegen.forField(fv, typeMapper).genAnnotations(entryDescriptor, null);
+            AnnotationCodegen.forField(fv, context.getBuiltIns(), typeMapper).genAnnotations(entryDescriptor, null);
             myEnumConstants.add((JetEnumEntry) declaration);
         }
 
@@ -1554,7 +1554,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         ExpressionCodegen codegen = createOrGetClInitCodegen();
         InstructionAdapter iv = codegen.v;
 
-        Type arrayAsmType = typeMapper.mapType(KotlinBuiltIns.getInstance().getArrayType(descriptor.getDefaultType()));
+        Type arrayAsmType = typeMapper.mapType(context.getBuiltIns().getArrayType(descriptor.getDefaultType()));
         v.newField(OtherOrigin(myClass), ACC_PRIVATE | ACC_STATIC | ACC_FINAL | ACC_SYNTHETIC, ENUM_VALUES_FIELD_NAME,
                    arrayAsmType.getDescriptor(), null, null);
 

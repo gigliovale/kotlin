@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.codegen.ClassBuilderMode;
 import org.jetbrains.jet.lang.resolve.BindingContext;
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.io.File;
 
@@ -32,9 +33,10 @@ public class JetTypeMapperWithOutDirectory extends JetTypeMapper {
     public JetTypeMapperWithOutDirectory(
             @NotNull BindingContext bindingContext,
             @NotNull ClassBuilderMode classBuilderMode,
+            @NotNull KotlinBuiltIns builtIns,
             @Nullable File outDirectory
     ) {
-        super(bindingContext, classBuilderMode);
+        super(bindingContext, classBuilderMode, builtIns);
         this.outDirectory = outDirectory;
     }
 

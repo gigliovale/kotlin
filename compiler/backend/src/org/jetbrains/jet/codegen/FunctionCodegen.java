@@ -45,6 +45,7 @@ import org.jetbrains.jet.lang.resolve.calls.CallResolverUtil;
 import org.jetbrains.jet.lang.resolve.constants.ArrayValue;
 import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant;
 import org.jetbrains.jet.lang.resolve.constants.JavaClassValue;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.java.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.jet.lang.resolve.java.jvmSignature.JvmMethodParameterKind;
 import org.jetbrains.jet.lang.resolve.java.jvmSignature.JvmMethodParameterSignature;
@@ -146,7 +147,7 @@ public class FunctionCodegen extends ParentCodegenAware {
             v.getSerializationBindings().put(METHOD_FOR_FUNCTION, functionDescriptor, asmMethod);
         }
 
-        AnnotationCodegen.forMethod(mv, typeMapper).genAnnotations(functionDescriptor, asmMethod.getReturnType());
+        AnnotationCodegen.forMethod(mv, owner.getBuiltIns(), typeMapper).genAnnotations(functionDescriptor, asmMethod.getReturnType());
 
         generateParameterAnnotations(functionDescriptor, mv, jvmSignature);
 
@@ -203,7 +204,8 @@ public class FunctionCodegen extends ParentCodegenAware {
             if (kind == JvmMethodParameterKind.VALUE) {
                 ValueParameterDescriptor parameter = iterator.next();
                 v.getSerializationBindings().put(INDEX_FOR_VALUE_PARAMETER, parameter, i);
-                AnnotationCodegen.forParameter(i, mv, typeMapper).genAnnotations(parameter, parameterSignature.getAsmType());
+                AnnotationCodegen.forParameter(i, mv, owner.getBuiltIns(), typeMapper).genAnnotations(parameter,
+                                                                                                    parameterSignature.getAsmType());
             }
         }
     }
@@ -479,7 +481,7 @@ public class FunctionCodegen extends ParentCodegenAware {
         }
         else if (parameters.size() == 1 && name.equals("equals")) {
             ValueParameterDescriptor parameter = parameters.get(0);
-            return parameter.getType().equals(KotlinBuiltIns.getInstance().getNullableAnyType());
+            return parameter.getType().equals(DescriptorUtilPackage.getBuiltIns(descriptor).getNullableAnyType());
         }
         return false;
     }

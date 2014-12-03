@@ -40,11 +40,13 @@ public abstract class DataClassMethodGenerator {
     private final JetClassOrObject declaration;
     private final BindingContext bindingContext;
     private final ClassDescriptor classDescriptor;
+    private final KotlinBuiltIns builtIns;
 
-    public DataClassMethodGenerator(JetClassOrObject declaration, BindingContext bindingContext) {
+    public DataClassMethodGenerator(JetClassOrObject declaration, BindingContext bindingContext, KotlinBuiltIns builtIns) {
         this.declaration = declaration;
         this.bindingContext = bindingContext;
         this.classDescriptor = BindingContextUtils.getNotNull(bindingContext, BindingContext.CLASS, declaration);
+        this.builtIns = builtIns;
     }
 
     public void generate() {
@@ -99,22 +101,22 @@ public abstract class DataClassMethodGenerator {
     }
 
     private void generateDataClassToStringIfNeeded(@NotNull List<PropertyDescriptor> properties) {
-        ClassDescriptor stringClass = KotlinBuiltIns.getInstance().getString();
+        ClassDescriptor stringClass = builtIns.getString();
         if (!hasDeclaredNonTrivialMember(CodegenUtil.TO_STRING_METHOD_NAME, stringClass)) {
             generateToStringMethod(properties);
         }
     }
 
     private void generateDataClassHashCodeIfNeeded(@NotNull List<PropertyDescriptor> properties) {
-        ClassDescriptor intClass = KotlinBuiltIns.getInstance().getInt();
+        ClassDescriptor intClass = builtIns.getInt();
         if (!hasDeclaredNonTrivialMember(CodegenUtil.HASH_CODE_METHOD_NAME, intClass)) {
             generateHashCodeMethod(properties);
         }
     }
 
     private void generateDataClassEqualsIfNeeded(@NotNull List<PropertyDescriptor> properties) {
-        ClassDescriptor booleanClass = KotlinBuiltIns.getInstance().getBoolean();
-        ClassDescriptor anyClass = KotlinBuiltIns.getInstance().getAny();
+        ClassDescriptor booleanClass = builtIns.getBoolean();
+        ClassDescriptor anyClass = builtIns.getAny();
         if (!hasDeclaredNonTrivialMember(CodegenUtil.EQUALS_METHOD_NAME, booleanClass, anyClass)) {
             generateEqualsMethod(properties);
         }
@@ -161,7 +163,7 @@ public abstract class DataClassMethodGenerator {
         for (CallableDescriptor overridden : OverrideResolver.getOverriddenDeclarations(function)) {
             if (overridden instanceof CallableMemberDescriptor
                 && ((CallableMemberDescriptor) overridden).getKind() == CallableMemberDescriptor.Kind.DECLARATION
-                && !overridden.getContainingDeclaration().equals(KotlinBuiltIns.getInstance().getAny())) {
+                && !overridden.getContainingDeclaration().equals(builtIns.getAny())) {
                 return true;
             }
         }

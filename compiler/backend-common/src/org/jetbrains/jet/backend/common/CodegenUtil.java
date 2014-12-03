@@ -31,6 +31,7 @@ import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.calls.CallResolverUtil;
 import org.jetbrains.jet.lang.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeUtils;
@@ -71,30 +72,30 @@ public class CodegenUtil {
         return null;
     }
 
-    public static FunctionDescriptor getAnyEqualsMethod() {
-        ClassDescriptor anyClass = KotlinBuiltIns.getInstance().getAny();
+    public static FunctionDescriptor getAnyEqualsMethod(KotlinBuiltIns builtIns) {
+        ClassDescriptor anyClass = builtIns.getAny();
         FunctionDescriptor function =
                 getDeclaredFunctionByRawSignature(anyClass, Name.identifier(EQUALS_METHOD_NAME),
-                                                  KotlinBuiltIns.getInstance().getBoolean(),
+                                                  builtIns.getBoolean(),
                                                   anyClass);
         assert function != null;
         return function;
     }
 
-    public static FunctionDescriptor getAnyToStringMethod() {
-        ClassDescriptor anyClass = KotlinBuiltIns.getInstance().getAny();
+    public static FunctionDescriptor getAnyToStringMethod(KotlinBuiltIns builtIns) {
+        ClassDescriptor anyClass = builtIns.getAny();
         FunctionDescriptor function =
                 getDeclaredFunctionByRawSignature(anyClass, Name.identifier(TO_STRING_METHOD_NAME),
-                                                  KotlinBuiltIns.getInstance().getString());
+                                                  builtIns.getString());
         assert function != null;
         return function;
     }
 
-    public static FunctionDescriptor getAnyHashCodeMethod() {
-        ClassDescriptor anyClass = KotlinBuiltIns.getInstance().getAny();
+    public static FunctionDescriptor getAnyHashCodeMethod(KotlinBuiltIns builtIns) {
+        ClassDescriptor anyClass = builtIns.getAny();
         FunctionDescriptor function =
                 getDeclaredFunctionByRawSignature(anyClass, Name.identifier(HASH_CODE_METHOD_NAME),
-                                                  KotlinBuiltIns.getInstance().getInt());
+                                                  builtIns.getInt());
         assert function != null;
         return function;
     }
@@ -194,7 +195,7 @@ public class CodegenUtil {
 
     public static boolean isEnumValueOfMethod(@NotNull FunctionDescriptor functionDescriptor) {
         List<ValueParameterDescriptor> methodTypeParameters = functionDescriptor.getValueParameters();
-        JetType nullableString = TypeUtils.makeNullable(KotlinBuiltIns.getInstance().getStringType());
+        JetType nullableString = TypeUtils.makeNullable(DescriptorUtilPackage.getBuiltIns(functionDescriptor).getStringType());
         return DescriptorUtils.ENUM_VALUE_OF.equals(functionDescriptor.getName())
                && methodTypeParameters.size() == 1
                && JetTypeChecker.DEFAULT.isSubtypeOf(methodTypeParameters.get(0).getType(), nullableString);

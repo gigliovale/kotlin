@@ -35,7 +35,7 @@ class JsDataClassGenerator extends DataClassMethodGenerator {
     private final List<? super JsPropertyInitializer> output;
 
     JsDataClassGenerator(JetClassOrObject klass, TranslationContext context, List<? super JsPropertyInitializer> output) {
-        super(klass, context.bindingContext());
+        super(klass, context.bindingContext(), context.getBuiltIns());
         this.context = context;
         this.output = output;
     }
@@ -90,7 +90,7 @@ class JsDataClassGenerator extends DataClassMethodGenerator {
     public void generateToStringMethod(@NotNull List<PropertyDescriptor> classProperties) {
         // TODO: relax this limitation, with the data generation logic fixed.
         assert !classProperties.isEmpty();
-        FunctionDescriptor prototypeFun = CodegenUtil.getAnyToStringMethod();
+        FunctionDescriptor prototypeFun = CodegenUtil.getAnyToStringMethod(context.getBuiltIns());
         JsFunction functionObj = generateJsMethod(prototypeFun);
 
         JsProgram jsProgram = context.program();
@@ -115,7 +115,7 @@ class JsDataClassGenerator extends DataClassMethodGenerator {
 
     @Override
     public void generateHashCodeMethod(@NotNull List<PropertyDescriptor> classProperties) {
-        FunctionDescriptor prototypeFun = CodegenUtil.getAnyHashCodeMethod();
+        FunctionDescriptor prototypeFun = CodegenUtil.getAnyHashCodeMethod(context.getBuiltIns());
         JsFunction functionObj = generateJsMethod(prototypeFun);
 
         JsProgram jsProgram = context.program();
@@ -142,7 +142,7 @@ class JsDataClassGenerator extends DataClassMethodGenerator {
     @Override
     public void generateEqualsMethod(@NotNull List<PropertyDescriptor> classProperties) {
         assert !classProperties.isEmpty();
-        FunctionDescriptor prototypeFun = CodegenUtil.getAnyEqualsMethod();
+        FunctionDescriptor prototypeFun = CodegenUtil.getAnyEqualsMethod(context.getBuiltIns());
         JsFunction functionObj = generateJsMethod(prototypeFun);
         JsFunctionScope funScope = functionObj.getScope();
 

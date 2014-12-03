@@ -153,7 +153,7 @@ public class GenerationState {
         this.bindingContext = bindingTrace.getBindingContext();
 
         this.outDirectory = outDirectory;
-        this.typeMapper = new JetTypeMapperWithOutDirectory(this.bindingContext, classBuilderMode, outDirectory);
+        this.typeMapper = new JetTypeMapperWithOutDirectory(this.bindingContext, classBuilderMode, module.getBuiltIns(), outDirectory);
 
         this.intrinsics = new IntrinsicMethods();
 
@@ -162,7 +162,7 @@ public class GenerationState {
         }
 
         this.classFileFactory = new ClassFileFactory(this, new BuilderFactoryForDuplicateSignatureDiagnostics(
-                builderFactory, this.bindingContext, diagnostics));
+                builderFactory, this.bindingContext, module.getBuiltIns(), diagnostics));
 
         this.disableCallAssertions = disableCallAssertions;
         this.disableParamAssertions = disableParamAssertions;

@@ -31,16 +31,17 @@ import org.jetbrains.jet.codegen.ClassBuilderMode
 import org.jetbrains.jet.lang.resolve.java.descriptor.SamAdapterDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
 import org.jetbrains.jet.lang.diagnostics.DiagnosticSink
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 class BuilderFactoryForDuplicateSignatureDiagnostics(
         builderFactory: ClassBuilderFactory,
         bindingContext: BindingContext,
+        builtIns: KotlinBuiltIns,
         private val diagnostics: DiagnosticSink
 ) : SignatureCollectingClassBuilderFactory(builderFactory) {
 
     // Avoid errors when some classes are not loaded for some reason
-    private val typeMapper = JetTypeMapper(bindingContext, ClassBuilderMode.LIGHT_CLASSES)
+    private val typeMapper = JetTypeMapper(bindingContext, ClassBuilderMode.LIGHT_CLASSES, builtIns)
 
     override fun handleClashingSignatures(data: ConflictingJvmDeclarationsData) {
         val allDelegatedToTraitImpls = data.signatureOrigins.all { it.originKind == JvmDeclarationOriginKind.DELEGATION_TO_TRAIT_IMPL }

@@ -66,15 +66,6 @@ import static org.jetbrains.jet.lang.types.TypeUtils.isNullableType;
 import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
 public class AsmUtil {
-    private static final Set<ClassDescriptor> PRIMITIVE_NUMBER_CLASSES = Sets.newHashSet(
-            KotlinBuiltIns.getInstance().getByte(),
-            KotlinBuiltIns.getInstance().getShort(),
-            KotlinBuiltIns.getInstance().getInt(),
-            KotlinBuiltIns.getInstance().getLong(),
-            KotlinBuiltIns.getInstance().getFloat(),
-            KotlinBuiltIns.getInstance().getDouble(),
-            KotlinBuiltIns.getInstance().getChar()
-    );
 
     private static final Set<Type> STRING_BUILDER_OBJECT_APPEND_ARG_TYPES = Sets.newHashSet(
             getType(String.class),
@@ -149,7 +140,7 @@ public class AsmUtil {
         if (!(descriptor instanceof ClassDescriptor)) {
             return false;
         }
-        return PRIMITIVE_NUMBER_CLASSES.contains(descriptor);
+        return KotlinBuiltIns.isPrimitiveNumberClass((ClassDescriptor) descriptor);
     }
 
     public static Type correctElementType(Type type) {

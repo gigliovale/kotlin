@@ -32,6 +32,7 @@ import org.jetbrains.jet.lang.descriptors.impl.SimpleFunctionDescriptorImpl;
 import org.jetbrains.jet.lang.psi.JetElement;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.java.JvmAbi;
 import org.jetbrains.jet.lang.resolve.java.jvmSignature.JvmMethodSignature;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -109,7 +110,7 @@ public class ClosureCodegen extends MemberCodegen<JetElement> {
         }
         else {
             this.superInterfaceTypes = Collections.singletonList(samType.getType());
-            this.superClassType = KotlinBuiltIns.getInstance().getAnyType();
+            this.superClassType = context.getBuiltIns().getAnyType();
         }
 
         this.closure = bindingContext.get(CLOSURE, classDescriptor);
@@ -359,9 +360,10 @@ public class ClosureCodegen extends MemberCodegen<JetElement> {
     @NotNull
     public static FunctionDescriptor getErasedInvokeFunction(@NotNull FunctionDescriptor elementDescriptor) {
         int arity = elementDescriptor.getValueParameters().size();
+        KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(elementDescriptor);
         ClassDescriptor elementClass = elementDescriptor.getExtensionReceiverParameter() == null
-                                   ? KotlinBuiltIns.getInstance().getFunction(arity)
-                                   : KotlinBuiltIns.getInstance().getExtensionFunction(arity);
+                                   ? builtIns.getFunction(arity)
+                                   : builtIns.getExtensionFunction(arity);
         return elementClass.getDefaultType().getMemberScope().getFunctions(Name.identifier("invoke")).iterator().next();
     }
 }

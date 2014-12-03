@@ -28,6 +28,7 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.lang.types.lang.PrimitiveType;
+import org.jetbrains.jet.lang.types.typeUtil.TypeUtilPackage;
 
 import java.util.List;
 
@@ -108,7 +109,8 @@ public class RangeCodegenUtil {
     ) {
         ClassifierDescriptor declarationDescriptor = rangeOrProgression.getConstructor().getDeclarationDescriptor();
         assert declarationDescriptor != null;
-        if (declarationDescriptor != KotlinBuiltIns.getInstance().getBuiltInsPackageScope().getClassifier(declarationDescriptor.getName())) {
+        KotlinBuiltIns builtIns = TypeUtilPackage.getBuiltIns(rangeOrProgression);
+        if (declarationDescriptor != builtIns.getBuiltInsPackageScope().getClassifier(declarationDescriptor.getName())) {
             // Must be a standard library class
             return null;
         }

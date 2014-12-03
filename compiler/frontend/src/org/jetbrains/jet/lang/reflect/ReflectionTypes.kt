@@ -45,6 +45,9 @@ public class ReflectionTypes(private val module: ModuleDescriptor) {
         }
     }
 
+    public val builtIns: KotlinBuiltIns
+        get() = module.builtIns
+
     public fun getKFunction(n: Int): ClassDescriptor = find("KFunction$n")
     public fun getKExtensionFunction(n: Int): ClassDescriptor = find("KExtensionFunction$n")
     public fun getKMemberFunction(n: Int): ClassDescriptor = find("KMemberFunction$n")

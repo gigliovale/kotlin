@@ -26,7 +26,9 @@ import org.jetbrains.jet.codegen.state.JetTypeMapper;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.types.JetType;
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.LockBasedStorageManager;
 import org.jetbrains.jet.storage.NullableLazyValue;
 import org.jetbrains.org.objectweb.asm.Type;
@@ -442,5 +444,10 @@ public abstract class CodegenContext<T extends DeclarationDescriptor> {
 
     private static boolean isStaticField(@NotNull StackValue value) {
         return value instanceof StackValue.Field && ((StackValue.Field) value).isStaticPut;
+    }
+
+    @NotNull
+    public KotlinBuiltIns getBuiltIns() {
+        return DescriptorUtilPackage.getBuiltIns(contextDescriptor);
     }
 }

@@ -23,6 +23,7 @@ import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor
 import org.jetbrains.jet.lang.resolve.java.diagnostics.JvmDeclarationOrigin
 import org.jetbrains.jet.lang.resolve.java.diagnostics.Synthetic
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 class PlatformStaticGenerator(
         val descriptor: FunctionDescriptor,
@@ -41,7 +42,7 @@ class PlatformStaticGenerator(
                 typeMapper.mapSignature(descriptor).getGenericsSignature(),
                 FunctionCodegen.getThrownExceptions(descriptor, typeMapper))
 
-        AnnotationCodegen.forMethod(methodVisitor, typeMapper)!!.genAnnotations(descriptor, asmMethod.getReturnType())
+        AnnotationCodegen.forMethod(methodVisitor, descriptor.builtIns, typeMapper)!!.genAnnotations(descriptor, asmMethod.getReturnType())
 
         if (state.getClassBuilderMode() == ClassBuilderMode.FULL) {
             methodVisitor.visitCode();

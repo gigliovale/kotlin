@@ -30,7 +30,6 @@ import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.*;
 import org.jetbrains.jet.lang.types.expressions.ExpressionTypingUtils;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.*;
 
@@ -115,7 +114,7 @@ public class JvmRuntimeTypes {
                 classDescriptor.getMemberScope(typeArguments)
         );
 
-        JetType functionType = KotlinBuiltIns.getInstance().getFunctionType(
+        JetType functionType = reflectionTypes.getBuiltIns().getFunctionType(
                 Annotations.EMPTY,
                 receiverParameter == null ? null : receiverParameter.getType(),
                 ExpressionTypingUtils.getValueParametersTypes(descriptor.getValueParameters()),

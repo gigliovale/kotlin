@@ -164,12 +164,17 @@ public class KotlinBuiltIns {
         public final FqName noinline = fqName("noinline");
 
         public final Set<FqNameUnsafe> primitiveTypes;
+        public final Set<FqNameUnsafe> primitiveNumberTypes;
         public final Set<FqNameUnsafe> primitiveArrays;
         {
             primitiveTypes = new HashSet<FqNameUnsafe>(0);
+            primitiveNumberTypes = new HashSet<FqNameUnsafe>(0);
             primitiveArrays = new HashSet<FqNameUnsafe>(0);
             for (PrimitiveType primitiveType : PrimitiveType.values()) {
                 primitiveTypes.add(fqNameUnsafe(primitiveType.getTypeName().asString()));
+                if (PrimitiveType.NUMBER_TYPES.contains(primitiveType)) {
+                    primitiveNumberTypes.add(fqNameUnsafe(primitiveType.getTypeName().asString()));
+                }
                 primitiveArrays.add(fqNameUnsafe(primitiveType.getArrayTypeName().asString()));
             }
         }
@@ -534,6 +539,11 @@ public class KotlinBuiltIns {
     }
 
     @NotNull
+    public static FqName getFqNameOfString() {
+        return FQ_NAMES.string.toSafe();
+    }
+
+    @NotNull
     public static FqName getFqNameOfNoinline() {
         return FQ_NAMES.noinline;
     }
@@ -870,6 +880,10 @@ public class KotlinBuiltIns {
     public static boolean isSpecialClassWithNoSupertypes(@NotNull ClassDescriptor descriptor) {
         FqNameUnsafe fqName = DescriptorUtils.getFqName(descriptor);
         return FQ_NAMES.any.equals(fqName) || FQ_NAMES.nothing.equals(fqName);
+    }
+
+    public static boolean isPrimitiveNumberClass(@NotNull ClassDescriptor descriptor) {
+        return FQ_NAMES.primitiveNumberTypes.contains(DescriptorUtils.getFqName(descriptor));
     }
 
     public static boolean isAny(@NotNull ClassDescriptor descriptor) {

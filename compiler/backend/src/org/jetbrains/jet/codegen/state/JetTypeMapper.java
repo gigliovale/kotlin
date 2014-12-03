@@ -71,10 +71,16 @@ import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 public class JetTypeMapper {
     private final BindingContext bindingContext;
     private final ClassBuilderMode classBuilderMode;
+    private final KotlinBuiltIns builtIns;
 
-    public JetTypeMapper(@NotNull BindingContext bindingContext, @NotNull ClassBuilderMode classBuilderMode) {
+    public JetTypeMapper(
+            @NotNull BindingContext bindingContext,
+            @NotNull ClassBuilderMode classBuilderMode,
+            @NotNull KotlinBuiltIns builtIns
+    ) {
         this.bindingContext = bindingContext;
         this.classBuilderMode = classBuilderMode;
+        this.builtIns = builtIns;
     }
 
     @NotNull
@@ -159,7 +165,7 @@ public class JetTypeMapper {
     private Type mapReturnType(@NotNull CallableDescriptor descriptor, @Nullable BothSignatureWriter sw) {
         JetType returnType = descriptor.getReturnType();
         assert returnType != null : "Function has no return type: " + descriptor;
-        if (returnType.equals(KotlinBuiltIns.getInstance().getUnitType())
+        if (returnType.equals(builtIns.getUnitType())
             && !TypeUtils.isNullableType(returnType)
             && !(descriptor instanceof PropertyGetterDescriptor)) {
             if (sw != null) {
@@ -818,8 +824,8 @@ public class JetTypeMapper {
 
         ClassDescriptor containingDeclaration = descriptor.getContainingDeclaration();
         if (containingDeclaration.getKind() == ClassKind.ENUM_CLASS || containingDeclaration.getKind() == ClassKind.ENUM_ENTRY) {
-            writeParameter(sw, JvmMethodParameterKind.ENUM_NAME_OR_ORDINAL, KotlinBuiltIns.getInstance().getStringType());
-            writeParameter(sw, JvmMethodParameterKind.ENUM_NAME_OR_ORDINAL, KotlinBuiltIns.getInstance().getIntType());
+            writeParameter(sw, JvmMethodParameterKind.ENUM_NAME_OR_ORDINAL, builtIns.getStringType());
+            writeParameter(sw, JvmMethodParameterKind.ENUM_NAME_OR_ORDINAL, builtIns.getIntType());
         }
 
         if (closure == null) return;

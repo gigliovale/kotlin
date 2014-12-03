@@ -177,7 +177,7 @@ public class PropertyCodegen {
             if (defaultValue != null) {
                 CompileTimeConstant<?> constant = ExpressionCodegen.getCompileTimeConstant(defaultValue, bindingContext);
                 assert constant != null : "Default value for annotation parameter should be compile time value: " + defaultValue.getText();
-                AnnotationCodegen annotationCodegen = AnnotationCodegen.forAnnotationDefaultValue(mv, typeMapper);
+                AnnotationCodegen annotationCodegen = AnnotationCodegen.forAnnotationDefaultValue(mv, context.getBuiltIns(), typeMapper);
                 annotationCodegen.generateAnnotationDefaultValue(constant, descriptor.getType());
             }
         }
@@ -214,7 +214,7 @@ public class PropertyCodegen {
         if (!isTrait(context.getContextDescriptor()) || kind == OwnerKind.TRAIT_IMPL) {
             int flags = ACC_DEPRECATED | ACC_FINAL | ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC;
             MethodVisitor mv = v.newMethod(OtherOrigin(descriptor), flags, name, desc, null, null);
-            AnnotationCodegen.forMethod(mv, typeMapper).genAnnotations(descriptor, Type.VOID_TYPE);
+            AnnotationCodegen.forMethod(mv, context.getBuiltIns(), typeMapper).genAnnotations(descriptor, Type.VOID_TYPE);
             mv.visitCode();
             mv.visitInsn(Opcodes.RETURN);
             mv.visitEnd();
@@ -275,7 +275,7 @@ public class PropertyCodegen {
 
         FieldVisitor fv = builder.newField(OtherOrigin(element, propertyDescriptor), modifiers, name, type.getDescriptor(),
                                                 typeMapper.mapFieldSignature(jetType), defaultValue);
-        AnnotationCodegen.forField(fv, typeMapper).genAnnotations(propertyDescriptor, type);
+        AnnotationCodegen.forField(fv, context.getBuiltIns(), typeMapper).genAnnotations(propertyDescriptor, type);
     }
 
     private void generatePropertyDelegateAccess(JetProperty p, PropertyDescriptor propertyDescriptor) {

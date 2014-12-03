@@ -20,9 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +87,7 @@ public class PropertySetterDescriptorImpl extends PropertyAccessorDescriptorImpl
     @NotNull
     @Override
     public JetType getReturnType() {
-        return KotlinBuiltIns.getInstance().getUnitType();
+        return DescriptorUtilPackage.getBuiltIns(getContainingDeclaration()).getUnitType();
     }
 
     @Override

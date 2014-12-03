@@ -29,8 +29,8 @@ public class FloatValue extends CompileTimeConstant<Float> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getFloatType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getFloatType();
     }
 
     @Override

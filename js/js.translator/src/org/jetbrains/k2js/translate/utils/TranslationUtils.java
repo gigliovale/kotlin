@@ -27,7 +27,6 @@ import org.jetbrains.jet.lang.psi.*;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeProjection;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.k2js.translate.context.TemporaryConstVariable;
 import org.jetbrains.k2js.translate.context.TranslationContext;
 import org.jetbrains.k2js.translate.general.Translation;
@@ -255,7 +254,7 @@ public final class TranslationUtils {
 
         JetType returnType = operationDescriptor.getReturnType();
         if (returnType != null &&
-            KotlinBuiltIns.getInstance().getCharType().equals(returnType) || (KotlinBuiltIns.getInstance().getLongType().equals(returnType))) return false;
+            context.getBuiltIns().getCharType().equals(returnType) || (context.getBuiltIns().getLongType().equals(returnType))) return false;
 
         if (context.intrinsics().getFunctionIntrinsics().getIntrinsic((FunctionDescriptor) operationDescriptor).exists()) return true;
 

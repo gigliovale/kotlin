@@ -42,7 +42,7 @@ import static org.jetbrains.k2js.translate.utils.AnnotationsUtils.isNativeObject
 public final class JsDescriptorUtils {
     // TODO: maybe we should use external annotations or something else.
     private static final Set<String> FAKE_CLASSES = ContainerUtil.immutableSet(
-            getFqNameSafe(KotlinBuiltIns.getInstance().getAny()).asString()
+            KotlinBuiltIns.getFqNameOfAny().asString()
     );
 
     private JsDescriptorUtils() {
@@ -152,7 +152,8 @@ public final class JsDescriptorUtils {
 
     public static boolean isBuiltin(@NotNull DeclarationDescriptor descriptor) {
         PackageFragmentDescriptor containingPackageFragment = DescriptorUtils.getParentOfType(descriptor, PackageFragmentDescriptor.class);
-        return containingPackageFragment == KotlinBuiltIns.getInstance().getBuiltInsPackageFragment();
+        ModuleDescriptor module = DescriptorUtils.getContainingModule(descriptor);
+        return containingPackageFragment == module.getBuiltIns().getBuiltInsPackageFragment();
     }
 
     @Nullable
@@ -164,7 +165,7 @@ public final class JsDescriptorUtils {
     @Nullable
     public static Name getNameIfStandardType(@NotNull JetType type) {
         ClassifierDescriptor descriptor = type.getConstructor().getDeclarationDescriptor();
-        if (descriptor != null && descriptor.getContainingDeclaration() == KotlinBuiltIns.getInstance().getBuiltInsPackageFragment()) {
+        if (descriptor != null && isBuiltin(descriptor)) {
             return descriptor.getName();
         }
 

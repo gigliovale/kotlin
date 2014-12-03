@@ -34,15 +34,15 @@ public class IntegerValueTypeConstructor implements TypeConstructor {
     private final long value;
     private final Collection<JetType> supertypes = new ArrayList<JetType>(4);
 
-    public IntegerValueTypeConstructor(long value) {
+    public IntegerValueTypeConstructor(@NotNull KotlinBuiltIns builtIns, long value) {
         // order of types matters
         // 'getPrimitiveNumberType' returns first of supertypes that is a subtype of expected type
         // for expected type 'Any' result type 'Int' should be returned
         this.value = value;
-        checkBoundsAndAddSuperType(value, (long) Integer.MIN_VALUE, (long) Integer.MAX_VALUE, KotlinBuiltIns.getInstance().getIntType());
-        checkBoundsAndAddSuperType(value, (long) Byte.MIN_VALUE, (long) Byte.MAX_VALUE, KotlinBuiltIns.getInstance().getByteType());
-        checkBoundsAndAddSuperType(value, (long) Short.MIN_VALUE, (long) Short.MAX_VALUE, KotlinBuiltIns.getInstance().getShortType());
-        supertypes.add(KotlinBuiltIns.getInstance().getLongType());
+        checkBoundsAndAddSuperType(value, (long) Integer.MIN_VALUE, (long) Integer.MAX_VALUE, builtIns.getIntType());
+        checkBoundsAndAddSuperType(value, (long) Byte.MIN_VALUE, (long) Byte.MAX_VALUE, builtIns.getByteType());
+        checkBoundsAndAddSuperType(value, (long) Short.MIN_VALUE, (long) Short.MAX_VALUE, builtIns.getShortType());
+        supertypes.add(builtIns.getLongType());
     }
 
     private void checkBoundsAndAddSuperType(long value, long minValue, long maxValue, JetType kotlinType) {

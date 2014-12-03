@@ -34,6 +34,7 @@ import org.jetbrains.jet.resolve.constraintSystem.AbstractConstraintSystemTest.M
 import java.util.ArrayList
 import java.util.LinkedHashMap
 import org.jetbrains.jet.lang.resolve.lazy.JvmResolveUtil
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 abstract public class AbstractConstraintSystemTest() : JetLiteFixture() {
     private val typePattern = """([\w|<|>|\(|\)]+)"""
@@ -82,7 +83,7 @@ abstract public class AbstractConstraintSystemTest() : JetLiteFixture() {
         val file = File(filePath)
         val fileText = JetTestUtils.doLoadFile(file)!!
 
-        val constraintSystem = ConstraintSystemImpl()
+        val constraintSystem = ConstraintSystemImpl(KotlinBuiltIns.getInstance())
 
         val typeParameterDescriptors = LinkedHashMap<TypeParameterDescriptor, Variance>()
         val variables = parseVariables(fileText)

@@ -22,12 +22,12 @@ import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.resolve.DescriptorFactory;
 import org.jetbrains.jet.lang.resolve.OverridingUtil;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.DescriptorSubstitutor;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeSubstitutor;
 import org.jetbrains.jet.lang.types.Variance;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.*;
 
@@ -263,7 +263,7 @@ public class PropertyDescriptorImpl extends VariableDescriptorImpl implements Pr
                 // it can not be assigned to because of the projection
                 substitutedDescriptor.setSetterProjectedOut(true);
                 substitutedValueParameters = Collections.<ValueParameterDescriptor>singletonList(
-                        PropertySetterDescriptorImpl.createSetterParameter(newSetter, KotlinBuiltIns.getInstance().getNothingType())
+                        PropertySetterDescriptorImpl.createSetterParameter(newSetter, DescriptorUtilPackage.getBuiltIns(newOwner).getNothingType())
                 );
             }
             if (substitutedValueParameters.size() != 1) {

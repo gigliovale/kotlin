@@ -29,8 +29,8 @@ public class StringValue extends CompileTimeConstant<String> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getStringType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getStringType();
     }
 
     @Override

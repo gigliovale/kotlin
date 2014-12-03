@@ -57,7 +57,7 @@ public abstract class ErrorValue extends CompileTimeConstant<Void> {
 
         @NotNull
         @Override
-        public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
+        public JetType getType(@NotNull KotlinBuiltIns builtIns) {
             return ErrorUtils.createErrorType(message);
         }
 

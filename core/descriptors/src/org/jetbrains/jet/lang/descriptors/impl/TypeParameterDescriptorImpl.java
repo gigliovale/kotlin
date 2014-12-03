@@ -22,12 +22,12 @@ import org.jetbrains.jet.lang.descriptors.SourceElement;
 import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeConstructor;
 import org.jetbrains.jet.lang.types.TypeConstructorImpl;
 import org.jetbrains.jet.lang.types.Variance;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.LockBasedStorageManager;
 
 import java.util.Collections;
@@ -45,7 +45,7 @@ public class TypeParameterDescriptorImpl extends AbstractTypeParameterDescriptor
     ) {
         TypeParameterDescriptorImpl typeParameterDescriptor =
                 createForFurtherModification(containingDeclaration, annotations, reified, variance, name, index, SourceElement.NO_SOURCE);
-        typeParameterDescriptor.addUpperBound(KotlinBuiltIns.getInstance().getDefaultBound());
+        typeParameterDescriptor.addUpperBound(DescriptorUtilPackage.getBuiltIns(containingDeclaration).getDefaultBound());
         typeParameterDescriptor.setInitialized();
         return typeParameterDescriptor;
     }
@@ -125,7 +125,7 @@ public class TypeParameterDescriptorImpl extends AbstractTypeParameterDescriptor
         checkUninitialized();
 
         if (upperBounds.isEmpty()) {
-            doAddUpperBound(KotlinBuiltIns.getInstance().getDefaultBound());
+            doAddUpperBound(DescriptorUtilPackage.getBuiltIns(this).getDefaultBound());
         }
     }
 

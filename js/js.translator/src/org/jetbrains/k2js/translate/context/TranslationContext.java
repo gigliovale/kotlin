@@ -28,6 +28,7 @@ import org.jetbrains.jet.lang.psi.JetExpression;
 import org.jetbrains.jet.lang.reflect.ReflectionTypes;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.name.FqName;
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.k2js.config.Config;
 import org.jetbrains.k2js.translate.intrinsic.Intrinsics;
 import org.jetbrains.k2js.translate.utils.TranslationUtils;
@@ -48,6 +49,8 @@ public class TranslationContext {
     private final StaticContext staticContext;
     @NotNull
     private final AliasingContext aliasingContext;
+    @NotNull
+    private final KotlinBuiltIns builtIns;
     @Nullable
     private final UsageTracker usageTracker;
     @Nullable
@@ -78,6 +81,7 @@ public class TranslationContext {
         this.aliasingContext = aliasingContext;
         this.usageTracker = usageTracker;
         this.definitionPlace = definitionPlace;
+        this.builtIns = KotlinBuiltIns.getInstance(); // TODO: inject
     }
 
     @Nullable
@@ -263,6 +267,11 @@ public class TranslationContext {
     @NotNull
     public AliasingContext aliasingContext() {
         return aliasingContext;
+    }
+
+    @NotNull
+    public KotlinBuiltIns getBuiltIns() {
+        return builtIns;
     }
 
     @NotNull

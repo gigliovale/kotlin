@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.impl.AnonymousFunctionDescriptor;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -317,7 +318,7 @@ public class DescriptorUtils {
     }
 
     public static boolean isAny(@NotNull DeclarationDescriptor superClassDescriptor) {
-        return superClassDescriptor.equals(KotlinBuiltIns.getInstance().getAny());
+        return superClassDescriptor.equals(DescriptorUtilPackage.getBuiltIns(superClassDescriptor).getAny());
     }
 
     public static boolean isSyntheticClassObject(@NotNull DeclarationDescriptor descriptor) {
@@ -409,7 +410,7 @@ public class DescriptorUtils {
 
         if (type instanceof LazyType || type.isMarkedNullable()) return true;
 
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
+        KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(variable);
         return KotlinBuiltIns.isPrimitiveType(type) ||
                JetTypeChecker.DEFAULT.equalTypes(builtIns.getStringType(), type) ||
                JetTypeChecker.DEFAULT.equalTypes(builtIns.getNumber().getDefaultType(), type) ||

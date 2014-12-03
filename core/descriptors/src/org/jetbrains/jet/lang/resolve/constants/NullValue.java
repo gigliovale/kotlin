@@ -31,8 +31,8 @@ public class NullValue extends CompileTimeConstant<Void> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return KotlinBuiltIns.getInstance().getNullableNothingType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getNullableNothingType();
     }
 
     @Override

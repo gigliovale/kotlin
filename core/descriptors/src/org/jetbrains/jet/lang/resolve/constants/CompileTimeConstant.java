@@ -64,7 +64,7 @@ public abstract class CompileTimeConstant<T> {
     }
 
     @NotNull
-    public abstract JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns);
+    public abstract JetType getType(@NotNull KotlinBuiltIns builtIns);
 
     public abstract <R, D> R accept(AnnotationArgumentVisitor<R, D> visitor, D data);
 }

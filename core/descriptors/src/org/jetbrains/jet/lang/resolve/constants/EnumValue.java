@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.resolve.constants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
 import org.jetbrains.jet.lang.descriptors.annotations.AnnotationArgumentVisitor;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
@@ -30,7 +31,7 @@ public class EnumValue extends CompileTimeConstant<ClassDescriptor> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
         JetType type = value.getClassObjectType();
         assert type != null : "Enum entry should have a class object: " + value;
         return type;
@@ -51,7 +52,7 @@ public class EnumValue extends CompileTimeConstant<ClassDescriptor> {
 
     @Override
     public String toString() {
-        return getType(KotlinBuiltIns.getInstance()) + "." + value.getName();
+        return getType(DescriptorUtilPackage.getBuiltIns(value)) + "." + value.getName();
     }
 
     @Override

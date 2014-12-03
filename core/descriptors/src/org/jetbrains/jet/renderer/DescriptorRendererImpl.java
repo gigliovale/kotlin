@@ -30,6 +30,7 @@ import org.jetbrains.jet.lang.resolve.constants.AnnotationValue;
 import org.jetbrains.jet.lang.resolve.constants.ArrayValue;
 import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant;
 import org.jetbrains.jet.lang.resolve.constants.JavaClassValue;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.FqName;
 import org.jetbrains.jet.lang.resolve.name.FqNameBase;
 import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe;
@@ -38,6 +39,7 @@ import org.jetbrains.jet.lang.types.*;
 import org.jetbrains.jet.lang.types.ErrorUtils.UninferredParameterTypeConstructor;
 import org.jetbrains.jet.lang.types.error.MissingDependencyErrorClass;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.jet.lang.types.typeUtil.TypeUtilPackage;
 import org.jetbrains.jet.utils.UtilsPackage;
 
 import java.util.*;
@@ -546,9 +548,10 @@ public class DescriptorRendererImpl implements DescriptorRenderer {
     private List<String> renderAndSortAnnotationArguments(@NotNull AnnotationDescriptor descriptor) {
         Set<Map.Entry<ValueParameterDescriptor, CompileTimeConstant<?>>> valueArguments = descriptor.getAllValueArguments().entrySet();
         List<String> resultList = new ArrayList<String>(valueArguments.size());
+        KotlinBuiltIns builtIns = TypeUtilPackage.getBuiltIns(descriptor.getType());
         for (Map.Entry<ValueParameterDescriptor, CompileTimeConstant<?>> entry : valueArguments) {
             CompileTimeConstant<?> value = entry.getValue();
-            String typeSuffix = ": " + renderType(value.getType(KotlinBuiltIns.getInstance()));
+            String typeSuffix = ": " + renderType(value.getType(builtIns));
             resultList.add(entry.getKey().getName().asString() + " = " + renderConstant(value) + typeSuffix);
         }
         Collections.sort(resultList);
@@ -678,17 +681,20 @@ public class DescriptorRendererImpl implements DescriptorRenderer {
             builder.append(renderKeyword(variance)).append(" ");
         }
         renderName(typeParameter, builder);
+
+        KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(typeParameter);
+
         int upperBoundsCount = typeParameter.getUpperBounds().size();
         if ((upperBoundsCount > 1 && !topLevel) || upperBoundsCount == 1) {
             JetType upperBound = typeParameter.getUpperBounds().iterator().next();
-            if (!KotlinBuiltIns.getInstance().getDefaultBound().equals(upperBound)) {
+            if (!builtIns.getDefaultBound().equals(upperBound)) {
                 builder.append(" : ").append(renderType(upperBound));
             }
         }
         else if (topLevel) {
             boolean first = true;
             for (JetType upperBound : typeParameter.getUpperBounds()) {
-                if (upperBound.equals(KotlinBuiltIns.getInstance().getDefaultBound())) {
+                if (upperBound.equals(builtIns.getDefaultBound())) {
                     continue;
                 }
                 if (first) {
@@ -960,7 +966,7 @@ public class DescriptorRendererImpl implements DescriptorRenderer {
     private void renderSuperTypes(@NotNull ClassDescriptor klass, @NotNull StringBuilder builder) {
         if (withoutSuperTypes) return;
 
-        if (!klass.equals(KotlinBuiltIns.getInstance().getNothing())) {
+        if (!klass.equals(DescriptorUtilPackage.getBuiltIns(klass).getNothing())) {
             Collection<JetType> supertypes = klass.getTypeConstructor().getSupertypes();
 
             if (supertypes.isEmpty() ||

@@ -29,8 +29,8 @@ public class IntValue extends IntegerValueConstant<Integer> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getIntType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getIntType();
     }
 
     @Override

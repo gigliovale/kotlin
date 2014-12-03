@@ -43,6 +43,7 @@ public class ConstraintSystemImpl implements ConstraintSystem {
         SUB_TYPE, EQUAL
     }
 
+    private final KotlinBuiltIns builtIns;
     private final Map<TypeParameterDescriptor, TypeBoundsImpl> typeParameterBounds =
             new LinkedHashMap<TypeParameterDescriptor, TypeBoundsImpl>();
     private final Set<ConstraintPosition> errorConstraintPositions = new HashSet<ConstraintPosition>();
@@ -139,6 +140,10 @@ public class ConstraintSystemImpl implements ConstraintSystem {
         return substitutionContext;
     }
 
+    public ConstraintSystemImpl(@NotNull KotlinBuiltIns builtIns) {
+        this.builtIns = builtIns;
+    }
+
     private TypeSubstitutor replaceUninferredBy(@NotNull Function1<TypeParameterDescriptor, TypeProjection> getDefaultValue) {
         return TypeUtils.makeSubstitutorForTypeParametersMap(getParameterToInferredValueMap(typeParameterBounds, getDefaultValue));
     }
@@ -184,7 +189,7 @@ public class ConstraintSystemImpl implements ConstraintSystem {
             TypeBoundsImpl typeBounds = entry.getValue();
 
             for (JetType declaredUpperBound : typeVariable.getUpperBounds()) {
-                if (KotlinBuiltIns.getInstance().getNullableAnyType().equals(declaredUpperBound)) continue; //todo remove this line (?)
+                if (builtIns.getNullableAnyType().equals(declaredUpperBound)) continue; //todo remove this line (?)
                 JetType substitutedBound = constantSubstitutor.substitute(declaredUpperBound, Variance.INVARIANT);
                 if (substitutedBound != null) {
                     typeBounds.addBound(UPPER_BOUND, substitutedBound, ConstraintPosition.getTypeBoundPosition(typeVariable.getIndex()));
@@ -265,7 +270,7 @@ public class ConstraintSystemImpl implements ConstraintSystem {
             @NotNull Function1<TypeBoundsImpl, TypeBoundsImpl> replaceTypeBounds,
             @NotNull Function1<ConstraintPosition, Boolean> filterConstraintPosition
     ) {
-        ConstraintSystemImpl newSystem = new ConstraintSystemImpl();
+        ConstraintSystemImpl newSystem = new ConstraintSystemImpl(builtIns);
         for (Map.Entry<TypeParameterDescriptor, TypeBoundsImpl> entry : typeParameterBounds.entrySet()) {
             TypeParameterDescriptor typeParameter = entry.getKey();
             TypeBoundsImpl typeBounds = entry.getValue();
@@ -520,7 +525,7 @@ public class ConstraintSystemImpl implements ConstraintSystem {
     }
 
     @NotNull
-    public static JetType createCorrespondingExtensionFunctionType(@NotNull JetType functionType, @NotNull JetType receiverType) {
+    private JetType createCorrespondingExtensionFunctionType(@NotNull JetType functionType, @NotNull JetType receiverType) {
         assert KotlinBuiltIns.isFunctionType(functionType);
 
         List<TypeProjection> typeArguments = functionType.getArguments();
@@ -537,6 +542,6 @@ public class ConstraintSystemImpl implements ConstraintSystem {
             index++;
         }
         JetType returnType = typeArguments.get(lastIndex).getType();
-        return KotlinBuiltIns.getInstance().getFunctionType(functionType.getAnnotations(), receiverType, arguments, returnType);
+        return builtIns.getFunctionType(functionType.getAnnotations(), receiverType, arguments, returnType);
     }
 }

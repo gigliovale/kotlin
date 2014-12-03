@@ -28,6 +28,7 @@ import org.jetbrains.jet.lang.resolve.calls.inference.ConstraintPosition
 import org.jetbrains.jet.lang.resolve.calls.inference.ConstraintsUtil
 import org.jetbrains.jet.lang.types.TypeSubstitutor
 import org.jetbrains.jet.lang.types.typeUtil.isSubtypeOf
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 fun CallableDescriptor.fuzzyReturnType(): FuzzyType? {
     val returnType = getReturnType() ?: return null
@@ -87,7 +88,7 @@ class FuzzyType(
             return if (type.checkInheritance(otherType)) TypeSubstitutor.EMPTY else null
         }
 
-        val constraintSystem = ConstraintSystemImpl()
+        val constraintSystem = ConstraintSystemImpl(KotlinBuiltIns.getInstance())
         val typeVariables = LinkedHashMap<TypeParameterDescriptor, Variance>()
         for (typeParameter in freeParameters) {
             if (typeParameter in usedTypeParameters) {

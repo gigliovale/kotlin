@@ -29,8 +29,8 @@ public class CharValue extends IntegerValueConstant<Character> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getCharType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getCharType();
     }
 
     @Override

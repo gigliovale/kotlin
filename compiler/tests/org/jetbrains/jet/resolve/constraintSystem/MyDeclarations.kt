@@ -28,6 +28,7 @@ import java.util.regex.Pattern
 import org.jetbrains.jet.lang.resolve.constants.IntegerValueTypeConstructor
 import org.jetbrains.jet.lang.types.JetTypeImpl
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 public class MyDeclarations(
         context: BindingContext,
@@ -67,7 +68,7 @@ public class MyDeclarations(
         val matcher = INTEGER_VALUE_TYPE_PATTERN.matcher(name)
         if (matcher.find()) {
             val number = matcher.group(1)!!
-            return JetTypeImpl(Annotations.EMPTY, IntegerValueTypeConstructor(number.toLong()), false, listOf(), JetScope.Empty)
+            return JetTypeImpl(Annotations.EMPTY, IntegerValueTypeConstructor(functionFoo.builtIns, number.toLong()), false, listOf(), JetScope.Empty)
         }
         return typeResolver.resolveType(
             scopeToResolveTypeParameters, JetPsiFactory(project).createType(name),

@@ -29,8 +29,8 @@ public class BooleanValue extends CompileTimeConstant<Boolean> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getBooleanType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getBooleanType();
     }
 
     @Override

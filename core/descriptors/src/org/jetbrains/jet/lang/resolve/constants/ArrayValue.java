@@ -47,7 +47,7 @@ public class ArrayValue extends CompileTimeConstant<List<CompileTimeConstant<?>>
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
         return type;
     }
 

@@ -29,8 +29,8 @@ public class LongValue extends IntegerValueConstant<Long> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getLongType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getLongType();
     }
 
     @Override

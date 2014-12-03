@@ -21,10 +21,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.descriptors.impl.*;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ExtensionReceiver;
 import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.Collections;
 
@@ -89,7 +89,7 @@ public class DescriptorFactory {
                                                     CallableMemberDescriptor.Kind.SYNTHESIZED, enumClass.getSource());
         return values.initialize(null, NO_RECEIVER_PARAMETER, Collections.<TypeParameterDescriptor>emptyList(),
                                  Collections.<ValueParameterDescriptor>emptyList(),
-                                 KotlinBuiltIns.getInstance().getArrayType(enumClass.getDefaultType()), Modality.FINAL,
+                                 DescriptorUtilPackage.getBuiltIns(enumClass).getArrayType(enumClass.getDefaultType()), Modality.FINAL,
                                  Visibilities.PUBLIC);
     }
 
@@ -99,7 +99,9 @@ public class DescriptorFactory {
                 SimpleFunctionDescriptorImpl.create(enumClass, Annotations.EMPTY, DescriptorUtils.ENUM_VALUE_OF,
                                                     CallableMemberDescriptor.Kind.SYNTHESIZED, enumClass.getSource());
         ValueParameterDescriptor parameterDescriptor = new ValueParameterDescriptorImpl(
-                valueOf, null, 0, Annotations.EMPTY, Name.identifier("value"), KotlinBuiltIns.getInstance().getStringType(), false, null,
+                valueOf, null, 0, Annotations.EMPTY, Name.identifier("value"),
+                DescriptorUtilPackage.getBuiltIns(enumClass).getStringType(),
+                false, null,
                 enumClass.getSource()
         );
         return valueOf.initialize(null, NO_RECEIVER_PARAMETER, Collections.<TypeParameterDescriptor>emptyList(),

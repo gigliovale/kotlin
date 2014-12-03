@@ -29,14 +29,14 @@ public class IntegerValueTypeConstant extends IntegerValueConstant<Number> {
 
     private final IntegerValueTypeConstructor typeConstructor;
 
-    public IntegerValueTypeConstant(@NotNull Number value, boolean canBeUsedInAnnotations, boolean usesVariableAsConstant) {
+    public IntegerValueTypeConstant(@NotNull KotlinBuiltIns builtIns, @NotNull Number value, boolean canBeUsedInAnnotations, boolean usesVariableAsConstant) {
         super(value, canBeUsedInAnnotations, true, usesVariableAsConstant);
-        this.typeConstructor = new IntegerValueTypeConstructor(value.longValue());
+        this.typeConstructor = new IntegerValueTypeConstructor(builtIns, value.longValue());
     }
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
         return new JetTypeImpl(
                 Annotations.EMPTY, typeConstructor,
                 false, Collections.<TypeProjection>emptyList(),

@@ -29,18 +29,19 @@ import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.constants.ArrayValue;
 import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant;
 import org.jetbrains.jet.lang.resolve.constants.EnumValue;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 
 import java.util.List;
 
 public class InlineUtil {
 
     public static boolean hasNoinlineAnnotation(@NotNull CallableDescriptor valueParameterDescriptor) {
-        return KotlinBuiltIns.containsAnnotation(valueParameterDescriptor, KotlinBuiltIns.getNoinlineClassAnnotationFqName());
+        return KotlinBuiltIns.containsAnnotation(valueParameterDescriptor, KotlinBuiltIns.getFqNameOfNoinline());
     }
 
     @NotNull
     public static InlineStrategy getInlineType(@NotNull DeclarationDescriptor descriptor) {
-        ClassDescriptor inlineAnnotation = KotlinBuiltIns.getInstance().getInlineClassAnnotation();
+        ClassDescriptor inlineAnnotation = DescriptorUtilPackage.getBuiltIns(descriptor).getInlineClassAnnotation();
         AnnotationDescriptor annotation = descriptor.getAnnotations().findAnnotation(DescriptorUtils.getFqNameSafe(inlineAnnotation));
         if (annotation == null) {
             return InlineStrategy.NOT_INLINE;
@@ -64,7 +65,7 @@ public class InlineUtil {
 
     private static boolean hasInlineOption(@NotNull ValueParameterDescriptor descriptor, @NotNull InlineOption option) {
         CompileTimeConstant<?> argument =
-                getAnnotationSingleArgument(descriptor, KotlinBuiltIns.getInstance().getInlineOptionsClassAnnotation());
+                getAnnotationSingleArgument(descriptor, DescriptorUtilPackage.getBuiltIns(descriptor).getInlineOptionsClassAnnotation());
 
         if (argument instanceof ArrayValue) {
             List<CompileTimeConstant<?>> values = ((ArrayValue) argument).getValue();

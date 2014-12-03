@@ -117,7 +117,7 @@ class CatchTranslator(
             val jetType = getNotNull(bindingContext(), BindingContext.TYPE, this)
             val jetTypeName = TranslationUtils.getJetTypeFqName(jetType, false)
 
-            val throwable = KotlinBuiltIns.getInstance().getThrowable()
+            val throwable = context().getBuiltIns().getThrowable()
             val throwableClassName = DescriptorUtils.getFqNameSafe(throwable).asString()
 
             return jetTypeName == throwableClassName

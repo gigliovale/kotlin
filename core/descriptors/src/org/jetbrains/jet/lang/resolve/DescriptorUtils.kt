@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.resolve.descriptorUtil
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.lang.descriptors.ClassKind.*
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 public fun ClassDescriptor.getClassObjectReferenceTarget(): ClassDescriptor {
     val classObjectDescriptor = getClassObjectDescriptor()
@@ -35,3 +36,6 @@ public val DeclarationDescriptor.isExtension: Boolean
 
 public val DeclarationDescriptor.module: ModuleDescriptor
     get() = DescriptorUtils.getContainingModule(this)
+
+public val DeclarationDescriptor.builtIns: KotlinBuiltIns
+    get() = module.builtIns

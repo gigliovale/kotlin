@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.types.checker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.types.*;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
@@ -59,7 +60,7 @@ public class TypeCheckingProcedure {
 
     public static JetType getInType(TypeParameterDescriptor parameter, TypeProjection argument) {
         boolean isOutProjected = argument.getProjectionKind() == OUT_VARIANCE || parameter.getVariance() == OUT_VARIANCE;
-        return isOutProjected ? KotlinBuiltIns.getInstance().getNothingType() : argument.getType();
+        return isOutProjected ? DescriptorUtilPackage.getBuiltIns(parameter).getNothingType() : argument.getType();
     }
 
     private final TypingConstraints constraints;

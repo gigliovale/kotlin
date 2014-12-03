@@ -29,8 +29,8 @@ public class ByteValue extends IntegerValueConstant<Byte> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getByteType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getByteType();
     }
 
     @Override

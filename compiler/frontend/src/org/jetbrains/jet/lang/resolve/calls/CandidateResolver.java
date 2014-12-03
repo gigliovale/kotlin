@@ -40,6 +40,7 @@ import org.jetbrains.jet.lang.resolve.calls.smartcasts.SmartCastUtils;
 import org.jetbrains.jet.lang.resolve.calls.tasks.ResolutionTask;
 import org.jetbrains.jet.lang.resolve.calls.tasks.TaskPrioritizer;
 import org.jetbrains.jet.lang.resolve.calls.util.FakeCallableDescriptorForObject;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.lazy.ForceResolveUtil;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ReceiverValue;
@@ -295,7 +296,9 @@ public class CandidateResolver {
         MutableResolvedCall<D> candidateCall = context.candidateCall;
         final D candidate = candidateCall.getCandidateDescriptor();
 
-        ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl();
+        ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl(
+                DescriptorUtilPackage.getBuiltIns(context.scope.getContainingDeclaration())
+        );
 
         // If the call is recursive, e.g.
         //   fun foo<T>(t : T) : T = foo(t)

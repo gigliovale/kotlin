@@ -29,8 +29,8 @@ public class DoubleValue extends CompileTimeConstant<Double> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getDoubleType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getDoubleType();
     }
 
     @Override

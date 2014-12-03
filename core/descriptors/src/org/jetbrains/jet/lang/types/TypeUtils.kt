@@ -26,6 +26,8 @@ import org.jetbrains.jet.lang.types.Flexibility
 import org.jetbrains.jet.lang.types.TypeConstructor
 import org.jetbrains.jet.utils.toReadOnlyList
 import org.jetbrains.jet.lang.types.checker.JetTypeChecker
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 fun JetType.getContainedTypeParameters(): Collection<TypeParameterDescriptor> {
     val declarationDescriptor = getConstructor().getDeclarationDescriptor()
@@ -62,4 +64,6 @@ public fun JetType.getContainedAndCapturedTypeParameterConstructors(): Collectio
 
 public fun JetType.isSubtypeOf(superType: JetType): Boolean = JetTypeChecker.DEFAULT.isSubtypeOf(this, superType)
 
-
+val JetType.builtIns: KotlinBuiltIns
+    get() = getConstructor().getDeclarationDescriptor()?.builtIns
+                ?: throw IllegalArgumentException("Declaration descriptor not found for $this")

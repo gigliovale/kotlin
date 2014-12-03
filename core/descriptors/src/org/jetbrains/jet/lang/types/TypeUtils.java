@@ -280,7 +280,7 @@ public class TypeUtils {
             };
             processAllTypeParameters(withParameters, Variance.INVARIANT, processor);
             processAllTypeParameters(expected, Variance.INVARIANT, processor);
-            ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl();
+            ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl(KotlinBuiltIns.getInstance());
             constraintSystem.registerTypeVariables(parameters);
             constraintSystem.addSubtypeConstraint(withParameters, expected, ConstraintPosition.SPECIAL);
 

@@ -348,11 +348,6 @@ public class KotlinBuiltIns {
     }
 
     @NotNull
-    public static FqName getNoinlineClassAnnotationFqName() {
-        return FQ_NAMES.noinline;
-    }
-
-    @NotNull
     public ClassDescriptor getInlineClassAnnotation() {
         return getBuiltInClassByName("inline");
     }
@@ -525,6 +520,22 @@ public class KotlinBuiltIns {
             nonPhysicalClasses.add(getPrimitiveClassDescriptor(primitiveType));
             nonPhysicalClasses.add(getPrimitiveArrayClassDescriptor(primitiveType));
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // GET FQ-NAME
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    @NotNull
+    public static FqName getFqNameOfAny() {
+        return FQ_NAMES.any.toSafe();
+    }
+
+    @NotNull
+    public static FqName getFqNameOfNoinline() {
+        return FQ_NAMES.noinline;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

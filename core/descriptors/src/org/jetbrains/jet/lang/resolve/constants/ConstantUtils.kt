@@ -17,8 +17,9 @@
 package org.jetbrains.jet.lang.resolve.constants
 
 import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.types.TypeUtils
+import org.jetbrains.jet.lang.types.typeUtil.builtIns
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 public fun createCompileTimeConstant(
         value: Any?,
@@ -60,11 +61,11 @@ private fun getIntegerValue(
         else -> LongValue(value, canBeUsedInAnnotation, isPureIntConstant, usesVariableAsConstant)
     }
 
-    if (TypeUtils.noExpectedType(expectedType) || expectedType.isError()) {
-        return IntegerValueTypeConstant(value, canBeUsedInAnnotation, usesVariableAsConstant)
-    }
-
     val builtIns = KotlinBuiltIns.getInstance()
+
+    if (TypeUtils.noExpectedType(expectedType) || expectedType.isError()) {
+        return IntegerValueTypeConstant(builtIns, value, canBeUsedInAnnotation, usesVariableAsConstant)
+    }
 
     return when (TypeUtils.makeNotNullable(expectedType)) {
         builtIns.getLongType() -> LongValue(value, canBeUsedInAnnotation, isPureIntConstant, usesVariableAsConstant)

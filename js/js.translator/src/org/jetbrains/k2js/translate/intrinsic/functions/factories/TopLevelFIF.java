@@ -29,7 +29,6 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.lang.types.lang.PrimitiveType;
 import org.jetbrains.k2js.translate.callTranslator.CallInfo;
 import org.jetbrains.k2js.translate.context.Namer;
@@ -212,7 +211,7 @@ public final class TopLevelFIF extends CompositeFIF {
                 }
             }
 
-            String mangledName = getStableMangledNameForDescriptor(KotlinBuiltIns.getInstance().getMutableMap(), operationName());
+            String mangledName = getStableMangledNameForDescriptor(context.getBuiltIns().getMutableMap(), operationName());
 
             return new JsInvocation(new JsNameRef(mangledName, thisOrReceiver), arguments);
         }

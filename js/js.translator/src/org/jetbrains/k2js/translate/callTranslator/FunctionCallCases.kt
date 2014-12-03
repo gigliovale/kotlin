@@ -24,7 +24,6 @@ import org.jetbrains.k2js.translate.context.Namer
 import org.jetbrains.jet.lang.descriptors.CallableDescriptor
 import com.google.dart.compiler.backend.js.ast.JsNew
 import org.jetbrains.jet.lang.descriptors.ConstructorDescriptor
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import com.google.dart.compiler.backend.js.ast.JsLiteral
 import com.google.dart.compiler.backend.js.ast.JsName
 import org.jetbrains.k2js.translate.context.TranslationContext
@@ -35,6 +34,7 @@ import com.google.dart.compiler.backend.js.ast.JsArrayAccess
 import org.jetbrains.k2js.translate.utils.JsAstUtils
 import org.jetbrains.k2js.translate.utils.AnnotationsUtils
 import org.jetbrains.k2js.PredefinedAnnotation
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 public fun addReceiverToArgs(receiver: JsExpression, arguments: List<JsExpression>): List<JsExpression> {
     if (arguments.isEmpty())
@@ -172,11 +172,13 @@ object InvokeIntrinsic : FunctionCallCase {
         val funDeclaration = callInfo.callableDescriptor.getContainingDeclaration()
 
         val reflectionTypes = callInfo.context.getReflectionTypes()
-        return if (callInfo.callableDescriptor.getExtensionReceiverParameter() == null)
-            funDeclaration == KotlinBuiltIns.getInstance().getFunction(parameterCount) ||
+        val builtIns = funDeclaration.builtIns
+        return if (callInfo.callableDescriptor.getExtensionReceiverParameter() == null) {
+            funDeclaration == builtIns.getFunction(parameterCount) ||
             funDeclaration == reflectionTypes.getKFunction(parameterCount)
+        }
         else
-            funDeclaration == KotlinBuiltIns.getInstance().getExtensionFunction(parameterCount) ||
+            funDeclaration == builtIns.getExtensionFunction(parameterCount) ||
             funDeclaration == reflectionTypes.getKExtensionFunction(parameterCount) ||
             funDeclaration == reflectionTypes.getKMemberFunction(parameterCount)
     }

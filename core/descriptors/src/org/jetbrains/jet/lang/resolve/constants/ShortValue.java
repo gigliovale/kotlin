@@ -29,8 +29,8 @@ public class ShortValue extends IntegerValueConstant<Short> {
 
     @NotNull
     @Override
-    public JetType getType(@NotNull KotlinBuiltIns kotlinBuiltIns) {
-        return kotlinBuiltIns.getShortType();
+    public JetType getType(@NotNull KotlinBuiltIns builtIns) {
+        return builtIns.getShortType();
     }
 
     @Override

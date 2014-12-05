@@ -136,15 +136,15 @@ import org.jetbrains.jet.types.AbstractJetTypeBindingTest
 import org.jetbrains.jet.plugin.debugger.evaluate.AbstractCodeFragmentCompletionHandlerTest
 import org.jetbrains.jet.plugin.coverage.AbstractKotlinCoverageOutputFilesTest
 import org.jetbrains.k2js.test.semantics.AbstractDynamicTest
-import org.jetbrains.jet.lang.resolve.android.AbstractAndroidXml2KConversionTest
-import org.jetbrains.jet.android.AbstractCrossParserTest
-import org.jetbrains.jet.lang.resolve.android.AbstractAndroidBoxTest
+import org.jetbrains.jet.android.AbstractParserResultEqualityTest
 import org.jetbrains.jet.android.AbstractAndroidCompletionTest
 import org.jetbrains.jet.android.AbstractAndroidGotoTest
 import org.jetbrains.jet.jps.build.android.AbstractAndroidJpsTestCase
 import org.jetbrains.jet.android.AbstractAndroidRenameTest
 import org.jetbrains.jet.android.AbstractAndroidFindUsagesTest
-import org.jetbrains.jet.lang.resolve.android.AbstractAndroidBytecodePersistenceTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidXml2KConversionTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBoxTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBytecodeShapeTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -702,8 +702,8 @@ fun main(args: Array<String>) {
             model("codegen/android", recursive = false, extension = null, testMethod = "doFakeInvocationTest", testClassName = "Invoke")
         }
 
-        testClass(javaClass<AbstractAndroidBytecodePersistenceTest>()) {
-            model("codegen/androidPersistence", recursive = false, extension = null)
+        testClass(javaClass<AbstractAndroidBytecodeShapeTest>()) {
+            model("codegen/bytecodeShape", recursive = false, extension = null)
         }
     }
 

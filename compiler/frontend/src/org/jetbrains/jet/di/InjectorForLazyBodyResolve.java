@@ -158,7 +158,7 @@ public class InjectorForLazyBodyResolve {
         this.callResolverExtensionProvider = new CallResolverExtensionProvider();
         this.partialBodyResolveProvider = new PartialBodyResolveProvider();
         this.candidateResolver = new CandidateResolver();
-        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver);
+        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
         this.controlFlowAnalyzer = new ControlFlowAnalyzer();
         this.declarationsChecker = new DeclarationsChecker();

@@ -113,7 +113,7 @@ public class InjectorForMacros {
         this.reflectionTypes = new ReflectionTypes(moduleDescriptor);
         this.argumentTypeResolver = new ArgumentTypeResolver();
         this.candidateResolver = new CandidateResolver();
-        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver);
+        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
 
         this.expressionTypingServices.setAnnotationResolver(annotationResolver);

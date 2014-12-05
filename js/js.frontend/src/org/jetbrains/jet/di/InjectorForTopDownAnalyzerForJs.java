@@ -165,7 +165,7 @@ public class InjectorForTopDownAnalyzerForJs {
         this.callResolverExtensionProvider = new CallResolverExtensionProvider();
         this.partialBodyResolveProvider = new PartialBodyResolveProvider();
         this.candidateResolver = new CandidateResolver();
-        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver);
+        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
         this.jetImportsFactory = new JetImportsFactory();
         this.scopeProvider = new ScopeProvider(getResolveSession());

@@ -46,9 +46,7 @@ import org.jetbrains.jet.lang.resolve.BindingContextUtils
 import org.jetbrains.jet.lang.resolve.calls.context.CallResolutionContext
 import org.jetbrains.jet.lang.types.expressions.DataFlowUtils
 import org.jetbrains.jet.lang.psi.JetExpression
-import org.jetbrains.jet.lang.psi.Call
 import org.jetbrains.jet.lang.types.expressions.ExpressionTypingUtils
-import org.jetbrains.jet.lang.psi.JetBlockExpression
 import org.jetbrains.jet.lang.psi.JetPsiUtil
 import org.jetbrains.jet.lang.psi.JetSafeQualifiedExpression
 import org.jetbrains.jet.lang.resolve.calls.CallResolverUtil.ResolveArgumentsMode.RESOLVE_FUNCTION_ARGUMENTS
@@ -56,10 +54,9 @@ import org.jetbrains.jet.lang.resolve.TemporaryBindingTrace
 import org.jetbrains.jet.lang.psi.JetQualifiedExpression
 import java.util.ArrayList
 
-public class CallCompleter(
-        val argumentTypeResolver: ArgumentTypeResolver,
-        val candidateResolver: CandidateResolver
-) {
+public class CallCompleter(val argumentTypeResolver: ArgumentTypeResolver,
+                           val candidateResolver: CandidateResolver,
+                           val builtIns: KotlinBuiltIns) {
     fun <D : CallableDescriptor> completeCall(
             context: BasicCallResolutionContext,
             results: OverloadResolutionResultsImpl<D>,
@@ -147,7 +144,7 @@ public class CallCompleter(
             if (expectedType === TypeUtils.UNIT_EXPECTED_TYPE) {
                 updateSystemIfSuccessful {
                     system ->
-                    system.addSupertypeConstraint(KotlinBuiltIns.getInstance().getUnitType(), returnType, EXPECTED_TYPE_POSITION)
+                    system.addSupertypeConstraint(builtIns.getUnitType(), returnType, EXPECTED_TYPE_POSITION)
                     system.getStatus().isSuccessful()
                 }
             }

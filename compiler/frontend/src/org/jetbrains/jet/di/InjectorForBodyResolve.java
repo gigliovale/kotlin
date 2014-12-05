@@ -133,7 +133,7 @@ public class InjectorForBodyResolve {
         this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, moduleDescriptor, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings);
         this.callResolverExtensionProvider = new CallResolverExtensionProvider();
         this.candidateResolver = new CandidateResolver();
-        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver);
+        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
         this.controlFlowAnalyzer = new ControlFlowAnalyzer();
         this.declarationsChecker = new DeclarationsChecker();

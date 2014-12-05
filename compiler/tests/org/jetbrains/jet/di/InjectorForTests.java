@@ -106,7 +106,7 @@ public class InjectorForTests {
         this.javaDeclarationCheckerProvider = JavaDeclarationCheckerProvider.INSTANCE$;
         this.argumentTypeResolver = new ArgumentTypeResolver();
         this.candidateResolver = new CandidateResolver();
-        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver);
+        this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
         this.delegatedPropertyResolver = new DelegatedPropertyResolver();
         this.controlStructureTypingUtils = new ControlStructureTypingUtils(getExpressionTypingServices());

@@ -109,6 +109,7 @@ public abstract class ChangeFunctionSignatureFix extends JetIntentionAction<PsiE
     }
 
     protected static JetParameterInfo getNewParameterInfo(
+            KotlinBuiltIns builtIns,
             BindingContext bindingContext,
             ValueArgument argument,
             JetNameValidator validator
@@ -116,7 +117,7 @@ public abstract class ChangeFunctionSignatureFix extends JetIntentionAction<PsiE
         String name = getNewArgumentName(argument, validator);
         JetExpression expression = argument.getArgumentExpression();
         JetType type = expression != null ? bindingContext.get(BindingContext.EXPRESSION_TYPE, expression) : null;
-        type = type != null ? type : KotlinBuiltIns.getInstance().getNullableAnyType();
+        type = type != null ? type : builtIns.getNullableAnyType();
         JetParameterInfo parameterInfo = new JetParameterInfo(name, type);
         parameterInfo.setTypeText(IdeDescriptorRenderers.SOURCE_CODE.renderType(type));
 

@@ -8,12 +8,12 @@ import org.jetbrains.jet.plugin.quickfix.QuickFixUtil
 import org.jetbrains.jet.lang.psi.JetForExpression
 import org.jetbrains.jet.lang.psi.JetExpression
 import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFully
 import org.jetbrains.jet.lang.types.TypeProjectionImpl
 import java.util.Collections
 import org.jetbrains.jet.lang.types.JetTypeImpl
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.*
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreateIteratorFunctionActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -22,7 +22,7 @@ object CreateIteratorFunctionActionFactory : JetSingleIntentionActionFactory() {
         val iterableExpr = forExpr.getLoopRange() ?: return null
         val variableExpr: JetExpression = ((forExpr.getLoopParameter() ?: forExpr.getMultiParameter()) ?: return null) as JetExpression
         val iterableType = TypeInfo(iterableExpr, Variance.IN_VARIANCE)
-        val returnJetType = KotlinBuiltIns.getInstance().getIterator().getDefaultType()
+        val returnJetType = forExpr.findBuiltIns().getIterator().getDefaultType()
 
         val context = file.analyzeFully()
         val returnJetTypeParameterTypes = variableExpr.guessTypes(context, null)

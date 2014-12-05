@@ -34,6 +34,7 @@ import org.jetbrains.jet.lang.psi.ValueArgument;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 import org.jetbrains.jet.plugin.refactoring.JetNameValidator;
@@ -127,6 +128,8 @@ public class AddFunctionParametersFix extends ChangeFunctionSignatureFix {
                 List<? extends ValueArgument> arguments = callElement.getValueArguments();
                 JetNameValidator validator = new SimpleCollectingValidator();
 
+                KotlinBuiltIns builtIns = ResolvePackage.findBuiltIns(callElement);
+
                 for (int i = 0; i < arguments.size(); i ++) {
                     ValueArgument argument = arguments.get(i);
                     JetExpression expression = argument.getArgumentExpression();
@@ -142,7 +145,7 @@ public class AddFunctionParametersFix extends ChangeFunctionSignatureFix {
                         }
                     }
                     else {
-                        JetParameterInfo parameterInfo = getNewParameterInfo(bindingContext, argument, validator);
+                        JetParameterInfo parameterInfo = getNewParameterInfo(builtIns, bindingContext, argument, validator);
                         typesToShorten.add(parameterInfo.getType());
 
                         if (expression != null) {

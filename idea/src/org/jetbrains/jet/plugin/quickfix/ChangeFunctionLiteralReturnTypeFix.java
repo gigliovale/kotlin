@@ -59,7 +59,8 @@ public class ChangeFunctionLiteralReturnTypeFix extends JetIntentionAction<JetFu
         JetType functionLiteralType = context.get(BindingContext.EXPRESSION_TYPE, functionLiteralExpression);
         assert functionLiteralType != null : "Type of function literal not available in binding context";
 
-        ClassDescriptor functionClass = KotlinBuiltIns.getInstance().getFunction(functionLiteralType.getArguments().size() - 1);
+        KotlinBuiltIns builtIns = ResolvePackage.findBuiltIns(functionLiteralExpression);
+        ClassDescriptor functionClass = builtIns.getFunction(functionLiteralType.getArguments().size() - 1);
         List<JetType> functionClassTypeParameters = new LinkedList<JetType>();
         for (TypeProjection typeProjection: functionLiteralType.getArguments()) {
             functionClassTypeParameters.add(typeProjection.getType());
@@ -145,7 +146,7 @@ public class ChangeFunctionLiteralReturnTypeFix extends JetIntentionAction<JetFu
             public IntentionAction createAction(@NotNull Diagnostic diagnostic) {
                 JetFunctionLiteralExpression functionLiteralExpression = QuickFixUtil.getParentElementOfType(diagnostic, JetFunctionLiteralExpression.class);
                 if (functionLiteralExpression == null) return null;
-                return new ChangeFunctionLiteralReturnTypeFix(functionLiteralExpression, KotlinBuiltIns.getInstance().getUnitType());
+                return new ChangeFunctionLiteralReturnTypeFix(functionLiteralExpression, ResolvePackage.findBuiltIns(functionLiteralExpression).getUnitType());
             }
         };
     }

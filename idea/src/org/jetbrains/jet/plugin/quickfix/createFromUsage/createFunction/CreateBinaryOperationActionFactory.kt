@@ -8,9 +8,9 @@ import org.jetbrains.jet.lang.types.expressions.OperatorConventions
 import org.jetbrains.jet.lexer.JetToken
 import org.jetbrains.jet.lang.types.Variance
 import java.util.Collections
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.*
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 public object CreateBinaryOperationActionFactory: JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -29,7 +29,7 @@ public object CreateBinaryOperationActionFactory: JetSingleIntentionActionFactor
         val receiverExpr = if (inOperation) rightExpr else leftExpr
         val argumentExpr = if (inOperation) leftExpr else rightExpr
 
-        val builtIns = KotlinBuiltIns.getInstance()
+        val builtIns = callExpr.findBuiltIns()
 
         val receiverType = TypeInfo(receiverExpr, Variance.IN_VARIANCE)
         val returnType = when {

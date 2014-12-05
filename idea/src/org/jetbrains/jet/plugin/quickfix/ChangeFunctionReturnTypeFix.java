@@ -161,7 +161,7 @@ public class ChangeFunctionReturnTypeFix extends JetIntentionAction<JetFunction>
                 JetFunction hasNextFunction = (JetFunction) DescriptorToSourceUtils
                         .descriptorToDeclaration(resolvedCall.getCandidateDescriptor());
                 if (hasNextFunction != null) {
-                    return new ChangeFunctionReturnTypeFix(hasNextFunction, KotlinBuiltIns.getInstance().getBooleanType());
+                    return new ChangeFunctionReturnTypeFix(hasNextFunction, ResolvePackage.findBuiltIns(expression).getBooleanType());
                 }
                 else return null;
             }
@@ -181,7 +181,7 @@ public class ChangeFunctionReturnTypeFix extends JetIntentionAction<JetFunction>
                 if (resolvedCall == null) return null;
                 PsiElement compareTo = DescriptorToSourceUtils.descriptorToDeclaration(resolvedCall.getCandidateDescriptor());
                 if (!(compareTo instanceof JetFunction)) return null;
-                return new ChangeFunctionReturnTypeFix((JetFunction) compareTo, KotlinBuiltIns.getInstance().getIntType());
+                return new ChangeFunctionReturnTypeFix((JetFunction) compareTo, ResolvePackage.findBuiltIns(expression).getIntType());
             }
         };
     }
@@ -236,7 +236,10 @@ public class ChangeFunctionReturnTypeFix extends JetIntentionAction<JetFunction>
             @Override
             public IntentionAction createAction(@NotNull Diagnostic diagnostic) {
                 JetFunction function = QuickFixUtil.getParentElementOfType(diagnostic, JetFunction.class);
-                return function == null ? null : new ChangeFunctionReturnTypeFix(function, KotlinBuiltIns.getInstance().getUnitType());
+                return function == null ? null : new ChangeFunctionReturnTypeFix(
+                        function,
+                        ResolvePackage.findBuiltIns(function).getUnitType()
+                );
             }
         };
     }

@@ -8,7 +8,6 @@ import org.jetbrains.jet.lang.psi.JetArrayAccessExpression
 import org.jetbrains.jet.lang.types.Variance
 import java.util.ArrayList
 import org.jetbrains.jet.lang.psi.JetBinaryExpression
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.*
 import java.util.Collections
 import org.jetbrains.jet.lang.psi.JetOperationExpression
@@ -17,6 +16,7 @@ import org.jetbrains.jet.lang.types.expressions.OperatorConventions
 import org.jetbrains.jet.lang.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.jet.lang.types.ErrorUtils
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreateSetFunctionActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -24,7 +24,7 @@ object CreateSetFunctionActionFactory : JetSingleIntentionActionFactory() {
         val arrayExpr = accessExpr.getArrayExpression() ?: return null
         val arrayType = TypeInfo(arrayExpr, Variance.IN_VARIANCE)
 
-        val builtIns = KotlinBuiltIns.getInstance()
+        val builtIns = accessExpr.findBuiltIns()
 
         val parameters = accessExpr.getIndexExpressions().mapTo(ArrayList<ParameterInfo>()) {
             ParameterInfo(TypeInfo(it, Variance.IN_VARIANCE))

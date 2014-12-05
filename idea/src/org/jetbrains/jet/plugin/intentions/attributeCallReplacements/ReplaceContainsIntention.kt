@@ -19,11 +19,10 @@ package org.jetbrains.jet.plugin.intentions.attributeCallReplacements
 import org.jetbrains.jet.lang.psi.JetExpression
 import org.jetbrains.jet.lexer.JetTokens
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.psi.JetPsiFactory
 import org.jetbrains.jet.lang.psi.JetPsiUtil
 import org.jetbrains.jet.lang.psi.JetFunctionLiteralExpression
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 public open class ReplaceContainsIntention : AttributeCallReplacementIntention("replace.contains.with.in") {
 
@@ -35,7 +34,7 @@ public open class ReplaceContainsIntention : AttributeCallReplacementIntention("
         val ret = call.resolved.getResultingDescriptor().getReturnType()
             ?: return intentionFailed(editor, "undefined.returntype")
 
-        if (!JetTypeChecker.DEFAULT.isSubtypeOf(ret, KotlinBuiltIns.getInstance().getBooleanType())) {
+        if (!call.callElement.findBuiltIns().isBooleanOrSubtype(ret)) {
             return intentionFailed(editor, "contains.returns.boolean")
         }
 

@@ -8,8 +8,8 @@ import org.jetbrains.jet.lang.diagnostics.Errors
 import org.jetbrains.jet.lang.types.Variance
 import org.jetbrains.jet.plugin.quickfix.QuickFixUtil
 import org.jetbrains.jet.lang.psi.JetForExpression
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.*
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreateHasNextFunctionActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -17,7 +17,7 @@ object CreateHasNextFunctionActionFactory : JetSingleIntentionActionFactory() {
         val ownerType = TypeInfo(diagnosticWithParameters.getA(), Variance.IN_VARIANCE)
 
         val forExpr = QuickFixUtil.getParentElementOfType(diagnostic, javaClass<JetForExpression>()) ?: return null
-        val returnType = TypeInfo(KotlinBuiltIns.getInstance().getBooleanType(), Variance.OUT_VARIANCE)
+        val returnType = TypeInfo(forExpr.findBuiltIns().getBooleanType(), Variance.OUT_VARIANCE)
         return CreateCallableFromUsageFix(forExpr, FunctionInfo("hasNext", ownerType, returnType))
     }
 }

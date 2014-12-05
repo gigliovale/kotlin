@@ -18,13 +18,13 @@ package org.jetbrains.jet.plugin.completion.smart
 
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.jet.plugin.completion.ExpectedInfo
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import org.jetbrains.jet.lang.psi.*
 import com.intellij.codeInsight.lookup.LookupElementDecorator
 import com.intellij.codeInsight.completion.InsertionContext
 import org.jetbrains.jet.plugin.completion.handlers.WithTailInsertHandler
 import org.jetbrains.jet.lang.types.TypeSubstitutor
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object KeywordValues {
     public fun addToCollection(collection: MutableCollection<LookupElement>, expectedInfos: Collection<ExpectedInfo>, expressionWithType: JetExpression) {
@@ -49,7 +49,7 @@ object KeywordValues {
 
         if (!skipTrueFalse) {
             val booleanInfoClassifier = { (info: ExpectedInfo) ->
-                if (info.type == KotlinBuiltIns.getInstance().getBooleanType()) ExpectedInfoClassification.matches(TypeSubstitutor.EMPTY) else ExpectedInfoClassification.notMatches
+                if (info.type == expressionWithType.findBuiltIns().getBooleanType()) ExpectedInfoClassification.matches(TypeSubstitutor.EMPTY) else ExpectedInfoClassification.notMatches
             }
             collection.addLookupElements(null, expectedInfos, booleanInfoClassifier, { LookupElementBuilder.create("true").bold().assignSmartCompletionPriority(SmartCompletionItemPriority.TRUE) })
             collection.addLookupElements(null, expectedInfos, booleanInfoClassifier, { LookupElementBuilder.create("false").bold().assignSmartCompletionPriority(SmartCompletionItemPriority.FALSE) })

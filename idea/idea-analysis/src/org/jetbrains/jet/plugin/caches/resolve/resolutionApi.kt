@@ -23,6 +23,7 @@ import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.psi.JetDeclaration
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 public fun JetElement.getResolutionFacade(): ResolutionFacade {
     return KotlinCacheService.getInstance(getProject()).getResolutionFacade(listOf(this))
@@ -48,6 +49,10 @@ public fun JetElement.analyzeAndGetResult(): AnalysisResult {
 
 public fun JetElement.findModuleDescriptor(): ModuleDescriptor {
     return getResolutionFacade().findModuleDescriptor(this)
+}
+
+public fun JetElement.findBuiltIns(): KotlinBuiltIns {
+    return findModuleDescriptor().builtIns
 }
 
 public fun JetElement.analyzeFully(): BindingContext {

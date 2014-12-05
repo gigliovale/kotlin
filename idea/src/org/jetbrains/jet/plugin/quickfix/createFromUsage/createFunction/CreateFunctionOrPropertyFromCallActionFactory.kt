@@ -5,7 +5,6 @@ import org.jetbrains.jet.lang.diagnostics.Diagnostic
 import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.jet.lang.psi.JetCallExpression
 import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.psi.JetSimpleNameExpression
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.lang.psi.JetQualifiedExpression
@@ -26,6 +25,7 @@ import org.jetbrains.jet.lang.psi.JetTypeReference
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.jet.lang.psi.JetAnnotationEntry
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreateFunctionOrPropertyFromCallActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -79,7 +79,7 @@ object CreateFunctionOrPropertyFromCallActionFactory : JetSingleIntentionActionF
 
         val callableInfo = when (callExpr) {
             is JetCallExpression -> {
-                val anyType = KotlinBuiltIns.getInstance().getNullableAnyType()
+                val anyType = callExpr.findBuiltIns().getNullableAnyType()
                 val parameters = callExpr.getValueArguments().map {
                     ParameterInfo(
                             it.getArgumentExpression()?.let { TypeInfo(it, Variance.IN_VARIANCE) } ?: TypeInfo(anyType, Variance.IN_VARIANCE),

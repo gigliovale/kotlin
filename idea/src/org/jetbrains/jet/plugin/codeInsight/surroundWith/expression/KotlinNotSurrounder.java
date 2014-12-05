@@ -41,7 +41,7 @@ public class KotlinNotSurrounder extends KotlinExpressionSurrounder {
     @Override
     public boolean isApplicable(@NotNull JetExpression expression) {
         JetType type = KotlinSurrounderUtils.getExpressionType(expression);
-        return KotlinBuiltIns.getInstance().getBooleanType().equals(type);
+        return type != null && KotlinBuiltIns.isBoolean(type);
     }
 
     @Nullable

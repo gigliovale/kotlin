@@ -10,13 +10,13 @@ import org.jetbrains.jet.lang.psi.JetQualifiedExpression
 import org.jetbrains.jet.lang.resolve.calls.callUtil.getCall
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.TypeInfo
 import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.ParameterInfo
 import org.jetbrains.jet.plugin.quickfix.JetSingleIntentionActionFactory
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.jet.lang.psi.JetFile
 import org.jetbrains.jet.lang.psi.JetAnnotationEntry
 import java.util.Collections
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 public object CreateClassFromConstructorCallActionFactory: JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -47,7 +47,7 @@ public object CreateClassFromConstructorCallActionFactory: JetSingleIntentionAct
 
         val valueArguments = callExpr.getValueArguments()
         val defaultParamName = if (inAnnotationEntry && valueArguments.size == 1) "value" else null
-        val anyType = KotlinBuiltIns.getInstance().getNullableAnyType()
+        val anyType = callExpr.findBuiltIns().getNullableAnyType()
         val parameterInfos = valueArguments.map {
             ParameterInfo(
                     it.getArgumentExpression()?.let { TypeInfo(it, Variance.IN_VARIANCE) } ?: TypeInfo(anyType, Variance.IN_VARIANCE),

@@ -44,7 +44,7 @@ class AllClassesCompletion(val parameters: CompletionParameters,
                            val kindFilter: (ClassKind) -> Boolean,
                            val visibilityFilter: (DeclarationDescriptor) -> Boolean) {
     fun collect(result: LookupElementsCollector) {
-        val builtIns = KotlinBuiltIns.getInstance().getNonPhysicalClasses().filter { kindFilter(it.getKind()) && prefixMatcher.prefixMatches(it.getName().asString()) }
+        val builtIns = moduleDescriptor.builtIns.getNonPhysicalClasses().filter { kindFilter(it.getKind()) && prefixMatcher.prefixMatches(it.getName().asString()) }
         result.addDescriptorElements(builtIns, suppressAutoInsertion = true)
 
         val helper = KotlinIndicesHelper(scope.getProject(), resolutionFacade, bindingContext, scope, moduleDescriptor, visibilityFilter)

@@ -31,11 +31,11 @@ import org.jetbrains.jet.lang.psi.JetProperty
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
 import org.jetbrains.jet.lang.resolve.lazy.ResolveSessionUtils
 import org.jetbrains.jet.lang.resolve.name.FqName
-import kotlin.properties.Delegates
 import org.jetbrains.jet.lang.descriptors.PropertyDescriptor
 import org.jetbrains.jet.plugin.util.makeNotNullable
 import org.jetbrains.jet.lang.psi.JetAnnotationEntry
 import org.jetbrains.jet.lang.psi.psiUtil.getNonStrictParentOfType
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 private fun JetType.contains(inner: JetType): Boolean {
     return JetTypeChecker.DEFAULT.equalTypes(this, inner) || getArguments().any { inner in it.getType() }
@@ -90,12 +90,10 @@ fun JetExpression.guessTypes(
         module: ModuleDescriptor?,
         coerceUnusedToUnit: Boolean = true
 ): Array<JetType> {
-    val builtIns = KotlinBuiltIns.getInstance()
-
     if (coerceUnusedToUnit
         && this !is JetDeclaration
         && isUsedAsStatement(context)
-        && getNonStrictParentOfType<JetAnnotationEntry>() == null) return array(builtIns.getUnitType())
+        && getNonStrictParentOfType<JetAnnotationEntry>() == null) return array(findBuiltIns().getUnitType())
 
     // if we know the actual type of the expression
     val theType1 = context[BindingContext.EXPRESSION_TYPE, this]
@@ -163,9 +161,9 @@ fun JetExpression.guessTypes(
             val delegateClassName = if (property.isVar() ) "ReadWriteProperty" else "ReadOnlyProperty"
             val delegateClass =
                     ResolveSessionUtils.getClassDescriptorsByFqName(module, FqName("kotlin.properties.$delegateClassName")).firstOrNull()
-                    ?: return array(builtIns.getAnyType())
+                    ?: return array(module.builtIns.getAnyType())
             val receiverType = (property.getExtensionReceiverParameter() ?: property.getDispatchReceiverParameter())?.getType()
-                               ?: builtIns.getNullableNothingType()
+                               ?: module.builtIns.getNullableNothingType()
             val typeArguments = listOf(TypeProjectionImpl(receiverType), TypeProjectionImpl(property.getType()))
             array(TypeUtils.substituteProjectionsForParameters(delegateClass, typeArguments))
         }

@@ -250,9 +250,8 @@ public abstract class OverrideImplementMethodsHandler implements LanguageCodeIns
             delegationBuilder.append(")");
         }
         JetType returnType = descriptor.getReturnType();
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
 
-        boolean returnsNotUnit = returnType != null && !builtIns.getUnitType().equals(returnType);
+        boolean returnsNotUnit = returnType != null && !KotlinBuiltIns.isUnit(returnType);
         String body = "{" + (returnsNotUnit && !isAbstractFun ? "return " : "") + delegationBuilder.toString() + "}";
 
         return JetPsiFactory(project).createFunction(OVERRIDE_RENDERER.render(newDescriptor) + body);

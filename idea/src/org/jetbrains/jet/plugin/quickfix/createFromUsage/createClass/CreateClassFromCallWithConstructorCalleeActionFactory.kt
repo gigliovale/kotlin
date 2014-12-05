@@ -5,7 +5,6 @@ import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.TypeInfo
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.ParameterInfo
 import org.jetbrains.jet.plugin.quickfix.JetSingleIntentionActionFactory
 import org.jetbrains.jet.lang.psi.JetFile
@@ -18,6 +17,7 @@ import org.jetbrains.jet.lang.psi.psiUtil.isAncestor
 import org.jetbrains.jet.lang.psi.JetConstructorCalleeExpression
 import java.util.Collections
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 public object CreateClassFromCallWithConstructorCalleeActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -47,7 +47,7 @@ public object CreateClassFromCallWithConstructorCalleeActionFactory : JetSingleI
 
         val targetParent = getTargetParentByQualifier(file, qualifier != null, qualifierDescriptor) ?: return null
 
-        val anyType = KotlinBuiltIns.getInstance().getNullableAnyType()
+        val anyType = callElement.findBuiltIns().getNullableAnyType()
         val valueArguments = callElement.getValueArguments()
         val defaultParamName = if (valueArguments.size == 1) "value" else null
         val parameterInfos = valueArguments.map {

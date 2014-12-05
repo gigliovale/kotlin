@@ -195,7 +195,7 @@ class BasicCompletionSession(configuration: CompletionSessionConfiguration,
                 addReferenceVariants(DescriptorKindFilter(kindMask))
 
                 if (onlyTypes) {
-                    collector.addDescriptorElements(listOf(KotlinBuiltIns.getInstance().getUnit()), false)
+                    collector.addDescriptorElements(listOf(moduleDescriptor.builtIns.getUnit()), false)
                 }
             }
 

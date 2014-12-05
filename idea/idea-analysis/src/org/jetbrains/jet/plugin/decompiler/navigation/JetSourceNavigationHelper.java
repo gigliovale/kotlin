@@ -60,6 +60,7 @@ import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 import org.jetbrains.jet.plugin.stubindex.JetFullClassNameIndex;
 import org.jetbrains.jet.plugin.stubindex.JetTopLevelFunctionFqnNameIndex;
 import org.jetbrains.jet.plugin.stubindex.JetTopLevelPropertyFqnNameIndex;
@@ -370,7 +371,7 @@ public class JetSourceNavigationHelper {
         if (LightClassUtil.belongsToKotlinBuiltIns(classOrObject.getContainingJetFile())) {
             Name className = classOrObject.getNameAsName();
             assert className != null : "Class from BuiltIns should have a name";
-            ClassDescriptor classDescriptor = KotlinBuiltIns.getInstance().getBuiltInClassByName(className);
+            ClassDescriptor classDescriptor = ResolvePackage.findBuiltIns(classOrObject).getBuiltInClassByName(className);
 
             FqNameUnsafe fqName = DescriptorUtils.getFqName(classDescriptor);
             if (fqName.isSafe()) {

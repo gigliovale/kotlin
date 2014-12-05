@@ -38,7 +38,6 @@ import org.jetbrains.jet.lang.types.JetType
 import org.jetbrains.jet.lang.psi.JetBinaryExpression
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.lang.psi.JetIfExpression
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.psi.JetContainerNode
 import org.jetbrains.jet.lang.resolve.calls.callUtil.noErrorsInValueArguments
 import org.jetbrains.jet.lang.descriptors.Visibilities
@@ -68,6 +67,8 @@ import org.jetbrains.jet.lang.descriptors.VariableDescriptor
 import org.jetbrains.jet.lang.resolve.calls.results.ResolutionStatus
 import org.jetbrains.jet.plugin.caches.resolve.ResolutionFacade
 import org.jetbrains.jet.lang.types.typeUtil.isSubtypeOf
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
+import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 
 enum class Tail {
     COMMA
@@ -227,7 +228,7 @@ class ExpectedInfos(val bindingContext: BindingContext, val resolutionFacade: Re
     private fun calculateForIf(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val ifExpression = (expressionWithType.getParent() as? JetContainerNode)?.getParent() as? JetIfExpression ?: return null
         return when (expressionWithType) {
-            ifExpression.getCondition() -> listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, Tail.RPARENTH))
+            ifExpression.getCondition() -> listOf(ExpectedInfo(findBuiltIns(expressionWithType).getBooleanType(), null, Tail.RPARENTH))
 
             ifExpression.getThen() -> calculate(ifExpression)?.map { ExpectedInfo(it.type, it.name, Tail.ELSE) }
 
@@ -283,14 +284,14 @@ class ExpectedInfos(val bindingContext: BindingContext, val resolutionFacade: Re
             return listOf(ExpectedInfo(subjectType, null, null))
         }
         else {
-            return listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
+            return listOf(ExpectedInfo(findBuiltIns(expressionWithType).getBooleanType(), null, null))
         }
     }
 
     private fun calculateForExclOperand(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val prefixExpression = expressionWithType.getParent() as? JetPrefixExpression ?: return null
         if (prefixExpression.getOperationToken() != JetTokens.EXCL) return null
-        return listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
+        return listOf(ExpectedInfo(findBuiltIns(expressionWithType).getBooleanType(), null, null))
     }
 
     private fun calculateForInitializer(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
@@ -344,4 +345,8 @@ class ExpectedInfos(val bindingContext: BindingContext, val resolutionFacade: Re
 
     private fun String.fromPlural()
             = if (endsWith("s")) substring(0, length - 1) else this
+
+    private fun findBuiltIns(expressionWithType: JetExpression): KotlinBuiltIns {
+        return resolutionFacade.findModuleDescriptor(expressionWithType).builtIns
+    }
 }

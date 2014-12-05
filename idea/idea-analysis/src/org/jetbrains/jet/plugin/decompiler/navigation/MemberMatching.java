@@ -32,6 +32,7 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 import org.jetbrains.jet.renderer.DescriptorRenderer;
 
 import java.util.Collections;
@@ -80,7 +81,7 @@ public class MemberMatching {
 
             @Override
             public String visitFunctionType(@NotNull JetFunctionType type, Void data) {
-                KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
+                KotlinBuiltIns builtIns = ResolvePackage.findBuiltIns(type);
                 int parameterCount = type.getParameters().size();
 
                 if (type.getReceiverTypeReference() == null) {
@@ -218,6 +219,7 @@ public class MemberMatching {
             decompiledParameterToBounds.put(typeParameterName.getReferencedNameAsName(), bound.getText());
         }
 
+        KotlinBuiltIns builtIns = ResolvePackage.findBuiltIns(typeParameterListOwner);
         for (int i = 0; i < decompiledParameters.size(); i++) {
             JetTypeParameter decompiledParameter = decompiledParameters.get(i);
             TypeParameterDescriptor descriptor = typeParameterDescriptors.get(i);
@@ -237,7 +239,7 @@ public class MemberMatching {
             }));
 
             Set<String> decompiledUpperBounds = decompiledParameterToBounds.get(descriptor.getName()).isEmpty()
-                    ? Sets.newHashSet(DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(KotlinBuiltIns.getInstance().getDefaultBound()))
+                    ? Sets.newHashSet(DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(builtIns.getDefaultBound()))
                     : Sets.newHashSet(decompiledParameterToBounds.get(descriptor.getName()));
             if (!descriptorUpperBounds.equals(decompiledUpperBounds)) {
                 return false;

@@ -25,7 +25,6 @@ import org.jetbrains.jet.lang.psi.JetPropertyAccessor
 import org.jetbrains.jet.lang.psi.JetFunction
 import org.jetbrains.jet.lang.psi.JetClassInitializer
 import org.jetbrains.jet.lang.psi.JetClassBody
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.psi.psiUtil.parents
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.getTypeParameters
 import org.jetbrains.jet.lang.descriptors.ClassDescriptorWithResolutionScopes
@@ -41,6 +40,7 @@ import org.jetbrains.jet.lang.psi.psiUtil.getAssignmentByLHS
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.getExpressionForTypeGuess
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.jet.utils.addToStdlib.firstIsInstanceOrNull
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreateParameterActionFactory: JetSingleIntentionActionFactory() {
     private fun JetType.hasTypeParametersToAdd(functionDescriptor: FunctionDescriptor, context: BindingContext): Boolean {
@@ -76,7 +76,7 @@ object CreateParameterActionFactory: JetSingleIntentionActionFactory() {
 
         val paramType = refExpr.getExpressionForTypeGuess().guessTypes(context, result.moduleDescriptor).let {
             when (it.size) {
-                0 -> KotlinBuiltIns.getInstance().getAnyType()
+                0 -> refExpr.findBuiltIns().getAnyType()
                 1 -> it.first()
                 else -> return null
             }

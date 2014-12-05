@@ -26,7 +26,6 @@ import java.util.HashSet
 import com.intellij.codeInsight.lookup.LookupElementDecorator
 import org.jetbrains.jet.lang.descriptors.FunctionDescriptor
 import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import org.jetbrains.jet.plugin.completion.*
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
@@ -43,6 +42,7 @@ import java.util.HashMap
 import org.jetbrains.jet.plugin.util.FuzzyType
 import org.jetbrains.jet.plugin.util.isNullable
 import org.jetbrains.jet.plugin.util.makeNotNullable
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 class ArtificialElementInsertHandler(
         val textBeforeCaret: String, val textAfterCaret: String, val shortenRefs: Boolean) : InsertHandler<LookupElement>{
@@ -222,10 +222,10 @@ fun functionType(function: FunctionDescriptor): JetType? {
         null
     else
         extensionReceiverType ?: memberReceiverType
-    return KotlinBuiltIns.getInstance().getFunctionType(function.getAnnotations(),
-                                                        receiverType,
-                                                        function.getValueParameters().map { it.getType() },
-                                                        function.getReturnType() ?: return null)
+    return function.builtIns.getFunctionType(function.getAnnotations(),
+                                             receiverType,
+                                             function.getValueParameters().map { it.getType() },
+                                             function.getReturnType() ?: return null)
 }
 
 fun LookupElementFactory.createLookupElement(

@@ -12,11 +12,11 @@ import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.descriptors.PropertyDescriptor
 import org.jetbrains.jet.lang.psi.psiUtil.getNonStrictParentOfType
 import org.jetbrains.jet.lang.psi.JetExpression
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.CallableInfo
 import com.intellij.util.SmartList
 import org.jetbrains.jet.lang.descriptors.PropertyAccessorDescriptor
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import org.jetbrains.jet.plugin.caches.resolve.findBuiltIns
 
 object CreatePropertyDelegateAccessorsActionFactory : JetSingleIntentionActionFactory() {
     override fun createAction(diagnostic: Diagnostic): IntentionAction? {
@@ -27,7 +27,7 @@ object CreatePropertyDelegateAccessorsActionFactory : JetSingleIntentionActionFa
         fun isApplicableForAccessor(accessor: PropertyAccessorDescriptor?): Boolean =
                 accessor != null && context[BindingContext.DELEGATED_PROPERTY_RESOLVED_CALL, accessor] == null
 
-        val builtIns = KotlinBuiltIns.getInstance()
+        val builtIns = expression.findBuiltIns()
 
         val property = expression.getNonStrictParentOfType<JetProperty>() ?: return null
         val propertyDescriptor = context[BindingContext.DECLARATION_TO_DESCRIPTOR, property] as? PropertyDescriptor

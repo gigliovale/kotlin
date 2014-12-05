@@ -62,18 +62,13 @@ import static org.jetbrains.jet.lang.types.TypeUtils.NO_EXPECTED_TYPE;
 
 @SuppressWarnings("RedundantTypeArguments")
 public class CallResolver {
-    @NotNull
     private ExpressionTypingServices expressionTypingServices;
-    @NotNull
     private TypeResolver typeResolver;
-    @NotNull
     private CandidateResolver candidateResolver;
-    @NotNull
     private ArgumentTypeResolver argumentTypeResolver;
-    @NotNull
     private CallCompleter callCompleter;
-    @NotNull
     private TaskPrioritizer taskPrioritizer;
+    private ResolutionResultsHandler resolutionResultsHandler;
 
     @Inject
     public void setExpressionTypingServices(@NotNull ExpressionTypingServices expressionTypingServices) {
@@ -103,6 +98,11 @@ public class CallResolver {
     @Inject
     public void setTaskPrioritizer(@NotNull TaskPrioritizer taskPrioritizer) {
         this.taskPrioritizer = taskPrioritizer;
+    }
+
+    @Inject
+    public void setResolutionResultsHandler(@NotNull ResolutionResultsHandler resolutionResultsHandler) {
+        this.resolutionResultsHandler = resolutionResultsHandler;
     }
 
     @NotNull
@@ -560,8 +560,7 @@ public class CallResolver {
             }
         }
 
-        OverloadResolutionResultsImpl<F> results = ResolutionResultsHandler.INSTANCE.computeResultAndReportErrors(
-                task, task.getResolvedCalls());
+        OverloadResolutionResultsImpl<F> results = resolutionResultsHandler.computeResultAndReportErrors(task, task.getResolvedCalls());
         if (!results.isSingleResult() && !results.isIncomplete()) {
             argumentTypeResolver.checkTypesWithNoCallee(task.toBasic());
         }

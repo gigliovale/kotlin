@@ -34,9 +34,12 @@ import static org.jetbrains.jet.lang.resolve.calls.model.ResolvedCallImpl.MAP_TO
 import static org.jetbrains.jet.lang.resolve.calls.results.ResolutionStatus.*;
 
 public class ResolutionResultsHandler {
-    public static ResolutionResultsHandler INSTANCE = new ResolutionResultsHandler();
 
-    private ResolutionResultsHandler() {}
+    private final OverloadingConflictResolver overloadingConflictResolver;
+
+    public ResolutionResultsHandler(@NotNull OverloadingConflictResolver overloadingConflictResolver) {
+        this.overloadingConflictResolver = overloadingConflictResolver;
+    }
 
     @NotNull
     public <D extends CallableDescriptor> OverloadResolutionResultsImpl<D> computeResultAndReportErrors(
@@ -179,13 +182,13 @@ public class ResolutionResultsHandler {
             return OverloadResolutionResultsImpl.success(candidates.iterator().next());
         }
 
-        MutableResolvedCall<D> maximallySpecific = OverloadingConflictResolver.INSTANCE.findMaximallySpecific(candidates, false);
+        MutableResolvedCall<D> maximallySpecific = overloadingConflictResolver.findMaximallySpecific(candidates, false);
         if (maximallySpecific != null) {
             return OverloadResolutionResultsImpl.success(maximallySpecific);
         }
 
         if (discriminateGenerics) {
-            MutableResolvedCall<D> maximallySpecificGenericsDiscriminated = OverloadingConflictResolver.INSTANCE.findMaximallySpecific(
+            MutableResolvedCall<D> maximallySpecificGenericsDiscriminated = overloadingConflictResolver.findMaximallySpecific(
                     candidates, true);
             if (maximallySpecificGenericsDiscriminated != null) {
                 return OverloadResolutionResultsImpl.success(maximallySpecificGenericsDiscriminated);

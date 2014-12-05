@@ -32,6 +32,8 @@ import org.jetbrains.jet.lang.resolve.calls.CallResolver;
 import org.jetbrains.jet.lang.resolve.calls.ArgumentTypeResolver;
 import org.jetbrains.jet.lang.resolve.calls.CallCompleter;
 import org.jetbrains.jet.lang.resolve.calls.CandidateResolver;
+import org.jetbrains.jet.lang.resolve.calls.results.ResolutionResultsHandler;
+import org.jetbrains.jet.lang.resolve.calls.results.OverloadingConflictResolver;
 import org.jetbrains.jet.lang.resolve.calls.tasks.TaskPrioritizer;
 import org.jetbrains.jet.lang.resolve.DelegatedPropertyResolver;
 import org.jetbrains.jet.lang.types.expressions.ExpressionTypingComponents;
@@ -68,6 +70,8 @@ public class InjectorForTests {
     private final ArgumentTypeResolver argumentTypeResolver;
     private final CallCompleter callCompleter;
     private final CandidateResolver candidateResolver;
+    private final ResolutionResultsHandler resolutionResultsHandler;
+    private final OverloadingConflictResolver overloadingConflictResolver;
     private final TaskPrioritizer taskPrioritizer;
     private final DelegatedPropertyResolver delegatedPropertyResolver;
     private final ExpressionTypingComponents expressionTypingComponents;
@@ -107,6 +111,8 @@ public class InjectorForTests {
         this.argumentTypeResolver = new ArgumentTypeResolver();
         this.candidateResolver = new CandidateResolver();
         this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
+        this.overloadingConflictResolver = new OverloadingConflictResolver(kotlinBuiltIns);
+        this.resolutionResultsHandler = new ResolutionResultsHandler(overloadingConflictResolver);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
         this.delegatedPropertyResolver = new DelegatedPropertyResolver();
         this.controlStructureTypingUtils = new ControlStructureTypingUtils(getExpressionTypingServices());
@@ -141,6 +147,7 @@ public class InjectorForTests {
         callResolver.setCallCompleter(callCompleter);
         callResolver.setCandidateResolver(candidateResolver);
         callResolver.setExpressionTypingServices(expressionTypingServices);
+        callResolver.setResolutionResultsHandler(resolutionResultsHandler);
         callResolver.setTaskPrioritizer(taskPrioritizer);
         callResolver.setTypeResolver(typeResolver);
 

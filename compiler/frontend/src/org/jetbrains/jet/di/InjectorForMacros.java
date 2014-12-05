@@ -44,6 +44,8 @@ import org.jetbrains.jet.lang.reflect.ReflectionTypes;
 import org.jetbrains.jet.lang.resolve.calls.ArgumentTypeResolver;
 import org.jetbrains.jet.lang.resolve.calls.CallCompleter;
 import org.jetbrains.jet.lang.resolve.calls.CandidateResolver;
+import org.jetbrains.jet.lang.resolve.calls.results.ResolutionResultsHandler;
+import org.jetbrains.jet.lang.resolve.calls.results.OverloadingConflictResolver;
 import org.jetbrains.jet.lang.resolve.calls.tasks.TaskPrioritizer;
 import org.jetbrains.annotations.NotNull;
 import javax.annotation.PreDestroy;
@@ -80,6 +82,8 @@ public class InjectorForMacros {
     private final ArgumentTypeResolver argumentTypeResolver;
     private final CallCompleter callCompleter;
     private final CandidateResolver candidateResolver;
+    private final ResolutionResultsHandler resolutionResultsHandler;
+    private final OverloadingConflictResolver overloadingConflictResolver;
     private final TaskPrioritizer taskPrioritizer;
 
     public InjectorForMacros(
@@ -114,6 +118,8 @@ public class InjectorForMacros {
         this.argumentTypeResolver = new ArgumentTypeResolver();
         this.candidateResolver = new CandidateResolver();
         this.callCompleter = new CallCompleter(argumentTypeResolver, candidateResolver, kotlinBuiltIns);
+        this.overloadingConflictResolver = new OverloadingConflictResolver(kotlinBuiltIns);
+        this.resolutionResultsHandler = new ResolutionResultsHandler(overloadingConflictResolver);
         this.taskPrioritizer = new TaskPrioritizer(storageManager);
 
         this.expressionTypingServices.setAnnotationResolver(annotationResolver);
@@ -142,6 +148,7 @@ public class InjectorForMacros {
         this.callResolver.setCallCompleter(callCompleter);
         this.callResolver.setCandidateResolver(candidateResolver);
         this.callResolver.setExpressionTypingServices(expressionTypingServices);
+        this.callResolver.setResolutionResultsHandler(resolutionResultsHandler);
         this.callResolver.setTaskPrioritizer(taskPrioritizer);
         this.callResolver.setTypeResolver(typeResolver);
 

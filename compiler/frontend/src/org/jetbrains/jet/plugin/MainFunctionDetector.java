@@ -28,7 +28,6 @@ import org.jetbrains.jet.lang.psi.JetNamedFunction;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeProjection;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 import java.util.Collection;
@@ -67,12 +66,11 @@ public class MainFunctionDetector {
             if (parameters.size() == 1) {
                 ValueParameterDescriptor parameter = parameters.get(0);
                 JetType parameterType = parameter.getType();
-                KotlinBuiltIns kotlinBuiltIns = KotlinBuiltIns.getInstance();
                 if (KotlinBuiltIns.isArray(parameterType)) {
                     List<TypeProjection> typeArguments = parameterType.getArguments();
                     if (typeArguments.size() == 1) {
                         JetType typeArgument = typeArguments.get(0).getType();
-                        if (JetTypeChecker.DEFAULT.equalTypes(typeArgument, kotlinBuiltIns.getStringType())) {
+                        if (KotlinBuiltIns.isString(typeArgument)) {
                             return true;
                         }
                     }

@@ -583,18 +583,18 @@ private fun getReceiverExpressionType(resolvedCall: ResolvedCall<*>): JetType? {
 }
 
 private fun getCompileTimeType(c: JetType): CompileTimeType<out Any>? {
-    val builtIns = KotlinBuiltIns.getInstance()
-    return when (TypeUtils.makeNotNullable(c)) {
-        builtIns.getIntType() -> INT
-        builtIns.getByteType() -> BYTE
-        builtIns.getShortType() -> SHORT
-        builtIns.getLongType() -> LONG
-        builtIns.getDoubleType() -> DOUBLE
-        builtIns.getFloatType() -> FLOAT
-        builtIns.getCharType() -> CHAR
-        builtIns.getBooleanType() -> BOOLEAN
-        builtIns.getStringType() -> STRING
-        builtIns.getAnyType() -> ANY
+    val notNullType = TypeUtils.makeNotNullable(c)
+    return when {
+        KotlinBuiltIns.isInt(notNullType) -> INT
+        KotlinBuiltIns.isByte(notNullType) -> BYTE
+        KotlinBuiltIns.isShort(notNullType) -> SHORT
+        KotlinBuiltIns.isLong(notNullType) -> LONG
+        KotlinBuiltIns.isDouble(notNullType) -> DOUBLE
+        KotlinBuiltIns.isFloat(notNullType) -> FLOAT
+        KotlinBuiltIns.isChar(notNullType) -> CHAR
+        KotlinBuiltIns.isBoolean(notNullType) -> BOOLEAN
+        KotlinBuiltIns.isString(notNullType) -> STRING
+        KotlinBuiltIns.isAny(notNullType) -> ANY
         else -> null
     }
 }

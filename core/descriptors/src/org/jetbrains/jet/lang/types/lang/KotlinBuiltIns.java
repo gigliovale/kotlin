@@ -158,6 +158,15 @@ public class KotlinBuiltIns {
         public final FqNameUnsafe string = fqNameUnsafe("String");
         public final FqNameUnsafe array = fqNameUnsafe("Array");
 
+        public final FqNameUnsafe _byte = fqNameUnsafe("Byte");
+        public final FqNameUnsafe _short = fqNameUnsafe("Short");
+        public final FqNameUnsafe _int = fqNameUnsafe("Int");
+        public final FqNameUnsafe _long = fqNameUnsafe("Long");
+        public final FqNameUnsafe _char = fqNameUnsafe("Char");
+        public final FqNameUnsafe _boolean = fqNameUnsafe("Boolean");
+        public final FqNameUnsafe _double = fqNameUnsafe("Double");
+        public final FqNameUnsafe _float = fqNameUnsafe("Float");
+
         public final FqName data = fqName("data");
         public final FqName deprecated = fqName("deprecated");
         public final FqName tailRecursive = fqName("tailRecursive");
@@ -914,6 +923,10 @@ public class KotlinBuiltIns {
         return isConstructedFromGivenClass(type, FQ_NAMES.nothing);
     }
 
+    public static boolean isAny(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES.any);
+    }
+
     public static boolean isAnyOrNullableAny(@NotNull JetType type) {
         return isConstructedFromGivenClass(type, FQ_NAMES.any);
     }
@@ -928,6 +941,38 @@ public class KotlinBuiltIns {
 
     public static boolean isString(@Nullable JetType type) {
         return type != null && isNotNullConstructedFromGivenClass(type, FQ_NAMES.string);
+    }
+
+    public static boolean isBoolean(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._boolean);
+    }
+
+    public static boolean isByte(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._byte);
+    }
+
+    public static boolean isShort(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._short);
+    }
+
+    public static boolean isChar(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._char);
+    }
+
+    public static boolean isInt(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._int);
+    }
+
+    public static boolean isLong(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._long);
+    }
+
+    public static boolean isFloat(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._float);
+    }
+
+    public static boolean isDouble(@NotNull JetType type) {
+        return isNotNullConstructedFromGivenClass(type, FQ_NAMES._double);
     }
 
     public static boolean isCloneable(@NotNull ClassDescriptor descriptor) {

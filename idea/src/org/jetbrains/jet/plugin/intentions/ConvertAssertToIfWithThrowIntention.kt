@@ -51,7 +51,7 @@ public class ConvertAssertToIfWithThrowIntention : JetSelfTargetingIntention<Jet
 
         val valParameters = resolvedCall.getResultingDescriptor().getValueParameters()
         if (valParameters.size > 1) {
-            messageIsAFunction = (valParameters[1].getType() != KotlinBuiltIns.getInstance().getAnyType())
+            messageIsAFunction = !KotlinBuiltIns.isAny(valParameters[1].getType())
         } else {
             messageIsAFunction = false
         }

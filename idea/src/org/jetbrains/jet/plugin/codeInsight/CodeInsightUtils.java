@@ -183,24 +183,23 @@ public class CodeInsightUtils {
     }
 
     public static String defaultInitializer(JetType type) {
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
         if (type.isMarkedNullable()) {
             return "null";
         }
-        else if (type.equals(builtIns.getIntType()) || type.equals(builtIns.getLongType()) ||
-                 type.equals(builtIns.getShortType()) || type.equals(builtIns.getByteType())) {
+        else if (KotlinBuiltIns.isInt(type) || KotlinBuiltIns.isLong(type) ||
+                 KotlinBuiltIns.isShort(type) || KotlinBuiltIns.isByte(type)) {
             return "0";
         }
-        else if (type.equals(builtIns.getFloatType())) {
+        else if (KotlinBuiltIns.isFloat(type)) {
             return "0.0f";
         }
-        else if (type.equals(builtIns.getDoubleType())) {
+        else if (KotlinBuiltIns.isDouble(type)) {
             return "0.0";
         }
-        else if (type.equals(builtIns.getCharType())) {
+        else if (KotlinBuiltIns.isChar(type)) {
             return "'\\u0000'";
         }
-        else if (type.equals(builtIns.getBooleanType())) {
+        else if (KotlinBuiltIns.isBoolean(type)) {
             return "false";
         }
 

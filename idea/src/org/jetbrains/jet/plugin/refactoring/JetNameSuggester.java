@@ -29,7 +29,6 @@ import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.types.ErrorUtils;
 import org.jetbrains.jet.lang.types.JetType;
 import org.jetbrains.jet.lang.types.TypeUtils;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.lexer.JetLexer;
 import org.jetbrains.jet.lexer.JetTokens;
@@ -108,66 +107,64 @@ public class JetNameSuggester {
     }
 
     private static void addNamesForType(ArrayList<String> result, JetType jetType, JetNameValidator validator) {
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
-        JetTypeChecker typeChecker = JetTypeChecker.DEFAULT;
         jetType = TypeUtils.makeNotNullable(jetType); // wipe out '?'
         if (ErrorUtils.containsErrorType(jetType)) return;
-        if (typeChecker.equalTypes(builtIns.getBooleanType(), jetType)) {
+        if (KotlinBuiltIns.isBoolean(jetType)) {
             addName(result, "b", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getIntType(), jetType)) {
+        else if (KotlinBuiltIns.isInt(jetType)) {
             addName(result, "i", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getByteType(), jetType)) {
+        else if (KotlinBuiltIns.isByte(jetType)) {
             addName(result, "byte", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getLongType(), jetType)) {
+        else if (KotlinBuiltIns.isLong(jetType)) {
             addName(result, "l", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getFloatType(), jetType)) {
+        else if (KotlinBuiltIns.isFloat(jetType)) {
             addName(result, "fl", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getDoubleType(), jetType)) {
+        else if (KotlinBuiltIns.isDouble(jetType)) {
             addName(result, "d", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getShortType(), jetType)) {
+        else if (KotlinBuiltIns.isShort(jetType)) {
             addName(result, "sh", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getCharType(), jetType)) {
+        else if (KotlinBuiltIns.isChar(jetType)) {
             addName(result, "c", validator);
         }
-        else if (typeChecker.equalTypes(builtIns.getStringType(), jetType)) {
+        else if (KotlinBuiltIns.isString(jetType)) {
             addName(result, "s", validator);
         }
         else {
             if (jetType.getArguments().size() == 1) {
                 JetType argument = jetType.getArguments().get(0).getType();
-                if (typeChecker.equalTypes(builtIns.getArrayType(argument), jetType)) {
-                    if (typeChecker.equalTypes(builtIns.getBooleanType(), argument)) {
+                if (KotlinBuiltIns.isArray(jetType)) {
+                    if (KotlinBuiltIns.isBoolean(argument)) {
                         addName(result, "booleans", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getIntType(), argument)) {
+                    else if (KotlinBuiltIns.isInt(argument)) {
                         addName(result, "ints", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getByteType(), argument)) {
+                    else if (KotlinBuiltIns.isByte(argument)) {
                         addName(result, "bytes", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getLongType(), argument)) {
+                    else if (KotlinBuiltIns.isLong(argument)) {
                         addName(result, "longs", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getFloatType(), argument)) {
+                    else if (KotlinBuiltIns.isFloat(argument)) {
                         addName(result, "floats", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getDoubleType(), argument)) {
+                    else if (KotlinBuiltIns.isDouble(argument)) {
                         addName(result, "doubles", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getShortType(), argument)) {
+                    else if (KotlinBuiltIns.isShort(argument)) {
                         addName(result, "shorts", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getCharType(), argument)) {
+                    else if (KotlinBuiltIns.isChar(argument)) {
                         addName(result, "chars", validator);
                     }
-                    else if (typeChecker.equalTypes(builtIns.getStringType(), argument)) {
+                    else if (KotlinBuiltIns.isString(argument)) {
                         addName(result, "strings", validator);
                     }
                     else {

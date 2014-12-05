@@ -106,7 +106,7 @@ public class InjectorForTests {
         this.storageManager = globalContext.getStorageManager();
         this.lazinessToken = new LazinessToken();
         this.dynamicTypesSettings = new DynamicTypesSettings();
-        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, moduleDescriptor, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings);
+        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, moduleDescriptor, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings, kotlinBuiltIns);
         this.javaDeclarationCheckerProvider = JavaDeclarationCheckerProvider.INSTANCE$;
         this.argumentTypeResolver = new ArgumentTypeResolver();
         this.candidateResolver = new CandidateResolver();

@@ -105,7 +105,7 @@ public class InjectorForMacros {
         this.flexibleTypeCapabilitiesProvider = new FlexibleTypeCapabilitiesProvider();
         this.lazinessToken = new LazinessToken();
         this.dynamicTypesSettings = new DynamicTypesSettings();
-        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, moduleDescriptor, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings);
+        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, moduleDescriptor, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings, kotlinBuiltIns);
         this.callExpressionResolver = new CallExpressionResolver();
         this.descriptorResolver = new DescriptorResolver();
         this.delegatedPropertyResolver = new DelegatedPropertyResolver();

@@ -231,7 +231,7 @@ public class InjectorForReplWithJava {
         this.delegatedPropertyResolver = new DelegatedPropertyResolver();
         this.qualifiedExpressionResolver = new QualifiedExpressionResolver();
         this.lazinessToken = new LazinessToken();
-        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, module, javaFlexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings);
+        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, module, javaFlexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesSettings, kotlinBuiltIns);
         this.callResolverExtensionProvider = new CallResolverExtensionProvider();
         this.partialBodyResolveProvider = new PartialBodyResolveProvider();
         this.candidateResolver = new CandidateResolver();
@@ -389,6 +389,7 @@ public class InjectorForReplWithJava {
 
         overloadResolver.setTrace(bindingTrace);
 
+        overrideResolver.setBuiltIns(kotlinBuiltIns);
         overrideResolver.setTrace(bindingTrace);
 
         topDownAnalyzer.setBodyResolver(bodyResolver);

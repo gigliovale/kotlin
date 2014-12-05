@@ -44,7 +44,8 @@ public class TypeResolver(
         private val flexibleTypeCapabilitiesProvider: FlexibleTypeCapabilitiesProvider,
         private val storageManager: StorageManager,
         private val lazinessToken: LazinessToken,
-        private val dynamicTypesSettings: DynamicTypesSettings
+        private val dynamicTypesSettings: DynamicTypesSettings,
+        private val builtIns: KotlinBuiltIns
 ) {
 
     public open class FlexibleTypeCapabilitiesProvider {
@@ -219,8 +220,8 @@ public class TypeResolver(
                 val returnTypeRef = type.getReturnTypeReference()
                 val returnType = if (returnTypeRef != null)
                                      resolveType(c.noBareTypes(), returnTypeRef)
-                                 else KotlinBuiltIns.getInstance().getUnitType()
-                result = type(KotlinBuiltIns.getInstance().getFunctionType(annotations, receiverType, parameterTypes, returnType))
+                                 else builtIns.getUnitType()
+                result = type(builtIns.getFunctionType(annotations, receiverType, parameterTypes, returnType))
             }
 
             override fun visitDynamicType(type: JetDynamicType) {

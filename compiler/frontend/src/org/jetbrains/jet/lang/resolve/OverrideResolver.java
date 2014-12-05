@@ -54,13 +54,17 @@ import static org.jetbrains.jet.lang.resolve.OverridingUtil.OverrideCompatibilit
 public class OverrideResolver {
 
     private BindingTrace trace;
+    private KotlinBuiltIns builtIns;
 
     @Inject
     public void setTrace(BindingTrace trace) {
         this.trace = trace;
     }
 
-
+    @Inject
+    public void setBuiltIns(@NotNull KotlinBuiltIns builtIns) {
+        this.builtIns = builtIns;
+    }
 
     public void process(@NotNull TopDownAnalysisContext c) {
         //all created fake descriptors are stored to resolve visibility on them later
@@ -799,7 +803,7 @@ public class OverrideResolver {
 
     @NotNull
     private JetAnnotationEntry findDataAnnotationForDataClass(@NotNull DeclarationDescriptor dataClass) {
-        ClassDescriptor stdDataClassAnnotation = KotlinBuiltIns.getInstance().getDataClassAnnotation();
+        ClassDescriptor stdDataClassAnnotation = builtIns.getDataClassAnnotation();
         AnnotationDescriptor annotation = dataClass.getAnnotations().findAnnotation(DescriptorUtils.getFqNameSafe(stdDataClassAnnotation));
         if (annotation == null) {
             throw new IllegalStateException("No data annotation is found for data class " + dataClass);

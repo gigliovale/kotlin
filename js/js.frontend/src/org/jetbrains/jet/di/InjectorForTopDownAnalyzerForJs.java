@@ -165,7 +165,7 @@ public class InjectorForTopDownAnalyzerForJs {
         this.qualifiedExpressionResolver = new QualifiedExpressionResolver();
         this.flexibleTypeCapabilitiesProvider = new FlexibleTypeCapabilitiesProvider();
         this.lazinessToken = new LazinessToken();
-        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, module, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesAllowed);
+        this.typeResolver = new TypeResolver(annotationResolver, qualifiedExpressionResolver, module, flexibleTypeCapabilitiesProvider, storageManager, lazinessToken, dynamicTypesAllowed, kotlinBuiltIns);
         this.callResolverExtensionProvider = new CallResolverExtensionProvider();
         this.partialBodyResolveProvider = new PartialBodyResolveProvider();
         this.candidateResolver = new CandidateResolver();
@@ -303,6 +303,7 @@ public class InjectorForTopDownAnalyzerForJs {
 
         overloadResolver.setTrace(bindingTrace);
 
+        overrideResolver.setBuiltIns(kotlinBuiltIns);
         overrideResolver.setTrace(bindingTrace);
 
         topDownAnalyzer.setBodyResolver(bodyResolver);

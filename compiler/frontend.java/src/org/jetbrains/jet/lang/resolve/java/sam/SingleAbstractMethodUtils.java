@@ -22,6 +22,7 @@ import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.descriptors.impl.TypeParameterDescriptorImpl;
 import org.jetbrains.jet.lang.descriptors.impl.ValueParameterDescriptorImpl;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.java.JavaPackage;
 import org.jetbrains.jet.lang.resolve.java.JavaResolverUtils;
 import org.jetbrains.jet.lang.resolve.java.descriptor.*;
@@ -121,7 +122,7 @@ public class SingleAbstractMethodUtils {
         for (ValueParameterDescriptor parameter : valueParameters) {
             parameterTypes.add(parameter.getType());
         }
-        return KotlinBuiltIns.getInstance().getFunctionType(
+        return DescriptorUtilPackage.getBuiltIns(function).getFunctionType(
                 Annotations.EMPTY, null, parameterTypes, returnType);
     }
 

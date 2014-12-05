@@ -30,6 +30,7 @@ import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.descriptors.impl.TypeParameterDescriptorImpl;
 import org.jetbrains.jet.lang.descriptors.impl.ValueParameterDescriptorImpl;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.java.JavaPackage;
 import org.jetbrains.jet.lang.resolve.java.JavaResolverUtils;
 import org.jetbrains.jet.lang.resolve.java.descriptor.JavaMethodDescriptor;
@@ -49,7 +50,6 @@ import java.util.*;
 
 import static org.jetbrains.jet.lang.resolve.DescriptorUtils.getFqName;
 import static org.jetbrains.jet.lang.resolve.java.resolver.TypeUsage.*;
-import static org.jetbrains.jet.lang.types.Variance.INVARIANT;
 
 public class SignaturesPropagationData {
 
@@ -68,6 +68,7 @@ public class SignaturesPropagationData {
     private final List<FunctionDescriptor> superFunctions;
     private final Map<TypeParameterDescriptor, TypeParameterDescriptorImpl> autoTypeParameterToModified;
     final ClassDescriptor containingClass;
+    private final KotlinBuiltIns builtIns;
 
     public SignaturesPropagationData(
             @NotNull ClassDescriptor containingClass,
@@ -78,6 +79,7 @@ public class SignaturesPropagationData {
             @NotNull JavaMethod method
     ) {
         this.containingClass = containingClass;
+        builtIns = DescriptorUtilPackage.getBuiltIns(containingClass);
 
         autoMethodDescriptor =
                 createAutoMethodDescriptor(containingClass, method, autoReturnType, receiverType, autoValueParameters, autoTypeParameters);
@@ -185,7 +187,7 @@ public class SignaturesPropagationData {
 
                 for (Iterator<JetType> iterator : upperBoundFromSuperFunctionsIterators) {
                     assert iterator.hasNext();
-                    upperBoundsFromSuperFunctions.add(new TypeAndVariance(iterator.next(), INVARIANT));
+                    upperBoundsFromSuperFunctions.add(new TypeAndVariance(iterator.next(), Variance.INVARIANT));
                 }
 
                 JetType modifiedUpperBound = modifyTypeAccordingToSuperMethods(autoUpperBound, upperBoundsFromSuperFunctions, UPPER_BOUND);
@@ -262,7 +264,8 @@ public class SignaturesPropagationData {
                         stableName != null ? stableName : originalParam.getName(),
                         altType,
                         originalParam.declaresDefaultValue(),
-                        varargCheckResult.isVararg ? KotlinBuiltIns.getInstance().getArrayElementType(altType) : null,
+                        varargCheckResult.isVararg ?
+                        builtIns.getArrayElementType(altType) : null,
                         SourceElement.NO_SOURCE
                 ));
             }
@@ -283,7 +286,7 @@ public class SignaturesPropagationData {
         return KotlinPackage.map(list, new Function1<TypeAndName, TypeAndVariance>() {
             @Override
             public TypeAndVariance invoke(TypeAndName tvn) {
-                return new TypeAndVariance(tvn.type, INVARIANT);
+                return new TypeAndVariance(tvn.type, Variance.INVARIANT);
             }
         });
     }
@@ -367,7 +370,7 @@ public class SignaturesPropagationData {
             return new VarargCheckResult(originalType, originalVarargElementType != null);
         }
 
-        KotlinBuiltIns builtIns = KotlinBuiltIns.getInstance();
+        KotlinBuiltIns builtIns = this.builtIns;
         if (someSupersVararg && originalVarargElementType == null) {
             // convert to vararg
 
@@ -380,7 +383,7 @@ public class SignaturesPropagationData {
 
             // replace Array<out Foo>? with Array<Foo>
             JetType varargElementType = builtIns.getArrayElementType(originalType);
-            return new VarargCheckResult(builtIns.getArrayType(INVARIANT, varargElementType), true);
+            return new VarargCheckResult(builtIns.getArrayType(Variance.INVARIANT, varargElementType), true);
         }
         else if (someSupersNotVararg && originalVarargElementType != null) {
             // convert to non-vararg
@@ -485,7 +488,7 @@ public class SignaturesPropagationData {
         }
         else if (projectionKindsInSuper.size() == 1) {
             Variance projectionKindInSuper = projectionKindsInSuper.iterator().next();
-            if (defaultProjectionKind == INVARIANT || defaultProjectionKind == projectionKindInSuper) {
+            if (defaultProjectionKind == Variance.INVARIANT || defaultProjectionKind == projectionKindInSuper) {
                 return projectionKindInSuper;
             }
             else {
@@ -512,9 +515,9 @@ public class SignaturesPropagationData {
 
     private static Variance merge(Variance positionOfOuter, Variance projectionKind) {
         // Inv<Inv<out X>>, X is in invariant position
-        if (positionOfOuter == INVARIANT) return INVARIANT;
+        if (positionOfOuter == Variance.INVARIANT) return Variance.INVARIANT;
         // Out<X>, X is in out-position
-        if (projectionKind == INVARIANT) return positionOfOuter;
+        if (projectionKind == Variance.INVARIANT) return positionOfOuter;
         // Out<Out<X>>, X is in out-position
         // In<In<X>>, X is in out-position
         // Out<In<X>>, X is in in-position

@@ -24,6 +24,7 @@ import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
 import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
@@ -246,7 +247,7 @@ public class CommonSupertypes {
         if (recursionDepth >= maxDepth) {
             // If recursion is too deep, we cut it by taking <out Any?> as an ultimate supertype argument
             // Example: class A : Base<A>; class B : Base<B>, commonSuperType(A, B) = Base<out Any?>
-            return new TypeProjectionImpl(OUT_VARIANCE, KotlinBuiltIns.getInstance().getNullableAnyType());
+            return new TypeProjectionImpl(OUT_VARIANCE, DescriptorUtilPackage.getBuiltIns(parameterDescriptor).getNullableAnyType());
         }
 
         Set<JetType> ins = new HashSet<JetType>();

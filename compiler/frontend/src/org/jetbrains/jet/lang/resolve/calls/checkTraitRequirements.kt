@@ -24,6 +24,7 @@ import org.jetbrains.jet.lang.diagnostics.Errors
 import org.jetbrains.jet.lang.psi.JetClassOrObject
 import org.jetbrains.jet.lang.descriptors.ClassDescriptorWithResolutionScopes
 import org.jetbrains.jet.lang.resolve.BindingTrace
+import org.jetbrains.jet.lang.resolve.descriptorUtil.builtIns
 
 fun checkTraitRequirements(c: Map<JetClassOrObject, ClassDescriptorWithResolutionScopes>, trace: BindingTrace) {
     for ((classOrObject, descriptor) in c.entrySet()) {
@@ -67,6 +68,6 @@ private fun getSuperClass(descriptor: ClassDescriptor): ClassDescriptor {
             return superClassifier as ClassDescriptor
         }
     }
-    return KotlinBuiltIns.getInstance().getAny()
+    return descriptor.builtIns.getAny()
 }
 

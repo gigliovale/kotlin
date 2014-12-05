@@ -40,6 +40,7 @@ import org.jetbrains.jet.lang.resolve.calls.util.CallMaker;
 import org.jetbrains.jet.lang.resolve.constants.ArrayValue;
 import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant;
 import org.jetbrains.jet.lang.resolve.constants.IntegerValueTypeConstant;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.lazy.descriptors.LazyAnnotationDescriptor;
 import org.jetbrains.jet.lang.resolve.lazy.descriptors.LazyAnnotationsContextImpl;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
@@ -50,7 +51,6 @@ import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 import org.jetbrains.jet.storage.StorageManager;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -257,9 +257,10 @@ public class AnnotationResolver {
                 }
             });
 
-            JetType arrayType = KotlinBuiltIns.getInstance().getPrimitiveArrayJetTypeByPrimitiveJetType(varargElementType);
+            KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(parameterDescriptor);
+            JetType arrayType = builtIns.getPrimitiveArrayJetTypeByPrimitiveJetType(varargElementType);
             if (arrayType == null) {
-                arrayType = KotlinBuiltIns.getInstance().getArrayType(varargElementType);
+                arrayType = builtIns.getArrayType(varargElementType);
             }
 
             return new ArrayValue(constants, arrayType, true, usesVariableAsConstant);

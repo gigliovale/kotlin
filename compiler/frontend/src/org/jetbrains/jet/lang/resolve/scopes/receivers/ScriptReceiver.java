@@ -18,8 +18,8 @@ package org.jetbrains.jet.lang.resolve.scopes.receivers;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.ScriptDescriptor;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
 
 // SCRIPT: script receiver
 public class ScriptReceiver implements ThisReceiver {
@@ -42,7 +42,7 @@ public class ScriptReceiver implements ThisReceiver {
     @Override
     public JetType getType() {
         // not sure
-        return KotlinBuiltIns.getInstance().getAnyType();
+        return DescriptorUtilPackage.getBuiltIns(scriptDescriptor).getAnyType();
     }
 
     @Override

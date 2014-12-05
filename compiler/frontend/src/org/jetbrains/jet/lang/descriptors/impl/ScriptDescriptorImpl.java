@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.descriptors.impl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
+import org.jetbrains.jet.lang.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.jet.lang.resolve.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler;
@@ -40,12 +41,7 @@ public class ScriptDescriptorImpl extends DeclarationDescriptorNonRootImpl imple
     private List<ValueParameterDescriptor> valueParameters;
 
     private final ScriptCodeDescriptor scriptCodeDescriptor = new ScriptCodeDescriptor(this);
-    private final ReceiverParameterDescriptor implicitReceiver = new ReceiverParameterDescriptorImpl(this,
-                                                                                                     // Putting Any here makes no sense,
-                                                                                                     // it is simply copied from someplace else
-                                                                                                     // during a refactoring
-                                                                                                     KotlinBuiltIns.getInstance().getAnyType(),
-                                                                                                     new ScriptReceiver(this));
+    private final ReceiverParameterDescriptor implicitReceiver;
 
     private final MutableClassDescriptor classDescriptor;
 
@@ -65,7 +61,8 @@ public class ScriptDescriptorImpl extends DeclarationDescriptorNonRootImpl imple
 
         classDescriptor = new MutableClassDescriptor(containingDeclaration, scriptScope, ClassKind.CLASS,
                                                      false, className, SourceElement.NO_SOURCE);
-        classDescriptor.addSupertype(KotlinBuiltIns.getInstance().getAnyType());
+        KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(containingDeclaration);
+        classDescriptor.addSupertype(builtIns.getAnyType());
         classDescriptor.setModality(Modality.FINAL);
         classDescriptor.setVisibility(Visibilities.PUBLIC);
         classDescriptor.setTypeParameterDescriptors(Collections.<TypeParameterDescriptor>emptyList());
@@ -74,6 +71,12 @@ public class ScriptDescriptorImpl extends DeclarationDescriptorNonRootImpl imple
         classScope.changeLockLevel(WritableScope.LockLevel.BOTH);
         classDescriptor.setScopeForMemberLookup(classScope);
         classDescriptor.createTypeConstructor();
+        implicitReceiver = new ReceiverParameterDescriptorImpl(this,
+                                                               // Putting Any here makes no sense,
+                                                               // it is simply copied from someplace else
+                                                               // during a refactoring
+                                                               builtIns.getAnyType(),
+                                                               new ScriptReceiver(this));
     }
 
     public void initialize(

@@ -35,6 +35,7 @@ import org.jetbrains.jet.lang.descriptors.ReceiverParameterDescriptor;
 import org.jetbrains.jet.lang.descriptors.impl.ReceiverParameterDescriptorImpl;
 import org.jetbrains.jet.lang.psi.JetExpression;
 import org.jetbrains.jet.lang.resolve.BindingTraceContext;
+import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.ImportPath;
 import org.jetbrains.jet.lang.resolve.TypeResolver;
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo;
@@ -600,7 +601,7 @@ public class JetTypeCheckerTest extends JetLiteFixture {
     @SuppressWarnings("ConstantConditions")
     private WritableScopeImpl addImports(JetScope scope) {
         WritableScopeImpl writableScope = new WritableScopeImpl(
-                scope, scope.getContainingDeclaration(), RedeclarationHandler.DO_NOTHING, "JetTypeCheckerTest.addImports");
+                scope, DescriptorUtils.getContainingModule(scope.getContainingDeclaration()), RedeclarationHandler.DO_NOTHING, "JetTypeCheckerTest.addImports");
         BindingTraceContext trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
         InjectorForJavaDescriptorResolver injector = InjectorForJavaDescriptorResolverUtil.create(getProject(), trace, true);
         ModuleDescriptor module = injector.getModule();

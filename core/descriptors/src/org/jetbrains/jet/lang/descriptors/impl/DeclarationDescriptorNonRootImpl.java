@@ -19,6 +19,7 @@ package org.jetbrains.jet.lang.descriptors.impl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
 import org.jetbrains.jet.lang.descriptors.DeclarationDescriptorNonRoot;
+import org.jetbrains.jet.lang.descriptors.PackageViewDescriptor;
 import org.jetbrains.jet.lang.descriptors.SourceElement;
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
 import org.jetbrains.jet.lang.resolve.name.Name;
@@ -42,6 +43,8 @@ public abstract class DeclarationDescriptorNonRootImpl
         super(annotations, name);
 
         this.containingDeclaration = containingDeclaration;
+        assert this instanceof PackageViewDescriptor || !(containingDeclaration instanceof PackageViewDescriptor) :
+                "PackageViewDescriptor can not be a parent of " + getClass().getSimpleName();
         this.source = source;
     }
 

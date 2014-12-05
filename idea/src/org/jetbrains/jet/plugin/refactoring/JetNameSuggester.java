@@ -138,7 +138,7 @@ public class JetNameSuggester {
         }
         else {
             if (jetType.getArguments().size() == 1) {
-                JetType argument = jetType.getArguments().get(0).getType();
+                JetType argument = TypeUtils.makeNotNullable(jetType.getArguments().get(0).getType());
                 if (KotlinBuiltIns.isArray(jetType)) {
                     if (KotlinBuiltIns.isBoolean(argument)) {
                         addName(result, "booleans", validator);

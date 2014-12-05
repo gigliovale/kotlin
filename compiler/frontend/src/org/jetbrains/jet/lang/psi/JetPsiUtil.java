@@ -236,7 +236,7 @@ public class JetPsiUtil {
             List<JetAnnotationEntry> annotationEntries = modifierList.getAnnotationEntries();
             for (JetAnnotationEntry annotation : annotationEntries) {
                 Name shortName = getShortName(annotation);
-                if (KotlinBuiltIns.getInstance().getDeprecatedAnnotation().getName().equals(shortName)) {
+                if (KotlinBuiltIns.getFqNameOfDeprecated().shortName().equals(shortName)) {
                     return true;
                 }
             }
@@ -332,7 +332,7 @@ public class JetPsiUtil {
             return false;
         }
 
-        return KotlinBuiltIns.getInstance().getUnit().getName().asString().equals(typeReference.getText());
+        return KotlinBuiltIns.getFqNameOfUnit().shortName().asString().equals(typeReference.getText());
     }
 
     // SCRIPT: is declaration in script?

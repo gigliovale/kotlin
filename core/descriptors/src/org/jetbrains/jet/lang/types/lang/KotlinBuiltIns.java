@@ -548,6 +548,16 @@ public class KotlinBuiltIns {
         return FQ_NAMES.noinline;
     }
 
+    @NotNull
+    public static FqName getFqNameOfDeprecated() {
+        return FQ_NAMES.deprecated;
+    }
+
+    @NotNull
+    public static FqName getFqNameOfUnit() {
+        return FQ_NAMES.unit.toSafe();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // GET TYPE

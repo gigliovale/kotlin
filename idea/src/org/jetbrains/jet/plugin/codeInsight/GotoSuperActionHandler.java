@@ -96,7 +96,7 @@ public class GotoSuperActionHandler implements CodeInsightActionHandler {
         List<PsiElement> superDeclarations = ContainerUtil.mapNotNull(superDescriptors, new Function<DeclarationDescriptor, PsiElement>() {
             @Override
             public PsiElement fun(DeclarationDescriptor descriptor) {
-                if (KotlinBuiltIns.getInstance().getAny() == descriptor) {
+                if (descriptor instanceof ClassDescriptor && KotlinBuiltIns.isAny((ClassDescriptor) descriptor)) {
                     return null;
                 }
                 return DescriptorToSourceUtils.descriptorToDeclaration(descriptor);

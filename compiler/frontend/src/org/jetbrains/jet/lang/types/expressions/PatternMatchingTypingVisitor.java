@@ -62,7 +62,7 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
             DataFlowInfo newDataFlowInfo = conditionInfo.and(dataFlowInfo);
             context.trace.record(BindingContext.DATAFLOW_INFO_AFTER_CONDITION, expression, newDataFlowInfo);
         }
-        return DataFlowUtils.checkType(KotlinBuiltIns.getInstance().getBooleanType(), expression, contextWithExpectedType, dataFlowInfo);
+        return DataFlowUtils.checkType(components.builtIns.getBooleanType(), expression, contextWithExpectedType, dataFlowInfo);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
                                                                 argumentForSubject, rangeExpression, context);
                 DataFlowInfo dataFlowInfo = typeInfo.getDataFlowInfo();
                 newDataFlowInfo.set(new DataFlowInfos(dataFlowInfo, dataFlowInfo));
-                if (!KotlinBuiltIns.getInstance().getBooleanType().equals(typeInfo.getType())) {
+                if (!components.builtIns.getBooleanType().equals(typeInfo.getType())) {
                     context.trace.report(TYPE_MISMATCH_IN_RANGE.on(condition));
                 }
             }
@@ -250,7 +250,7 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
         }
         context = context.replaceDataFlowInfo(typeInfo.getDataFlowInfo());
         if (conditionExpected) {
-            JetType booleanType = KotlinBuiltIns.getInstance().getBooleanType();
+            JetType booleanType = components.builtIns.getBooleanType();
             if (!JetTypeChecker.DEFAULT.equalTypes(booleanType, type)) {
                 context.trace.report(TYPE_MISMATCH_IN_CONDITION.on(expression, type));
             }

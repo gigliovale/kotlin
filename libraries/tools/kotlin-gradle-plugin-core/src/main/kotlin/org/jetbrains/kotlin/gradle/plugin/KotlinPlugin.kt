@@ -36,6 +36,7 @@ import org.gradle.api.initialization.dsl.ScriptHandler
 import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import javax.inject.Inject
 import org.jetbrains.kotlin.compiler.plugin.CliOption
+import org.jetbrains.kotlin.compiler.plugin.getPluginOptionString
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 import java.io.IOException
@@ -217,9 +218,10 @@ open class KotlinAndroidPlugin [Inject] (val scriptHandler: ScriptHandler): Plug
                 if (gradlePlugins.any { it.getName().startsWith("kotlin-android-compiler-plugin-") }) {
                     if (resourceDir != null) {
                         val layoutDir = File(resourceDir, "layout")
+                        val pluginName = "org.jetbrains.kotlin.android"
                         kotlinOptions.pluginOptions = array(
-                                makePluginOption("androidRes", layoutDir.getAbsolutePath()),
-                                makePluginOption("androidManifest", manifestFile.getAbsolutePath())
+                                getPluginOptionString(pluginName, "androidRes", layoutDir.getAbsolutePath()),
+                                getPluginOptionString(pluginName, "androidManifest", manifestFile.getAbsolutePath())
                         )
                         kotlinTask.source(layoutDir)
                     }

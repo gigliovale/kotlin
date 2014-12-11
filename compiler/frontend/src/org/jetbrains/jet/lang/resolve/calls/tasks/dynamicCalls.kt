@@ -49,6 +49,7 @@ import org.jetbrains.jet.lang.descriptors.VariableDescriptor
 import org.jetbrains.jet.lexer.JetTokens
 import org.jetbrains.jet.lang.types.expressions.OperatorConventions
 import org.jetbrains.jet.lang.psi.JetOperationReferenceExpression
+import org.jetbrains.jet.lang.resolve.DescriptorFactory
 
 object DynamicCallableDescriptors {
 
@@ -112,6 +113,10 @@ object DynamicCallableDescriptors {
                 createDynamicDispatchReceiverParameter(propertyDescriptor),
                 null: JetType?
         )
+        propertyDescriptor.initialize(
+                DescriptorFactory.createDefaultGetter(propertyDescriptor),
+                DescriptorFactory.createDefaultSetter(propertyDescriptor)
+        )
 
         return propertyDescriptor
     }
@@ -174,7 +179,7 @@ object DynamicCallableDescriptors {
             }
 }
 
-fun DeclarationDescriptor.isDynamic(): Boolean {
+public fun DeclarationDescriptor.isDynamic(): Boolean {
     if (this !is CallableDescriptor) return false
     val dispatchReceiverParameter = getDispatchReceiverParameter()
     return dispatchReceiverParameter != null && dispatchReceiverParameter.getType().isDynamic()

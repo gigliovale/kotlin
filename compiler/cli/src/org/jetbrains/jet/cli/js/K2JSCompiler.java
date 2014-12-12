@@ -28,6 +28,8 @@ import com.intellij.util.Function;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import kotlin.Function0;
+import kotlin.Function1;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.OutputFileCollection;
@@ -79,7 +81,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
     protected ExitCode doExecute(
             @NotNull K2JSCompilerArguments arguments,
             @NotNull Services services,
-            @NotNull MessageCollector messageCollector,
+            @NotNull final MessageCollector messageCollector,
             @NotNull Disposable rootDisposable
     ) {
         if (arguments.freeArgs.isEmpty()) {
@@ -97,10 +99,6 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         Project project = environmentForJS.getProject();
         List<JetFile> sourcesFiles = environmentForJS.getSourceFiles();
 
-        ClassPathLibrarySourcesLoader sourceLoader = new ClassPathLibrarySourcesLoader(project);
-        List<JetFile> additionalSourceFiles = sourceLoader.findSourceFiles();
-        sourcesFiles.addAll(additionalSourceFiles);
-
         if (arguments.verbose) {
             reportCompiledSourcesList(messageCollector, sourcesFiles);
         }
@@ -113,6 +111,16 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         File outputFile = new File(arguments.outputFile);
 
         Config config = getConfig(arguments, project);
+        if (config.checkLibFilesAndReportErrors(new Function1<String, Unit>() {
+            @Override
+            public Unit invoke(String message) {
+                messageCollector.report(CompilerMessageSeverity.ERROR, message, CompilerMessageLocation.NO_LOCATION);
+                return Unit.INSTANCE$;
+            }
+        })) {
+            return COMPILATION_ERROR;
+        }
+
         if (analyzeAndReportErrors(messageCollector, sourcesFiles, config)) {
             return COMPILATION_ERROR;
         }
@@ -215,20 +223,14 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
 
         List<String> libraryFiles = new SmartList<String>();
         if (!arguments.noStdlib) {
-            libraryFiles.add(0, PathUtil.getKotlinPathsForCompiler().getJsLibJarPath().getAbsolutePath());
+            libraryFiles.add(0, PathUtil.getKotlinPathsForCompiler().getJsStdLibJarPath().getAbsolutePath());
         }
 
         if (arguments.libraryFiles != null) {
             ContainerUtil.addAllNotNull(libraryFiles, arguments.libraryFiles);
         }
 
-        if (!libraryFiles.isEmpty()) {
-            return new LibrarySourcesConfig(project, moduleId, libraryFiles, ecmaVersion, arguments.sourceMap, inlineEnabled);
-        }
-        else {
-            // lets discover the JS library definitions on the classpath
-            return new ClassPathLibraryDefintionsConfig(project, moduleId, ecmaVersion, arguments.sourceMap, inlineEnabled);
-        }
+        return new LibrarySourcesConfig(project, moduleId, libraryFiles, ecmaVersion, arguments.sourceMap, inlineEnabled);
     }
 
     public static MainCallParameters createMainCallParameters(String main) {

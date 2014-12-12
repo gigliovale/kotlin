@@ -22,6 +22,8 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import kotlin.Function1;
+import kotlin.Unit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.analyzer.AnalysisResult;
@@ -39,7 +41,7 @@ import java.util.List;
 
 public class LibrarySourcesConfigWithCaching extends LibrarySourcesConfig {
     public static final List<String> JS_STDLIB =
-            Arrays.asList("@" + STDLIB_JS_MODULE_NAME, PathUtil.getKotlinPathsForDistDirectory().getJsLibJarPath().getAbsolutePath());
+            Arrays.asList(PathUtil.getKotlinPathsForDistDirectory().getJsStdLibJarPath().getAbsolutePath());
 
     private static List<JetFile> jsLibFiles;
     private static AnalysisResult result;
@@ -136,6 +138,10 @@ public class LibrarySourcesConfigWithCaching extends LibrarySourcesConfig {
             @Override
             protected List<JetFile> generateLibFiles() {
                 return Collections.emptyList();
+            }
+            @Override
+            public boolean checkLibFilesAndReportErrors(@NotNull Function1<String, Unit> report) {
+                return false;
             }
         };
     }

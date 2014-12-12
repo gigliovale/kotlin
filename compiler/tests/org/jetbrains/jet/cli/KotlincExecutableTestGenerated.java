@@ -168,6 +168,12 @@ public class KotlincExecutableTestGenerated extends AbstractKotlincExecutableTes
             doJsTest(fileName);
         }
 
+        @TestMetadata("libraryDirNotFound.args")
+        public void testLibraryDirNotFound() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/libraryDirNotFound.args");
+            doJsTest(fileName);
+        }
+
         @TestMetadata("nativeDeclarations.args")
         public void testNativeDeclarations() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/nativeDeclarations.args");
@@ -177,6 +183,12 @@ public class KotlincExecutableTestGenerated extends AbstractKotlincExecutableTes
         @TestMetadata("outputIsDirectory.args")
         public void testOutputIsDirectory() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/outputIsDirectory.args");
+            doJsTest(fileName);
+        }
+
+        @TestMetadata("notValidLibraryDir.args")
+        public void testNotValidLibraryDir() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/notValidLibraryDir.args");
             doJsTest(fileName);
         }
 
@@ -201,6 +213,18 @@ public class KotlincExecutableTestGenerated extends AbstractKotlincExecutableTes
         @TestMetadata("suppressAllWarningsJS.args")
         public void testSuppressAllWarningsJS() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/suppressAllWarningsJS.args");
+            doJsTest(fileName);
+        }
+
+        @TestMetadata("withFolderAsLib.args")
+        public void testWithFolderAsLib() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/withFolderAsLib.args");
+            doJsTest(fileName);
+        }
+
+        @TestMetadata("withLib.args")
+        public void testWithLib() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/cli/js/withLib.args");
             doJsTest(fileName);
         }
     }

@@ -24,6 +24,8 @@ import org.apache.commons.io.FileUtils
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.gradle.api.Project
 import org.jetbrains.jet.config.Services
+import java.util.ServiceLoader
+
 
 public open class KotlinCompile(): AbstractCompile() {
 
@@ -69,6 +71,15 @@ public open class KotlinCompile(): AbstractCompile() {
         return null
     }
 
+    private fun File.isJavaFile() = FilenameUtils.getExtension(getName()).equalsIgnoreCase("java")
+
+    private fun File.isKotlinFile(): Boolean {
+        return when (FilenameUtils.getExtension(getName()).toLowerCase()) {
+            "kt", "kts", "ktm" -> true
+            else -> false
+        }
+    }
+
     [TaskAction]
     override fun compile() {
 
@@ -81,12 +92,12 @@ public open class KotlinCompile(): AbstractCompile() {
 
         // collect source directory roots for all java files to allow cross compilation
         for (file in getSource()) {
-            if (FilenameUtils.getExtension(file.getName()).equalsIgnoreCase("java")) {
+            if (file.isJavaFile()) {
                 val javaRoot = findSrcDirRoot(file)
                 if (javaRoot != null) {
                     javaSrcRoots.add(javaRoot)
                 }
-            } else {
+            } else if (file.isKotlinFile()) {
                 sources.add(file)
             }
         }
@@ -102,6 +113,12 @@ public open class KotlinCompile(): AbstractCompile() {
 
         args.freeArgs = sources.map { it.getAbsolutePath() }
 
+        val project = getProject()
+
+        // All plugins are already in the main classpath
+        args.pluginClasspaths = kotlinOptions.pluginClasspaths
+        args.pluginOptions = makePluginOptions(project)
+
         if (StringUtils.isEmpty(kotlinOptions.classpath)) {
             val existingClasspathEntries = getClasspath().filter({ it != null && it.exists() })
             val effectiveClassPath = (javaSrcRoots + existingClasspathEntries).makeString(File.pathSeparator)
@@ -110,7 +127,7 @@ public open class KotlinCompile(): AbstractCompile() {
 
         args.destination = if (StringUtils.isEmpty(kotlinOptions.destination)) { kotlinDestinationDir?.getPath() } else { kotlinOptions.destination }
 
-        val embeddedAnnotations = getAnnotations(getProject(), getLogger())
+        val embeddedAnnotations = getAnnotations(project, getLogger())
         val userAnnotations = (kotlinOptions.annotations ?: "").split(File.pathSeparatorChar).toList()
         val allAnnotations = if (kotlinOptions.noJdkAnnotations) userAnnotations else userAnnotations.plus(embeddedAnnotations.map {it.getPath()})
         args.annotations = allAnnotations.makeString(File.pathSeparator)
@@ -139,8 +156,15 @@ public open class KotlinCompile(): AbstractCompile() {
             FileUtils.copyDirectory(outputDirFile, getDestinationDir())
         }
     }
-}
 
+    private fun makePluginOptions(project: Project): Array<String> {
+        fun concatenate(strings: Array<String>?, cp: List<String>) = array(*(strings ?: array<String>()), *cp.copyToArray())
+
+        val argumentProviders = ServiceLoader.load(javaClass<KotlinGradlePluginExtension>())
+        val kotlinPluginOptions = kotlinOptions.pluginOptions
+        return concatenate(kotlinPluginOptions, argumentProviders.flatMap { it.getExtraArguments(project, this) })
+    }
+}
 public open class KDoc(): SourceTask() {
 
     private val logger = Logging.getLogger(this.javaClass)

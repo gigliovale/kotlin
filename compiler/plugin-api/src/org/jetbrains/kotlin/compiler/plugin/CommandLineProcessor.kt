@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 JetBrains s.r.o.
+ * Copyright 2010-2014 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package org.jetbrains.jet.config;
+package org.jetbrains.kotlin.compiler.plugin
 
-import com.intellij.openapi.util.Key;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jet.config.CompilerConfiguration
 
-public class CompilerConfigurationKey<T> {
-    Key<T> ideaKey;
+public trait CommandLineProcessor {
+    public val pluginId: String
+    public val pluginOptions: Collection<CliOption>
 
-    private CompilerConfigurationKey(@NotNull @NonNls String name) {
-        ideaKey = Key.create(name);
-    }
-
-    public static <T> CompilerConfigurationKey<T> create(@NotNull @NonNls String name) {
-        return new CompilerConfigurationKey<T>(name);
-    }
+    [throws(javaClass<CliOptionProcessingException>())]
+    public fun processOption(option: CliOption, value: String, configuration: CompilerConfiguration)
 }

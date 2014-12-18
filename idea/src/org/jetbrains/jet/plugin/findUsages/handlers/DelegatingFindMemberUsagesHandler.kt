@@ -26,10 +26,14 @@ import kotlin.properties.Delegates
 import org.jetbrains.jet.lang.psi.JetNamedDeclaration
 import com.intellij.psi.PsiMethod
 import com.intellij.find.findUsages.JavaFindUsagesHandler
-import com.intellij.find.findUsages.JavaMethodFindUsagesOptions
 import org.jetbrains.jet.plugin.findUsages.KotlinFunctionFindUsagesOptions
 import org.jetbrains.jet.plugin.findUsages.toJavaMethodOptions
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.components.ServiceManager
+import com.intellij.psi.xml.XmlAttribute
+import org.jetbrains.jet.lang.psi.JetProperty
+import java.util.ArrayList
+import com.intellij.find.findUsages.JavaVariableFindUsagesOptions
 
 class DelegatingFindMemberUsagesHandler(
         val declaration: JetNamedDeclaration,
@@ -42,7 +46,7 @@ class DelegatingFindMemberUsagesHandler(
         JavaFindUsagesHandler(declaration, elementsToSearch.copyToArray(), factory.javaHandlerFactory)
     }
 
-    fun getHandler(element: PsiElement): FindUsagesHandler? =
+    private fun getHandler(element: PsiElement): FindUsagesHandler? =
             when (element) {
                 is JetNamedDeclaration ->
                     KotlinFindMemberUsagesHandler.getInstance(element, elementsToSearch, factory)
@@ -53,8 +57,13 @@ class DelegatingFindMemberUsagesHandler(
                 else -> null
             }
 
-    override fun getPrimaryElements(): Array<PsiElement> =
-            kotlinHandler.getPrimaryElements()
+    override fun getPrimaryElements(): Array<PsiElement> {
+        return kotlinHandler.getPrimaryElements()
+    }
+
+    override fun getSecondaryElements(): Array<out PsiElement>? {
+        return kotlinHandler.getSecondaryElements()
+    }
 
     override fun getFindUsagesOptions(dataContext: DataContext?): FindUsagesOptions {
         return kotlinHandler.getFindUsagesOptions(dataContext)

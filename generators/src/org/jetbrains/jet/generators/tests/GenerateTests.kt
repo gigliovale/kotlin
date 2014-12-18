@@ -138,6 +138,15 @@ import org.jetbrains.jet.plugin.coverage.AbstractKotlinCoverageOutputFilesTest
 import org.jetbrains.k2js.test.semantics.AbstractDynamicTest
 import org.jetbrains.k2js.test.semantics.AbstractMultiModuleTest
 import org.jetbrains.jet.completion.handlers.AbstractBasicCompletionHandlerTest
+import org.jetbrains.jet.android.AbstractParserResultEqualityTest
+import org.jetbrains.jet.android.AbstractAndroidCompletionTest
+import org.jetbrains.jet.android.AbstractAndroidGotoTest
+import org.jetbrains.jet.jps.build.android.AbstractAndroidJpsTestCase
+import org.jetbrains.jet.android.AbstractAndroidRenameTest
+import org.jetbrains.jet.android.AbstractAndroidFindUsagesTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidXml2KConversionTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBoxTest
+import org.jetbrains.jet.lang.resolve.android.test.AbstractAndroidBytecodeShapeTest
 
 fun main(args: Array<String>) {
     System.setProperty("java.awt.headless", "true")
@@ -685,6 +694,50 @@ fun main(args: Array<String>) {
             model("incremental/multiModule", extension = null, excludeParentDirs = true)
             model("incremental/pureKotlin", extension = null, excludeParentDirs = true)
             model("incremental/withJava", extension = null, excludeParentDirs = true)
+        }
+    }
+
+    testGroup("plugins/android-compiler-plugin/tests", "plugins/android-compiler-plugin/testData") {
+        testClass(javaClass<AbstractAndroidXml2KConversionTest>()) {
+            model("android/converter/simple", recursive = false, extension = null)
+            model("android/converter/exceptions", recursive = false, extension = null, testMethod = "doNoManifestTest")
+        }
+
+        testClass(javaClass<AbstractAndroidBoxTest>()) {
+            model("codegen/android", recursive = false, extension = null, testMethod = "doCompileAgainstAndroidSdkTest")
+            model("codegen/android", recursive = false, extension = null, testMethod = "doFakeInvocationTest", testClassName = "Invoke")
+        }
+
+        testClass(javaClass<AbstractAndroidBytecodeShapeTest>()) {
+            model("codegen/bytecodeShape", recursive = false, extension = null)
+        }
+    }
+
+    testGroup("plugins/android-idea-plugin/tests", "plugins/android-idea-plugin/testData") {
+        testClass(javaClass<AbstractParserResultEqualityTest>()) {
+            model("android/parserResultEquality", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidCompletionTest>()) {
+            model("android/completion", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidGotoTest>()) {
+            model("android/goto", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidRenameTest>()) {
+            model("android/rename", recursive = false, extension = null)
+        }
+
+        testClass(javaClass<AbstractAndroidFindUsagesTest>()) {
+            model("android/findUsages", recursive = false, extension = null)
+        }
+    }
+
+    testGroup("plugins/android-jps-plugin/tests", "plugins/android-jps-plugin/testData") {
+        testClass(javaClass<AbstractAndroidJpsTestCase>()) {
+            model("android", recursive = false, extension = null)
         }
     }
 

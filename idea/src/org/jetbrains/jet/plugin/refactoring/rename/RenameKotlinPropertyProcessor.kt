@@ -42,6 +42,7 @@ import org.jetbrains.jet.lang.resolve.OverrideResolver
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
 import org.jetbrains.jet.plugin.util.application.runReadAction
 import org.jetbrains.jet.plugin.caches.resolve.analyze
+import com.intellij.openapi.components.ServiceManager
 
 public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
     override fun canProcessElement(element: PsiElement): Boolean = element.namedUnwrappedElement is JetProperty
@@ -106,7 +107,7 @@ public class RenameKotlinPropertyProcessor : RenamePsiElementProcessor() {
         val oldSetterName = PropertyCodegen.setterName(element.getNameAsName())
 
         val refKindUsages = usages.toList().groupBy { (usage: UsageInfo): UsageKind ->
-            val refElement = usage.getReference()!!.resolve()
+            val refElement = usage.getReference()?.resolve()
             if (refElement is PsiMethod) {
                 when (refElement.getName()) {
                     oldGetterName -> UsageKind.GETTER_USAGE

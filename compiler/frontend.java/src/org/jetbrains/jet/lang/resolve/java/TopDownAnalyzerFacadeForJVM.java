@@ -106,8 +106,10 @@ public enum TopDownAnalyzerFacadeForJVM {
             @Nullable List<String> moduleIds,
             @Nullable IncrementalCacheProvider incrementalCacheProvider
     ) {
+        List<JetFile> allFiles = JvmAnalyzerFacade.getAllFilesToAnalyze(project, files);
+
         FileBasedDeclarationProviderFactory providerFactory =
-                new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), files);
+                new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), allFiles);
 
         InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
                 project,
@@ -136,7 +138,7 @@ public enum TopDownAnalyzerFacadeForJVM {
             }
             additionalProviders.add(injector.getJavaDescriptorResolver().getPackageFragmentProvider());
 
-            injector.getLazyTopDownAnalyzer().analyzeFiles(topDownAnalysisParameters, files, additionalProviders);
+            injector.getLazyTopDownAnalyzer().analyzeFiles(topDownAnalysisParameters, allFiles, additionalProviders);
             return AnalysisResult.success(trace.getBindingContext(), module);
         }
         finally {

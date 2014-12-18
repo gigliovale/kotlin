@@ -63,6 +63,7 @@
         <include name="core/descriptors/src"/>
         <include name="core/serialization/src"/>
         <include name="core/descriptor.loader.java/src"/>
+        <include name="compiler/frontend.java/src"/>
         <include name="core/serialization.java/src"/>
         <include name="core/util.runtime/src"/>
         <include name="compiler/frontend/src"/>
@@ -72,6 +73,7 @@
         <include name="compiler/cli/src"/>
         <include name="compiler/cli/cli-common/src"/>
         <include name="compiler/util/src"/>
+        <include name="compiler/plugin-api/src"/>
         <include name="compiler/jet.as.java.psi/src"/>
         <include name="compiler/builtins-serializer/src"/>
         <include name="js/js.dart-ast/src"/>
@@ -95,6 +97,7 @@
         <include name="cli-common/**"/>
         <include name="util/**"/>
         <include name="util.runtime/**"/>
+        <include name="plugin-api/**"/>
         <include name="jet.as.java.psi/**"/>
         <include name="builtins-serializer/**"/>
         <include name="js.dart-ast/**"/>
@@ -161,6 +164,8 @@
             <fileset dir="compiler/cli/src"/>
             <fileset dir="compiler/cli/cli-common/src"/>
             <fileset dir="compiler/util/src"/>
+            <fileset dir="compiler/plugin-api/src"/>
+            <fileset dir="core/util.runtime/src"/>
             <fileset dir="compiler/jet.as.java.psi/src"/>
             <fileset dir="compiler/builtins-serializer"/>
             <fileset dir="js/js.dart-ast/src"/>
@@ -523,6 +528,10 @@
                         public protected *;
                     }
 
+                    -keep class org.jetbrains.kotlin.compiler.plugin.** {
+                        public protected *;
+                    }
+
                     -keep class jet.** {
                         public protected *;
                     }
@@ -581,6 +590,32 @@
 
                 <attribute name="Main-Class" value="org.jetbrains.jet.cli.jvm.K2JVMCompiler"/>
             </manifest>
+        </jar>
+    </target>
+
+    <target name="android-compiler-plugin">
+        <cleandir dir="${output}/classes/android-compiler-plugin"/>
+        <javac2 destdir="${output}/classes/android-compiler-plugin" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false"
+                source="${java.target}" target="${java.target}">
+            <withKotlin externalannotations="${external.annotations.path}"/>
+            <src>
+                <dirset dir="${basedir}/plugins">
+                    <include name="android-compiler-plugin/src"/>
+                </dirset>
+            </src>
+            <compilerarg value="-Xlint:all"/>
+            <classpath>
+                <fileset dir="${basedir}/lib" includes="**/*.jar"/>
+                <fileset dir="${idea.sdk}" includes="core/*.jar"/>
+                <fileset dir="${kotlin-home}/lib" includes="kotlin-compiler.jar"/>
+                <file file="${bootstrap.runtime}"/>
+            </classpath>
+        </javac2>
+
+        <jar destfile="${kotlin-home}/lib/android-compiler-plugin.jar">
+            <fileset dir="${output}/classes/android-compiler-plugin"/>
+            <zipfileset file="${kotlin-home}/build.txt" prefix="META-INF"/>
+            <fileset dir="${basedir}/plugins/android-compiler-plugin/src" includes="META-INF/services/**"/>
         </jar>
     </target>
 
@@ -753,12 +788,12 @@
     <target name="runtime" depends="builtins,stdlib,pack-runtime,pack-runtime-sources"/>
 
     <target name="dist"
-            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler,compiler-sources,ant-tools,jdk-annotations,android-sdk-annotations,runtime,kotlin-js-stdlib"
+            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler,compiler-sources,android-compiler-plugin,ant-tools,jdk-annotations,android-sdk-annotations,runtime,kotlin-js-stdlib"
             description="Builds redistributables from sources"/>
 
     <!-- builds everything, but classes are reused from project out dir, doesn't run proguard and javadoc -->
     <target name="dist-quick"
-            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler-quick,ant-tools,jdk-annotations,android-sdk-annotations,runtime,kotlin-js-stdlib"/>
+            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler-quick,android-compiler-plugin,ant-tools,jdk-annotations,android-sdk-annotations,runtime,kotlin-js-stdlib"/>
 
     <target name="dist-quick-compiler-only"
             depends="init,prepare-dist,preloader,serialize-builtins,compiler-quick"

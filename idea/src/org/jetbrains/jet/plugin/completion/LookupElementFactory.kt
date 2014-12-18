@@ -38,6 +38,8 @@ import org.jetbrains.jet.plugin.caches.resolve.ResolutionFacade
 import com.intellij.codeInsight.lookup.DefaultLookupItemRenderer
 import org.jetbrains.jet.lang.types.TypeUtils
 import com.intellij.codeInsight.lookup.impl.LookupCellRenderer
+import org.jetbrains.jet.plugin.util.nullability
+import org.jetbrains.jet.plugin.util.TypeNullability
 
 public class LookupElementFactory(
         private val receiverTypes: Collection<JetType>
@@ -142,7 +144,11 @@ public class LookupElementFactory(
         }
 
 
-        var element = LookupElementBuilder.create(DeclarationDescriptorLookupObject(descriptor, resolutionFacade, declaration), descriptor.getName().asString())
+        val name = if (descriptor is ConstructorDescriptor)
+            descriptor.getContainingDeclaration().getName().asString()
+        else
+            descriptor.getName().asString()
+        var element = LookupElementBuilder.create(DeclarationDescriptorLookupObject(descriptor, resolutionFacade, declaration), name)
                 .withIcon(JetDescriptorIconProvider.getIcon(descriptor, declaration, Iconable.ICON_FLAG_VISIBILITY))
 
         when (descriptor) {
@@ -207,12 +213,12 @@ public class LookupElementFactory(
     private fun callableWeight(descriptor: DeclarationDescriptor): CallableWeight? {
         if (descriptor !is CallableDescriptor) return null
 
-        val isReceiverNullable = receiverTypes.isNotEmpty() && receiverTypes.all { it.isMarkedNullable() }
+        val isReceiverNullable = receiverTypes.isNotEmpty() && receiverTypes.all { it.nullability() == TypeNullability.NULLABLE }
         val receiverParameter = descriptor.getExtensionReceiverParameter()
 
         if (receiverParameter != null) {
             val receiverParamType = receiverParameter.getType()
-            return if (isReceiverNullable && !receiverParamType.isMarkedNullable())
+            return if (isReceiverNullable && receiverParamType.nullability() == TypeNullability.NOT_NULL)
                 CallableWeight.notApplicableReceiverNullable
             else if (receiverTypes.any { TypeUtils.equalTypes(it, receiverParamType) })
                 CallableWeight.thisTypeExtension

@@ -102,10 +102,7 @@ public class ReferenceVariantsHelper(
                 val receiverValue = ExpressionReceiver(receiverExpression, expressionType)
                 val dataFlowInfo = context.getDataFlowInfo(expression)
 
-                val mask = kindFilter.withoutKinds(DescriptorKindFilter.NON_SINGLETON_CLASSIFIERS_MASK).exclude(DescriptorKindExclude.Extensions)
-                for (variant in SmartCastUtils.getSmartCastVariantsWithLessSpecificExcluded(receiverValue, context, dataFlowInfo)) {
-                    variant.getMemberScope().getDescriptorsFiltered(mask, nameFilter).filterTo(descriptors) { callType.canCall(it) }
-                }
+                descriptors.addMembers(receiverValue, callType, dataFlowInfo, kindFilter, nameFilter)
 
                 descriptors.addCallableExtensions(resolutionScope, receiverValue, dataFlowInfo, callType, kindFilter, nameFilter)
             }
@@ -133,6 +130,28 @@ public class ReferenceVariantsHelper(
             }
 
             return descriptorsSet
+        }
+    }
+
+    private fun MutableCollection<DeclarationDescriptor>.addMembers(
+            receiverValue: ExpressionReceiver,
+            callType: CallType,
+            dataFlowInfo: DataFlowInfo,
+            kindFilter: DescriptorKindFilter,
+            nameFilter: (Name) -> Boolean) {
+        var memberFilter = kindFilter exclude DescriptorKindExclude.Extensions
+        for (variant in SmartCastUtils.getSmartCastVariantsWithLessSpecificExcluded(receiverValue, context, dataFlowInfo)) {
+            val members = variant.getMemberScope().getDescriptorsFiltered(DescriptorKindFilter.ALL, nameFilter) // filter by kind later because of constructors
+            for (member in members) {
+                if (member is ClassDescriptor) {
+                    if (member.isInner()) {
+                        member.getConstructors().filterTo(this) { callType.canCall(it) && memberFilter.accepts(it) }
+                    }
+                }
+                else if (callType.canCall(member) && memberFilter.accepts(member)) {
+                    this.add(member)
+                }
+            }
         }
     }
 

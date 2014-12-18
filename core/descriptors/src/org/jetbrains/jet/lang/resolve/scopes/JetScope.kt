@@ -110,6 +110,9 @@ public class DescriptorKindFilter(
     public fun withoutKinds(kinds: Int): DescriptorKindFilter
             = DescriptorKindFilter(kindMask and kinds.inv(), excludes)
 
+    public fun withKinds(kinds: Int): DescriptorKindFilter
+            = DescriptorKindFilter(kindMask or kinds, excludes)
+
     public fun restrictedToKinds(kinds: Int): DescriptorKindFilter? {
         val mask = kindMask and kinds
         if (mask == 0) return null
@@ -185,17 +188,20 @@ public class DescriptorKindFilter(
 public trait DescriptorKindExclude {
     public fun matches(descriptor: DeclarationDescriptor): Boolean
 
+    override fun toString() = this.javaClass.getSimpleName()
+
     public object Extensions : DescriptorKindExclude {
         override fun matches(descriptor: DeclarationDescriptor)
                 = descriptor is CallableDescriptor && descriptor.getExtensionReceiverParameter() != null
-
-        override fun toString() = this.javaClass.getSimpleName()
     }
 
     public object NonExtensions : DescriptorKindExclude {
         override fun matches(descriptor: DeclarationDescriptor)
                 = descriptor !is CallableDescriptor || descriptor.getExtensionReceiverParameter() == null
+    }
 
-        override fun toString() = this.javaClass.getSimpleName()
+    public object EnumEntry : DescriptorKindExclude {
+        override fun matches(descriptor: DeclarationDescriptor)
+                = descriptor is ClassDescriptor && descriptor.getKind() == ClassKind.ENUM_ENTRY
     }
 }

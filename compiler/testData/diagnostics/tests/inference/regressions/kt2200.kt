@@ -11,4 +11,4 @@ fun main(args: Array<String>) {
 }
 
 //from library
-fun <T> array(vararg t : T) : Array<T> = t as Array<T>
+fun <T> array(vararg t : T) : Array<T> = <!UNCHECKED_CAST!>t as Array<T><!>

@@ -28,6 +28,7 @@ import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
 import org.jetbrains.jet.lang.types.checker.TypeCheckingProcedure;
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.jet.lang.types.typeUtil.TypeUtilPackage;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -122,9 +123,8 @@ public class CastDiagnosticsUtil {
         // downcasting to a non-reified type parameter is always erased
         if (TypeUtils.isNonReifiedTypeParemeter(subtype)) return true;
 
-        // Check that we are actually casting to a generic type
-        // NOTE: this does not account for 'as Array<List<T>>'
-        if (allParametersReified(subtype)) return false;
+        // Check that we are actually casting to an erased generic type
+        if (TypeUtilPackage.isRuntimeAvailable(subtype)) return false;
 
         JetType staticallyKnownSubtype = findStaticallyKnownSubtype(supertype, subtype.getConstructor()).getResultingType();
 
@@ -209,12 +209,4 @@ public class CastDiagnosticsUtil {
         return new TypeReconstructionResult(substituted, allArgumentsInferred);
     }
 
-    private static boolean allParametersReified(JetType subtype) {
-        for (TypeParameterDescriptor parameterDescriptor : subtype.getConstructor().getParameters()) {
-            if (!parameterDescriptor.isReified()) return false;
-        }
-        return true;
-    }
-
-    private CastDiagnosticsUtil() {}
 }

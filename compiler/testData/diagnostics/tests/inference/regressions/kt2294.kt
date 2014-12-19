@@ -13,4 +13,4 @@ public fun test()
 
 //--------------------
 
-fun <T> array(vararg t : T) : Array<T> = t as Array<T>
+fun <T> array(vararg t : T) : Array<T> = <!UNCHECKED_CAST!>t as Array<T><!>

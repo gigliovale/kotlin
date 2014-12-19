@@ -959,6 +959,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("deepErasure.kt")
+            public void testDeepErasure() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/deepErasure.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("DowncastMap.kt")
             public void testDowncastMap() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/DowncastMap.kt");

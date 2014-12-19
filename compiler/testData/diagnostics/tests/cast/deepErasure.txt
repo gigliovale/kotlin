@@ -1,0 +1,3 @@
+package
+
+internal fun f(/*0*/ a: kotlin.Array<out kotlin.List<kotlin.Any>>): kotlin.Unit

@@ -31,6 +31,7 @@ fun <T> foreignKotlinClass(jClass: Class<T>): KClassImpl<T> {
     val name = jClass.getName()
     val cached = FOREIGN_K_CLASSES[name]
     if (cached is WeakReference<*>) {
+        [suppress("UNCHECKED_CAST")]
         val kClass = cached.get() as KClassImpl<T>?
         if (kClass?.jClass == jClass) {
             return kClass!!
@@ -50,7 +51,8 @@ fun <T> foreignKotlinClass(jClass: Class<T>): KClassImpl<T> {
         // the single element would be cached instead), and none of those classes is the one we're looking for
         val size = cached.size()
         // Don't use Array constructor because it creates a lambda
-        val newArray = arrayOfNulls<WeakReference<KClassImpl<*>>>(size + 1)
+        [suppress("CAST_NEVER_SUCCEEDS")]
+        val newArray = arrayOfNulls<WeakReference<*>>(size + 1) as Array<WeakReference<KClassImpl<*>>>
         // Don't use Arrays.copyOf because it works reflectively
         System.arraycopy(cached, 0, newArray, 0, size)
         val newKClass = kClass<T>(jClass)

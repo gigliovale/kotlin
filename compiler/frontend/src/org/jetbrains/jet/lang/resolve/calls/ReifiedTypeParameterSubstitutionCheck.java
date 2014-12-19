@@ -23,6 +23,7 @@ import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor;
 import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Errors;
 import org.jetbrains.jet.lang.psi.JetExpression;
+import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.calls.context.BasicCallResolutionContext;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
 import org.jetbrains.jet.lang.types.JetType;
@@ -49,11 +50,20 @@ public class ReifiedTypeParameterSubstitutionCheck implements CallResolverExtens
                             Errors.TYPE_PARAMETER_AS_REIFIED.on(getCallElement(context), parameter)
                     );
                 }
-                else if (TypeUtilPackage.cannotBeReified(argument)) {
-                    context.trace.report(Errors.REIFIED_TYPE_FORBIDDEN_SUBSTITUTION.on(getCallElement(context), argument));
+                else if (!TypeUtilPackage.isRuntimeAvailable(argument)) {
+                    if (!arrayInAnnotationContext(resolvedCall, context)) {
+                        context.trace.report(Errors.REIFIED_TYPE_FORBIDDEN_SUBSTITUTION.on(getCallElement(context), argument));
+                    }
                 }
             }
         }
+    }
+
+    private static <F extends CallableDescriptor> boolean arrayInAnnotationContext(ResolvedCall<F> call, BasicCallResolutionContext context) {
+        CallableDescriptor callableDescriptor = call.getResultingDescriptor().getOriginal();
+        return context.isAnnotationContext
+               && DescriptorUtils.getFqName(callableDescriptor.getContainingDeclaration()).child(callableDescriptor.getName()).asString().equals("kotlin.array");
+
     }
 
     @NotNull

@@ -2,7 +2,7 @@ import kotlin.*
 
 val test = "lala".javaClass
 
-val test2 = javaClass<Iterator<Int>> ()
+val test2 = javaClass<Iterator<*>> ()
 
 fun box(): String {
     if(test.getCanonicalName() != "java.lang.String") return "fail"

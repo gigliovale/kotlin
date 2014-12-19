@@ -28,6 +28,8 @@ import org.jetbrains.jet.utils.toReadOnlyList
 import org.jetbrains.jet.lang.types.checker.JetTypeChecker
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.types.isDynamic
+import org.jetbrains.jet.lang.types.TypeUtils
+import org.jetbrains.jet.lang.types.Variance
 
 fun JetType.getContainedTypeParameters(): Collection<TypeParameterDescriptor> {
     val declarationDescriptor = getConstructor().getDeclarationDescriptor()
@@ -64,6 +66,26 @@ public fun JetType.getContainedAndCapturedTypeParameterConstructors(): Collectio
 
 public fun JetType.isSubtypeOf(superType: JetType): Boolean = JetTypeChecker.DEFAULT.isSubtypeOf(this, superType)
 
+deprecated("this method is only used once, and that usage is incorrect") // TODO: remove
 public fun JetType.cannotBeReified(): Boolean = KotlinBuiltIns.isNothingOrNullableNothing(this) || this.isDynamic()
 
+public fun JetType.isRuntimeAvailable(): Boolean {
+    if (KotlinBuiltIns.isNothingOrNullableNothing(this) || this.isDynamic()) return false
 
+    if (this.isMarkedNullable()) return TypeUtils.makeNotNullable(this).isRuntimeAvailable()
+
+    val typeConstructor = getConstructor()
+    val descriptor = typeConstructor.getDeclarationDescriptor()
+
+    return when (descriptor) {
+        is ClassDescriptor -> {
+            typeConstructor.getParameters().zip(getArguments()).all {
+                val (parameter, argument) = it
+                parameter.isReified() && argument.getType().isRuntimeAvailable() && argument.getProjectionKind() == Variance.INVARIANT
+                || argument == TypeUtils.makeStarProjection(parameter)
+            }
+        }
+        is TypeParameterDescriptor -> descriptor.isReified()
+        else -> false
+    }
+}

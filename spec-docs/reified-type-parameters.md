@@ -16,9 +16,10 @@ inline fun foo<reified T>() {}
 **Definition** A well-formed type is called *runtime-available* if
 - it has the form `C`, where `C` is a classifier (object, class or trait) that has either no type parameters, or all its type parameters are `reified`, with the exception for class `Nothing`,
 - it has the form `G<A1, ..., An>`, where `G` is a classifier with `n` type parameters, and for every type parameter `Ti` at least one of the following conditions hold:
-    - `Ti` is a `reified` type parameter and the corresponding type argument `Ai` is a runtime-available type,
+    - `Ti` is a `reified` type parameter and the corresponding type argument `Ai` is a runtime-available type (with no projection, i.e. neither `in`, not `out`),
     - `Ai` is a *star-projection* (e.g. for `List<*>`, `A1` is a star-projection);
-- it has the form `T`, and `T` is a `reified` type parameter.
+- it has the form `T`, and `T` is a `reified` type parameter,
+- it has the from `T?`, where T is a runtime-available type.
 
 Examples:
 - Runtime-available types: `String`, `Array<String>`, `List<*>`;
@@ -37,7 +38,8 @@ As a consequence, if `T` is a `reified` type parameter, the following constructs
 Restrictions regarding reified type parameters:
 - Only a type parameter of an `inline` function can be marked `reified`
 - The built-in class `Array` is the only class whose type parameter is marked `reified`. Other classes are not allowed to declare `reified` type parameters.
-- Only a runtime-available type can be passed as an argument to a `reified` type parameter
+- Only a runtime-available type can be passed as an argument to a `reified` type parameter of **a call** (not a type),
+  with the exception of the `array()` function when used in annotations
 
 Notes:
 - No warning is issued on `inline` functions declaring no inlinable parameters of function types, but having a `reified` type parameter declared.
@@ -60,3 +62,8 @@ typeLiteral<Int>().type // returns 'class java.lang.Integer'
 typeLiteral<Array<String>>().type // returns '[Ljava.lang.String;'
 typeLiteral<List<*>>().type // returns 'java.util.List<?>'
 ```
+
+> Note on variance and projections: we currently disallow a reified parameter to be substituted with, say, `Array<out Foo>`,
+although it would work for subtyping of arrays on the JVM, which coincidentally is covariant.
+This is done because we suspect it may be too hard to generalize on other platforms and with other classes.
+This also suggests that allowing co-variant reified parameters for classes may be problematic, if we have them in the future.

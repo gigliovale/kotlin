@@ -1,0 +1,38 @@
+package
+
+C(a = {kotlin.String.class}: kotlin.Array<java.lang.Class<out kotlin.Any?>>) COut(a = {kotlin.String.class}: kotlin.Array<java.lang.Class<kotlin.String>>) CStr(a = {kotlin.String.class}: kotlin.Array<java.lang.Class<kotlin.String>>) CVararg(a = {kotlin.String.class}: kotlin.Array<java.lang.Class<kotlin.String>>) CVararg(a = {kotlin.String.class}: kotlin.Array<out java.lang.Class<out kotlin.Any?>>) internal fun annotationTest(): kotlin.Unit
+internal fun arrayTest(): kotlin.Unit
+kotlin.inline() internal fun </*0*/ reified T> foo(): kotlin.Unit
+kotlin.inline() internal fun </*0*/ reified R, /*1*/ N> test(): kotlin.Unit
+
+internal final annotation class C : kotlin.Annotation {
+    public constructor C(/*0*/ a: kotlin.Array<java.lang.Class<out kotlin.Any?>>)
+    internal final val a: kotlin.Array<java.lang.Class<out kotlin.Any?>>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+internal final annotation class COut : kotlin.Annotation {
+    public constructor COut(/*0*/ a: kotlin.Array<out java.lang.Class<out kotlin.Any?>>)
+    internal final val a: kotlin.Array<out java.lang.Class<out kotlin.Any?>>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+internal final annotation class CStr : kotlin.Annotation {
+    public constructor CStr(/*0*/ a: kotlin.Array<java.lang.Class<kotlin.String>>)
+    internal final val a: kotlin.Array<java.lang.Class<kotlin.String>>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+internal final annotation class CVararg : kotlin.Annotation {
+    public constructor CVararg(/*0*/ vararg a: java.lang.Class<out kotlin.Any?> /*kotlin.Array<out java.lang.Class<out kotlin.Any?>>*/)
+    internal final val a: kotlin.Array<out java.lang.Class<out kotlin.Any?>>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}

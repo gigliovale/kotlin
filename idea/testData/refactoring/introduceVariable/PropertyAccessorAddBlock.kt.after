@@ -1,4 +1,4 @@
-fun x(): Int {
+val x: Int get() {
     val i = 1
     return i
 }

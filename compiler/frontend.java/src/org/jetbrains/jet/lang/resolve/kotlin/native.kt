@@ -30,6 +30,7 @@ import org.jetbrains.jet.lang.descriptors.Modality
 import org.jetbrains.jet.lang.resolve.java.diagnostics.ErrorsJvm
 import org.jetbrains.jet.lang.psi.JetDeclarationWithBody
 import org.jetbrains.jet.lang.resolve.annotations.hasInlineAnnotation
+import org.jetbrains.jet.lang.descriptors.ClassDescriptor
 
 private val NATIVE_ANNOTATION_CLASS_NAME = FqName("kotlin.jvm.native")
 
@@ -39,8 +40,9 @@ public fun DeclarationDescriptor.hasNativeAnnotation(): Boolean {
 
 class SuppressNoBodyErrorsForNativeDeclarations : DiagnosticsWithSuppression.SuppressStringProvider {
     override fun get(annotationDescriptor: AnnotationDescriptor): List<String> {
-        val descriptor = DescriptorUtils.getClassDescriptorForType(annotationDescriptor.getType())
-        if (NATIVE_ANNOTATION_CLASS_NAME.asString() == DescriptorUtils.getFqName(descriptor).asString()) {
+        val descriptor = annotationDescriptor.getType().getConstructor().getDeclarationDescriptor()
+        if (descriptor is ClassDescriptor
+            && NATIVE_ANNOTATION_CLASS_NAME.asString() == DescriptorUtils.getFqName(descriptor).asString()) {
             return listOf(
                     Errors.NON_ABSTRACT_FUNCTION_WITH_NO_BODY.getName().toLowerCase(),
                     Errors.NON_MEMBER_FUNCTION_NO_BODY.getName().toLowerCase(),

@@ -36,9 +36,27 @@ public class BasicCompletionHandlerTestGenerated extends AbstractBasicCompletion
         JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/completion/handlers/basic"), Pattern.compile("^(.+)\\.kt$"), true);
     }
 
+    @TestMetadata("ClassWithClassObject.kt")
+    public void testClassWithClassObject() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/completion/handlers/basic/ClassWithClassObject.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("DoNotUseParenthesisOnNextLine.kt")
+    public void testDoNotUseParenthesisOnNextLine() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/completion/handlers/basic/DoNotUseParenthesisOnNextLine.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("ExtensionReceiverTypeArg.kt")
     public void testExtensionReceiverTypeArg() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("idea/testData/completion/handlers/basic/ExtensionReceiverTypeArg.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("GenericFunctionWithTab.kt")
+    public void testGenericFunctionWithTab() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/completion/handlers/basic/GenericFunctionWithTab.kt");
         doTest(fileName);
     }
 

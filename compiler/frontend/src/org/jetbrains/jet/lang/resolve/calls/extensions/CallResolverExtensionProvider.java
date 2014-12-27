@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.jet.lang.resolve.calls;
+package org.jetbrains.jet.lang.resolve.calls.extensions;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,11 @@ import java.util.*;
 public class CallResolverExtensionProvider {
 
     private final static CompositeExtension DEFAULT =
-            new CompositeExtension(Arrays.asList(new NeedSyntheticCallResolverExtension(), new ReifiedTypeParameterSubstitutionCheck()));
+            new CompositeExtension(Arrays.asList(
+                    new NeedSyntheticCallResolverExtension(),
+                    new ReifiedTypeParameterSubstitutionCheck(),
+                    new CapturingInClosureExtension()
+            ));
 
     private WeakReference<Map<DeclarationDescriptor, List<CallResolverExtension>>> extensionsCache;
 

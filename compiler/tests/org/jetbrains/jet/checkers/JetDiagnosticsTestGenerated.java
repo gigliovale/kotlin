@@ -1921,6 +1921,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/definiteReturn/ReturnFromFunctionInObject.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("simpleClass.kt")
+                public void testSimpleClass() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/definiteReturn/simpleClass.kt");
+                    doTest(fileName);
+                }
             }
         }
 
@@ -4718,6 +4724,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
             @TestMetadata("ImportsHiddenByDefinitionInTheSameFile.kt")
             public void testImportsHiddenByDefinitionInTheSameFile() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportsHiddenByDefinitionInTheSameFile.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("propertyClassFileDependencyRecursion.kt")
+            public void testPropertyClassFileDependencyRecursion() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/propertyClassFileDependencyRecursion.kt");
                 doTest(fileName);
             }
 
@@ -9612,6 +9624,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("sameClassNameResolve.kt")
+            public void testSameClassNameResolve() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/scopes/sameClassNameResolve.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("stopResolutionOnAmbiguity.kt")
             public void testStopResolutionOnAmbiguity() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/scopes/stopResolutionOnAmbiguity.kt");
@@ -10614,6 +10632,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
             @TestMetadata("ElseOnNullableEnumWithSmartCast.kt")
             public void testElseOnNullableEnumWithSmartCast() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/ElseOnNullableEnumWithSmartCast.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt4434.kt")
+            public void testKt4434() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/kt4434.kt");
                 doTest(fileName);
             }
 

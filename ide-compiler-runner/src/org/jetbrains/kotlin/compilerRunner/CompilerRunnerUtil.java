@@ -18,9 +18,9 @@ package org.jetbrains.kotlin.compilerRunner;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.cli.common.messages.MessageCollector;
-import org.jetbrains.jet.utils.KotlinPaths;
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.preloading.ClassPreloadingUtils;
+import org.jetbrains.kotlin.utils.KotlinPaths;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,8 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.Collections;
 
-import static org.jetbrains.jet.cli.common.messages.CompilerMessageLocation.NO_LOCATION;
-import static org.jetbrains.jet.cli.common.messages.CompilerMessageSeverity.ERROR;
+import static org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation.NO_LOCATION;
+import static org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR;
 
 public class CompilerRunnerUtil {
 
@@ -85,7 +85,7 @@ public class CompilerRunnerUtil {
         Method exec = kompiler.getMethod(
                 "execAndOutputXml",
                 PrintStream.class,
-                Class.forName("org.jetbrains.jet.config.Services", true, classLoader),
+                Class.forName("org.jetbrains.kotlin.config.Services", true, classLoader),
                 String[].class
         );
 

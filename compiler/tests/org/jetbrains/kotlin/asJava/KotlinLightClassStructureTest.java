@@ -23,7 +23,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.codegen.forTestCompile.ForTestCompileRuntime;
+import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
 import org.jetbrains.jet.config.CompilerConfiguration;
 
 import java.io.File;
@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.jetbrains.jet.cli.jvm.JVMConfigurationKeys.CLASSPATH_KEY;
 import static org.jetbrains.kotlin.asJava.KotlinLightClassStructureTest.ClassProperty.*;
+import static org.jetbrains.kotlin.cli.jvm.JVMConfigurationKeys.CLASSPATH_KEY;
 
 @SuppressWarnings("JUnitTestClassNamingConvention")
 public abstract class KotlinLightClassStructureTest extends KotlinAsJavaTestBase {

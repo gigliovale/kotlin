@@ -17,8 +17,8 @@
 package org.jetbrains.kotlin.modules;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.config.IncrementalCompilation;
-import org.jetbrains.jet.utils.Printer;
+import org.jetbrains.kotlin.config.IncrementalCompilation;
+import org.jetbrains.kotlin.utils.Printer;
 
 import java.io.File;
 import java.util.Collection;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 import static com.intellij.openapi.util.io.FileUtil.toSystemIndependentName;
 import static com.intellij.openapi.util.text.StringUtil.escapeXml;
-import static org.jetbrains.jet.cli.common.modules.ModuleXmlParser.*;
+import static org.jetbrains.kotlin.cli.common.modules.ModuleXmlParser.*;
 
 public class KotlinModuleXmlBuilderFactory implements KotlinModuleDescriptionBuilderFactory {
 

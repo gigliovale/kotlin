@@ -19,8 +19,8 @@ package org.jetbrains.jet.lang.resolve.lazy.declarations
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.jet.lang.psi.JetFile
-import org.jetbrains.jet.storage.StorageManager
-import org.jetbrains.kotlin.util.sure
+import org.jetbrains.kotlin.storage.StorageManager
+import org.jetbrains.kotlin.utils.sure
 import java.util.ArrayList
 
 public class CliDeclarationProviderFactoryService(private val sourceFiles: Collection<JetFile>) : DeclarationProviderFactoryService() {

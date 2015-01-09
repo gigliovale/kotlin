@@ -19,7 +19,7 @@ package org.jetbrains.jet.plugin.caches.resolve
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.module.ModuleManager
-import org.jetbrains.jet.utils.keysToMap
+import org.jetbrains.kotlin.utils.keysToMap
 import com.intellij.openapi.roots.LibraryOrderEntry
 import org.jetbrains.jet.plugin.project.ResolveSessionForBodies
 import org.jetbrains.jet.lang.resolve.java.JvmPlatformParameters
@@ -28,7 +28,7 @@ import com.intellij.openapi.roots.JdkOrderEntry
 import org.jetbrains.jet.analyzer.AnalyzerFacade
 import org.jetbrains.jet.analyzer.ResolverForModule
 import org.jetbrains.jet.lang.psi.*
-import org.jetbrains.jet.storage.ExceptionTracker
+import org.jetbrains.kotlin.storage.ExceptionTracker
 import org.jetbrains.jet.lang.resolve.java.structure.JavaClass
 import org.jetbrains.jet.analyzer.ResolverForProject
 import org.jetbrains.jet.analyzer.ModuleContent

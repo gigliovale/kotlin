@@ -17,14 +17,14 @@
 package org.jetbrains.jet.lang.resolve.java.lazy
 
 import org.jetbrains.jet.lang.descriptors.ModuleDescriptor
-import org.jetbrains.jet.storage.MemoizedFunctionToNullable
+import org.jetbrains.kotlin.storage.MemoizedFunctionToNullable
 import org.jetbrains.jet.lang.resolve.name.FqName
 import org.jetbrains.jet.lang.resolve.java.structure.JavaClass
 import org.jetbrains.jet.lang.descriptors.ClassDescriptor
 import org.jetbrains.jet.lang.resolve.java.lazy.descriptors.*
 import org.jetbrains.jet.lang.descriptors.PackageFragmentProvider
 import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.utils.emptyOrSingletonList
+import org.jetbrains.kotlin.utils.emptyOrSingletonList
 
 public class LazyJavaPackageFragmentProvider(
         outerContext: GlobalJavaResolverContext,

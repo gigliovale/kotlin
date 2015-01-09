@@ -21,12 +21,12 @@ import org.jetbrains.kotlin.serialization.builtins.BuiltInsSerializer
 import org.jetbrains.jet.test.TestCaseWithTmpdir
 import org.jetbrains.jet.lang.types.lang.BuiltinsPackageFragment
 import org.jetbrains.jet.jvm.compiler.LoadDescriptorUtil.TEST_PACKAGE_FQNAME
-import org.jetbrains.jet.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.jet.JetTestUtils
 import java.io.FileInputStream
 import org.jetbrains.jet.test.util.RecursiveDescriptorComparator
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.codegen.forTestCompile.ForTestCompileRuntime
+import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 
 public class BuiltInsSerializerTest : TestCaseWithTmpdir() {
     private fun doTest(fileName: String) {

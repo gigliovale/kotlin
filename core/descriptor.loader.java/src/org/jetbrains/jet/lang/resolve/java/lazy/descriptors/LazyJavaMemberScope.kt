@@ -17,7 +17,7 @@
 package org.jetbrains.jet.lang.resolve.java.lazy.descriptors
 
 import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.storage.NotNullLazyValue
+import org.jetbrains.kotlin.storage.NotNullLazyValue
 import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.resolve.java.structure.JavaMethod
@@ -41,7 +41,7 @@ import org.jetbrains.jet.lang.types.JetType
 import org.jetbrains.jet.lang.resolve.java.descriptor.JavaPropertyDescriptor
 import org.jetbrains.jet.lang.descriptors.impl.PropertyDescriptorImpl
 import org.jetbrains.jet.lang.resolve.java.resolver.ExternalSignatureResolver
-import org.jetbrains.jet.utils.*
+import org.jetbrains.kotlin.utils.*
 import org.jetbrains.jet.lang.resolve.java.PLATFORM_TYPES
 import org.jetbrains.jet.lang.descriptors.annotations.Annotations
 import org.jetbrains.jet.lang.resolve.scopes.DescriptorKindFilter

@@ -36,12 +36,12 @@ import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.codegen.GenerationUtils;
-import org.jetbrains.jet.codegen.state.GenerationState;
+import org.jetbrains.kotlin.codegen.GenerationUtils;
+import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.plugin.PluginTestCaseBase;
 import org.jetbrains.jet.plugin.project.PluginJetFilesProvider;
-import org.jetbrains.jet.utils.UtilsPackage;
+import org.jetbrains.kotlin.utils.UtilsPackage;
 import org.jetbrains.kotlin.backend.common.output.OutputFile;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 

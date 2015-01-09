@@ -26,8 +26,9 @@ import org.jetbrains.jet.lang.descriptors.PackageFragmentProvider
 import org.jetbrains.jet.lang.descriptors.impl.PackageFragmentDescriptorImpl
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.kotlin.storage.StorageManager
-import org.jetbrains.jet.descriptors.serialization.descriptors.DeserializedPackageMemberScope
-import org.jetbrains.jet.descriptors.serialization.*
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
+import org.jetbrains.kotlin.serialization.*
+import org.jetbrains.kotlin.serialization.jvm.*
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import org.jetbrains.kotlin.storage.NotNullLazyValue
@@ -35,7 +36,7 @@ import org.jetbrains.jet.lang.resolve.kotlin.PackagePartClassUtils
 import org.jetbrains.jet.lang.resolve.java.JvmClassName
 import org.jetbrains.jet.lang.resolve.kotlin.incremental.cache.IncrementalCache
 import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.descriptors.serialization.context.DeserializationComponents
+import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
 
 public class IncrementalPackageFragmentProvider(
         sourceFiles: Collection<JetFile>,
@@ -101,7 +102,7 @@ public class IncrementalPackageFragmentProvider(
                     JetScope.Empty
                 }
                 else {
-                    IncrementalPackageScope(JavaProtoBufUtil.readPackageDataFrom(packageDataBytes))
+                    IncrementalPackageScope(JvmProtoBufUtil.readPackageDataFrom(packageDataBytes))
                 }
             }
         }
@@ -116,8 +117,8 @@ public class IncrementalPackageFragmentProvider(
                 return allMemberProtos
                         .filter {
                             member ->
-                            if (member.hasExtension(JavaProtoBuf.implClassName)) {
-                                val shortName = packageData.getNameResolver().getName(member.getExtension(JavaProtoBuf.implClassName)!!)
+                            if (member.hasExtension(JvmProtoBuf.implClassName)) {
+                                val shortName = packageData.getNameResolver().getName(member.getExtension(JvmProtoBuf.implClassName)!!)
                                 val internalName = JvmClassName.byFqNameWithoutInnerClasses(fqName.child(shortName)).getInternalName()
                                 internalName !in packagePartsToNotLoadFromCache
                             }

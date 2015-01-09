@@ -18,19 +18,18 @@ package org.jetbrains.jet.lang.resolve.kotlin
 
 import org.jetbrains.jet.lang.resolve.name.ClassId
 import java.util.ArrayList
-import org.jetbrains.jet.descriptors.serialization.descriptors.AnnotatedCallableKind
-import org.jetbrains.jet.descriptors.serialization.NameResolver
-import org.jetbrains.jet.descriptors.serialization.ProtoBuf
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBuf
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBuf.*
-import org.jetbrains.jet.descriptors.serialization.descriptors.ProtoContainer
+import org.jetbrains.kotlin.serialization.deserialization.AnnotatedCallableKind
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import org.jetbrains.kotlin.serialization.ProtoBuf
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf.*
+import org.jetbrains.kotlin.serialization.deserialization.ProtoContainer
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.jet.lang.resolve.java.resolver.ErrorReporter
 import org.jetbrains.jet.lang.resolve.name.FqName
 import java.util.HashMap
 import org.jetbrains.jet.lang.resolve.name.Name
-import org.jetbrains.jet.descriptors.serialization.Flags
-import org.jetbrains.jet.descriptors.serialization.descriptors.AnnotationAndConstantLoader
+import org.jetbrains.kotlin.serialization.Flags
+import org.jetbrains.kotlin.serialization.deserialization.AnnotationAndConstantLoader
 import org.jetbrains.jet.lang.resolve.java.JvmAnnotationNames
 
 public abstract class AbstractBinaryClassAnnotationAndConstantLoader<A : Any, C : Any>(
@@ -119,7 +118,7 @@ public abstract class AbstractBinaryClassAnnotationAndConstantLoader<A : Any, C 
         val methodSignature = getCallableSignature(callable, nameResolver, kind)
         if (methodSignature != null) {
             if (proto.hasExtension(index)) {
-                val paramSignature = MemberSignature.fromMethodSignatureAndParameterIndex(methodSignature, proto.getExtension(JavaProtoBuf.index))
+                val paramSignature = MemberSignature.fromMethodSignatureAndParameterIndex(methodSignature, proto.getExtension(index))
                 return findClassAndLoadMemberAnnotations(container, callable, nameResolver, kind, paramSignature)
             }
         }

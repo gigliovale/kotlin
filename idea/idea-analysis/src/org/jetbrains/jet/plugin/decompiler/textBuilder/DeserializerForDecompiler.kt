@@ -17,7 +17,7 @@
 package org.jetbrains.jet.plugin.decompiler.textBuilder
 
 import org.jetbrains.jet.lang.resolve.name.ClassId
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
 import org.jetbrains.jet.lang.descriptors.*
 import org.jetbrains.jet.lang.descriptors.impl.MutablePackageFragmentDescriptor
 import org.jetbrains.jet.lang.resolve.kotlin.*
@@ -26,11 +26,10 @@ import org.jetbrains.jet.lang.resolve.name.Name
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import java.util.Collections
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.jet.descriptors.serialization.descriptors.DeserializedPackageMemberScope
-import org.jetbrains.jet.lang.resolve.java.resolver.ErrorReporter
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
 import org.jetbrains.jet.lang.resolve.java.PackageClassUtils
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.jet.descriptors.serialization.context.DeserializationComponents
+import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
 import org.jetbrains.jet.lang.PlatformToKotlinClassMap
 import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
 import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
@@ -59,7 +58,7 @@ public class DeserializerForDecompiler(val packageDirectory: VirtualFile, val di
             LOG.error("Could not read annotation data for $packageFqName from ${binaryClassForPackageClass?.getClassId()}")
             return Collections.emptyList()
         }
-        val packageData = JavaProtoBufUtil.readPackageDataFrom(annotationData)
+        val packageData = JvmProtoBufUtil.readPackageDataFrom(annotationData)
         val membersScope = DeserializedPackageMemberScope(
                 createDummyPackageFragment(packageFqName),
                 packageData.getPackageProto(),

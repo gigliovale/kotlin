@@ -28,9 +28,9 @@ import org.jetbrains.kotlin.codegen.context.CodegenContext;
 import org.jetbrains.kotlin.codegen.context.PackageContext;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBuf;
-import org.jetbrains.jet.descriptors.serialization.ProtoBuf;
-import org.jetbrains.jet.descriptors.serialization.descriptors.DeserializedSimpleFunctionDescriptor;
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf;
+import org.jetbrains.kotlin.serialization.ProtoBuf;
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedSimpleFunctionDescriptor;
 import org.jetbrains.jet.lang.descriptors.*;
 import org.jetbrains.jet.lang.psi.JetFile;
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils;
@@ -105,10 +105,10 @@ public class InlineCodegenUtil {
         DeclarationDescriptor parentDeclaration = deserializedDescriptor.getContainingDeclaration();
         if (parentDeclaration instanceof PackageFragmentDescriptor) {
             ProtoBuf.Callable proto = deserializedDescriptor.getProto();
-            if (!proto.hasExtension(JavaProtoBuf.implClassName)) {
+            if (!proto.hasExtension(JvmProtoBuf.implClassName)) {
                 throw new IllegalStateException("Function in namespace should have implClassName property in proto: " + deserializedDescriptor);
             }
-            Name name = deserializedDescriptor.getNameResolver().getName(proto.getExtension(JavaProtoBuf.implClassName));
+            Name name = deserializedDescriptor.getNameResolver().getName(proto.getExtension(JvmProtoBuf.implClassName));
             FqName packagePartFqName =
                     PackageClassUtils.getPackageClassFqName(((PackageFragmentDescriptor) parentDeclaration).getFqName()).parent().child(
                             name);

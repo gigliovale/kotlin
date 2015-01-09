@@ -18,10 +18,10 @@ package org.jetbrains.kotlin.codegen;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
-import org.jetbrains.jet.descriptors.serialization.JavaProtoBufUtil;
-import org.jetbrains.jet.descriptors.serialization.NameResolver;
-import org.jetbrains.jet.descriptors.serialization.PackageData;
-import org.jetbrains.jet.descriptors.serialization.ProtoBuf;
+import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil;
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver;
+import org.jetbrains.kotlin.serialization.PackageData;
+import org.jetbrains.kotlin.serialization.ProtoBuf;
 import org.jetbrains.jet.lang.resolve.java.JvmAnnotationNames;
 import org.jetbrains.jet.lang.resolve.java.PackageClassUtils;
 import org.jetbrains.jet.lang.resolve.name.FqName;
@@ -60,7 +60,7 @@ public class KotlinPackageAnnotationTest extends CodegenTestCase {
 
         String[] data = (String[]) CodegenTestUtil.getAnnotationAttribute(kotlinPackage, "data");
         assertNotNull(data);
-        PackageData packageData = JavaProtoBufUtil.readPackageDataFrom(data);
+        PackageData packageData = JvmProtoBufUtil.readPackageDataFrom(data);
 
         Set<String> callableNames = collectCallableNames(packageData.getPackageProto().getMemberList(), packageData.getNameResolver());
         assertSameElements(callableNames, Arrays.asList("foo", "bar"));

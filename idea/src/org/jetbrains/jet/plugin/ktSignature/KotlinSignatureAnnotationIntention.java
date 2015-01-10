@@ -33,9 +33,9 @@ import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.messages.MessageBusConnection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.ConstructorDescriptor;
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
-import org.jetbrains.jet.lang.descriptors.VariableDescriptor;
+import org.jetbrains.kotlin.descriptors.ConstructorDescriptor;
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
+import org.jetbrains.kotlin.descriptors.VariableDescriptor;
 import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver;
 import org.jetbrains.jet.lang.resolve.java.JavaPackage;
 import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaConstructorImpl;
@@ -45,8 +45,8 @@ import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.JetIcons;
 import org.jetbrains.jet.plugin.caches.resolve.JavaResolveExtension;
 import org.jetbrains.jet.plugin.util.IdeDescriptorRenderers;
-import org.jetbrains.jet.renderer.DescriptorRenderer;
-import org.jetbrains.jet.renderer.DescriptorRendererBuilder;
+import org.jetbrains.kotlin.renderer.DescriptorRenderer;
+import org.jetbrains.kotlin.renderer.DescriptorRendererBuilder;
 
 import javax.swing.*;
 

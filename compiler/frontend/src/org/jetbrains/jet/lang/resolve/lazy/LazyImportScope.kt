@@ -17,16 +17,16 @@
 package org.jetbrains.jet.lang.resolve.lazy
 
 import com.google.common.collect.Sets
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.psi.JetCodeFragment
-import org.jetbrains.jet.lang.psi.JetFile
-import org.jetbrains.jet.lang.psi.JetImportDirective
-import org.jetbrains.jet.lang.psi.debugText.*
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.psi.JetCodeFragment
+import org.jetbrains.kotlin.psi.JetFile
+import org.jetbrains.kotlin.psi.JetImportDirective
+import org.jetbrains.kotlin.psi.debugText.*
 import org.jetbrains.jet.lang.resolve.BindingTrace
 import org.jetbrains.jet.lang.resolve.Importer
 import org.jetbrains.jet.lang.resolve.ImportsResolver
 import org.jetbrains.jet.lang.resolve.JetModuleUtil
-import org.jetbrains.jet.lang.resolve.name.Name
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.jet.lang.resolve.scopes.*
 import org.jetbrains.kotlin.utils.Printer
 

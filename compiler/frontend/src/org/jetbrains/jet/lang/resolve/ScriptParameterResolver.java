@@ -18,15 +18,15 @@ package org.jetbrains.jet.lang.resolve;
 
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lang.descriptors.ScriptDescriptor;
-import org.jetbrains.jet.lang.descriptors.SourceElement;
-import org.jetbrains.jet.lang.descriptors.ValueParameterDescriptor;
-import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
-import org.jetbrains.jet.lang.descriptors.impl.ValueParameterDescriptorImpl;
-import org.jetbrains.jet.lang.parsing.JetScriptDefinition;
-import org.jetbrains.jet.lang.parsing.JetScriptDefinitionProvider;
-import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.psi.JetScript;
+import org.jetbrains.kotlin.descriptors.ScriptDescriptor;
+import org.jetbrains.kotlin.descriptors.SourceElement;
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl;
+import org.jetbrains.kotlin.parsing.JetScriptDefinition;
+import org.jetbrains.kotlin.parsing.JetScriptDefinitionProvider;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.psi.JetScript;
 
 import java.util.List;
 

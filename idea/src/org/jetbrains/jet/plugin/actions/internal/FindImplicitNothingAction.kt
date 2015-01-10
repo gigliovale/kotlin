@@ -29,11 +29,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.ui.Messages
 import javax.swing.SwingUtilities
 import org.jetbrains.jet.plugin.caches.resolve.getResolutionFacade
-import org.jetbrains.jet.lang.psi.*
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.descriptors.CallableDescriptor
-import org.jetbrains.jet.lang.types.JetType
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.jet.lang.resolve.calls.callUtil.getCalleeExpressionIfAny
 import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
 import com.intellij.usages.UsageViewManager

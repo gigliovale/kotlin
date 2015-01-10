@@ -23,29 +23,29 @@ import com.intellij.psi.tree.TokenSet;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.JetNodeTypes;
-import org.jetbrains.jet.lang.descriptors.CallableDescriptor;
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
-import org.jetbrains.jet.lang.descriptors.PropertyDescriptor;
-import org.jetbrains.jet.lang.descriptors.VariableDescriptor;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor;
+import org.jetbrains.kotlin.descriptors.VariableDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.DiagnosticFactory;
 import org.jetbrains.jet.lang.diagnostics.Errors;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.BindingContextUtils;
 import org.jetbrains.jet.lang.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
 import org.jetbrains.jet.lang.resolve.calls.tasks.TasksPackage;
-import org.jetbrains.jet.lang.types.ErrorUtils;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.kotlin.types.ErrorUtils;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.jet.util.slicedmap.WritableSlice;
 
 import java.util.Collection;
 import java.util.Map;
 
 import static org.jetbrains.jet.lang.resolve.BindingContext.*;
-import static org.jetbrains.jet.lexer.JetTokens.*;
+import static org.jetbrains.kotlin.lexer.JetTokens.*;
 
 public class DebugInfoUtil {
     private static final TokenSet MAY_BE_UNRESOLVED = TokenSet.create(IN_KEYWORD, NOT_IN);

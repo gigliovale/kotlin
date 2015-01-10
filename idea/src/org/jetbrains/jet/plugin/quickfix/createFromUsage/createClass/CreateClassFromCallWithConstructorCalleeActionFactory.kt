@@ -4,18 +4,18 @@ import org.jetbrains.jet.lang.diagnostics.Diagnostic
 import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.TypeInfo
 import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.lang.types.Variance
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.ParameterInfo
 import org.jetbrains.jet.plugin.quickfix.JetSingleIntentionActionFactory
-import org.jetbrains.jet.lang.psi.JetFile
-import org.jetbrains.jet.lang.psi.JetAnnotationEntry
-import org.jetbrains.jet.lang.psi.JetUserType
+import org.jetbrains.kotlin.psi.JetFile
+import org.jetbrains.kotlin.psi.JetAnnotationEntry
+import org.jetbrains.kotlin.psi.JetUserType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.jet.lang.psi.JetDelegatorToSuperCall
-import org.jetbrains.jet.lang.psi.JetCallElement
-import org.jetbrains.jet.lang.psi.psiUtil.isAncestor
-import org.jetbrains.jet.lang.psi.JetConstructorCalleeExpression
+import org.jetbrains.kotlin.psi.JetDelegatorToSuperCall
+import org.jetbrains.kotlin.psi.JetCallElement
+import org.jetbrains.kotlin.psi.psiUtil.isAncestor
+import org.jetbrains.kotlin.psi.JetConstructorCalleeExpression
 import java.util.Collections
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 

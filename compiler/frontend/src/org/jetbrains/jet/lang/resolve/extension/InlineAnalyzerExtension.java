@@ -18,15 +18,15 @@ package org.jetbrains.jet.lang.resolve.extension;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.*;
+import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.jet.lang.diagnostics.Errors;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.FunctionAnalyzerExtension;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.InlineUtil;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.builtins.InlineUtil;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 
 import java.util.List;
 

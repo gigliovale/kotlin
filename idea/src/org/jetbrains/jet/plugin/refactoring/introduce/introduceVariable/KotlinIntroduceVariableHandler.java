@@ -36,19 +36,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.analyzer.AnalysisResult;
 import org.jetbrains.jet.analyzer.AnalyzerPackage;
-import org.jetbrains.jet.lang.psi.*;
-import org.jetbrains.jet.lang.psi.psiUtil.PsiUtilPackage;
+import org.jetbrains.kotlin.psi.*;
+import org.jetbrains.kotlin.psi.psiUtil.PsiUtilPackage;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.BindingTraceContext;
 import org.jetbrains.jet.lang.resolve.ObservableBindingTrace;
 import org.jetbrains.jet.lang.resolve.bindingContextUtil.BindingContextUtilPackage;
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.TypeUtils;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
-import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.types.TypeUtils;
+import org.jetbrains.kotlin.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
 import org.jetbrains.jet.plugin.codeInsight.CodeInsightUtils;
 import org.jetbrains.jet.plugin.codeInsight.ShortenReferences;
@@ -70,7 +70,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class KotlinIntroduceVariableHandler extends KotlinIntroduceHandlerBase {
 

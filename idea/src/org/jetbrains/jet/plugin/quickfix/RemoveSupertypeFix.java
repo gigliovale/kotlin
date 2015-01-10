@@ -24,9 +24,9 @@ import com.intellij.psi.impl.PsiImplUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
-import org.jetbrains.jet.lang.psi.JetDelegationSpecifier;
-import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.kotlin.psi.JetDelegationSpecifier;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.jet.plugin.JetBundle;
 
 public class RemoveSupertypeFix extends JetIntentionAction<JetDelegationSpecifier> {

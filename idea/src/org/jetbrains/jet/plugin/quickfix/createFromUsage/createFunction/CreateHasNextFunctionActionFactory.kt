@@ -5,10 +5,10 @@ import org.jetbrains.jet.lang.diagnostics.Diagnostic
 import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.jet.lang.diagnostics.DiagnosticFactory
 import org.jetbrains.jet.lang.diagnostics.Errors
-import org.jetbrains.jet.lang.types.Variance
+import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.jet.plugin.quickfix.QuickFixUtil
-import org.jetbrains.jet.lang.psi.JetForExpression
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.psi.JetForExpression
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.callableBuilder.*
 
 object CreateHasNextFunctionActionFactory : JetSingleIntentionActionFactory() {

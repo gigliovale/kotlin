@@ -16,18 +16,18 @@
 
 package org.jetbrains.jet.lang.resolve
 
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.descriptors.annotations.Annotations
-import org.jetbrains.jet.lang.psi.*
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
 import org.jetbrains.jet.lang.resolve.scopes.LazyScopeAdapter
-import org.jetbrains.jet.lang.types.*
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 
 import org.jetbrains.jet.lang.diagnostics.Errors.*
 import org.jetbrains.jet.lang.resolve.PossiblyBareType.type
-import org.jetbrains.jet.lang.types.Variance.*
+import org.jetbrains.kotlin.types.Variance.*
 import org.jetbrains.jet.lang.resolve.TypeResolver.FlexibleTypeCapabilitiesProvider
 import kotlin.platform.platformStatic
 import org.jetbrains.kotlin.storage.StorageManager
@@ -35,7 +35,7 @@ import org.jetbrains.jet.context.LazinessToken
 import org.jetbrains.jet.lang.resolve.lazy.LazyEntity
 import org.jetbrains.jet.lang.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
-import org.jetbrains.jet.lexer.JetTokens
+import org.jetbrains.kotlin.lexer.JetTokens
 
 public class TypeResolver(
         private val annotationResolver: AnnotationResolver,

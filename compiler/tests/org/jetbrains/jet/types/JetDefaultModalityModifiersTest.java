@@ -22,10 +22,10 @@ import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetLiteFixture;
 import org.jetbrains.jet.JetTestUtils;
 import org.jetbrains.jet.analyzer.AnalysisResult;
-import org.jetbrains.jet.lang.descriptors.*;
-import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.jet.lang.descriptors.impl.MutableClassDescriptor;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
+import org.jetbrains.kotlin.descriptors.impl.MutableClassDescriptor;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.DescriptorResolver;
 import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
@@ -35,7 +35,7 @@ import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.storage.ExceptionTracker;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
@@ -43,7 +43,7 @@ import org.jetbrains.kotlin.di.InjectorForTests;
 
 import java.util.List;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class JetDefaultModalityModifiersTest extends JetLiteFixture {
     private final JetDefaultModalityModifiersTestCase tc = new JetDefaultModalityModifiersTestCase();

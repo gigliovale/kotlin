@@ -30,18 +30,18 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.CallableDescriptor;
-import org.jetbrains.jet.lang.descriptors.ValueParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
-import org.jetbrains.jet.lang.psi.JetCallElement;
-import org.jetbrains.jet.lang.psi.JetExpression;
-import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.psi.JetValueArgument;
+import org.jetbrains.kotlin.psi.JetCallElement;
+import org.jetbrains.kotlin.psi.JetExpression;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.psi.JetValueArgument;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.jet.plugin.JetBundle;
 import org.jetbrains.jet.plugin.JetIcons;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
@@ -51,7 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class AddNameToArgumentFix extends JetIntentionAction<JetValueArgument> {
 

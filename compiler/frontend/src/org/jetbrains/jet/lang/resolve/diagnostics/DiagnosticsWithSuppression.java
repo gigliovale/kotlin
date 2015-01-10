@@ -30,17 +30,17 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.FilteringIterator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.TestOnly;
-import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor;
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.Severity;
-import org.jetbrains.jet.lang.psi.JetAnnotated;
-import org.jetbrains.jet.lang.psi.JetAnnotationEntry;
-import org.jetbrains.jet.lang.psi.JetStubbedPsiUtil;
+import org.jetbrains.kotlin.psi.JetAnnotated;
+import org.jetbrains.kotlin.psi.JetAnnotationEntry;
+import org.jetbrains.kotlin.psi.JetStubbedPsiUtil;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.constants.ArrayValue;
 import org.jetbrains.jet.lang.resolve.constants.CompileTimeConstant;
 import org.jetbrains.jet.lang.resolve.constants.StringValue;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 
 import java.util.*;
 

@@ -20,16 +20,16 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.codegen.ExpressionCodegen;
 import org.jetbrains.kotlin.codegen.StackValue;
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
-import org.jetbrains.jet.lang.psi.JetCallExpression;
-import org.jetbrains.jet.lang.psi.JetExpression;
-import org.jetbrains.jet.lang.psi.JetSimpleNameExpression;
+import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
+import org.jetbrains.kotlin.psi.JetCallExpression;
+import org.jetbrains.kotlin.psi.JetExpression;
+import org.jetbrains.kotlin.psi.JetSimpleNameExpression;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.java.JvmPrimitiveType;
-import org.jetbrains.jet.lang.resolve.name.FqName;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
-import org.jetbrains.jet.lang.types.lang.PrimitiveType;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.builtins.PrimitiveType;
 import org.jetbrains.org.objectweb.asm.Type;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 
@@ -39,7 +39,7 @@ import java.util.List;
 import static org.jetbrains.kotlin.codegen.AsmUtil.asmDescByFqNameWithoutInnerClasses;
 import static org.jetbrains.jet.lang.resolve.java.AsmTypes.getType;
 import static org.jetbrains.jet.lang.resolve.java.mapping.PrimitiveTypesUtil.asmTypeForPrimitive;
-import static org.jetbrains.jet.lang.types.lang.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
+import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
 
 public class ArrayIterator extends IntrinsicMethod {
     @NotNull

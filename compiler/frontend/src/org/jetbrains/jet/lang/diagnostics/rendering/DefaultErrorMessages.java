@@ -29,15 +29,15 @@ import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.DiagnosticFactory;
 import org.jetbrains.jet.lang.diagnostics.Errors;
-import org.jetbrains.jet.lang.psi.JetExpression;
-import org.jetbrains.jet.lang.psi.JetSimpleNameExpression;
-import org.jetbrains.jet.lang.psi.JetTypeConstraint;
+import org.jetbrains.kotlin.psi.JetExpression;
+import org.jetbrains.kotlin.psi.JetSimpleNameExpression;
+import org.jetbrains.kotlin.psi.JetTypeConstraint;
 import org.jetbrains.jet.lang.resolve.varianceChecker.VarianceChecker.VarianceConflictDiagnosticData;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lexer.JetKeywordToken;
-import org.jetbrains.jet.lexer.JetModifierKeywordToken;
-import org.jetbrains.jet.renderer.MultiRenderer;
-import org.jetbrains.jet.renderer.Renderer;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.lexer.JetKeywordToken;
+import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
+import org.jetbrains.kotlin.renderer.MultiRenderer;
+import org.jetbrains.kotlin.renderer.Renderer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -46,7 +46,7 @@ import java.util.List;
 
 import static org.jetbrains.jet.lang.diagnostics.Errors.*;
 import static org.jetbrains.jet.lang.diagnostics.rendering.Renderers.*;
-import static org.jetbrains.jet.renderer.DescriptorRenderer.*;
+import static org.jetbrains.kotlin.renderer.DescriptorRenderer.*;
 
 public class DefaultErrorMessages {
 

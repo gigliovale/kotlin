@@ -20,13 +20,13 @@ import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.kotlin.generators.di.GeneratorsFileUtil
 import org.jetbrains.kotlin.utils.Printer
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor
-import org.jetbrains.jet.lang.types.TypeUtils
-import org.jetbrains.jet.lang.types.JetType
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.JetType
 
-val DEST_FILE: File = File("compiler/frontend/src/org/jetbrains/jet/lang/evaluate/OperationsMapGenerated.kt")
+val DEST_FILE: File = File("compiler/frontend/src/org/jetbrains/kotlin/resolve/constants/evaluate/OperationsMapGenerated.kt")
 private val EXCLUDED_FUNCTIONS = listOf("rangeTo", "hashCode", "inc", "dec", "subSequence")
 
 fun main(args: Array<String>) {
@@ -37,7 +37,7 @@ fun generate(): String {
     val sb = StringBuilder()
     val p = Printer(sb)
     p.println(FileUtil.loadFile(File("generators/injector-generator/copyright.txt")))
-    p.println("package org.jetbrains.jet.lang.evaluate")
+    p.println("package org.jetbrains.kotlin.resolve.constants.evaluate")
     p.println()
     p.println("import java.math.BigInteger")
     p.println("import java.util.HashMap")

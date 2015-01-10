@@ -17,17 +17,17 @@
 package org.jetbrains.jet.lang.resolve.kotlin.nativeDeclarations
 
 import org.jetbrains.jet.lang.resolve.diagnostics.DiagnosticsWithSuppression
-import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.lang.resolve.AnnotationChecker
-import org.jetbrains.jet.lang.psi.JetDeclaration
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.psi.JetDeclaration
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.jet.lang.diagnostics.DiagnosticSink
-import org.jetbrains.jet.lang.resolve.name.FqName
-import org.jetbrains.jet.lang.descriptors.CallableMemberDescriptor
-import org.jetbrains.jet.lang.descriptors.Modality
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.jet.lang.resolve.java.diagnostics.ErrorsJvm
-import org.jetbrains.jet.lang.psi.JetDeclarationWithBody
+import org.jetbrains.kotlin.psi.JetDeclarationWithBody
 import org.jetbrains.jet.lang.resolve.annotations.hasInlineAnnotation
 import org.jetbrains.jet.lang.resolve.diagnostics.SuppressDiagnosticsByAnnotations
 import org.jetbrains.jet.lang.resolve.diagnostics.FUNCTION_NO_BODY_ERRORS

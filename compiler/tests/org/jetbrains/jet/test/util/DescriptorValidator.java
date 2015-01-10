@@ -21,10 +21,10 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.*;
+import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.junit.Assert;
 
 import java.io.PrintStream;

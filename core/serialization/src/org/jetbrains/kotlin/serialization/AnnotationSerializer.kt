@@ -16,14 +16,14 @@
 
 package org.jetbrains.kotlin.serialization
 
-import org.jetbrains.jet.lang.descriptors.annotations.AnnotationDescriptor
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor
-import org.jetbrains.jet.lang.descriptors.annotations.AnnotationArgumentVisitor
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationArgumentVisitor
 import org.jetbrains.jet.lang.resolve.constants.*
 import org.jetbrains.kotlin.serialization.ProtoBuf.Annotation.Argument.Value
 import org.jetbrains.kotlin.serialization.ProtoBuf.Annotation.Argument.Value.Type
-import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 
 public object AnnotationSerializer {
     public fun serializeAnnotation(annotation: AnnotationDescriptor, stringTable: StringTable): ProtoBuf.Annotation {

@@ -21,9 +21,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNameIdentifierOwner
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.jet.JetNodeTypes
-import org.jetbrains.jet.lang.psi.*
-import org.jetbrains.jet.lexer.JetKeywordToken
-import org.jetbrains.jet.lexer.JetTokens
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.lexer.JetKeywordToken
+import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.utils.sure
 import kotlin.platform.platformStatic
 

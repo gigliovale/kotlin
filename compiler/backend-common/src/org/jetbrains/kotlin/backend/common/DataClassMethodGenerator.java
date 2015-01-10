@@ -18,15 +18,15 @@ package org.jetbrains.kotlin.backend.common;
 
 import com.google.common.collect.Lists;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lang.descriptors.*;
-import org.jetbrains.jet.lang.psi.JetClass;
-import org.jetbrains.jet.lang.psi.JetClassOrObject;
-import org.jetbrains.jet.lang.psi.JetParameter;
+import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.psi.JetClass;
+import org.jetbrains.kotlin.psi.JetClassOrObject;
+import org.jetbrains.kotlin.psi.JetParameter;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.BindingContextUtils;
 import org.jetbrains.jet.lang.resolve.OverrideResolver;
-import org.jetbrains.jet.lang.resolve.name.Name;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 
 import java.util.Collections;
 import java.util.List;

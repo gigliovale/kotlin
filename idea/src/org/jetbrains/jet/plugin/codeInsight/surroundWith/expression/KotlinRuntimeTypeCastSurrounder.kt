@@ -29,19 +29,19 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.util.ProgressWindowWithNotification
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.jet.lang.psi.JetExpression
-import org.jetbrains.jet.lang.psi.JetCodeFragment
+import org.jetbrains.kotlin.psi.JetExpression
+import org.jetbrains.kotlin.psi.JetCodeFragment
 import org.jetbrains.jet.plugin.debugger.evaluate.KotlinRuntimeTypeEvaluator
-import org.jetbrains.jet.lang.psi.JetPsiFactory
-import org.jetbrains.jet.lang.psi.JetBinaryExpressionWithTypeRHS
+import org.jetbrains.kotlin.psi.JetPsiFactory
+import org.jetbrains.kotlin.psi.JetBinaryExpressionWithTypeRHS
 import org.jetbrains.jet.plugin.codeInsight.ShortenReferences
-import org.jetbrains.jet.lang.psi.JetParenthesizedExpression
-import org.jetbrains.jet.lang.types.JetType
+import org.jetbrains.kotlin.psi.JetParenthesizedExpression
+import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFully
 import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.lang.types.TypeUtils
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker
+import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.checker.JetTypeChecker
 import org.jetbrains.jet.plugin.JetBundle
 
 public class KotlinRuntimeTypeCastSurrounder: KotlinExpressionSurrounder() {

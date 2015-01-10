@@ -20,14 +20,14 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.codegen.ExpressionCodegen;
 import org.jetbrains.kotlin.codegen.StackValue;
-import org.jetbrains.jet.lang.psi.JetExpression;
+import org.jetbrains.kotlin.psi.JetExpression;
 import org.jetbrains.jet.lang.resolve.java.AsmTypes;
 import org.jetbrains.org.objectweb.asm.Type;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 
 import java.util.List;
 
-import static org.jetbrains.jet.lang.types.lang.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
+import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
 
 public class IteratorNext extends IntrinsicMethod {
     @NotNull

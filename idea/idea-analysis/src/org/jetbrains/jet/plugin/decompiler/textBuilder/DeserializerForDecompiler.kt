@@ -16,13 +16,13 @@
 
 package org.jetbrains.jet.plugin.decompiler.textBuilder
 
-import org.jetbrains.jet.lang.resolve.name.ClassId
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.descriptors.impl.MutablePackageFragmentDescriptor
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.impl.MutablePackageFragmentDescriptor
 import org.jetbrains.jet.lang.resolve.kotlin.*
-import org.jetbrains.jet.lang.resolve.name.FqName
-import org.jetbrains.jet.lang.resolve.name.Name
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import java.util.Collections
 import com.intellij.openapi.vfs.VirtualFile
@@ -30,9 +30,9 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 import org.jetbrains.jet.lang.resolve.java.PackageClassUtils
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
-import org.jetbrains.jet.lang.PlatformToKotlinClassMap
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
-import org.jetbrains.jet.lang.descriptors.impl.ModuleDescriptorImpl
+import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 
 public fun DeserializerForDecompiler(classFile: VirtualFile): DeserializerForDecompiler {
     val kotlinClass = KotlinBinaryClassCache.getKotlinBinaryClass(classFile)

@@ -18,13 +18,13 @@ package org.jetbrains.jet.lang.resolve.calls.context;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.psi.Call;
+import org.jetbrains.kotlin.psi.Call;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.calls.extensions.CallResolverExtension;
 import org.jetbrains.jet.lang.resolve.calls.model.MutableDataFlowInfoForArguments;
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
-import org.jetbrains.jet.lang.types.JetType;
+import org.jetbrains.kotlin.types.JetType;
 
 public class BasicCallResolutionContext extends CallResolutionContext<BasicCallResolutionContext> {
     private BasicCallResolutionContext(

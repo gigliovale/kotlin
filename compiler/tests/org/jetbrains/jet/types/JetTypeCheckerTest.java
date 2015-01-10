@@ -24,25 +24,25 @@ import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetLiteFixture;
 import org.jetbrains.jet.JetTestCaseBuilder;
 import org.jetbrains.jet.JetTestUtils;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
-import org.jetbrains.jet.lang.descriptors.PackageViewDescriptor;
-import org.jetbrains.jet.lang.descriptors.ReceiverParameterDescriptor;
-import org.jetbrains.jet.lang.descriptors.impl.ReceiverParameterDescriptorImpl;
-import org.jetbrains.jet.lang.psi.JetExpression;
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
+import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
+import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.impl.ReceiverParameterDescriptorImpl;
+import org.jetbrains.kotlin.psi.JetExpression;
 import org.jetbrains.jet.lang.resolve.BindingTraceContext;
 import org.jetbrains.jet.lang.resolve.ImportPath;
 import org.jetbrains.jet.lang.resolve.TypeResolver;
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.jet.lang.resolve.lazy.LazyResolveTestUtil;
-import org.jetbrains.jet.lang.resolve.name.FqName;
+import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.jet.lang.resolve.scopes.*;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ExpressionReceiver;
-import org.jetbrains.jet.lang.types.CommonSupertypes;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.TypeUtils;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
-import org.jetbrains.jet.lang.types.expressions.ExpressionTypingServices;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.CommonSupertypes;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.types.TypeUtils;
+import org.jetbrains.kotlin.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.kotlin.di.InjectorForJavaDescriptorResolver;
@@ -53,7 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class JetTypeCheckerTest extends JetLiteFixture {
 

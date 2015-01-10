@@ -19,20 +19,20 @@ package org.jetbrains.kotlin.codegen.intrinsics;
 import com.google.common.collect.ImmutableList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.CallableMemberDescriptor;
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor;
 import org.jetbrains.jet.lang.resolve.CompileTimeConstantUtils;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.java.JvmPrimitiveType;
-import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe;
-import org.jetbrains.jet.lang.resolve.name.Name;
-import org.jetbrains.jet.lang.types.expressions.OperatorConventions;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
-import org.jetbrains.jet.lang.types.lang.PrimitiveType;
+import org.jetbrains.kotlin.name.FqNameUnsafe;
+import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.types.expressions.OperatorConventions;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.builtins.PrimitiveType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.jetbrains.jet.lang.types.lang.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
+import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME;
 import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
 public class IntrinsicMethods {

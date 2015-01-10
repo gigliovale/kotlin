@@ -16,24 +16,24 @@
 
 package org.jetbrains.jet.lang.resolve.java.lazy.descriptors
 
-import org.jetbrains.jet.lang.descriptors.*
-import org.jetbrains.jet.lang.resolve.name.FqName
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.jet.lang.resolve.java.structure.JavaClass
-import org.jetbrains.jet.lang.descriptors.impl.ClassDescriptorBase
+import org.jetbrains.kotlin.descriptors.impl.ClassDescriptorBase
 import org.jetbrains.jet.lang.resolve.scopes.JetScope
-import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.types.TypeConstructor
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.jet.lang.resolve.java.lazy.LazyJavaResolverContext
 import org.jetbrains.jet.lang.resolve.java.lazy.child
 import org.jetbrains.jet.lang.resolve.java.resolver.TypeUsage
 import org.jetbrains.jet.lang.resolve.java.lazy.resolveAnnotations
 import org.jetbrains.jet.lang.resolve.java.lazy.types.toAttributes
 import org.jetbrains.jet.lang.resolve.scopes.InnerClassesScopeWrapper
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.utils.*
 import org.jetbrains.jet.lang.resolve.java.descriptor.JavaClassDescriptor
-import org.jetbrains.jet.lang.descriptors.annotations.Annotations
-import org.jetbrains.jet.lang.types.AbstractClassTypeConstructor
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.types.AbstractClassTypeConstructor
 
 class LazyJavaClassDescriptor(
         private val outerC: LazyJavaResolverContext,

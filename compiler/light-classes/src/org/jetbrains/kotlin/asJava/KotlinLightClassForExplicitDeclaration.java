@@ -43,24 +43,24 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.codegen.binding.PsiCodegenPredictor;
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
-import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.descriptors.ClassifierDescriptor;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.DescriptorUtils;
 import org.jetbrains.jet.lang.resolve.java.JvmClassName;
 import org.jetbrains.jet.lang.resolve.java.jetAsJava.JetJavaMirrorMarker;
-import org.jetbrains.jet.lang.resolve.name.FqName;
-import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
-import org.jetbrains.jet.lexer.JetModifierKeywordToken;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.name.FqNameUnsafe;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.lexer.JetModifierKeywordToken;
 import org.jetbrains.jet.plugin.JetLanguage;
 
 import javax.swing.*;
 import java.util.Collection;
 import java.util.List;
 
-import static org.jetbrains.jet.lexer.JetTokens.*;
+import static org.jetbrains.kotlin.lexer.JetTokens.*;
 
 public class KotlinLightClassForExplicitDeclaration extends KotlinWrappingLightClass implements JetJavaMirrorMarker {
     private final static Key<CachedValue<OutermostKotlinClassLightClassData>> JAVA_API_STUB = Key.create("JAVA_API_STUB");

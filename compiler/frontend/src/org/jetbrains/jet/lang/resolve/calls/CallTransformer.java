@@ -22,10 +22,10 @@ import com.google.common.collect.Lists;
 import com.intellij.lang.ASTNode;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.CallableDescriptor;
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
-import org.jetbrains.jet.lang.descriptors.VariableDescriptor;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
+import org.jetbrains.kotlin.descriptors.VariableDescriptor;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.ChainedTemporaryBindingTrace;
 import org.jetbrains.jet.lang.resolve.DelegatingBindingTrace;
 import org.jetbrains.jet.lang.resolve.TemporaryBindingTrace;
@@ -44,13 +44,13 @@ import org.jetbrains.jet.lang.resolve.calls.tasks.TracingStrategyForInvoke;
 import org.jetbrains.jet.lang.resolve.calls.util.DelegatingCall;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.jet.lang.resolve.scopes.receivers.ReceiverValue;
-import org.jetbrains.jet.lang.types.JetType;
+import org.jetbrains.kotlin.types.JetType;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 /**
  * CallTransformer treats specially 'variable as function' call case, other cases keeps unchanged (base realization).

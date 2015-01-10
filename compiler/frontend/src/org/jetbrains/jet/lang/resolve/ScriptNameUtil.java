@@ -17,12 +17,12 @@
 package org.jetbrains.jet.lang.resolve;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lang.parsing.JetScriptDefinition;
-import org.jetbrains.jet.lang.parsing.JetScriptDefinitionProvider;
-import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.psi.JetPackageDirective;
-import org.jetbrains.jet.lang.psi.JetScript;
-import org.jetbrains.jet.lang.resolve.name.FqName;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.parsing.JetScriptDefinition;
+import org.jetbrains.kotlin.parsing.JetScriptDefinitionProvider;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.psi.JetPackageDirective;
+import org.jetbrains.kotlin.psi.JetScript;
 
 public class ScriptNameUtil {
     private ScriptNameUtil() {

@@ -28,7 +28,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.refactoring.rename.RenameProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import org.jetbrains.jet.lang.psi.JetFile
+import org.jetbrains.kotlin.psi.JetFile
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.jet.plugin.PluginTestCaseBase
 import com.intellij.psi.search.GlobalSearchScope
@@ -37,12 +37,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.module.Module
 import org.jetbrains.jet.lang.resolve.BindingContext
 import java.util.Collections
-import org.jetbrains.jet.lang.resolve.name.Name
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.jet.lang.resolve.BindingContextUtils
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor
-import org.jetbrains.jet.lang.resolve.name.FqNameUnsafe
-import org.jetbrains.jet.lang.resolve.name.isSubpackageOf
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.name.FqNameUnsafe
+import org.jetbrains.kotlin.name.isSubpackageOf
 import org.jetbrains.jet.getString
 import org.jetbrains.jet.getNullableString
 import org.jetbrains.jet.plugin.search.allScope

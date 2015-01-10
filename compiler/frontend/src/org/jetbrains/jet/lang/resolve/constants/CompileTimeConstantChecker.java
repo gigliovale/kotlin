@@ -23,13 +23,13 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.JetNodeTypes;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.DiagnosticFactory;
-import org.jetbrains.jet.lang.psi.JetConstantExpression;
-import org.jetbrains.jet.lang.psi.JetElement;
+import org.jetbrains.kotlin.psi.JetConstantExpression;
+import org.jetbrains.kotlin.psi.JetElement;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lang.types.TypeUtils;
-import org.jetbrains.jet.lang.types.checker.JetTypeChecker;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.types.TypeUtils;
+import org.jetbrains.kotlin.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 
 import java.util.Set;
 

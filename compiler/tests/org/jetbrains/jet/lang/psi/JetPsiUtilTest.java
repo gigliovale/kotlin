@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.jetbrains.jet.lang.psi;
+package org.jetbrains.kotlin.psi;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.jet.JetLiteFixture;
 import org.jetbrains.jet.config.CompilerConfiguration;
 import org.jetbrains.jet.lang.resolve.ImportPath;
-import org.jetbrains.jet.lang.resolve.name.FqName;
-import org.jetbrains.jet.lang.resolve.name.Name;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
 import org.junit.Assert;
@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class JetPsiUtilTest extends JetLiteFixture {
     public void testUnquotedIdentifier() {

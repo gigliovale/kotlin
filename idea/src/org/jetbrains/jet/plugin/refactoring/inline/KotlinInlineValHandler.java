@@ -45,20 +45,20 @@ import com.intellij.util.Function;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.SimpleFunctionDescriptor;
-import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
-import org.jetbrains.jet.lang.descriptors.ValueParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor;
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.DiagnosticFactory;
 import org.jetbrains.jet.lang.diagnostics.Errors;
-import org.jetbrains.jet.lang.psi.*;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
 import org.jetbrains.jet.lang.resolve.lazy.BodyResolveMode;
-import org.jetbrains.jet.lang.types.ErrorUtils;
-import org.jetbrains.jet.lang.types.JetType;
-import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.kotlin.types.ErrorUtils;
+import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.jet.plugin.JetLanguage;
 import org.jetbrains.jet.plugin.caches.resolve.ResolutionFacade;
 import org.jetbrains.jet.plugin.caches.resolve.ResolvePackage;
@@ -69,7 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class KotlinInlineValHandler extends InlineActionHandler {
     @Override

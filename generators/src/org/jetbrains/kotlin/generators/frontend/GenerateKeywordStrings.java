@@ -19,10 +19,10 @@ package org.jetbrains.kotlin.generators.frontend;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lexer.JetKeywordToken;
-import org.jetbrains.jet.lexer.JetTokens;
-import org.jetbrains.kotlin.utils.Printer;
 import org.jetbrains.kotlin.generators.di.GeneratorsFileUtil;
+import org.jetbrains.kotlin.lexer.JetKeywordToken;
+import org.jetbrains.kotlin.lexer.JetTokens;
+import org.jetbrains.kotlin.utils.Printer;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 
 public class GenerateKeywordStrings {
-    public static final File DEST_FILE = new File("core/descriptors/src/org/jetbrains/jet/renderer/KeywordStringsGenerated.java");
+    public static final File DEST_FILE = new File("core/descriptors/src/org/jetbrains/kotlin/renderer/KeywordStringsGenerated.java");
 
     @NotNull
     public static String generate() throws IOException {
@@ -39,7 +39,7 @@ public class GenerateKeywordStrings {
         Printer p = new Printer(sb);
 
         p.println(FileUtil.loadFile(new File("generators/injector-generator/copyright.txt")));
-        p.println("package org.jetbrains.jet.renderer;");
+        p.println("package org.jetbrains.kotlin.renderer;");
         p.println();
         p.println("import java.util.Arrays;");
         p.println("import java.util.Set;");

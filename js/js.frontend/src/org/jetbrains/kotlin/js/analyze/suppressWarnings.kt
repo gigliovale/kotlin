@@ -20,10 +20,10 @@ import org.jetbrains.jet.lang.diagnostics.Errors
 import org.jetbrains.kotlin.js.PredefinedAnnotation.*
 import org.jetbrains.jet.lang.diagnostics.Diagnostic
 import org.jetbrains.jet.lang.diagnostics.Severity
-import org.jetbrains.jet.lang.psi.JetFile
+import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig
-import org.jetbrains.jet.lang.psi.JetSimpleNameExpression
-import org.jetbrains.jet.lang.descriptors.VariableDescriptor
+import org.jetbrains.kotlin.psi.JetSimpleNameExpression
+import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.jet.lang.diagnostics.DiagnosticWithParameters1
 import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
 import org.jetbrains.jet.lang.resolve.diagnostics.DiagnosticsWithSuppression

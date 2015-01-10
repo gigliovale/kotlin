@@ -16,13 +16,13 @@
 
 package org.jetbrains.jet.plugin.highlighter.markers
 
-import org.jetbrains.jet.lang.descriptors.CallableMemberDescriptor
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.jet.lang.resolve.OverrideResolver
-import org.jetbrains.jet.lang.descriptors.Modality
-import org.jetbrains.jet.renderer.DescriptorRenderer
-import org.jetbrains.jet.renderer.DescriptorRendererBuilder
-import org.jetbrains.jet.lang.descriptors.PropertyAccessorDescriptor
-import org.jetbrains.jet.lang.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.renderer.DescriptorRenderer
+import org.jetbrains.kotlin.renderer.DescriptorRendererBuilder
+import org.jetbrains.kotlin.descriptors.PropertyAccessorDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import com.intellij.psi.NavigatablePsiElement
 import java.awt.event.MouseEvent
 import org.jetbrains.jet.plugin.codeInsight.DescriptorToDeclarationUtil
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.TestOnly
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import java.util.ArrayList
 import com.intellij.util.Function
-import org.jetbrains.jet.lang.psi.JetDeclaration
+import org.jetbrains.kotlin.psi.JetDeclaration
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 

@@ -23,13 +23,13 @@ import com.intellij.psi.MultiRangeReference;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.DeclarationDescriptor;
-import org.jetbrains.jet.lang.descriptors.FunctionDescriptor;
-import org.jetbrains.jet.lang.psi.JetArrayAccessExpression;
-import org.jetbrains.jet.lang.psi.JetContainerNode;
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
+import org.jetbrains.kotlin.psi.JetArrayAccessExpression;
+import org.jetbrains.kotlin.psi.JetContainerNode;
 import org.jetbrains.jet.lang.resolve.BindingContext;
 import org.jetbrains.jet.lang.resolve.calls.model.ResolvedCall;
-import org.jetbrains.jet.lexer.JetTokens;
+import org.jetbrains.kotlin.lexer.JetTokens;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -17,12 +17,12 @@
 package org.jetbrains.kotlin.js.translate.expression
 
 import com.google.dart.compiler.backend.js.ast.*
-import org.jetbrains.jet.lang.psi.JetCatchClause
-import org.jetbrains.jet.lang.psi.JetTypeReference
+import org.jetbrains.kotlin.psi.JetCatchClause
+import org.jetbrains.kotlin.psi.JetTypeReference
 import org.jetbrains.jet.lang.resolve.BindingContext
 import org.jetbrains.jet.lang.resolve.BindingContextUtils.getNotNull
 import org.jetbrains.jet.lang.resolve.DescriptorUtils
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator
 import org.jetbrains.kotlin.js.translate.general.Translation.patternTranslator

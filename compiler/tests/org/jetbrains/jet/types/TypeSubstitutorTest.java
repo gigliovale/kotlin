@@ -25,25 +25,25 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetTestUtils;
-import org.jetbrains.jet.lang.descriptors.ClassDescriptor;
-import org.jetbrains.jet.lang.descriptors.ClassifierDescriptor;
-import org.jetbrains.jet.lang.descriptors.ModuleDescriptor;
-import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.descriptors.ClassifierDescriptor;
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
 import org.jetbrains.jet.lang.diagnostics.Diagnostic;
 import org.jetbrains.jet.lang.diagnostics.rendering.DefaultErrorMessages;
-import org.jetbrains.jet.lang.psi.JetFile;
-import org.jetbrains.jet.lang.psi.JetTypeReference;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.psi.JetTypeReference;
 import org.jetbrains.jet.lang.resolve.AnalyzingUtils;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.BindingTraceContext;
 import org.jetbrains.jet.lang.resolve.lazy.KotlinTestWithEnvironment;
 import org.jetbrains.jet.lang.resolve.lazy.LazyResolveTestUtil;
-import org.jetbrains.jet.lang.resolve.name.FqName;
-import org.jetbrains.jet.lang.resolve.name.Name;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.*;
-import org.jetbrains.jet.lang.types.*;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
-import org.jetbrains.jet.renderer.DescriptorRenderer;
+import org.jetbrains.kotlin.types.*;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.renderer.DescriptorRenderer;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.kotlin.di.InjectorForTests;
 
@@ -52,7 +52,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 @SuppressWarnings("unchecked")
 public class TypeSubstitutorTest extends KotlinTestWithEnvironment {

@@ -17,12 +17,12 @@
 package org.jetbrains.kotlin.serialization;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jet.lang.descriptors.*;
-import org.jetbrains.jet.lang.descriptors.annotations.Annotated;
+import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.descriptors.annotations.Annotated;
 import org.jetbrains.jet.lang.resolve.DescriptorFactory;
 import org.jetbrains.jet.lang.resolve.MemberComparator;
-import org.jetbrains.jet.lang.types.*;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.*;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 
 import java.util.ArrayList;
 import java.util.Collection;

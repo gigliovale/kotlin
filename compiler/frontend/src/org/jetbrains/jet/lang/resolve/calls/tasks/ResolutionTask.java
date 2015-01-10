@@ -20,9 +20,9 @@ import com.google.common.collect.Lists;
 import kotlin.Function0;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.lang.descriptors.CallableDescriptor;
-import org.jetbrains.jet.lang.psi.Call;
-import org.jetbrains.jet.lang.psi.JetReferenceExpression;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.psi.Call;
+import org.jetbrains.kotlin.psi.JetReferenceExpression;
 import org.jetbrains.jet.lang.resolve.BindingTrace;
 import org.jetbrains.jet.lang.resolve.calls.extensions.CallResolverExtension;
 import org.jetbrains.jet.lang.resolve.calls.context.*;
@@ -30,7 +30,7 @@ import org.jetbrains.jet.lang.resolve.calls.model.MutableDataFlowInfoForArgument
 import org.jetbrains.jet.lang.resolve.calls.model.MutableResolvedCall;
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
-import org.jetbrains.jet.lang.types.JetType;
+import org.jetbrains.kotlin.types.JetType;
 
 import java.util.Collection;
 

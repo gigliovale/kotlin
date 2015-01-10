@@ -16,9 +16,9 @@
 
 package org.jetbrains.jet.plugin.completion.smart
 
-import org.jetbrains.jet.lang.psi.JetExpression
-import org.jetbrains.jet.lang.types.JetType
-import org.jetbrains.jet.lang.descriptors.VariableDescriptor
+import org.jetbrains.kotlin.psi.JetExpression
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import java.util.Collections
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.jet.lang.resolve.calls.smartcasts.DataFlowValue

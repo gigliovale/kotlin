@@ -24,26 +24,26 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetLiteFixture;
 import org.jetbrains.jet.JetTestUtils;
-import org.jetbrains.jet.lang.descriptors.TypeParameterDescriptor;
-import org.jetbrains.jet.lang.descriptors.annotations.Annotations;
-import org.jetbrains.jet.lang.descriptors.impl.TypeParameterDescriptorImpl;
-import org.jetbrains.jet.lang.psi.JetTypeProjection;
-import org.jetbrains.jet.lang.psi.JetTypeReference;
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.descriptors.impl.TypeParameterDescriptorImpl;
+import org.jetbrains.kotlin.psi.JetTypeProjection;
+import org.jetbrains.kotlin.psi.JetTypeReference;
 import org.jetbrains.jet.lang.resolve.TypeResolver;
-import org.jetbrains.jet.lang.resolve.name.Name;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.jet.lang.resolve.scopes.JetScope;
 import org.jetbrains.jet.lang.resolve.scopes.RedeclarationHandler;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
 import org.jetbrains.jet.lang.resolve.scopes.WritableScopeImpl;
-import org.jetbrains.jet.lang.types.*;
-import org.jetbrains.jet.lang.types.lang.KotlinBuiltIns;
+import org.jetbrains.kotlin.types.*;
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
 import org.jetbrains.kotlin.di.InjectorForTests;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.jetbrains.jet.lang.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
 public class TypeUnifierTest extends JetLiteFixture {
     private Set<TypeConstructor> variables;

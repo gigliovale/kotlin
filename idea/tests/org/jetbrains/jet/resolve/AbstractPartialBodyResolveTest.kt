@@ -19,7 +19,7 @@ package org.jetbrains.jet.resolve
 import org.jetbrains.jet.plugin.JetLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
-import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.jet.JetTestCaseBuilder
 import org.jetbrains.jet.plugin.JetWithJdkAndRuntimeLightProjectDescriptor
 import org.jetbrains.kotlin.psi.JetExpression
@@ -41,8 +41,8 @@ import org.jetbrains.kotlin.psi.JetPsiFactory
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.JetReferenceExpression
 import org.jetbrains.kotlin.psi.psiUtil.getReceiverExpression
-import org.jetbrains.jet.lang.resolve.lazy.BodyResolveMode
-import org.jetbrains.jet.plugin.JetFileType
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.plugin.JetFileType
 import com.intellij.openapi.util.io.FileUtil
 
 public abstract class AbstractPartialBodyResolveTest : JetLightCodeInsightFixtureTestCase() {

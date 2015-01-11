@@ -19,12 +19,12 @@ package org.jetbrains.jet.plugin.caches.resolve
 import org.jetbrains.kotlin.psi.JetElement
 import org.jetbrains.kotlin.psi.JetFile
 import com.intellij.openapi.project.Project
-import org.jetbrains.jet.analyzer.AnalysisResult
+import org.jetbrains.kotlin.analyzer.AnalysisResult
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.containers.SLRUCache
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.CachedValueProvider
-import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingContext
 import com.intellij.openapi.components.ServiceManager
 import org.jetbrains.jet.plugin.project.AnalyzerFacadeProvider
 import org.jetbrains.jet.plugin.project.TargetPlatform
@@ -38,7 +38,7 @@ import org.jetbrains.jet.plugin.util.ProjectRootsUtil
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.psi.JetDeclaration
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.jet.lang.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
 private val LOG = Logger.getInstance(javaClass<KotlinCacheService>())
 

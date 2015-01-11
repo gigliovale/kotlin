@@ -22,8 +22,8 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
-import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.jet.plugin.JetDescriptorIconProvider
 import org.jetbrains.jet.plugin.completion.handlers.*
@@ -37,8 +37,8 @@ import org.jetbrains.jet.plugin.caches.resolve.ResolutionFacade
 import com.intellij.codeInsight.lookup.DefaultLookupItemRenderer
 import org.jetbrains.kotlin.types.TypeUtils
 import com.intellij.codeInsight.lookup.impl.LookupCellRenderer
-import org.jetbrains.jet.plugin.util.nullability
-import org.jetbrains.jet.plugin.util.TypeNullability
+import org.jetbrains.kotlin.plugin.util.nullability
+import org.jetbrains.kotlin.plugin.util.TypeNullability
 
 public class LookupElementFactory(
         private val receiverTypes: Collection<JetType>

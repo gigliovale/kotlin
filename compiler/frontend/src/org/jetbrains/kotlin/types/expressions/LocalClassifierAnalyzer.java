@@ -20,20 +20,20 @@ import com.google.common.base.Predicates;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jet.context.GlobalContext;
+import org.jetbrains.kotlin.context.GlobalContext;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor;
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.MutableClassDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.PackageLikeBuilder;
-import org.jetbrains.kotlin.psi.JetClassOrObject;
-import org.jetbrains.jet.lang.resolve.AdditionalCheckerProvider;
-import org.jetbrains.jet.lang.resolve.DescriptorUtils;
-import org.jetbrains.jet.lang.resolve.TopDownAnalysisContext;
-import org.jetbrains.jet.lang.resolve.TopDownAnalysisParameters;
-import org.jetbrains.jet.lang.resolve.scopes.WritableScope;
-import org.jetbrains.kotlin.types.DynamicTypesSettings;
 import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerBasic;
+import org.jetbrains.kotlin.psi.JetClassOrObject;
+import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider;
+import org.jetbrains.kotlin.resolve.DescriptorUtils;
+import org.jetbrains.kotlin.resolve.TopDownAnalysisContext;
+import org.jetbrains.kotlin.resolve.TopDownAnalysisParameters;
+import org.jetbrains.kotlin.resolve.scopes.WritableScope;
+import org.jetbrains.kotlin.types.DynamicTypesSettings;
 
 import java.util.Collections;
 

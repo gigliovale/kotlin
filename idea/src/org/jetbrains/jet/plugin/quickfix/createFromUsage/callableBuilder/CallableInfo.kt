@@ -8,18 +8,14 @@ import kotlin.properties.Delegates
 import com.intellij.util.ArrayUtil
 import org.jetbrains.jet.plugin.refactoring.JetNameSuggester
 import org.jetbrains.jet.plugin.refactoring.EmptyValidator
-import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.plugin.util.supertypes
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.plugin.util.supertypes
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.psi.JetElement
 import org.jetbrains.kotlin.psi.JetTypeReference
-import org.jetbrains.jet.plugin.quickfix.createFromUsage.createClass.ClassKind
 import org.jetbrains.jet.plugin.quickfix.createFromUsage.createClass.ClassInfo
-import org.jetbrains.jet.plugin.util.makeNotNullable
-import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.checker.JetTypeChecker
-import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.plugin.util.makeNotNullable
 
 /**
  * Represents a concrete type or a set of types yet to be inferred from an expression.

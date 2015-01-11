@@ -1,7 +1,7 @@
 package org.jetbrains.jet.plugin.quickfix.createFromUsage.createFunction
 
 import org.jetbrains.jet.plugin.quickfix.JetSingleIntentionActionFactory
-import org.jetbrains.jet.lang.diagnostics.Diagnostic
+import org.jetbrains.kotlin.diagnostics.Diagnostic
 import com.intellij.codeInsight.intention.IntentionAction
 import org.jetbrains.jet.plugin.quickfix.QuickFixUtil
 import org.jetbrains.kotlin.psi.JetArrayAccessExpression
@@ -14,7 +14,7 @@ import java.util.Collections
 import org.jetbrains.kotlin.psi.JetOperationExpression
 import org.jetbrains.kotlin.psi.JetUnaryExpression
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
-import org.jetbrains.jet.lang.resolve.calls.callUtil.getResolvedCall
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 

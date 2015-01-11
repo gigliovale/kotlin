@@ -16,18 +16,18 @@
 
 package org.jetbrains.kotlin.js.resolve
 
-import org.jetbrains.jet.lang.resolve.AdditionalCheckerProvider
-import org.jetbrains.jet.lang.resolve.AnnotationChecker
+import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider
+import org.jetbrains.kotlin.resolve.AnnotationChecker
 import org.jetbrains.kotlin.psi.JetDeclaration
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.jet.lang.diagnostics.DiagnosticSink
+import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.psi.JetNamedFunction
 import org.jetbrains.kotlin.js.resolve.diagnostics.ErrorsJs
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.js.PredefinedAnnotation
-import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf

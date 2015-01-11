@@ -18,28 +18,28 @@ import org.junit.Test
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import com.intellij.openapi.util.Disposer
-import org.jetbrains.jet.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.jet.lang.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import java.util.ArrayList
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import kotlin.test.fail
 import org.jetbrains.kotlin.utils.PathUtil
-import org.jetbrains.jet.lang.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.DescriptorUtils
 import java.util.HashSet
-import org.jetbrains.jet.config.CommonConfigurationKeys
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.cli.jvm.JVMConfigurationKeys
-import org.jetbrains.jet.lang.resolve.java.TopDownAnalyzerFacadeForJVM
+import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.jet.lang.resolve.BindingTraceContext
+import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig
 import org.jetbrains.kotlin.js.config.EcmaVersion
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS
 import com.intellij.openapi.Disposable
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport
-import org.jetbrains.jet.context.GlobalContext
+import org.jetbrains.kotlin.context.GlobalContext
 
 private val ANALYZE_PACKAGE_ROOTS_FOR_JVM = listOf("kotlin")
 private val ANALYZE_PACKAGE_ROOTS_FOR_JS = listOf("kotlin", "jquery", "html5")

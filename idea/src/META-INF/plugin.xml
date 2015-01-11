@@ -81,7 +81,7 @@
       <add-to-group group-id="EditorGutterPopupMenu" anchor="last"/>
     </group>
 
-    <group id="KotlinToolsGroup" popup="true" text="Kotlin" icon="/org/jetbrains/jet/plugin/icons/kotlin13.png"
+    <group id="KotlinToolsGroup" popup="true" text="Kotlin" icon="/org/jetbrains/kotlin/plugin/icons/kotlin13.png"
            class="org.jetbrains.jet.plugin.actions.KotlinActionGroup">
       <add-to-group group-id="ToolsMenu" anchor="last"/>
     </group>
@@ -136,11 +136,11 @@
     <applicationService serviceInterface="org.jetbrains.kotlin.psi.stubs.elements.StubIndexService"
                         serviceImplementation="org.jetbrains.jet.plugin.stubindex.StubIndexServiceImpl"/>
 
-    <applicationService serviceInterface="org.jetbrains.jet.OperationModeProvider"
+    <applicationService serviceInterface="org.jetbrains.kotlin.OperationModeProvider"
                         serviceImplementation="org.jetbrains.jet.plugin.IdeModeProvider"/>
 
-    <applicationService serviceInterface="org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache"
-                        serviceImplementation="org.jetbrains.jet.lang.resolve.kotlin.KotlinBinaryClassCache"/>
+    <applicationService serviceInterface="org.jetbrains.kotlin.load.kotlin.KotlinBinaryClassCache"
+                        serviceImplementation="org.jetbrains.kotlin.load.kotlin.KotlinBinaryClassCache"/>
 
     <applicationService serviceInterface="org.jetbrains.jet.plugin.configuration.JetModuleTypeManager"
                         serviceImplementation="org.jetbrains.jet.plugin.JetModuleTypeManagerImpl"/>
@@ -154,14 +154,14 @@
     <projectService serviceInterface="org.jetbrains.jet.plugin.caches.resolve.KotlinCacheService"
                     serviceImplementation="org.jetbrains.jet.plugin.caches.resolve.KotlinCacheService"/>
 
-    <projectService serviceInterface="org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinderFactory"
+    <projectService serviceInterface="org.jetbrains.kotlin.load.kotlin.VirtualFileFinderFactory"
                     serviceImplementation="org.jetbrains.jet.plugin.vfilefinder.IDEVirtualFileFinderFactory"/>
 
     <projectService serviceInterface="org.jetbrains.kotlin.asJava.LightClassGenerationSupport"
                     serviceImplementation="org.jetbrains.jet.plugin.caches.resolve.IDELightClassGenerationSupport"/>
 
-    <projectService serviceInterface="org.jetbrains.jet.lang.resolve.CodeAnalyzerInitializer"
-                      serviceImplementation="org.jetbrains.jet.lang.resolve.DummyCodeAnalyzerInitializer"/>
+    <projectService serviceInterface="org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer"
+                      serviceImplementation="org.jetbrains.kotlin.resolve.DummyCodeAnalyzerInitializer"/>
 
     <projectService serviceInterface="org.jetbrains.kotlin.parsing.JetScriptDefinitionProvider"
                     serviceImplementation="org.jetbrains.kotlin.parsing.JetScriptDefinitionProvider"/>
@@ -189,7 +189,7 @@
     <projectService serviceInterface="org.jetbrains.jet.plugin.debugger.evaluate.KotlinEvaluateExpressionCache"
                     serviceImplementation="org.jetbrains.jet.plugin.debugger.evaluate.KotlinEvaluateExpressionCache"/>
 
-    <projectService serviceInterface="org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactoryService"
+    <projectService serviceInterface="org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService"
                     serviceImplementation="org.jetbrains.jet.plugin.stubindex.resolve.PluginDeclarationProviderFactoryService"/>
 
     <projectService serviceInterface="org.jetbrains.jet.plugin.stubindex.SubpackagesIndexService"
@@ -443,7 +443,7 @@
     <toolWindow id="Kotlin Bytecode"
                 factoryClass="org.jetbrains.jet.plugin.internal.KotlinBytecodeToolWindow$Factory"
                 anchor="right"
-                icon="/org/jetbrains/jet/plugin/icons/kotlin13.png"
+                icon="/org/jetbrains/kotlin/plugin/icons/kotlin13.png"
                 canCloseContents="true"
         />
 

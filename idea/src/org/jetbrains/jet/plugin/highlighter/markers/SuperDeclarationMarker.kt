@@ -17,7 +17,7 @@
 package org.jetbrains.jet.plugin.highlighter.markers
 
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
-import org.jetbrains.jet.lang.resolve.OverrideResolver
+import org.jetbrains.kotlin.resolve.OverrideResolver
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.DescriptorRendererBuilder
@@ -28,14 +28,14 @@ import java.awt.event.MouseEvent
 import org.jetbrains.jet.plugin.codeInsight.DescriptorToDeclarationUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.codeInsight.daemon.impl.PsiElementListNavigator
-import org.jetbrains.jet.plugin.JetBundle
+import org.jetbrains.kotlin.plugin.JetBundle
 import org.jetbrains.jet.plugin.codeInsight.JetFunctionPsiElementCellRenderer
 import org.jetbrains.annotations.TestOnly
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import java.util.ArrayList
 import com.intellij.util.Function
 import org.jetbrains.kotlin.psi.JetDeclaration
-import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 
 object SuperDeclarationMarkerTooltip: Function<JetDeclaration, String> {

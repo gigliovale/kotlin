@@ -24,16 +24,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jet.ConfigurationKind;
 import org.jetbrains.jet.JetTestUtils;
 import org.jetbrains.jet.TestJdkKind;
-import org.jetbrains.kotlin.codegen.CodegenTestCase;
-import org.jetbrains.kotlin.codegen.GenerationUtils;
-import org.jetbrains.kotlin.codegen.InlineTestUtil;
-import org.jetbrains.jet.config.CompilerConfiguration;
-import org.jetbrains.kotlin.psi.JetFile;
-import org.jetbrains.kotlin.utils.UtilsPackage;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsPackage;
 import org.jetbrains.kotlin.cli.jvm.JVMConfigurationKeys;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.JetCoreEnvironment;
+import org.jetbrains.kotlin.codegen.CodegenTestCase;
+import org.jetbrains.kotlin.codegen.GenerationUtils;
+import org.jetbrains.kotlin.codegen.InlineTestUtil;
+import org.jetbrains.kotlin.config.CompilerConfiguration;
+import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.utils.UtilsPackage;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.kotlin.codegen.CodegenTestUtil.compileJava;
-import static org.jetbrains.jet.lang.resolve.java.PackageClassUtils.getPackageClassFqName;
+import static org.jetbrains.kotlin.load.kotlin.PackageClassUtils.getPackageClassFqName;
 
 public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
     public void doTest(@NotNull String filename) {

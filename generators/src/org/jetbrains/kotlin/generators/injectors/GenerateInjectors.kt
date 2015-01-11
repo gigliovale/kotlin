@@ -17,37 +17,37 @@
 package org.jetbrains.kotlin.generators.injectors
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.jet.context.GlobalContext
-import org.jetbrains.jet.context.GlobalContextImpl
+import org.jetbrains.kotlin.context.GlobalContext
+import org.jetbrains.kotlin.context.GlobalContextImpl
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.jet.lang.resolve.*
-import org.jetbrains.jet.lang.resolve.java.JavaClassFinderImpl
-import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolver
-import org.jetbrains.jet.lang.resolve.java.resolver.*
-import org.jetbrains.jet.lang.resolve.java.sam.SamConversionResolverImpl
-import org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinder
-import org.jetbrains.jet.lang.resolve.lazy.ResolveSession
-import org.jetbrains.jet.lang.resolve.lazy.declarations.DeclarationProviderFactory
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.load.java.JavaClassFinderImpl
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
+import org.jetbrains.kotlin.load.java.components.*
+import org.jetbrains.kotlin.load.java.sam.SamConversionResolverImpl
+import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 import org.jetbrains.kotlin.generators.di.*
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingComponents
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils
-import org.jetbrains.jet.lang.resolve.calls.CallResolver
-import org.jetbrains.jet.lang.resolve.java.structure.impl.JavaPropertyInitializerEvaluatorImpl
+import org.jetbrains.kotlin.resolve.calls.CallResolver
+import org.jetbrains.kotlin.load.java.structure.impl.JavaPropertyInitializerEvaluatorImpl
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.jet.lang.resolve.java.lazy.ModuleClassResolver
-import org.jetbrains.jet.lang.resolve.kotlin.DeserializationComponentsForJava
-import org.jetbrains.jet.lang.resolve.java.lazy.SingleModuleClassResolver
-import org.jetbrains.jet.lang.resolve.kotlin.VirtualFileFinderFactory
-import org.jetbrains.jet.lang.resolve.java.TopDownAnalyzerFacadeForJVM
-import org.jetbrains.jet.lang.resolve.kotlin.JavaDeclarationCheckerProvider
-import org.jetbrains.jet.lang.resolve.lazy.KotlinCodeAnalyzer
-import org.jetbrains.jet.lang.resolve.java.JavaFlexibleTypeCapabilitiesProvider
-import org.jetbrains.jet.context.LazyResolveToken
-import org.jetbrains.jet.lang.resolve.java.JavaLazyAnalyzerPostConstruct
-import org.jetbrains.jet.lang.resolve.java.JavaDescriptorResolverPostConstruct
-import org.jetbrains.jet.lang.resolve.lazy.ScopeProvider
+import org.jetbrains.kotlin.load.java.lazy.ModuleClassResolver
+import org.jetbrains.kotlin.load.kotlin.DeserializationComponentsForJava
+import org.jetbrains.kotlin.load.java.lazy.SingleModuleClassResolver
+import org.jetbrains.kotlin.load.kotlin.VirtualFileFinderFactory
+import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
+import org.jetbrains.kotlin.load.kotlin.JavaDeclarationCheckerProvider
+import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
+import org.jetbrains.kotlin.load.java.JavaFlexibleTypeCapabilitiesProvider
+import org.jetbrains.kotlin.context.LazyResolveToken
+import org.jetbrains.kotlin.resolve.jvm.JavaLazyAnalyzerPostConstruct
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolverPostConstruct
+import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
 import org.jetbrains.kotlin.js.resolve.KotlinJsDeclarationCheckerProvider
 import org.jetbrains.kotlin.types.DynamicTypesAllowed
 import org.jetbrains.kotlin.types.DynamicTypesSettings
@@ -144,7 +144,7 @@ private fun generatorForJavaDescriptorResolver() =
             parameter<BindingTrace>()
 
             publicField<GlobalContextImpl>(useAsContext = true,
-                        init = GivenExpression("org.jetbrains.jet.context.ContextPackage.GlobalContext()"))
+                        init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"))
             publicField<ModuleDescriptorImpl>(name = "module",
                         init = GivenExpression(javaClass<TopDownAnalyzerFacadeForJVM>().getName() + ".createJavaModule(\"<fake-jdr-module>\")"))
             publicField<JavaDescriptorResolver>()
@@ -215,7 +215,7 @@ private fun generatorForMacro() =
             publicField<CallResolver>()
 
             field<GlobalContext>(useAsContext = true,
-                  init = GivenExpression("org.jetbrains.jet.context.ContextPackage.GlobalContext()"))
+                  init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"))
 
             field<AdditionalCheckerProvider.Empty>()
         }
@@ -230,7 +230,7 @@ private fun generatorForTests() =
             publicField<ExpressionTypingUtils>()
             publicField<TypeResolver>()
 
-            field<GlobalContext>(init = GivenExpression("org.jetbrains.jet.context.ContextPackage.GlobalContext()"),
+            field<GlobalContext>(init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"),
                   useAsContext = true)
 
             field<JavaDeclarationCheckerProvider>()

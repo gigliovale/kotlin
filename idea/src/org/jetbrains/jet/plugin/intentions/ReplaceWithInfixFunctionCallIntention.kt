@@ -20,13 +20,13 @@ import org.jetbrains.kotlin.psi.JetCallExpression
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.kotlin.psi.JetDotQualifiedExpression
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFully
-import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.plugin.JetBundle
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.plugin.JetBundle
 import org.jetbrains.kotlin.psi.JetValueArgument
 import org.jetbrains.kotlin.psi.JetPsiUnparsingUtils
 import org.jetbrains.kotlin.psi.JetPsiFactory
 import com.intellij.codeInsight.hint.HintManager
-import org.jetbrains.jet.lang.resolve.calls.callUtil.getResolvedCall
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 
 public open class ReplaceWithInfixFunctionCallIntention : JetSelfTargetingIntention<JetCallExpression>("replace.with.infix.function.call.intention", javaClass()) {

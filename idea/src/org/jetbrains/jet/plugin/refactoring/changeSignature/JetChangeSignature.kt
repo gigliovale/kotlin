@@ -24,8 +24,8 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.Disposer
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.jet.lang.resolve.BindingContext
-import org.jetbrains.jet.plugin.JetBundle
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.plugin.JetBundle
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import java.util.*
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.*
@@ -34,7 +34,7 @@ import org.jetbrains.jet.plugin.codeInsight.DescriptorToDeclarationUtil
 import org.jetbrains.jet.plugin.quickfix.QuickFixUtil
 import com.intellij.CommonBundle
 import com.intellij.refactoring.RefactoringBundle
-import org.jetbrains.jet.lang.resolve.OverrideResolver
+import org.jetbrains.kotlin.resolve.OverrideResolver
 
 public trait JetChangeSignatureConfiguration {
     fun configure(changeSignatureData: JetChangeSignatureData, bindingContext: BindingContext)

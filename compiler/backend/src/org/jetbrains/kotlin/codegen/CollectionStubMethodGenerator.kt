@@ -21,20 +21,20 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.*
 import org.jetbrains.kotlin.descriptors.impl.*
 import org.jetbrains.org.objectweb.asm.Opcodes.*
-import org.jetbrains.jet.lang.resolve.java.diagnostics.JvmDeclarationOrigin
+import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.types.*
-import org.jetbrains.jet.lang.resolve.scopes.JetScope
+import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.jet.lang.resolve.OverrideResolver
-import org.jetbrains.jet.lang.resolve.OverridingUtil
+import org.jetbrains.kotlin.resolve.OverrideResolver
+import org.jetbrains.kotlin.resolve.OverridingUtil
 import java.util.LinkedHashSet
 import org.jetbrains.kotlin.name.Name
 import java.util.ArrayList
 import org.jetbrains.kotlin.types.checker.JetTypeChecker
 import java.util.HashSet
-import org.jetbrains.jet.lang.resolve.java.jvmSignature.JvmMethodSignature
+import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature
 
 /**
  * Generates exception-throwing stubs for methods from mutable collection classes not implemented in Kotlin classes which inherit only from

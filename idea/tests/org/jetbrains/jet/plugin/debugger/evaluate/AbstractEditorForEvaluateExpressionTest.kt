@@ -16,7 +16,7 @@
 
 package org.jetbrains.jet.plugin.debugger.evaluate
 
-import org.jetbrains.jet.checkers.AbstractJetPsiCheckerTest
+import org.jetbrains.kotlin.checkers.AbstractJetPsiCheckerTest
 import org.jetbrains.jet.completion.AbstractJvmBasicCompletionTest
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import com.intellij.psi.PsiElement
@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.psi.JetCodeFragment
 import org.jetbrains.jet.plugin.caches.resolve.analyzeFully
 import org.jetbrains.kotlin.psi.JetTypeReference
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.jet.lang.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.jet.completion.ExpectedCompletionUtils
 import org.jetbrains.kotlin.psi.JetElement
 import org.jetbrains.jet.completion.handlers.AbstractCompletionHandlerTest

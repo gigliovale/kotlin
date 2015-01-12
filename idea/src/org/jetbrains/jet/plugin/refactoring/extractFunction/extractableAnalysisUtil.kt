@@ -69,6 +69,8 @@ import org.jetbrains.jet.plugin.caches.resolve.findModuleDescriptor
 import org.jetbrains.jet.plugin.caches.resolve.analyze
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 import org.jetbrains.jet.plugin.refactoring.comparePossiblyOverridingDescriptors
+import org.jetbrains.kotlin.plugin.util.makeNullable
+import org.jetbrains.kotlin.plugin.util.makeNotNullable
 
 private val DEFAULT_FUNCTION_NAME = "myFun"
 private val DEFAULT_RETURN_TYPE = KotlinBuiltIns.getInstance().getUnitType()
@@ -473,8 +475,26 @@ private class MutableParameter(
 
     override val parameterTypeCandidates: List<JetType> by Delegates.lazy {
         writable = false
-        val superTypes = TypeUtils.getAllSupertypes(defaultType).filter(and(typePredicates))
-        (Collections.singletonList(defaultType) + superTypes).filter { it.isExtractable() }
+
+        val typePredicate = and(typePredicates)
+
+        val typeList = if (defaultType.isNullabilityFlexible()) {
+            val bounds = defaultType.getCapability(javaClass<Flexibility>())
+            if (typePredicate(bounds.upperBound)) arrayListOf(bounds.upperBound, bounds.lowerBound) else arrayListOf(bounds.lowerBound)
+        }
+        else arrayListOf(defaultType)
+
+        val addNullableTypes = typeList.size() > 1
+        val superTypes = TypeUtils.getAllSupertypes(defaultType).filter(typePredicate)
+
+        for (superType in superTypes) {
+            if (addNullableTypes) {
+                typeList.add(superType.makeNullable())
+            }
+            typeList.add(superType)
+        }
+
+        typeList.filter { it.isExtractable() }
     }
 
     override val parameterType: JetType by Delegates.lazy { parameterTypeCandidates.firstOrNull() ?: defaultType }
@@ -711,7 +731,8 @@ fun ExtractionData.performAnalysis(): AnalysisResult {
             )
     controlFlowMessage?.let { messages.add(it) }
 
-    controlFlow.outputValueBoxer.returnType.processTypeIfExtractable(paramsInfo.typeParameters, paramsInfo.nonDenotableTypes)
+    val returnType = controlFlow.outputValueBoxer.returnType
+    returnType.processTypeIfExtractable(paramsInfo.typeParameters, paramsInfo.nonDenotableTypes)
 
     if (paramsInfo.nonDenotableTypes.isNotEmpty()) {
         val typeStr = paramsInfo.nonDenotableTypes.map {it.renderForMessage()}.sort()
@@ -731,10 +752,9 @@ fun ExtractionData.performAnalysis(): AnalysisResult {
                     if (targetSibling is JetClassInitializer) targetSibling.getParent() else targetSibling,
                     JetNameValidatorImpl.Target.FUNCTIONS_AND_CLASSES
             )
-    val functionName = JetNameSuggester.suggestNames(
-            controlFlow.outputValueBoxer.returnType,
-            functionNameValidator, DEFAULT_FUNCTION_NAME
-    ).first()
+    val functionName = if (returnType.isDefault()) "" else {
+        JetNameSuggester.suggestNames(returnType, functionNameValidator, DEFAULT_FUNCTION_NAME).first()
+    }
 
     controlFlow.jumpOutputValue?.elementToInsertAfterCall?.accept(
             object : JetTreeVisitorVoid() {

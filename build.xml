@@ -883,5 +883,7 @@
         </zip>
     </target>
 
+    <target name="build-bootstrap-artifacts" depends="dist,zip-compiler"/>
+
     <target name="build-artifacts" depends="zip-compiler,kotlin-for-upsource,zip-test-data"/>
 </project>

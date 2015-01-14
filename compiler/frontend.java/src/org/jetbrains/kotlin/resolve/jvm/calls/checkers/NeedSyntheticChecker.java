@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve.calls.extensions;
+package org.jetbrains.kotlin.resolve.jvm.calls.checkers;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor;
 import org.jetbrains.kotlin.descriptors.Visibilities;
+import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker;
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 
 import static org.jetbrains.kotlin.resolve.BindingContext.NEED_SYNTHETIC_ACCESSOR;
 
-public class NeedSyntheticCallResolverExtension implements CallResolverExtension {
+public class NeedSyntheticChecker implements CallChecker {
 
     @Override
-    public  <F extends CallableDescriptor> void run(
+    public  <F extends CallableDescriptor> void check(
             @NotNull ResolvedCall<F> resolvedCall,
             @NotNull BasicCallResolutionContext context
     ) {

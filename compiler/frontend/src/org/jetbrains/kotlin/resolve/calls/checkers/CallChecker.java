@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve
+package org.jetbrains.kotlin.resolve.calls.checkers;
 
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext;
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 
-public fun ModuleDescriptor.resolveTopLevelClass(topLevelClassFqName: FqName): ClassDescriptor? {
-    assert(!topLevelClassFqName.isRoot())
-    return getPackage(topLevelClassFqName.parent())?.getMemberScope()
-            ?.getClassifier(topLevelClassFqName.shortName()) as? ClassDescriptor
+public interface CallChecker {
+    <F extends CallableDescriptor> void check(@NotNull ResolvedCall<F> resolvedCall, @NotNull BasicCallResolutionContext context);
 }

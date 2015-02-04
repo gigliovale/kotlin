@@ -24,16 +24,12 @@ import org.jetbrains.jet.plugin.PluginTestCaseBase
 import java.io.File
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.jet.InTextDirectivesUtils
-import com.intellij.openapi.editor.Editor
 import org.jetbrains.jet.plugin.folding.AbstractKotlinFoldingTest.doTestWithSettings
 import org.jetbrains.jet.plugin.imports.KotlinImportOptimizer
 
 class FoldingAfterOptimizeImportsTest : AbstractKotlinFoldingTest() {
     private val fixture: JavaCodeInsightTestFixture
         get() = myFixture!!
-
-    private val editor: Editor
-        get() = fixture.getEditor()!!
 
     private val fileText: String
         get() = fixture.getFile()!!.getText()!!
@@ -51,7 +47,7 @@ class FoldingAfterOptimizeImportsTest : AbstractKotlinFoldingTest() {
 
         doTestWithSettings(fileText) {
             fileText ->
-            CodeFoldingManager.getInstance(fixture.getProject())!!.buildInitialFoldings(editor)
+            CodeFoldingManager.getInstance(fixture.getProject())!!.buildInitialFoldings(getEditor())
             getFoldingRegion(0).checkRegion(false, findStringWithPrefixes("// REGION BEFORE: "))
 
             CommandProcessor.getInstance()?.executeCommand(fixture.getProject(),
@@ -65,7 +61,7 @@ class FoldingAfterOptimizeImportsTest : AbstractKotlinFoldingTest() {
 
     private fun getFoldingRegion(number: Int): FoldRegion {
         fixture.doHighlighting()
-        val model = editor.getFoldingModel()
+        val model = getEditor().getFoldingModel()
         val foldingRegions = model.getAllFoldRegions()
         assert(foldingRegions.size >= number) { "There is no enough folding regions in file: in file - ${foldingRegions.size} , expected = ${number}" }
         return foldingRegions[number]

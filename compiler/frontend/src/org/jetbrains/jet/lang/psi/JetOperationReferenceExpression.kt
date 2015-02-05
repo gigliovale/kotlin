@@ -18,7 +18,8 @@ package org.jetbrains.jet.lang.psi
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.jet.lang.parsing.JetExpressionParsing
+import com.intellij.psi.PsiElement
 
 public class JetOperationReferenceExpression(node: ASTNode) : JetSimpleNameExpressionImpl(node) {
-    override fun getReferencedNameElement() = findChildByType(JetExpressionParsing.ALL_OPERATIONS) ?: this
+    override fun getReferencedNameElement() = (findChildByType(JetExpressionParsing.ALL_OPERATIONS): PsiElement?) ?: this
 }

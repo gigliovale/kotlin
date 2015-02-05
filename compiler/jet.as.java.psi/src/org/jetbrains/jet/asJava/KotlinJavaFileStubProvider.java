@@ -367,7 +367,7 @@ public class KotlinJavaFileStubProvider<T extends WithFileStubAndExtraDiagnostic
     }
 
     @NotNull
-    private static VirtualFile getRepresentativeVirtualFile(@NotNull Collection<JetFile> files) {
+    public static VirtualFile getRepresentativeVirtualFile(@NotNull Collection<JetFile> files) {
         JetFile firstFile = files.iterator().next();
         VirtualFile virtualFile = files.size() == 1 ? firstFile.getVirtualFile() : new LightVirtualFile();
         assert virtualFile != null : "No virtual file for " + firstFile;

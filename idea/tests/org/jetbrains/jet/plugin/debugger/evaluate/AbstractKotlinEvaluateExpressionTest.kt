@@ -59,7 +59,6 @@ import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionProvider
@@ -103,6 +102,7 @@ public abstract class AbstractKotlinEvaluateExpressionTest : KotlinDebuggerTestB
         val file = File(path)
         val fileText = FileUtil.loadFile(file, true)
 
+        configureSettings(fileText)
         createAdditionalBreakpoints(fileText)
 
         val shouldPrintFrame = InTextDirectivesUtils.isDirectiveDefined(fileText, "// PRINT_FRAME")

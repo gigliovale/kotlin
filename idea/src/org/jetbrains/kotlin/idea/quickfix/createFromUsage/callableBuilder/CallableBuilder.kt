@@ -742,6 +742,8 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
         private fun transformToJavaMemberIfApplicable(declaration: JetNamedDeclaration): Boolean {
             fun askUser(): Boolean {
                 if (ApplicationManager.getApplication().isUnitTestMode()) return true
+                // TODO: Remove after class object extensions are supported
+                if (callableInfo.receiverTypeInfo.classObjectRequired) return true
                 return Messages.showYesNoDialog(
                         "Do you want to move this declaration to the Java class?",
                         "Create from usage",
@@ -763,9 +765,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                     declaration.setReceiverTypeReference(null)
                     val method = targetClass.add(createJavaMethod(declaration)) as PsiMethod
 
-                    val modifierList = method.getModifierList()
-                    modifierList.setModifierProperty(PsiModifier.STATIC, false)
-                    modifierList.setModifierProperty(PsiModifier.FINAL, false)
+                    method.getModifierList().setModifierProperty(PsiModifier.FINAL, false)
                     if (!targetClass.isInterface()) {
                         CreateFromUsageUtils.setupMethodBody(method)
                     }
@@ -783,6 +783,8 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             }
 
             declaration.delete()
+
+            newJavaMember.getModifierList().setModifierProperty(PsiModifier.STATIC, callableInfo.receiverTypeInfo.classObjectRequired)
 
             JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMember);
 

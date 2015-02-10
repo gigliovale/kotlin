@@ -68,11 +68,18 @@ import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.idea.util.isUnit
 import com.intellij.openapi.editor.ScrollType
-import com.intellij.openapi.editor.LogicalPosition
-import com.intellij.openapi.editor.actions.EditorActionUtil
-import com.intellij.openapi.editor.actions.LineEndAction
-import com.intellij.openapi.editor.actions.EnterAction
 import org.jetbrains.kotlin.psi.psiUtil.isAncestor
+import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
+import com.intellij.psi.PsiClass
+import org.jetbrains.kotlin.idea.refactoring.createJavaMethod
+import com.intellij.codeInsight.daemon.impl.quickfix.CreateFromUsageUtils
+import com.intellij.psi.PsiMethod
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
+import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
+import com.intellij.psi.codeStyle.JavaCodeStyleManager
+import com.intellij.psi.PsiModifier
+import com.intellij.openapi.ui.Messages
+import com.intellij.lang.java.JavaLanguage
 
 private val TYPE_PARAMETER_LIST_VARIABLE_NAME = "typeParameterList"
 private val TEMPLATE_FROM_USAGE_FUNCTION_BODY = "New Kotlin Function Body.kt"
@@ -729,6 +736,56 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
             typeRef.replace(fullyQualifiedReceiverTypeRef)
         }
 
+        private fun transformToJavaMemberIfApplicable(declaration: JetNamedDeclaration): Boolean {
+            fun askUser(): Boolean {
+                if (ApplicationManager.getApplication().isUnitTestMode()) return true
+                return Messages.showYesNoDialog(
+                        "Do you want to move this declaration to the Java class?",
+                        "Create from usage",
+                        Messages.getQuestionIcon()
+                ) == Messages.YES
+            }
+
+            if (receiverClassDescriptor !is JavaClassDescriptor) return false
+
+            val targetClass = DescriptorToSourceUtils.classDescriptorToDeclaration(receiverClassDescriptor) as? PsiClass
+            if (targetClass == null || !targetClass.isWritable() || targetClass.getLanguage() != JavaLanguage.INSTANCE) return false
+
+            val project = declaration.getProject()
+
+            if (!askUser()) return false
+
+            val newJavaMethod: PsiMethod = when (declaration) {
+                is JetNamedFunction -> {
+                    declaration.setReceiverTypeReference(null)
+                    val method = targetClass.add(createJavaMethod(declaration)) as PsiMethod
+
+                    val modifierList = method.getModifierList()
+                    modifierList.setModifierProperty(PsiModifier.STATIC, false)
+                    modifierList.setModifierProperty(PsiModifier.FINAL, false)
+                    if (!targetClass.isInterface()) {
+                        CreateFromUsageUtils.setupMethodBody(method)
+                    }
+                    else {
+                        method.getBody()?.delete()
+                    }
+
+                    method
+                }
+                else -> return false
+            }
+
+            declaration.delete()
+
+            JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMethod);
+
+            val descriptor = OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile())
+            val targetEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
+            CreateFromUsageUtils.setupEditor(newJavaMethod, targetEditor)
+
+            return true
+        }
+
         private fun setupEditor(declaration: JetNamedDeclaration) {
             val caretModel = containingFileEditor.getCaretModel()
 
@@ -826,12 +883,13 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                         if (callElement != null) {
                             setupCallTypeArguments(callElement, expression?.currentTypeParameters ?: Collections.emptyList())
                         }
-
-                        // change short type names to fully qualified ones (to be shortened below)
-                        setupTypeReferencesForShortening(newDeclaration, elementsToShorten, parameterTypeExpressions)
                     }
 
-                    setupEditor(newDeclaration)
+                    if (!transformToJavaMemberIfApplicable(newDeclaration)) {
+                        // change short type names to fully qualified ones (to be shortened below)
+                        setupTypeReferencesForShortening(newDeclaration, elementsToShorten, parameterTypeExpressions)
+                        setupEditor(newDeclaration)
+                    }
 
                     onFinish()
                 }

@@ -307,9 +307,27 @@ public class QuickFixMultiFileTestGenerated extends AbstractQuickFixMultiFileTes
                     JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/createFromUsage/createFunction/call"), Pattern.compile("^(\\w+)\\.before\\.Main\\.kt$"), true);
                 }
 
+                @TestMetadata("funOnGroovyType.before.Main.kt")
+                public void testFunOnGroovyType() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/funOnGroovyType.before.Main.kt");
+                    doTestWithExtraFile(fileName);
+                }
+
+                @TestMetadata("funOnJavaInterface.before.Main.kt")
+                public void testFunOnJavaInterface() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/funOnJavaInterface.before.Main.kt");
+                    doTestWithExtraFile(fileName);
+                }
+
                 @TestMetadata("funOnJavaType.before.Main.kt")
                 public void testFunOnJavaType() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/funOnJavaType.before.Main.kt");
+                    doTestWithExtraFile(fileName);
+                }
+
+                @TestMetadata("genericFunOnJavaType.before.Main.kt")
+                public void testGenericFunOnJavaType() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/genericFunOnJavaType.before.Main.kt");
                     doTestWithExtraFile(fileName);
                 }
 

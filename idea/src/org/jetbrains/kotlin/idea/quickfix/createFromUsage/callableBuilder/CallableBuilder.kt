@@ -80,6 +80,9 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager
 import com.intellij.psi.PsiModifier
 import com.intellij.openapi.ui.Messages
 import com.intellij.lang.java.JavaLanguage
+import org.jetbrains.kotlin.idea.refactoring.createJavaField
+import com.intellij.psi.PsiField
+import com.intellij.psi.PsiMember
 
 private val TYPE_PARAMETER_LIST_VARIABLE_NAME = "typeParameterList"
 private val TEMPLATE_FROM_USAGE_FUNCTION_BODY = "New Kotlin Function Body.kt"
@@ -755,7 +758,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
 
             if (!askUser()) return false
 
-            val newJavaMethod: PsiMethod = when (declaration) {
+            val newJavaMember: PsiMember = when (declaration) {
                 is JetNamedFunction -> {
                     declaration.setReceiverTypeReference(null)
                     val method = targetClass.add(createJavaMethod(declaration)) as PsiMethod
@@ -772,16 +775,23 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
 
                     method
                 }
+                is JetProperty -> {
+                    if (targetClass.isInterface()) return false
+                    targetClass.add(createJavaField(declaration)) as PsiField
+                }
                 else -> return false
             }
 
             declaration.delete()
 
-            JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMethod);
+            JavaCodeStyleManager.getInstance(project).shortenClassReferences(newJavaMember);
 
             val descriptor = OpenFileDescriptor(project, targetClass.getContainingFile().getVirtualFile())
             val targetEditor = FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
-            CreateFromUsageUtils.setupEditor(newJavaMethod, targetEditor)
+            when (newJavaMember) {
+                is PsiMethod -> CreateFromUsageUtils.setupEditor(newJavaMember, targetEditor)
+                is PsiField -> targetEditor.getCaretModel().moveToOffset(newJavaMember.getTextRange().getEndOffset() - 1)
+            }
 
             return true
         }

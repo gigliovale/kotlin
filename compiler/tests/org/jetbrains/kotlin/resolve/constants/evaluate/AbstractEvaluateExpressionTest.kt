@@ -27,45 +27,62 @@ import org.jetbrains.kotlin.test.JetTestUtils
 import org.jetbrains.kotlin.resolve.constants.StringValue
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.resolve.constants.IntegerValueConstant
+import org.jetbrains.kotlin.resolve.BindingContextUtils
+import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
+import org.jetbrains.kotlin.psi.JetProperty
+import org.jetbrains.kotlin.resolve.constants.CompileTimeConstant
 
 public abstract class AbstractEvaluateExpressionTest : AbstractAnnotationDescriptorResolveTest() {
 
-    // Test directives should look like [// val testedPropertyName: expectedValue]
+    // Test directives should look like [// val testedPropertyName: propertyCompileTimeConstant( = initializerCompileTimeConstant)?]
     fun doConstantTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
-            if (compileTimeConstant is StringValue) {
-                "\\\"${compileTimeConstant.getValue()}\\\""
-            } else {
-                "$compileTimeConstant"
+
+            composeTestDirective(property, context) {
+                if (it is StringValue) "\\\"${it.getValue()}\\\"" else "$it"
             }
         }
     }
 
-    // Test directives should look like [// val testedPropertyName: expectedValue]
+    // Test directives should look like [// val testedPropertyName: propertyCompileTimeConstant( = initializerCompileTimeConstant)?]
     fun doIsPureTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
-            if (compileTimeConstant is IntegerValueConstant) {
-                compileTimeConstant.isPure().toString()
-            } else {
-                "null"
+            composeTestDirective(property, context) {
+                if (it is IntegerValueConstant) it.isPure().toString() else "null"
             }
         }
     }
 
-    // Test directives should look like [// val testedPropertyName: expectedValue]
+    // Test directives should look like [// val testedPropertyName: propertyCompileTimeConstant( = initializerCompileTimeConstant)?]
     fun doUsesVariableAsConstantTest(path: String) {
         doTest(path) {
             property, context ->
-            val compileTimeConstant = property.getCompileTimeInitializer()
-            if (compileTimeConstant == null) {
-                "null"
-            } else {
-                compileTimeConstant.usesVariableAsConstant().toString()
+            composeTestDirective(property, context) {
+                if (it != null) it.usesVariableAsConstant().toString() else "null"
             }
+        }
+    }
+
+    private fun composeTestDirective(
+            desc: VariableDescriptor,
+            context: BindingContext,
+            constantToString: (CompileTimeConstant<*>?) -> String
+    ): String {
+        val jetProperty = DescriptorToSourceUtils.descriptorToDeclaration(desc) as JetProperty
+
+        val propertyCompileTimeConstant = desc.getCompileTimeInitializer()
+        val initializerCompileTimeConstant = context[BindingContext.COMPILE_TIME_VALUE, jetProperty.getInitializer()]
+
+        val propertyConstantString = constantToString(propertyCompileTimeConstant)
+        val initializerConstantString = constantToString(initializerCompileTimeConstant)
+
+        if (propertyConstantString == initializerConstantString) {
+            return propertyConstantString
+        }
+        else {
+            return "$propertyConstantString = $initializerConstantString"
         }
     }
 

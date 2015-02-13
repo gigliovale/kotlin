@@ -49,6 +49,7 @@ import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
+import org.jetbrains.kotlin.types.typeUtil.TypeUtilPackage;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -1095,10 +1096,18 @@ public class DescriptorResolver {
                 public CompileTimeConstant<?> invoke() {
                     JetExpression initializer = variable.getInitializer();
                     JetType initializerType = expressionTypingServices.safeGetType(scope, initializer, variableType, dataFlowInfo, trace);
+
                     CompileTimeConstant<?> constant = ConstantExpressionEvaluator.OBJECT$.evaluate(initializer, trace, initializerType);
                     if (constant instanceof IntegerValueTypeConstant) {
-                        return EvaluatePackage.createCompileTimeConstantWithType((IntegerValueTypeConstant) constant, initializerType);
+                        constant = EvaluatePackage.createCompileTimeConstantWithType((IntegerValueTypeConstant) constant, initializerType);
                     }
+
+                    if (constant == null) return null;
+
+                    if (!TypeUtilPackage.isSubtypeOf(constant.getType(KotlinBuiltIns.getInstance()), variableType)) {
+                        return null;
+                    }
+
                     return constant;
                 }
             }, null)

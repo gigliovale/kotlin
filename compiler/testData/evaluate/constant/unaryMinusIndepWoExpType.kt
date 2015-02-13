@@ -1,6 +1,6 @@
 package test
 
-// val p1: -1
+// val p1: -1 = IntegerValueType(-1)
 val p1 = -1
 
 // val p2: -1.toLong()

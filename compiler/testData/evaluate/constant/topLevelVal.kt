@@ -25,7 +25,7 @@ class A {
 
     val c = object: Foo {
         override fun f() {
-            // val prop9: 1
+            // val prop9: 1 = null
             val prop9 = a
 
             // val prop10: 2

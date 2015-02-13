@@ -30,16 +30,22 @@ val prop9: Any? = "a"
 // val prop10: \"a\"
 val prop10: Any = "a"
 
-// val prop11: null
+// val prop11: null = IntegerValueType(1)
 val prop11: aaa = 1
 
-// val prop14: null
+// val prop14: null = IntegerValueType(1)
 val prop14: aaa? = 1
 
 class A
 
-// val prop15: null
+// val prop15: null = 1
 val prop15: A = 1
 
-// val prop16: 1
+// val prop16: null = 1
 val prop16: A? = 1
+
+// val prop17: null = \"1\"
+val prop17: Int = "1"
+
+// val prop18: null
+val prop18 = prop17 + 1

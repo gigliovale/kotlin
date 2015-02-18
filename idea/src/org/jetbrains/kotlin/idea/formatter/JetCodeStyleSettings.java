@@ -42,7 +42,7 @@ public class JetCodeStyleSettings extends CustomCodeStyleSettings {
 
     public boolean LBRACE_ON_NEXT_LINE = false;
 
-    public boolean PREFER_ALL_UNDER_IMPORTS = !ApplicationManager.getApplication().isUnitTestMode();
+    public boolean PREFER_ALL_UNDER_IMPORTS = false;
     public boolean IMPORT_PACKAGES = true;
 
     public static JetCodeStyleSettings getInstance(Project project) {

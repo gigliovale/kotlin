@@ -21,7 +21,7 @@ import com.intellij.openapi.extensions.ExtensionsArea;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.utils.UtilsPackage;
+import org.jetbrains.jet.utils.UtilsPackage;
 
 import java.io.File;
 import java.lang.reflect.Method;

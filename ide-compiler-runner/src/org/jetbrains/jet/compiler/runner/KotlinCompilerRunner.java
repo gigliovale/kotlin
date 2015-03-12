@@ -30,9 +30,11 @@ import org.jetbrains.jet.cli.common.messages.CompilerMessageSeverity;
 import org.jetbrains.jet.cli.common.messages.MessageCollector;
 import org.jetbrains.jet.cli.common.messages.MessageCollectorUtil;
 import org.jetbrains.jet.compiler.CompilerSettings;
+import org.jetbrains.jet.utils.UtilsPackage;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
@@ -123,11 +125,30 @@ public class KotlinCompilerRunner {
     private static <F, T extends F> T mergeBeans(F from, T to) {
         T copy = XmlSerializerUtil.createCopy(to);
 
+        // TODO: Rewrite with XmlSerializerUtil.copyBean() after method is in Teamcity JPS (9.1 expected)
         for (Accessor accessor : XmlSerializerUtil.getAccessors(from.getClass())) {
-            accessor.write(copy, accessor.read(from));
+            if (!setValue("set", false, accessor, copy, accessor.read(from))) {
+                setValue("write", true, accessor, copy, accessor.read(from));
+            }
         }
 
         return copy;
+    }
+
+    private static boolean setValue(String methodName, boolean failOnReflection, Accessor accessor, Object from, Object copy) {
+        try {
+            Method method = Accessor.class.getMethod(methodName, Object.class, Object.class);
+            method.invoke(accessor, from, copy);
+
+            return true;
+        }
+        catch (Throwable e) {
+            if (failOnReflection) {
+                throw UtilsPackage.rethrow(e);
+            }
+        }
+
+        return false;
     }
 
     private static void setupK2JvmArguments(File moduleFile, K2JVMCompilerArguments settings) {

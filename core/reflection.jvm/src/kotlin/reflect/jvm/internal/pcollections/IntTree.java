@@ -36,7 +36,7 @@ package kotlin.reflect.jvm.internal.pcollections;
  * J. Nievergelt and E.M. Reingold, "Binary search trees of bounded balance",
  * SIAM journal of computing 2(1), March 1973.
  *
- * @author harold
+ * author harold
  */
 final class IntTree<V> {
     // marker value:

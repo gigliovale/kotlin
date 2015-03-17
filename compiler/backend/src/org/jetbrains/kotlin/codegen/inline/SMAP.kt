@@ -106,7 +106,7 @@ public open class InlineLambdaSourceMapper(parent: SourceMapper, smap: SMAPAndMe
         }
         if (index >= 0) {
             val fmapping = ranges[index].parent!!
-            if (fmapping.path == origin.path && fmapping.name == origin.name) {
+            if (fmapping.path == origin!!.path && fmapping.name == origin!!.name) {
                 parent!!.visitOrigin()
                 parent!!.visitLineNumber(iv, lineNumber, start)
                 return
@@ -188,12 +188,13 @@ public open class DefaultSourceMapper(val sourceInfo: SourceInfo, override val p
 
     var fileMappings: LinkedHashMap<String, RawFileMapping> = linkedMapOf();
 
-    protected val origin: RawFileMapping
-    {
+    protected val origin: RawFileMapping?
+
+    init {
         visitSource(sourceInfo.source, sourceInfo.pathOrCleanFQN)
         origin = lastVisited!!
         //map interval
-        (1..maxUsedValue).forEach {origin.mapLine(it, it - 1, true) }
+        (1..maxUsedValue).forEach {origin!!.mapLine(it, it - 1, true) }
     }
 
     override val resultMappings: List<FileMapping>

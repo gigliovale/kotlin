@@ -255,6 +255,20 @@ public class JetPositionManager(private val myDebugProcess: DebugProcess) : Posi
         return myDebugProcess.getRequestsManager().createClassPrepareRequest(classPrepareRequestor, className.replace('/', '.'))
     }
 
+    /*
+
+    override fun createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): List<ClassPrepareRequest> {
+        if (position.getFile() !is JetFile) {
+            throw NoDataException.INSTANCE
+        }
+
+        return classNameForPositionAndInlinedOnes(position).map {
+            className -> myDebugProcess.getRequestsManager().createClassPrepareRequest(requestor, className.replace('/', '.'))
+        }
+    }
+
+     */
+
     TestOnly
     public fun addTypeMapper(file: JetFile, typeMapper: JetTypeMapper) {
         val value = CachedValuesManager.getManager(file.getProject()).createCachedValue<JetTypeMapper>(

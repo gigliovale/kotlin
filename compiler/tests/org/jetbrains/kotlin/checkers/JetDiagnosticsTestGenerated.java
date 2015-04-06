@@ -11030,6 +11030,7 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
         @TestDataPath("$PROJECT_ROOT")
         @InnerTestClasses({
                 SmartCasts.Inference.class,
+                SmartCasts.Loops.class,
                 SmartCasts.Safecalls.class,
                 SmartCasts.Varnotnull.class,
         })
@@ -11188,6 +11189,129 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 @TestMetadata("smartCastOnReceiver.kt")
                 public void testSmartCastOnReceiver() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/inference/smartCastOnReceiver.kt");
+                    doTest(fileName);
+                }
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/smartCasts/loops")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Loops extends AbstractJetDiagnosticsTest {
+                public void testAllFilesPresentInLoops() throws Exception {
+                    JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/smartCasts/loops"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("doWhile.kt")
+                public void testDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("doWhileBreak.kt")
+                public void testDoWhileBreak() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhileBreak.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("doWhileContinue.kt")
+                public void testDoWhileContinue() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhileContinue.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("doWhileEarlyBreak.kt")
+                public void testDoWhileEarlyBreak() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhileEarlyBreak.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("doWhileEarlyContinue.kt")
+                public void testDoWhileEarlyContinue() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhileEarlyContinue.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("doWhileLiteral.kt")
+                public void testDoWhileLiteral() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/doWhileLiteral.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("ifBlockInsideDoWhile.kt")
+                public void testIfBlockInsideDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifBlockInsideDoWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("ifElseBlockInsideDoWhile.kt")
+                public void testIfElseBlockInsideDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifElseBlockInsideDoWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("ifInsideDoWhile.kt")
+                public void testIfInsideDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifInsideDoWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nestedDoWhile.kt")
+                public void testNestedDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/nestedDoWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nestedLoops.kt")
+                public void testNestedLoops() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/nestedLoops.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nestedLoopsShort.kt")
+                public void testNestedLoopsShort() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/nestedLoopsShort.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nestedLoopsWithBreak.kt")
+                public void testNestedLoopsWithBreak() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/nestedLoopsWithBreak.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nestedLoopsWithLongBreak.kt")
+                public void testNestedLoopsWithLongBreak() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/nestedLoopsWithLongBreak.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("useInsideDoWhile.kt")
+                public void testUseInsideDoWhile() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/useInsideDoWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("whileSimple.kt")
+                public void testWhileSimple() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/whileSimple.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("whileTrivial.kt")
+                public void testWhileTrivial() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/whileTrivial.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("whileTrue.kt")
+                public void testWhileTrue() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/whileTrue.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("whileTrueEarlyBreak.kt")
+                public void testWhileTrueEarlyBreak() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/whileTrueEarlyBreak.kt");
                     doTest(fileName);
                 }
             }

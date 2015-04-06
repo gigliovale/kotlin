@@ -304,23 +304,54 @@ public class ExpressionTypingServices {
     }
 
     /**
-     * Visits block statements propagating data flow information from the first to the last.
-     * Determines block returned type and data flow information at the end of the block.
+     * A local descendant of JetTypeInfo. Stores simultaneously current data flow info
+     * and jump point data flow info. For example:
+     * do {
+     *     x!!.foo()
+     *     if (bar()) break;
+     *     y!!.gav()
+     * } while (bis())
+     * At the end current data flow info is x != null && y != null, but jump data flow info is x != null only.
      */
-    /*package*/ JetTypeInfo getBlockReturnedTypeWithWritableScope(
+    /*package*/ class LoopJetTypeInfo extends JetTypeInfo {
+
+        private DataFlowInfo jumpFlowInfo;
+
+        private LoopJetTypeInfo(@Nullable JetType type, @NotNull DataFlowInfo dataFlowInfo) {
+            this(type, dataFlowInfo, dataFlowInfo);
+        }
+
+        private LoopJetTypeInfo(@Nullable JetType type, @NotNull DataFlowInfo dataFlowInfo, @NotNull DataFlowInfo jumpFlowInfo) {
+            super(type, dataFlowInfo);
+            this.jumpFlowInfo = jumpFlowInfo;
+        }
+
+        DataFlowInfo getJumpFlowInfo() {
+            return jumpFlowInfo;
+        }
+    }
+
+    /**
+     * Visits block statements propagating data flow information from the first to the last.
+     * Determines block returned type and data flow information at the end of the block AND
+     * at the nearest jump point from the block beginning.
+     */
+    /*package*/ LoopJetTypeInfo getBlockReturnedTypeWithWritableScope(
             @NotNull WritableScope scope,
             @NotNull List<? extends JetElement> block,
             @NotNull CoercionStrategy coercionStrategyForLastExpression,
             @NotNull ExpressionTypingContext context
     ) {
         if (block.isEmpty()) {
-            return JetTypeInfo.create(builtIns.getUnitType(), context.dataFlowInfo);
+            return new LoopJetTypeInfo(builtIns.getUnitType(), context.dataFlowInfo);
         }
 
         ExpressionTypingInternals blockLevelVisitor = ExpressionTypingVisitorDispatcher.createForBlock(expressionTypingComponents, scope);
         ExpressionTypingContext newContext = context.replaceScope(scope).replaceExpectedType(NO_EXPECTED_TYPE);
 
         JetTypeInfo result = JetTypeInfo.create(null, context.dataFlowInfo);
+        // Jump point data flow info
+        DataFlowInfo beforeJumpInfo = newContext.dataFlowInfo;
         for (Iterator<? extends JetElement> iterator = block.iterator(); iterator.hasNext(); ) {
             JetElement statement = iterator.next();
             if (!(statement instanceof JetExpression)) {
@@ -340,10 +371,21 @@ public class ExpressionTypingServices {
             DataFlowInfo newDataFlowInfo = result.getDataFlowInfo();
             if (newDataFlowInfo != context.dataFlowInfo) {
                 newContext = newContext.replaceDataFlowInfo(newDataFlowInfo);
+                // We take current data flow info if jump there is not possible
+                if (!newDataFlowInfo.isJumpPossible()) {
+                    beforeJumpInfo = newDataFlowInfo;
+                }
+                else if (result instanceof LoopJetTypeInfo) {
+                    LoopJetTypeInfo loopJetTypeInfo = (LoopJetTypeInfo)result;
+                    // We take jump point data flow info if jump (another) is not possible before
+                    if (!loopJetTypeInfo.getJumpFlowInfo().isJumpPossible()) {
+                        beforeJumpInfo = loopJetTypeInfo.getJumpFlowInfo();
+                    }
+                }
             }
             blockLevelVisitor = ExpressionTypingVisitorDispatcher.createForBlock(expressionTypingComponents, scope);
         }
-        return result;
+        return new LoopJetTypeInfo(result.getType(), result.getDataFlowInfo(), beforeJumpInfo);
     }
 
     private JetTypeInfo getTypeOfLastExpressionInBlock(

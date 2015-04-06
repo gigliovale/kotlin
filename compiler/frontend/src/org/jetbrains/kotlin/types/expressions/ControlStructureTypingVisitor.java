@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.JetNodeTypes;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.diagnostics.Errors;
@@ -139,10 +140,14 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
             resultDataFlowInfo = thenDataFlowInfo.or(elseDataFlowInfo);
         }
         else if (thenType == null || (jumpInThen && !jumpInElse)) {
-            resultDataFlowInfo = elseDataFlowInfo;
+            resultDataFlowInfo = elseDataFlowInfo.jump();
         }
         else if (elseType == null || (jumpInElse && !jumpInThen)) {
-            resultDataFlowInfo = thenDataFlowInfo;
+            resultDataFlowInfo = thenDataFlowInfo.jump();
+        }
+        // || jumpInElse: it is always false after jumpInThen check
+        else if (jumpInThen) {
+            resultDataFlowInfo = thenDataFlowInfo.or(elseDataFlowInfo).jump();
         }
         else {
             resultDataFlowInfo = thenDataFlowInfo.or(elseDataFlowInfo);
@@ -169,7 +174,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         JetType type = typeInfo.getType();
         DataFlowInfo dataFlowInfo;
         if (type != null && KotlinBuiltIns.isNothing(type)) {
-            dataFlowInfo = otherInfo;
+            dataFlowInfo = otherInfo.jump();
         } else {
             dataFlowInfo = typeInfo.getDataFlowInfo().or(otherInfo);
         }
@@ -182,6 +187,11 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         return visitWhileExpression(expression, context, false);
     }
 
+    private static boolean isTrueConstant(JetExpression condition) {
+        return (condition != null && condition.getNode().getElementType() == JetNodeTypes.BOOLEAN_CONSTANT &&
+                "true".equals(condition.getText()));
+    }
+
     public JetTypeInfo visitWhileExpression(JetWhileExpression expression, ExpressionTypingContext contextWithExpectedType, boolean isStatement) {
         if (!isStatement) return DataFlowUtils.illegalStatementType(expression, contextWithExpectedType, facade);
 
@@ -191,16 +201,26 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         DataFlowInfo dataFlowInfo = checkCondition(context.scope, condition, context);
 
         JetExpression body = expression.getBody();
+        // Special case: while (true)
+        // In this case we must record data flow information at the nearest break / continue and
+        // .and it with entrance data flow information, because while body until break is executed at least once in this case
+        // See KT-6284
+        ExpressionTypingServices.LoopJetTypeInfo bodyTypeInfo = null;
         if (body != null) {
             WritableScopeImpl scopeToExtend = newWritableScopeImpl(context, "Scope extended in while's condition");
             DataFlowInfo conditionInfo = DataFlowUtils.extractDataFlowInfoFromCondition(condition, true, context).and(dataFlowInfo);
-            components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
+            bodyTypeInfo = components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
                     scopeToExtend, Collections.singletonList(body),
                     CoercionStrategy.NO_COERCION, context.replaceDataFlowInfo(conditionInfo));
         }
 
         if (!containsJumpOutOfLoop(expression, context)) {
             dataFlowInfo = DataFlowUtils.extractDataFlowInfoFromCondition(condition, false, context).and(dataFlowInfo);
+        }
+
+        // While (true) only should be considered here
+        if (bodyTypeInfo != null && isTrueConstant(condition)) {
+            dataFlowInfo = dataFlowInfo.and(bodyTypeInfo.getJumpFlowInfo());
         }
         return DataFlowUtils.checkType(components.builtIns.getUnitType(), expression, contextWithExpectedType, dataFlowInfo);
     }
@@ -255,13 +275,17 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
                 contextWithExpectedType.replaceExpectedType(NO_EXPECTED_TYPE).replaceContextDependency(INDEPENDENT);
         JetExpression body = expression.getBody();
         JetScope conditionScope = context.scope;
+        // Here we must record data flow information at the end of the body (or at the first jump, to be precise) and
+        // .and it with entrance data flow information, because do-while body is executed at least once
+        // See KT-6283
+        ExpressionTypingServices.LoopJetTypeInfo bodyTypeInfo = null;
         if (body instanceof JetFunctionLiteralExpression) {
             JetFunctionLiteralExpression function = (JetFunctionLiteralExpression) body;
             JetFunctionLiteral functionLiteral = function.getFunctionLiteral();
             if (!functionLiteral.hasParameterSpecification()) {
                 WritableScope writableScope = newWritableScopeImpl(context, "do..while body scope");
                 conditionScope = writableScope;
-                components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
+                bodyTypeInfo = components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
                         writableScope, functionLiteral.getBodyExpression().getStatements(), CoercionStrategy.NO_COERCION, context);
                 context.trace.record(BindingContext.BLOCK, function);
             }
@@ -279,7 +303,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
             else {
                 block = Collections.<JetElement>singletonList(body);
             }
-            components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
+            bodyTypeInfo = components.expressionTypingServices.getBlockReturnedTypeWithWritableScope(
                     writableScope, block, CoercionStrategy.NO_COERCION, context);
         }
         JetExpression condition = expression.getCondition();
@@ -290,6 +314,9 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         }
         else {
             dataFlowInfo = context.dataFlowInfo;
+        }
+        if (bodyTypeInfo != null) {
+            dataFlowInfo = dataFlowInfo.and(bodyTypeInfo.getJumpFlowInfo());
         }
         return DataFlowUtils.checkType(components.builtIns.getUnitType(), expression, contextWithExpectedType, dataFlowInfo);
     }
@@ -512,13 +539,13 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
     @Override
     public JetTypeInfo visitBreakExpression(@NotNull JetBreakExpression expression, ExpressionTypingContext context) {
         LabelResolver.INSTANCE.resolveControlLabel(expression, context);
-        return DataFlowUtils.checkType(components.builtIns.getNothingType(), expression, context, context.dataFlowInfo);
+        return DataFlowUtils.checkType(components.builtIns.getNothingType(), expression, context, context.dataFlowInfo.jump());
     }
 
     @Override
     public JetTypeInfo visitContinueExpression(@NotNull JetContinueExpression expression, ExpressionTypingContext context) {
         LabelResolver.INSTANCE.resolveControlLabel(expression, context);
-        return DataFlowUtils.checkType(components.builtIns.getNothingType(), expression, context, context.dataFlowInfo);
+        return DataFlowUtils.checkType(components.builtIns.getNothingType(), expression, context, context.dataFlowInfo.jump());
     }
 
     @NotNull

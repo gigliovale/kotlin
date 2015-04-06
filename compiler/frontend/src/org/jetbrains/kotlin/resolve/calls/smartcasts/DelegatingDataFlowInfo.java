@@ -31,6 +31,8 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
 /* package */ class DelegatingDataFlowInfo implements DataFlowInfo {
     private static final ImmutableMap<DataFlowValue,Nullability> EMPTY_NULLABILITY_INFO = ImmutableMap.of();
     private static final SetMultimap<DataFlowValue, JetType> EMPTY_TYPE_INFO = newTypeInfo();
+    private static final DataFlowInfo EMPTY_INFO_WITH_JUMP = new DelegatingDataFlowInfo(null, EMPTY_NULLABILITY_INFO,
+                                                                                        EMPTY_TYPE_INFO, true);
 
     @Nullable
     private final DataFlowInfo parent;
@@ -42,14 +44,18 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
     @NotNull
     private final SetMultimap<DataFlowValue, JetType> typeInfo;
 
+    private final boolean jumpPossible;
+
     /* package */ DelegatingDataFlowInfo(
             @Nullable DataFlowInfo parent,
             @NotNull ImmutableMap<DataFlowValue, Nullability> nullabilityInfo,
-            @NotNull SetMultimap<DataFlowValue, JetType> typeInfo
+            @NotNull SetMultimap<DataFlowValue, JetType> typeInfo,
+            boolean jumpPossible
     ) {
         this.parent = parent;
         this.nullabilityInfo = nullabilityInfo;
         this.typeInfo = typeInfo;
+        this.jumpPossible = jumpPossible;
     }
 
     @Override
@@ -82,6 +88,11 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
             info = (DelegatingDataFlowInfo) info.parent;
         }
         return result;
+    }
+
+    @Override
+    public boolean isJumpPossible() {
+        return jumpPossible;
     }
 
     @Override
@@ -142,7 +153,8 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
                     : new DelegatingDataFlowInfo(
                             this,
                             ImmutableMap.copyOf(builder),
-                            newTypeInfo.isEmpty() ? EMPTY_TYPE_INFO : newTypeInfo
+                            newTypeInfo.isEmpty() ? EMPTY_TYPE_INFO : newTypeInfo,
+                            jumpPossible
                     );
     }
 
@@ -176,7 +188,7 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         boolean changed = false;
         changed |= putNullability(builder, a, nullabilityOfA.refine(nullabilityOfB.invert()));
         changed |= putNullability(builder, b, nullabilityOfB.refine(nullabilityOfA.invert()));
-        return changed ? new DelegatingDataFlowInfo(this, ImmutableMap.copyOf(builder), EMPTY_TYPE_INFO) : this;
+        return changed ? new DelegatingDataFlowInfo(this, ImmutableMap.copyOf(builder), EMPTY_TYPE_INFO, jumpPossible) : this;
     }
 
     @Override
@@ -187,7 +199,7 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         ImmutableMap<DataFlowValue, Nullability> newNullabilityInfo =
                 type.isMarkedNullable() ? EMPTY_NULLABILITY_INFO : ImmutableMap.of(value, NOT_NULL);
         SetMultimap<DataFlowValue, JetType> newTypeInfo = ImmutableSetMultimap.of(value, type);
-        return new DelegatingDataFlowInfo(this, newNullabilityInfo, newTypeInfo);
+        return new DelegatingDataFlowInfo(this, newNullabilityInfo, newTypeInfo, jumpPossible);
     }
 
     @NotNull
@@ -214,10 +226,11 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         SetMultimap<DataFlowValue, JetType> myTypeInfo = getCompleteTypeInfo();
         SetMultimap<DataFlowValue, JetType> otherTypeInfo = other.getCompleteTypeInfo();
         if (nullabilityMapBuilder.isEmpty() && containsAll(myTypeInfo, otherTypeInfo)) {
-            return this;
+            return otherInfo.isJumpPossible() ? jump(): this;
         }
 
-        return new DelegatingDataFlowInfo(this, ImmutableMap.copyOf(nullabilityMapBuilder), otherTypeInfo);
+        return new DelegatingDataFlowInfo(this, ImmutableMap.copyOf(nullabilityMapBuilder), otherTypeInfo,
+                                          jumpPossible || otherInfo.isJumpPossible());
     }
 
     private static boolean containsAll(SetMultimap<DataFlowValue, JetType> first, SetMultimap<DataFlowValue, JetType> second) {
@@ -253,10 +266,17 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         }
 
         if (nullabilityMapBuilder.isEmpty() && newTypeInfo.isEmpty()) {
-            return EMPTY;
+            return (jumpPossible || otherInfo.isJumpPossible()) ? EMPTY_INFO_WITH_JUMP : EMPTY;
         }
 
-        return new DelegatingDataFlowInfo(null, ImmutableMap.copyOf(nullabilityMapBuilder), newTypeInfo);
+        return new DelegatingDataFlowInfo(null, ImmutableMap.copyOf(nullabilityMapBuilder), newTypeInfo, jumpPossible || otherInfo.isJumpPossible());
+    }
+
+    @NotNull
+    @Override
+    public DataFlowInfo jump() {
+        return isJumpPossible() ? this :
+               (this == EMPTY ? EMPTY_INFO_WITH_JUMP : new DelegatingDataFlowInfo(parent, nullabilityInfo, typeInfo, true));
     }
 
     @NotNull

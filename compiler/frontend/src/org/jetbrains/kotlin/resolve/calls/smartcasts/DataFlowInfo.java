@@ -26,13 +26,18 @@ import java.util.Set;
 
 public interface DataFlowInfo {
     DataFlowInfo EMPTY = new DelegatingDataFlowInfo(null, ImmutableMap.<DataFlowValue, Nullability>of(),
-                                                    DelegatingDataFlowInfo.newTypeInfo());
+                                                    DelegatingDataFlowInfo.newTypeInfo(), false);
 
     @NotNull
     Map<DataFlowValue, Nullability> getCompleteNullabilityInfo();
 
     @NotNull
     SetMultimap<DataFlowValue, JetType> getCompleteTypeInfo();
+
+    /**
+     * Returns true if jump out of a loop is possible up to this point
+     */
+    boolean isJumpPossible();
 
     @NotNull
     Nullability getNullability(@NotNull DataFlowValue key);
@@ -54,4 +59,10 @@ public interface DataFlowInfo {
 
     @NotNull
     DataFlowInfo or(@NotNull DataFlowInfo other);
+
+    /**
+     * Returns a new data flow info with jump out of a loop possible
+     */
+    @NotNull
+    DataFlowInfo jump();
 }

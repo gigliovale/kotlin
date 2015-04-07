@@ -17,18 +17,23 @@
 package org.jetbrains.kotlin.codegen.intrinsics
 
 import org.jetbrains.kotlin.codegen.Callable
-import org.jetbrains.kotlin.codegen.CallableMethod
-import org.jetbrains.org.objectweb.asm.Opcodes
+import org.jetbrains.kotlin.codegen.ExpressionCodegen
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
-public class HashCode : IntrinsicMethod() {
+public class NewArray : IntrinsicMethod() {
 
-    override fun toCallable(method: CallableMethod): Callable {
-        return object: IntrinsicCallable(Type.INT_TYPE, emptyList(), nullOrObject(method.dispatchReceiverType), nullOrObject(method.extensionReceiverType)) {
+    override fun toCallable(fd: FunctionDescriptor, isSuper: Boolean, resolvedCall: ResolvedCall<*>, codegen: ExpressionCodegen): Callable {
+        val jetType = resolvedCall.getResultingDescriptor().getReturnType()!!
+        val type = codegen.getState().getTypeMapper().mapType(jetType)
+        return object : IntrinsicCallable(type, listOf(Type.INT_TYPE), null, null) {
             override fun invokeIntrinsic(v: InstructionAdapter) {
-                v.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false)
+                codegen.newArrayInstruction(jetType)
             }
         }
     }
+
 }
+

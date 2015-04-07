@@ -19,11 +19,10 @@ package org.jetbrains.kotlin.codegen.intrinsics
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
 
-public class ArraySize : IntrinsicMethod() {
-
-    public override fun toCallable(method: CallableMethod): Callable {
-        return createUnaryIntrinsicCallable(method) { adapter ->
-            adapter.arraylength()
+public class JavaClassArray : IntrinsicMethod() {
+    override fun toCallable(method: CallableMethod): Callable {
+        return createIntrinsicCallable(method) {
+            //do nothing all generated as vararg
         }
     }
 }

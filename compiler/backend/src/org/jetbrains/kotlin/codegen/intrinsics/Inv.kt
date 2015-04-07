@@ -16,14 +16,23 @@
 
 package org.jetbrains.kotlin.codegen.intrinsics
 
+import org.jetbrains.kotlin.codegen.AsmUtil.numberFunctionOperandType
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
+import org.jetbrains.org.objectweb.asm.Type
 
-public class ArraySize : IntrinsicMethod() {
+public class Inv : IntrinsicMethod() {
 
-    public override fun toCallable(method: CallableMethod): Callable {
-        return createUnaryIntrinsicCallable(method) { adapter ->
-            adapter.arraylength()
+    override fun toCallable(method: CallableMethod): Callable {
+        val type = numberFunctionOperandType(method.returnType)
+        return createUnaryIntrinsicCallable(method, newThisType = type) {
+            if (returnType == Type.LONG_TYPE) {
+                it.lconst(-1)
+            }
+            else {
+                it.iconst(-1)
+            }
+            it.xor(returnType)
         }
     }
 }

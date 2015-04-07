@@ -18,16 +18,25 @@ package org.jetbrains.kotlin.codegen.intrinsics
 
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
+import org.jetbrains.kotlin.codegen.context.CodegenContext
+import org.jetbrains.kotlin.codegen.state.GenerationState
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.jvm.AsmTypes.OBJECT_TYPE
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
-public class HashCode : IntrinsicMethod() {
+public class MonitorInstruction private(private val opcode: Int) : IntrinsicMethod() {
+    companion object {
+        public val MONITOR_ENTER: MonitorInstruction = MonitorInstruction(Opcodes.MONITORENTER)
+        public val MONITOR_EXIT: MonitorInstruction = MonitorInstruction(Opcodes.MONITOREXIT)
+    }
 
     override fun toCallable(method: CallableMethod): Callable {
-        return object: IntrinsicCallable(Type.INT_TYPE, emptyList(), nullOrObject(method.dispatchReceiverType), nullOrObject(method.extensionReceiverType)) {
+        return object : IntrinsicCallable(Type.VOID_TYPE, listOf(OBJECT_TYPE), null, null) {
             override fun invokeIntrinsic(v: InstructionAdapter) {
-                v.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false)
+                v.visitInsn(opcode)
             }
         }
     }

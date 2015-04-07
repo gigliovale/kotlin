@@ -17,17 +17,22 @@
 package org.jetbrains.kotlin.codegen.intrinsics
 
 import org.jetbrains.kotlin.codegen.Callable
-import org.jetbrains.kotlin.codegen.CallableMethod
-import org.jetbrains.org.objectweb.asm.Opcodes
+import org.jetbrains.kotlin.codegen.ExpressionCodegen
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.jvm.AsmTypes.getType
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
-public class HashCode : IntrinsicMethod() {
+public class CopyToArray : IntrinsicMethod() {
 
-    override fun toCallable(method: CallableMethod): Callable {
-        return object: IntrinsicCallable(Type.INT_TYPE, emptyList(), nullOrObject(method.dispatchReceiverType), nullOrObject(method.extensionReceiverType)) {
+    override fun toCallable(fd: FunctionDescriptor, isSuper: Boolean, resolvedCall: ResolvedCall<*>, codegen: ExpressionCodegen): Callable {
+        return object : IntrinsicCallable(getType(javaClass<Array<Any>>()), listOf(), null, Type.getType(javaClass<Collection<*>>())) {
             override fun invokeIntrinsic(v: InstructionAdapter) {
-                v.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/Object", "hashCode", "()I", false)
+                v.dup()
+                v.invokeinterface("java/util/Collection", "size", "()I")
+                codegen.newArrayInstruction(resolvedCall.getResultingDescriptor().getReturnType()!!)
+                v.invokeinterface("java/util/Collection", "toArray", "([Ljava/lang/Object;)[Ljava/lang/Object;")
             }
         }
     }

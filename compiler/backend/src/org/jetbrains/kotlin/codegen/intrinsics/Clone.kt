@@ -18,12 +18,15 @@ package org.jetbrains.kotlin.codegen.intrinsics
 
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
+import org.jetbrains.kotlin.resolve.jvm.AsmTypes.OBJECT_TYPE
+import org.jetbrains.org.objectweb.asm.Opcodes
 
-public class ArraySize : IntrinsicMethod() {
+public class Clone : IntrinsicMethod() {
 
-    public override fun toCallable(method: CallableMethod): Callable {
-        return createUnaryIntrinsicCallable(method) { adapter ->
-            adapter.arraylength()
+    override fun toCallable(method: CallableMethod, isSuperCall: Boolean): Callable {
+        return createUnaryIntrinsicCallable(method, OBJECT_TYPE) {
+            val opcodes: Int = if (isSuperCall) Opcodes.INVOKESPECIAL else Opcodes.INVOKEVIRTUAL
+            it.visitMethodInsn(opcodes, "java/lang/Object", "clone", "()Ljava/lang/Object;", false)
         }
     }
 }

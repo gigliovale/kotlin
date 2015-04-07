@@ -18,12 +18,13 @@ package org.jetbrains.kotlin.codegen.intrinsics
 
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
+import org.jetbrains.kotlin.codegen.StackValue
 
-public class ArraySize : IntrinsicMethod() {
+public class NumberCast : IntrinsicMethod() {
 
-    public override fun toCallable(method: CallableMethod): Callable {
-        return createUnaryIntrinsicCallable(method) { adapter ->
-            adapter.arraylength()
+    override fun toCallable(method: CallableMethod): Callable {
+        return createUnaryIntrinsicCallable(method) {
+            StackValue.coerce(calcReceiverType()!!, returnType, it)
         }
     }
 }

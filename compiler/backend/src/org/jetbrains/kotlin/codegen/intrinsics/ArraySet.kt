@@ -16,14 +16,21 @@
 
 package org.jetbrains.kotlin.codegen.intrinsics
 
+import org.jetbrains.kotlin.codegen.AsmUtil.correctElementType
 import org.jetbrains.kotlin.codegen.Callable
 import org.jetbrains.kotlin.codegen.CallableMethod
+import org.jetbrains.org.objectweb.asm.Type
+import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
-public class ArraySize : IntrinsicMethod() {
+public class ArraySet : IntrinsicMethod() {
 
-    public override fun toCallable(method: CallableMethod): Callable {
-        return createUnaryIntrinsicCallable(method) { adapter ->
-            adapter.arraylength()
+    override fun toCallable(method: CallableMethod): Callable {
+        val type = correctElementType(method.dispatchReceiverType)
+        return object: IntrinsicCallable(Type.VOID_TYPE, listOf(Type.INT_TYPE, type), method.dispatchReceiverType, method.extensionReceiverType) {
+            override fun invokeIntrinsic(v: InstructionAdapter) {
+                v.astore(type)
+            }
+
         }
     }
 }

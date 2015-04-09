@@ -98,7 +98,7 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
     @Override
     @NotNull
     public Nullability getNullability(@NotNull DataFlowValue key) {
-        if (!key.isStableIdentifier()) return key.getImmanentNullability();
+        if (!key.isStableIdentifier() && !key.isLocalVariable()) return key.getImmanentNullability();
         Nullability nullability = nullabilityInfo.get(key);
         return nullability != null ? nullability :
                parent != null ? parent.getNullability(key) :
@@ -106,7 +106,7 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
     }
 
     private boolean putNullability(@NotNull Map<DataFlowValue, Nullability> map, @NotNull DataFlowValue value, @NotNull Nullability nullability) {
-        if (!value.isStableIdentifier()) return false;
+        if (!value.isStableIdentifier() && !value.isLocalVariable()) return false;
         map.put(value, nullability);
         return nullability != getNullability(value);
     }

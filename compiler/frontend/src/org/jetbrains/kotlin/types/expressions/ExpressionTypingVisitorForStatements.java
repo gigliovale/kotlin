@@ -141,11 +141,14 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
             JetTypeInfo typeInfo = facade.getTypeInfo(initializer, context.replaceExpectedType(outType));
             dataFlowInfo = typeInfo.getDataFlowInfo();
             JetType type = typeInfo.getType();
+            // At this moment we do not take initializer value into account if type is given for a property
+            // We can comment first part of this condition to take them into account, like here: var s: String? = "xyz"
+            // In this case s will be not-nullable until it is changed
             if (property.getTypeReference() == null && type != null) {
                 DataFlowValue variableDataFlowValue = DataFlowValueFactory.createDataFlowValue(
                         propertyDescriptor, DescriptorUtils.getContainingModuleOrNull(scope.getContainingDeclaration()));
                 DataFlowValue initializerDataFlowValue = DataFlowValueFactory.createDataFlowValue(initializer, type, context);
-                dataFlowInfo = dataFlowInfo.equate(variableDataFlowValue, initializerDataFlowValue);
+                dataFlowInfo = dataFlowInfo.assign(variableDataFlowValue, initializerDataFlowValue);
             }
         }
 

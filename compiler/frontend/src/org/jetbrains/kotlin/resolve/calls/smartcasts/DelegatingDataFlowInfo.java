@@ -132,6 +132,26 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         return enrichedTypes;
     }
 
+    @NotNull
+    @Override
+    public DataFlowInfo assign(@NotNull DataFlowValue a, @NotNull DataFlowValue b) {
+        Map<DataFlowValue, Nullability> builder = Maps.newHashMap();
+        Nullability nullabilityOfB = getNullability(b);
+        boolean changed = putNullability(builder, a, nullabilityOfB);
+        SetMultimap<DataFlowValue, JetType> newTypeInfo = newTypeInfo();
+        newTypeInfo.putAll(a, collectTypesFromMeAndParents(b));
+        changed |= !newTypeInfo.isEmpty();
+
+        return !changed
+               ? this
+               : new DelegatingDataFlowInfo(
+                       this,
+                       ImmutableMap.copyOf(builder),
+                       newTypeInfo.isEmpty() ? EMPTY_TYPE_INFO : newTypeInfo,
+                       jumpPossible
+               );
+    }
+
     @Override
     @NotNull
     public DataFlowInfo equate(@NotNull DataFlowValue a, @NotNull DataFlowValue b) {

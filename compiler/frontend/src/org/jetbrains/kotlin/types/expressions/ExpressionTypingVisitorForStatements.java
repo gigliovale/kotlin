@@ -346,7 +346,7 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
             if (left != null && leftType != null && rightType != null) {
                 DataFlowValue leftValue = DataFlowValueFactory.createDataFlowValue(left, leftType, context);
                 DataFlowValue rightValue = DataFlowValueFactory.createDataFlowValue(right, rightType, context);
-                dataFlowInfo = dataFlowInfo.equate(leftValue, rightValue);
+                dataFlowInfo = dataFlowInfo.assign(leftValue, rightValue);
             }
         }
         if (leftType != null && leftOperand != null) { //if leftType == null, some other error has been generated

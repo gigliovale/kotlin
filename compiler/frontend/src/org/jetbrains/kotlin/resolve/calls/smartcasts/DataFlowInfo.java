@@ -24,6 +24,10 @@ import org.jetbrains.kotlin.types.JetType;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This interface is intended to provide and edit information about value nullabilities and possible types.
+ * Data flow info is immutable so functions never change it.
+ */
 public interface DataFlowInfo {
     DataFlowInfo EMPTY = new DelegatingDataFlowInfo(null, ImmutableMap.<DataFlowValue, Nullability>of(),
                                                     DelegatingDataFlowInfo.newTypeInfo(), false);
@@ -45,18 +49,36 @@ public interface DataFlowInfo {
     @NotNull
     Set<JetType> getPossibleTypes(@NotNull DataFlowValue key);
 
+    /**
+     * Call this function when b is assigned to a
+     */
+    @NotNull
+    DataFlowInfo assign(@NotNull DataFlowValue a, @NotNull DataFlowValue b);
+
+    /**
+     * Call this function when it's known than a == b
+     */
     @NotNull
     DataFlowInfo equate(@NotNull DataFlowValue a, @NotNull DataFlowValue b);
 
+    /**
+     * Call this function when it's known than a != b
+     */
     @NotNull
     DataFlowInfo disequate(@NotNull DataFlowValue a, @NotNull DataFlowValue b);
 
     @NotNull
     DataFlowInfo establishSubtyping(@NotNull DataFlowValue value, @NotNull JetType type);
 
+    /**
+     * Call this function to add data flow information from other to this and return sum as the result
+     */
     @NotNull
     DataFlowInfo and(@NotNull DataFlowInfo other);
 
+    /**
+     * Call this function to choose data flow information common for this and other and return it as the result
+     */
     @NotNull
     DataFlowInfo or(@NotNull DataFlowInfo other);
 

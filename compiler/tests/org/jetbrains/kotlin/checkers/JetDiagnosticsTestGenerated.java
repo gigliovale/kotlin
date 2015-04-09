@@ -11453,9 +11453,39 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/smartCasts/varnotnull"), Pattern.compile("^(.+)\\.kt$"), true);
                 }
 
+                @TestMetadata("false01.kt")
+                public void testFalse01() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/false01.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("false03.kt")
+                public void testFalse03() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/false03.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("kt2865.kt")
                 public void testKt2865() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt2865.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt3175a.kt")
+                public void testKt3175a() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175a.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt3175b.kt")
+                public void testKt3175b() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175b.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt3175c.kt")
+                public void testKt3175c() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175c.kt");
                     doTest(fileName);
                 }
 

@@ -26,24 +26,26 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.Pass;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
+import com.intellij.psi.search.SearchScope;
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer;
 import com.intellij.ui.NonFocusableCheckBox;
+import com.intellij.util.ui.PositionTracker;
 import kotlin.Function0;
+import kotlin.Function1;
+import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.idea.intentions.SpecifyTypeExplicitlyAction;
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers;
 import org.jetbrains.kotlin.lexer.JetTokens;
-import org.jetbrains.kotlin.psi.JetExpression;
-import org.jetbrains.kotlin.psi.JetProperty;
-import org.jetbrains.kotlin.psi.JetPsiFactory;
-import org.jetbrains.kotlin.psi.JetTypeReference;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.types.JetType;
 
 import javax.swing.*;
@@ -55,7 +57,10 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<JetExpression> {
+public class KotlinInplaceVariableIntroducer<D extends JetCallableDeclaration> extends InplaceVariableIntroducer<JetExpression> {
+    public static final String TYPE_REFERENCE_VARIABLE_NAME = "TypeReferenceVariable";
+    public static final String PRIMARY_VARIABLE_NAME = "PrimaryVariable";
+    
     private static final Function0<Boolean> TRUE = new Function0<Boolean>() {
         @Override
         public Boolean invoke() {
@@ -110,7 +115,7 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
     }
 
     private final boolean myReplaceOccurrence;
-    protected JetProperty myProperty;
+    protected D myDeclaration;
     private final boolean isVar;
     private final boolean myDoNotChangeVar;
     @Nullable private final JetType myExprType;
@@ -122,12 +127,12 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
             PsiNamedElement elementToRename, Editor editor, Project project,
             String title, JetExpression[] occurrences,
             @Nullable JetExpression expr, boolean replaceOccurrence,
-            JetProperty property, boolean isVar, boolean doNotChangeVar,
+            D declaration, boolean isVar, boolean doNotChangeVar,
             @Nullable JetType exprType, boolean noTypeInference
     ) {
         super(elementToRename, editor, project, title, occurrences, expr);
         this.myReplaceOccurrence = replaceOccurrence;
-        myProperty = property;
+        myDeclaration = declaration;
         this.isVar = isVar;
         myDoNotChangeVar = doNotChangeVar;
         myExprType = exprType;
@@ -209,10 +214,10 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
                                         if (exprTypeCheckbox.isSelected()) {
                                             String renderedType =
                                                     IdeDescriptorRenderers.SOURCE_CODE_SHORT_NAMES_IN_TYPES.renderType(myExprType);
-                                            myProperty.setTypeReference(new JetPsiFactory(myProject).createType(renderedType));
+                                            myDeclaration.setTypeReference(new JetPsiFactory(myProject).createType(renderedType));
                                         }
                                         else {
-                                            myProperty.setTypeReference(null);
+                                            myDeclaration.setTypeReference(null);
                                         }
                                     }
                                 }
@@ -245,7 +250,11 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
 
                                 JetPsiFactory psiFactory = new JetPsiFactory(myProject);
                                 ASTNode node = varCheckbox.isSelected() ? psiFactory.createVarNode() : psiFactory.createValNode();
-                                myProperty.getValOrVarNode().getPsi().replace(node.getPsi());
+
+                                ASTNode valOrVarNode = myDeclaration instanceof JetProperty
+                                                       ? ((JetProperty) myDeclaration).getValOrVarNode()
+                                                       : ((JetParameter) myDeclaration).getValOrVarNode();
+                                valOrVarNode.getPsi().replace(node.getPsi());
                             }
                         }.execute();
                     }
@@ -263,7 +272,7 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
             protected void run(@NotNull Result result) throws Throwable {
                 PsiDocumentManager.getInstance(myProject).commitDocument(myEditor.getDocument());
 
-                ASTNode identifier = myProperty.getNode().findChildByType(JetTokens.IDENTIFIER);
+                ASTNode identifier = myDeclaration.getNode().findChildByType(JetTokens.IDENTIFIER);
                 if (identifier != null) {
                     TextRange range = identifier.getTextRange();
                     RangeHighlighter[] highlighters = myEditor.getMarkupModel().getAllHighlighters();
@@ -290,7 +299,7 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
         ApplicationManager.getApplication().runReadAction(new Runnable() {
             @Override
             public void run() {
-                ASTNode identifier = myProperty.getNode().findChildByType(JetTokens.IDENTIFIER);
+                ASTNode identifier = myDeclaration.getNode().findChildByType(JetTokens.IDENTIFIER);
                 if (identifier != null) {
                     TextRange range = identifier.getTextRange();
                     RangeHighlighter[] highlighters = myEditor.getMarkupModel().getAllHighlighters();
@@ -306,14 +315,14 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
         });
 
         if (myEditor.getUserData(INTRODUCE_RESTART) == Boolean.TRUE) {
-            myInitialName = myProperty.getName();
+            myInitialName = myDeclaration.getName();
             performInplaceRefactoring(getSuggestionsForNextRun());
         }
     }
 
     private LinkedHashSet<String> getSuggestionsForNextRun() {
         LinkedHashSet<String> nameSuggestions;
-        String currentName = myProperty.getName();
+        String currentName = myDeclaration.getName();
         if (myNameSuggestions.contains(currentName)) {
             nameSuggestions = myNameSuggestions;
         }
@@ -325,10 +334,20 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
         return nameSuggestions;
     }
 
+    protected void revalidate() {
+        getContentPanel().revalidate();
+        if (myTarget != null) {
+            myBalloon.revalidate(new PositionTracker.Static<Balloon>(myTarget));
+        }
+    }
+
     protected void addTypeReferenceVariable(TemplateBuilderImpl builder) {
-        JetTypeReference typeReference = myProperty.getTypeReference();
+        JetTypeReference typeReference = myDeclaration.getTypeReference();
         if (typeReference != null) {
-            builder.replaceElement(typeReference, SpecifyTypeExplicitlyAction.createTypeExpressionForTemplate(myExprType));
+            builder.replaceElement(typeReference,
+                                   TYPE_REFERENCE_VARIABLE_NAME,
+                                   SpecifyTypeExplicitlyAction.createTypeExpressionForTemplate(myExprType),
+                                   false);
         }
     }
 
@@ -351,21 +370,34 @@ public class KotlinInplaceVariableIntroducer extends InplaceVariableIntroducer<J
 
         TemplateState templateState =
                 TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(myEditor));
-        if (templateState != null && myProperty.getTypeReference() != null) {
-            templateState.addTemplateStateListener(SpecifyTypeExplicitlyAction.createTypeReferencePostprocessor(myProperty));
+        if (templateState != null && myDeclaration.getTypeReference() != null) {
+            templateState.addTemplateStateListener(SpecifyTypeExplicitlyAction.createTypeReferencePostprocessor(myDeclaration));
         }
 
         return result;
     }
 
     @Override
+    protected Collection<PsiReference> collectRefs(SearchScope referencesSearchScope) {
+        return KotlinPackage.map(
+                KotlinPackage.filterIsInstance(getOccurrences(), JetSimpleNameExpression.class),
+                new Function1<JetSimpleNameExpression, PsiReference>() {
+                    @Override
+                    public PsiReference invoke(JetSimpleNameExpression expression) {
+                        return expression.getReference();
+                    }
+                }
+        );
+    }
+
+    @Override
     protected void moveOffsetAfter(boolean success) {
         if (!myReplaceOccurrence || myExprMarker == null) {
-            myEditor.getCaretModel().moveToOffset(myProperty.getTextRange().getEndOffset());
+            myEditor.getCaretModel().moveToOffset(myDeclaration.getTextRange().getEndOffset());
         }
         else {
             int startOffset = myExprMarker.getStartOffset();
-            PsiFile file = myProperty.getContainingFile();
+            PsiFile file = myDeclaration.getContainingFile();
             PsiElement elementAt = file.findElementAt(startOffset);
             if (elementAt != null) {
                 myEditor.getCaretModel().moveToOffset(elementAt.getTextRange().getEndOffset());

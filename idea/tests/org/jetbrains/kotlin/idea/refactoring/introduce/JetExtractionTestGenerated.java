@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
         JetExtractionTestGenerated.IntroduceVariable.class,
         JetExtractionTestGenerated.ExtractFunction.class,
         JetExtractionTestGenerated.IntroduceProperty.class,
+        JetExtractionTestGenerated.IntroduceParameter.class,
 })
 @RunWith(JUnit3RunnerWithInners.class)
 public class JetExtractionTestGenerated extends AbstractJetExtractionTest {
@@ -2179,6 +2180,165 @@ public class JetExtractionTestGenerated extends AbstractJetExtractionTest {
         public void testReplaceDuplicates() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceProperty/replaceDuplicates.kt");
             doIntroducePropertyTest(fileName);
+        }
+    }
+
+    @TestMetadata("idea/testData/refactoring/introduceParameter")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class IntroduceParameter extends AbstractJetExtractionTest {
+        public void testAllFilesPresentInIntroduceParameter() throws Exception {
+            JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/refactoring/introduceParameter"), Pattern.compile("^(.+)\\.kt$"), true);
+        }
+
+        @TestMetadata("classInAnonymousInitializer.kt")
+        public void testClassInAnonymousInitializer() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classInAnonymousInitializer.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classInPropertyInitializer.kt")
+        public void testClassInPropertyInitializer() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classInPropertyInitializer.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classMultipleUsages1.kt")
+        public void testClassMultipleUsages1() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classMultipleUsages1.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classMultipleUsages2.kt")
+        public void testClassMultipleUsages2() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classMultipleUsages2.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classMultipleUsagesOutsideScope.kt")
+        public void testClassMultipleUsagesOutsideScope() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classMultipleUsagesOutsideScope.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classMultipleUsagesSingleReplace1.kt")
+        public void testClassMultipleUsagesSingleReplace1() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classMultipleUsagesSingleReplace1.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classMultipleUsagesSingleReplace2.kt")
+        public void testClassMultipleUsagesSingleReplace2() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classMultipleUsagesSingleReplace2.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classNoParams.kt")
+        public void testClassNoParams() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classNoParams.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classParameterInFunctionBody.kt")
+        public void testClassParameterInFunctionBody() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classParameterInFunctionBody.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classParameterUsedOutside.kt")
+        public void testClassParameterUsedOutside() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classParameterUsedOutside.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classUnusedParameter.kt")
+        public void testClassUnusedParameter() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classUnusedParameter.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("classUsedParameter.kt")
+        public void testClassUsedParameter() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/classUsedParameter.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("defaultValueInParens.kt")
+        public void testDefaultValueInParens() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/defaultValueInParens.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("forbiddenUsages.kt")
+        public void testForbiddenUsages() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/forbiddenUsages.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionMultipleUnusedParameters.kt")
+        public void testFunctionMultipleUnusedParameters() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionMultipleUnusedParameters.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionMultipleUsages.kt")
+        public void testFunctionMultipleUsages() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionMultipleUsages.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionMultipleUsagesSingleReplace.kt")
+        public void testFunctionMultipleUsagesSingleReplace() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionMultipleUsagesSingleReplace.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionUnusedParameter.kt")
+        public void testFunctionUnusedParameter() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionUnusedParameter.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionUsedParameter.kt")
+        public void testFunctionUsedParameter() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionUsedParameter.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionWithApproximatedType.kt")
+        public void testFunctionWithApproximatedType() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionWithApproximatedType.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("functionWithDefaultValue.kt")
+        public void testFunctionWithDefaultValue() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/functionWithDefaultValue.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("propertyAccessor.kt")
+        public void testPropertyAccessor() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/propertyAccessor.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("secondaryConstructorWithDefaultValue.kt")
+        public void testSecondaryConstructorWithDefaultValue() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/secondaryConstructorWithDefaultValue.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("valueAtCallSite.kt")
+        public void testValueAtCallSite() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/valueAtCallSite.kt");
+            doIntroduceParameterTest(fileName);
+        }
+
+        @TestMetadata("valueAtCallSiteMultipleUsages.kt")
+        public void testValueAtCallSiteMultipleUsages() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/refactoring/introduceParameter/valueAtCallSiteMultipleUsages.kt");
+            doIntroduceParameterTest(fileName);
         }
     }
 }

@@ -16,9 +16,13 @@
 
 package org.jetbrains.kotlin.j2k.ast
 
-import org.jetbrains.kotlin.j2k.*
+import com.intellij.psi.PsiExpression
+import com.intellij.psi.PsiMethod
+import org.jetbrains.kotlin.j2k.CodeBuilder
+import org.jetbrains.kotlin.j2k.OverloadReducer
+import org.jetbrains.kotlin.j2k.append
 
-abstract class Member(val annotations: Annotations, val modifiers: Modifiers) : Element()
+abstract class Member(var annotations: Annotations, val modifiers: Modifiers) : Element()
 
 class ClassBody (
         val primaryConstructorSignature: PrimaryConstructorSignature?,

@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.j2k.usageProcessing.UsageProcessing
 import org.jetbrains.kotlin.j2k.usageProcessing.UsageProcessingExpressionConverter
 import org.jetbrains.kotlin.types.expressions.OperatorConventions.*
 import java.util.ArrayList
+import java.util.HashMap
 
 class Converter private(
         private val elementToConvert: PsiElement,
@@ -61,7 +62,9 @@ class Converter private(
         public fun create(elementToConvert: PsiElement, settings: ConverterSettings, inConversionScope: (PsiElement) -> Boolean,
                           referenceSearcher: ReferenceSearcher, resolverForConverter: ResolverForConverter,
                           usageProcessingsCollector: (UsageProcessing) -> Unit): Converter {
-            return Converter(elementToConvert, settings, inConversionScope, referenceSearcher, resolverForConverter, CommonState(usageProcessingsCollector), PersonalState(null))
+            return Converter(elementToConvert, settings, inConversionScope,
+                             CachingReferenceSearcher(referenceSearcher),
+                             resolverForConverter, CommonState(usageProcessingsCollector), PersonalState(null))
         }
     }
 
@@ -73,7 +76,7 @@ class Converter private(
     private fun createDefaultCodeConverter() = CodeConverter(this, DefaultExpressionConverter(), DefaultStatementConverter(), null)
 
     public data class IntermediateResult(
-            val codeGenerator: (Map<PsiElement, UsageProcessing>) -> String,
+            val codeGenerator: (Map<PsiElement, Collection<UsageProcessing>>) -> String,
             val parseContext: ParseContext
     )
 
@@ -97,7 +100,7 @@ class Converter private(
     private fun convertTopElement(element: PsiElement): Element? = when (element) {
         is PsiJavaFile -> convertFile(element)
         is PsiClass -> convertClass(element)
-        is PsiMethod -> convertMethod(element, null, null, false)
+        is PsiMethod -> convertMethod(element, null, null, null, false)
         is PsiField -> convertField(element, null)
         is PsiStatement -> createDefaultCodeConverter().convertStatement(element)
         is PsiExpression -> createDefaultCodeConverter().convertExpression(element)
@@ -108,7 +111,7 @@ class Converter private(
         else -> null
     }
 
-    private fun unfoldDeferredElements(usageProcessings: Map<PsiElement, UsageProcessing>) {
+    private fun unfoldDeferredElements(usageProcessings: Map<PsiElement, Collection<UsageProcessing>>) {
         val codeConverter = createDefaultCodeConverter().withSpecialExpressionConverter(UsageProcessingExpressionConverter(usageProcessings))
 
         // we use loop with index because new deferred elements can be added during unfolding
@@ -273,7 +276,8 @@ class Converter private(
 
         // to convert fields and nested types - they are not allowed in Kotlin but we convert them and let user refactor code
         var classBody = ClassBodyConverter(psiClass, this, isOpenClass = false, isObject = false).convertBody()
-        classBody = ClassBody(constructorSignature, classBody.baseClassParams, classBody.members, classBody.companionObjectMembers, classBody.lBrace, classBody.rBrace)
+        classBody = ClassBody(constructorSignature, classBody.baseClassParams, classBody.members,
+                              classBody.companionObjectMembers, classBody.lBrace, classBody.rBrace)
 
         val annotationAnnotation = Annotation(Identifier("annotation").assignNoPrototype(), listOf(), false, false).assignNoPrototype()
         return Class(psiClass.declarationIdentifier(),
@@ -347,10 +351,13 @@ class Converter private(
         return if (convertedType == initializerType) null else convertedType
     }
 
-    public fun convertMethod(method: PsiMethod,
-                             membersToRemove: MutableSet<PsiMember>?,
-                             constructorConverter: ConstructorConverter?,
-                             isInOpenClass: Boolean): Member? {
+    public fun convertMethod(
+            method: PsiMethod,
+            membersToRemove: MutableSet<PsiMember>?,
+            constructorConverter: ConstructorConverter?,
+            overloadReducer: OverloadReducer?,
+            isInOpenClass: Boolean
+    ): FunctionLike? {
         val returnType = typeConverter.convertMethodReturnType(method)
 
         val annotations = convertAnnotations(method) + convertThrows(method)
@@ -400,7 +407,8 @@ class Converter private(
                 }
             }
 
-            var params = convertParameterList(method.getParameterList())
+            var params = convertParameterList(method, overloadReducer)
+
             val typeParameterList = convertTypeParameterList(method.getTypeParameterList())
             var body = deferredElement { codeConverter: CodeConverter ->
                 val body = codeConverter.withMethodReturnType(method.getReturnType()).convertBlock(method.getBody())
@@ -409,7 +417,17 @@ class Converter private(
             Function(method.declarationIdentifier(), annotations, modifiers, returnType, typeParameterList, params, body, containingClass?.isInterface() ?: false)
         }
 
-        return function?.assignPrototype(method)
+        if (function == null) return null
+
+        if (function.parameterList.parameters.any { it.defaultValue != null }) {
+            function.annotations += Annotations(
+                    listOf(Annotation(Identifier("overloads").assignNoPrototype(),
+                                      listOf(),
+                                      brackets = function is PrimaryConstructor,
+                                      newLineAfter = false).assignNoPrototype())).assignNoPrototype()
+        }
+
+        return function.assignPrototype(method)
     }
 
     /**
@@ -506,14 +524,13 @@ class Converter private(
     private fun convertToNotNullableTypes(types: Array<out PsiType?>): List<Type>
             = types.map { typeConverter.convertType(it, Nullability.NotNull) }
 
-    public fun convertParameterList(parameterList: PsiParameterList): ParameterList
-            = ParameterList(parameterList.getParameters().map { convertParameter(it) }).assignPrototype(parameterList)
-
-    public fun convertParameter(parameter: PsiParameter,
-                         nullability: Nullability = Nullability.Default,
-                         varValModifier: Parameter.VarValModifier = Parameter.VarValModifier.None,
-                         modifiers: Modifiers = Modifiers.Empty,
-                         defaultValue: DeferredElement<Expression>? = null): Parameter {
+    public fun convertParameter(
+            parameter: PsiParameter,
+            nullability: Nullability = Nullability.Default,
+            varValModifier: Parameter.VarValModifier = Parameter.VarValModifier.None,
+            modifiers: Modifiers = Modifiers.Empty,
+            defaultValue: DeferredElement<Expression>? = null
+    ): Parameter {
         var type = typeConverter.convertVariableType(parameter)
         when (nullability) {
             Nullability.NotNull -> type = type.toNotNullType()
@@ -553,6 +570,27 @@ class Converter private(
         }
         val annotation = Annotation(Identifier("throws").assignNoPrototype(), arguments, false, true)
         return Annotations(listOf(annotation.assignPrototype(throwsList))).assignPrototype(throwsList)
+    }
+
+    private class CachingReferenceSearcher(private val searcher: ReferenceSearcher) : ReferenceSearcher by searcher {
+        private val hasInheritorsCached = HashMap<PsiClass, Boolean>()
+        private val hasOverridesCached = HashMap<PsiMethod, Boolean>()
+
+        override fun hasInheritors(`class`: PsiClass): Boolean {
+            val cached = hasInheritorsCached[`class`]
+            if (cached != null) return cached
+            val result = searcher.hasInheritors(`class`)
+            hasInheritorsCached[`class`] = result
+            return result
+        }
+
+        override fun hasOverrides(method: PsiMethod): Boolean {
+            val cached = hasOverridesCached[method]
+            if (cached != null) return cached
+            val result = searcher.hasOverrides(method)
+            hasOverridesCached[method] = result
+            return result
+        }
     }
 }
 

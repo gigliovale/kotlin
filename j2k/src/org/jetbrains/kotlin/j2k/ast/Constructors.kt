@@ -19,24 +19,31 @@ package org.jetbrains.kotlin.j2k.ast
 import org.jetbrains.kotlin.j2k.*
 import com.intellij.util.IncorrectOperationException
 
+abstract class Constructor(
+        annotations: Annotations,
+        modifiers: Modifiers,
+        parameterList: ParameterList,
+        body: DeferredElement<Block>
+) : FunctionLike(annotations, modifiers, parameterList, body)
+
 class PrimaryConstructor(
         annotations: Annotations,
         modifiers: Modifiers,
-        val parameterList: ParameterList,
-        val body: DeferredElement<Block>
-) : Member(annotations, modifiers) {
+        parameterList: ParameterList,
+        body: DeferredElement<Block>
+) : Constructor(annotations, modifiers, parameterList, body) {
 
     override fun generateCode(builder: CodeBuilder) { throw IncorrectOperationException() }
 
     public fun initializer(): Initializer
-            = Initializer(body, Modifiers.Empty).assignPrototypesFrom(this, CommentsAndSpacesInheritance(commentsBefore = false))
+            = Initializer(body!!, Modifiers.Empty).assignPrototypesFrom(this, CommentsAndSpacesInheritance(commentsBefore = false))
 
     public fun createSignature(converter: Converter): PrimaryConstructorSignature {
         val signature = PrimaryConstructorSignature(annotations, modifiers, parameterList)
 
         // assign prototypes later because we don't know yet whether the body is empty or not
         converter.addPostUnfoldDeferredElementsAction {
-            val inheritance = CommentsAndSpacesInheritance(blankLinesBefore = false, commentsAfter = body.isEmpty, commentsInside = body.isEmpty)
+            val inheritance = CommentsAndSpacesInheritance(blankLinesBefore = false, commentsAfter = body!!.isEmpty, commentsInside = body.isEmpty)
             signature.assignPrototypesFrom(this, inheritance)
         }
 
@@ -66,10 +73,10 @@ class PrimaryConstructorSignature(val annotations: Annotations, private val modi
 class SecondaryConstructor(
         annotations: Annotations,
         modifiers: Modifiers,
-        private val parameterList: ParameterList,
-        private val body: DeferredElement<Block>,
+        parameterList: ParameterList,
+        body: DeferredElement<Block>,
         private val thisOrSuperCall: DeferredElement<Expression>?
-) : Member(annotations, modifiers) {
+) : Constructor(annotations, modifiers, parameterList, body) {
 
     override fun generateCode(builder: CodeBuilder) {
         builder.append(annotations)
@@ -82,7 +89,7 @@ class SecondaryConstructor(
             builder append " : " append thisOrSuperCall
         }
 
-        builder append " " append body
+        builder append " " append body!!
     }
 }
 

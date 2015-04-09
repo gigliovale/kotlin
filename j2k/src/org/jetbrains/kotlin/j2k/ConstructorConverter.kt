@@ -17,51 +17,39 @@
 package org.jetbrains.kotlin.j2k
 
 import com.intellij.psi.*
-import org.jetbrains.kotlin.j2k.ast.*
 import com.intellij.psi.util.PsiUtil
-import java.util.HashMap
+import org.jetbrains.kotlin.j2k.ast.*
+import org.jetbrains.kotlin.j2k.ast.Annotation
 import java.util.ArrayList
+import java.util.HashMap
 import java.util.HashSet
 
 class ConstructorConverter(
         private val psiClass: PsiClass,
         private val converter: Converter,
-        private val fieldCorrections: Map<PsiField, FieldCorrectionInfo>
+        private val fieldCorrections: Map<PsiField, FieldCorrectionInfo>,
+        private val overloadReducer: OverloadReducer
 ) {
-    private val constructors = psiClass.getConstructors()
-    private val constructorsToDrop = HashSet<PsiMethod>()
-    private val lastParamDefaults = ArrayList<PsiExpression>() // defaults for a few last parameters of primary constructor in reverse order
+    private val constructors = psiClass.getConstructors().asList()
+
+    private val toTargetConstructorMap = buildToTargetConstructorMap()
+
     private val primaryConstructor: PsiMethod? = when (constructors.size()) {
         0 -> null
         1 -> constructors.single()
         else -> choosePrimaryConstructor()
     }
 
-    private class TargetConstructorInfo(
-            /**
-             * Target constructor (one which is finally invoked by this one)
-             */
-            val constructor: PsiMethod,
-            /**
-             * Is not null if this constructor is equivalent to the target constructor with a few last parameters having default values
-             */
-            val parameterDefaults: List<PsiExpression>?)
-
     private fun choosePrimaryConstructor(): PsiMethod? {
-        val toTargetConstructorMap = buildToTargetConstructorMap()
-
         val candidates = constructors.filter { it !in toTargetConstructorMap }
         if (candidates.size() != 1) return null // there should be only one constructor which does not call other constructor
         val primary = candidates.single()
-        if (toTargetConstructorMap.values().any() { it.constructor != primary }) return null // all other constructors call our candidate (directly or indirectly)
-
-        dropConstructorsForDefaultValues(primary, toTargetConstructorMap)
-
+        if (toTargetConstructorMap.values().any() { it != primary }) return null // all other constructors call our candidate (directly or indirectly)
         return primary
     }
 
-    private fun buildToTargetConstructorMap(): Map<PsiMethod, TargetConstructorInfo> {
-        val toTargetConstructorMap = HashMap<PsiMethod, TargetConstructorInfo>()
+    private fun buildToTargetConstructorMap(): Map<PsiMethod, PsiMethod> {
+        val toTargetConstructorMap = HashMap<PsiMethod, PsiMethod>()
         for (constructor in constructors) {
             val firstStatement = constructor.getBody()?.getStatements()?.firstOrNull()
             val methodCall = (firstStatement as? PsiExpressionStatement)?.getExpression() as? PsiMethodCallExpression
@@ -70,25 +58,11 @@ class ConstructorConverter(
                 if (refExpr.getCanonicalText() == "this") {
                     val target = refExpr.resolve() as? PsiMethod
                     if (target != null && target.isConstructor()) {
-                        var parameterDefaults = calcTargetParameterDefaults(constructor, target, methodCall)
-
-                        val finalTargetInfo = toTargetConstructorMap[target]
-                        if (finalTargetInfo != null && parameterDefaults != null) {
-                            parameterDefaults = if (finalTargetInfo.parameterDefaults != null)
-                                parameterDefaults!! + finalTargetInfo.parameterDefaults
-                            else
-                                null
-                        }
-                        val finalTarget = finalTargetInfo?.constructor ?: target
-
-                        toTargetConstructorMap[constructor] = TargetConstructorInfo(finalTarget, parameterDefaults)
+                        val finalTarget = toTargetConstructorMap[target] ?: target
+                        toTargetConstructorMap[constructor] = finalTarget
                         for (entry in toTargetConstructorMap.entrySet()) {
-                            if (entry.value.constructor == constructor) {
-                                val newParameterDefaults = if (parameterDefaults != null)
-                                    entry.value.parameterDefaults?.plus(parameterDefaults!!)
-                                else
-                                    null
-                                entry.setValue(TargetConstructorInfo(finalTarget, newParameterDefaults))
+                            if (entry.value == constructor) {
+                                entry.setValue(finalTarget)
                             }
                         }
                     }
@@ -98,53 +72,6 @@ class ConstructorConverter(
         return toTargetConstructorMap
     }
 
-    private fun calcTargetParameterDefaults(constructor: PsiMethod, target: PsiMethod, targetCall: PsiMethodCallExpression): List<PsiExpression>? {
-        if (constructor.getBody()!!.getStatements().size() != 1) return null // constructor's body should consist of only "this(...)"
-        val parameters = constructor.getParameterList().getParameters()
-        val targetParameters = target.getParameterList().getParameters()
-        if (parameters.size() >= targetParameters.size()) return null
-        val args = targetCall.getArgumentList().getExpressions()
-        if (args.size() != targetParameters.size()) return null // incorrect code
-
-        for (i in parameters.indices) {
-            val parameter = parameters[i]
-            val targetParameter = targetParameters[i]
-            if (parameter.getName() != targetParameter.getName() || parameter.getType() != targetParameter.getType()) return null
-            val arg = args[i]
-            if (arg !is PsiReferenceExpression || arg.resolve() != parameter) return null
-        }
-
-        return args.drop(parameters.size())
-    }
-
-    private fun dropConstructorsForDefaultValues(primary: PsiMethod, toTargetConstructorMap: Map<PsiMethod, TargetConstructorInfo>) {
-        val dropCandidates = toTargetConstructorMap
-                .filter { it.value.parameterDefaults != null }
-                .map { it.key }
-                .filter { it.accessModifier() == primary.accessModifier() && it.getModifierList().getAnnotations().isEmpty() /* do not drop constructors with annotations */ }
-                .sortBy { -it.getParameterList().getParametersCount() } // we will try to drop them starting from ones with more parameters
-        val primaryParamCount = primary.getParameterList().getParametersCount()
-        @DropCandidatesLoop
-        for (constructor in dropCandidates) {
-            val paramCount = constructor.getParameterList().getParametersCount()
-            assert(paramCount < primaryParamCount)
-            val defaults = toTargetConstructorMap[constructor]!!.parameterDefaults!!
-            assert(defaults.size() == primaryParamCount - paramCount)
-
-            for (i in defaults.indices) {
-                val default = defaults[defaults.size() - i - 1]
-                if (i < lastParamDefaults.size()) { // default for this parameter has already been assigned
-                    if (lastParamDefaults[i].getText() != default.getText()) continue@DropCandidatesLoop
-                }
-                else {
-                    lastParamDefaults.add(default)
-                }
-            }
-
-            constructorsToDrop.add(constructor)
-        }
-    }
-
     public var baseClassParams: List<DeferredElement<Expression>>? = if (constructors.isEmpty()) emptyList() else null
         private set
 
@@ -152,14 +79,14 @@ class ConstructorConverter(
                                   annotations: Annotations,
                                   modifiers: Modifiers,
                                   membersToRemove: MutableSet<PsiMember>,
-                                  postProcessBody: (Block) -> Block): Member? {
-        if (constructor == primaryConstructor) {
-            return convertPrimaryConstructor(annotations, modifiers, membersToRemove, postProcessBody)
+                                  postProcessBody: (Block) -> Block): Constructor? {
+        val result = if (constructor == primaryConstructor) {
+            convertPrimaryConstructor(annotations, modifiers, membersToRemove, postProcessBody)
         }
         else {
-            if (constructor in constructorsToDrop) return null
+            if (overloadReducer.shouldDropMethod(constructor)) return null
 
-            val params = converter.convertParameterList(constructor.getParameterList())
+            val params = converter.convertParameterList(constructor, overloadReducer)
 
             val thisOrSuper = findThisOrSuperCall(constructor)
             val thisOrSuperDeferred = if (thisOrSuper != null)
@@ -178,9 +105,9 @@ class ConstructorConverter(
                 }).convertBlock(constructor.getBody()))
             }
 
-            return SecondaryConstructor(annotations, modifiers, params,
-                                        converter.deferredElement(::convertBody), thisOrSuperDeferred)
+            SecondaryConstructor(annotations, modifiers, params, converter.deferredElement(::convertBody), thisOrSuperDeferred)
         }
+        return result
     }
 
     private fun findThisOrSuperCall(constructor: PsiMethod): PsiExpressionStatement? {
@@ -267,32 +194,31 @@ class ConstructorConverter(
             baseClassParams = emptyList()
         }
 
-        val parameterList = ParameterList(params.indices.map { i ->
-            val parameter = params[i]
-            val indexFromEnd = params.size() - i - 1
-            val defaultValue = if (indexFromEnd < lastParamDefaults.size())
-                correctedConverter.deferredElement { codeConverter -> codeConverter.correct().convertExpression(lastParamDefaults[indexFromEnd], parameter.getType()) }
-            else
-                null
-            if (!parameterToField.containsKey(parameter)) {
-                correctedConverter.convertParameter(parameter, defaultValue = defaultValue)
-            }
-            else {
-                val (field, type) = parameterToField[parameter]!!
-                val fieldCorrection = fieldCorrections[field]
-                val name = fieldCorrection?.identifier ?: field.declarationIdentifier()
-                val accessModifiers = if (fieldCorrection != null)
-                    Modifiers(listOf()).with(fieldCorrection.access).assignNoPrototype()
-                else
-                    converter.convertModifiers(field).filter { it in ACCESS_MODIFIERS }
-                Parameter(name,
-                          type,
-                          if (isVal(converter.referenceSearcher, field)) Parameter.VarValModifier.Val else Parameter.VarValModifier.Var,
-                          converter.convertAnnotations(parameter) + converter.convertAnnotations(field),
-                          accessModifiers,
-                          defaultValue).assignPrototypes(listOf(parameter, field), CommentsAndSpacesInheritance(blankLinesBefore = false))
-            }
-        }).assignPrototype(primaryConstructor.getParameterList())
+        val parameterList = correctedConverter.convertParameterList(
+                primaryConstructor,
+                overloadReducer,
+                { parameter, default ->
+                    if (!parameterToField.containsKey(parameter)) {
+                        correctedConverter.convertParameter(parameter, defaultValue = default)
+                    }
+                    else {
+                        val (field, type) = parameterToField[parameter]!!
+                        val fieldCorrection = fieldCorrections[field]
+                        val name = fieldCorrection?.identifier ?: field.declarationIdentifier()
+                        val accessModifiers = if (fieldCorrection != null)
+                            Modifiers(listOf()).with(fieldCorrection.access).assignNoPrototype()
+                        else
+                            converter.convertModifiers(field).filter { it in ACCESS_MODIFIERS }
+                        Parameter(name,
+                                  type,
+                                  if (isVal(converter.referenceSearcher, field)) Parameter.VarValModifier.Val else Parameter.VarValModifier.Var,
+                                  converter.convertAnnotations(parameter) + converter.convertAnnotations(field),
+                                  accessModifiers,
+                                  default).assignPrototypes(listOf(parameter, field), CommentsAndSpacesInheritance(blankLinesBefore = false))
+                    }
+                },
+                correctCodeConverter = { correct() })
+
         return PrimaryConstructor(annotations, modifiers, parameterList, converter.deferredElement(bodyGenerator)).assignPrototype(primaryConstructor)
     }
 

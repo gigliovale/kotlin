@@ -42,6 +42,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
             JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/copyPaste/imports"), Pattern.compile("^([^\\.]+)\\.kt$"), false);
         }
 
+        @TestMetadata("AlreadyImportedExtensions.kt")
+        public void testAlreadyImportedExtensions() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/AlreadyImportedExtensions.kt");
+            doTestCopy(fileName);
+        }
+
         @TestMetadata("AlreadyImportedViaStar.kt")
         public void testAlreadyImportedViaStar() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/AlreadyImportedViaStar.kt");
@@ -123,6 +129,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
         @TestMetadata("DelegatedProperty.kt")
         public void testDelegatedProperty() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/DelegatedProperty.kt");
+            doTestCopy(fileName);
+        }
+
+        @TestMetadata("DependenciesNotAccessibleOnPaste.kt")
+        public void testDependenciesNotAccessibleOnPaste() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/DependenciesNotAccessibleOnPaste.kt");
             doTestCopy(fileName);
         }
 
@@ -297,6 +309,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
         @TestMetadata("Object.kt")
         public void testObject() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/Object.kt");
+            doTestCopy(fileName);
+        }
+
+        @TestMetadata("OverloadedExtensionFunction.kt")
+        public void testOverloadedExtensionFunction() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/OverloadedExtensionFunction.kt");
             doTestCopy(fileName);
         }
 
@@ -363,6 +381,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
             JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/copyPaste/imports"), Pattern.compile("^([^\\.]+)\\.kt$"), false);
         }
 
+        @TestMetadata("AlreadyImportedExtensions.kt")
+        public void testAlreadyImportedExtensions() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/AlreadyImportedExtensions.kt");
+            doTestCut(fileName);
+        }
+
         @TestMetadata("AlreadyImportedViaStar.kt")
         public void testAlreadyImportedViaStar() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/AlreadyImportedViaStar.kt");
@@ -444,6 +468,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
         @TestMetadata("DelegatedProperty.kt")
         public void testDelegatedProperty() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/DelegatedProperty.kt");
+            doTestCut(fileName);
+        }
+
+        @TestMetadata("DependenciesNotAccessibleOnPaste.kt")
+        public void testDependenciesNotAccessibleOnPaste() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/DependenciesNotAccessibleOnPaste.kt");
             doTestCut(fileName);
         }
 
@@ -618,6 +648,12 @@ public class InsertImportOnPasteTestGenerated extends AbstractInsertImportOnPast
         @TestMetadata("Object.kt")
         public void testObject() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/Object.kt");
+            doTestCut(fileName);
+        }
+
+        @TestMetadata("OverloadedExtensionFunction.kt")
+        public void testOverloadedExtensionFunction() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/copyPaste/imports/OverloadedExtensionFunction.kt");
             doTestCut(fileName);
         }
 

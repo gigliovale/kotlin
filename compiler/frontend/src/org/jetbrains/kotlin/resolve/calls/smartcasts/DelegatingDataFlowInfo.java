@@ -111,11 +111,19 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         return nullability != getNullability(value);
     }
 
+    @NotNull
+    private Set<JetType> getDirectlyPossibleTypes(@NotNull DataFlowValue key) {
+        Set<JetType> theseTypes = typeInfo.get(key);
+        Set<JetType> types = parent instanceof DelegatingDataFlowInfo ?
+                             Sets.union(theseTypes, ((DelegatingDataFlowInfo)parent).getDirectlyPossibleTypes(key)) :
+                             theseTypes;
+        return types;
+    }
+
     @Override
     @NotNull
     public Set<JetType> getPossibleTypes(@NotNull DataFlowValue key) {
-        Set<JetType> theseTypes = typeInfo.get(key);
-        Set<JetType> types = parent == null ? theseTypes : Sets.union(theseTypes, parent.getPossibleTypes(key));
+        Set<JetType> types = getDirectlyPossibleTypes(key);
         if (getNullability(key).canBeNull()) {
             return types;
         }

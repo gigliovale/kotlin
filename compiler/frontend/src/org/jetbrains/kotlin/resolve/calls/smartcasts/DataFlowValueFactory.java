@@ -68,13 +68,17 @@ public class DataFlowValueFactory {
             return DataFlowValue.NULL; // 'null' is the only inhabitant of 'Nothing?'
         }
         IdentifierInfo result = getIdForStableIdentifier(expression, bindingContext, containingDeclaration);
-        return new DataFlowValue(result == NO_IDENTIFIER_INFO ? expression : result.id, type, result.isStable, getImmanentNullability(type));
+        return new DataFlowValue(result == NO_IDENTIFIER_INFO ? expression : result.id,
+                                 type,
+                                 result.isStable,
+                                 result.isLocal,
+                                 getImmanentNullability(type));
     }
 
     @NotNull
     public static DataFlowValue createDataFlowValue(@NotNull ThisReceiver receiver) {
         JetType type = receiver.getType();
-        return new DataFlowValue(receiver, type, true, getImmanentNullability(type));
+        return new DataFlowValue(receiver, type, true, false, getImmanentNullability(type));
     }
 
     @NotNull
@@ -96,7 +100,7 @@ public class DataFlowValueFactory {
             // SCRIPT: smartcasts data flow
             JetType type = receiverValue.getType();
             boolean nullable = type.isMarkedNullable() || TypeUtils.hasNullableSuperType(type);
-            return new DataFlowValue(receiverValue, type, nullable, Nullability.NOT_NULL);
+            return new DataFlowValue(receiverValue, type, nullable, false, Nullability.NOT_NULL);
         }
         else if (receiverValue instanceof ClassReceiver || receiverValue instanceof ExtensionReceiver) {
             return createDataFlowValue((ThisReceiver) receiverValue);
@@ -123,6 +127,7 @@ public class DataFlowValueFactory {
         JetType type = variableDescriptor.getType();
         return new DataFlowValue(variableDescriptor, type,
                                  isStableVariable(variableDescriptor, usageContainingModule),
+                                 isLocalVariable(variableDescriptor),
                                  getImmanentNullability(type));
     }
 
@@ -134,16 +139,18 @@ public class DataFlowValueFactory {
     private static class IdentifierInfo {
         public final Object id;
         public final boolean isStable;
+        public final boolean isLocal;
         public final boolean isPackage;
 
-        private IdentifierInfo(Object id, boolean isStable, boolean isPackage) {
+        private IdentifierInfo(Object id, boolean isStable, boolean isLocal, boolean isPackage) {
             this.id = id;
             this.isStable = isStable;
+            this.isLocal = isLocal;
             this.isPackage = isPackage;
         }
     }
 
-    private static final IdentifierInfo NO_IDENTIFIER_INFO = new IdentifierInfo(null, false, false) {
+    private static final IdentifierInfo NO_IDENTIFIER_INFO = new IdentifierInfo(null, false, false, false) {
         @Override
         public String toString() {
             return "NO_IDENTIFIER_INFO";
@@ -151,13 +158,13 @@ public class DataFlowValueFactory {
     };
 
     @NotNull
-    private static IdentifierInfo createInfo(Object id, boolean isStable) {
-        return new IdentifierInfo(id, isStable, false);
+    private static IdentifierInfo createInfo(Object id, boolean isStable, boolean isLocal) {
+        return new IdentifierInfo(id, isStable, isLocal, false);
     }
 
     @NotNull
     private static IdentifierInfo createPackageInfo(Object id) {
-        return new IdentifierInfo(id, true, true);
+        return new IdentifierInfo(id, true, false, true);
     }
 
     @NotNull
@@ -168,7 +175,9 @@ public class DataFlowValueFactory {
         if (receiverInfo == null || receiverInfo == NO_IDENTIFIER_INFO || receiverInfo.isPackage) {
             return selectorInfo;
         }
-        return createInfo(Pair.create(receiverInfo.id, selectorInfo.id), receiverInfo.isStable && selectorInfo.isStable);
+        return createInfo(Pair.create(receiverInfo.id, selectorInfo.id),
+                          receiverInfo.isStable && selectorInfo.isStable,
+                          false);
     }
 
     @NotNull
@@ -227,7 +236,8 @@ public class DataFlowValueFactory {
 
             VariableDescriptor variableDescriptor = (VariableDescriptor) declarationDescriptor;
             return combineInfo(receiverInfo, createInfo(variableDescriptor,
-                                                        isStableVariable(variableDescriptor, usageModuleDescriptor)));
+                                                        isStableVariable(variableDescriptor, usageModuleDescriptor),
+                                                        isLocalVariable(variableDescriptor)));
         }
         if (declarationDescriptor instanceof PackageViewDescriptor) {
             return createPackageInfo(declarationDescriptor);
@@ -254,12 +264,23 @@ public class DataFlowValueFactory {
             ReceiverParameterDescriptor receiverParameter = ((CallableDescriptor) descriptorOfThisReceiver).getExtensionReceiverParameter();
             assert receiverParameter != null : "'This' refers to the callable member without a receiver parameter: " +
                                                descriptorOfThisReceiver;
-            return createInfo(receiverParameter.getValue(), true);
+            return createInfo(receiverParameter.getValue(), true, false);
         }
         if (descriptorOfThisReceiver instanceof ClassDescriptor) {
-            return createInfo(((ClassDescriptor) descriptorOfThisReceiver).getThisAsReceiverParameter().getValue(), true);
+            return createInfo(((ClassDescriptor) descriptorOfThisReceiver).getThisAsReceiverParameter().getValue(), true, false);
         }
         return NO_IDENTIFIER_INFO;
+    }
+
+    public static boolean isLocalVariable(@NotNull VariableDescriptor variableDescriptor) {
+        if (variableDescriptor instanceof PropertyDescriptor) {
+            return false;
+        }
+        DeclarationDescriptor declaration = variableDescriptor.getContainingDeclaration();
+        if (declaration instanceof FunctionDescriptor) {
+            return true;
+        }
+        return false;
     }
 
     /**

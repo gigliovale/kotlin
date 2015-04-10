@@ -205,8 +205,9 @@ fun f(): String {
         // a is a string, despite of being a variable
         val <!UNUSED_VARIABLE!>i<!>: String = <!DEBUG_INFO_SMARTCAST!>a<!>
         <!DEBUG_INFO_SMARTCAST!>a<!>.compareTo("f")
-        val <!UNUSED_VARIABLE!>f<!>: Function0<String> = { <!DEBUG_INFO_SMARTCAST!>a<!> }
-        return <!DEBUG_INFO_SMARTCAST!>a<!>
+        // Beginning from here a is captured in a closure so we have to be cautious
+        val <!UNUSED_VARIABLE!>f<!>: Function0<String> = { <!SMARTCAST_IMPOSSIBLE!>a<!> }
+        return <!SMARTCAST_IMPOSSIBLE!>a<!>
     }
     return ""
 }

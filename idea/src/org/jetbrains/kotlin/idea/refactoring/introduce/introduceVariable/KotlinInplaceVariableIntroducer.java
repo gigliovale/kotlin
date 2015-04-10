@@ -22,15 +22,13 @@ import com.intellij.codeInsight.template.impl.TemplateState;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.Balloon;
-import com.intellij.openapi.util.Pair;
-import com.intellij.openapi.util.Pass;
-import com.intellij.openapi.util.Ref;
-import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.*;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil;
 import com.intellij.psi.search.SearchScope;
@@ -58,6 +56,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 public class KotlinInplaceVariableIntroducer<D extends JetCallableDeclaration> extends InplaceVariableIntroducer<JetExpression> {
+    private static final Key<KotlinInplaceVariableIntroducer> ACTIVE_INTRODUCER = Key.create("ACTIVE_INTRODUCER");
+
     public static final String TYPE_REFERENCE_VARIABLE_NAME = "TypeReferenceVariable";
     public static final String PRIMARY_VARIABLE_NAME = "PrimaryVariable";
     
@@ -137,6 +137,16 @@ public class KotlinInplaceVariableIntroducer<D extends JetCallableDeclaration> e
         myDoNotChangeVar = doNotChangeVar;
         myExprType = exprType;
         this.noTypeInference = noTypeInference;
+
+        String advertisementActionId = getAdvertisementActionId();
+        if (advertisementActionId != null) {
+            showDialogAdvertisement(advertisementActionId);
+        }
+    }
+
+    @Nullable
+    protected String getAdvertisementActionId() {
+        return null;
     }
 
     @NotNull
@@ -391,6 +401,21 @@ public class KotlinInplaceVariableIntroducer<D extends JetCallableDeclaration> e
     }
 
     @Override
+    public boolean performInplaceRefactoring(LinkedHashSet<String> nameSuggestions) {
+        if (super.performInplaceRefactoring(nameSuggestions)) {
+            myEditor.putUserData(ACTIVE_INTRODUCER, this);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void finish(boolean success) {
+        super.finish(success);
+        myEditor.putUserData(ACTIVE_INTRODUCER, null);
+    }
+
+    @Override
     protected void moveOffsetAfter(boolean success) {
         if (!myReplaceOccurrence || myExprMarker == null) {
             myEditor.getCaretModel().moveToOffset(myDeclaration.getTextRange().getEndOffset());
@@ -406,5 +431,23 @@ public class KotlinInplaceVariableIntroducer<D extends JetCallableDeclaration> e
                 myEditor.getCaretModel().moveToOffset(myExprMarker.getEndOffset());
             }
         }
+    }
+
+    public void stopIntroduce() {
+        final TemplateState templateState = TemplateManagerImpl.getTemplateState(myEditor);
+        if (templateState != null) {
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    templateState.gotoEnd(true);
+                }
+            };
+            CommandProcessor.getInstance().executeCommand(myProject, runnable, getCommandName(), getCommandName());
+        }
+    }
+
+    @Nullable
+    public static KotlinInplaceVariableIntroducer getActiveInstance(@NotNull Editor editor) {
+        return editor.getUserData(ACTIVE_INTRODUCER);
     }
 }

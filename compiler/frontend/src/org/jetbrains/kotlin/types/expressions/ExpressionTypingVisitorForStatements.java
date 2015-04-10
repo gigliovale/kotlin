@@ -146,7 +146,8 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
             // In this case s will be not-nullable until it is changed
             if (property.getTypeReference() == null && type != null) {
                 DataFlowValue variableDataFlowValue = DataFlowValueFactory.createDataFlowValue(
-                        propertyDescriptor, DescriptorUtils.getContainingModuleOrNull(scope.getContainingDeclaration()));
+                        propertyDescriptor, context.trace.getBindingContext(),
+                        DescriptorUtils.getContainingModuleOrNull(scope.getContainingDeclaration()));
                 DataFlowValue initializerDataFlowValue = DataFlowValueFactory.createDataFlowValue(initializer, type, context);
                 dataFlowInfo = dataFlowInfo.assign(variableDataFlowValue, initializerDataFlowValue);
             }

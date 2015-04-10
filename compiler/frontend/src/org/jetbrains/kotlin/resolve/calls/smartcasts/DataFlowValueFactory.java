@@ -22,8 +22,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.JetNodeTypes;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
+import org.jetbrains.kotlin.resolve.BindingContextUtils;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext;
@@ -122,12 +124,13 @@ public class DataFlowValueFactory {
     @NotNull
     public static DataFlowValue createDataFlowValue(
             @NotNull VariableDescriptor variableDescriptor,
+            @NotNull BindingContext bindingContext,
             @Nullable ModuleDescriptor usageContainingModule
     ) {
         JetType type = variableDescriptor.getType();
         return new DataFlowValue(variableDescriptor, type,
                                  isStableVariable(variableDescriptor, usageContainingModule),
-                                 isLocalVariable(variableDescriptor),
+                                 isLocalVariable(variableDescriptor, bindingContext),
                                  getImmanentNullability(type));
     }
 
@@ -237,7 +240,7 @@ public class DataFlowValueFactory {
             VariableDescriptor variableDescriptor = (VariableDescriptor) declarationDescriptor;
             return combineInfo(receiverInfo, createInfo(variableDescriptor,
                                                         isStableVariable(variableDescriptor, usageModuleDescriptor),
-                                                        isLocalVariable(variableDescriptor)));
+                                                        isLocalVariable(variableDescriptor, bindingContext)));
         }
         if (declarationDescriptor instanceof PackageViewDescriptor) {
             return createPackageInfo(declarationDescriptor);
@@ -272,12 +275,10 @@ public class DataFlowValueFactory {
         return NO_IDENTIFIER_INFO;
     }
 
-    public static boolean isLocalVariable(@NotNull VariableDescriptor variableDescriptor) {
-        if (variableDescriptor instanceof PropertyDescriptor) {
-            return false;
-        }
-        DeclarationDescriptor declaration = variableDescriptor.getContainingDeclaration();
-        if (declaration instanceof FunctionDescriptor) {
+    public static boolean isLocalVariable(@NotNull VariableDescriptor variableDescriptor, @NotNull BindingContext bindingContext) {
+        if (variableDescriptor instanceof LocalVariableDescriptor) {
+            if (BindingContextUtils.isVarCapturedInClosure(bindingContext, variableDescriptor))
+                return false;
             return true;
         }
         return false;

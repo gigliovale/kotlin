@@ -11465,6 +11465,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("ifVarNotNullAnd.kt")
+                public void testIfVarNotNullAnd() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/ifVarNotNullAnd.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("ifVarNullElse.kt")
                 public void testIfVarNullElse() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/ifVarNullElse.kt");
@@ -11477,9 +11483,27 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("inference.kt")
+                public void testInference() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/inference.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("infix.kt")
+                public void testInfix() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/infix.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("initialization.kt")
                 public void testInitialization() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/initialization.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("iterations.kt")
+                public void testIterations() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/iterations.kt");
                     doTest(fileName);
                 }
 
@@ -11588,6 +11612,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 @TestMetadata("varChangedInLoop.kt")
                 public void testVarChangedInLoop() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/varChangedInLoop.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varCheck.kt")
+                public void testVarCheck() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/varCheck.kt");
                     doTest(fileName);
                 }
             }

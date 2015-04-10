@@ -173,6 +173,24 @@ public class BlackBoxWithStdlibCodegenTestGenerated extends AbstractBlackBoxCode
             doTestWithStdlib(fileName);
         }
 
+        @TestMetadata("inProjectionAsParameter.kt")
+        public void testInProjectionAsParameter() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/inProjectionAsParameter.kt");
+            doTestWithStdlib(fileName);
+        }
+
+        @TestMetadata("inProjectionOfArray.kt")
+        public void testInProjectionOfArray() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/inProjectionOfArray.kt");
+            doTestWithStdlib(fileName);
+        }
+
+        @TestMetadata("inProjectionOfList.kt")
+        public void testInProjectionOfList() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/inProjectionOfList.kt");
+            doTestWithStdlib(fileName);
+        }
+
         @TestMetadata("indices.kt")
         public void testIndices() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/indices.kt");
@@ -212,6 +230,12 @@ public class BlackBoxWithStdlibCodegenTestGenerated extends AbstractBlackBoxCode
         @TestMetadata("kt4357.kt")
         public void testKt4357() throws Exception {
             String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/kt4357.kt");
+            doTestWithStdlib(fileName);
+        }
+
+        @TestMetadata("kt7009.kt")
+        public void testKt7009() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxWithStdlib/arrays/kt7009.kt");
             doTestWithStdlib(fileName);
         }
 

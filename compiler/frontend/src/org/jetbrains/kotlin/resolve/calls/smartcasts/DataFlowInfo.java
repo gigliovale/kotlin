@@ -50,6 +50,13 @@ public interface DataFlowInfo {
     Set<JetType> getPossibleTypes(@NotNull DataFlowValue key);
 
     /**
+     * Call this function to clear all data flow information about
+     * the given data flow value.
+     */
+    @NotNull
+    DataFlowInfo clearValueInfo(@NotNull DataFlowValue value);
+
+    /**
      * Call this function when b is assigned to a
      */
     @NotNull

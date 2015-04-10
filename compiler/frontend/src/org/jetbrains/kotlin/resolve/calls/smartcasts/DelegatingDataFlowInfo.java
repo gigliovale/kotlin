@@ -29,7 +29,7 @@ import java.util.Set;
 import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL;
 
 /* package */ class DelegatingDataFlowInfo implements DataFlowInfo {
-    private static final ImmutableMap<DataFlowValue,Nullability> EMPTY_NULLABILITY_INFO = ImmutableMap.of();
+    private static final ImmutableMap<DataFlowValue, Nullability> EMPTY_NULLABILITY_INFO = ImmutableMap.of();
     private static final SetMultimap<DataFlowValue, JetType> EMPTY_TYPE_INFO = newTypeInfo();
     private static final DataFlowInfo EMPTY_INFO_WITH_JUMP = new DelegatingDataFlowInfo(null, EMPTY_NULLABILITY_INFO,
                                                                                         EMPTY_TYPE_INFO, true);
@@ -40,9 +40,18 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
     @NotNull
     private final ImmutableMap<DataFlowValue, Nullability> nullabilityInfo;
 
-    /** Also immutable */
+    /**
+     * Also immutable
+     */
     @NotNull
     private final SetMultimap<DataFlowValue, JetType> typeInfo;
+
+    /**
+     * Value for which type info was cleared at this point
+     * so parent type info should not be in use
+     */
+    @Nullable
+    private final DataFlowValue valueWithoutTypeInfo;
 
     private final boolean jumpPossible;
 
@@ -52,10 +61,21 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
             @NotNull SetMultimap<DataFlowValue, JetType> typeInfo,
             boolean jumpPossible
     ) {
+        this(parent, nullabilityInfo, typeInfo, jumpPossible, null);
+    }
+
+    /* package */ DelegatingDataFlowInfo(
+            @Nullable DataFlowInfo parent,
+            @NotNull ImmutableMap<DataFlowValue, Nullability> nullabilityInfo,
+            @NotNull SetMultimap<DataFlowValue, JetType> typeInfo,
+            boolean jumpPossible,
+            @Nullable DataFlowValue valueWithoutTypeInfo
+    ) {
         this.parent = parent;
         this.nullabilityInfo = nullabilityInfo;
         this.typeInfo = typeInfo;
         this.jumpPossible = jumpPossible;
+        this.valueWithoutTypeInfo = valueWithoutTypeInfo;
     }
 
     @Override
@@ -80,10 +100,16 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
     @NotNull
     public SetMultimap<DataFlowValue, JetType> getCompleteTypeInfo() {
         SetMultimap<DataFlowValue, JetType> result = newTypeInfo();
+        Set<DataFlowValue> resultCompleted = new LinkedHashSet<DataFlowValue>();
         DelegatingDataFlowInfo info = this;
         while (info != null) {
             for (DataFlowValue key : info.typeInfo.keySet()) {
-                result.putAll(key, info.typeInfo.get(key));
+                if (!resultCompleted.contains(key)) {
+                    result.putAll(key, info.typeInfo.get(key));
+                }
+            }
+            if (valueWithoutTypeInfo != null) {
+                resultCompleted.add(valueWithoutTypeInfo);
             }
             info = (DelegatingDataFlowInfo) info.parent;
         }
@@ -105,7 +131,11 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
                key.getImmanentNullability();
     }
 
-    private boolean putNullability(@NotNull Map<DataFlowValue, Nullability> map, @NotNull DataFlowValue value, @NotNull Nullability nullability) {
+    private boolean putNullability(
+            @NotNull Map<DataFlowValue, Nullability> map,
+            @NotNull DataFlowValue value,
+            @NotNull Nullability nullability
+    ) {
         if (!value.isStableIdentifier() && !value.isLocalVariable()) return false;
         map.put(value, nullability);
         return nullability != getNullability(value);
@@ -113,11 +143,13 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
 
     @NotNull
     private Set<JetType> getDirectlyPossibleTypes(@NotNull DataFlowValue key) {
+        if (key == valueWithoutTypeInfo) {
+            return EMPTY_TYPE_INFO.get(key);
+        }
         Set<JetType> theseTypes = typeInfo.get(key);
-        Set<JetType> types = parent instanceof DelegatingDataFlowInfo ?
-                             Sets.union(theseTypes, ((DelegatingDataFlowInfo)parent).getDirectlyPossibleTypes(key)) :
-                             theseTypes;
-        return types;
+        return parent instanceof DelegatingDataFlowInfo ?
+               Sets.union(theseTypes, ((DelegatingDataFlowInfo) parent).getDirectlyPossibleTypes(key)) :
+               theseTypes;
     }
 
     @Override
@@ -138,6 +170,30 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         }
 
         return enrichedTypes;
+    }
+
+    /**
+     * Call this function to clear all data flow information about
+     * the given data flow value.
+     *
+     * @param value
+     */
+    @NotNull
+    @Override
+    public DataFlowInfo clearValueInfo(@NotNull DataFlowValue value) {
+        Map<DataFlowValue, Nullability> builder = Maps.newHashMap();
+        boolean changed = putNullability(builder, value, Nullability.UNKNOWN);
+        // We want to clear all these types
+        changed |= !getDirectlyPossibleTypes(value).isEmpty();
+        return !changed
+               ? this
+               : new DelegatingDataFlowInfo(
+                       this,
+                       ImmutableMap.copyOf(builder),
+                       EMPTY_TYPE_INFO,
+                       jumpPossible,
+                       value
+               );
     }
 
     @NotNull
@@ -177,13 +233,13 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         changed |= !newTypeInfo.isEmpty();
 
         return !changed
-                    ? this
-                    : new DelegatingDataFlowInfo(
-                            this,
-                            ImmutableMap.copyOf(builder),
-                            newTypeInfo.isEmpty() ? EMPTY_TYPE_INFO : newTypeInfo,
-                            jumpPossible
-                    );
+               ? this
+               : new DelegatingDataFlowInfo(
+                       this,
+                       ImmutableMap.copyOf(builder),
+                       newTypeInfo.isEmpty() ? EMPTY_TYPE_INFO : newTypeInfo,
+                       jumpPossible
+               );
     }
 
     @NotNull
@@ -254,7 +310,7 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
         SetMultimap<DataFlowValue, JetType> myTypeInfo = getCompleteTypeInfo();
         SetMultimap<DataFlowValue, JetType> otherTypeInfo = other.getCompleteTypeInfo();
         if (nullabilityMapBuilder.isEmpty() && containsAll(myTypeInfo, otherTypeInfo)) {
-            return otherInfo.isJumpPossible() ? jump(): this;
+            return otherInfo.isJumpPossible() ? jump() : this;
         }
 
         return new DelegatingDataFlowInfo(this, ImmutableMap.copyOf(nullabilityMapBuilder), otherTypeInfo,
@@ -297,7 +353,8 @@ import static org.jetbrains.kotlin.resolve.calls.smartcasts.Nullability.NOT_NULL
             return (jumpPossible || otherInfo.isJumpPossible()) ? EMPTY_INFO_WITH_JUMP : EMPTY;
         }
 
-        return new DelegatingDataFlowInfo(null, ImmutableMap.copyOf(nullabilityMapBuilder), newTypeInfo, jumpPossible || otherInfo.isJumpPossible());
+        return new DelegatingDataFlowInfo(null, ImmutableMap.copyOf(nullabilityMapBuilder), newTypeInfo,
+                                          jumpPossible || otherInfo.isJumpPossible());
     }
 
     @NotNull

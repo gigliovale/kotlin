@@ -197,6 +197,11 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
 
         ExpressionTypingContext context = contextWithExpectedType.replaceExpectedType(NO_EXPECTED_TYPE).replaceContextDependency(
                 INDEPENDENT);
+        // Preliminary analysis
+        PreliminaryLoopVisitor loopVisitor = new PreliminaryLoopVisitor(expression, context);
+        loopVisitor.launch();
+        context = context.replaceDataFlowInfo(loopVisitor.clearDataFlowInfoForAssignedExpressions());
+
         JetExpression condition = expression.getCondition();
         DataFlowInfo dataFlowInfo = checkCondition(context.scope, condition, context);
 
@@ -275,6 +280,10 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
                 contextWithExpectedType.replaceExpectedType(NO_EXPECTED_TYPE).replaceContextDependency(INDEPENDENT);
         JetExpression body = expression.getBody();
         JetScope conditionScope = context.scope;
+        // Preliminary analysis
+        PreliminaryLoopVisitor loopVisitor = new PreliminaryLoopVisitor(expression, context);
+        loopVisitor.launch();
+        context = context.replaceDataFlowInfo(loopVisitor.clearDataFlowInfoForAssignedExpressions());
         // Here we must record data flow information at the end of the body (or at the first jump, to be precise) and
         // .and it with entrance data flow information, because do-while body is executed at least once
         // See KT-6283
@@ -331,6 +340,11 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
 
         ExpressionTypingContext context =
                 contextWithExpectedType.replaceExpectedType(NO_EXPECTED_TYPE).replaceContextDependency(INDEPENDENT);
+        // Preliminary analysis
+        PreliminaryLoopVisitor loopVisitor = new PreliminaryLoopVisitor(expression, context);
+        loopVisitor.launch();
+        context = context.replaceDataFlowInfo(loopVisitor.clearDataFlowInfoForAssignedExpressions());
+
         JetExpression loopRange = expression.getLoopRange();
         JetType expectedParameterType = null;
         DataFlowInfo dataFlowInfo = context.dataFlowInfo;

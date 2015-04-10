@@ -11459,15 +11459,21 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     doTest(fileName);
                 }
 
-                @TestMetadata("false01.kt")
-                public void testFalse01() throws Exception {
-                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/false01.kt");
+                @TestMetadata("ifVarNotNull.kt")
+                public void testIfVarNotNull() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/ifVarNotNull.kt");
                     doTest(fileName);
                 }
 
-                @TestMetadata("false03.kt")
-                public void testFalse03() throws Exception {
-                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/false03.kt");
+                @TestMetadata("ifVarNullElse.kt")
+                public void testIfVarNullElse() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/ifVarNullElse.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("ifVarNullReturn.kt")
+                public void testIfVarNullReturn() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/ifVarNullReturn.kt");
                     doTest(fileName);
                 }
 
@@ -11480,24 +11486,6 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 @TestMetadata("kt2865.kt")
                 public void testKt2865() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt2865.kt");
-                    doTest(fileName);
-                }
-
-                @TestMetadata("kt3175a.kt")
-                public void testKt3175a() throws Exception {
-                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175a.kt");
-                    doTest(fileName);
-                }
-
-                @TestMetadata("kt3175b.kt")
-                public void testKt3175b() throws Exception {
-                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175b.kt");
-                    doTest(fileName);
-                }
-
-                @TestMetadata("kt3175c.kt")
-                public void testKt3175c() throws Exception {
-                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt3175c.kt");
                     doTest(fileName);
                 }
 
@@ -11588,6 +11576,18 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 @TestMetadata("kt6819.kt")
                 public void testKt6819() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/kt6819.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varCapturedInClosure.kt")
+                public void testVarCapturedInClosure() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/varCapturedInClosure.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varChangedInLoop.kt")
+                public void testVarChangedInLoop() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/varChangedInLoop.kt");
                     doTest(fileName);
                 }
             }

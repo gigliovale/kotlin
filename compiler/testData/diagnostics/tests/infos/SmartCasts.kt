@@ -202,18 +202,19 @@ fun mergeSmartCasts(a: Any?) {
 fun f(): String {
     var a: Any = 11
     if (a is String) {
-        val <!UNUSED_VARIABLE!>i<!>: String = <!SMARTCAST_IMPOSSIBLE!>a<!>
-        <!SMARTCAST_IMPOSSIBLE!>a<!>.compareTo("f")
-        val <!UNUSED_VARIABLE!>f<!>: Function0<String> = { <!SMARTCAST_IMPOSSIBLE!>a<!> }
-        return <!SMARTCAST_IMPOSSIBLE!>a<!>
+        // a is a string, despite of being a variable
+        val <!UNUSED_VARIABLE!>i<!>: String = <!DEBUG_INFO_SMARTCAST!>a<!>
+        <!DEBUG_INFO_SMARTCAST!>a<!>.compareTo("f")
+        val <!UNUSED_VARIABLE!>f<!>: Function0<String> = { <!DEBUG_INFO_SMARTCAST!>a<!> }
+        return <!DEBUG_INFO_SMARTCAST!>a<!>
     }
     return ""
 }
 
-fun foo(aa: Any): Int {
+fun foo(aa: Any?): Int {
     var a = aa
-    if (a is Int) {
-        return <!SMARTCAST_IMPOSSIBLE!>a<!>
+    if (a is Int?) {
+        return <!TYPE_MISMATCH!>a<!>
     }
     return 1
 }

@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.codegen.generated;
 
 import com.intellij.testFramework.TestDataPath;
-import org.jetbrains.kotlin.test.InnerTestClasses;
 import org.jetbrains.kotlin.test.JUnit3RunnerWithInners;
 import org.jetbrains.kotlin.test.JetTestUtils;
 import org.jetbrains.kotlin.test.TestMetadata;
@@ -81,6 +80,12 @@ public class BlackBoxMultiFileCodegenTestGenerated extends AbstractBlackBoxCodeg
     @TestMetadata("nestedPackages")
     public void testNestedPackages() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxMultiFile/nestedPackages/");
+        doTestMultiFile(fileName);
+    }
+
+    @TestMetadata("packageLocalClassNotImportedWithDefaultImport")
+    public void testPackageLocalClassNotImportedWithDefaultImport() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("compiler/testData/codegen/boxMultiFile/packageLocalClassNotImportedWithDefaultImport/");
         doTestMultiFile(fileName);
     }
 

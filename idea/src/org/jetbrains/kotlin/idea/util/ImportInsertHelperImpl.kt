@@ -56,6 +56,9 @@ import org.jetbrains.kotlin.idea.imports.*
 
 public class ImportInsertHelperImpl(private val project: Project) : ImportInsertHelper() {
 
+    private val codeStyleSettings: JetCodeStyleSettings
+        get() = JetCodeStyleSettings.getInstance(project)
+
     override fun optimizeImportsOnTheFly(file: JetFile): Boolean {
         if (CodeInsightSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY) {
             OptimizeImportsProcessor(project, file).runWithoutProgress()
@@ -138,28 +141,32 @@ public class ImportInsertHelperImpl(private val project: Project) : ImportInsert
     override fun mayImportByCodeStyle(descriptor: DeclarationDescriptor): Boolean {
         val importable = descriptor.getImportableDescriptor()
         return when (importable) {
-            is PackageViewDescriptor -> JetCodeStyleSettings.getInstance(project).IMPORT_PACKAGES
-            else -> importable.getContainingDeclaration() is PackageFragmentDescriptor // do not import nested classes and non-top-level declarations
+            is PackageViewDescriptor -> codeStyleSettings.IMPORT_PACKAGES
+
+            is ClassDescriptor -> {
+                importable.getContainingDeclaration() is PackageFragmentDescriptor
+                    || codeStyleSettings.IMPORT_NESTED_CLASSES
+            }
+
+            else -> importable.getContainingDeclaration() is PackageFragmentDescriptor // do not import members (e.g. java static members)
         }
     }
 
-    override fun importDescriptor(file: JetFile, descriptor: DeclarationDescriptor): ImportDescriptorResult {
-        return Importer(file).importDescriptor(descriptor)
-    }
+    override fun importDescriptor(file: JetFile, descriptor: DeclarationDescriptor)
+            = Importer(file).importDescriptor(descriptor)
 
     private inner class Importer(
             private val file: JetFile
     ) {
         private val resolutionFacade = file.getResolutionFacade()
-        private val nameCountToUseStarImport = JetCodeStyleSettings.getInstance(project).NAME_COUNT_TO_USE_STAR_IMPORT
 
         fun importDescriptor(descriptor: DeclarationDescriptor): ImportDescriptorResult {
             val target = descriptor.getImportableDescriptor()
+            if (!target.canBeReferencedViaImport()) return ImportDescriptorResult.FAIL
 
             val name = target.getName()
             val topLevelScope = resolutionFacade.getFileTopLevelScope(file)
-
-            val targetFqName = target.importableFqName ?: return ImportDescriptorResult.FAIL
+            val targetFqName = target.importableFqNameSafe
 
             // check if import is not needed
             when (target) {
@@ -171,11 +178,6 @@ public class ImportInsertHelperImpl(private val project: Project) : ImportInsert
             }
 
             if (!mayImportByCodeStyle(descriptor)) {
-                return ImportDescriptorResult.FAIL
-            }
-
-            // cannot import for non-top level function or property
-            if (target is CallableDescriptor && target.getContainingDeclaration() !is PackageFragmentDescriptor) {
                 return ImportDescriptorResult.FAIL
             }
 
@@ -201,15 +203,7 @@ public class ImportInsertHelperImpl(private val project: Project) : ImportInsert
             val fqName = target.importableFqNameSafe
             val packageFqName = fqName.parent()
 
-            val importsFromPackage = imports.count {
-                val path = it.getImportPath()
-                path != null && !path.isAllUnder() && !path.hasAlias() && path.fqnPart().parent() == packageFqName
-            }
-
-            val allUnderImportPath = ImportPath(packageFqName, true)
-            val tryAllUnderImport = importsFromPackage + 1 >= nameCountToUseStarImport
-                                    && !packageFqName.isRoot()
-                                    && !imports.any { it.getImportPath() == allUnderImportPath }
+            val tryStarImport = shouldTryStarImport(packageFqName, imports)
                                     && when (target) {
                                         is ClassDescriptor -> topLevelScope.getClassifier(name) == null // this check does not give a guarantee that import with * will import the class - for example, there can be classes with conflicting name in more than one import with *
                                         is PackageViewDescriptor -> false
@@ -217,15 +211,30 @@ public class ImportInsertHelperImpl(private val project: Project) : ImportInsert
                                         else -> throw Exception()
                                     }
 
-            if (tryAllUnderImport) {
-                val result = addAllUnderImport(target)
+            if (tryStarImport) {
+                val result = addStarImport(target)
                 if (result != ImportDescriptorResult.FAIL) return result
             }
 
             return addExplicitImport(target)
         }
 
-        private fun addAllUnderImport(target: DeclarationDescriptor): ImportDescriptorResult {
+        private fun shouldTryStarImport(packageFqName: FqName, imports: Collection<JetImportDirective>): Boolean {
+            if (packageFqName.isRoot()) return false
+
+            val starImportPath = ImportPath(packageFqName, true)
+            if (imports.any { it.getImportPath() == starImportPath }) return false
+
+            if (packageFqName.asString() in codeStyleSettings.PACKAGES_TO_USE_STAR_IMPORTS) return true
+
+            val importsFromPackage = imports.count {
+                val path = it.getImportPath()
+                path != null && !path.isAllUnder() && !path.hasAlias() && path.fqnPart().parent() == packageFqName
+            }
+            return importsFromPackage + 1 >= codeStyleSettings.NAME_COUNT_TO_USE_STAR_IMPORT
+        }
+
+        private fun addStarImport(target: DeclarationDescriptor): ImportDescriptorResult {
             val targetFqName = target.importableFqNameSafe
             val parentFqName = targetFqName.parent()
 
@@ -379,16 +388,13 @@ public class ImportInsertHelperImpl(private val project: Project) : ImportInsert
             return result
         }
 
-        private fun targetFqName(ref: JetReferenceExpression): FqName? {
-            return ref.resolveTargets().map { it.importableFqName }.toSet().singleOrNull()
-        }
+        private fun targetFqName(ref: JetReferenceExpression): FqName?
+                = ref.resolveTargets().map { it.importableFqName }.toSet().singleOrNull()
 
-        private fun JetReferenceExpression.resolveTargets(): Collection<DeclarationDescriptor> {
-            return this.getImportableTargets(resolutionFacade.analyze(this, BodyResolveMode.PARTIAL))
-        }
+        private fun JetReferenceExpression.resolveTargets(): Collection<DeclarationDescriptor>
+                = this.getImportableTargets(resolutionFacade.analyze(this, BodyResolveMode.PARTIAL))
 
-        private fun addImport(fqName: FqName, allUnder: Boolean): JetImportDirective {
-            return addImport(file, ImportPath(fqName, allUnder))
-        }
+        private fun addImport(fqName: FqName, allUnder: Boolean): JetImportDirective
+                = addImport(file, ImportPath(fqName, allUnder))
     }
 }

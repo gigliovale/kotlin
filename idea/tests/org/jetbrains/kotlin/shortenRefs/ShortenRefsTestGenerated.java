@@ -41,6 +41,12 @@ public class ShortenRefsTestGenerated extends AbstractShortenRefsTest {
         doTest(fileName);
     }
 
+    @TestMetadata("ClassNameConflictNoPackageImport.kt")
+    public void testClassNameConflictNoPackageImport() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/shortenRefs/ClassNameConflictNoPackageImport.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("classObject.kt")
     public void testClassObject() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("idea/testData/shortenRefs/classObject.kt");
@@ -62,6 +68,12 @@ public class ShortenRefsTestGenerated extends AbstractShortenRefsTest {
     @TestMetadata("noShortening.kt")
     public void testNoShortening() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("idea/testData/shortenRefs/noShortening.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("PackagesToUseStarImports.kt")
+    public void testPackagesToUseStarImports() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/testData/shortenRefs/PackagesToUseStarImports.kt");
         doTest(fileName);
     }
 
@@ -209,6 +221,12 @@ public class ShortenRefsTestGenerated extends AbstractShortenRefsTest {
     public static class Java extends AbstractShortenRefsTest {
         public void testAllFilesPresentInJava() throws Exception {
             JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/shortenRefs/java"), Pattern.compile("^([^\\.]+)\\.kt$"), true);
+        }
+
+        @TestMetadata("innerClassImport.kt")
+        public void testInnerClassImport() throws Exception {
+            String fileName = JetTestUtils.navigationMetadata("idea/testData/shortenRefs/java/innerClassImport.kt");
+            doTest(fileName);
         }
 
         @TestMetadata("innerClassNoImports.kt")

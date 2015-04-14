@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.types.expressions;
 
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,29 +40,17 @@ import static org.jetbrains.kotlin.resolve.BindingContext.*;
 
 public class ForLoopConventionsChecker {
 
-    private Project project;
-    private ExpressionTypingServices expressionTypingServices;
-    private ExpressionTypingUtils expressionTypingUtils;
     private KotlinBuiltIns builtIns;
-
-    @Inject
-    public void setProject(@NotNull Project project) {
-        this.project = project;
-    }
-
-    @Inject
-    public void setExpressionTypingUtils(@NotNull ExpressionTypingUtils expressionTypingUtils) {
-        this.expressionTypingUtils = expressionTypingUtils;
-    }
-
-    @Inject
-    public void setExpressionTypingServices(@NotNull ExpressionTypingServices expressionTypingServices) {
-        this.expressionTypingServices = expressionTypingServices;
-    }
+    private FakeCallResolver fakeCallResolver;
 
     @Inject
     public void setBuiltIns(@NotNull KotlinBuiltIns builtIns) {
         this.builtIns = builtIns;
+    }
+
+    @Inject
+    public void setFakeCallResolver(FakeCallResolver fakeCallResolver) {
+        this.fakeCallResolver = fakeCallResolver;
     }
 
     @Nullable
@@ -73,7 +60,7 @@ public class ForLoopConventionsChecker {
         // Make a fake call loopRange.iterator(), and try to resolve it
         Name iterator = Name.identifier("iterator");
         Pair<Call, OverloadResolutionResults<FunctionDescriptor>> calls =
-                expressionTypingUtils.makeAndResolveFakeCall(loopRange, context, Collections.<JetExpression>emptyList(), iterator,
+                fakeCallResolver.makeAndResolveFakeCall(loopRange, context, Collections.<JetExpression>emptyList(), iterator,
                                                              loopRange.getExpression());
         OverloadResolutionResults<FunctionDescriptor> iteratorResolutionResults = calls.getSecond();
 
@@ -115,7 +102,7 @@ public class ForLoopConventionsChecker {
             @NotNull DiagnosticFactory1<JetExpression, JetType> noneApplicable,
             @NotNull WritableSlice<JetExpression, ResolvedCall<FunctionDescriptor>> resolvedCallKey
     ) {
-        OverloadResolutionResults<FunctionDescriptor> nextResolutionResults = expressionTypingUtils.resolveFakeCall(
+        OverloadResolutionResults<FunctionDescriptor> nextResolutionResults = fakeCallResolver.resolveFakeCall(
                 context, new TransientReceiver(iteratorType), Name.identifier(name), loopRangeExpression);
         if (nextResolutionResults.isAmbiguity()) {
             context.trace.report(ambiguity.on(loopRangeExpression, iteratorType));

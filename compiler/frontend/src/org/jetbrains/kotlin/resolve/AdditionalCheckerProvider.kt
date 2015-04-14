@@ -29,8 +29,8 @@ public abstract class AdditionalCheckerProvider(
 ) {
 
     public val declarationCheckers: List<DeclarationChecker> = DEFAULT_DECLARATION_CHECKERS + additionalDeclarationCheckers
-    public val callCheckers: List<CallChecker> = DEFAULT_CALL_CHECKERS + additionalCallCheckers
-    public val additionalTypeCheckers: List<AdditionalTypeChecker> = DEFAULT_TYPE_CHECKERS + additionalTypeCheckers
+    public val callChecker: CallChecker = CompositeChecker(DEFAULT_CALL_CHECKERS + additionalCallCheckers)
+    public val typeChecker: AdditionalTypeChecker = AdditionalTypeChecker.Composite(DEFAULT_TYPE_CHECKERS + additionalTypeCheckers)
 
     public object DefaultProvider : AdditionalCheckerProvider(listOf(), listOf(), listOf()) {}
 }

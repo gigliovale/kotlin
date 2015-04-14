@@ -71,6 +71,8 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.codeFragmentUtil.debugTypeInfo
 import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
 import org.jetbrains.kotlin.resolve.AnalyzingUtils
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.jvm.AsmTypes
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
@@ -79,6 +81,9 @@ import org.jetbrains.org.objectweb.asm.*
 import org.jetbrains.org.objectweb.asm.Opcodes.ASM5
 import org.jetbrains.org.objectweb.asm.tree.MethodNode
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 internal val RECEIVER_NAME = "\$receiver"
 internal val THIS_NAME = "this"
@@ -144,6 +149,10 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
 
             return result.toJdiValue(context)
         }
+        catch(e: TimeoutException) {
+            // TODO logError(e)
+            exception("Evaluation of ${codeFragment.getText()} was interrupted because it took more than 10 seconds")
+        }
         catch(e: EvaluateException) {
             throw e
         }
@@ -159,9 +168,9 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                                       attachmentByPsiFile(codeFragment),
                                       Attachment("breakpoint.info", "line: ${sourcePosition.line}"))
             LOG.error(LogMessageEx.createEvent(
-                                "Couldn't evaluate expression",
-                                ExceptionUtil.getThrowableText(e),
-                                mergeAttachments(*attachments)))
+                    "Couldn't evaluate expression",
+                    ExceptionUtil.getThrowableText(e),
+                    mergeAttachments(*attachments)))
 
             val cause = if (e.message != null) ": ${e.message}" else ""
             exception("An exception occurs during Evaluate Expression Action $cause")
@@ -238,11 +247,27 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                                                    context.suspendContext.thread?.threadReference!!,
                                                    context.suspendContext.getInvokePolicy())
 
-                                resultValue = interpreterLoop(
-                                        this,
-                                        makeInitialFrame(this, args.zip(argumentTypes).map { boxOrUnboxArgumentIfNeeded(eval, it.first, it.second) }),
-                                        eval
-                                )
+                                val executor = Executors.newSingleThreadExecutor();
+                                val future = executor.submit {
+                                    resultValue = interpreterLoop(
+                                            this,
+                                            makeInitialFrame(this, args.zip(argumentTypes).map { boxOrUnboxArgumentIfNeeded(eval, it.first, it.second) }),
+                                            eval
+                                    )
+                                }
+
+                                try {
+                                    future.get(10, TimeUnit.SECONDS)
+                                }
+                                catch (e: TimeoutException) {
+                                    context.suspendContext.thread?.threadReference?.resume()
+                                    throw e
+                                }
+                                finally {
+                                    executor.shutdownNow()
+
+                                    allRequests.forEach { it.enable() }
+                                }
 
                                 allRequests.forEach { it.enable() }
                             }

@@ -38,11 +38,40 @@ import static org.jetbrains.kotlin.resolve.bindingContextUtil.BindingContextUtil
 
 public class ExpressionTypingVisitorDispatcher extends JetVisitor<JetTypeInfo, ExpressionTypingContext> implements ExpressionTypingInternals {
 
+    public interface ExpressionTypingVisitorForStatementsProvider {
+        ExpressionTypingVisitorForStatements get(@NotNull ExpressionTypingContext context);
+    }
+
+    public class ExpressionTypingVisitorForStatementsProviderForBlock implements ExpressionTypingVisitorForStatementsProvider {
+        private final ExpressionTypingVisitorForStatements visitorForBlock;
+
+
+        public ExpressionTypingVisitorForStatementsProviderForBlock(@NotNull WritableScope scope) {
+            visitorForBlock = new ExpressionTypingVisitorForStatements(
+                    ExpressionTypingVisitorDispatcher.this, scope, basic, controlStructures, patterns, functions
+            );
+        }
+
+        @Override
+        public ExpressionTypingVisitorForStatements get(@NotNull ExpressionTypingContext context) {
+            return visitorForBlock;
+        }
+    }
+
+    public class ExpressionTypingVisitorForStatementsProviderForDeclarations implements ExpressionTypingVisitorForStatementsProvider {
+        @Override
+        public ExpressionTypingVisitorForStatements get(@NotNull ExpressionTypingContext context) {
+            return createStatementVisitor(context);
+        }
+    }
+
     private static final Logger LOG = Logger.getInstance(ExpressionTypingVisitor.class);
 
     @NotNull
     public static ExpressionTypingFacade create(@NotNull ExpressionTypingComponents components) {
-        return new ExpressionTypingVisitorDispatcher(components, null);
+        ExpressionTypingVisitorDispatcher typingVisitorDispatcher = new ExpressionTypingVisitorDispatcher(components);
+        typingVisitorDispatcher.setProviderForStatements(typingVisitorDispatcher.new ExpressionTypingVisitorForStatementsProviderForDeclarations());
+        return typingVisitorDispatcher;
     }
 
     @NotNull
@@ -50,28 +79,31 @@ public class ExpressionTypingVisitorDispatcher extends JetVisitor<JetTypeInfo, E
             @NotNull ExpressionTypingComponents components,
             @NotNull WritableScope writableScope
     ) {
-        return new ExpressionTypingVisitorDispatcher(components, writableScope);
+        ExpressionTypingVisitorDispatcher typingVisitorDispatcher = new ExpressionTypingVisitorDispatcher(components);
+        typingVisitorDispatcher.setProviderForStatements(typingVisitorDispatcher.new ExpressionTypingVisitorForStatementsProviderForBlock(writableScope));
+        return typingVisitorDispatcher;
+
     }
 
     private final ExpressionTypingComponents components;
     private final BasicExpressionTypingVisitor basic;
-    private final ExpressionTypingVisitorForStatements statements;
+    private ExpressionTypingVisitorForStatementsProvider providerForStatements;
     private final FunctionsTypingVisitor functions;
     private final ControlStructureTypingVisitor controlStructures;
     private final PatternMatchingTypingVisitor patterns;
 
-    private ExpressionTypingVisitorDispatcher(@NotNull ExpressionTypingComponents components, WritableScope writableScope) {
+    public void setProviderForStatements(ExpressionTypingVisitorForStatementsProvider providerForStatements) {
+        this.providerForStatements = providerForStatements;
+    }
+
+    private ExpressionTypingVisitorDispatcher(
+            @NotNull ExpressionTypingComponents components
+    ) {
         this.components = components;
-        basic = new BasicExpressionTypingVisitor(this);
-        controlStructures = new ControlStructureTypingVisitor(this);
-        patterns = new PatternMatchingTypingVisitor(this);
-        functions = new FunctionsTypingVisitor(this);
-        if (writableScope != null) {
-            this.statements = new ExpressionTypingVisitorForStatements(this, writableScope, basic, controlStructures, patterns, functions);
-        }
-        else {
-            this.statements = null;
-        }
+        this.basic = new BasicExpressionTypingVisitor(this);
+        this.controlStructures = new ControlStructureTypingVisitor(this);
+        this.patterns = new PatternMatchingTypingVisitor(this);
+        this.functions = new FunctionsTypingVisitor(this);
     }
 
     @Override
@@ -113,10 +145,7 @@ public class ExpressionTypingVisitorDispatcher extends JetVisitor<JetTypeInfo, E
     @NotNull
     public final JetTypeInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context, boolean isStatement) {
         if (!isStatement) return getTypeInfo(expression, context);
-        if (statements != null) {
-            return getTypeInfo(expression, context, statements);
-        }
-        return getTypeInfo(expression, context, createStatementVisitor(context));
+        return getTypeInfo(expression, context, providerForStatements.get(context));
     }
     
     private ExpressionTypingVisitorForStatements createStatementVisitor(ExpressionTypingContext context) {

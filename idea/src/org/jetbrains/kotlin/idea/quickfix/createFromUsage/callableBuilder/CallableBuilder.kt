@@ -216,7 +216,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
         val receiverTypeCandidate: TypeCandidate?
         val mandatoryTypeParametersAsCandidates: List<TypeCandidate>
         val substitutions: List<JetTypeSubstitution>
-        var released: Boolean = false
+        var finished: Boolean = false
 
         init {
             // gather relevant information
@@ -1042,7 +1042,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                         }
                     }
                     finally {
-                        release()
+                        finished = true
                         onFinish()
                     }
                 }
@@ -1058,16 +1058,8 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
         }
 
         fun showDialogIfNeeded() {
-            if (!ApplicationManager.getApplication().isUnitTestMode() && dialogWithEditor != null && !released) {
+            if (!ApplicationManager.getApplication().isUnitTestMode() && dialogWithEditor != null && !finished) {
                 dialogWithEditor.show()
-            }
-        }
-
-        private fun release() {
-            if (released) return
-            dialogWithEditor?.let {
-                jetFileToEdit.delete()
-                released = true
             }
         }
     }

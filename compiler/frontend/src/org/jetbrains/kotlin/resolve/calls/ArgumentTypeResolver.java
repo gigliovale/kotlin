@@ -37,11 +37,12 @@ import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.resolve.scopes.receivers.QualifierReceiver;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.types.JetType;
-import org.jetbrains.kotlin.types.JetTypeInfo;
 import org.jetbrains.kotlin.types.TypeUtils;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
 import org.jetbrains.kotlin.psi.psiUtil.PsiUtilPackage;
+import org.jetbrains.kotlin.types.expressions.TypeInfoFactory;
+import org.jetbrains.kotlin.types.expressions.TypeInfoWithJumpInfo;
 
 import javax.inject.Inject;
 import java.util.Collections;
@@ -185,18 +186,18 @@ public class ArgumentTypeResolver {
     }
 
     @NotNull
-    public JetTypeInfo getArgumentTypeInfo(
+    public TypeInfoWithJumpInfo getArgumentTypeInfo(
             @Nullable JetExpression expression,
             @NotNull CallResolutionContext<?> context,
             @NotNull ResolveArgumentsMode resolveArgumentsMode
     ) {
         if (expression == null) {
-            return JetTypeInfo.create(null, context.dataFlowInfo);
+            return TypeInfoFactory.Companion.createTypeInfo(context);
         }
         if (isFunctionLiteralArgument(expression, context)) {
             return getFunctionLiteralTypeInfo(expression, getFunctionLiteralArgument(expression, context), context, resolveArgumentsMode);
         }
-        JetTypeInfo recordedTypeInfo = getRecordedTypeInfo(expression, context.trace.getBindingContext());
+        TypeInfoWithJumpInfo recordedTypeInfo = getRecordedTypeInfo(expression, context.trace.getBindingContext());
         if (recordedTypeInfo != null) {
             return recordedTypeInfo;
         }
@@ -206,7 +207,7 @@ public class ArgumentTypeResolver {
     }
 
     @NotNull
-    public JetTypeInfo getFunctionLiteralTypeInfo(
+    public TypeInfoWithJumpInfo getFunctionLiteralTypeInfo(
             @NotNull JetExpression expression,
             @NotNull JetFunction functionLiteral,
             @NotNull CallResolutionContext<?> context,
@@ -214,7 +215,7 @@ public class ArgumentTypeResolver {
     ) {
         if (resolveArgumentsMode == SHAPE_FUNCTION_ARGUMENTS) {
             JetType type = getShapeTypeOfFunctionLiteral(functionLiteral, context.scope, context.trace, true);
-            return JetTypeInfo.create(type, context.dataFlowInfo);
+            return TypeInfoFactory.Companion.createTypeInfo(type, context);
         }
         return expressionTypingServices.getTypeInfo(expression, context.replaceContextDependency(INDEPENDENT));
     }
@@ -287,7 +288,7 @@ public class ArgumentTypeResolver {
 
             CallResolutionContext<?> newContext = context.replaceDataFlowInfo(infoForArguments.getInfo(argument));
             // Here we go inside arguments and determine additional data flow information for them
-            JetTypeInfo typeInfoForCall = getArgumentTypeInfo(expression, newContext, SHAPE_FUNCTION_ARGUMENTS);
+            TypeInfoWithJumpInfo typeInfoForCall = getArgumentTypeInfo(expression, newContext, SHAPE_FUNCTION_ARGUMENTS);
             infoForArguments.updateInfo(argument, typeInfoForCall.getDataFlowInfo());
         }
     }

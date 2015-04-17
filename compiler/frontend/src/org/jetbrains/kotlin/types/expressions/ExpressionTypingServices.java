@@ -44,7 +44,6 @@ import org.jetbrains.kotlin.resolve.scopes.WritableScope;
 import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl;
 import org.jetbrains.kotlin.types.ErrorUtils;
 import org.jetbrains.kotlin.types.JetType;
-import org.jetbrains.kotlin.types.JetTypeInfo;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -173,7 +172,7 @@ public class ExpressionTypingServices {
     }
 
     @NotNull
-    public JetTypeInfo getTypeInfo(
+    public TypeInfoWithJumpInfo getTypeInfo(
             @NotNull JetScope scope,
             @NotNull JetExpression expression,
             @NotNull JetType expectedType,
@@ -185,7 +184,7 @@ public class ExpressionTypingServices {
     }
 
     @NotNull
-    public JetTypeInfo getTypeInfo(@NotNull JetExpression expression, @NotNull ResolutionContext resolutionContext) {
+    public TypeInfoWithJumpInfo getTypeInfo(@NotNull JetExpression expression, @NotNull ResolutionContext resolutionContext) {
         return expressionTypingFacade.getTypeInfo(expression, ExpressionTypingContext.newContext(resolutionContext));
     }
 
@@ -235,12 +234,12 @@ public class ExpressionTypingServices {
     }
 
     @NotNull
-    public JetTypeInfo getBlockReturnedType(JetBlockExpression expression, ExpressionTypingContext context, boolean isStatement) {
+    public TypeInfoWithJumpInfo getBlockReturnedType(JetBlockExpression expression, ExpressionTypingContext context, boolean isStatement) {
         return getBlockReturnedType(expression, isStatement ? CoercionStrategy.COERCION_TO_UNIT : CoercionStrategy.NO_COERCION, context);
     }
 
     @NotNull
-    public JetTypeInfo getBlockReturnedType(
+    public TypeInfoWithJumpInfo getBlockReturnedType(
             @NotNull JetBlockExpression expression,
             @NotNull CoercionStrategy coercionStrategyForLastExpression,
             @NotNull ExpressionTypingContext context
@@ -260,9 +259,9 @@ public class ExpressionTypingServices {
                 context.scope, containingDescriptor, new TraceBasedRedeclarationHandler(context.trace), "getBlockReturnedType");
         scope.changeLockLevel(WritableScope.LockLevel.BOTH);
 
-        JetTypeInfo r;
+        TypeInfoWithJumpInfo r;
         if (block.isEmpty()) {
-            r = DataFlowUtils.checkType(builtIns.getUnitType(), expression, context, context.dataFlowInfo);
+            r = TypeInfoFactory.Companion.createCheckedTypeInfo(builtIns.getUnitType(), context, expression);
         }
         else {
             r = getBlockReturnedTypeWithWritableScope(scope, block, coercionStrategyForLastExpression,
@@ -292,7 +291,7 @@ public class ExpressionTypingServices {
         ExpressionTypingContext context = ExpressionTypingContext.newContext(
                 this, trace, functionInnerScope, dataFlowInfo, NO_EXPECTED_TYPE
         );
-        JetTypeInfo typeInfo = expressionTypingFacade.getTypeInfo(bodyExpression, context, function.hasBlockBody());
+        TypeInfoWithJumpInfo typeInfo = expressionTypingFacade.getTypeInfo(bodyExpression, context, function.hasBlockBody());
 
         JetType type = typeInfo.getType();
         if (type != null) {
@@ -321,7 +320,7 @@ public class ExpressionTypingServices {
         ExpressionTypingInternals blockLevelVisitor = ExpressionTypingVisitorDispatcher.createForBlock(expressionTypingComponents, scope);
         ExpressionTypingContext newContext = context.replaceScope(scope).replaceExpectedType(NO_EXPECTED_TYPE);
 
-        JetTypeInfo result = JetTypeInfo.create(null, context.dataFlowInfo);
+        TypeInfoWithJumpInfo result = TypeInfoFactory.Companion.createTypeInfo(context);
         // Jump point data flow info
         DataFlowInfo beforeJumpInfo = newContext.dataFlowInfo;
         boolean jumpOutPossible = false;
@@ -344,14 +343,8 @@ public class ExpressionTypingServices {
             DataFlowInfo newDataFlowInfo = result.getDataFlowInfo();
             // If jump is not possible, we take new data flow info before jump
             if (!jumpOutPossible) {
-                if (result instanceof TypeInfoWithJumpInfo) {
-                    TypeInfoWithJumpInfo jumpTypeInfo = (TypeInfoWithJumpInfo) result;
-                    beforeJumpInfo = jumpTypeInfo.getJumpFlowInfo();
-                    jumpOutPossible = jumpTypeInfo.getJumpOutPossible();
-                }
-                else {
-                    beforeJumpInfo = newDataFlowInfo;
-                }
+                beforeJumpInfo = result.getJumpFlowInfo();
+                jumpOutPossible = result.getJumpOutPossible();
             }
             if (newDataFlowInfo != context.dataFlowInfo) {
                 newContext = newContext.replaceDataFlowInfo(newDataFlowInfo);
@@ -359,10 +352,10 @@ public class ExpressionTypingServices {
             }
             blockLevelVisitor = ExpressionTypingVisitorDispatcher.createForBlock(expressionTypingComponents, scope);
         }
-        return new TypeInfoWithJumpInfo(result.getType(), result.getDataFlowInfo(), jumpOutPossible, beforeJumpInfo);
+        return result.replaceJumpOutPossible(jumpOutPossible).replaceJumpFlowInfo(beforeJumpInfo);
     }
 
-    private JetTypeInfo getTypeOfLastExpressionInBlock(
+    private TypeInfoWithJumpInfo getTypeOfLastExpressionInBlock(
             @NotNull JetExpression statementExpression,
             @NotNull ExpressionTypingContext context,
             @NotNull CoercionStrategy coercionStrategyForLastExpression,
@@ -380,7 +373,7 @@ public class ExpressionTypingServices {
 
             return blockLevelVisitor.getTypeInfo(statementExpression, context.replaceExpectedType(expectedType), true);
         }
-        JetTypeInfo result = blockLevelVisitor.getTypeInfo(statementExpression, context, true);
+        TypeInfoWithJumpInfo result = blockLevelVisitor.getTypeInfo(statementExpression, context, true);
         if (coercionStrategyForLastExpression == COERCION_TO_UNIT) {
             boolean mightBeUnit = false;
             if (statementExpression instanceof JetDeclaration) {
@@ -397,7 +390,7 @@ public class ExpressionTypingServices {
             if (mightBeUnit) {
                 // ExpressionTypingVisitorForStatements should return only null or Unit for declarations and assignments
                 assert result.getType() == null || KotlinBuiltIns.isUnit(result.getType());
-                result = JetTypeInfo.create(builtIns.getUnitType(), context.dataFlowInfo);
+                result = result.replaceType(builtIns.getUnitType()).replaceDataFlowInfo(context.dataFlowInfo);
             }
         }
         return result;

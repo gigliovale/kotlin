@@ -17,17 +17,15 @@
 package org.jetbrains.kotlin.types.expressions;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.psi.JetExpression;
-import org.jetbrains.kotlin.types.JetTypeInfo;
 
 public interface ExpressionTypingFacade {
     @NotNull
-    JetTypeInfo safeGetTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context);
+    TypeInfoWithJumpInfo safeGetTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context);
 
     @NotNull
-    JetTypeInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context);
+    TypeInfoWithJumpInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context);
     
     @NotNull
-    JetTypeInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context, boolean isStatement);
+    TypeInfoWithJumpInfo getTypeInfo(@NotNull JetExpression expression, ExpressionTypingContext context, boolean isStatement);
 }

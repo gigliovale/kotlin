@@ -45,6 +45,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils;
+import org.jetbrains.kotlin.types.expressions.TypeInfoWithJumpInfo;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -426,7 +427,7 @@ public class CandidateResolver {
         DataFlowInfo dataFlowInfoForArgument = context.candidateCall.getDataFlowInfoForArguments().getInfo(valueArgument);
         CallResolutionContext<?> newContext = context.replaceExpectedType(expectedType).replaceDataFlowInfo(dataFlowInfoForArgument);
 
-        JetTypeInfo typeInfoForCall = argumentTypeResolver.getArgumentTypeInfo(
+        TypeInfoWithJumpInfo typeInfoForCall = argumentTypeResolver.getArgumentTypeInfo(
                 argumentExpression, newContext, resolveFunctionArgumentBodies);
         context.candidateCall.getDataFlowInfoForArguments().updateInfo(valueArgument, typeInfoForCall.getDataFlowInfo());
 
@@ -525,7 +526,7 @@ public class CandidateResolver {
 
                 CallResolutionContext<?> newContext = context.replaceDataFlowInfo(infoForArguments.getInfo(argument))
                         .replaceBindingTrace(trace).replaceExpectedType(expectedType);
-                JetTypeInfo typeInfoForCall = argumentTypeResolver.getArgumentTypeInfo(
+                TypeInfoWithJumpInfo typeInfoForCall = argumentTypeResolver.getArgumentTypeInfo(
                         expression, newContext, resolveFunctionArgumentBodies);
                 JetType type = typeInfoForCall.getType();
                 infoForArguments.updateInfo(argument, typeInfoForCall.getDataFlowInfo());

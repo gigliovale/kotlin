@@ -11174,6 +11174,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("ifBreakExprInsideWhileTrue.kt")
+                public void testIfBreakExprInsideWhileTrue() throws Exception {
+                    String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifBreakExprInsideWhileTrue.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("ifElseBlockInsideDoWhile.kt")
                 public void testIfElseBlockInsideDoWhile() throws Exception {
                     String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifElseBlockInsideDoWhile.kt");

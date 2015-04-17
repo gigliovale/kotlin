@@ -45,7 +45,7 @@ import org.jetbrains.kotlin.utils.addIfNotNull
 
 public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : ExpressionTypingVisitor(facade) {
 
-    override fun visitNamedFunction(function: JetNamedFunction, data: ExpressionTypingContext): JetTypeInfo {
+    override fun visitNamedFunction(function: JetNamedFunction, data: ExpressionTypingContext): TypeInfoWithJumpInfo {
         return visitNamedFunction(function, data, false, null)
     }
 
@@ -54,7 +54,7 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
             context: ExpressionTypingContext,
             isStatement: Boolean,
             statementScope: WritableScope? // must be not null if isStatement
-    ): JetTypeInfo {
+    ): TypeInfoWithJumpInfo {
         if (!isStatement) {
             // function expression
             if (!function.getTypeParameters().isEmpty()) {
@@ -99,10 +99,10 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
         }
 
         if (isStatement) {
-            return DataFlowUtils.checkStatementType(function, context, context.dataFlowInfo)
+            return TypeInfoFactory.createTypeInfo(DataFlowUtils.checkStatementType(function, context), context)
         }
         else {
-            return DataFlowUtils.checkType(createFunctionType(functionDescriptor), function, context, context.dataFlowInfo)
+            return TypeInfoFactory.createCheckedTypeInfo(createFunctionType(functionDescriptor), context, function)
         }
     }
 
@@ -121,7 +121,7 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
         return components.builtIns.getFunctionType(Annotations.EMPTY, receiverType, parameters, returnType)
     }
 
-    override fun visitFunctionLiteralExpression(expression: JetFunctionLiteralExpression, context: ExpressionTypingContext): JetTypeInfo? {
+    override fun visitFunctionLiteralExpression(expression: JetFunctionLiteralExpression, context: ExpressionTypingContext): TypeInfoWithJumpInfo? {
         if (!expression.getFunctionLiteral().hasBody()) return null
 
         if (JetPsiUtil.isDeprecatedLambdaSyntax(expression)) {
@@ -138,10 +138,10 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
         val resultType = createFunctionType(functionDescriptor)!!
         if (functionTypeExpected) {
             // all checks were done before
-            return JetTypeInfo.create(resultType, context.dataFlowInfo)
+            return TypeInfoFactory.createTypeInfo(resultType, context)
         }
 
-        return DataFlowUtils.checkType(resultType, expression, context, context.dataFlowInfo)
+        return TypeInfoFactory.createCheckedTypeInfo(resultType, context, expression)
     }
 
     private fun createFunctionDescriptor(

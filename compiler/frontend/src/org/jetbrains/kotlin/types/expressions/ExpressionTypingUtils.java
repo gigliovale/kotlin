@@ -45,7 +45,6 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.types.ErrorUtils;
 import org.jetbrains.kotlin.types.JetType;
-import org.jetbrains.kotlin.types.JetTypeInfo;
 import org.jetbrains.kotlin.types.TypeUtils;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice;
@@ -115,7 +114,7 @@ public class ExpressionTypingUtils {
     }
 
     @NotNull
-    public static JetType safeGetType(@NotNull JetTypeInfo typeInfo) {
+    public static JetType safeGetType(@NotNull TypeInfoWithJumpInfo typeInfo) {
         JetType type = typeInfo.getType();
         assert type != null : "safeGetType should be invoked on safe JetTypeInfo; safeGetTypeInfo should return @NotNull type";
         return type;
@@ -329,14 +328,14 @@ public class ExpressionTypingUtils {
     }
 
     @NotNull
-    public static JetTypeInfo getTypeInfoOrNullType(
+    public static TypeInfoWithJumpInfo getTypeInfoOrNullType(
             @Nullable JetExpression expression,
             @NotNull ExpressionTypingContext context,
             @NotNull ExpressionTypingInternals facade
     ) {
         return expression != null
                ? facade.getTypeInfo(expression, context)
-               : JetTypeInfo.create(null, context.dataFlowInfo);
+               : TypeInfoFactory.Companion.createTypeInfo(context);
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")

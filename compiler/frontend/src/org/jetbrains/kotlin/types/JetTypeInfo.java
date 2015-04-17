@@ -27,11 +27,11 @@ import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
  *
  * NB: it must be immutable together with all its descendants!
  */
-public class JetTypeInfo {
-    @NotNull
-    public static JetTypeInfo create(@Nullable JetType type, @NotNull DataFlowInfo dataFlowInfo) {
-        return new JetTypeInfo(type, dataFlowInfo);
-    }
+public abstract class JetTypeInfo {
+    //@NotNull
+    //public static JetTypeInfo create(@Nullable JetType type, @NotNull DataFlowInfo dataFlowInfo) {
+    //    return new JetTypeInfo(type, dataFlowInfo);
+    //}
 
     private final JetType type;
     private final DataFlowInfo dataFlowInfo;

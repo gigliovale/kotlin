@@ -16,6 +16,9 @@
 
 package org.jetbrains.kotlin.types.expressions
 
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.psi.JetExpression
+import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.JetTypeInfo
@@ -31,16 +34,50 @@ import org.jetbrains.kotlin.types.JetTypeInfo
  * At the end current data flow info is x != null && y != null, but jump data flow info is x != null only.
  * Both break and continue are counted as possible jump outside of a loop, but return is not.
  */
-/*package*/ class TypeInfoWithJumpInfo(
+/*package*/ open class TypeInfoWithJumpInfo(
         type: JetType?,
         dataFlowInfo: DataFlowInfo,
         val jumpOutPossible: Boolean = false,
         val jumpFlowInfo: DataFlowInfo = dataFlowInfo
 ) : JetTypeInfo(type, dataFlowInfo) {
 
-    fun replaceType(type: JetType?) = TypeInfoWithJumpInfo(type, getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+    fun clearType() = replaceType(null)
 
-    fun replaceJumpOutPossible(jumpOutPossible: Boolean) = TypeInfoWithJumpInfo(getType(), getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+    fun checkType(expression: JetExpression, context: ResolutionContext<*>) =
+            replaceType(DataFlowUtils.checkType(getType(), expression, context))
 
-    fun replaceJumpFlowInfo(jumpFlowInfo: DataFlowInfo) = TypeInfoWithJumpInfo(getType(), getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+    fun checkImplicitCast(expression: JetExpression, context: ResolutionContext<*>, isStatement: Boolean) =
+            replaceType(DataFlowUtils.checkImplicitCast(getType(), expression, context, isStatement))
+
+    fun replaceType(type: JetType?) =
+            if (type == getType()) {
+                this
+            }
+            else {
+                TypeInfoWithJumpInfo(type, getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+            }
+
+    fun replaceJumpOutPossible(jumpOutPossible: Boolean) =
+            if (jumpOutPossible == this.jumpOutPossible) {
+                this
+            }
+            else{
+                TypeInfoWithJumpInfo(getType(), getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+            }
+
+    fun replaceJumpFlowInfo(jumpFlowInfo: DataFlowInfo) =
+            if (jumpFlowInfo == this.jumpFlowInfo) {
+                this
+            }
+            else {
+                TypeInfoWithJumpInfo(getType(), getDataFlowInfo(), jumpOutPossible, jumpFlowInfo)
+            }
+
+    fun replaceDataFlowInfo(dataFlowInfo: DataFlowInfo) =
+            if (dataFlowInfo == this.getDataFlowInfo()) {
+                this
+            }
+            else {
+                TypeInfoWithJumpInfo(getType(), dataFlowInfo, jumpOutPossible, jumpFlowInfo)
+            }
 }

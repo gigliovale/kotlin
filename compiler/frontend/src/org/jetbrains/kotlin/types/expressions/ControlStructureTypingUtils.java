@@ -248,7 +248,7 @@ public class ControlStructureTypingUtils {
     @NotNull
     /*package*/ static TracingStrategy createTracingForSpecialConstruction(
             final @NotNull Call call,
-            final @NotNull String constructionName,
+            @NotNull String constructionName,
             final @NotNull ExpressionTypingContext context
     ) {
         class CheckTypeContext {
@@ -269,7 +269,7 @@ public class ControlStructureTypingUtils {
         final JetVisitor<Boolean, CheckTypeContext> checkTypeVisitor = new JetVisitor<Boolean, CheckTypeContext>() {
 
             private boolean checkExpressionType(@NotNull JetExpression expression, CheckTypeContext c) {
-                JetTypeInfo typeInfo = BindingContextUtils.getRecordedTypeInfo(expression, c.trace.getBindingContext());
+                TypeInfoWithJumpInfo typeInfo = BindingContextUtils.getRecordedTypeInfo(expression, c.trace.getBindingContext());
                 if (typeInfo == null) return false;
 
                 Ref<Boolean> hasError = Ref.create();

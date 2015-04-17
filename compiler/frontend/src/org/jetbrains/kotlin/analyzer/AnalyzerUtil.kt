@@ -23,12 +23,12 @@ import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.types.JetTypeInfo
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
+import org.jetbrains.kotlin.types.expressions.TypeInfoWithJumpInfo
 
 public fun JetExpression.computeTypeInfoInContext(
         scope: JetScope,
@@ -36,7 +36,7 @@ public fun JetExpression.computeTypeInfoInContext(
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
         module: ModuleDescriptor = scope.getModule()
-): JetTypeInfo {
+): TypeInfoWithJumpInfo {
     val injectorForMacros = InjectorForMacros(getProject(), module)
     return injectorForMacros.getExpressionTypingServices()!!.getTypeInfo(scope, this, expectedType, dataFlowInfo, trace)
 }

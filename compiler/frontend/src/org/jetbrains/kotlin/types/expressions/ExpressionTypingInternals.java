@@ -19,11 +19,10 @@ package org.jetbrains.kotlin.types.expressions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.psi.*;
-import org.jetbrains.kotlin.types.JetTypeInfo;
 
 /*package*/ interface ExpressionTypingInternals extends ExpressionTypingFacade {
     @NotNull
-    JetTypeInfo checkInExpression(
+    TypeInfoWithJumpInfo checkInExpression(
             @NotNull JetElement callElement,
             @NotNull JetSimpleNameExpression operationSign,
             @NotNull ValueArgument leftArgument,

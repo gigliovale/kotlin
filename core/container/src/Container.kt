@@ -1,4 +1,4 @@
-package ktor.application
+package org.jetbrains.container
 
 import java.io.Closeable
 import kotlin.properties.Delegates

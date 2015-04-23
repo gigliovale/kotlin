@@ -1,4 +1,4 @@
-package ktor.application
+package org.jetbrains.container
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Type
@@ -63,11 +63,15 @@ fun Class<*>.bindToConstructor(context: ValueResolveContext): Binding
             rejected.add(candidate to unsatisfied)
     }
 
-    if (resolved.size() != 1)
-        throw UnresolvedConstructorException()
+    if (resolved.size() != 1) {
+        if (rejected.size() > 0)
+            throw UnresolvedConstructorException("Unsatisfied constructor for type `$this` with these types:\n  ${rejected[0].second}")
+
+        throw UnresolvedConstructorException("Cannot find suitable constructor for type `$this`")
+    }
 
     return resolved[0]
 }
 
-class UnresolvedConstructorException : Exception()
+class UnresolvedConstructorException(message: String) : Exception(message)
 

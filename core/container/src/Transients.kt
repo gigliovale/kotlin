@@ -1,4 +1,4 @@
-package ktor.application
+package org.jetbrains.container
 
 public abstract class TransientDescriptor(val container: ComponentContainer) : ComponentDescriptor {
     public override fun getValue(): Any = createInstance(container.createResolveContext(this));

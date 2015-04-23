@@ -62,7 +62,7 @@ public class ComponentStorage(val myId: String) : ValueResolver {
         return registry.tryGetEntry(request) ?: listOf()
     }
 
-    public fun registerDescriptors(items: List<ComponentDescriptor>) {
+    public fun registerDescriptors(context: ComponentResolveContext, items: List<ComponentDescriptor>) {
         if (state == ComponentStorageState.Disposed) {
             throw ContainerConsistencyException("Cannot register descriptors in $state state")
         }
@@ -71,26 +71,29 @@ public class ComponentStorage(val myId: String) : ValueResolver {
             descriptors.add(descriptor);
 
         if (state == ComponentStorageState.Initialized)
-            composeDescriptors(items);
+            composeDescriptors(context, items);
 
     }
 
-    public fun compose() {
+    public fun compose(context: ComponentResolveContext) {
         if (state != ComponentStorageState.Initial)
             throw ContainerConsistencyException("Container $myId was already composed.");
 
         state = ComponentStorageState.Initialized;
-        composeDescriptors(descriptors);
+        composeDescriptors(context, descriptors);
     }
 
-    private fun composeDescriptors(descriptors: Collection<ComponentDescriptor>) {
+    private fun composeDescriptors(context: ComponentResolveContext, descriptors: Collection<ComponentDescriptor>) {
         registry.addAll(descriptors);
-        InstantiateDescriptors(descriptors);
-    }
 
-    fun InstantiateDescriptors(descriptors: Collection<ComponentDescriptor>) {
+        // instantiate
         for (descriptor in descriptors)
-            descriptor.getValue();
+            descriptor.getValue()
+
+        // inject properties
+        for (descriptor in descriptors) {
+            descriptor.injectProperties(context)
+        }
     }
 
     public fun dispose() {

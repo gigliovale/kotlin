@@ -16,13 +16,24 @@
 
 package org.jetbrains.kotlin.load.kotlin.reflect
 
+import org.jetbrains.container.*
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.ReflectionTypes
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.di.InjectorForRuntimeDescriptorLoader
+import org.jetbrains.kotlin.load.java.components.*
+import org.jetbrains.kotlin.load.java.lazy.GlobalJavaResolverContext
+import org.jetbrains.kotlin.load.java.lazy.LazyJavaPackageFragmentProvider
+import org.jetbrains.kotlin.load.java.lazy.SingleModuleClassResolver
+import org.jetbrains.kotlin.load.java.reflect.ReflectJavaClassFinder
+import org.jetbrains.kotlin.load.java.structure.JavaPropertyInitializerEvaluator
+import org.jetbrains.kotlin.load.kotlin.DeserializedDescriptorResolver
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.serialization.deserialization.LocalClassResolver
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
 
 public class RuntimeModuleData private(private val injector: InjectorForRuntimeDescriptorLoader) {
     public val module: ModuleDescriptor get() = injector.getModuleDescriptor()
@@ -34,8 +45,34 @@ public class RuntimeModuleData private(private val injector: InjectorForRuntimeD
             val module = ModuleDescriptorImpl(Name.special("<runtime module for $classLoader>"), listOf(), JavaToKotlinClassMap.INSTANCE)
             module.addDependencyOnModule(module)
             module.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule())
+
             val injector = InjectorForRuntimeDescriptorLoader(classLoader, module)
-            module.initialize(injector.getJavaDescriptorResolver().packageFragmentProvider)
+            val container = StorageComponentContainer("RuntimeDescriptorLoader")
+
+            container.registerInstance(classLoader)
+            container.registerInstance(module)
+            container.registerSingleton<JavaDescriptorResolver>()
+            container.registerSingleton<DeserializedDescriptorResolver>()
+            container.registerSingleton<LazyJavaPackageFragmentProvider>()
+            container.registerSingleton<GlobalJavaResolverContext>()
+            container.registerSingleton<ReflectionTypes>()
+            container.registerInstance(ExternalSignatureResolver.DO_NOTHING)
+            container.registerInstance(MethodSignatureChecker.DO_NOTHING)
+            container.registerInstance(JavaResolverCache.EMPTY)
+            container.registerInstance(ExternalAnnotationResolver.EMPTY)
+            container.registerInstance(JavaPropertyInitializerEvaluator.DO_NOTHING)
+            container.registerInstance(SamConversionResolver.EMPTY)
+            container.registerInstance(RuntimeSourceElementFactory)
+            container.registerInstance(RuntimeErrorReporter)
+            container.registerSingleton<SingleModuleClassResolver>()
+            container.registerSingleton<LockBasedStorageManager>()
+            container.registerSingleton<ReflectJavaClassFinder>()
+            container.registerSingleton<ReflectKotlinClassFinder>()
+            container.compose()
+
+            val descriptorResolver = container.resolve<JavaDescriptorResolver>()!!.getValue() as JavaDescriptorResolver
+
+            module.initialize(descriptorResolver.packageFragmentProvider)
             return RuntimeModuleData(injector)
         }
     }

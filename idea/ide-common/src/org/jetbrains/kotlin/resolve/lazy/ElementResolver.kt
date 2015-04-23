@@ -376,8 +376,12 @@ public abstract class ElementResolver protected(
     }
 
     private fun createBodyResolver(resolveSession: ResolveSession, trace: BindingTrace, file: JetFile, statementFilter: StatementFilter): BodyResolver {
-        val bodyResolve = InjectorForBodyResolve(file.getProject(), createParameters(resolveSession), trace,
-                                                 resolveSession.getModuleDescriptor(), getAdditionalCheckerProvider(file), statementFilter)
+        val project = file.getProject()
+        val analysisParameters = createParameters(resolveSession)
+        val moduleDescriptor = resolveSession.getModuleDescriptor()
+        val additionalCheckerProvider = getAdditionalCheckerProvider(file)
+        val bodyResolve = InjectorForBodyResolve(project, analysisParameters, trace,
+                                                 moduleDescriptor, additionalCheckerProvider, statementFilter)
         return bodyResolve.getBodyResolver()
     }
 

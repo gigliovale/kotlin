@@ -1,6 +1,7 @@
 package org.jetbrains.container
 
 import java.io.Closeable
+import java.lang.reflect.Modifier
 import kotlin.properties.Delegates
 
 class ContainerConsistencyException(message: String) : Exception(message)
@@ -30,14 +31,23 @@ public class StorageComponentContainer(id: String) : ComponentContainer, Closeab
     }
 
     fun compose(): StorageComponentContainer {
-        componentStorage.compose()
+        componentStorage.compose(unknownContext)
         return this
     }
 
     override fun close() = componentStorage.dispose()
 
     public fun resolve(request: Class<*>, context: ValueResolveContext = unknownContext): ValueDescriptor? {
-        return componentStorage.resolve(request, context)
+        val storageResolve = componentStorage.resolve(request, context)
+        if (storageResolve != null)
+            return storageResolve
+
+        val modifiers = request.getModifiers()
+
+        if (Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers) || request.isPrimitive())
+            return null
+
+        return SingletonTypeComponentDescriptor(this, request)
     }
 
     public fun resolveMultiple(request: Class<*>, context: ValueResolveContext = unknownContext): Iterable<ValueDescriptor> {
@@ -45,7 +55,7 @@ public class StorageComponentContainer(id: String) : ComponentContainer, Closeab
     }
 
     public fun registerDescriptors(descriptors: List<ComponentDescriptor>): StorageComponentContainer {
-        componentStorage.registerDescriptors(descriptors)
+        componentStorage.registerDescriptors(unknownContext, descriptors)
         return this
     }
 

@@ -51,8 +51,9 @@ public fun createContainerForLazyLocalClassifierAnalyzer(
     useInstance(additionalCheckerProvider.symbolUsageValidator)
     useInstance(localClassDescriptorHolder)
 
-    useImpl<NoTopLevelDescriptorProvider>()
-    useImpl<NoFileScopeProvider>()
+    useInstance(NoTopLevelDescriptorProvider)
+    useInstance(NoFileScopeProvider)
+
     useImpl<DeclarationScopeProviderForLocalClassifierAnalyzer>()
     useImpl<LocalLazyDeclarationResolver>()
 

@@ -323,6 +323,7 @@
     <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$TopLevel"/>
     <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Statement"/>
     <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Class"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Object"/>
     <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Expression"/>
     <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Comment"/>
     <defaultLiveTemplatesProvider implementation="org.jetbrains.kotlin.idea.liveTemplates.JetLiveTemplatesProvider"/>

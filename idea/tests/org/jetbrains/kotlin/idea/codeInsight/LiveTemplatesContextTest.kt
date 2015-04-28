@@ -40,6 +40,14 @@ public class LiveTemplatesContextTest : JetLightCodeInsightFixtureTestCase() {
                          javaClass<KotlinTemplateContextType.Expression>())
     }
 
+    public fun testObject() {
+        myFixture.configureByFile(getTestName(false) + ".kt")
+        assertInContexts(javaClass<KotlinTemplateContextType.Generic>(),
+                         javaClass<KotlinTemplateContextType.Class>(),
+                         javaClass<KotlinTemplateContextType.Expression>(),
+                         javaClass<KotlinTemplateContextType.Object>())
+    }
+
     private fun assertInContexts(vararg expectedContexts: Class<out KotlinTemplateContextType>) {
         val allContexts = TemplateContextType.EP_NAME.getExtensions().filter { it is KotlinTemplateContextType }
         val enabledContexts = allContexts.filter { it.isInContext(myFixture.getFile(), myFixture.getCaretOffset()) }.map { it.javaClass }

@@ -34,19 +34,19 @@ import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 public abstract class KotlinTemplateContextType protected (NonNls id: String,
                                                            presentableName: String,
-                                                           baseContextType: java.lang.Class<out TemplateContextType>?) : TemplateContextType(id, presentableName, baseContextType) {
+                                                           baseContextType: java.lang.Class<out TemplateContextType>) : TemplateContextType(id, presentableName, baseContextType) {
 
     override fun isInContext(file: PsiFile, offset: Int): Boolean {
         if (PsiUtilCore.getLanguageAtOffset(file, offset).isKindOf(JetLanguage.INSTANCE)) {
-            val element = file.findElementAt(offset) ?: file.findElementAt(offset - 1)
-            if (element is PsiWhiteSpace) {
+            val element = file.findNonWhitespaceAt(offset) ?: file.findNonWhitespaceAt(offset - 1)
+            if (element === null) {
                 return false
             }
-            else if (element?.getParentOfType<PsiComment>(false) != null) {
+            else if (element.getParentOfType<PsiComment>(false) != null) {
                 return isCommentInContext()
             }
-            else if (element?.getParentOfType<JetPackageDirective>(true) != null ||
-                     element?.getParentOfType<JetImportDirective>(true) != null) {
+            else if (element.getParentOfType<JetPackageDirective>(true) != null ||
+                     element.getParentOfType<JetImportDirective>(true) != null) {
                 return false
             }
             else if (element is LeafPsiElement) {
@@ -64,10 +64,15 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
                     }
                 }
             }
-            return element != null && isInContext(element)
+            return isInContext(element)
         }
 
         return false
+    }
+
+    private fun PsiFile.findNonWhitespaceAt(offset: Int): PsiElement? {
+        val element = findElementAt(offset)
+        return if (element is PsiWhiteSpace) null else element
     }
 
     protected open fun isCommentInContext(): Boolean = false
@@ -102,7 +107,12 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
         }
     }
 
-    public class Class : KotlinTemplateContextType("KOTLIN_CLASS", "Class", javaClass<Generic>()) {
+    public open class Class(id: String,
+                            presentableName: String,
+                            baseContextType: java.lang.Class<out TemplateContextType>) : KotlinTemplateContextType(id, presentableName, baseContextType) {
+
+        constructor() : this("KOTLIN_CLASS", "Class", javaClass<Generic>()) {
+        }
 
         override fun isInContext(element: PsiElement): Boolean {
             var e: PsiElement? = element
@@ -120,8 +130,14 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
                 }
                 e = e.getParent()
             }
-            return e != null
+            return e != null && isClassOrObjectInContext(e as JetClassOrObject)
         }
+
+        protected open fun isClassOrObjectInContext(cls: JetClassOrObject): Boolean = true
+    }
+
+    public class Object : Class("KOTLIN_OBJECT", "Object", javaClass<Class>()) {
+        override fun isClassOrObjectInContext(cls: JetClassOrObject): Boolean = cls is JetObjectDeclaration
     }
 
     public class Statement : KotlinTemplateContextType("KOTLIN_STATEMENT", "Statement", javaClass<Generic>()) {

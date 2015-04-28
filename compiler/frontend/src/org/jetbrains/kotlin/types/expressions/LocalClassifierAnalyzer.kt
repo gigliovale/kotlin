@@ -44,6 +44,8 @@ import org.jetbrains.kotlin.resolve.lazy.LazyDeclarationResolver
 import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProviderImpl
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.di.get
+import org.jetbrains.kotlin.frontend.di.createContainerForLazyLocalClassifierAnalyzer
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
 
@@ -65,7 +67,7 @@ public class LocalClassifierAnalyzer(
         val topDownAnalysisParameters = TopDownAnalysisParameters.create(globalContext.storageManager, globalContext.exceptionTracker, false, true)
 
         val moduleDescriptor = DescriptorUtils.getContainingModule(containingDeclaration)
-        val injector = InjectorForLazyLocalClassifierAnalyzer(
+        val injector = createContainerForLazyLocalClassifierAnalyzer(
                 classOrObject.getProject(),
                 globalContext,
                 context.trace,
@@ -86,7 +88,7 @@ public class LocalClassifierAnalyzer(
                 )
         )
 
-        injector.getLazyTopDownAnalyzer().analyzeDeclarations(
+        injector.get<LazyTopDownAnalyzer>().analyzeDeclarations(
                 topDownAnalysisParameters,
                 listOf(classOrObject),
                 context.dataFlowInfo

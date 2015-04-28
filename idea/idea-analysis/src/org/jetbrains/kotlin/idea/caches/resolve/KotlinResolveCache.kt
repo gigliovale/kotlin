@@ -30,8 +30,9 @@ import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.analyzer.analyzeInContext
 import org.jetbrains.kotlin.asJava.LightClassUtil
 import org.jetbrains.kotlin.context.SimpleGlobalContext
-import org.jetbrains.kotlin.di.InjectorForLazyBodyResolve
+import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
+import org.jetbrains.kotlin.frontend.di.createContainerForLazyBodyResolve
 import org.jetbrains.kotlin.idea.project.ResolveSessionForBodies
 import org.jetbrains.kotlin.idea.project.TargetPlatform
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
@@ -223,14 +224,14 @@ private object KotlinResolveDataProvider {
             val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), "Trace for resolution of " + analyzableElement)
 
             val targetPlatform = TargetPlatformDetector.getPlatform(analyzableElement.getContainingJetFile())
-            val lazyTopDownAnalyzer = InjectorForLazyBodyResolve(
+            val lazyTopDownAnalyzer = createContainerForLazyBodyResolve(
                     project,
                     SimpleGlobalContext(resolveSession.getStorageManager(), resolveSession.getExceptionTracker()),
                     resolveSession,
                     trace,
                     targetPlatform.getAdditionalCheckerProvider(),
                     targetPlatform.getDynamicTypesSettings()
-            ).getLazyTopDownAnalyzerForTopLevel()!!
+            ).get<LazyTopDownAnalyzerForTopLevel>()
 
             lazyTopDownAnalyzer.analyzeDeclarations(
                     TopDownAnalysisParameters.create(resolveSession.getStorageManager(), resolveSession.getExceptionTracker(), false, false),

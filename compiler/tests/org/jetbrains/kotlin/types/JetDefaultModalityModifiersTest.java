@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.di.InjectorForLazyResolve;
 import org.jetbrains.kotlin.di.InjectorForTests;
+import org.jetbrains.kotlin.frontend.di.DiPackage;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider;
 import org.jetbrains.kotlin.resolve.BindingContext;
@@ -103,7 +104,7 @@ public class JetDefaultModalityModifiersTest extends JetLiteFixture {
 
         private ClassDescriptorWithResolutionScopes createClassDescriptor(ClassKind kind, JetClass aClass) {
             GlobalContextImpl globalContext = ContextPackage.GlobalContext();
-            ResolveSession resolveSession = new InjectorForLazyResolve(
+            ResolveSession resolveSession = DiPackage.createLazyResolveSession(
                     getProject(),
                     globalContext,
                     root,
@@ -112,7 +113,7 @@ public class JetDefaultModalityModifiersTest extends JetLiteFixture {
                     new BindingTraceContext(),
                     AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
                     new DynamicTypesSettings()
-            ).getResolveSession();
+            );
 
             return (ClassDescriptorWithResolutionScopes) resolveSession.getClassDescriptor(aClass);
         }

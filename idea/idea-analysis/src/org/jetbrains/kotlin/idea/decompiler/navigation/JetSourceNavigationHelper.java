@@ -45,6 +45,7 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.di.InjectorForLazyResolve;
+import org.jetbrains.kotlin.frontend.di.DiPackage;
 import org.jetbrains.kotlin.idea.caches.resolve.JsProjectDetector;
 import org.jetbrains.kotlin.idea.stubindex.JetFullClassNameIndex;
 import org.jetbrains.kotlin.idea.stubindex.JetTopLevelFunctionFqnNameIndex;
@@ -247,14 +248,15 @@ public class JetSourceNavigationHelper {
         moduleDescriptor.addDependencyOnModule(KotlinBuiltIns.getInstance().getBuiltInsModule());
         moduleDescriptor.seal();
 
-        ResolveSession resolveSession = new InjectorForLazyResolve(
+        ResolveSession resolveSession = DiPackage.createLazyResolveSession(
                 project,
                 globalContext,
                 moduleDescriptor,
                 providerFactory,
                 new BindingTraceContext(),
                 AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
-                new DynamicTypesSettings()).getResolveSession();
+                new DynamicTypesSettings()
+        );
 
         moduleDescriptor.initialize(resolveSession.getPackageFragmentProvider());
         return resolveSession;

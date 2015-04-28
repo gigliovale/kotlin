@@ -25,6 +25,8 @@ import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.psi.JetTypeProjection
 import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.di.InjectorForMacros
+import org.jetbrains.kotlin.di.get
+import org.jetbrains.kotlin.frontend.di.createContainerForMacros
 import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.psi.JetProperty
 import org.jetbrains.kotlin.psi.JetTypeArgumentList
@@ -36,6 +38,7 @@ import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.idea.util.approximateFlexibleTypes
 import org.jetbrains.kotlin.idea.caches.resolve.findModuleDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.resolve.calls.CallResolver
 
 public class RemoveExplicitTypeArguments : JetSelfTargetingOffsetIndependentIntention<JetTypeArgumentList>(
         "remove.explicit.type.arguments", javaClass()) {
@@ -46,8 +49,6 @@ public class RemoveExplicitTypeArguments : JetSelfTargetingOffsetIndependentInte
 
         val context = callExpression.analyze()
         if (callExpression.getTypeArguments().isEmpty()) return false
-
-        val injector = InjectorForMacros(callExpression.getProject(), callExpression.findModuleDescriptor())
 
         val scope = context[BindingContext.RESOLUTION_SCOPE, callExpression]
         val originalCall = callExpression.getResolvedCall(context)
@@ -72,7 +73,8 @@ public class RemoveExplicitTypeArguments : JetSelfTargetingOffsetIndependentInte
             TypeUtils.NO_EXPECTED_TYPE
         }
         val dataFlow = context.getDataFlowInfo(callExpression)
-        val resolutionResults = injector.getCallResolver().resolveFunctionCall(
+        val container = createContainerForMacros(callExpression.getProject(), callExpression.findModuleDescriptor())
+        val resolutionResults = container.get<CallResolver>().resolveFunctionCall(
                 BindingTraceContext(), scope, untypedCall, jType, dataFlow, false)
         assert (resolutionResults.isSingleResult()) { "Removing type arguments changed resolve for: " +
                 "${callExpression.getTextWithLocation()} to ${resolutionResults.getResultCode()}" }

@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.kotlin.idea.JetLanguage
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 
 public abstract class KotlinTemplateContextType protected (NonNls id: String,
                                                            presentableName: String,
@@ -37,17 +38,15 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
 
     override fun isInContext(file: PsiFile, offset: Int): Boolean {
         if (PsiUtilCore.getLanguageAtOffset(file, offset).isKindOf(JetLanguage.INSTANCE)) {
-            var element = file.findElementAt(offset)
-            if (element == null) {
-                element = file.findElementAt(offset - 1)
-            }
+            val element = file.findElementAt(offset) ?: file.findElementAt(offset - 1)
             if (element is PsiWhiteSpace) {
                 return false
             }
-            else if (PsiTreeUtil.getParentOfType<PsiComment>(element, javaClass<PsiComment>(), false) != null) {
+            else if (element?.getParentOfType<PsiComment>(false) != null) {
                 return isCommentInContext()
             }
-            else if (PsiTreeUtil.getParentOfType<JetPackageDirective>(element, javaClass<JetPackageDirective>()) != null || PsiTreeUtil.getParentOfType<JetImportDirective>(element, javaClass<JetImportDirective>()) != null) {
+            else if (element?.getParentOfType<JetPackageDirective>(true) != null ||
+                     element?.getParentOfType<JetImportDirective>(true) != null) {
                 return false
             }
             else if (element is LeafPsiElement) {
@@ -55,8 +54,8 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
                 if (elementType == JetTokens.IDENTIFIER) {
                     if (element.getParent() is JetReferenceExpression) {
                         val parentOfParent = element.getParent().getParent()
-                        val qualifiedExpression = PsiTreeUtil.getParentOfType<JetQualifiedExpression>(element, javaClass<JetQualifiedExpression>())
-                        if (qualifiedExpression != null && qualifiedExpression.getSelectorExpression() == parentOfParent) {
+                        val qualifiedExpression = element.getParentOfType<JetQualifiedExpression>(true)
+                        if (qualifiedExpression?.getSelectorExpression() == parentOfParent) {
                             return false
                         }
                     }
@@ -71,21 +70,14 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
         return false
     }
 
-    protected open fun isCommentInContext(): Boolean {
-        return false
-    }
+    protected open fun isCommentInContext(): Boolean = false
 
     protected abstract fun isInContext(element: PsiElement): Boolean
 
     public class Generic : KotlinTemplateContextType("KOTLIN", JetLanguage.NAME, javaClass<EverywhereContextType>()) {
 
-        override fun isInContext(element: PsiElement): Boolean {
-            return true
-        }
-
-        override fun isCommentInContext(): Boolean {
-            return true
-        }
+        override fun isInContext(element: PsiElement): Boolean = true
+        override fun isCommentInContext(): Boolean = true
     }
 
     public class TopLevel : KotlinTemplateContextType("KOTLIN_TOPLEVEL", "Top-level", javaClass<Generic>()) {
@@ -135,11 +127,9 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
     public class Statement : KotlinTemplateContextType("KOTLIN_STATEMENT", "Statement", javaClass<Generic>()) {
 
         override fun isInContext(element: PsiElement): Boolean {
-            val parentStatement = PsiTreeUtil.findFirstParent(element, object : Condition<PsiElement> {
-                override fun value(element: PsiElement): Boolean {
-                    return element is JetExpression && (element.getParent() is JetBlockExpression)
-                }
-            })
+            val parentStatement = PsiTreeUtil.findFirstParent(element) {
+                it is JetExpression && it.getParent() is JetBlockExpression
+            }
 
             if (parentStatement == null) return false
 
@@ -160,12 +150,7 @@ public abstract class KotlinTemplateContextType protected (NonNls id: String,
 
     public class Comment : KotlinTemplateContextType("KOTLIN_COMMENT", "Comment", javaClass<Generic>()) {
 
-        override fun isInContext(element: PsiElement): Boolean {
-            return false
-        }
-
-        override fun isCommentInContext(): Boolean {
-            return true
-        }
+        override fun isInContext(element: PsiElement): Boolean = false
+        override fun isCommentInContext(): Boolean = true
     }
 }

@@ -25,7 +25,8 @@ public class ComponentStorage(val myId: String) : ValueResolver {
     var state = ComponentStorageState.Initial
     val registry = ComponentRegistry()
     val descriptors = HashSet<ComponentDescriptor>()
-    val dependencies = Multimap<ComponentDescriptor, Class<*>>();
+    val dependencies = Multimap<ComponentDescriptor, Class<*>>()
+    val composingDescriptors = HashSet<ComponentDescriptor>()
 
     override fun resolve(request: Class<*>, context: ValueResolveContext): ValueDescriptor? {
         if (state == ComponentStorageState.Initial)
@@ -84,15 +85,30 @@ public class ComponentStorage(val myId: String) : ValueResolver {
     }
 
     private fun composeDescriptors(context: ComponentResolveContext, descriptors: Collection<ComponentDescriptor>) {
+        if (descriptors.isEmpty()) return
+
+        composingDescriptors.addAll(descriptors)
         registry.addAll(descriptors);
 
         // instantiate
-        for (descriptor in descriptors)
+        for (descriptor in descriptors) {
+            if (descriptor is SingletonTypeComponentDescriptor) {
+                val dependencies = descriptor.dependencies(context).toHashSet()
+                dependencies.removeAll(this.composingDescriptors)
+                composeDescriptors(context, dependencies)
+            }
+
             descriptor.getValue()
+        }
 
         // inject properties
         for (descriptor in descriptors) {
-            descriptor.injectProperties(context)
+            descriptor.injectProperties(context) {
+                component ->
+                if (component !in composingDescriptors) {
+                    composeDescriptors(context, listOf(component))
+                }
+            }
         }
     }
 

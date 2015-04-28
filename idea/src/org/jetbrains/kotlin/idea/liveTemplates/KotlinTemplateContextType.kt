@@ -14,191 +14,158 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.liveTemplates;
+package org.jetbrains.kotlin.idea.liveTemplates
 
-import com.intellij.codeInsight.template.EverywhereContextType;
-import com.intellij.codeInsight.template.TemplateContextType;
-import com.intellij.openapi.util.Condition;
-import com.intellij.psi.PsiComment;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiWhiteSpace;
-import com.intellij.psi.impl.source.tree.LeafPsiElement;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.psi.util.PsiUtilBase;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.idea.JetLanguage;
-import org.jetbrains.kotlin.lexer.JetTokens;
-import org.jetbrains.kotlin.psi.*;
+import com.intellij.codeInsight.template.EverywhereContextType
+import com.intellij.codeInsight.template.TemplateContextType
+import com.intellij.openapi.util.Condition
+import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiWhiteSpace
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiUtilCore
+import org.jetbrains.annotations.NonNls
+import org.jetbrains.kotlin.idea.JetLanguage
+import org.jetbrains.kotlin.lexer.JetTokens
+import org.jetbrains.kotlin.psi.*
 
-public abstract class JetTemplateContextType extends TemplateContextType {
-    protected JetTemplateContextType(@NotNull @NonNls String id, @NotNull String presentableName, @Nullable java.lang.Class<? extends TemplateContextType> baseContextType) {
-        super(id, presentableName, baseContextType);
-    }
+public abstract class KotlinTemplateContextType protected (NonNls id: String,
+                                                           presentableName: String,
+                                                           baseContextType: java.lang.Class<out TemplateContextType>?) : TemplateContextType(id, presentableName, baseContextType) {
 
-    @Override
-    public boolean isInContext(@NotNull PsiFile file, int offset) {
-        if (PsiUtilBase.getLanguageAtOffset(file, offset).isKindOf(JetLanguage.INSTANCE)) {
-            PsiElement element = file.findElementAt(offset);
+    override fun isInContext(file: PsiFile, offset: Int): Boolean {
+        if (PsiUtilCore.getLanguageAtOffset(file, offset).isKindOf(JetLanguage.INSTANCE)) {
+            var element = file.findElementAt(offset)
             if (element == null) {
-                element = file.findElementAt(offset - 1);
+                element = file.findElementAt(offset - 1)
             }
-            if (element instanceof PsiWhiteSpace) {
-                return false;
+            if (element is PsiWhiteSpace) {
+                return false
             }
-            else if (PsiTreeUtil.getParentOfType(element, PsiComment.class, false) != null) {
-                return isCommentInContext();
+            else if (PsiTreeUtil.getParentOfType<PsiComment>(element, javaClass<PsiComment>(), false) != null) {
+                return isCommentInContext()
             }
-            else if (PsiTreeUtil.getParentOfType(element, JetPackageDirective.class) != null
-                    || PsiTreeUtil.getParentOfType(element, JetImportDirective.class) != null) {
-                return false;
+            else if (PsiTreeUtil.getParentOfType<JetPackageDirective>(element, javaClass<JetPackageDirective>()) != null || PsiTreeUtil.getParentOfType<JetImportDirective>(element, javaClass<JetImportDirective>()) != null) {
+                return false
             }
-            else if (element instanceof LeafPsiElement) {
-                IElementType elementType = ((LeafPsiElement) element).getElementType();
+            else if (element is LeafPsiElement) {
+                val elementType = element.getElementType()
                 if (elementType == JetTokens.IDENTIFIER) {
-                    if (element.getParent() instanceof JetReferenceExpression) {
-                        PsiElement parentOfParent = element.getParent().getParent();
-                        JetQualifiedExpression qualifiedExpression = PsiTreeUtil.getParentOfType(element, JetQualifiedExpression.class);
+                    if (element.getParent() is JetReferenceExpression) {
+                        val parentOfParent = element.getParent().getParent()
+                        val qualifiedExpression = PsiTreeUtil.getParentOfType<JetQualifiedExpression>(element, javaClass<JetQualifiedExpression>())
                         if (qualifiedExpression != null && qualifiedExpression.getSelectorExpression() == parentOfParent) {
-                            return false;
+                            return false
                         }
                     }
                     else {
-                        return false;
+                        return false
                     }
                 }
             }
-            return element != null && isInContext(element);
+            return element != null && isInContext(element)
         }
 
-        return false;
+        return false
     }
 
-    protected boolean isCommentInContext() {
-        return false;
+    protected open fun isCommentInContext(): Boolean {
+        return false
     }
 
-    protected abstract boolean isInContext(@NotNull PsiElement element);
+    protected abstract fun isInContext(element: PsiElement): Boolean
 
-    public static class Generic extends JetTemplateContextType {
-        public Generic() {
-            super("KOTLIN", JetLanguage.NAME, EverywhereContextType.class);
+    public class Generic : KotlinTemplateContextType("KOTLIN", JetLanguage.NAME, javaClass<EverywhereContextType>()) {
+
+        override fun isInContext(element: PsiElement): Boolean {
+            return true
         }
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            return true;
-        }
-
-        @Override
-        protected boolean isCommentInContext() {
-            return true;
+        override fun isCommentInContext(): Boolean {
+            return true
         }
     }
 
-    public static class TopLevel extends JetTemplateContextType {
-        public TopLevel() {
-            super("KOTLIN_TOPLEVEL", "Top-level", Generic.class);
-        }
+    public class TopLevel : KotlinTemplateContextType("KOTLIN_TOPLEVEL", "Top-level", javaClass<Generic>()) {
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            PsiElement e = element;
+        override fun isInContext(element: PsiElement): Boolean {
+            var e: PsiElement? = element
             while (e != null) {
-                if (e instanceof JetModifierList) {
+                if (e is JetModifierList) {
                     // skip property/function/class or object which is owner of modifier list
-                    e = e.getParent();
+                    e = e.getParent()
                     if (e != null) {
-                        e = e.getParent();
+                        e = e.getParent()
                     }
-                    continue;
+                    continue
                 }
-                if (e instanceof JetProperty || e instanceof JetNamedFunction
-                    || e instanceof JetClassOrObject) {
-                    return false;
+                if (e is JetProperty || e is JetNamedFunction || e is JetClassOrObject) {
+                    return false
                 }
-                e = e.getParent();
+                e = e.getParent()
             }
-            return true;
+            return true
         }
     }
 
-    public static class Class extends JetTemplateContextType {
-        public Class() {
-            super("KOTLIN_CLASS", "Class", Generic.class);
-        }
+    public class Class : KotlinTemplateContextType("KOTLIN_CLASS", "Class", javaClass<Generic>()) {
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            PsiElement e = element;
-            while (e != null && !(e instanceof JetClassOrObject)) {
-                if (e instanceof JetModifierList) {
+        override fun isInContext(element: PsiElement): Boolean {
+            var e: PsiElement? = element
+            while (e != null && e !is JetClassOrObject) {
+                if (e is JetModifierList) {
                     // skip property/function/class or object which is owner of modifier list
-                    e = e.getParent();
+                    e = e.getParent()
                     if (e != null) {
-                        e = e.getParent();
+                        e = e.getParent()
                     }
-                    continue;
+                    continue
                 }
-                if (e instanceof JetProperty || e instanceof JetNamedFunction) {
-                    return false;
+                if (e is JetProperty || e is JetNamedFunction) {
+                    return false
                 }
-                e = e.getParent();
+                e = e.getParent()
             }
-            return e != null;
+            return e != null
         }
     }
 
-    public static class Statement extends JetTemplateContextType {
-        public Statement() {
-            super("KOTLIN_STATEMENT", "Statement", Generic.class);
-        }
+    public class Statement : KotlinTemplateContextType("KOTLIN_STATEMENT", "Statement", javaClass<Generic>()) {
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            PsiElement parentStatement = PsiTreeUtil.findFirstParent(element, new Condition<PsiElement>() {
-                @Override
-                public boolean value(PsiElement element) {
-                    return element instanceof JetExpression && (element.getParent() instanceof JetBlockExpression);
+        override fun isInContext(element: PsiElement): Boolean {
+            val parentStatement = PsiTreeUtil.findFirstParent(element, object : Condition<PsiElement> {
+                override fun value(element: PsiElement): Boolean {
+                    return element is JetExpression && (element.getParent() is JetBlockExpression)
                 }
-            });
+            })
 
-            if (parentStatement == null) return false;
+            if (parentStatement == null) return false
 
             // We are in the leftmost position in parentStatement
-            return element.getTextOffset() == parentStatement.getTextOffset();
+            return element.getTextOffset() == parentStatement.getTextOffset()
         }
     }
 
-    public static class Expression extends JetTemplateContextType {
-        public Expression() {
-            super("KOTLIN_EXPRESSION", "Expression", Generic.class);
-        }
+    public class Expression : KotlinTemplateContextType("KOTLIN_EXPRESSION", "Expression", javaClass<Generic>()) {
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            return element.getParent() instanceof JetExpression && !(element.getParent() instanceof JetConstantExpression) &&
-                   !(element.getParent().getParent() instanceof JetDotQualifiedExpression)
-                   && !(element.getParent() instanceof JetParameter);
+        override fun isInContext(element: PsiElement): Boolean {
+            return element.getParent() is JetExpression &&
+                   element.getParent() !is JetConstantExpression &&
+                   element.getParent().getParent() !is JetDotQualifiedExpression &&
+                   element.getParent() !is JetParameter
         }
     }
 
-    public static class Comment extends JetTemplateContextType {
-        public Comment() {
-            super("KOTLIN_COMMENT", "Comment", Generic.class);
+    public class Comment : KotlinTemplateContextType("KOTLIN_COMMENT", "Comment", javaClass<Generic>()) {
+
+        override fun isInContext(element: PsiElement): Boolean {
+            return false
         }
 
-        @Override
-        protected boolean isInContext(@NotNull PsiElement element) {
-            return false;
-        }
-
-        @Override
-        protected boolean isCommentInContext() {
-            return true;
+        override fun isCommentInContext(): Boolean {
+            return true
         }
     }
 }

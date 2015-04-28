@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.idea.test.JetLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
 
 import java.io.File
-import org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType
+import org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType
 import com.intellij.codeInsight.template.TemplateContextType
 import com.intellij.testFramework.UsefulTestCase
 
@@ -30,18 +30,18 @@ public class LiveTemplatesContextTest : JetLightCodeInsightFixtureTestCase() {
 
     public fun testInDocComment() {
         myFixture.configureByFile(getTestName(false) + ".kt")
-        assertInContexts(javaClass<JetTemplateContextType.Generic>(), javaClass<JetTemplateContextType.Comment>())
+        assertInContexts(javaClass<KotlinTemplateContextType.Generic>(), javaClass<KotlinTemplateContextType.Comment>())
     }
 
     public fun testTopLevel() {
         myFixture.configureByFile(getTestName(false) + ".kt")
-        assertInContexts(javaClass<JetTemplateContextType.Generic>(),
-                         javaClass<JetTemplateContextType.TopLevel>(),
-                         javaClass<JetTemplateContextType.Expression>())
+        assertInContexts(javaClass<KotlinTemplateContextType.Generic>(),
+                         javaClass<KotlinTemplateContextType.TopLevel>(),
+                         javaClass<KotlinTemplateContextType.Expression>())
     }
 
-    private fun assertInContexts(vararg expectedContexts: Class<out JetTemplateContextType>) {
-        val allContexts = TemplateContextType.EP_NAME.getExtensions().filter { it is JetTemplateContextType }
+    private fun assertInContexts(vararg expectedContexts: Class<out KotlinTemplateContextType>) {
+        val allContexts = TemplateContextType.EP_NAME.getExtensions().filter { it is KotlinTemplateContextType }
         val enabledContexts = allContexts.filter { it.isInContext(myFixture.getFile(), myFixture.getCaretOffset()) }.map { it.javaClass }
         UsefulTestCase.assertSameElements(enabledContexts, *expectedContexts)
     }

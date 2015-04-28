@@ -319,12 +319,12 @@
 
     <spellchecker.support implementationClass="org.jetbrains.kotlin.idea.KotlinSpellcheckingStrategy" language="jet"/>
 
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$Generic"/>
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$TopLevel"/>
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$Statement"/>
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$Class"/>
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$Expression"/>
-    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.JetTemplateContextType$Comment"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Generic"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$TopLevel"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Statement"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Class"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Expression"/>
+    <liveTemplateContext implementation="org.jetbrains.kotlin.idea.liveTemplates.KotlinTemplateContextType$Comment"/>
     <defaultLiveTemplatesProvider implementation="org.jetbrains.kotlin.idea.liveTemplates.JetLiveTemplatesProvider"/>
     <liveTemplateMacro implementation="org.jetbrains.kotlin.idea.liveTemplates.macro.JetAnyVariableMacro"/>
     <liveTemplateMacro implementation="org.jetbrains.kotlin.idea.liveTemplates.macro.JetFunctionParametersMacro"/>

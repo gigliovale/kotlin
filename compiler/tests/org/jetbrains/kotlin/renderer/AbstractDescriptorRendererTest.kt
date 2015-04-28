@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.resolve.lazy.KotlinTestWithEnvironment
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.kotlin.frontend.di.createLazyResolveSession
 import org.jetbrains.kotlin.types.DynamicTypesSettings
 
 public abstract class AbstractDescriptorRendererTest : KotlinTestWithEnvironment() {
@@ -51,11 +52,12 @@ public abstract class AbstractDescriptorRendererTest : KotlinTestWithEnvironment
         val lazyModule = TopDownAnalyzerFacadeForJVM.createSealedJavaModule()
         val globalContext = GlobalContext()
 
-        val resolveSession = InjectorForLazyResolve(
+        val resolveSession = createLazyResolveSession(
                 getProject(), globalContext, lazyModule,
                 FileBasedDeclarationProviderFactory(globalContext.storageManager, listOf(psiFile)),
                 CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(),
-                KotlinJvmCheckerProvider, DynamicTypesSettings()).getResolveSession()
+                KotlinJvmCheckerProvider, DynamicTypesSettings()
+        )
 
         lazyModule.initialize(resolveSession.getPackageFragmentProvider())
 

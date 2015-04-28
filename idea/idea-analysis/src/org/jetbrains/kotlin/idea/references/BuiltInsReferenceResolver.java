@@ -35,18 +35,20 @@ import kotlin.KotlinPackage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
+import org.jetbrains.container.StorageComponentContainer;
 import org.jetbrains.kotlin.asJava.LightClassUtil;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.context.ContextPackage;
 import org.jetbrains.kotlin.context.GlobalContextImpl;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForLazyResolve;
+import org.jetbrains.kotlin.frontend.di.DiPackage;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap;
 import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
 import org.jetbrains.kotlin.resolve.*;
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.types.DynamicTypesSettings;
@@ -106,16 +108,16 @@ public class BuiltInsReferenceResolver extends AbstractProjectComponent {
                 FileBasedDeclarationProviderFactory declarationFactory =
                         new FileBasedDeclarationProviderFactory(globalContext.getStorageManager(), jetBuiltInsFiles);
 
-                InjectorForLazyResolve injectorForLazyResolve =
-                        new InjectorForLazyResolve(myProject, globalContext, module, declarationFactory, new BindingTraceContext(),
-                                                   AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
-                                                   new DynamicTypesSettings());
+                ResolveSession resolveSession = DiPackage.createLazyResolveSession(
+                        myProject, globalContext, module, declarationFactory,
+                        new BindingTraceContext(), AdditionalCheckerProvider.DefaultProvider.INSTANCE$, new DynamicTypesSettings()
+                );
 
-                module.initialize(injectorForLazyResolve.getResolveSession().getPackageFragmentProvider());
+                module.initialize(resolveSession.getPackageFragmentProvider());
 
                 if (!ApplicationManager.getApplication().isUnitTestMode()) {
                     // Use lazy initialization in tests
-                    injectorForLazyResolve.getResolveSession().forceResolveAll();
+                    resolveSession.forceResolveAll();
                 }
 
                 List<PackageFragmentDescriptor> fragments =

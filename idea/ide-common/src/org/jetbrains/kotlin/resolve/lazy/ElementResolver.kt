@@ -26,6 +26,8 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.di.InjectorForBodyResolve
+import org.jetbrains.kotlin.di.get
+import org.jetbrains.kotlin.frontend.di.createContainerForBodyResolve
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -380,9 +382,9 @@ public abstract class ElementResolver protected(
         val analysisParameters = createParameters(resolveSession)
         val moduleDescriptor = resolveSession.getModuleDescriptor()
         val additionalCheckerProvider = getAdditionalCheckerProvider(file)
-        val bodyResolve = InjectorForBodyResolve(project, analysisParameters, trace,
-                                                 moduleDescriptor, additionalCheckerProvider, statementFilter)
-        return bodyResolve.getBodyResolver()
+        val bodyResolve = createContainerForBodyResolve(project, analysisParameters, trace,
+                                                        moduleDescriptor, additionalCheckerProvider, statementFilter)
+        return bodyResolve.get<BodyResolver>()
     }
 
     private fun createParameters(resolveSession: ResolveSession): TopDownAnalysisParameters {

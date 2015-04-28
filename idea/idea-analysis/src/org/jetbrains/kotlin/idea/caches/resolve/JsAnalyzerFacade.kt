@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.di.InjectorForLazyResolve
+import org.jetbrains.kotlin.frontend.di.createLazyResolveSession
 import org.jetbrains.kotlin.idea.framework.JsHeaderLibraryDetectionUtil
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS
 import org.jetbrains.kotlin.js.resolve.KotlinJsCheckerProvider
@@ -56,9 +57,10 @@ public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformAna
                 project, globalContext.storageManager, syntheticFiles, moduleContentScope
         )
 
-        val injector = InjectorForLazyResolve(project, globalContext, moduleDescriptor, declarationProviderFactory, BindingTraceContext(),
-                                              KotlinJsCheckerProvider, DynamicTypesAllowed())
-        val resolveSession = injector.getResolveSession()!!
+        val resolveSession = createLazyResolveSession(
+                project, globalContext, moduleDescriptor, declarationProviderFactory, BindingTraceContext(),
+                KotlinJsCheckerProvider, DynamicTypesAllowed()
+        )
         var packageFragmentProvider = resolveSession.getPackageFragmentProvider()
 
         if (moduleInfo is LibraryInfo) {

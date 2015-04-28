@@ -4,7 +4,7 @@ import java.io.Closeable
 
 abstract class SingletonComponentDescriptor(container: ComponentContainer, val klass: Class<*>) : SingletonDescriptor(container) {
     public override fun getRegistrations(): Iterable<Class<*>> {
-        return (klass.getInterfaces() + klass).toList()
+        return getRegistrationsForClass(klass)
     }
 }
 
@@ -26,6 +26,8 @@ public class SingletonTypeComponentDescriptor(container: ComponentContainer, kla
         state = ComponentState.Initialized
         return instance
     }
+
+    fun dependencies(context: ValueResolveContext): Collection<ComponentDescriptor> = klass.bindToConstructor(context).argumentDescriptors.filterIsInstance<ComponentDescriptor>()
 }
 
 public class TransientTypeComponentDescriptor(container: ComponentContainer, val klass: Class<*>) : TransientDescriptor(container) {

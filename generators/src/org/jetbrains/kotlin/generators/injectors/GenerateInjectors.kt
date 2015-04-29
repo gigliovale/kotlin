@@ -71,7 +71,6 @@ public fun createInjectorGenerators(): List<DependencyInjectorGenerator> =
                 generatorForRuntimeDescriptorLoader(),
                 generatorForLazyResolveWithJava(),
                 generatorForTopDownAnalyzerForJs(),
-                generatorForTests(),
                 generatorForReplWithJava()
         )
 
@@ -148,23 +147,6 @@ private fun generatorForReplWithJava() =
         generator("compiler/frontend.java/src", DI_DEFAULT_PACKAGE, "InjectorForReplWithJava") {
             commonForJavaTopDownAnalyzer()
             parameter<ScopeProvider.AdditionalFileScopeProvider>()
-        }
-
-private fun generatorForTests() =
-        generator("compiler/tests", DI_DEFAULT_PACKAGE, "InjectorForTests") {
-            parameter<Project>()
-            parameter<ModuleDescriptor>(useAsContext = true)
-
-            publicField<DescriptorResolver>()
-            publicField<FunctionDescriptorResolver>()
-            publicField<TypeResolver>()
-            publicField<FakeCallResolver>()
-            publicField<KotlinJvmCheckerProvider>(name = "additionalCheckerProvider", useAsContext = true)
-            publicField<ExpressionTypingServices>()
-            publicField<QualifiedExpressionResolver>()
-
-            field<GlobalContext>(init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"),
-                  useAsContext = true)
         }
 
 private fun DependencyInjectorGenerator.commonForResolveSessionBased() {

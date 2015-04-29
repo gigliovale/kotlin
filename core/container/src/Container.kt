@@ -11,11 +11,13 @@ public trait ComponentContainer {
 }
 
 object DynamicComponentDescriptor : ComponentDescriptor {
+    override fun getDependencies(context: ValueResolveContext): Collection<Class<*>> = throw UnsupportedOperationException()
     override fun getRegistrations(): Iterable<Class<*>> = throw UnsupportedOperationException()
     override fun getValue(): Any = throw UnsupportedOperationException()
 }
 
 object UnidentifiedComponentDescriptor : ComponentDescriptor {
+    override fun getDependencies(context: ValueResolveContext): Collection<Class<*>> = throw UnsupportedOperationException()
     override fun getRegistrations(): Iterable<Class<*>> = throw UnsupportedOperationException()
     override fun getValue(): Any = throw UnsupportedOperationException()
 }
@@ -80,7 +82,7 @@ public fun StorageComponentContainer.registerTransient(klass: Class<*>): Storage
 }
 
 public fun StorageComponentContainer.registerInstance(instance: Any): StorageComponentContainer {
-    return registerDescriptors(listOf(ObjectComponentDescriptor(instance)))
+    return registerDescriptors(listOf(InstanceComponentDescriptor(instance)))
 }
 
 public inline fun <reified T> StorageComponentContainer.register(lifetime: ComponentLifetime = ComponentLifetime.Singleton): StorageComponentContainer =

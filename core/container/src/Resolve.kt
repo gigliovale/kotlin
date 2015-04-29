@@ -5,18 +5,15 @@ import java.lang.reflect.Method
 import java.lang.reflect.Type
 import java.util.ArrayList
 
-public trait ValueResolver
-{
+public trait ValueResolver {
     fun resolve(request: Class<*>, context: ValueResolveContext): ValueDescriptor?
 }
 
-public trait ValueResolveContext
-{
+public trait ValueResolveContext {
     fun resolve(registration: Class<*>): ValueDescriptor?
 }
 
-internal class ComponentResolveContext(val container: StorageComponentContainer, val requestingDescriptor: ValueDescriptor) : ValueResolveContext
-{
+internal class ComponentResolveContext(val container: StorageComponentContainer, val requestingDescriptor: ValueDescriptor) : ValueResolveContext {
     override fun resolve(registration: Class<*>): ValueDescriptor? = container.resolve(registration, this)
     public override fun toString(): String = "for $requestingDescriptor in $container"
 }
@@ -30,8 +27,8 @@ public class ConstructorBinding(val constructor: Constructor<*>, val argumentDes
     fun createInstance(): Any = constructor.createInstance(argumentDescriptors)
 }
 
-public class MethodBinding(val instance : Any, val method: Method, val argumentDescriptors: List<ValueDescriptor>) {
-    fun invoke() {
+public class MethodBinding(val method: Method, val argumentDescriptors: List<ValueDescriptor>) {
+    fun invoke(instance: Any) {
         val arguments = bindArguments(argumentDescriptors).toTypedArray()
         method.invoke(instance, *arguments)
     }
@@ -41,71 +38,56 @@ fun Constructor<*>.createInstance(argumentDescriptors: List<ValueDescriptor>) = 
 
 public fun bindArguments(argumentDescriptors: List<ValueDescriptor>): List<Any> = argumentDescriptors.map { it.getValue() }
 
-fun Class<*>.bindToConstructor(context: ValueResolveContext): ConstructorBinding
-{
-    val candidates = getConstructors()
-    val resolved = ArrayList<ConstructorBinding>()
-    val rejected = ArrayList<Pair<Constructor<*>, List<Type>>>()
-    for (candidate in candidates)
-    {
-        val parameters = candidate.getParameterTypes()!!
-        val arguments = ArrayList<ValueDescriptor>(parameters.size())
-        var unsatisfied: MutableList<Type>? = null
+fun Class<*>.bindToConstructor(context: ValueResolveContext): ConstructorBinding {
+    val candidate = getConstructors().single()
+    val parameters = candidate.getParameterTypes()!!
+    val arguments = ArrayList<ValueDescriptor>(parameters.size())
+    var unsatisfied: MutableList<Type>? = null
 
-        for (parameter in parameters)
-        {
-            val descriptor = context.resolve(parameter)
-            if (descriptor == null)
-            {
-                if (unsatisfied == null)
-                    unsatisfied = ArrayList<Type>()
-                unsatisfied.add(parameter)
-            } else {
-                arguments.add(descriptor)
-            }
+    for (parameter in parameters) {
+        val descriptor = context.resolve(parameter)
+        if (descriptor == null) {
+            if (unsatisfied == null)
+                unsatisfied = ArrayList<Type>()
+            unsatisfied.add(parameter)
         }
-
-        if (unsatisfied == null) // constructor is satisfied with arguments
-            resolved.add(ConstructorBinding(candidate, arguments))
-        else
-            rejected.add(candidate to unsatisfied)
+        else {
+            arguments.add(descriptor)
+        }
     }
 
-    if (resolved.size() != 1) {
-        if (rejected.size() > 0)
-            throw UnresolvedConstructorException("Unsatisfied constructor for type `$this` with these types:\n  ${rejected[0].second}")
+    if (unsatisfied == null) // constructor is satisfied with arguments
+        return ConstructorBinding(candidate, arguments)
 
-        throw UnresolvedConstructorException("Cannot find suitable constructor for type `$this`")
-    }
+    if (unsatisfied.size() > 0)
+        throw UnresolvedConstructorException("Dependencies for type `$this` cannot be satisfied:\n  ${unsatisfied}")
 
-    return resolved[0]
+    throw UnresolvedConstructorException("Cannot find suitable constructor for type `$this`")
 }
 
-fun Method.bindToMethod(instance : Any, context: ValueResolveContext): MethodBinding
-{
+fun Method.bindToMethod(context: ValueResolveContext): MethodBinding {
     val resolved = ArrayList<MethodBinding>()
     val rejected = ArrayList<Pair<Method, List<Type>>>()
-        val parameters = getParameterTypes()!!
-        val arguments = ArrayList<ValueDescriptor>(parameters.size())
-        var unsatisfied: MutableList<Type>? = null
+    val parameters = getParameterTypes()!!
+    val arguments = ArrayList<ValueDescriptor>(parameters.size())
+    var unsatisfied: MutableList<Type>? = null
 
-        for (parameter in parameters)
-        {
-            val descriptor = context.resolve(parameter)
-            if (descriptor == null)
-            {
-                if (unsatisfied == null)
-                    unsatisfied = ArrayList<Type>()
-                unsatisfied.add(parameter)
-            } else {
-                arguments.add(descriptor)
-            }
+    for (parameter in parameters) {
+        val descriptor = context.resolve(parameter)
+        if (descriptor == null) {
+            if (unsatisfied == null)
+                unsatisfied = ArrayList<Type>()
+            unsatisfied.add(parameter)
         }
+        else {
+            arguments.add(descriptor)
+        }
+    }
 
-        if (unsatisfied == null) // constructor is satisfied with arguments
-            resolved.add(MethodBinding(instance, this, arguments))
-        else
-            rejected.add(this to unsatisfied)
+    if (unsatisfied == null) // constructor is satisfied with arguments
+        resolved.add(MethodBinding(this, arguments))
+    else
+        rejected.add(this to unsatisfied)
 
     if (resolved.size() != 1) {
         if (rejected.size() > 0)

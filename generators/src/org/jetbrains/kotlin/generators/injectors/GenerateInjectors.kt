@@ -45,30 +45,8 @@ public fun main(args: Array<String>) {
 private val DI_DEFAULT_PACKAGE = "org.jetbrains.kotlin.di"
 
 public fun createInjectorGenerators(): List<DependencyInjectorGenerator> =
-        listOf(
-                generatorForTopDownAnalyzerForJs()
-        )
+        listOf()
 
-private fun generatorForTopDownAnalyzerForJs() =
-        generator("js/js.frontend/src", DI_DEFAULT_PACKAGE, "InjectorForTopDownAnalyzerForJs") {
-            commonForResolveSessionBased()
-
-            publicField<LazyTopDownAnalyzerForTopLevel>()
-
-            field<KotlinJsCheckerProvider>(useAsContext = true)
-            field<DynamicTypesAllowed>()
-        }
-
-private fun DependencyInjectorGenerator.commonForResolveSessionBased() {
-    parameter<Project>()
-    parameter<GlobalContext>(useAsContext = true)
-    parameter<BindingTrace>()
-    publicParameter<ModuleDescriptorImpl>(name = "module", useAsContext = true)
-    parameter<DeclarationProviderFactory>()
-
-    publicField<ResolveSession>()
-    field<ScopeProvider>()
-}
 
 private fun generator(
         targetSourceRoot: String,

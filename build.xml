@@ -4,9 +4,9 @@
     <property file="resources/kotlinManifest.properties"/>
 
     <!-- Set to false to disable proguard run on kotlin-compiler.jar. Speeds up the build -->
-    <property name="shrink" value="true"/>
+    <property name="shrink" value="false"/>
     <!-- Set to false to disable compiler's javadoc generation. Speeds up the build -->
-    <property name="generate.javadoc" value="true"/>
+    <property name="generate.javadoc" value="false"/>
 
     <property name="max.heap.size.for.forked.jvm" value="1024m"/>
 
@@ -805,6 +805,7 @@
                 <include name="core/descriptors.runtime/src"/>
                 <include name="core/deserialization/src"/>
                 <include name="core/util.runtime/src"/>
+                <include name="core/container/src"/>
             </src>
             <class-path>
                 <pathelement path="${output}/classes/builtins"/>

@@ -1,9 +1,6 @@
 package org.jetbrains.container
 
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.LinkedHashSet
+import java.util.*
 
 public fun topologicalSort<T>(items: Iterable<T>, dependencies: (T) -> Iterable<T>): List<T> {
     val itemsInProgress = HashSet<T>();
@@ -37,7 +34,7 @@ public fun topologicalSort<T>(items: Iterable<T>, dependencies: (T) -> Iterable<
 public class CycleInTopoSortException : Exception()
 
 class Multimap<K, V> : Iterable<Map.Entry<K, V>> {
-    val map = HashMap<K, MutableSet<V>>()
+    val map = LinkedHashMap<K, MutableSet<V>>()
 
     class Entry<K, V>(key: K, value: V) : Map.Entry<K, V> {
         private val _key = key

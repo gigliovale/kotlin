@@ -3,8 +3,7 @@ package org.jetbrains.container
 import java.io.Closeable
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.util.ArrayList
-import java.util.HashSet
+import java.util.*
 
 public enum class ComponentStorageState {
     Initial
@@ -26,9 +25,9 @@ public enum class ComponentLifetime {
 public class ComponentStorage(val myId: String) : ValueResolver {
     var state = ComponentStorageState.Initial
     val registry = ComponentRegistry()
-    val descriptors = HashSet<ComponentDescriptor>()
+    val descriptors = LinkedHashSet<ComponentDescriptor>()
     val dependencies = Multimap<ComponentDescriptor, Class<*>>()
-    val composingDescriptors = HashSet<ComponentDescriptor>()
+    val composingDescriptors = LinkedHashSet<ComponentDescriptor>()
 
     override fun resolve(request: Class<*>, context: ValueResolveContext): ValueDescriptor? {
         if (state == ComponentStorageState.Initial)
@@ -38,7 +37,7 @@ public class ComponentStorage(val myId: String) : ValueResolver {
         if (entry != null) {
             registerDependency(request, context)
 
-            val descriptor = entry.singleOrDefault()
+            val descriptor = entry.singleOrNull()
             return descriptor // we have single component or null (none or multiple)
         }
         return null
@@ -96,21 +95,14 @@ public class ComponentStorage(val myId: String) : ValueResolver {
         // TODO
 
         // inspect dependencies and register implicit
-        val implicits = hashSetOf<ComponentDescriptor>()
+        val implicits = LinkedHashSet<ComponentDescriptor>()
         for (descriptor in descriptors) {
             registerImplicits(context, descriptor, implicits, hashSetOf<Class<*>>())
-
         }
         registry.addAll(implicits)
 
-        // instantiate
-        val values = ArrayList<Any>()
-        for (descriptor in descriptors + implicits) {
-            values.add(descriptor.getValue())
-        }
-
-        // inject properties
-        for (value in values) {
+        // instantiate and inject properties
+        for (value in (descriptors + implicits).map { it.getValue() }) {
             injectProperties(value, context)
         }
     }
@@ -135,7 +127,7 @@ public class ComponentStorage(val myId: String) : ValueResolver {
 
     private fun injectProperties(instance: Any, context: ValueResolveContext) {
         val type = instance.javaClass
-        val injectors = HashSet<Method>()
+        val injectors = LinkedHashSet<Method>()
         for (member in type.getMethods()) {
             val annotations = member.getDeclaredAnnotations()
             for (annotation in annotations) {

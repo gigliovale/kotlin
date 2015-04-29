@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.di.*
 import org.jetbrains.kotlin.frontend.di.configureModule
 import org.jetbrains.kotlin.load.java.JavaClassFinderImpl
-import org.jetbrains.kotlin.load.java.lazy.ModuleClassResolver
 import org.jetbrains.kotlin.load.java.lazy.SingleModuleClassResolver
 import org.jetbrains.kotlin.load.kotlin.DeserializationComponentsForJava
 import org.jetbrains.kotlin.load.kotlin.KotlinJvmCheckerProvider
@@ -32,7 +31,6 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
 import org.jetbrains.kotlin.resolve.jvm.JavaClassFinderPostConstruct
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 

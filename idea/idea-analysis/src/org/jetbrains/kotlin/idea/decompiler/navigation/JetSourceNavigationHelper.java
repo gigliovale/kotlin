@@ -44,7 +44,6 @@ import org.jetbrains.kotlin.context.GlobalContextImpl;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForLazyResolve;
 import org.jetbrains.kotlin.frontend.di.DiPackage;
 import org.jetbrains.kotlin.idea.caches.resolve.JsProjectDetector;
 import org.jetbrains.kotlin.idea.stubindex.JetFullClassNameIndex;

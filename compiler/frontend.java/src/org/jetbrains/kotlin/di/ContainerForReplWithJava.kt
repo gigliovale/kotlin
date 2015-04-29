@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.frontend.di.configureModule
 import org.jetbrains.kotlin.load.java.JavaClassFinderImpl
 import org.jetbrains.kotlin.load.java.JavaFlexibleTypeCapabilitiesProvider
 import org.jetbrains.kotlin.load.java.components.*
-import org.jetbrains.kotlin.load.java.lazy.SingleModuleClassResolver
 import org.jetbrains.kotlin.load.java.sam.SamConversionResolverImpl
 import org.jetbrains.kotlin.load.java.structure.impl.JavaPropertyInitializerEvaluatorImpl
 import org.jetbrains.kotlin.load.kotlin.DeserializationComponentsForJava

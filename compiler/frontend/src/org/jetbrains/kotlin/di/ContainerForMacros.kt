@@ -24,9 +24,6 @@ import org.jetbrains.kotlin.di.createContainer
 import org.jetbrains.kotlin.di.useImpl
 import org.jetbrains.kotlin.di.useInstance
 import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider
-import org.jetbrains.kotlin.resolve.TypeResolver
-import org.jetbrains.kotlin.resolve.calls.CallResolver
-import org.jetbrains.kotlin.types.expressions.ExpressionTypingComponents
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 
 public fun createContainerForMacros(project: Project, module: ModuleDescriptor): StorageComponentContainer = createContainer("Macros") {

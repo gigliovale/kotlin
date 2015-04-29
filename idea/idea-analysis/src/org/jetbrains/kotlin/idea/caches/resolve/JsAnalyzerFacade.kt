@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.analyzer.*
 import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.kotlin.di.InjectorForLazyResolve
 import org.jetbrains.kotlin.frontend.di.createLazyResolveSession
 import org.jetbrains.kotlin.idea.framework.JsHeaderLibraryDetectionUtil
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS

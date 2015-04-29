@@ -23,7 +23,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.kotlin.checkers.AbstractJetPsiCheckerTest
-import org.jetbrains.kotlin.di.InjectorForTests
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFully
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.completion.test.AbstractJvmBasicCompletionTest
@@ -35,7 +34,6 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.resolve.JetModuleUtil
-import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver
 import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver.LookupMode
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.JetTestUtils

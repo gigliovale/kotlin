@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.descriptors.impl.TypeParameterDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.JetTypeProjection;
 import org.jetbrains.kotlin.psi.JetTypeReference;

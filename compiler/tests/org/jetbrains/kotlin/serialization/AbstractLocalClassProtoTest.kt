@@ -16,14 +16,12 @@
 
 package org.jetbrains.kotlin.serialization
 
-import com.google.common.base.Predicates
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 import org.jetbrains.kotlin.context.GlobalContext
-import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerForJvm
 import org.jetbrains.kotlin.frontend.java.di.createContainerForTopDownAnalyzerForJvm
 import org.jetbrains.kotlin.jvm.compiler.LoadDescriptorUtil
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames

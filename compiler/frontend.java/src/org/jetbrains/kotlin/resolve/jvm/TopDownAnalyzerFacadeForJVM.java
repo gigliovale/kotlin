@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.context.GlobalContext;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerForJvm;
 import org.jetbrains.kotlin.frontend.java.di.ContainerForTopDownAnalyzerForJvm;
 import org.jetbrains.kotlin.frontend.java.di.DiPackage;
 import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentProvider;

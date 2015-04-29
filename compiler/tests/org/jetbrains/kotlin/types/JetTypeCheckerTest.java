@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.ReceiverParameterDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.JetExpression;

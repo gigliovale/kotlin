@@ -21,7 +21,6 @@ import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;

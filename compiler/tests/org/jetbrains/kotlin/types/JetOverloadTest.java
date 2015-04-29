@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.psi.JetNamedFunction;
 import org.jetbrains.kotlin.resolve.FunctionDescriptorResolver;
 import org.jetbrains.kotlin.resolve.OverloadUtil;

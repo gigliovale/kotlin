@@ -19,13 +19,10 @@ package org.jetbrains.kotlin.resolve.lazy
 import com.google.common.base.Function
 import com.google.common.base.Functions
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.analyzer.computeTypeInContext
 import org.jetbrains.kotlin.cfg.JetFlowInformationProvider
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.kotlin.di.InjectorForBodyResolve
 import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.frontend.di.createContainerForBodyResolve
 import org.jetbrains.kotlin.name.FqName
@@ -34,6 +31,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor
@@ -41,11 +39,7 @@ import org.jetbrains.kotlin.resolve.scopes.ChainedScope
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.storage.ExceptionTracker
 import org.jetbrains.kotlin.storage.StorageManager
-import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.TypeUtils
-import java.util.Collections
-
-import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 public abstract class ElementResolver protected(

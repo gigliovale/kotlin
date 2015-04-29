@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.context.ContextPackage;
 import org.jetbrains.kotlin.context.GlobalContextImpl;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerForJs;
+import org.jetbrains.kotlin.frontend.js.di.DiPackage;
 import org.jetbrains.kotlin.js.analyzer.JsAnalysisResult;
 import org.jetbrains.kotlin.js.config.Config;
 import org.jetbrains.kotlin.name.Name;
@@ -83,17 +83,12 @@ public final class TopDownAnalyzerFacadeForJS {
 
         Collection<JetFile> allFiles = Config.withJsLibAdded(files, config);
 
-        InjectorForTopDownAnalyzerForJs injector = new InjectorForTopDownAnalyzerForJs(
+        LazyTopDownAnalyzerForTopLevel analyzer = DiPackage.createTopDownAnalyzerForJs(
                 project, topDownAnalysisParameters, trace, module,
                 new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), allFiles));
-        try {
-            injector.getLazyTopDownAnalyzerForTopLevel().analyzeFiles(topDownAnalysisParameters, files,
-                                                           Collections.<PackageFragmentProvider>emptyList());
-            return JsAnalysisResult.success(trace, module);
-        }
-        finally {
-            injector.destroy();
-        }
+        analyzer.analyzeFiles(topDownAnalysisParameters, files,
+                              Collections.<PackageFragmentProvider>emptyList());
+        return JsAnalysisResult.success(trace, module);
     }
 
     public static void checkForErrors(@NotNull Collection<JetFile> allFiles, @NotNull BindingContext bindingContext) {

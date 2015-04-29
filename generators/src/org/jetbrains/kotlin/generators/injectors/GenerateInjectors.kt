@@ -39,15 +39,15 @@ import org.jetbrains.kotlin.load.kotlin.VirtualFileFinder
 import org.jetbrains.kotlin.load.kotlin.VirtualFileFinderFactory
 import org.jetbrains.kotlin.load.kotlin.reflect.ReflectKotlinClassFinder
 import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.calls.CallResolver
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.JavaLazyAnalyzerPostConstruct
-import org.jetbrains.kotlin.resolve.lazy.*
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.types.DynamicTypesAllowed
-import org.jetbrains.kotlin.types.DynamicTypesSettings
-import org.jetbrains.kotlin.types.expressions.*
+import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
+import org.jetbrains.kotlin.types.expressions.FakeCallResolver
 
 // NOTE: After making changes, you need to re-generate the injectors.
 //       To do that, you can run main in this file.
@@ -67,50 +67,13 @@ private val DI_DEFAULT_PACKAGE = "org.jetbrains.kotlin.di"
 
 public fun createInjectorGenerators(): List<DependencyInjectorGenerator> =
         listOf(
-                generatorForLazyLocalClassifierAnalyzer(),
                 generatorForTopDownAnalyzerForJvm(),
                 generatorForRuntimeDescriptorLoader(),
                 generatorForLazyResolveWithJava(),
                 generatorForTopDownAnalyzerForJs(),
-                generatorForMacro(),
                 generatorForTests(),
-                generatorForLazyResolve(),
-                generatorForBodyResolve(),
-                generatorForLazyBodyResolve(),
                 generatorForReplWithJava()
         )
-
-private fun generatorForLazyLocalClassifierAnalyzer() =
-        generator("compiler/frontend/src", DI_DEFAULT_PACKAGE, "InjectorForLazyLocalClassifierAnalyzer") {
-            parameter<Project>()
-            parameter<GlobalContext>(useAsContext = true)
-            parameter<BindingTrace>()
-            parameter<ModuleDescriptor>(name = "module", useAsContext = true)
-            parameter<AdditionalCheckerProvider>(useAsContext = true)
-            parameter<DynamicTypesSettings>()
-            parameter<LocalClassDescriptorHolder>()
-
-            publicField<LazyTopDownAnalyzer>()
-
-            field<NoTopLevelDescriptorProvider>()
-            field<NoFileScopeProvider>()
-            field<DeclarationScopeProviderForLocalClassifierAnalyzer>()
-            field<LocalLazyDeclarationResolver>()
-        }
-
-private fun generatorForLazyBodyResolve() =
-        generator("compiler/frontend/src", DI_DEFAULT_PACKAGE, "InjectorForLazyBodyResolve") {
-            parameter<Project>()
-            parameter<GlobalContext>(useAsContext = true)
-            parameter<KotlinCodeAnalyzer>(name = "analyzer", useAsContext = true)
-            parameter<BindingTrace>()
-            parameter<AdditionalCheckerProvider>(useAsContext = true)
-            parameter<DynamicTypesSettings>()
-
-            field<ModuleDescriptor>(init = GivenExpression("analyzer.getModuleDescriptor()"), useAsContext = true)
-
-            publicField<LazyTopDownAnalyzerForTopLevel>()
-        }
 
 private fun generatorForTopDownAnalyzerForJs() =
         generator("js/js.frontend/src", DI_DEFAULT_PACKAGE, "InjectorForTopDownAnalyzerForJs") {
@@ -187,22 +150,6 @@ private fun generatorForReplWithJava() =
             parameter<ScopeProvider.AdditionalFileScopeProvider>()
         }
 
-private fun generatorForMacro() =
-        generator("compiler/frontend/src", DI_DEFAULT_PACKAGE, "InjectorForMacros") {
-            parameter<Project>()
-            parameter<ModuleDescriptor>(useAsContext = true)
-
-            publicField<ExpressionTypingServices>()
-            publicField<ExpressionTypingComponents>()
-            publicField<CallResolver>()
-            publicField<TypeResolver>()
-
-            field<GlobalContext>(useAsContext = true,
-                  init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"))
-
-            field<AdditionalCheckerProvider.DefaultProvider>(useAsContext = true)
-        }
-
 private fun generatorForTests() =
         generator("compiler/tests", DI_DEFAULT_PACKAGE, "InjectorForTests") {
             parameter<Project>()
@@ -218,34 +165,6 @@ private fun generatorForTests() =
 
             field<GlobalContext>(init = GivenExpression("org.jetbrains.kotlin.context.ContextPackage.GlobalContext()"),
                   useAsContext = true)
-        }
-
-private fun generatorForBodyResolve() =
-        generator("compiler/frontend/src", DI_DEFAULT_PACKAGE, "InjectorForBodyResolve") {
-            parameter<Project>()
-            parameter<GlobalContext>(useAsContext = true)
-            parameter<BindingTrace>()
-            parameter<ModuleDescriptor>(useAsContext = true)
-            parameter<AdditionalCheckerProvider>(useAsContext = true)
-            parameter<StatementFilter>()
-
-            publicField<BodyResolver>()
-        }
-
-private fun generatorForLazyResolve() =
-        generator("compiler/frontend/src", DI_DEFAULT_PACKAGE, "InjectorForLazyResolve") {
-            parameter<Project>()
-            parameter<GlobalContext>(useAsContext = true)
-            parameter<ModuleDescriptorImpl>(useAsContext = true)
-            parameter<DeclarationProviderFactory>()
-            parameter<BindingTrace>()
-            parameter<AdditionalCheckerProvider>(useAsContext = true)
-            parameter<DynamicTypesSettings>()
-
-            publicField<ResolveSession>()
-
-            field<ScopeProvider>()
-            field<LazyResolveToken>()
         }
 
 private fun DependencyInjectorGenerator.commonForResolveSessionBased() {

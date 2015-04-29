@@ -59,15 +59,10 @@ fun Class<*>.bindToConstructor(context: ValueResolveContext): ConstructorBinding
     if (unsatisfied == null) // constructor is satisfied with arguments
         return ConstructorBinding(candidate, arguments)
 
-    if (unsatisfied.size() > 0)
-        throw UnresolvedConstructorException("Dependencies for type `$this` cannot be satisfied:\n  ${unsatisfied}")
-
-    throw UnresolvedConstructorException("Cannot find suitable constructor for type `$this`")
+    throw UnresolvedDependenciesException("Dependencies for type `$this` cannot be satisfied:\n  ${unsatisfied}")
 }
 
 fun Method.bindToMethod(context: ValueResolveContext): MethodBinding {
-    val resolved = ArrayList<MethodBinding>()
-    val rejected = ArrayList<Pair<Method, List<Type>>>()
     val parameters = getParameterTypes()!!
     val arguments = ArrayList<ValueDescriptor>(parameters.size())
     var unsatisfied: MutableList<Type>? = null
@@ -85,19 +80,10 @@ fun Method.bindToMethod(context: ValueResolveContext): MethodBinding {
     }
 
     if (unsatisfied == null) // constructor is satisfied with arguments
-        resolved.add(MethodBinding(this, arguments))
-    else
-        rejected.add(this to unsatisfied)
+        return MethodBinding(this, arguments)
 
-    if (resolved.size() != 1) {
-        if (rejected.size() > 0)
-            throw UnresolvedConstructorException("Unsatisfied injection method for type `$this` with these types:\n  ${rejected[0].second}")
-
-        throw UnresolvedConstructorException("Cannot find suitable constructor for type `$this`")
-    }
-
-    return resolved[0]
+    throw UnresolvedDependenciesException("Dependencies for method `$this` cannot be satisfied:\n  ${unsatisfied}")
 }
 
-class UnresolvedConstructorException(message: String) : Exception(message)
+class UnresolvedDependenciesException(message: String) : Exception(message)
 

@@ -16,17 +16,8 @@
 
 package org.jetbrains.kotlin.generators.injectors
 
-import com.intellij.openapi.project.Project
-import org.jetbrains.kotlin.context.GlobalContext
-import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.kotlin.generators.di.*
-import org.jetbrains.kotlin.js.resolve.KotlinJsCheckerProvider
-import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
-import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
-import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
-import org.jetbrains.kotlin.types.DynamicTypesAllowed
+import org.jetbrains.kotlin.generators.di.DependencyInjectorGenerator
+import org.jetbrains.kotlin.generators.di.generator
 
 // NOTE: After making changes, you need to re-generate the injectors.
 //       To do that, you can run main in this file.

@@ -81,6 +81,7 @@
         <include name="core/descriptors/src"/>
         <include name="core/deserialization/src"/>
         <include name="core/util.runtime/src"/>
+        <include name="core/container/src"/>
         <include name="compiler/backend/src"/>
         <include name="compiler/backend-common/src"/>
         <include name="compiler/builtins-serializer/src"/>

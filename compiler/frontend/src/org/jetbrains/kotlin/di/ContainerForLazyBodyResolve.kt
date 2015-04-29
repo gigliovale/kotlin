@@ -19,34 +19,24 @@ package org.jetbrains.kotlin.frontend.di
 import com.intellij.openapi.project.Project
 import org.jetbrains.container.StorageComponentContainer
 import org.jetbrains.kotlin.context.GlobalContext
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.di.createContainer
 import org.jetbrains.kotlin.di.useImpl
 import org.jetbrains.kotlin.di.useInstance
-import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider
+import org.jetbrains.kotlin.resolve.BindingTrace
+import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
-import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.types.DynamicTypesSettings
 
 public fun createContainerForLazyBodyResolve(
-        project: Project, globalContext: GlobalContext, kotlinCodeAnalyzer:KotlinCodeAnalyzer,
+        project: Project, globalContext: GlobalContext, kotlinCodeAnalyzer: KotlinCodeAnalyzer,
         bindingTrace: BindingTrace, additionalCheckerProvider: AdditionalCheckerProvider,
         dynamicTypesSettings: DynamicTypesSettings
 ): StorageComponentContainer = createContainer("BodyResolve") { //TODO: name
-    useInstance(project)
-    useInstance(globalContext)
-    useInstance(globalContext.storageManager)
-    useInstance(bindingTrace)
+    configureModule(project, globalContext, kotlinCodeAnalyzer.getModuleDescriptor(), bindingTrace, additionalCheckerProvider)
+
     useInstance(kotlinCodeAnalyzer)
     useInstance(kotlinCodeAnalyzer.getScopeProvider())
-    val module = kotlinCodeAnalyzer.getModuleDescriptor()
-    useInstance(module)
-    useInstance(module.builtIns)
-    useInstance(module.platformToKotlinClassMap)
     useInstance(dynamicTypesSettings)
-    useInstance(additionalCheckerProvider)
-    useInstance(additionalCheckerProvider.symbolUsageValidator)
-
     useImpl<LazyTopDownAnalyzerForTopLevel>()
 }

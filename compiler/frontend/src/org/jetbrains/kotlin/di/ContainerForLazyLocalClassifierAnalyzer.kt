@@ -39,16 +39,9 @@ public fun createContainerForLazyLocalClassifierAnalyzer(
         additionalCheckerProvider: AdditionalCheckerProvider,
         dynamicTypesSettings: DynamicTypesSettings, localClassDescriptorHolder: LocalClassDescriptorHolder
 ): StorageComponentContainer = createContainer("BodyResolve") { //TODO: name
-    useInstance(project)
-    useInstance(globalContext)
-    useInstance(globalContext.storageManager)
-    useInstance(bindingTrace)
-    useInstance(moduleDescriptor)
-    useInstance(moduleDescriptor.builtIns)
-    useInstance(moduleDescriptor.platformToKotlinClassMap)
+    configureModule(project, globalContext, moduleDescriptor, bindingTrace, additionalCheckerProvider)
+
     useInstance(dynamicTypesSettings)
-    useInstance(additionalCheckerProvider)
-    useInstance(additionalCheckerProvider.symbolUsageValidator)
     useInstance(localClassDescriptorHolder)
 
     useInstance(NoTopLevelDescriptorProvider)

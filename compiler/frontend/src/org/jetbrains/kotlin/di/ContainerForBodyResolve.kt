@@ -27,12 +27,21 @@ import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.BodyResolver
 import org.jetbrains.kotlin.resolve.StatementFilter
-import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 
 public fun createContainerForBodyResolve(
         project: Project, globalContext: GlobalContext, bindingTrace: BindingTrace, module: ModuleDescriptor,
         additionalCheckerProvider: AdditionalCheckerProvider, statementFilter: StatementFilter
 ): StorageComponentContainer = createContainer("BodyResolve") {
+    configureModule(project, globalContext, module, bindingTrace, additionalCheckerProvider)
+
+    useInstance(statementFilter)
+    useImpl<BodyResolver>()
+}
+
+public fun StorageComponentContainer.configureModule(
+        project: Project, globalContext: GlobalContext,
+        module: ModuleDescriptor, bindingTrace: BindingTrace, additionalCheckerProvider: AdditionalCheckerProvider
+) {
     useInstance(project)
     useInstance(globalContext)
     useInstance(globalContext.storageManager)
@@ -42,7 +51,4 @@ public fun createContainerForBodyResolve(
     useInstance(module.platformToKotlinClassMap)
     useInstance(additionalCheckerProvider)
     useInstance(additionalCheckerProvider.symbolUsageValidator)
-    useInstance(statementFilter)
-
-    useImpl<BodyResolver>()
 }

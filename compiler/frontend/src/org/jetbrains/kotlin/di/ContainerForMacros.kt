@@ -30,6 +30,9 @@ import org.jetbrains.kotlin.types.expressions.ExpressionTypingComponents
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 
 public fun createContainerForMacros(project: Project, module: ModuleDescriptor): StorageComponentContainer = createContainer("Macros") {
+
+    //TODO_R: extract this logic
+
     useInstance(project)
     useInstance(module)
 

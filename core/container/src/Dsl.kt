@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.di
 import org.jetbrains.container.StorageComponentContainer
 import org.jetbrains.container.registerInstance
 import org.jetbrains.container.registerSingleton
+import kotlin.properties.ReadOnlyProperty
 
 public fun createContainer(id: String, init: StorageComponentContainer.() -> Unit): StorageComponentContainer {
     val c = StorageComponentContainer(id)
@@ -38,3 +39,14 @@ public inline fun <reified T> StorageComponentContainer.get(): T {
 public fun StorageComponentContainer.useInstance(instance: Any) {
     registerInstance(instance)
 }
+
+public class InjectedProperty<T>(
+        private val container: StorageComponentContainer, private val requestedComponent: Class<T>
+) : ReadOnlyProperty<Any?, T> {
+    override fun get(thisRef: Any?, desc: PropertyMetadata): T {
+        return container.resolve(requestedComponent)!!.getValue() as T
+    }
+}
+
+public inline fun <R, reified T> injected(container: StorageComponentContainer): ReadOnlyProperty<R, T>
+        = InjectedProperty(container, javaClass<T>())

@@ -19,37 +19,24 @@ package org.jetbrains.kotlin.frontend.di
 import com.intellij.openapi.project.Project
 import org.jetbrains.container.StorageComponentContainer
 import org.jetbrains.kotlin.context.GlobalContext
-import org.jetbrains.kotlin.context.LazyResolveToken
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.di.createContainer
 import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.di.useImpl
 import org.jetbrains.kotlin.di.useInstance
 import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider
 import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.StatementFilter
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
-import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.types.DynamicTypesSettings
-import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 
 public fun createContainerForLazyResolve(
         project: Project, globalContext: GlobalContext, module: ModuleDescriptor,
         declarationProviderFactory: DeclarationProviderFactory, bindingTrace: BindingTrace,
         additionalCheckerProvider: AdditionalCheckerProvider, dynamicTypesSettings: DynamicTypesSettings
 ): StorageComponentContainer = createContainer("Macros") {
-    useInstance(project)
-    useInstance(module)
-    useInstance(globalContext)
-    useInstance(globalContext.storageManager)
-    useInstance(module.builtIns)
-    useInstance(module.platformToKotlinClassMap)
+    configureModule(project, globalContext, module, bindingTrace, additionalCheckerProvider)
 
-    useInstance(bindingTrace)
-    useInstance(additionalCheckerProvider)
-    useInstance(additionalCheckerProvider.symbolUsageValidator)
     useInstance(dynamicTypesSettings)
     useInstance(declarationProviderFactory)
 

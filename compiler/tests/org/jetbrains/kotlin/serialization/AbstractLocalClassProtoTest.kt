@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerForJvm
+import org.jetbrains.kotlin.frontend.java.di.createContainerForTopDownAnalyzerForJvm
 import org.jetbrains.kotlin.jvm.compiler.LoadDescriptorUtil
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames
 import org.jetbrains.kotlin.load.java.structure.reflect.classId
@@ -62,13 +63,13 @@ public abstract class AbstractLocalClassProtoTest : TestCaseWithTmpdir() {
         )
         val providerFactory = FileBasedDeclarationProviderFactory(globalContext.storageManager, emptyList())
 
-        val injector = InjectorForTopDownAnalyzerForJvm(
+        val injector = createContainerForTopDownAnalyzerForJvm(
                 environment.project, params, CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(), module,
                 providerFactory, GlobalSearchScope.allScope(environment.project)
         )
-        module.initialize(injector.getJavaDescriptorResolver().packageFragmentProvider)
+        module.initialize(injector.javaDescriptorResolver.packageFragmentProvider)
 
-        val components = injector.getDeserializationComponentsForJava().components
+        val components = injector.deserializationComponentsForJava.components
 
         val classDescriptor = components.classDeserializer.deserializeClass(clazz.classId)
                               ?: error("Class is not resolved: $clazz (classId = ${clazz.classId})")

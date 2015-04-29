@@ -27,6 +27,8 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.di.InjectorForTopDownAnalyzerForJvm;
+import org.jetbrains.kotlin.frontend.java.di.ContainerForTopDownAnalyzerForJvm;
+import org.jetbrains.kotlin.frontend.java.di.DiPackage;
 import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentProvider;
 import org.jetbrains.kotlin.load.kotlin.incremental.cache.IncrementalCache;
 import org.jetbrains.kotlin.load.kotlin.incremental.cache.IncrementalCacheProvider;
@@ -117,7 +119,7 @@ public enum TopDownAnalyzerFacadeForJVM {
         FileBasedDeclarationProviderFactory providerFactory =
                 new FileBasedDeclarationProviderFactory(topDownAnalysisParameters.getStorageManager(), allFiles);
 
-        InjectorForTopDownAnalyzerForJvm injector = new InjectorForTopDownAnalyzerForJvm(
+        ContainerForTopDownAnalyzerForJvm injector = DiPackage.createContainerForTopDownAnalyzerForJvm(
                 project,
                 topDownAnalysisParameters,
                 trace,
@@ -126,30 +128,25 @@ public enum TopDownAnalyzerFacadeForJVM {
                 GlobalSearchScope.allScope(project)
         );
 
-        try {
-            List<PackageFragmentProvider> additionalProviders = new ArrayList<PackageFragmentProvider>();
+        List<PackageFragmentProvider> additionalProviders = new ArrayList<PackageFragmentProvider>();
 
-            if (moduleIds != null && incrementalCacheProvider != null) {
-                for (String moduleId : moduleIds) {
-                    IncrementalCache incrementalCache = incrementalCacheProvider.getIncrementalCache(moduleId);
+        if (moduleIds != null && incrementalCacheProvider != null) {
+            for (String moduleId : moduleIds) {
+                IncrementalCache incrementalCache = incrementalCacheProvider.getIncrementalCache(moduleId);
 
-                    additionalProviders.add(
-                            new IncrementalPackageFragmentProvider(
-                                    files, module, topDownAnalysisParameters.getStorageManager(),
-                                    injector.getDeserializationComponentsForJava().getComponents(),
-                                    incrementalCache, moduleId
-                            )
-                    );
-                }
+                additionalProviders.add(
+                        new IncrementalPackageFragmentProvider(
+                                files, module, topDownAnalysisParameters.getStorageManager(),
+                                injector.getDeserializationComponentsForJava().getComponents(),
+                                incrementalCache, moduleId
+                        )
+                );
             }
-            additionalProviders.add(injector.getJavaDescriptorResolver().getPackageFragmentProvider());
+        }
+        additionalProviders.add(injector.getJavaDescriptorResolver().getPackageFragmentProvider());
 
-            injector.getLazyTopDownAnalyzerForTopLevel().analyzeFiles(topDownAnalysisParameters, allFiles, additionalProviders);
-            return AnalysisResult.success(trace.getBindingContext(), module);
-        }
-        finally {
-            injector.destroy();
-        }
+        injector.getLazyTopDownAnalyzerForTopLevel().analyzeFiles(topDownAnalysisParameters, allFiles, additionalProviders);
+        return AnalysisResult.success(trace.getBindingContext(), module);
     }
 
     @NotNull

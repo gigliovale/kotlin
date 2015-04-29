@@ -21,13 +21,13 @@ import org.jetbrains.container.StorageComponentContainer
 import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.di.createContainer
+import org.jetbrains.kotlin.di.injected
 import org.jetbrains.kotlin.di.useImpl
 import org.jetbrains.kotlin.di.useInstance
 import org.jetbrains.kotlin.load.kotlin.KotlinJvmCheckerProvider
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 import org.jetbrains.kotlin.types.expressions.FakeCallResolver
-import kotlin.properties.ReadOnlyProperty
 
 public fun createContainerForTests(project: Project, module: ModuleDescriptor): ContainerForTests {
     return ContainerForTests(createContainer("Macros") {
@@ -56,13 +56,3 @@ class ContainerForTests(container: StorageComponentContainer) {
     val qualifiedExpressionResolver: QualifiedExpressionResolver by injected(container)
     val additionalCheckerProvider: AdditionalCheckerProvider by injected(container)
 }
-
-public class InjectedProperty<T>(
-        private val container: StorageComponentContainer, private val requestedComponent: Class<T>
-) : ReadOnlyProperty<Any?, T> {
-    override fun get(thisRef: Any?, desc: PropertyMetadata): T {
-        return container.resolve(requestedComponent)!!.getValue() as T
-    }
-}
-
-inline fun <reified T> injected(container: StorageComponentContainer) = InjectedProperty(container, javaClass<T>())

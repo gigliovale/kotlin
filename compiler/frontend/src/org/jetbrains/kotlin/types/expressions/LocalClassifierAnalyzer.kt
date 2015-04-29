@@ -16,38 +16,34 @@
 
 package org.jetbrains.kotlin.types.expressions
 
-import org.jetbrains.kotlin.context.GlobalContext
-import org.jetbrains.kotlin.resolve.scopes.WritableScope
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.psi.JetClassOrObject
-import org.jetbrains.kotlin.types.DynamicTypesSettings
-import com.google.common.base.Predicates
-import org.jetbrains.kotlin.di.InjectorForLazyLocalClassifierAnalyzer
-import org.jetbrains.kotlin.storage.StorageManager
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProvider
-import org.jetbrains.kotlin.psi.debugText.getDebugText
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
-import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
-import org.jetbrains.kotlin.resolve.lazy.data.JetClassLikeInfo
-import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
-import org.jetbrains.kotlin.resolve.lazy.declarations.PsiBasedClassMemberDeclarationProvider
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.resolve.lazy.declarations.PackageMemberDeclarationProvider
-import org.jetbrains.kotlin.psi.psiUtil.isObjectLiteral
-import org.jetbrains.kotlin.name.SpecialNames
-import org.jetbrains.kotlin.resolve.lazy.data.JetClassInfoUtil
-import org.jetbrains.kotlin.resolve.scopes.JetScope
-import org.jetbrains.kotlin.resolve.lazy.LazyDeclarationResolver
-import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProviderImpl
-import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.context.GlobalContext
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyLocalClassifierAnalyzer
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.JetClassOrObject
+import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
+import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProvider
+import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProviderImpl
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext
+import org.jetbrains.kotlin.resolve.lazy.LazyDeclarationResolver
+import org.jetbrains.kotlin.resolve.lazy.data.JetClassInfoUtil
+import org.jetbrains.kotlin.resolve.lazy.data.JetClassLikeInfo
+import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProvider
+import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
+import org.jetbrains.kotlin.resolve.lazy.declarations.PackageMemberDeclarationProvider
+import org.jetbrains.kotlin.resolve.lazy.declarations.PsiBasedClassMemberDeclarationProvider
+import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
+import org.jetbrains.kotlin.resolve.scopes.JetScope
+import org.jetbrains.kotlin.resolve.scopes.WritableScope
+import org.jetbrains.kotlin.storage.StorageManager
+import org.jetbrains.kotlin.types.DynamicTypesSettings
 
 public class LocalClassifierAnalyzer(
         val descriptorResolver: DescriptorResolver,

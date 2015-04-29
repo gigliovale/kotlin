@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.kotlin.di.InjectorForTests
 import org.jetbrains.kotlin.test.JetTestUtils
+import org.jetbrains.kotlin.tests.di.createContainerForTests
 
 public abstract class AbstractAddImportTest : AbstractImportsTest() {
     override fun doTest(file: JetFile) {
@@ -47,7 +48,7 @@ public abstract class AbstractAddImportTest : AbstractImportsTest() {
         val importDirective = JetPsiFactory(getProject()).createImportDirective(descriptorName)
         val moduleDescriptor = file.getResolutionFacade().findModuleDescriptor(file)
         val scope = JetModuleUtil.getSubpackagesOfRootScope(moduleDescriptor)
-        val descriptors = InjectorForTests(getProject(), moduleDescriptor).getQualifiedExpressionResolver()
+        val descriptors = createContainerForTests(getProject(), moduleDescriptor).qualifiedExpressionResolver
                 .processImportReference(importDirective, scope, scope, BindingTraceContext(), LookupMode.EVERYTHING)
                 .getAllDescriptors()
                 .filter(filter)

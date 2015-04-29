@@ -34,6 +34,7 @@ import java.util.ArrayList
 import java.util.LinkedHashMap
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind.*
+import org.jetbrains.kotlin.tests.di.createContainerForTests
 
 abstract public class AbstractConstraintSystemTest() : JetLiteFixture() {
     private val typePattern = """([\w|<|>|\(|\)]+)"""
@@ -55,8 +56,8 @@ abstract public class AbstractConstraintSystemTest() : JetLiteFixture() {
     override fun setUp() {
         super.setUp()
 
-        val injector = InjectorForTests(getProject(), JetTestUtils.createEmptyModule())
-        _typeResolver = injector.getTypeResolver()!!
+        val injector = createContainerForTests(getProject(), JetTestUtils.createEmptyModule())
+        _typeResolver = injector.typeResolver
         _testDeclarations = analyzeDeclarations()
     }
 

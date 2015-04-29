@@ -39,6 +39,7 @@ import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver
 import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver.LookupMode
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.JetTestUtils
+import org.jetbrains.kotlin.tests.di.createContainerForTests
 import java.io.File
 import kotlin.test.fail
 
@@ -58,7 +59,7 @@ public abstract class AbstractCodeFragmentHighlightingTest : AbstractJetPsiCheck
                 val importDirective = JetPsiFactory(getProject()).createImportDirective(it)
                 val moduleDescriptor = file.getResolutionFacade().findModuleDescriptor(file)
                 val scope = JetModuleUtil.getSubpackagesOfRootScope(moduleDescriptor)
-                val descriptor = InjectorForTests(getProject(), moduleDescriptor).getQualifiedExpressionResolver()
+                val descriptor = createContainerForTests(getProject(), moduleDescriptor).qualifiedExpressionResolver
                                          .processImportReference(importDirective, scope, scope, BindingTraceContext(), LookupMode.EVERYTHING)
                                          .getAllDescriptors()
                                          .singleOrNull() ?: error("Could not resolve descriptor to import: $it")

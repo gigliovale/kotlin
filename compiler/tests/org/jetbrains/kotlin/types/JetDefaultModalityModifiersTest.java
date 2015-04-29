@@ -23,15 +23,9 @@ import org.jetbrains.kotlin.context.ContextPackage;
 import org.jetbrains.kotlin.context.GlobalContextImpl;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
-import org.jetbrains.kotlin.di.InjectorForLazyResolve;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.frontend.di.DiPackage;
 import org.jetbrains.kotlin.psi.*;
-import org.jetbrains.kotlin.resolve.AdditionalCheckerProvider;
-import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.BindingTraceContext;
-import org.jetbrains.kotlin.resolve.DescriptorResolver;
-import org.jetbrains.kotlin.resolve.FunctionDescriptorResolver;
+import org.jetbrains.kotlin.resolve.*;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
@@ -43,11 +37,13 @@ import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
+import static org.jetbrains.kotlin.tests.di.DiPackage.createContainerForTests;
 
 public class JetDefaultModalityModifiersTest extends JetLiteFixture {
     private final JetDefaultModalityModifiersTestCase tc = new JetDefaultModalityModifiersTestCase();
@@ -76,7 +72,7 @@ public class JetDefaultModalityModifiersTest extends JetLiteFixture {
         private JetScope scope;
 
         public void setUp() throws Exception {
-            InjectorForTests injector = new InjectorForTests(getProject(), root);
+            ContainerForTests injector = createContainerForTests(getProject(), root);
             descriptorResolver = injector.getDescriptorResolver();
             functionDescriptorResolver = injector.getFunctionDescriptorResolver();
             scope = createScope(KotlinBuiltIns.getInstance().getBuiltInsPackageScope());

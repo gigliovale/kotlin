@@ -38,6 +38,8 @@ import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
+import org.jetbrains.kotlin.tests.di.DiPackage;
 
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +65,7 @@ public class TypeUnifierTest extends JetLiteFixture {
 
         builtIns = KotlinBuiltIns.getInstance();
 
-        InjectorForTests injector = new InjectorForTests(getProject(), JetTestUtils.createEmptyModule());
+        ContainerForTests injector = DiPackage.createContainerForTests(getProject(), JetTestUtils.createEmptyModule());
         typeResolver = injector.getTypeResolver();
         x = createTypeVariable("X");
         y = createTypeVariable("Y");

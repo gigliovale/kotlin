@@ -28,6 +28,8 @@ import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
+import org.jetbrains.kotlin.tests.di.DiPackage;
 
 import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 
@@ -44,7 +46,7 @@ public class JetOverridingTest extends JetLiteFixture {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        InjectorForTests injector = new InjectorForTests(getProject(), root);
+        ContainerForTests injector = DiPackage.createContainerForTests(getProject(), root);
         functionDescriptorResolver = injector.getFunctionDescriptorResolver();
     }
 

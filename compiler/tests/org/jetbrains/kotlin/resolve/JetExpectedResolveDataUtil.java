@@ -31,6 +31,8 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
+import org.jetbrains.kotlin.tests.di.DiPackage;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.TypeUtils;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext;
@@ -126,7 +128,7 @@ public class JetExpectedResolveDataUtil {
             JetType... parameterTypes
     ) {
         ModuleDescriptor emptyModule = JetTestUtils.createEmptyModule();
-        InjectorForTests injector = new InjectorForTests(project, emptyModule);
+        ContainerForTests injector = DiPackage.createContainerForTests(project, emptyModule);
 
         ExpressionTypingContext context = ExpressionTypingContext.newContext(
                 injector.getAdditionalCheckerProvider(), new BindingTraceContext(), classDescriptor.getDefaultType().getMemberScope(),

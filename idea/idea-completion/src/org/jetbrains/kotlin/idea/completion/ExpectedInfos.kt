@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.idea.completion
 import com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.di.InjectorForMacros
 import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.frontend.di.createContainerForMacros
 import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade

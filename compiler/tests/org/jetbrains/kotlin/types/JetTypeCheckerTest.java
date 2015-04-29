@@ -40,6 +40,8 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
+import org.jetbrains.kotlin.tests.di.DiPackage;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
 
@@ -72,7 +74,7 @@ public class JetTypeCheckerTest extends JetLiteFixture {
 
         builtIns = KotlinBuiltIns.getInstance();
 
-        InjectorForTests injector = new InjectorForTests(getProject(), JetTestUtils.createEmptyModule());
+        ContainerForTests injector = DiPackage.createContainerForTests(getProject(), JetTestUtils.createEmptyModule());
         typeResolver = injector.getTypeResolver();
         expressionTypingServices = injector.getExpressionTypingServices();
 

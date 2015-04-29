@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
-import org.jetbrains.kotlin.di.InjectorForTests;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages;
 import org.jetbrains.kotlin.name.FqName;
@@ -45,6 +44,8 @@ import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.tests.di.ContainerForTests;
+import org.jetbrains.kotlin.tests.di.DiPackage;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ import static org.jetbrains.kotlin.psi.PsiPackage.JetPsiFactory;
 @SuppressWarnings("unchecked")
 public class TypeSubstitutorTest extends KotlinTestWithEnvironment {
     private JetScope scope;
-    private InjectorForTests injector;
+    private ContainerForTests injector;
 
     @Override
     protected KotlinCoreEnvironment createEnvironment() {
@@ -67,7 +68,7 @@ public class TypeSubstitutorTest extends KotlinTestWithEnvironment {
     protected void setUp() throws Exception {
         super.setUp();
 
-        injector = new InjectorForTests(getProject(), JetTestUtils.createEmptyModule());
+        injector = DiPackage.createContainerForTests(getProject(), JetTestUtils.createEmptyModule());
         scope = getContextScope();
     }
 

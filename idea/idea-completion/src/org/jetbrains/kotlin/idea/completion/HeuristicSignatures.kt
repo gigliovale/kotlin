@@ -16,27 +16,26 @@
 
 package org.jetbrains.kotlin.idea.completion
 
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import java.util.HashMap
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.types.SubstitutionUtils
-import org.jetbrains.kotlin.types.Variance
-import org.jetbrains.kotlin.di.InjectorForMacros
 import com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.types.JetType
-import org.jetbrains.kotlin.resolve.JetModuleUtil
-import org.jetbrains.kotlin.psi.JetPsiFactory
-import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.di.get
 import org.jetbrains.kotlin.frontend.di.createContainerForMacros
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.JetPsiFactory
+import org.jetbrains.kotlin.resolve.BindingTraceContext
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.JetModuleUtil
 import org.jetbrains.kotlin.resolve.TypeResolver
-import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.resolve.scopes.ChainedScope
+import org.jetbrains.kotlin.resolve.scopes.JetScope
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.types.SubstitutionUtils
 import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.Variance
+import java.util.HashMap
 
 public object HeuristicSignatures {
     private val signatures = HashMap<Pair<FqName, Name>, List<String>>()

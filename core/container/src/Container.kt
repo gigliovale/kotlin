@@ -42,8 +42,11 @@ public class StorageComponentContainer(id: String) : ComponentContainer, Closeab
         if (storageResolve != null)
             return storageResolve
 
-        val modifiers = request.getModifiers()
+        val hasSinglePublicConstructor = request.getConstructors().singleOrNull()?.let { Modifier.isPublic(it.getModifiers()) } ?: false
+        if (!hasSinglePublicConstructor)
+            return null
 
+        val modifiers = request.getModifiers()
         if (Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers) || request.isPrimitive())
             return null
 

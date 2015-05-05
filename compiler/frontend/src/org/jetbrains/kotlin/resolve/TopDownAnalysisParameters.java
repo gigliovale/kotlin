@@ -16,18 +16,15 @@
 
 package org.jetbrains.kotlin.resolve;
 
-import com.google.common.base.Predicate;
-import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.context.GlobalContext;
-import org.jetbrains.kotlin.context.TypeLazinessToken;
 import org.jetbrains.kotlin.storage.ExceptionTracker;
 import org.jetbrains.kotlin.storage.StorageManager;
 
 /**
  * Various junk that cannot be placed into context (yet).
  */
-public class TopDownAnalysisParameters extends TypeLazinessToken implements GlobalContext {
+public class TopDownAnalysisParameters implements GlobalContext {
 
     @NotNull
     public static TopDownAnalysisParameters create(
@@ -36,8 +33,7 @@ public class TopDownAnalysisParameters extends TypeLazinessToken implements Glob
             boolean analyzingBootstrapLibrary,
             boolean declaredLocally
     ) {
-        return new TopDownAnalysisParameters(storageManager, exceptionTracker, analyzingBootstrapLibrary,
-                                             declaredLocally, true);
+        return new TopDownAnalysisParameters(storageManager, exceptionTracker, analyzingBootstrapLibrary, declaredLocally);
     }
 
     @NotNull
@@ -45,27 +41,24 @@ public class TopDownAnalysisParameters extends TypeLazinessToken implements Glob
             @NotNull StorageManager storageManager,
             @NotNull ExceptionTracker exceptionTracker
     ) {
-        return new TopDownAnalysisParameters(storageManager, exceptionTracker, false, true, false);
+        return new TopDownAnalysisParameters(storageManager, exceptionTracker, false, true);
     }
 
     @NotNull private final StorageManager storageManager;
     @NotNull private final ExceptionTracker exceptionTracker;
     private final boolean analyzingBootstrapLibrary;
     private final boolean declaredLocally;
-    private final boolean lazyTopDownAnalysis;
 
     private TopDownAnalysisParameters(
             @NotNull StorageManager storageManager,
             @NotNull ExceptionTracker exceptionTracker,
             boolean analyzingBootstrapLibrary,
-            boolean declaredLocally,
-            boolean lazyTopDownAnalysis
+            boolean declaredLocally
     ) {
         this.storageManager = storageManager;
         this.exceptionTracker = exceptionTracker;
         this.analyzingBootstrapLibrary = analyzingBootstrapLibrary;
         this.declaredLocally = declaredLocally;
-        this.lazyTopDownAnalysis = lazyTopDownAnalysis;
     }
 
     @Override
@@ -86,12 +79,5 @@ public class TopDownAnalysisParameters extends TypeLazinessToken implements Glob
 
     public boolean isDeclaredLocally() {
         return declaredLocally;
-    }
-
-    // Used temporarily while we are transitioning from eager to lazy analysis of headers in the IDE
-    @Override
-    @Deprecated
-    public boolean isLazy() {
-        return lazyTopDownAnalysis;
     }
 }

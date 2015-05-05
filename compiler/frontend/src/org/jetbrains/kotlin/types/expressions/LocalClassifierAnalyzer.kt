@@ -60,7 +60,6 @@ public class LocalClassifierAnalyzer(
             additionalCheckerProvider: AdditionalCheckerProvider,
             dynamicTypesSettings: DynamicTypesSettings
     ) {
-        val topDownAnalysisParameters = TopDownAnalysisParameters.create(globalContext.storageManager, globalContext.exceptionTracker, false, true)
 
         val moduleDescriptor = DescriptorUtils.getContainingModule(containingDeclaration)
         val injector = createContainerForLazyLocalClassifierAnalyzer(
@@ -84,6 +83,7 @@ public class LocalClassifierAnalyzer(
                 )
         )
 
+        val topDownAnalysisParameters = TopDownAnalysisParameters.create(globalContext.storageManager, globalContext.exceptionTracker, false, true)
         injector.get<LazyTopDownAnalyzer>().analyzeDeclarations(
                 topDownAnalysisParameters,
                 listOf(classOrObject),

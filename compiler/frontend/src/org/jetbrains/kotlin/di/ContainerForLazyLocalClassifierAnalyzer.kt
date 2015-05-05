@@ -44,11 +44,11 @@ public fun createContainerForLazyLocalClassifierAnalyzer(
     useInstance(dynamicTypesSettings)
     useInstance(localClassDescriptorHolder)
 
+    useImpl<LazyTopDownAnalyzer>()
+
     useInstance(NoTopLevelDescriptorProvider)
     useInstance(NoFileScopeProvider)
 
     useImpl<DeclarationScopeProviderForLocalClassifierAnalyzer>()
     useImpl<LocalLazyDeclarationResolver>()
-
-    useImpl<LazyTopDownAnalyzer>()
 }

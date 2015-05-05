@@ -1,5 +1,6 @@
 package org.jetbrains.container
 
+import getInfo
 import java.io.Closeable
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -96,8 +97,10 @@ public class ComponentStorage(val myId: String) : ValueResolver {
 
         // inspect dependencies and register implicit
         val implicits = LinkedHashSet<ComponentDescriptor>()
+        val visitedTypes = hashSetOf<Class<*>>()
+        val implicitTypes = hashSetOf<Class<*>>()
         for (descriptor in descriptors) {
-            registerImplicits(context, descriptor, implicits, hashSetOf<Class<*>>())
+            registerImplicits(context, descriptor, implicitTypes, visitedTypes, implicits)
         }
         registry.addAll(implicits)
 
@@ -107,10 +110,10 @@ public class ComponentStorage(val myId: String) : ValueResolver {
         }
     }
 
-    private fun registerImplicits(context: ComponentResolveContext, descriptor: ComponentDescriptor, implicits: MutableSet<ComponentDescriptor>, visitedTypes: HashSet<Class<*>>) {
+    private fun registerImplicits(context: ComponentResolveContext, descriptor: ComponentDescriptor, implicitTypes: MutableSet<Class<*>>, visitedTypes: HashSet<Class<*>>, implicitDescriptors: LinkedHashSet<ComponentDescriptor>) {
         val dependencies = descriptor.getDependencies(context)
         for (type in dependencies) {
-            if (type in visitedTypes)
+            if (type in visitedTypes || type in implicitTypes)
                 continue
             visitedTypes.add(type)
             val entry = registry.tryGetEntry(type)
@@ -118,28 +121,19 @@ public class ComponentStorage(val myId: String) : ValueResolver {
                 val modifiers = type.getModifiers()
                 if (!Modifier.isInterface(modifiers) && !Modifier.isAbstract(modifiers) && !type.isPrimitive()) {
                     val implicitDescriptor = SingletonTypeComponentDescriptor(context.container, type)
-                    implicits.add(implicitDescriptor)
-                    registerImplicits(context, implicitDescriptor, implicits, visitedTypes)
+                    implicitTypes.add(type)
+                    implicitDescriptors.add(implicitDescriptor)
+                    registerImplicits(context, implicitDescriptor, implicitTypes, visitedTypes, implicitDescriptors)
                 }
             }
         }
     }
 
     private fun injectProperties(instance: Any, context: ValueResolveContext) {
-        val type = instance.javaClass
-        val injectors = LinkedHashSet<Method>()
-        for (member in type.getMethods()) {
-            val annotations = member.getDeclaredAnnotations()
-            for (annotation in annotations) {
-                val annotationType = annotation.annotationType()
-                if (annotationType.getName().substringAfterLast('.') == "Inject") {
-                    injectors.add(member)
-                }
-            }
-        }
+        val classInfo = instance.javaClass.getInfo()
 
-        injectors.forEach { injector ->
-            val methodBinding = injector.bindToMethod(context)
+        classInfo.setterInfos.forEach { setterInfo ->
+            val methodBinding = setterInfo.method.bindToMethod(context)
             methodBinding.invoke(instance)
         }
     }

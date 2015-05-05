@@ -1,5 +1,7 @@
 package org.jetbrains.container
 
+import getInfo
+import injectableConstructor
 import java.io.Closeable
 import java.util.ArrayList
 import kotlin.properties.Delegates
@@ -121,19 +123,7 @@ public class SingletonTypeComponentDescriptor(container: ComponentContainer, kla
     }
 
     override fun getDependencies(context: ValueResolveContext): Collection<Class<*>> {
-        val dependencies = ArrayList<Class<*>>()
-        dependencies.addAll(klass.getConstructors().single().getParameterTypes())
-
-        for (member in klass.getMethods()) {
-            val annotations = member.getDeclaredAnnotations()
-            for (annotation in annotations) {
-                val annotationType = annotation.annotationType()
-                if (annotationType.getName().substringAfterLast('.') == "Inject") {
-                    dependencies.addAll(member.getParameterTypes())
-                }
-            }
-        }
-
-        return dependencies
+        val classInfo = klass.getInfo()
+        return classInfo.injectableConstructor?.args.orEmpty() + classInfo.setterInfos.flatMap { it.args }
     }
 }

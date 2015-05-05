@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzerForTopLevel
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.ScopeProvider
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
+import org.jetbrains.kotlin.types.DynamicTypesAllowed
 
 public fun createTopDownAnalyzerForJs(
         project: Project, globalContext: GlobalContext, bindingTrace: BindingTrace,
@@ -42,6 +43,7 @@ public fun createTopDownAnalyzerForJs(
         useImpl<ScopeProvider>()
         useImpl<ResolveSession>()
         useImpl<LazyTopDownAnalyzerForTopLevel>()
+        useImpl<DynamicTypesAllowed>()
     }
     return storageComponentContainer.get<LazyTopDownAnalyzerForTopLevel>()
 }

@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.frontend.java.di
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.context.GlobalContext
+import org.jetbrains.kotlin.context.LazyResolveToken
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.di.createContainer
 import org.jetbrains.kotlin.di.get
@@ -47,6 +48,7 @@ public fun createContainerForLazyResolveWithJava(
 
     useInstance(declarationProviderFactory)
     useImpl<ScopeProvider>()
+    useImpl<LazyResolveToken>()
 }.let {
     it.get<JavaClassFinderImpl>().initialize()
     it.get<JavaClassFinderPostConstruct>().postCreate()

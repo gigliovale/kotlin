@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.frontend.di
 import com.intellij.openapi.project.Project
 import org.jetbrains.container.StorageComponentContainer
 import org.jetbrains.kotlin.context.GlobalContext
+import org.jetbrains.kotlin.context.LazyResolveToken
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.di.createContainer
 import org.jetbrains.kotlin.di.get
@@ -40,6 +41,7 @@ public fun createContainerForLazyResolve(
     useInstance(dynamicTypesSettings)
     useInstance(declarationProviderFactory)
 
+    useImpl<LazyResolveToken>()
     useImpl<ResolveSession>()
 }
 

@@ -36,7 +36,7 @@ public inline fun <reified T> StorageComponentContainer.get(): T {
     return resolve(javaClass<T>(), unknownContext)!!.getValue() as T
 }
 
-public inline fun <reified T> StorageComponentContainer.useInstance(instance: Any) {
+public fun StorageComponentContainer.useInstance(instance: Any) {
     registerInstance(instance)
 }
 

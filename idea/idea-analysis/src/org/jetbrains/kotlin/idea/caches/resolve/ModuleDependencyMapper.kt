@@ -34,6 +34,8 @@ import org.jetbrains.kotlin.analyzer.ResolverForProject
 import org.jetbrains.kotlin.analyzer.ModuleContent
 import org.jetbrains.kotlin.analyzer.EmptyResolverForProject
 import org.jetbrains.kotlin.context.GlobalContextImpl
+import org.jetbrains.kotlin.storage.MemoizedFunctionToNullable
+import org.jetbrains.kotlin.storage.StorageManager
 
 fun createModuleResolverProvider(
         project: Project,
@@ -71,14 +73,9 @@ fun createModuleResolverProvider(
 
     val resolverForProject = createResolverForProject()
 
-    val moduleToBodiesResolveSession = modulesToCreateResolversFor.keysToMap {
-        module ->
-        val analyzer = resolverForProject.resolverForModule(module)
-        ResolveSessionForBodies(project, analyzer.lazyResolveSession)
-    }
     return ModuleResolverProviderImpl(
             resolverForProject,
-            moduleToBodiesResolveSession,
+            modulesToCreateResolversFor,
             globalContext,
             delegateProvider
     )
@@ -128,14 +125,25 @@ object EmptyModuleResolverProvider: ModuleResolverProvider {
 }
 
 class ModuleResolverProviderImpl(
+        val project: Project,
         override val resolverForProject: ResolverForProject<IdeaModuleInfo, ResolverForModule>,
-        private val bodiesResolveByModule: Map<IdeaModuleInfo, ResolveSessionForBodies>,
+        private val moduleInfos: Set<IdeaModuleInfo>,
         val globalContext: GlobalContextImpl,
         val delegateProvider: ModuleResolverProvider = EmptyModuleResolverProvider
 ): ModuleResolverProvider {
+    val x: MemoizedFunctionToNullable<IdeaModuleInfo, ResolveSessionForBodies> = globalContext.storageManager.createMemoizedFunctionWithNullableValues {
+        module: IdeaModuleInfo ->
+        if (module !in moduleInfos) null
+        else {
+            val analyzer = resolverForProject.resolverForModule(module)
+            ResolveSessionForBodies(project, analyzer.lazyResolveSession)
+        }
+    }
+
     override val exceptionTracker: ExceptionTracker = globalContext.exceptionTracker
 
     override fun resolveSessionForBodiesByModule(module: IdeaModuleInfo): ResolveSessionForBodies =
-            bodiesResolveByModule[module] ?:
+            x[module] ?:
             delegateProvider.resolveSessionForBodiesByModule(module)
+
 }

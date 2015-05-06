@@ -1,7 +1,6 @@
 package org.jetbrains.container
 
-import getInfo
-import injectableConstructor
+import org.jetbrains.kotlin.di.getInfo
 import java.io.Closeable
 import java.util.ArrayList
 import kotlin.properties.Delegates
@@ -100,7 +99,7 @@ public abstract class SingletonDescriptor(val container: ComponentContainer) : C
 }
 
 public abstract class SingletonComponentDescriptor(container: ComponentContainer, val klass: Class<*>) : SingletonDescriptor(container) {
-    public override fun getRegistrations(): Iterable<Class<*>> = getRegistrationsForClass(klass)
+    public override fun getRegistrations(): Iterable<Class<*>> = klass.getInfo().registrations
 }
 
 public class SingletonTypeComponentDescriptor(container: ComponentContainer, klass: Class<*>) : SingletonComponentDescriptor(container, klass) {
@@ -124,6 +123,6 @@ public class SingletonTypeComponentDescriptor(container: ComponentContainer, kla
 
     override fun getDependencies(context: ValueResolveContext): Collection<Class<*>> {
         val classInfo = klass.getInfo()
-        return classInfo.injectableConstructor?.args.orEmpty() + classInfo.setterInfos.flatMap { it.args }
+        return classInfo.constructorInfo?.parameters.orEmpty() + classInfo.setterInfos.flatMap { it.parameters }
     }
 }

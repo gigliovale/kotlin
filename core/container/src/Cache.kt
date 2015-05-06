@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+package org.jetbrains.kotlin.di
+
 import com.intellij.util.containers.ContainerUtil
 import gnu.trove.TObjectHashingStrategy
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.ArrayList
+import java.util.LinkedHashSet
 
 
 //TODO_R: package
@@ -43,20 +46,23 @@ fun Class<*>.getInfo(): ClassInfo {
     return ClassTraversalCache.getClassInfo(this)
 }
 
-data class ClassInfo(val constructorInfo: ConstructorInfo, val setterInfos: List<SetterInfo>)
+data class ClassInfo(
+        val constructorInfo: ConstructorInfo?,
+        val setterInfos: List<SetterInfo>,
+        val registrations: List<Class<*>>
+)
 
-val ClassInfo.injectableConstructor: ConstructorInfo.Injectable?
-    get() = constructorInfo as? ConstructorInfo.Injectable
+data class ConstructorInfo(
+        val constructor: Constructor<*>,
+        val parameters: List<Class<*>>
+)
 
-public trait ConstructorInfo {
-    object CantInject: ConstructorInfo
-    data class Injectable(val constructor: Constructor<*>, val args: List<Class<*>>): ConstructorInfo
-}
-
-data class SetterInfo(val method: Method, val args: List<Class<*>>)
+data class SetterInfo(
+        val method: Method,
+        val parameters: List<Class<*>>)
 
 private fun traverseClass(c: Class<*>): ClassInfo {
-    return ClassInfo(getConstructorInfo(c), getSetterInfos(c))
+    return ClassInfo(getConstructorInfo(c), getSetterInfos(c), getRegistrations(c))
 }
 
 private fun getSetterInfos(c: Class<*>): List<SetterInfo> {
@@ -73,17 +79,40 @@ private fun getSetterInfos(c: Class<*>): List<SetterInfo> {
     return setterInfos
 }
 
-private fun getConstructorInfo(c: Class<*>): ConstructorInfo {
+private fun getConstructorInfo(c: Class<*>): ConstructorInfo? {
     val modifiers = c.getModifiers()
     if (Modifier.isInterface(modifiers) || Modifier.isAbstract(modifiers) || c.isPrimitive())
-        return ConstructorInfo.CantInject
+        return null
 
     val constructors = c.getConstructors()
     val hasSinglePublicConstructor = constructors.singleOrNull()?.let { Modifier.isPublic(it.getModifiers()) } ?: false
     if (!hasSinglePublicConstructor)
-        return ConstructorInfo.CantInject
+        return null
 
 
     val constructor = constructors.single()
-    return ConstructorInfo.Injectable(constructor, constructor.getParameterTypes().toList())
+    return ConstructorInfo(constructor, constructor.getParameterTypes().toList())
+}
+
+
+private fun collectInterfacesRecursive(cl: Class<*>, result: MutableSet<Class<*>>) {
+    val interfaces = cl.getInterfaces()
+    interfaces.forEach {
+        if (result.add(it)) {
+            collectInterfacesRecursive(it, result)
+        }
+    }
+}
+
+private fun getRegistrations(klass: Class<*>): List<Class<*>> {
+    val registrations = ArrayList<Class<*>>()
+    val superClasses = sequence(klass) { it: Class<*> ->
+        (it as Class<Any>).getSuperclass()
+    }
+    registrations.addAll(superClasses)
+    val interfaces = LinkedHashSet<Class<*>>()
+    superClasses.forEach { collectInterfacesRecursive(it, interfaces) }
+    registrations.addAll(interfaces)
+    registrations.remove(javaClass<java.lang.Object>())
+    return registrations
 }

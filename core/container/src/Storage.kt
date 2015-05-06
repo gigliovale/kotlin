@@ -1,10 +1,12 @@
 package org.jetbrains.container
 
-import getInfo
+import com.intellij.util.containers.MultiMap
+import org.jetbrains.kotlin.di.getInfo
 import java.io.Closeable
-import java.lang.reflect.Method
 import java.lang.reflect.Modifier
-import java.util.*
+import java.util.ArrayList
+import java.util.HashSet
+import java.util.LinkedHashSet
 
 public enum class ComponentStorageState {
     Initial
@@ -27,15 +29,14 @@ public class ComponentStorage(val myId: String) : ValueResolver {
     var state = ComponentStorageState.Initial
     val registry = ComponentRegistry()
     val descriptors = LinkedHashSet<ComponentDescriptor>()
-    val dependencies = Multimap<ComponentDescriptor, Class<*>>()
-    val composingDescriptors = LinkedHashSet<ComponentDescriptor>()
+    val dependencies = MultiMap.createLinkedSet<ComponentDescriptor, Class<*>>()
 
     override fun resolve(request: Class<*>, context: ValueResolveContext): ValueDescriptor? {
         if (state == ComponentStorageState.Initial)
             throw ContainerConsistencyException("Container was not composed before resolving")
 
         val entry = registry.tryGetEntry(request)
-        if (entry != null) {
+        if (entry.isNotEmpty()) {
             registerDependency(request, context)
 
             val descriptor = entry.singleOrNull()
@@ -55,14 +56,14 @@ public class ComponentStorage(val myId: String) : ValueResolver {
                 */
 
                 // CheckCircularDependencies(requestingDescriptor, requestingDescriptor, request, Stack<Pair<IComponentDescriptor, Any>>(), HashSet<Any>());
-                dependencies.put(descriptor, request);
+                dependencies.putValue(descriptor, request);
             }
         }
     }
 
     public fun resolveMultiple(request: Class<*>, context: ValueResolveContext): Iterable<ValueDescriptor> {
         registerDependency(request, context)
-        return registry.tryGetEntry(request) ?: listOf()
+        return registry.tryGetEntry(request)
     }
 
     public fun registerDescriptors(context: ComponentResolveContext, items: List<ComponentDescriptor>) {
@@ -89,7 +90,6 @@ public class ComponentStorage(val myId: String) : ValueResolver {
     private fun composeDescriptors(context: ComponentResolveContext, descriptors: Collection<ComponentDescriptor>) {
         if (descriptors.isEmpty()) return
 
-        composingDescriptors.addAll(descriptors)
         registry.addAll(descriptors);
 
         // inspect descriptors and register providers
@@ -97,10 +97,9 @@ public class ComponentStorage(val myId: String) : ValueResolver {
 
         // inspect dependencies and register implicit
         val implicits = LinkedHashSet<ComponentDescriptor>()
-        val visitedTypes = hashSetOf<Class<*>>()
-        val implicitTypes = hashSetOf<Class<*>>()
+        val visitedTypes = HashSet<Class<*>>()
         for (descriptor in descriptors) {
-            registerImplicits(context, descriptor, implicitTypes, visitedTypes, implicits)
+            registerImplicits(context, descriptor, visitedTypes, implicits)
         }
         registry.addAll(implicits)
 
@@ -110,20 +109,22 @@ public class ComponentStorage(val myId: String) : ValueResolver {
         }
     }
 
-    private fun registerImplicits(context: ComponentResolveContext, descriptor: ComponentDescriptor, implicitTypes: MutableSet<Class<*>>, visitedTypes: HashSet<Class<*>>, implicitDescriptors: LinkedHashSet<ComponentDescriptor>) {
+    private fun registerImplicits(
+            context: ComponentResolveContext, descriptor: ComponentDescriptor,
+            visitedTypes: HashSet<Class<*>>, implicitDescriptors: LinkedHashSet<ComponentDescriptor>
+    ) {
         val dependencies = descriptor.getDependencies(context)
         for (type in dependencies) {
-            if (type in visitedTypes || type in implicitTypes)
+            if (!visitedTypes.add(type))
                 continue
             visitedTypes.add(type)
             val entry = registry.tryGetEntry(type)
-            if (entry == null) {
+            if (entry.isEmpty()) {
                 val modifiers = type.getModifiers()
                 if (!Modifier.isInterface(modifiers) && !Modifier.isAbstract(modifiers) && !type.isPrimitive()) {
                     val implicitDescriptor = SingletonTypeComponentDescriptor(context.container, type)
-                    implicitTypes.add(type)
                     implicitDescriptors.add(implicitDescriptor)
-                    registerImplicits(context, implicitDescriptor, implicitTypes, visitedTypes, implicitDescriptors)
+                    registerImplicits(context, implicitDescriptor, visitedTypes, implicitDescriptors)
                 }
             }
         }
@@ -158,13 +159,13 @@ public class ComponentStorage(val myId: String) : ValueResolver {
             val dependent = ArrayList<ComponentDescriptor>();
             for (interfaceType in dependencies[it]) {
                 val entry = registry.tryGetEntry(interfaceType)
-                if (entry == null)
-                    continue;
+                if (entry.isEmpty())
+                    continue
                 for (dependency in entry) {
-                    dependent.add(dependency);
+                    dependent.add(dependency)
                 }
             }
-            dependent;
+            dependent
         }
     }
 

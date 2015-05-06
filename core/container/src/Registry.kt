@@ -1,5 +1,6 @@
 package org.jetbrains.container
 
+import com.intellij.util.containers.MultiMap
 import java.util.*
 
 public fun ComponentRegisterEntry(value: ComponentRegisterEntry): ComponentRegisterEntry {
@@ -41,46 +42,23 @@ class ComponentRegisterEntry() : Iterable<ComponentDescriptor> {
 }
 
 internal class ComponentRegistry {
-    fun buildRegistrationMap(descriptors: Collection<ComponentDescriptor>): Multimap<Class<*>, ComponentDescriptor> {
-        val registrationMap = Multimap<Class<*>, ComponentDescriptor>()
-        for (descriptor in descriptors)
-            for (registration in descriptor.getRegistrations())
-                registrationMap.put(registration, descriptor)
+    fun buildRegistrationMap(descriptors: Collection<ComponentDescriptor>): MultiMap<Class<*>, ComponentDescriptor> {
+        val registrationMap = MultiMap<Class<*>, ComponentDescriptor>()
+        for (descriptor in descriptors) {
+            for (registration in descriptor.getRegistrations()) {
+                registrationMap.putValue(registration, descriptor)
+            }
+        }
         return registrationMap
     }
 
-    private var registrationMap = LinkedHashMap<Any, ComponentRegisterEntry>(8)
+    private var registrationMap = MultiMap.createLinkedSet<Class<*>, ComponentDescriptor>()
 
     public fun addAll(descriptors: Collection<ComponentDescriptor>) {
-        val updateMap = buildRegistrationMap(descriptors)
-        val lastMap = registrationMap
-        val newMap = LinkedHashMap<Any, ComponentRegisterEntry>(lastMap.size())
-        for ((key, value) in lastMap)
-            newMap.put(key, ComponentRegisterEntry(value))
-
-        for ((key, value) in updateMap) {
-            val entry = newMap.getOrPut(key, { ComponentRegisterEntry() })
-            entry.add(value)
-        }
-
-        registrationMap = newMap
+        registrationMap.putAllValues(buildRegistrationMap(descriptors))
     }
 
-    public fun removeAll(descriptors: Collection<ComponentDescriptor>) {
-        val newMap = buildRegistrationMap(descriptors)
-        val lastMap = registrationMap
-        val interfaceMap = LinkedHashMap<Any, ComponentRegisterEntry>(lastMap.size())
-        for ((key, value) in lastMap)
-            interfaceMap.put(key, ComponentRegisterEntry(value))
-
-        for (key in newMap.keys()) {
-            val entry = interfaceMap.getOrPut(key, { ComponentRegisterEntry() })
-            entry.removeAll(newMap[key])
-        }
-        registrationMap = interfaceMap
-    }
-
-    public fun tryGetEntry(request: Class<*>): ComponentRegisterEntry? {
-        return registrationMap.getOrElse(request, { null })
+    public fun tryGetEntry(request: Class<*>): Collection<ComponentDescriptor> {
+        return registrationMap.get(request)
     }
 }

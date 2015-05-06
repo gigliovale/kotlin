@@ -1,7 +1,6 @@
 package org.jetbrains.container
 
-import getInfo
-import injectableConstructor
+import org.jetbrains.kotlin.di.getInfo
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.Type
@@ -41,12 +40,12 @@ fun Constructor<*>.createInstance(argumentDescriptors: List<ValueDescriptor>) = 
 public fun bindArguments(argumentDescriptors: List<ValueDescriptor>): List<Any> = argumentDescriptors.map { it.getValue() }
 
 fun Class<*>.bindToConstructor(context: ValueResolveContext): ConstructorBinding {
-    val constructorInfo = getInfo().injectableConstructor!!
+    val constructorInfo = getInfo().constructorInfo!!
     val candidate = constructorInfo.constructor
-    val arguments = ArrayList<ValueDescriptor>(constructorInfo.args.size())
+    val arguments = ArrayList<ValueDescriptor>(constructorInfo.parameters.size())
     var unsatisfied: MutableList<Type>? = null
 
-    for (parameter in constructorInfo.args) {
+    for (parameter in constructorInfo.parameters) {
         val descriptor = context.resolve(parameter)
         if (descriptor == null) {
             if (unsatisfied == null)

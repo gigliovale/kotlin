@@ -16,20 +16,11 @@
 
 package org.jetbrains.kotlin.serialization.builtins
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.constants.NullValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
-import org.jetbrains.kotlin.serialization.AnnotationSerializer
-import org.jetbrains.kotlin.serialization.DescriptorSerializer
-import org.jetbrains.kotlin.serialization.ProtoBuf
-import org.jetbrains.kotlin.serialization.SerializerExtension
-import org.jetbrains.kotlin.serialization.StringTable
+import org.jetbrains.kotlin.serialization.*
 
 public object BuiltInsSerializerExtension : SerializerExtension() {
     override fun serializeClass(descriptor: ClassDescriptor, proto: ProtoBuf.Class.Builder, stringTable: StringTable) {
@@ -39,13 +30,12 @@ public object BuiltInsSerializerExtension : SerializerExtension() {
     }
 
     override fun serializePackage(
-            packageFragments: Collection<PackageFragmentDescriptor>,
+            packageViewDescriptor: PackageViewDescriptor,
             proto: ProtoBuf.Package.Builder,
             stringTable: StringTable
     ) {
-        val classes = packageFragments.flatMap {
-            it.getMemberScope().getDescriptors(DescriptorKindFilter.CLASSIFIERS).filterIsInstance<ClassDescriptor>()
-        }
+        val classes = packageViewDescriptor.getMemberScope().getDescriptors(DescriptorKindFilter.CLASSIFIERS)
+                .filterIsInstance<ClassDescriptor>()
 
         for (descriptor in DescriptorSerializer.sort(classes)) {
             proto.addExtension(BuiltInsProtoBuf.className, stringTable.getSimpleNameIndex(descriptor.getName()))

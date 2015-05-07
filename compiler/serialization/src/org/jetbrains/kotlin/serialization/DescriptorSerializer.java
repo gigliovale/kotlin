@@ -382,20 +382,15 @@ public class DescriptorSerializer {
     }
 
     @NotNull
-    public ProtoBuf.Package.Builder packageProto(@NotNull Collection<PackageFragmentDescriptor> fragments) {
-        return packageProto(fragments, null);
+    public ProtoBuf.Package.Builder packageProto(@NotNull PackageViewDescriptor packageViewDescriptor) {
+        return packageProto(packageViewDescriptor, null);
     }
 
     @NotNull
-    public ProtoBuf.Package.Builder packageProto(@NotNull Collection<PackageFragmentDescriptor> fragments, @Nullable Function1<DeclarationDescriptor, Boolean> skip) {
+    public ProtoBuf.Package.Builder packageProto(@NotNull PackageViewDescriptor packageViewDescriptor, @Nullable Function1<DeclarationDescriptor, Boolean> skip) {
         ProtoBuf.Package.Builder builder = ProtoBuf.Package.newBuilder();
 
-        Collection<DeclarationDescriptor> members = new ArrayList<DeclarationDescriptor>();
-        for (PackageFragmentDescriptor fragment : fragments) {
-            members.addAll(fragment.getMemberScope().getAllDescriptors());
-        }
-
-        for (DeclarationDescriptor declaration : sort(members)) {
+        for (DeclarationDescriptor declaration : sort(packageViewDescriptor.getMemberScope().getAllDescriptors())) {
             if (skip != null && skip.invoke(declaration)) continue;
 
             if (declaration instanceof PropertyDescriptor || declaration instanceof FunctionDescriptor) {
@@ -403,7 +398,7 @@ public class DescriptorSerializer {
             }
         }
 
-        extension.serializePackage(fragments, builder, stringTable);
+        extension.serializePackage(packageViewDescriptor, builder, stringTable);
 
         return builder;
     }

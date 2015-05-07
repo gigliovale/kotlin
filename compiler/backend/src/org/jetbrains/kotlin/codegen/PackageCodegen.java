@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.config.IncrementalCompilation;
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor;
+import org.jetbrains.kotlin.descriptors.impl.PackageViewDescriptorImpl;
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames;
@@ -76,6 +77,7 @@ public class PackageCodegen {
     private final ClassBuilderOnDemand v;
     private final GenerationState state;
     private final Collection<JetFile> files;
+    private final FqName fqName;
     private final Type packageClassType;
     private final PackageFragmentDescriptor packageFragment;
     private final PackageFragmentDescriptor compiledPackageFragment;
@@ -84,6 +86,7 @@ public class PackageCodegen {
     public PackageCodegen(@NotNull GenerationState state, @NotNull Collection<JetFile> files, @NotNull FqName fqName) {
         this.state = state;
         this.files = files;
+        this.fqName = fqName;
         this.packageFragment = getOnlyPackageFragment(fqName);
         this.packageClassType = AsmUtil.asmTypeByFqNameWithoutInnerClasses(getPackageClassFqName(fqName));
         this.compiledPackageFragment = getCompiledPackageFragment(fqName);
@@ -269,10 +272,11 @@ public class PackageCodegen {
         }
 
         DescriptorSerializer serializer = DescriptorSerializer.createTopLevel(new JvmSerializerExtension(bindings, state.getTypeMapper()));
-        Collection<PackageFragmentDescriptor> packageFragments = Lists.newArrayList();
-        ContainerUtil.addIfNotNull(packageFragments, packageFragment);
-        ContainerUtil.addIfNotNull(packageFragments, compiledPackageFragment);
-        ProtoBuf.Package packageProto = serializer.packageProto(packageFragments).build();
+        List<PackageFragmentDescriptor> fragmentsOfThisModule = Lists.newArrayList();
+        ContainerUtil.addIfNotNull(fragmentsOfThisModule, packageFragment);
+        ContainerUtil.addIfNotNull(fragmentsOfThisModule, compiledPackageFragment);
+        PackageViewDescriptorImpl viewOnFragmentsOfThisModule = new PackageViewDescriptorImpl(state.getModule(), fqName, fragmentsOfThisModule);
+        ProtoBuf.Package packageProto = serializer.packageProto(viewOnFragmentsOfThisModule).build();
 
         if (packageProto.getMemberCount() == 0) return;
 

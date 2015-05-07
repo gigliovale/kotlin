@@ -19,11 +19,9 @@ package org.jetbrains.kotlin.serialization;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor;
+import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.kotlin.types.JetType;
-
-import java.util.Collection;
 
 public abstract class SerializerExtension {
     public void serializeClass(
@@ -34,7 +32,7 @@ public abstract class SerializerExtension {
     }
 
     public void serializePackage(
-            @NotNull Collection<PackageFragmentDescriptor> packageFragments,
+            @NotNull PackageViewDescriptor packageViewDescriptor,
             @NotNull ProtoBuf.Package.Builder proto,
             @NotNull StringTable stringTable
     ) {

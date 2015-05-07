@@ -53,6 +53,8 @@ public class SpecialFiles {
         excludedFiles.add("innerAnonymousObject.kt"); // Cannot change package name
         excludedFiles.add("nestedReifiedSignature.kt"); // Cannot change package name
         excludedFiles.add("recursiveInnerAnonymousObject.kt"); // Cannot change package name
+        excludedFiles.add("extensionMethod.kt"); // Cannot change package name
+        excludedFiles.add("platformTypeAssertionStackTrace.kt"); // Cannot change package name
 
         excludedFiles.add("kt684.kt"); // StackOverflow with StringBuilder (escape())
 
@@ -68,6 +70,7 @@ public class SpecialFiles {
         excludedFiles.add("classpath.kt"); // Some classes are not visible on android
 
         excludedFiles.add("manyNumbers.kt"); // Out of memory
+        excludedFiles.add("realIteratorFoldl.kt"); // Out of memory
 
         excludedFiles.add("smap"); // Line numbers
     }

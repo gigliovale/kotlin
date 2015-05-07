@@ -89,7 +89,8 @@ public class ModuleDescriptorImpl(
         packageFragmentProviderForModuleContent = providerForModuleContent
     }
 
-    override fun getPackageFragmentProvider() = packageFragmentProviderForWholeModuleWithDependencies
+    override val packageFragmentProvider: PackageFragmentProvider
+        get() = packageFragmentProviderForWholeModuleWithDependencies
 
     private val friendModules = LinkedHashSet<ModuleDescriptor>()
 

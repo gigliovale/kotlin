@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.android.tests;
 
 import com.intellij.util.PlatformUtils;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.android.tests.ant.AntRunner;
@@ -28,11 +27,11 @@ import org.jetbrains.kotlin.android.tests.run.PermissionManager;
 import org.junit.Assert;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class CodegenTestsOnAndroidRunner {
     private static final Pattern ERROR_IN_TEST_OUTPUT_PATTERN =
             Pattern.compile("([\\s]+at .*| Caused .*| java.lang.RuntimeException: File: .*|[\\s]+\\.\\.\\. .* more| Error in .*)");
@@ -40,20 +39,17 @@ public class CodegenTestsOnAndroidRunner {
     private static final Pattern NUMBER_OF_TESTS_OK = Pattern.compile(" OK \\(([0-9]*) tests\\)");
 
     private final PathManager pathManager;
+    private final String platformPrefixProperty = System.setProperty(PlatformUtils.PLATFORM_PREFIX_KEY, "Idea");
 
-    public static TestSuite getTestSuite(PathManager pathManager) {
-        return new CodegenTestsOnAndroidRunner(pathManager).generateTestSuite();
-    }
-
-    private CodegenTestsOnAndroidRunner(PathManager pathManager) {
+    public CodegenTestsOnAndroidRunner(PathManager pathManager) {
         this.pathManager = pathManager;
     }
 
-    private TestSuite generateTestSuite() {
-        TestSuite suite = new TestSuite("MySuite");
+    public List<TestCase> getTests(@NotNull final String folder) {
+        List<TestCase> suite = new ArrayList<TestCase>();
 
         String resultOutput = runTests();
-        if (resultOutput == null) return suite;
+        if (resultOutput == null) return Collections.emptyList();
 
         // Test name -> stackTrace
         Map<String, String> resultMap = parseOutputForFailedTests(resultOutput);
@@ -68,7 +64,7 @@ public class CodegenTestsOnAndroidRunner {
 
             for (final Map.Entry<String, String> entry : resultMap.entrySet()) {
 
-                suite.addTest(new TestCase("run") {
+                suite.add(new TestCase("run") {
                     @Override
                     public String getName() {
                         return entry.getKey();
@@ -86,10 +82,10 @@ public class CodegenTestsOnAndroidRunner {
         Assert.assertEquals("Number of stackTraces != failed tests on the final line", resultMap.size(),
                             statistics.failed + statistics.errors);
 
-        suite.addTest(new TestCase("run") {
+        suite.add(new TestCase("run") {
             @Override
             public String getName() {
-                return "testAll: Total: " + statistics.total + ", Failures: " + statistics.failed + ", Errors: " + statistics.errors;
+                return "Run tests for " + folder + " : Total: " + statistics.total + ", Failures: " + statistics.failed + ", Errors: " + statistics.errors;
             }
 
             @Override
@@ -167,43 +163,57 @@ public class CodegenTestsOnAndroidRunner {
     }
 
 
-    @Nullable
-    public String runTests() {
+    public void downloadDependencies() {
         File rootForAndroidDependencies = new File(pathManager.getDependenciesRoot());
         if (!rootForAndroidDependencies.exists()) {
             rootForAndroidDependencies.mkdirs();
         }
 
         SDKDownloader downloader = new SDKDownloader(pathManager);
-        Emulator emulator = new Emulator(pathManager);
-        AntRunner antRunner = new AntRunner(pathManager);
         downloader.downloadAll();
         downloader.unzipAll();
+    }
 
-        String platformPrefixProperty = System.setProperty(PlatformUtils.PLATFORM_PREFIX_KEY, "Idea");
+    @Nullable
+    public String runTests() {
+        AntRunner antRunner = new AntRunner(pathManager);
+
+        try {
+            antRunner.packLibraries();
+            antRunner.cleanOutput();
+            antRunner.compileSources();
+            antRunner.installApplicationOnEmulator();
+            return antRunner.runTestsOnEmulator();
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
+            stopEmulator();
+            throw e;
+        }
+    }
+
+    public void startEmulator() {
+        Emulator emulator = new Emulator(pathManager);
 
         try {
             PermissionManager.setPermissions(pathManager);
 
-            antRunner.packLibraries();
-
             emulator.createEmulator();
             emulator.startEmulator();
+            emulator.waitEmulatorStart();
+        }
+        catch (RuntimeException e) {
+            e.printStackTrace();
+            stopEmulator();
+            throw e;
+        }
+    }
 
-            try {
-                emulator.waitEmulatorStart();
-                antRunner.cleanOutput();
-                antRunner.compileSources();
-                antRunner.installApplicationOnEmulator();
-                return antRunner.runTestsOnEmulator();
-            }
-            catch (RuntimeException e) {
-                e.printStackTrace();
-                throw e;
-            }
-            finally {
-                emulator.stopEmulator();
-            }
+    public void stopEmulator() {
+        Emulator emulator = new Emulator(pathManager);
+
+        try {
+            emulator.stopEmulator();
         }
         catch (RuntimeException e) {
             e.printStackTrace();

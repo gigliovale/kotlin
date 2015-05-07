@@ -57,20 +57,11 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
 
     private final List<String> generatedTestNames = Lists.newArrayList();
 
-    public static void generate(PathManager pathManager) throws Throwable {
-        new CodegenTestsOnAndroidGenerator(pathManager).generateOutputFiles();
-    }
-
-    private CodegenTestsOnAndroidGenerator(PathManager pathManager) {
+    public CodegenTestsOnAndroidGenerator(PathManager pathManager) {
         this.pathManager = pathManager;
     }
 
-    private void generateOutputFiles() throws Throwable {
-        prepareAndroidModule();
-        generateAndSave();
-    }
-
-    private void prepareAndroidModule() throws IOException {
+    public void prepareAndroidModule() throws IOException {
         System.out.println("Copying kotlin-runtime.jar and kotlin-reflect.jar in android module...");
         copyKotlinRuntimeJars();
 
@@ -92,7 +83,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         );
     }
 
-    private void generateAndSave() throws Throwable {
+    public void generateAndSave(@NotNull File folder) throws Throwable {
         System.out.println("Generating test files...");
         StringBuilder out = new StringBuilder();
         Printer p = new Printer(out);
@@ -106,7 +97,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         p.println("public class ", testClassName, " extends ", baseTestClassName, " {");
         p.pushIndent();
 
-        generateTestMethodsForDirectories(p, new File("compiler/testData/codegen/box"), new File("compiler/testData/codegen/boxWithStdlib"));
+        generateTestMethodsForDirectories(p, folder);
 
         p.popIndent();
         p.println("}");
@@ -166,6 +157,8 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         }
 
         private void writeFiles(List<KtFile> filesToCompile) {
+            if (filesToCompile.isEmpty()) return;
+
             System.out.println("Generating " + filesToCompile.size() + " files...");
             OutputFileCollection outputFiles;
             try {

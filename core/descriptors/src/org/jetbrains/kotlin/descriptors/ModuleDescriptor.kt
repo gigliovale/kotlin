@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.descriptors.impl.PackageViewDescriptorImpl
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.name.Name
 
 public trait ModuleDescriptor : DeclarationDescriptor {
     override fun getContainingDeclaration(): DeclarationDescriptor? = null
@@ -31,6 +32,10 @@ public trait ModuleDescriptor : DeclarationDescriptor {
     public fun getPackage(fqName: FqName): PackageViewDescriptor? {
         val fragments = getPackageFragmentProvider().getPackageFragments(fqName)
         return if (!fragments.isEmpty()) PackageViewDescriptorImpl(this, fqName, fragments) else null
+    }
+
+    public fun getSubPackagesOf(fqName: FqName, nameFilter: (Name) -> Boolean): Collection<FqName> {
+        return getPackageFragmentProvider().getSubPackagesOf(fqName, nameFilter)
     }
 
     public val defaultImports: List<ImportPath>
@@ -48,4 +53,6 @@ public trait ModuleDescriptor : DeclarationDescriptor {
     override fun <R, D> accept(visitor: DeclarationDescriptorVisitor<R, D>, data: D): R {
         return visitor.visitModuleDeclaration(this, data)
     }
+
+    fun myNewFun(): Int = 42
 }

@@ -38,7 +38,9 @@ public class SubpackagesScope(private val containingDeclaration: PackageViewDesc
                                 nameFilter: (Name) -> Boolean): Collection<DeclarationDescriptor> {
         if (!kindFilter.acceptsKinds(DescriptorKindFilter.PACKAGES_MASK)) return listOf()
 
-        val subFqNames = containingDeclaration.getModule().getPackageFragmentProvider().getSubPackagesOf(containingDeclaration.getFqName(), nameFilter)
+        val module = containingDeclaration.getModule()
+        module.myNewFun()
+        val subFqNames = module.getSubPackagesOf(containingDeclaration.getFqName(), nameFilter)
         val result = ArrayList<DeclarationDescriptor>(subFqNames.size())
         for (subFqName in subFqNames) {
             val shortName = subFqName.shortName()

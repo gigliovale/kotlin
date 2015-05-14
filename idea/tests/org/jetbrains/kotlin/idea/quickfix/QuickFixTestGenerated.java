@@ -3217,6 +3217,39 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             }
         }
 
+        @TestMetadata("idea/testData/quickfix/migration/enumEntriesFirst")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class EnumEntriesFirst extends AbstractQuickFixTest {
+            public void testAllFilesPresentInEnumEntriesFirst() throws Exception {
+                JetTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/migration/enumEntriesFirst"), Pattern.compile("^(\\w+)\\.kt$"), true);
+            }
+
+            @TestMetadata("enumEntriesAtTheEnd.kt")
+            public void testEnumEntriesAtTheEnd() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/migration/enumEntriesFirst/enumEntriesAtTheEnd.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("enumMixed.kt")
+            public void testEnumMixed() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/migration/enumEntriesFirst/enumMixed.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("enumMixedWithCommas.kt")
+            public void testEnumMixedWithCommas() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/migration/enumEntriesFirst/enumMixedWithCommas.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("enumMixedWithSemicolons.kt")
+            public void testEnumMixedWithSemicolons() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("idea/testData/quickfix/migration/enumEntriesFirst/enumMixedWithSemicolons.kt");
+                doTest(fileName);
+            }
+        }
+
         @TestMetadata("idea/testData/quickfix/migration/lambdaSyntax")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)

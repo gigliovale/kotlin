@@ -343,5 +343,8 @@ public class QuickFixRegistrar {
 
         QuickFixes.factories.put(UNRESOLVED_REFERENCE, ReplaceObsoleteLabelSyntaxFix.Companion);
         QuickFixes.factories.put(UNRESOLVED_REFERENCE, ReplaceObsoleteLabelSyntaxFix.Companion.createWholeProjectFixFactory());
+
+        QuickFixes.factories.put(ENUM_ENTRY_AFTER_ENUM_MEMBER, EnumEntryAfterEnumMemberFix.Companion);
+        QuickFixes.factories.put(ENUM_ENTRY_AFTER_ENUM_MEMBER, EnumEntryAfterEnumMemberFix.Companion.createWholeProjectFixFactory());
     }
 }

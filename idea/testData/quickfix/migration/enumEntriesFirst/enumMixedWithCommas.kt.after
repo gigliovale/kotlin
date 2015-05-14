@@ -1,0 +1,13 @@
+// "Move enum entries to the enum beginning" "true"
+
+enum class MixedEnum {
+    ENTRY1,
+    ENTRY2,
+    ENTRY3
+
+    companion object {
+        val first = 1
+    }
+
+    fun foo(): String = "xyz"
+}

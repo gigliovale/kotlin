@@ -134,7 +134,7 @@ private fun PsiElement.processDelegationCallJavaConstructorUsages(scope: SearchS
     if (this is KotlinLightElement<*, *>) return
     if (!(this is PsiMethod && isConstructor())) return
     val klass = getContainingClass() ?: return
-    val descriptor = getJavaMethodDescriptor() as? ConstructorDescriptor ?: return
+    val descriptor = (getOriginalElement() as PsiMethod).getJavaMethodDescriptor() as? ConstructorDescriptor ?: return
     processInheritorsDelegatingCallToSpecifiedConstructor(klass, scope, descriptor, process)
 }
 

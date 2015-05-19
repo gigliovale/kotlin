@@ -17,10 +17,32 @@
 package org.jetbrains.kotlin.util.slicedMap
 
 import com.intellij.openapi.util.Key
+import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.util.userDataHolder.UserDataHolderBase
 import org.jetbrains.kotlin.util.userDataHolder.keyFMap.KeyFMap
+import org.jetbrains.kotlin.util.userDataHolder.keyFMap.OneElementFMap
 
 class UserDataHolderImpl : UserDataHolderBase() {
     val keys: Array<Key<*>>
         get() = getUserMap().getKeys()
+
+    override fun changeUserMap(oldMap: KeyFMap?, newMap: KeyFMap?): Boolean {
+        val mapToAdd =
+                if (newMap is OneElementFMap<*> && newMap.getValue() !is Collection<*>) {
+                    cache[newMap]
+                }
+                else {
+                    newMap
+                }
+
+        return super.changeUserMap(oldMap, mapToAdd)
+    }
+
+    companion object {
+        private val cache = SimpleSLRUCache<KeyFMap>(protectedSize = 2000, probationalSize = 2000)
+    }
+}
+
+private class SimpleSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) : SLRUCache<T, T>(protectedSize, probationalSize) {
+    override fun createValue(key: T?): T? = key
 }

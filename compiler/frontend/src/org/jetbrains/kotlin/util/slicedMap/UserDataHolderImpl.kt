@@ -33,7 +33,7 @@ class UserDataHolderImpl : UserDataHolderBase() {
     override fun changeUserMap(oldMap: KeyFMap?, newMap: KeyFMap?): Boolean {
         val mapToAdd =
                 if (newMap is OneElementFMap<*> && newMap.getValue() !is Collection<*>) {
-                    cache.get(newMap)
+                    cache[newMap]
                 }
                 else {
                     newMap
@@ -43,27 +43,12 @@ class UserDataHolderImpl : UserDataHolderBase() {
     }
 
     companion object {
-        private val cache = KeyFMapSLRUCache(protectedSize = 2000, probationalSize = 2000)
+        private val cache = ReferenceSLRUCacheOfKeyFMap(protectedSize = 2000, probationalSize = 2000)
     }
 }
 
-private class SimpleSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) : SLRUCache<T, T>(protectedSize, probationalSize) {
-    override fun createValue(key: T?): T? = key
-}
-
-private fun <T : KeyFMap> SimpleSLRUCache<KeyFMapReference>.get(element: T): T {
-    val ref = KeyFMapReference(element)
-    val cached = get(ref).get()
-    if (cached != null) return cached as T
-
-    put(ref, ref)
-
-    return element
-}
-
-
-private class KeyFMapSLRUCache(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<KeyFMap>(protectedSize, probationalSize) {
-    override fun createReference(element: KeyFMap, queue: ReferenceQueue<KeyFMap>) = KeyFMapReference(element, queue)
+private class ReferenceSLRUCacheOfKeyFMap(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<KeyFMap>(protectedSize, probationalSize) {
+    override fun createReference(element: KeyFMap, queue: ReferenceQueue<KeyFMap>) = ReferenceToKeyFMap(element, queue)
 }
 
 private abstract class ReferenceSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) {
@@ -104,25 +89,21 @@ private abstract class ReferenceSLRUCache<T : Any>(protectedSize: Int, probation
     }
 }
 
-private class KeyFMapReference(referent: KeyFMap, queue: ReferenceQueue<KeyFMap>? = null) : SoftReference<KeyFMap>(referent, queue) {
+private class ReferenceToKeyFMap(referent: KeyFMap, queue: ReferenceQueue<KeyFMap>? = null) : SoftReference<KeyFMap>(referent, queue) {
     private val hashCode = computeHashCode(referent)
 
-    private fun computeHashCode(o: KeyFMap): Int {
-        if (o is OneElementFMap<*>) return o.hashCode()
-
-        return 0
-    }
+    private fun computeHashCode(o: KeyFMap) = if (o is OneElementFMap<*>) o.hashCode() else 0
 
     override fun hashCode(): Int = hashCode
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
 
-        if (other !is KeyFMapReference || hashCode != other.hashCode) return false
+        if (other !is ReferenceToKeyFMap || hashCode != other.hashCode) return false
 
         val o1 = get()
         val o2 = other.get()
-        if (o1 == null || o2 == null || o1.javaClass != o2.javaClass) return false
+        if (o1 == null || o2 == null) return false
 
         if (o1 is OneElementFMap<*>) {
             return o1.equals(o2)

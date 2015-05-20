@@ -21,6 +21,10 @@ import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.util.userDataHolder.UserDataHolderBase
 import org.jetbrains.kotlin.util.userDataHolder.keyFMap.KeyFMap
 import org.jetbrains.kotlin.util.userDataHolder.keyFMap.OneElementFMap
+import java.lang.ref.Reference
+import java.lang.ref.ReferenceQueue
+import java.lang.ref.SoftReference
+import kotlin.platform.platformName
 
 class UserDataHolderImpl : UserDataHolderBase() {
     val keys: Array<Key<*>>
@@ -29,7 +33,7 @@ class UserDataHolderImpl : UserDataHolderBase() {
     override fun changeUserMap(oldMap: KeyFMap?, newMap: KeyFMap?): Boolean {
         val mapToAdd =
                 if (newMap is OneElementFMap<*> && newMap.getValue() !is Collection<*>) {
-                    cache[newMap]
+                    cache.get(newMap)
                 }
                 else {
                     newMap
@@ -39,10 +43,91 @@ class UserDataHolderImpl : UserDataHolderBase() {
     }
 
     companion object {
-        private val cache = SimpleSLRUCache<KeyFMap>(protectedSize = 2000, probationalSize = 2000)
+        private val cache = KeyFMapSLRUCache(protectedSize = 2000, probationalSize = 2000)
     }
 }
 
 private class SimpleSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) : SLRUCache<T, T>(protectedSize, probationalSize) {
     override fun createValue(key: T?): T? = key
+}
+
+private fun <T : KeyFMap> SimpleSLRUCache<KeyFMapReference>.get(element: T): T {
+    val ref = KeyFMapReference(element)
+    val cached = get(ref).get()
+    if (cached != null) return cached as T
+
+    put(ref, ref)
+
+    return element
+}
+
+
+private class KeyFMapSLRUCache(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<KeyFMap>(protectedSize, probationalSize) {
+    override fun createReference(element: KeyFMap, queue: ReferenceQueue<KeyFMap>) = KeyFMapReference(element, queue)
+}
+
+private abstract class ReferenceSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) {
+    private val queue = ReferenceQueue<T>()
+
+    protected abstract fun createReference(element: T, queue: ReferenceQueue<T>): Reference<out T>
+
+    public fun get(element: T): T {
+        val ref = createReference(element, queue)
+        val cached = cache.get(ref).get()
+        if (cached != null) return cached
+
+        cache.put(ref, ref)
+
+        return element
+    }
+
+    private val cache = object : SLRUCache<Reference<out T>, Reference<out T>>(protectedSize, probationalSize) {
+
+        override fun put(key: Reference<out T>, value: Reference<out T>) {
+            cleanupReferences()
+            super.put(key, value)
+        }
+
+        override fun putToProtectedQueue(key: Reference<out T>, value: Reference<out T>) {
+            cleanupReferences()
+            super.putToProtectedQueue(key, value)
+        }
+
+        private fun cleanupReferences() {
+            while (true) {
+                val ref = queue.poll() ?: break
+                remove(ref)
+            }
+        }
+
+        override fun createValue(key: Reference<out T>?): Reference<out T>? = key
+    }
+}
+
+private class KeyFMapReference(referent: KeyFMap, queue: ReferenceQueue<KeyFMap>? = null) : SoftReference<KeyFMap>(referent, queue) {
+    private val hashCode = computeHashCode(referent)
+
+    private fun computeHashCode(o: KeyFMap): Int {
+        if (o is OneElementFMap<*>) return o.hashCode()
+
+        return 0
+    }
+
+    override fun hashCode(): Int = hashCode
+
+    override fun equals(other: Any?): Boolean {
+        if (other === this) return true
+
+        if (other !is KeyFMapReference || hashCode != other.hashCode) return false
+
+        val o1 = get()
+        val o2 = other.get()
+        if (o1 == null || o2 == null || o1.javaClass != o2.javaClass) return false
+
+        if (o1 is OneElementFMap<*>) {
+            return o1.equals(o2)
+        }
+
+        return false
+    }
 }

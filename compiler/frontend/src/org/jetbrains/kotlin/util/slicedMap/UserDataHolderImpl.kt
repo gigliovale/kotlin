@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.util.userDataHolder.keyFMap.OneElementFMap
 import java.lang.ref.Reference
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.SoftReference
-import kotlin.platform.platformName
 
 class UserDataHolderImpl : UserDataHolderBase() {
     val keys: Array<Key<*>>
@@ -43,12 +42,12 @@ class UserDataHolderImpl : UserDataHolderBase() {
     }
 
     companion object {
-        private val cache = ReferenceSLRUCacheOfKeyFMap(protectedSize = 2000, probationalSize = 2000)
+        private val cache = SoftSLRUCache<KeyFMap>(protectedSize = 2000, probationalSize = 2000)
     }
 }
 
-private class ReferenceSLRUCacheOfKeyFMap(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<KeyFMap>(protectedSize, probationalSize) {
-    override fun createReference(element: KeyFMap, queue: ReferenceQueue<KeyFMap>) = ReferenceToKeyFMap(element, queue)
+private class SoftSLRUCache<T>(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<T>(protectedSize, probationalSize) {
+    override fun createReference(element: T, queue: ReferenceQueue<T>) = DelegatingSoftReference(element, queue)
 }
 
 private abstract class ReferenceSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) {
@@ -89,26 +88,20 @@ private abstract class ReferenceSLRUCache<T : Any>(protectedSize: Int, probation
     }
 }
 
-private class ReferenceToKeyFMap(referent: KeyFMap, queue: ReferenceQueue<KeyFMap>? = null) : SoftReference<KeyFMap>(referent, queue) {
-    private val hashCode = computeHashCode(referent)
-
-    private fun computeHashCode(o: KeyFMap) = if (o is OneElementFMap<*>) o.hashCode() else 0
+private class DelegatingSoftReference<T>(referent: T, queue: ReferenceQueue<T>? = null) : SoftReference<T>(referent, queue) {
+    private val hashCode = referent?.hashCode() ?: 0
 
     override fun hashCode(): Int = hashCode
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
 
-        if (other !is ReferenceToKeyFMap || hashCode != other.hashCode) return false
+        if (other !is DelegatingSoftReference<*> || hashCode != other.hashCode) return false
 
         val o1 = get()
         val o2 = other.get()
         if (o1 == null || o2 == null) return false
 
-        if (o1 is OneElementFMap<*>) {
-            return o1.equals(o2)
-        }
-
-        return false
+        return o1.equals(o2)
     }
 }

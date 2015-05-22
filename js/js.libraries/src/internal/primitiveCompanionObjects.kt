@@ -31,21 +31,25 @@ private object FloatCompanionObject : FloatingPointConstants<Float> {
 private object IntCompanionObject : IntegerConstants<Int> {
     override val MIN_VALUE: Int = -0x80000000
     override val MAX_VALUE: Int =  0x7FFFFFFF
+    override val RANGE: IntRange = MIN_VALUE..MAX_VALUE
 }
 
 private object LongCompanionObject : IntegerConstants<Long> {
     override val MIN_VALUE: Long = js("Kotlin.Long.MIN_VALUE")
     override val MAX_VALUE: Long = js("Kotlin.Long.MAX_VALUE")
+    override val RANGE: LongRange = MIN_VALUE..MAX_VALUE
 }
 
 private object ShortCompanionObject : IntegerConstants<Short> {
     override val MIN_VALUE: Short = -0x8000
     override val MAX_VALUE: Short = 0x7FFF
+    override val RANGE: ShortRange = MIN_VALUE..MAX_VALUE
 }
 
 private object ByteCompanionObject : IntegerConstants<Byte> {
     override val MIN_VALUE: Byte = -0x80
     override val MAX_VALUE: Byte = 0x7F
+    override val RANGE: ByteRange = MIN_VALUE..MAX_VALUE
 }
 
 private object CharCompanionObject {}

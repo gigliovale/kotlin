@@ -115,6 +115,8 @@ public final class Byte : kotlin.Number, kotlin.Comparable<kotlin.Byte> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Byte
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Byte
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Byte
+        public abstract override /*1*/ /*fake_override*/ val RANGE: kotlin.Range<kotlin.Byte>
+            public abstract override /*1*/ /*fake_override*/ fun <get-RANGE>(): kotlin.Range<kotlin.Byte>
     }
 }
 
@@ -926,6 +928,8 @@ public final class Int : kotlin.Number, kotlin.Comparable<kotlin.Int> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Int
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Int
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Int
+        public abstract override /*1*/ /*fake_override*/ val RANGE: kotlin.Range<kotlin.Int>
+            public abstract override /*1*/ /*fake_override*/ fun <get-RANGE>(): kotlin.Range<kotlin.Int>
     }
 }
 
@@ -993,11 +997,13 @@ public final class IntRange : kotlin.Range<kotlin.Int>, kotlin.Progression<kotli
     }
 }
 
-public interface IntegerConstants</*0*/ T> {
+public interface IntegerConstants</*0*/ T : kotlin.Comparable<T>> : kotlin.NumericConstants<T> {
     public abstract val MAX_VALUE: T
         public abstract fun <get-MAX_VALUE>(): T
     public abstract val MIN_VALUE: T
         public abstract fun <get-MIN_VALUE>(): T
+    public abstract override /*1*/ /*fake_override*/ val RANGE: kotlin.Range<T>
+        public abstract override /*1*/ /*fake_override*/ fun <get-RANGE>(): kotlin.Range<T>
 }
 
 public interface Iterable</*0*/ out T> {
@@ -1108,6 +1114,8 @@ public final class Long : kotlin.Number, kotlin.Comparable<kotlin.Long> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Long
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Long
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Long
+        public abstract override /*1*/ /*fake_override*/ val RANGE: kotlin.Range<kotlin.Long>
+            public abstract override /*1*/ /*fake_override*/ fun <get-RANGE>(): kotlin.Range<kotlin.Long>
     }
 }
 
@@ -1301,6 +1309,11 @@ public abstract class Number {
     public abstract fun toShort(): kotlin.Short
 }
 
+public interface NumericConstants</*0*/ T : kotlin.Comparable<T>> {
+    public abstract val RANGE: kotlin.Range<T>
+        public abstract fun <get-RANGE>(): kotlin.Range<T>
+}
+
 public interface Progression</*0*/ out N : kotlin.Any> : kotlin.Iterable<N> {
     public abstract val end: N
         public abstract fun <get-end>(): N
@@ -1408,6 +1421,8 @@ public final class Short : kotlin.Number, kotlin.Comparable<kotlin.Short> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Short
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Short
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Short
+        public abstract override /*1*/ /*fake_override*/ val RANGE: kotlin.Range<kotlin.Short>
+            public abstract override /*1*/ /*fake_override*/ fun <get-RANGE>(): kotlin.Range<kotlin.Short>
     }
 }
 

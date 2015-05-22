@@ -16,10 +16,17 @@
 
 package kotlin
 
+public interface NumericConstants<T : Comparable<T>> {
+    /**
+     * An inclusive range of finite values an instance of [T] can have.
+     */
+    public val RANGE: Range<T>
+}
+
 /**
  * An interface implemented by companion objects of integral types.
  */
-public interface IntegerConstants<T> {
+public interface IntegerConstants<T : Comparable<T>> : NumericConstants<T> {
     /**
      * A constant holding the minimum value an instance of [T] can have.
      */

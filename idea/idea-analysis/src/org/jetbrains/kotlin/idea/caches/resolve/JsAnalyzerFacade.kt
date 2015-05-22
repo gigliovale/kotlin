@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.types.DynamicTypesAllowed
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 
 public class JsResolverForModule(
@@ -54,7 +55,7 @@ public object JsAnalyzerFacade : AnalyzerFacade<JsResolverForModule, PlatformAna
                 project, moduleContext.storageManager, syntheticFiles, moduleContentScope
         )
 
-        val injector = InjectorForLazyResolve(moduleContext, declarationProviderFactory, BindingTraceContext(),
+        val injector = InjectorForLazyResolve(moduleContext, declarationProviderFactory, BindingTraceContext(project.getCache()),
                                               KotlinJsCheckerProvider, DynamicTypesAllowed())
         val resolveSession = injector.getResolveSession()!!
         var packageFragmentProvider = resolveSession.getPackageFragmentProvider()

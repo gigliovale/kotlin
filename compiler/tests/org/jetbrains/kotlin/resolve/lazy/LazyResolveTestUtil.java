@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.TopDownAnalysisMode;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +48,7 @@ public class LazyResolveTestUtil {
 
     @NotNull
     public static ModuleDescriptor resolve(@NotNull Project project, @NotNull List<JetFile> sourceFiles) {
-        return resolve(project, new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(), sourceFiles);
+        return resolve(project, new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(project)), sourceFiles);
     }
 
     @NotNull

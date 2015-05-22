@@ -29,10 +29,11 @@ import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.types.expressions.JetTypeInfo
+import org.jetbrains.kotlin.util.slicedMap.getCache
 
 public fun JetExpression.computeTypeInfoInContext(
         scope: JetScope,
-        trace: BindingTrace = BindingTraceContext(),
+        trace: BindingTrace = BindingTraceContext(getProject().getCache()),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
         module: ModuleDescriptor = scope.getModule()
@@ -43,7 +44,7 @@ public fun JetExpression.computeTypeInfoInContext(
 
 public fun JetExpression.analyzeInContext(
         scope: JetScope,
-        trace: BindingTrace = BindingTraceContext(),
+        trace: BindingTrace = BindingTraceContext(getProject().getCache()),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
         module: ModuleDescriptor = scope.getModule()
@@ -54,7 +55,7 @@ public fun JetExpression.analyzeInContext(
 
 public fun JetExpression.computeTypeInContext(
         scope: JetScope,
-        trace: BindingTrace = BindingTraceContext(),
+        trace: BindingTrace = BindingTraceContext(getProject().getCache()),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
         module: ModuleDescriptor = scope.getModule()

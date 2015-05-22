@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.resolve.AnalyzingUtils;
 import org.jetbrains.kotlin.resolve.BindingTraceContext;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class CodegenTestUtil {
         analysisResult.throwIfError();
         AnalyzingUtils.throwExceptionOnErrors(analysisResult.getBindingContext());
         CompilerConfiguration configuration = environment.getConfiguration();
-        BindingTraceContext forExtraDiagnostics = new BindingTraceContext();
+        BindingTraceContext forExtraDiagnostics = new BindingTraceContext(SlicedMapPackage.getCache(environment.getProject()));
         GenerationState state = new GenerationState(
                 environment.getProject(), ClassBuilderFactories.TEST, Progress.DEAF,
                 analysisResult.getModuleDescriptor(), analysisResult.getBindingContext(), files.getPsiFiles(),

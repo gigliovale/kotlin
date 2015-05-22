@@ -45,6 +45,7 @@ import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,7 +140,7 @@ public class TypeSubstitutorTest extends KotlinTestWithEnvironment {
     private JetType resolveType(String typeStr) {
         JetTypeReference jetTypeReference = JetPsiFactory(getProject()).createType(typeStr);
         AnalyzingUtils.checkForSyntacticErrors(jetTypeReference);
-        BindingTrace trace = new BindingTraceContext();
+        BindingTrace trace = new BindingTraceContext(SlicedMapPackage.getCache(getProject()));
         JetType type = injector.getTypeResolver().resolveType(scope, jetTypeReference, trace, true);
         if (!trace.getBindingContext().getDiagnostics().isEmpty()) {
             fail("Errors:\n" + StringUtil.join(

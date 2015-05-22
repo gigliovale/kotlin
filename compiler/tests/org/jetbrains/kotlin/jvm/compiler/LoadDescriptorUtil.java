@@ -43,6 +43,7 @@ import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetTestUtils;
 import org.jetbrains.kotlin.test.TestJdkKind;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +102,8 @@ public final class LoadDescriptorUtil {
         KotlinCoreEnvironment environment =
                 KotlinCoreEnvironment.createForTests(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
 
-        BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+        BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(
+                environment.getProject()));
         ModuleDescriptor module = LazyResolveTestUtil.resolve(environment.getProject(), trace, Collections.<JetFile>emptyList());
 
         PackageViewDescriptor packageView = module.getPackage(TEST_PACKAGE_FQNAME);

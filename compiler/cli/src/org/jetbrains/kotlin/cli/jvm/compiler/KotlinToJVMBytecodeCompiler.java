@@ -55,6 +55,7 @@ import org.jetbrains.kotlin.resolve.BindingTraceContext;
 import org.jetbrains.kotlin.resolve.ScriptNameUtil;
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.utils.KotlinPaths;
 
 import java.io.File;
@@ -315,7 +316,7 @@ public class KotlinToJVMBytecodeCompiler {
                     @NotNull
                     @Override
                     public AnalysisResult invoke() {
-                        BindingTrace sharedTrace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+                        BindingTrace sharedTrace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(environment.getProject()));
                         ModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.getProject());
 
                         return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationWithCustomContext(
@@ -363,7 +364,7 @@ public class KotlinToJVMBytecodeCompiler {
                 packagesWithObsoleteParts.add(JvmClassName.byInternalName(internalName).getPackageFqName());
             }
         }
-        BindingTraceContext diagnosticHolder = new BindingTraceContext();
+        BindingTraceContext diagnosticHolder = new BindingTraceContext(SlicedMapPackage.getCache(environment.getProject()));
         GenerationState generationState = new GenerationState(
                 environment.getProject(),
                 ClassBuilderFactories.BINARIES,

@@ -35,7 +35,6 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.PsiModificationTracker;
 import com.intellij.psi.util.PsiTreeUtil;
-import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.containers.Stack;
 import kotlin.Function0;
@@ -57,6 +56,7 @@ import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.BindingTraceContext;
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics;
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.org.objectweb.asm.Type;
 
 import java.util.Collection;
@@ -327,7 +327,7 @@ public class KotlinJavaFileStubProvider<T extends WithFileStubAndExtraDiagnostic
 
         PsiJavaFileStub javaFileStub = createJavaFileStub(packageFqName, files);
         BindingContext bindingContext;
-        BindingTraceContext forExtraDiagnostics = new BindingTraceContext();
+        BindingTraceContext forExtraDiagnostics = new BindingTraceContext(SlicedMapPackage.getCache(project));
         try {
             Stack<StubElement> stubStack = new Stack<StubElement>();
             stubStack.push(javaFileStub);

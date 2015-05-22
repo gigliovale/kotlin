@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import java.util.HashSet
@@ -204,6 +205,6 @@ public class KotlinIndicesHelper(
         val scope = JetModuleUtil.getSubpackagesOfRootScope(moduleDescriptor)
         val qualifiedExpressionResolver = QualifiedExpressionResolver()
         qualifiedExpressionResolver.setSymbolUsageValidator(SymbolUsageValidator.Empty)
-        return qualifiedExpressionResolver.processImportReference(importDirective, scope, scope, BindingTraceContext(), LookupMode.EVERYTHING).getAllDescriptors()
+        return qualifiedExpressionResolver.processImportReference(importDirective, scope, scope, BindingTraceContext(project.getCache()), LookupMode.EVERYTHING).getAllDescriptors()
     }
 }

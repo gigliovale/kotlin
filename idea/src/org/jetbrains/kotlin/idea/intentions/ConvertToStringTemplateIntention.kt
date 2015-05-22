@@ -33,6 +33,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiUtilCore
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.util.slicedMap.getCache
 
 
 public class ConvertToStringTemplateIntention : JetSelfTargetingOffsetIndependentIntention<JetBinaryExpression>(javaClass(), "Convert concatenation to template") {
@@ -78,7 +79,7 @@ public class ConvertToStringTemplateIntention : JetSelfTargetingOffsetIndependen
         return when (expression) {
             is JetConstantExpression -> {
                 val context = expression.analyze()
-                val constant = ConstantExpressionEvaluator.evaluate(expression, DelegatingBindingTrace(context, "Trace for evaluating constant"), null)
+                val constant = ConstantExpressionEvaluator.evaluate(expression, DelegatingBindingTrace(context, expression.getProject().getCache(), "Trace for evaluating constant"), null)
                 if (constant is IntegerValueTypeConstant) {
                     val elementType = BindingContextUtils.getRecordedTypeInfo(expression, context)?.type!!
                     constant.getValue(elementType).toString()

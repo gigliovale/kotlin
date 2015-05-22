@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.jvm.kotlinSignature.TypeTransformingVisitor;
 import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -75,7 +76,7 @@ public abstract class AbstractSdkAnnotationsValidityTest extends UsefulTestCase 
             try {
                 KotlinCoreEnvironment commonEnvironment = createEnvironment(parentDisposable);
 
-                BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+                BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(commonEnvironment.getProject()));
                 ModuleDescriptor module = LazyResolveTestUtil.resolve(
                         commonEnvironment.getProject(), trace, Collections.<JetFile>emptyList()
                 );

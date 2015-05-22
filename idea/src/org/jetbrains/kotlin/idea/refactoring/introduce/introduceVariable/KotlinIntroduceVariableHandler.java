@@ -64,6 +64,7 @@ import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.TypeUtils;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -135,7 +136,7 @@ public class KotlinIntroduceVariableHandler extends KotlinIntroduceHandlerBase {
         if (scope != null) {
             DataFlowInfo dataFlowInfo = BindingContextUtilPackage.getDataFlowInfo(bindingContext, expression);
 
-            ObservableBindingTrace bindingTrace = new ObservableBindingTrace(new BindingTraceContext());
+            ObservableBindingTrace bindingTrace = new ObservableBindingTrace(new BindingTraceContext(SlicedMapPackage.getCache(project)));
             JetType typeNoExpectedType = AnalyzerPackage.computeTypeInfoInContext(
                     expression, scope, bindingTrace, dataFlowInfo, TypeUtils.NO_EXPECTED_TYPE, analysisResult.getModuleDescriptor()
             ).getType();

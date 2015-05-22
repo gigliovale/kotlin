@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.test.JetTestUtils;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.TypeUtils;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -129,7 +130,7 @@ public class JetExpectedResolveDataUtil {
         InjectorForTests injector = new InjectorForTests(project, emptyModule);
 
         ExpressionTypingContext context = ExpressionTypingContext.newContext(
-                injector.getAdditionalCheckerProvider(), new BindingTraceContext(), classDescriptor.getDefaultType().getMemberScope(),
+                injector.getAdditionalCheckerProvider(), new BindingTraceContext(SlicedMapPackage.getCache(project)), classDescriptor.getDefaultType().getMemberScope(),
                 DataFlowInfo.EMPTY, TypeUtils.NO_EXPECTED_TYPE);
 
         OverloadResolutionResults<FunctionDescriptor> functions = injector.getFakeCallResolver().resolveFakeCall(

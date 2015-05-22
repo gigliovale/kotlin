@@ -43,6 +43,7 @@ import org.jetbrains.kotlin.test.TestCaseWithTmpdir;
 import org.jetbrains.kotlin.test.TestJdkKind;
 import org.jetbrains.kotlin.test.util.DescriptorValidator;
 import org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.junit.Assert;
 
 import java.io.File;
@@ -146,7 +147,8 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
         KotlinCoreEnvironment environment =
                 KotlinCoreEnvironment.createForTests(getTestRootDisposable(), configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
 
-        BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+        BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(
+                environment.getProject()));
         ModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.getProject());
 
         TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationNoIncremental(

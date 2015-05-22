@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 import org.jetbrains.kotlin.resolve.diagnostics.MutableDiagnosticsWithSuppression
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.util.slicedMap.getCache
 
 class MutableDiagnosticsTest : KotlinTestWithEnvironment() {
     override fun createEnvironment(): KotlinCoreEnvironment? {
@@ -35,9 +36,11 @@ class MutableDiagnosticsTest : KotlinTestWithEnvironment() {
         get() = getBindingContext().getDiagnostics()
 
     fun testPropagatingModification() {
-        val base = BindingTraceContext()
-        val middle = DelegatingBindingTrace(base.getBindingContext(), "middle")
-        val derived = DelegatingBindingTrace(middle.getBindingContext(), "derived")
+        val cache = getProject().getCache()
+
+        val base = BindingTraceContext(cache)
+        val middle = DelegatingBindingTrace(base.getBindingContext(), cache, "middle")
+        val derived = DelegatingBindingTrace(middle.getBindingContext(), cache, "derived")
 
         Assert.assertTrue(base.diagnostics.isEmpty())
         Assert.assertTrue(middle.diagnostics.isEmpty())
@@ -78,9 +81,11 @@ class MutableDiagnosticsTest : KotlinTestWithEnvironment() {
     }
 
     fun testCaching() {
-        val base = BindingTraceContext()
-        val middle = DelegatingBindingTrace(base.getBindingContext(), "middle")
-        val derived = DelegatingBindingTrace(middle.getBindingContext(), "derived")
+        val cache = getProject().getCache()
+
+        val base = BindingTraceContext(cache)
+        val middle = DelegatingBindingTrace(base.getBindingContext(), cache, "middle")
+        val derived = DelegatingBindingTrace(middle.getBindingContext(), cache, "derived")
 
         base.reportDiagnostic()
         middle.reportDiagnostic()

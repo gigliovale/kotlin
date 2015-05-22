@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProvid
 import org.jetbrains.kotlin.test.ConfigurationKind
 import org.jetbrains.kotlin.test.JetTestUtils
 import org.jetbrains.kotlin.types.DynamicTypesSettings
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.io.File
 import java.util.ArrayList
 
@@ -52,7 +53,7 @@ public abstract class AbstractDescriptorRendererTest : KotlinTestWithEnvironment
         val resolveSession = InjectorForLazyResolve(
                 context,
                 FileBasedDeclarationProviderFactory(context.storageManager, listOf(psiFile)),
-                CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(),
+                CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(getProject().getCache()),
                 KotlinJvmCheckerProvider, DynamicTypesSettings()).getResolveSession()
 
         context.initializeModuleContents(resolveSession.getPackageFragmentProvider())

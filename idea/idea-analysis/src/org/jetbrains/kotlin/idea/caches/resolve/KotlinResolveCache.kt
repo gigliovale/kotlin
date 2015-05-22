@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.scopes.ChainedScope
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.util.HashMap
 
 public trait CacheExtension<T> {
@@ -222,7 +223,7 @@ private object KotlinResolveDataProvider {
                 file.putUserData(LibrarySourceHacks.SKIP_TOP_LEVEL_MEMBERS, true)
             }
 
-            val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), "Trace for resolution of " + analyzableElement)
+            val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), project.getCache(), "Trace for resolution of " + analyzableElement)
 
             val targetPlatform = TargetPlatformDetector.getPlatform(analyzableElement.getContainingJetFile())
             val globalContext = SimpleGlobalContext(resolveSession.getStorageManager(), resolveSession.getExceptionTracker())
@@ -301,7 +302,7 @@ private object KotlinResolveDataProvider {
 
         return codeFragmentExpression.analyzeInContext(
                 chainedScope,
-                BindingTraceContext(),
+                BindingTraceContext(contextElement.getProject().getCache()),
                 dataFlowInfo,
                 TypeUtils.NO_EXPECTED_TYPE,
                 resolveSession.getModuleDescriptor()

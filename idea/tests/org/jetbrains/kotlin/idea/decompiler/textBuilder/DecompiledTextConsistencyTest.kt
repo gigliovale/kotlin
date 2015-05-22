@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.resolve.MemberComparator
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.descriptorUtil.resolveTopLevelClass
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import org.junit.Assert
 
 public class DecompiledTextConsistencyTest : JetLightCodeInsightFixtureTestCase() {
@@ -62,7 +63,7 @@ class ProjectBasedResolverForDecompiler(project: Project) : ResolverForDecompile
     val module: ModuleDescriptor = run {
         TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationWithCustomContext(
                 TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project),
-                listOf(), BindingTraceContext(), null, null
+                listOf(), BindingTraceContext(project.getCache()), null, null
         ).moduleDescriptor
     }
 

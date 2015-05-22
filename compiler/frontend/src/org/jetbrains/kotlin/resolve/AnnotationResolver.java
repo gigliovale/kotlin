@@ -55,6 +55,7 @@ import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.types.ErrorUtils;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -159,7 +160,7 @@ public class AnnotationResolver {
             return ErrorUtils.createErrorType("No type reference: " + entryElement.getText());
         }
 
-        JetType type = typeResolver.resolveType(scope, typeReference, new BindingTraceContext(), true);
+        JetType type = typeResolver.resolveType(scope, typeReference, new BindingTraceContext(SlicedMapPackage.getCache(entryElement.getProject())), true);
         if (!(type.getConstructor().getDeclarationDescriptor() instanceof ClassDescriptor)) {
             return ErrorUtils.createErrorType("Not an annotation: " + type);
         }

@@ -42,6 +42,7 @@ import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.io.File;
 import java.io.IOException;
@@ -586,7 +587,8 @@ public class JetTypeCheckerTest extends JetLiteFixture {
         Project project = getProject();
         JetExpression jetExpression = JetPsiFactory(project).createExpression(expression);
         JetType type = expressionTypingServices.getType(
-                addImports(scope), jetExpression, TypeUtils.NO_EXPECTED_TYPE, DataFlowInfo.EMPTY, new BindingTraceContext());
+                addImports(scope), jetExpression, TypeUtils.NO_EXPECTED_TYPE, DataFlowInfo.EMPTY, new BindingTraceContext(
+                        SlicedMapPackage.getCache(project)));
         JetType expectedType = expectedTypeStr == null ? null : makeType(expectedTypeStr);
         assertEquals(expectedType, type);
     }

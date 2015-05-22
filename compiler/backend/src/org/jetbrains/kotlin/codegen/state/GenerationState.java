@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace;
 import org.jetbrains.kotlin.builtins.ReflectionTypes;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.io.File;
 import java.util.Collection;
@@ -179,7 +180,7 @@ public class GenerationState {
         this.classBuilderMode = builderFactory.getClassBuilderMode();
         this.disableInline = disableInline;
 
-        this.bindingTrace = new DelegatingBindingTrace(bindingContext, "trace in GenerationState");
+        this.bindingTrace = new DelegatingBindingTrace(bindingContext, SlicedMapPackage.getCache(project), "trace in GenerationState");
         this.bindingContext = bindingTrace.getBindingContext();
 
         this.outDirectory = outDirectory;

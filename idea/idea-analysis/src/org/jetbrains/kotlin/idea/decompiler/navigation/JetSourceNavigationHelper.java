@@ -64,6 +64,7 @@ import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
 import org.jetbrains.kotlin.types.DynamicTypesSettings;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -252,7 +253,7 @@ public class JetSourceNavigationHelper {
         ResolveSession resolveSession = new InjectorForLazyResolve(
                 newModuleContext,
                 providerFactory,
-                new BindingTraceContext(),
+                new BindingTraceContext(SlicedMapPackage.getCache(project)),
                 AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
                 new DynamicTypesSettings()).getResolveSession();
 

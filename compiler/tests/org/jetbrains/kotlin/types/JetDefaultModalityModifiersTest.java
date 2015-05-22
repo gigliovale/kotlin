@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.resolve.scopes.WritableScopeImpl;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.JetLiteFixture;
 import org.jetbrains.kotlin.test.JetTestUtils;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.Collections;
 import java.util.List;
@@ -103,7 +104,7 @@ public class JetDefaultModalityModifiersTest extends JetLiteFixture {
                     moduleContext,
                     new FileBasedDeclarationProviderFactory(moduleContext.getStorageManager(),
                                                             Collections.singleton(aClass.getContainingJetFile())),
-                    new BindingTraceContext(),
+                    new BindingTraceContext(SlicedMapPackage.getCache(getProject())),
                     AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
                     new DynamicTypesSettings()
             ).getResolveSession();

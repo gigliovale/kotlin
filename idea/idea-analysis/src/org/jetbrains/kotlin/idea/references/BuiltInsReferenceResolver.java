@@ -39,9 +39,7 @@ import org.jetbrains.kotlin.asJava.LightClassUtil;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.context.ContextPackage;
 import org.jetbrains.kotlin.context.MutableModuleContext;
-import org.jetbrains.kotlin.context.ProjectContext;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.di.InjectorForLazyResolve;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.JetFile;
@@ -53,6 +51,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.types.DynamicTypesSettings;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 
 import java.io.File;
@@ -111,7 +110,7 @@ public class BuiltInsReferenceResolver extends AbstractProjectComponent {
                 InjectorForLazyResolve injectorForLazyResolve =
                         new InjectorForLazyResolve(
                                 newModuleContext,
-                                declarationFactory, new BindingTraceContext(),
+                                declarationFactory, new BindingTraceContext(SlicedMapPackage.getCache(myProject)),
                                 AdditionalCheckerProvider.DefaultProvider.INSTANCE$,
                                 new DynamicTypesSettings()
                         );

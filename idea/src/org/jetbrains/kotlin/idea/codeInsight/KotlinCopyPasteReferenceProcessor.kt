@@ -58,6 +58,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.isExtension
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.ErrorUtils
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.awt.datatransfer.Transferable
@@ -322,7 +323,7 @@ public class KotlinCopyPasteReferenceProcessor() : CopyPastePostProcessor<Kotlin
         val qualifiedExpressionResolver = QualifiedExpressionResolver()
         qualifiedExpressionResolver.setSymbolUsageValidator(SymbolUsageValidator.Empty)
         return qualifiedExpressionResolver
-                .processImportReference(importDirective, scope, scope, BindingTraceContext(), LookupMode.EVERYTHING)
+                .processImportReference(importDirective, scope, scope, BindingTraceContext(file.getProject().getCache()), LookupMode.EVERYTHING)
                 .getAllDescriptors()
     }
 

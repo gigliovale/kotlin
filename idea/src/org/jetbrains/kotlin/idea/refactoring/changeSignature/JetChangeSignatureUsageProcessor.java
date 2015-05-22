@@ -72,6 +72,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ThisReceiver;
 import org.jetbrains.kotlin.types.JetType;
 import org.jetbrains.kotlin.types.TypeUtils;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.*;
 
@@ -458,7 +459,7 @@ public class JetChangeSignatureUsageProcessor implements ChangeSignatureUsagePro
             BindingContext newContext =
                     AnalyzerPackage.analyzeInContext(newExpr,
                                                      scope,
-                                                     new BindingTraceContext(),
+                                                     new BindingTraceContext(SlicedMapPackage.getCache(newExpr.getProject())),
                                                      DataFlowInfo.EMPTY,
                                                      TypeUtils.NO_EXPECTED_TYPE,
                                                      DescriptorUtils.getContainingModule(scope.getContainingDeclaration()));

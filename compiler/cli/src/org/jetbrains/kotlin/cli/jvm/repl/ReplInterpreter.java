@@ -63,6 +63,7 @@ import org.jetbrains.kotlin.resolve.lazy.data.JetClassLikeInfo;
 import org.jetbrains.kotlin.resolve.lazy.declarations.*;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 import org.jetbrains.org.objectweb.asm.Type;
 
@@ -106,7 +107,7 @@ public class ReplInterpreter {
                 KotlinCoreEnvironment.createForProduction(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
         Project project = environment.getProject();
         this.psiFileFactory = (PsiFileFactoryImpl) PsiFileFactory.getInstance(project);
-        this.trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+        this.trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(project));
         MutableModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project);
         this.module = moduleContext.getModule();
 

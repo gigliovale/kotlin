@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.SubstitutionUtils
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.util.HashMap
 
 public object HeuristicSignatures {
@@ -101,7 +102,7 @@ public object HeuristicSignatures {
         val rootPackagesScope = JetModuleUtil.getSubpackagesOfRootScope(moduleDescriptor)
         val typeParametersScope = TypeParametersScope(typeParameters)
         val scope = ChainedScope(moduleDescriptor, "Root packages + type parameters", typeParametersScope, rootPackagesScope)
-        val type = injector.getTypeResolver().resolveType(scope, typeRef, BindingTraceContext(), false)
+        val type = injector.getTypeResolver().resolveType(scope, typeRef, BindingTraceContext(project.getCache()), false)
         assert(!type.isError()) { "No type resolved from '$text'" }
         return type
     }

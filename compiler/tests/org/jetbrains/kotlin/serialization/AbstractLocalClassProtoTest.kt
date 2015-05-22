@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory
 import org.jetbrains.kotlin.test.*
 import org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.io.File
 import java.net.URLClassLoader
 
@@ -56,7 +57,7 @@ public abstract class AbstractLocalClassProtoTest : TestCaseWithTmpdir() {
         val providerFactory = FileBasedDeclarationProviderFactory(moduleContext.storageManager, emptyList())
 
         val injector = InjectorForTopDownAnalyzerForJvm(
-                moduleContext, CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(),
+                moduleContext, CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(environment.project.getCache()),
                 providerFactory, GlobalSearchScope.allScope(environment.project)
         )
         moduleContext.initializeModuleContents(injector.getJavaDescriptorResolver().packageFragmentProvider)

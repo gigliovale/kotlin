@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.resolve.AnalyzingUtils;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -69,7 +70,7 @@ public class JvmResolveUtil {
     ) {
         ModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project);
 
-        BindingTrace trace = new CliLightClassGenerationSupport.CliBindingTrace();
+        BindingTrace trace = new CliLightClassGenerationSupport.CliBindingTrace(SlicedMapPackage.getCache(project));
 
         return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationWithCustomContext(moduleContext, files, trace, null, null);
     }

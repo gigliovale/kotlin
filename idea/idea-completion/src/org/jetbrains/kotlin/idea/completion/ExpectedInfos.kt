@@ -46,6 +46,7 @@ import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.util.HashSet
 
 enum class Tail {
@@ -150,7 +151,7 @@ class ExpectedInfos(
 
         val expectedType = (callElement as? JetExpression)?.let { bindingContext[BindingContext.EXPECTED_EXPRESSION_TYPE, it] } ?: TypeUtils.NO_EXPECTED_TYPE
         val dataFlowInfo = bindingContext.getDataFlowInfo(calleeExpression)
-        val bindingTrace = DelegatingBindingTrace(bindingContext, "Temporary trace for completion")
+        val bindingTrace = DelegatingBindingTrace(bindingContext, calleeExpression.getProject().getCache(), "Temporary trace for completion")
         val context = BasicCallResolutionContext.create(bindingTrace, resolutionScope, truncatedCall, expectedType, dataFlowInfo,
                                                         ContextDependency.INDEPENDENT, CheckValueArgumentsMode.ENABLED,
                                                         CompositeChecker(listOf()), SymbolUsageValidator.Empty, AdditionalTypeChecker.Composite(listOf()), false)

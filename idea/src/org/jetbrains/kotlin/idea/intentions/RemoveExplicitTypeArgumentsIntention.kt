@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.util.DelegatingCall
 import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.util.slicedMap.getCache
 
 public class RemoveExplicitTypeArgumentsInspection : IntentionBasedInspection<JetTypeArgumentList>(RemoveExplicitTypeArgumentsIntention()) {
     override val problemHighlightType: ProblemHighlightType
@@ -67,7 +68,7 @@ public class RemoveExplicitTypeArgumentsIntention : JetSelfTargetingOffsetIndepe
         val dataFlow = context.getDataFlowInfo(callExpression)
         val injector = InjectorForMacros(callExpression.getProject(), callExpression.findModuleDescriptor())
         val resolutionResults = injector.getCallResolver().resolveFunctionCall(
-                BindingTraceContext(), scope, untypedCall, expectedType, dataFlow, false)
+                BindingTraceContext(callExpression.getProject().getCache()), scope, untypedCall, expectedType, dataFlow, false)
         assert (resolutionResults.isSingleResult()) {
             "Removing type arguments changed resolve for: ${callExpression.getTextWithLocation()} to ${resolutionResults.getResultCode()}"
         }

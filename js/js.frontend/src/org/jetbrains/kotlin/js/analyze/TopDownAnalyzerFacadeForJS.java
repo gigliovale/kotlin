@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap;
 import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.resolve.*;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +69,7 @@ public final class TopDownAnalyzerFacadeForJS {
             @NotNull Collection<JetFile> files,
             @NotNull Config config
     ) {
-        BindingTrace trace = new BindingTraceContext();
+        BindingTrace trace = new BindingTraceContext(SlicedMapPackage.getCache(config.getProject()));
 
         MutableModuleContext newModuleContext = ContextPackage.ContextForNewModule(
                 config.getProject(), Name.special("<" + config.getModuleId() + ">"), JS_MODULE_PARAMETERS

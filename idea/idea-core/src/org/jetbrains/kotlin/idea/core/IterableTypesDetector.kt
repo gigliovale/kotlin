@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
+import org.jetbrains.kotlin.util.slicedMap.getCache
 import java.util.HashMap
 
 public class IterableTypesDetector(
@@ -58,7 +59,7 @@ public class IterableTypesDetector(
         val expression = JetPsiFactory(project).createExpression("fake")
         val expressionReceiver = ExpressionReceiver(expression, type.type)
         val context = ExpressionTypingContext.newContext(injector.getExpressionTypingComponents().getAdditionalCheckerProvider(),
-                                                         BindingTraceContext(), scope, DataFlowInfo.EMPTY, TypeUtils.NO_EXPECTED_TYPE)
+                                                         BindingTraceContext(project.getCache()), scope, DataFlowInfo.EMPTY, TypeUtils.NO_EXPECTED_TYPE)
         val elementType = injector.getExpressionTypingComponents().getForLoopConventionsChecker().checkIterableConvention(expressionReceiver, context)
         if (elementType == null) return false
         return loopVarType == null || FuzzyType(elementType, type.freeParameters).checkIsSubtypeOf(loopVarType) != null

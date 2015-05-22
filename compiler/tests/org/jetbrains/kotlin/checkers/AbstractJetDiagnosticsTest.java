@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.test.InTextDirectivesUtils;
 import org.jetbrains.kotlin.test.JetTestUtils;
 import org.jetbrains.kotlin.test.util.DescriptorValidator;
 import org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 
 import java.io.File;
@@ -109,7 +110,7 @@ public abstract class AbstractJetDiagnosticsTest extends BaseDiagnosticsTest {
             List<JetFile> jetFiles = getJetFiles(testFilesInModule, true);
 
             ModuleDescriptorImpl module = modules.get(testModule);
-            BindingTrace moduleTrace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
+            BindingTrace moduleTrace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(getProject()));
 
             moduleBindings.put(testModule, moduleTrace.getBindingContext());
 

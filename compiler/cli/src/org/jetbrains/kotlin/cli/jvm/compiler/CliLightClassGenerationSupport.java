@@ -47,6 +47,8 @@ import org.jetbrains.kotlin.resolve.lazy.ResolveSessionUtils;
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice;
+import org.jetbrains.kotlin.util.slicedMap.SimpleCache;
+import org.jetbrains.kotlin.util.slicedMap.SlicedMapPackage;
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 
@@ -209,10 +211,14 @@ public class CliLightClassGenerationSupport extends LightClassGenerationSupport 
     @NotNull
     @Override
     public BindingTraceContext createTrace() {
-        return new NoScopeRecordCliBindingTrace();
+        return new NoScopeRecordCliBindingTrace(SlicedMapPackage.getCache(psiManager.getProject()));
     }
 
     public static class NoScopeRecordCliBindingTrace extends CliBindingTrace {
+        public NoScopeRecordCliBindingTrace(SimpleCache<Object> cache) {
+            super(cache);
+        }
+
         @Override
         public <K, V> void record(WritableSlice<K, V> slice, K key, V value) {
             if (slice == BindingContext.RESOLUTION_SCOPE || slice == BindingContext.TYPE_RESOLUTION_SCOPE) {
@@ -232,7 +238,8 @@ public class CliLightClassGenerationSupport extends LightClassGenerationSupport 
         private KotlinCodeAnalyzer kotlinCodeAnalyzer;
 
         @TestOnly
-        public CliBindingTrace() {
+        public CliBindingTrace(SimpleCache<Object> cache) {
+            super(cache);
         }
 
         @Override

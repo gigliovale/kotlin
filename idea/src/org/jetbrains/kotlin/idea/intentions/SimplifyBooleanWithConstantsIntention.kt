@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.psi.psiUtil.copied
 import org.jetbrains.kotlin.psi.psiUtil.replaced
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.util.slicedMap.getCache
 
 public class SimplifyBooleanWithConstantsIntention : JetSelfTargetingOffsetIndependentIntention<JetBinaryExpression>(javaClass(), "Simplify boolean expression") {
 
@@ -122,7 +123,7 @@ public class SimplifyBooleanWithConstantsIntention : JetSelfTargetingOffsetIndep
 
     private fun JetExpression.canBeReducedToBooleanConstant(constant: Boolean?): Boolean {
         val bindingContext = this.analyze()
-        val trace = DelegatingBindingTrace(bindingContext, "trace for constant check")
+        val trace = DelegatingBindingTrace(bindingContext, getProject().getCache(), "trace for constant check")
         return CompileTimeConstantUtils.canBeReducedToBooleanConstant(this, trace, constant)
     }
 

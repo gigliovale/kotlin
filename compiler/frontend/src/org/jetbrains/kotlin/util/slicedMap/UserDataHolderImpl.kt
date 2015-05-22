@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.util.slicedMap
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.util.userDataHolder.UserDataHolderBase
@@ -25,14 +26,14 @@ import java.lang.ref.Reference
 import java.lang.ref.ReferenceQueue
 import java.lang.ref.SoftReference
 
-class UserDataHolderImpl : UserDataHolderBase() {
+class UserDataHolderImpl(private val cache: SimpleCache<Any>) : UserDataHolderBase() {
     val keys: Array<Key<*>>
         get() = getUserMap().getKeys()
 
     override fun changeUserMap(oldMap: KeyFMap?, newMap: KeyFMap?): Boolean {
         val mapToAdd =
                 if (newMap is OneElementFMap<*> && newMap.getValue() !is Collection<*>) {
-                    cache[newMap]
+                    cache[newMap] as KeyFMap?
                 }
                 else {
                     newMap
@@ -40,13 +41,35 @@ class UserDataHolderImpl : UserDataHolderBase() {
 
         return super.changeUserMap(oldMap, mapToAdd)
     }
-
-    companion object {
-        private val cache = SoftSLRUCache<KeyFMap>(protectedSize = 2000, probationalSize = 2000)
-    }
 }
 
-private class SoftSLRUCache<T>(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<T>(protectedSize, probationalSize) {
+interface SimpleCache<T> {
+    fun get(element: T): T
+}
+
+class DummyCache<T> : SimpleCache<T> {
+    override fun get(element: T): T = element
+}
+
+val MY_KEY = Key.create<SimpleCache<Any>>("CACHE")
+//todo do we need sync here?
+synchronized fun Project.getCache(): SimpleCache<Any> {
+    val cache = getUserData(MY_KEY)
+
+    if (cache != null) return cache
+
+    val newCache = SoftSLRUCache<Any>(2000, 2000)
+
+    putUserData(MY_KEY, newCache)
+
+    return newCache
+}
+
+class SimpleSLRUCache<T : Any>(protectedSize: Int, probationalSize: Int) : SLRUCache<T, T>(protectedSize, probationalSize), SimpleCache<T> {
+    override fun createValue(key: T?): T? = key
+}
+
+class SoftSLRUCache<T>(protectedSize: Int, probationalSize: Int) : ReferenceSLRUCache<T>(protectedSize, probationalSize), SimpleCache<T> {
     override fun createReference(element: T, queue: ReferenceQueue<T>) = DelegatingSoftReference(element, queue)
 }
 

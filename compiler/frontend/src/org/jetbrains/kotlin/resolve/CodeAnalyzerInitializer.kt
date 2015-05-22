@@ -16,10 +16,11 @@
 
 package org.jetbrains.kotlin.resolve
 
-import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
+import org.jetbrains.kotlin.util.slicedMap.DummyCache
 
 public trait CodeAnalyzerInitializer {
     public fun initialize(trace: BindingTrace, module: ModuleDescriptor, codeAnalyzer: KotlinCodeAnalyzer?)
@@ -36,5 +37,5 @@ public class DummyCodeAnalyzerInitializer: CodeAnalyzerInitializer {
         // Do nothing
     }
 
-    public override fun createTrace(): BindingTrace = BindingTraceContext()
+    public override fun createTrace(): BindingTrace = BindingTraceContext(DummyCache<Any>()) // ???
 }

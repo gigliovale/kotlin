@@ -72,9 +72,9 @@ public class BindingTraceContext implements BindingTrace {
         }
     };
 
-    public BindingTraceContext() {
+    public BindingTraceContext(SimpleCache<Object> cache) {
         //noinspection ConstantConditions
-        this(TRACK_REWRITES ? new TrackingSlicedMap(TRACK_WITH_STACK_TRACES) : SlicedMapImpl.create());
+        this(TRACK_REWRITES ? new TrackingSlicedMap(cache, TRACK_WITH_STACK_TRACES) : SlicedMapImpl.create(cache));
     }
 
 
@@ -85,7 +85,7 @@ public class BindingTraceContext implements BindingTrace {
 
     @TestOnly
     public static BindingTraceContext createTraceableBindingTrace() {
-        return new BindingTraceContext(new TrackingSlicedMap(TRACK_WITH_STACK_TRACES));
+        return new BindingTraceContext(new TrackingSlicedMap(new DummyCache<Object>(), TRACK_WITH_STACK_TRACES));
     }
 
     @Override

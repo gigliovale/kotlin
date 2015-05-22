@@ -32,11 +32,20 @@ import java.util.Map;
 public class SlicedMapImpl implements MutableSlicedMap {
 
     public static SlicedMapImpl create() {
-        return new SlicedMapImpl();
+        return new SlicedMapImpl(new DummyCache<Object>());
     }
 
+    public static SlicedMapImpl create(SimpleCache<Object> cache) {
+        return new SlicedMapImpl(cache);
+    }
+
+    private final SimpleCache<Object> cache;
     private final Map<Object, UserDataHolderImpl> map = new THashMap<Object, UserDataHolderImpl>(0);
     private Multimap<WritableSlice<?, ?>, Object> collectiveSliceKeys = null;
+
+    public SlicedMapImpl(SimpleCache<Object> cache) {
+        this.cache = cache;
+    }
 
     @Override
     public <K, V> void put(WritableSlice<K, V> slice, K key, V value) {
@@ -46,7 +55,7 @@ public class SlicedMapImpl implements MutableSlicedMap {
 
         UserDataHolderImpl holder = map.get(key);
         if (holder == null) {
-            holder = new UserDataHolderImpl();
+            holder = new UserDataHolderImpl(cache);
             map.put(key, holder);
         }
 

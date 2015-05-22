@@ -30,7 +30,8 @@ public class TrackingSlicedMap extends SlicedMapImpl {
     private final Map<ReadOnlySlice<?, ?>, SliceWithStackTrace<?, ?>> sliceTranslationMap = Maps.newHashMap();
     private final boolean trackWithStackTraces;
 
-    public TrackingSlicedMap(boolean trackWithStackTraces) {
+    public TrackingSlicedMap(SimpleCache<Object> cache, boolean trackWithStackTraces) {
+        super(cache);
         this.trackWithStackTraces = trackWithStackTraces;
     }
 

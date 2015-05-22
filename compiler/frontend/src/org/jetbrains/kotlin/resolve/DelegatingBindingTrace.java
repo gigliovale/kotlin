@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class DelegatingBindingTrace implements BindingTrace {
     @SuppressWarnings("ConstantConditions")
-    private final MutableSlicedMap map = BindingTraceContext.TRACK_REWRITES ? new TrackingSlicedMap(BindingTraceContext.TRACK_WITH_STACK_TRACES) : SlicedMapImpl.create();
+    private final MutableSlicedMap map;
 
     private final BindingContext parentContext;
     private final String name;
@@ -81,14 +81,15 @@ public class DelegatingBindingTrace implements BindingTrace {
         }
     };
 
-    public DelegatingBindingTrace(BindingContext parentContext, String debugName) {
+    public DelegatingBindingTrace(BindingContext parentContext, SimpleCache<Object> cache, String debugName) {
         this.parentContext = parentContext;
         this.name = debugName;
         this.mutableDiagnostics = new MutableDiagnosticsWithSuppression(bindingContext, parentContext.getDiagnostics());
+        map = BindingTraceContext.TRACK_REWRITES ? new TrackingSlicedMap(cache, BindingTraceContext.TRACK_WITH_STACK_TRACES) : SlicedMapImpl.create(cache);
     }
 
     public DelegatingBindingTrace(BindingContext parentContext, String debugName, @Nullable Object resolutionSubjectForMessage) {
-        this(parentContext, AnalyzingUtils.formDebugNameForBindingTrace(debugName, resolutionSubjectForMessage));
+        this(parentContext, new DummyCache<Object>(), AnalyzingUtils.formDebugNameForBindingTrace(debugName, resolutionSubjectForMessage)); //???
     }
 
     @Override

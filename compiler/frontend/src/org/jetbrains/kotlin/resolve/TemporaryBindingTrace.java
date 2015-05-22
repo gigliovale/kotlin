@@ -18,8 +18,7 @@ package org.jetbrains.kotlin.resolve;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.psi.JetExpression;
-import org.jetbrains.kotlin.types.JetType;
+import org.jetbrains.kotlin.util.slicedMap.DummyCache;
 
 public class TemporaryBindingTrace extends DelegatingBindingTrace {
 
@@ -36,7 +35,7 @@ public class TemporaryBindingTrace extends DelegatingBindingTrace {
     protected final BindingTrace trace;
 
     protected TemporaryBindingTrace(@NotNull BindingTrace trace, String debugName) {
-        super(trace.getBindingContext(), debugName);
+        super(trace.getBindingContext(), debugName, new DummyCache<Object>()); //???
         this.trace = trace;
     }
 

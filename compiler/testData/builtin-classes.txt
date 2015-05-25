@@ -116,6 +116,20 @@ public final class Byte : kotlin.Number, kotlin.Comparable<kotlin.Byte> {
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Byte
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Byte
     }
+
+    public object RANGE : kotlin.DomainRange<kotlin.Byte> {
+        /*primary*/ private constructor RANGE()
+        public open override /*1*/ val MAXIMUM: kotlin.Byte
+            public open override /*1*/ fun <get-MAXIMUM>(): kotlin.Byte
+        public open override /*1*/ val MINIMUM: kotlin.Byte
+            public open override /*1*/ fun <get-MINIMUM>(): kotlin.Byte
+        public open override /*1*/ /*fake_override*/ val end: kotlin.Byte
+            public open override /*1*/ /*fake_override*/ fun <get-end>(): kotlin.Byte
+        public open override /*1*/ /*fake_override*/ val start: kotlin.Byte
+            public open override /*1*/ /*fake_override*/ fun <get-start>(): kotlin.Byte
+        public open override /*1*/ fun contains(/*0*/ item: kotlin.Byte): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun isEmpty(): kotlin.Boolean
+    }
 }
 
 public final class ByteArray : kotlin.Cloneable {
@@ -324,6 +338,19 @@ public interface Collection</*0*/ out E> : kotlin.Iterable<E> {
 
 public interface Comparable</*0*/ in T> {
     public abstract fun compareTo(/*0*/ other: T): kotlin.Int
+}
+
+internal interface DomainRange</*0*/ T : kotlin.Comparable<T>> : kotlin.Range<T> {
+    public abstract val MAXIMUM: T
+        public abstract fun <get-MAXIMUM>(): T
+    public abstract val MINIMUM: T
+        public abstract fun <get-MINIMUM>(): T
+    public open override /*1*/ val end: T
+        public open override /*1*/ fun <get-end>(): T
+    public open override /*1*/ val start: T
+        public open override /*1*/ fun <get-start>(): T
+    public abstract override /*1*/ /*fake_override*/ fun contains(/*0*/ item: T): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun isEmpty(): kotlin.Boolean
 }
 
 public final class Double : kotlin.Number, kotlin.Comparable<kotlin.Double> {
@@ -927,6 +954,20 @@ public final class Int : kotlin.Number, kotlin.Comparable<kotlin.Int> {
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Int
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Int
     }
+
+    public object RANGE : kotlin.DomainRange<kotlin.Int> {
+        /*primary*/ private constructor RANGE()
+        public open override /*1*/ val MAXIMUM: kotlin.Int
+            public open override /*1*/ fun <get-MAXIMUM>(): kotlin.Int
+        public open override /*1*/ val MINIMUM: kotlin.Int
+            public open override /*1*/ fun <get-MINIMUM>(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ val end: kotlin.Int
+            public open override /*1*/ /*fake_override*/ fun <get-end>(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ val start: kotlin.Int
+            public open override /*1*/ /*fake_override*/ fun <get-start>(): kotlin.Int
+        public open override /*1*/ fun contains(/*0*/ item: kotlin.Int): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun isEmpty(): kotlin.Boolean
+    }
 }
 
 public final class IntArray : kotlin.Cloneable {
@@ -1108,6 +1149,20 @@ public final class Long : kotlin.Number, kotlin.Comparable<kotlin.Long> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Long
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Long
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Long
+    }
+
+    public object RANGE : kotlin.DomainRange<kotlin.Long> {
+        /*primary*/ private constructor RANGE()
+        public open override /*1*/ val MAXIMUM: kotlin.Long
+            public open override /*1*/ fun <get-MAXIMUM>(): kotlin.Long
+        public open override /*1*/ val MINIMUM: kotlin.Long
+            public open override /*1*/ fun <get-MINIMUM>(): kotlin.Long
+        public open override /*1*/ /*fake_override*/ val end: kotlin.Long
+            public open override /*1*/ /*fake_override*/ fun <get-end>(): kotlin.Long
+        public open override /*1*/ /*fake_override*/ val start: kotlin.Long
+            public open override /*1*/ /*fake_override*/ fun <get-start>(): kotlin.Long
+        public open override /*1*/ fun contains(/*0*/ item: kotlin.Long): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun isEmpty(): kotlin.Boolean
     }
 }
 
@@ -1408,6 +1463,20 @@ public final class Short : kotlin.Number, kotlin.Comparable<kotlin.Short> {
             public abstract override /*1*/ /*fake_override*/ fun <get-MAX_VALUE>(): kotlin.Short
         public abstract override /*1*/ /*fake_override*/ val MIN_VALUE: kotlin.Short
             public abstract override /*1*/ /*fake_override*/ fun <get-MIN_VALUE>(): kotlin.Short
+    }
+
+    public object RANGE : kotlin.DomainRange<kotlin.Short> {
+        /*primary*/ private constructor RANGE()
+        public open override /*1*/ val MAXIMUM: kotlin.Short
+            public open override /*1*/ fun <get-MAXIMUM>(): kotlin.Short
+        public open override /*1*/ val MINIMUM: kotlin.Short
+            public open override /*1*/ fun <get-MINIMUM>(): kotlin.Short
+        public open override /*1*/ /*fake_override*/ val end: kotlin.Short
+            public open override /*1*/ /*fake_override*/ fun <get-end>(): kotlin.Short
+        public open override /*1*/ /*fake_override*/ val start: kotlin.Short
+            public open override /*1*/ /*fake_override*/ fun <get-start>(): kotlin.Short
+        public open override /*1*/ fun contains(/*0*/ item: kotlin.Short): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun isEmpty(): kotlin.Boolean
     }
 }
 

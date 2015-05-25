@@ -17,6 +17,26 @@
 package kotlin
 
 /**
+ * An interface implemented by all `RANGE` objects of numeric types.
+ * Represents an inclusive range of finite values [T] can have.
+ */
+interface DomainRange<T: Comparable<T>> : Range<T> {
+    /**
+     * A constant holding the smallest negative value an instance of [T] can have.
+     */
+    public val MINIMUM: T
+
+    /**
+     * A constant holding the largest positive value an instance of [T] can have.
+     */
+    public val MAXIMUM: T
+
+    override val start: T get() = MINIMUM
+    override val end: T   get() = MAXIMUM
+
+}
+
+/**
  * An interface implemented by companion objects of integral types.
  */
 public interface IntegerConstants<T> {

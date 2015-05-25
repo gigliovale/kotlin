@@ -69,6 +69,21 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
                 out.print(" : IntegerConstants<$className>")
             }
             out.println(" {}\n")
+            if (kind == PrimitiveType.INT || kind == PrimitiveType.LONG || kind == PrimitiveType.SHORT || kind == PrimitiveType.BYTE) {
+                out.println("""
+    /**
+     * An inclusive range of finite values `$className` can have.
+     */
+    public object RANGE : DomainRange<$className> {
+        /** A constant holding the minimum negative value of type `$className` */
+        override public val MINIMUM: $className = MIN_VALUE
+        /** A constant holding the maximum positive value of type `$className`   */
+        override public val MAXIMUM: $className = MAX_VALUE
+
+        override fun contains(item: $className): Boolean = item in MINIMUM..MAXIMUM
+    }
+""")
+            }
 
             generateCompareTo(kind)
 

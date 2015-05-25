@@ -25,6 +25,19 @@ package kotlin
 public class Byte private () : Number, Comparable<Byte> {
     companion object : IntegerConstants<Byte> {}
 
+
+    /**
+     * An inclusive range of finite values `Byte` can have.
+     */
+    public object RANGE : DomainRange<Byte> {
+        /** A constant holding the minimum negative value of type `Byte` */
+        override public val MINIMUM: Byte = MIN_VALUE
+        /** A constant holding the maximum positive value of type `Byte`   */
+        override public val MAXIMUM: Byte = MAX_VALUE
+
+        override fun contains(item: Byte): Boolean = item in MINIMUM..MAXIMUM
+    }
+
 /**
  * Compares this value with the specified value for order.
  * Returns zero if this value is equal to the specified other value, a negative number if its less than other, 
@@ -328,6 +341,19 @@ public class Char private () : Comparable<Char> {
 public class Short private () : Number, Comparable<Short> {
     companion object : IntegerConstants<Short> {}
 
+
+    /**
+     * An inclusive range of finite values `Short` can have.
+     */
+    public object RANGE : DomainRange<Short> {
+        /** A constant holding the minimum negative value of type `Short` */
+        override public val MINIMUM: Short = MIN_VALUE
+        /** A constant holding the maximum positive value of type `Short`   */
+        override public val MAXIMUM: Short = MAX_VALUE
+
+        override fun contains(item: Short): Boolean = item in MINIMUM..MAXIMUM
+    }
+
 /**
  * Compares this value with the specified value for order.
  * Returns zero if this value is equal to the specified other value, a negative number if its less than other, 
@@ -485,6 +511,19 @@ public class Short private () : Number, Comparable<Short> {
  */
 public class Int private () : Number, Comparable<Int> {
     companion object : IntegerConstants<Int> {}
+
+
+    /**
+     * An inclusive range of finite values `Int` can have.
+     */
+    public object RANGE : DomainRange<Int> {
+        /** A constant holding the minimum negative value of type `Int` */
+        override public val MINIMUM: Int = MIN_VALUE
+        /** A constant holding the maximum positive value of type `Int`   */
+        override public val MAXIMUM: Int = MAX_VALUE
+
+        override fun contains(item: Int): Boolean = item in MINIMUM..MAXIMUM
+    }
 
 /**
  * Compares this value with the specified value for order.
@@ -658,6 +697,19 @@ public class Int private () : Number, Comparable<Int> {
  */
 public class Long private () : Number, Comparable<Long> {
     companion object : IntegerConstants<Long> {}
+
+
+    /**
+     * An inclusive range of finite values `Long` can have.
+     */
+    public object RANGE : DomainRange<Long> {
+        /** A constant holding the minimum negative value of type `Long` */
+        override public val MINIMUM: Long = MIN_VALUE
+        /** A constant holding the maximum positive value of type `Long`   */
+        override public val MAXIMUM: Long = MAX_VALUE
+
+        override fun contains(item: Long): Boolean = item in MINIMUM..MAXIMUM
+    }
 
 /**
  * Compares this value with the specified value for order.

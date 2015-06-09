@@ -1,24 +1,28 @@
 package kotlin
 
 
+
 public interface ImmutableCollection<out E>: Collection<E> {
     suppress("TYPE_VARIANCE_CONFLICT")
     fun add(element: E): ImmutableCollection<E>
 
     suppress("TYPE_VARIANCE_CONFLICT")
-    fun addAll(elements: Collection<E>): ImmutableCollection<E>
+    fun addAll(elements: Iterable<E>): ImmutableCollection<E>
 
     fun remove(element: Any?): ImmutableCollection<E>
 
-    fun removeAll(c: Collection<Any?>): ImmutableCollection<E>
+    fun removeAll(c: Iterable<Any?>): ImmutableCollection<E>
 
-    fun retainAll(c: Collection<Any?>): ImmutableCollection<E>
+    fun retainAll(c: Iterable<Any?>): ImmutableCollection<E>
 
     fun clear(): ImmutableCollection<E>
 
     interface Builder<E>: MutableCollection<E> {
         fun build(): ImmutableCollection<E>
     }
+
+    suppress("TYPE_VARIANCE_CONFLICT")
+    fun builder(): Builder<E>
 }
 
 
@@ -29,19 +33,22 @@ public interface ImmutableSet<out E>: Set<E>, ImmutableCollection<E> {
     override fun add(element: E): ImmutableSet<E>
 
     suppress("TYPE_VARIANCE_CONFLICT")
-    override fun addAll(elements: Collection<E>): ImmutableSet<E>
+    override fun addAll(elements: Iterable<E>): ImmutableSet<E>
 
     override fun remove(element: Any?): ImmutableSet<E>
 
-    override fun removeAll(c: Collection<Any?>): ImmutableSet<E>
+    override fun removeAll(c: Iterable<Any?>): ImmutableSet<E>
 
-    override fun retainAll(c: Collection<Any?>): ImmutableSet<E>
+    override fun retainAll(c: Iterable<Any?>): ImmutableSet<E>
 
     override fun clear(): ImmutableSet<E>
 
     interface Builder<E>: MutableSet<E>, ImmutableCollection.Builder<E> {
         override fun build(): ImmutableSet<E>
     }
+
+    suppress("TYPE_VARIANCE_CONFLICT")
+    override fun builder(): Builder<E>
 }
 
 
@@ -50,19 +57,19 @@ public interface ImmutableList<out E>: List<E>, ImmutableCollection<E> {
     override fun add(element: E): ImmutableList<E>
 
     suppress("TYPE_VARIANCE_CONFLICT")
-    override fun addAll(elements: Collection<E>): ImmutableList<E>
+    override fun addAll(elements: Iterable<E>): ImmutableList<E> // = super<ImmutableCollection>.addAll(elements) as ImmutableList
 
     override fun remove(element: Any?): ImmutableList<E>
 
-    override fun removeAll(c: Collection<Any?>): ImmutableList<E>
+    override fun removeAll(c: Iterable<Any?>): ImmutableList<E>
 
-    override fun retainAll(c: Collection<Any?>): ImmutableList<E>
+    override fun retainAll(c: Iterable<Any?>): ImmutableList<E>
 
     override fun clear(): ImmutableList<E>
 
 
     suppress("TYPE_VARIANCE_CONFLICT")
-    fun addAll(index: Int, c: Collection<E>): ImmutableList<E>
+    fun addAll(index: Int, c: Iterable<E>): ImmutableList<E> // = builder().apply { addAll(index, c.toList()) }.build()
 
     suppress("TYPE_VARIANCE_CONFLICT")
     fun set(index: Int, element: E): ImmutableList<E>
@@ -81,6 +88,9 @@ public interface ImmutableList<out E>: List<E>, ImmutableCollection<E> {
     interface Builder<E>: MutableList<E>, ImmutableCollection.Builder<E> {
         override fun build(): ImmutableList<E>
     }
+
+    suppress("TYPE_VARIANCE_CONFLICT")
+    override fun builder(): Builder<E>
 }
 
 
@@ -98,11 +108,14 @@ public interface ImmutableMap<K, out V>: Map<K, V> {
     public fun remove(key: Any?): ImmutableMap<K, V>
 
     suppress("TYPE_VARIANCE_CONFLICT")
-    public fun putAll(m: Map<out K, V>): ImmutableMap<K, V>
+    public fun putAll(m: Iterable<Map.Entry<K, V>>): ImmutableMap<K, V>  // m: Iterable<Map.Entry<K, V>> or Map<out K,V> or Iterable<Pair<K, V>>
 
     public fun clear(): ImmutableMap<K, V>
 
     interface Builder<K, V>: MutableMap<K, V> {
         fun build(): ImmutableMap<K, V>
     }
+
+    suppress("TYPE_VARIANCE_CONFLICT")
+    fun builder(): Builder<K, V>
 }

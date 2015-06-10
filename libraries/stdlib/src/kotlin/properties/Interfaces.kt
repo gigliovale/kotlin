@@ -46,3 +46,33 @@ public interface ReadWriteProperty<in R, T> {
      */
     public fun set(thisRef: R, property: PropertyMetadata, value: T)
 }
+
+/**
+ * Base interface that can be used for implementing property delegates of write-only properties.
+ *
+ * Write-only property provides both getter and setter, but the getter throws an [UnsupportedOperationException] when invoked.
+ *
+ * This is provided only for convenience; you don't have to extend this interface
+ * as long as your property delegate has methods with the same signatures.
+ *
+ * @param R the type of object which owns the delegated property.
+ * @param T the type of the property value.
+ */
+public interface WriteOnlyProperty<in R, in T> {
+    /**
+     * Does not return the value of the property for the given object, but throws an exception instead.
+     *
+     * @param thisRef the object for which the value is requested.
+     * @param property the metadata for the property.
+     * @return the property value.
+     */
+    public fun get(thisRef: R, property: PropertyMetadata): Nothing = throw UnsupportedOperationException("Reading from write-only property ${property.name} is not supported.")
+
+    /**
+     * Sets the value of the property for the given object.
+     * @param thisRef the object for which the value is requested.
+     * @param desc the metadata for the property.
+     * @param value the value to set.
+     */
+    public fun set(thisRef: R, property: PropertyMetadata, value: T)
+}

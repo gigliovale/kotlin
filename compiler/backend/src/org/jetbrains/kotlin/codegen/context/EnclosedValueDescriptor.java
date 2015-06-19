@@ -61,17 +61,6 @@ public final class EnclosedValueDescriptor {
         return type;
     }
 
-    @NotNull
-    public StackValue getOuterValue(@NotNull ExpressionCodegen codegen) {
-        for (LocalLookup.LocalLookupCase aCase : LocalLookup.LocalLookupCase.values()) {
-            if (aCase.isCase(descriptor)) {
-                return aCase.outerValue(this, codegen);
-            }
-        }
-
-        throw new IllegalStateException("Can't get outer value in " + codegen + " for " + this);
-    }
-
     @Override
     public String toString() {
         return fieldName + " " + type + " -> " + descriptor;

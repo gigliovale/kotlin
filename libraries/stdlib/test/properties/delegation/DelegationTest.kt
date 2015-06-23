@@ -82,3 +82,45 @@ class VetoablePropertyTest {
         assertFalse(result, "fail4: result should be false")
     }
 }
+
+
+private class ChangeState {
+    public var state: Any? = null
+}
+
+class CorrelatedObservablePropertyTest {
+
+    var beforeChangeCalled = 0
+    var afterChangeCalled = 0
+    var releaseCorrelationCalled = 0
+
+    var prop by object : CorrelatedObservableProperty<Int, ChangeState>(11) {
+        override fun createCorrelation(property: PropertyMetadata, oldValue: Int, newValue: Int) = ChangeState()
+
+        override fun beforeChange(correlation: ChangeState, property: PropertyMetadata, oldValue: Int, newValue: Int): Boolean {
+            beforeChangeCalled += 1
+            correlation.state = oldValue + newValue
+            if (newValue - oldValue == 1)
+                throw IllegalArgumentException("Successive values are not allowed")
+            return newValue > 0
+        }
+
+        override fun afterChange(correlation: ChangeState, property: PropertyMetadata, oldValue: Int, newValue: Int) {
+            afterChangeCalled += 1
+            assertEquals(oldValue + newValue, correlation.state)
+        }
+
+        override fun releaseCorrelation(correlation: ChangeState) {
+            releaseCorrelationCalled += 1
+        }
+    }
+
+    test fun doTest() {
+        prop = 13
+        prop = -1
+        fails { prop = 14 }
+        assertEquals(3, beforeChangeCalled)
+        assertEquals(1, afterChangeCalled)
+        assertEquals(3, releaseCorrelationCalled)
+    }
+}

@@ -156,6 +156,60 @@ public abstract class ObservableProperty<T>(initialValue: T) : ReadWriteProperty
     }
 }
 
+/**
+ * Implements the core logic of a property delegate for a read/write property that calls callback functions when changed,
+ * passing them correlation object that allows to share state between callback invocations related to the same change.
+ * @param initialValue the initial value of the property.
+ */
+public abstract class CorrelatedObservableProperty<T, TCorrelation>(initialValue: T): ReadWriteProperty<Any?, T> {
+    private var value = initialValue
+
+    /**
+     * When overridden in the derived class, creates a correlation value that is passed both to [beforeChange] and [afterChange]
+     * callbacks and allows to share state between them.
+     */
+    protected abstract fun createCorrelation(property: PropertyMetadata, oldValue: T, newValue: T): TCorrelation
+
+    /**
+     * When overridden in the derived class, allows to perform a cleanup on the created correlation object.
+     */
+    protected open fun releaseCorrelation(correlation: TCorrelation): Unit {}
+
+    /**
+     *  The callback which is called before a change to the property value is attempted.
+     *  The value of the property hasn't been changed yet, when this callback is invoked.
+     *  If the callback returns `true` the value of the property is being set to the new value,
+     *  and if the callback returns `false` the new value is discarded and the property remains its old value.
+     */
+    protected abstract fun beforeChange(correlation: TCorrelation, property: PropertyMetadata, oldValue: T, newValue: T): Boolean
+    /**
+     * The callback which is called after the change of the property is made. The value of the property
+     * has already been changed when this callback is invoked.
+     */
+    protected abstract fun afterChange(correlation: TCorrelation, property: PropertyMetadata, oldValue: T, newValue: T): Unit
+
+
+    public override fun get(thisRef: Any?, property: PropertyMetadata): T {
+        return value
+    }
+
+    public override fun set(thisRef: Any?, property: PropertyMetadata, value: T) {
+        val oldValue = this.value
+        val correlation = createCorrelation(property, oldValue, value)
+        try {
+            if (!beforeChange(correlation, property, oldValue, value)) {
+                return
+            }
+            this.value = value
+            afterChange(correlation, property, oldValue, value)
+        }
+        finally {
+            releaseCorrelation(correlation)
+        }
+    }
+}
+
+
 private object NULL_VALUE {}
 
 private fun escape(value: Any?): Any {

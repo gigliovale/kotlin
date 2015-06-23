@@ -38,6 +38,9 @@ import org.jetbrains.kotlin.codegen.inline.*;
 import org.jetbrains.kotlin.codegen.intrinsics.IntrinsicMethod;
 import org.jetbrains.kotlin.codegen.intrinsics.IntrinsicMethods;
 import org.jetbrains.kotlin.codegen.intrinsics.JavaClassProperty;
+import org.jetbrains.kotlin.codegen.pseudoInsns.PseudoInsn;
+import org.jetbrains.kotlin.codegen.pseudoInsns.PseudoInsnOpcode;
+import org.jetbrains.kotlin.codegen.pseudoInsns.PseudoInsnsPackage;
 import org.jetbrains.kotlin.codegen.signature.BothSignatureWriter;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
@@ -1221,9 +1224,10 @@ public class ExpressionCodegen extends JetVisitor<StackValue, StackValue> implem
                 LoopBlockStackElement loopBlockStackElement = (LoopBlockStackElement) stackElement;
                 JetSimpleNameExpression labelElement = expression.getTargetLabel();
                 //noinspection ConstantConditions
-                if (labelElement == null ||
-                    loopBlockStackElement.targetLabel != null &&
-                    labelElement.getReferencedName().equals(loopBlockStackElement.targetLabel.getReferencedName())) {
+                if (labelElement == null
+                    || loopBlockStackElement.targetLabel != null
+                       && labelElement.getReferencedName().equals(loopBlockStackElement.targetLabel.getReferencedName())) {
+                    PseudoInsnOpcode.CLEAR_STACK.insnOf().emit(v);
                     v.goTo(isBreak ? loopBlockStackElement.breakLabel : loopBlockStackElement.continueLabel);
                     return StackValue.none();
                 }

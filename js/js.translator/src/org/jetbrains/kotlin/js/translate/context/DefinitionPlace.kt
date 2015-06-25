@@ -41,3 +41,7 @@ class DefinitionPlace(
         return JsNameRef(name, fqName)
     }
 }
+
+class Test {
+    val protected = 1
+}

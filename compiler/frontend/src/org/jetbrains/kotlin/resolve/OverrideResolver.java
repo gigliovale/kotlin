@@ -177,6 +177,8 @@ public class OverrideResolver {
                     }
                 });
 
+        if (noDuplicates.size() <= 1) return noDuplicates;
+
         Set<D> candidates = Sets.newLinkedHashSet();
         outerLoop:
         for (D meD : noDuplicates) {

@@ -20,6 +20,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.idea.stubindex.JetSourceFilterScope
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.JetDeclaration
 import org.jetbrains.kotlin.psi.JetElement
@@ -50,7 +51,7 @@ public trait ResolutionFacade {
         // see com.intellij.psi.impl.file.impl.ResolveScopeManagerImpl.getInherentResolveScope
         public fun getResolveScope(file: JetFile): GlobalSearchScope {
             return when (file.getModuleInfo()) {
-                is ModuleSourceInfo -> file.getResolveScope()
+                is ModuleSourceInfo -> JetSourceFilterScope.kotlinSourceAndClassFiles(file.getResolveScope(), file.getProject())
                 else -> GlobalSearchScope.EMPTY_SCOPE
             }
         }

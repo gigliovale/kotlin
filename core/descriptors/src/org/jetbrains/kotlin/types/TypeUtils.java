@@ -153,14 +153,18 @@ public class TypeUtils {
         return type;
     }
 
-    public static boolean isIntersectionEmpty(@NotNull JetType typeA, @NotNull JetType typeB) {
-        return intersect(JetTypeChecker.DEFAULT, new LinkedHashSet<JetType>(Arrays.asList(typeA, typeB))) == null;
+    public static boolean isIntersectionEmpty(@NotNull JetType typeA, @NotNull JetType typeB, @NotNull KotlinBuiltIns builtIns) {
+        return intersect(JetTypeChecker.DEFAULT, new LinkedHashSet<JetType>(Arrays.asList(typeA, typeB)), builtIns) == null;
     }
 
     @Nullable
-    public static JetType intersect(@NotNull JetTypeChecker typeChecker, @NotNull Set<JetType> types) {
+    public static JetType intersect(
+            @NotNull JetTypeChecker typeChecker,
+            @NotNull Set<JetType> types,
+            @NotNull KotlinBuiltIns builtIns
+    ) {
         if (types.isEmpty()) {
-            return KotlinBuiltIns.getInstance().getNullableAnyType();
+            return builtIns.getNullableAnyType();
         }
 
         if (types.size() == 1) {
@@ -181,7 +185,7 @@ public class TypeUtils {
         }
 
         if (nothingTypePresent) {
-            return allNullable ? KotlinBuiltIns.getInstance().getNullableNothingType() : KotlinBuiltIns.getInstance().getNothingType();
+            return allNullable ? builtIns.getNullableNothingType() : builtIns.getNothingType();
         }
 
         if (nullabilityStripped.isEmpty()) {

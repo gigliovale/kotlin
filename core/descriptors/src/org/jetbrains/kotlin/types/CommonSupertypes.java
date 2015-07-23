@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.types.checker.JetTypeChecker;
 
@@ -300,7 +301,7 @@ public class CommonSupertypes {
             return new TypeProjectionImpl(projectionKind, findCommonSupertype(outs, recursionDepth + 1, maxDepth));
         }
         if (ins != null) {
-            JetType intersection = TypeUtils.intersect(JetTypeChecker.DEFAULT, ins);
+            JetType intersection = TypeUtils.intersect(JetTypeChecker.DEFAULT, ins, DescriptorUtilPackage.getBuiltIns(parameterDescriptor));
             if (intersection == null) {
                 return new TypeProjectionImpl(OUT_VARIANCE, findCommonSupertype(parameterDescriptor.getUpperBounds(), recursionDepth + 1, maxDepth));
             }

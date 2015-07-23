@@ -522,7 +522,7 @@ public class JetTypeCheckerTest extends JetLiteFixture {
         for (String type : types) {
             typesToIntersect.add(makeType(type));
         }
-        JetType result = TypeUtils.intersect(JetTypeChecker.DEFAULT, typesToIntersect);
+        JetType result = TypeUtils.intersect(JetTypeChecker.DEFAULT, typesToIntersect, KotlinBuiltIns.getInstance());
 //        assertNotNull("Intersection is null for " + typesToIntersect, result);
         assertEquals(makeType(expected), result);
     }

@@ -31,7 +31,6 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
-import org.jetbrains.kotlin.diagnostics.DiagnosticFactory;
 import org.jetbrains.kotlin.lexer.JetTokens;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
@@ -1231,7 +1230,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
             JetType rightType = facade.getTypeInfo(right, context).getType();
 
             if (rightType != null) {
-                if (TypeUtils.isIntersectionEmpty(leftType, rightType)) {
+                if (TypeUtils.isIntersectionEmpty(leftType, rightType, components.builtIns)) {
                     context.trace.report(EQUALITY_NOT_APPLICABLE.on(expression, expression.getOperationReference(), leftType, rightType));
                 }
                 SenselessComparisonChecker.checkSenselessComparisonWithNull(

@@ -338,7 +338,7 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
     /*
      * (a: SubjectType) is Type
      */
-    private static void checkTypeCompatibility(
+    private void checkTypeCompatibility(
             @NotNull ExpressionTypingContext context,
             @Nullable JetType type,
             @NotNull JetType subjectType,
@@ -348,7 +348,7 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
         if (type == null) {
             return;
         }
-        if (isIntersectionEmpty(type, subjectType)) {
+        if (isIntersectionEmpty(type, subjectType, components.builtIns)) {
             context.trace.report(INCOMPATIBLE_TYPES.on(reportErrorOn, type, subjectType));
             return;
         }

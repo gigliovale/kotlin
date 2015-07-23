@@ -28,7 +28,7 @@ import java.util.Collections
 
 public class IntegerValueTypeConstructor(
         private val value: Long,
-        private val builtIns: KotlinBuiltIns
+        public val builtIns: KotlinBuiltIns
 ) : TypeConstructor {
     private val supertypes = ArrayList<JetType>(4)
 

@@ -592,7 +592,7 @@ public class TypeUtils {
     public static JetType commonSupertypeForNumberTypes(@NotNull Collection<JetType> numberLowerBounds) {
         if (numberLowerBounds.isEmpty()) return null;
         Set<JetType> intersectionOfSupertypes = getIntersectionOfSupertypes(numberLowerBounds);
-        JetType primitiveNumberType = getDefaultPrimitiveNumberType(intersectionOfSupertypes);
+        JetType primitiveNumberType = getDefaultPrimitiveNumberType(intersectionOfSupertypes, KotlinBuiltIns.getInstance());
         if (primitiveNumberType != null) {
             return primitiveNumberType;
         }
@@ -616,23 +616,23 @@ public class TypeUtils {
 
     @NotNull
     public static JetType getDefaultPrimitiveNumberType(@NotNull IntegerValueTypeConstructor numberValueTypeConstructor) {
-        JetType type = getDefaultPrimitiveNumberType(numberValueTypeConstructor.getSupertypes());
+        JetType type = getDefaultPrimitiveNumberType(numberValueTypeConstructor.getSupertypes(), numberValueTypeConstructor.getBuiltIns());
         assert type != null : "Strange number value type constructor: " + numberValueTypeConstructor + ". " +
                               "Super types doesn't contain double, int or long: " + numberValueTypeConstructor.getSupertypes();
         return type;
     }
 
     @Nullable
-    private static JetType getDefaultPrimitiveNumberType(@NotNull Collection<JetType> supertypes) {
-        JetType doubleType = KotlinBuiltIns.getInstance().getDoubleType();
+    private static JetType getDefaultPrimitiveNumberType(@NotNull Collection<JetType> supertypes, @NotNull KotlinBuiltIns builtIns) {
+        JetType doubleType = builtIns.getDoubleType();
         if (supertypes.contains(doubleType)) {
             return doubleType;
         }
-        JetType intType = KotlinBuiltIns.getInstance().getIntType();
+        JetType intType = builtIns.getIntType();
         if (supertypes.contains(intType)) {
             return intType;
         }
-        JetType longType = KotlinBuiltIns.getInstance().getLongType();
+        JetType longType = builtIns.getLongType();
         if (supertypes.contains(longType)) {
             return longType;
         }

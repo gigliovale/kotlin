@@ -59,7 +59,7 @@ class GenericCandidateResolver(
         val candidateCall = context.candidateCall
         val candidate = candidateCall.getCandidateDescriptor()
 
-        val constraintSystem = ConstraintSystemImpl()
+        val constraintSystem = ConstraintSystemImpl(builtIns)
         candidateCall.setConstraintSystem(constraintSystem)
 
         // If the call is recursive, e.g.

@@ -201,7 +201,7 @@ public class TypeUtils {
                 for (JetType other : nullabilityStripped) {
                     // It makes sense to check for subtyping (other <: type), despite that
                     // type is not supposed to be open, for there're enums
-                    if (!TypeUnifier.mayBeEqual(type, other) && !typeChecker.isSubtypeOf(type, other) && !typeChecker.isSubtypeOf(other, type)) {
+                    if (!TypeUnifier.mayBeEqual(type, other, builtIns) && !typeChecker.isSubtypeOf(type, other) && !typeChecker.isSubtypeOf(other, type)) {
                         return null;
                     }
                 }
@@ -284,11 +284,11 @@ public class TypeUtils {
             }
         }
 
-        public static boolean mayBeEqual(@NotNull JetType type, @NotNull JetType other) {
-            return unify(type, other);
+        public static boolean mayBeEqual(@NotNull JetType type, @NotNull JetType other, @NotNull KotlinBuiltIns builtIns) {
+            return unify(type, other, builtIns);
         }
 
-        private static boolean unify(JetType withParameters, JetType expected) {
+        private static boolean unify(JetType withParameters, JetType expected, @NotNull KotlinBuiltIns builtIns) {
             // T -> how T is used
             final Map<TypeParameterDescriptor, Variance> parameters = new HashMap<TypeParameterDescriptor, Variance>();
             Function1<TypeParameterUsage, Unit> processor = new Function1<TypeParameterUsage, Unit>() {
@@ -305,7 +305,7 @@ public class TypeUtils {
             };
             processAllTypeParameters(withParameters, Variance.INVARIANT, processor);
             processAllTypeParameters(expected, Variance.INVARIANT, processor);
-            ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl();
+            ConstraintSystemImpl constraintSystem = new ConstraintSystemImpl(builtIns);
             registerTypeVariables(constraintSystem, parameters);
             constraintSystem.addSubtypeConstraint(withParameters, expected, SPECIAL.position());
 

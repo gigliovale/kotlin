@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.resolve.constraintSystem
 
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.diagnostics.rendering.Renderers
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
@@ -77,7 +78,7 @@ abstract public class AbstractConstraintSystemTest() : JetLiteFixture() {
         val constraintsFile = File(filePath)
         val constraintsFileText = constraintsFile.readLines()
 
-        val constraintSystem = ConstraintSystemImpl()
+        val constraintSystem = ConstraintSystemImpl(KotlinBuiltIns.getInstance())
 
         val variables = parseVariables(constraintsFileText)
         val fixVariables = constraintsFileText.contains("FIX_VARIABLES")

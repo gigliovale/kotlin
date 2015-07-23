@@ -66,7 +66,8 @@ public class CandidateResolver(
         private val genericCandidateResolver: GenericCandidateResolver,
         private val reflectionTypes: ReflectionTypes,
         private val modifiersChecker: ModifiersChecker,
-        private val additionalTypeCheckers: Iterable<AdditionalTypeChecker>
+        private val additionalTypeCheckers: Iterable<AdditionalTypeChecker>,
+        private val builtIns: KotlinBuiltIns
 ){
 
     public fun <D : CallableDescriptor, F : D> performResolutionForCandidateCall(
@@ -345,7 +346,7 @@ public class CandidateResolver(
                     matchStatus = ArgumentMatchStatus.ARGUMENT_HAS_NO_TYPE
                 }
                 else if (!noExpectedType(expectedType)) {
-                    if (!ArgumentTypeResolver.isSubtypeOfForArgumentType(type, expectedType)) {
+                    if (!ArgumentTypeResolver.isSubtypeOfForArgumentType(type, expectedType, builtIns)) {
                         val smartCast = smartCastValueArgumentTypeIfPossible(expression, newContext.expectedType, type, newContext)
                         if (smartCast == null) {
                             resultStatus = OTHER_ERROR

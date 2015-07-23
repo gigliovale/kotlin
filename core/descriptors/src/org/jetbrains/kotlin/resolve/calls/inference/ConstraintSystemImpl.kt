@@ -44,7 +44,7 @@ import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedHashMap
 
-public class ConstraintSystemImpl : ConstraintSystem {
+public class ConstraintSystemImpl(private val builtIns: KotlinBuiltIns) : ConstraintSystem {
 
     data class Constraint(val kind: ConstraintKind, val subtype: JetType, val superType: JetType, val position: ConstraintPosition)
 
@@ -183,7 +183,7 @@ public class ConstraintSystemImpl : ConstraintSystem {
     private fun createNewConstraintSystemFromThis(
             filterConstraintPosition: (ConstraintPosition) -> Boolean
     ): ConstraintSystem {
-        val newSystem = ConstraintSystemImpl()
+        val newSystem = ConstraintSystemImpl(builtIns)
         for ((typeParameter, typeBounds) in allTypeParameterBounds) {
             newSystem.allTypeParameterBounds.put(typeParameter, typeBounds.filter(filterConstraintPosition))
         }
@@ -298,7 +298,7 @@ public class ConstraintSystemImpl : ConstraintSystem {
                 // we don't add it without knowing whether it's a function type or an extension function type
                 return
             }
-            createTypeForFunctionPlaceholder(subType, superType)
+            createTypeForFunctionPlaceholder(subType, superType, builtIns)
         }
         else {
             subType
@@ -497,7 +497,8 @@ public class ConstraintSystemImpl : ConstraintSystem {
 
 fun createTypeForFunctionPlaceholder(
         functionPlaceholder: JetType,
-        expectedType: JetType
+        expectedType: JetType,
+        builtIns: KotlinBuiltIns
 ): JetType {
     if (!ErrorUtils.isFunctionPlaceholder(functionPlaceholder)) return functionPlaceholder
 
@@ -517,7 +518,7 @@ fun createTypeForFunctionPlaceholder(
         functionPlaceholderTypeConstructor.getArgumentTypes()
     }
     val receiverType = if (isExtension) DONT_CARE else null
-    return KotlinBuiltIns.getInstance().getFunctionType(Annotations.EMPTY, receiverType, newArgumentTypes, DONT_CARE)
+    return builtIns.getFunctionType(Annotations.EMPTY, receiverType, newArgumentTypes, DONT_CARE)
 }
 
 private fun TypeSubstitutor.setApproximateCapturedTypes(): TypeSubstitutor {

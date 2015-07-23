@@ -89,10 +89,11 @@ public class ArgumentTypeResolver {
 
     public static boolean isSubtypeOfForArgumentType(
             @NotNull JetType actualType,
-            @NotNull JetType expectedType
+            @NotNull JetType expectedType,
+            @NotNull KotlinBuiltIns builtIns
     ) {
         if (ErrorUtils.isFunctionPlaceholder(actualType)) {
-            JetType functionType = createTypeForFunctionPlaceholder(actualType, expectedType);
+            JetType functionType = createTypeForFunctionPlaceholder(actualType, expectedType, builtIns);
             return JetTypeChecker.DEFAULT.isSubtypeOf(functionType, expectedType);
         }
         return JetTypeChecker.DEFAULT.isSubtypeOf(actualType, expectedType);

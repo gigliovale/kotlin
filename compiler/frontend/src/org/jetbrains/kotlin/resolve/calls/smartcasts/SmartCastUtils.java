@@ -146,7 +146,7 @@ public class SmartCastUtils {
     ) {
         Set<JetType> subTypes = Sets.newHashSet();
         for (JetType smartCastType : smartCastTypes) {
-            if (ArgumentTypeResolver.isSubtypeOfForArgumentType(smartCastType, receiverParameterType)) {
+            if (ArgumentTypeResolver.isSubtypeOfForArgumentType(smartCastType, receiverParameterType, KotlinBuiltIns.getInstance())) {
                 subTypes.add(smartCastType);
             }
         }
@@ -169,7 +169,7 @@ public class SmartCastUtils {
         if (!(receiver instanceof ExpressionReceiver)) return true;
 
         receiverParameterType = safeAccess ? TypeUtils.makeNullable(receiverParameterType) : receiverParameterType;
-        if (ArgumentTypeResolver.isSubtypeOfForArgumentType(receiver.getType(), receiverParameterType)) {
+        if (ArgumentTypeResolver.isSubtypeOfForArgumentType(receiver.getType(), receiverParameterType, KotlinBuiltIns.getInstance())) {
             return true;
         }
 

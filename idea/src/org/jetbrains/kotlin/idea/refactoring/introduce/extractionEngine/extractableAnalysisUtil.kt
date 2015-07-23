@@ -162,7 +162,7 @@ private fun List<Instruction>.getResultTypeAndExpressions(
     }
 
     val resultTypes = map(::instructionToType).filterNotNull()
-    var commonSupertype = if (resultTypes.isNotEmpty()) CommonSupertypes.commonSupertype(resultTypes) else DEFAULT_RETURN_TYPE
+    var commonSupertype = if (resultTypes.isNotEmpty()) CommonSupertypes.commonSupertype(resultTypes, KotlinBuiltIns.getInstance()) else DEFAULT_RETURN_TYPE
     val resultType = if (options.allowSpecialClassNames) commonSupertype else commonSupertype.approximateWithResolvableType(targetScope, false)
 
     val expressions = map { instructionToExpression(it, false) }.filterNotNull()
@@ -681,7 +681,7 @@ private fun ExtractionData.inferParametersInfo(
                         val calleeExpression = resolvedCall!!.getCall().getCalleeExpression()
                         bindingContext[BindingContext.EXPRESSION_TYPE_INFO, calleeExpression]?.dataFlowInfo?.let { dataFlowInfo ->
                             val possibleTypes = dataFlowInfo.getPossibleTypes(DataFlowValueFactory.createDataFlowValue(receiverToExtract))
-                            if (possibleTypes.isNotEmpty()) CommonSupertypes.commonSupertype(possibleTypes) else null
+                            if (possibleTypes.isNotEmpty()) CommonSupertypes.commonSupertype(possibleTypes, KotlinBuiltIns.getInstance()) else null
                         } ?: receiverToExtract.getType()
                     }
                     receiverToExtract.exists() -> receiverToExtract.getType()

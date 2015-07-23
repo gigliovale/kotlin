@@ -108,10 +108,12 @@ public class TypeBoundsImpl(
         }
         values.addAll(exactBounds)
 
+        val builtIns = typeVariable.builtIns
+
         val (numberLowerBounds, generalLowerBounds) =
                 filterBounds(bounds, LOWER_BOUND, values).partition { it.getConstructor() is IntegerValueTypeConstructor }
 
-        val superTypeOfLowerBounds = CommonSupertypes.commonSupertypeForNonDenotableTypes(generalLowerBounds)
+        val superTypeOfLowerBounds = CommonSupertypes.commonSupertypeForNonDenotableTypes(generalLowerBounds, builtIns)
         if (tryPossibleAnswer(bounds, superTypeOfLowerBounds)) {
             return setOf(superTypeOfLowerBounds!!)
         }
@@ -121,21 +123,23 @@ public class TypeBoundsImpl(
         //fun <T> foo(t: T, consumer: Consumer<T>): T
         //foo(1, c: Consumer<Any>) - infer Int, not Any here
 
-        val superTypeOfNumberLowerBounds = TypeUtils.commonSupertypeForNumberTypes(numberLowerBounds)
+        val superTypeOfNumberLowerBounds = TypeUtils.commonSupertypeForNumberTypes(numberLowerBounds, builtIns)
         if (tryPossibleAnswer(bounds, superTypeOfNumberLowerBounds)) {
             return setOf(superTypeOfNumberLowerBounds!!)
         }
         values.addIfNotNull(superTypeOfNumberLowerBounds)
 
         if (superTypeOfLowerBounds != null && superTypeOfNumberLowerBounds != null) {
-            val superTypeOfAllLowerBounds = CommonSupertypes.commonSupertypeForNonDenotableTypes(listOf(superTypeOfLowerBounds, superTypeOfNumberLowerBounds))
+            val superTypeOfAllLowerBounds = CommonSupertypes.commonSupertypeForNonDenotableTypes(
+                    listOf(superTypeOfLowerBounds, superTypeOfNumberLowerBounds), builtIns
+            )
             if (tryPossibleAnswer(bounds, superTypeOfAllLowerBounds)) {
                 return setOf(superTypeOfAllLowerBounds!!)
             }
         }
 
         val upperBounds = filterBounds(bounds, TypeBounds.BoundKind.UPPER_BOUND, values)
-        val intersectionOfUpperBounds = TypeUtils.intersect(JetTypeChecker.DEFAULT, upperBounds, typeVariable.builtIns)
+        val intersectionOfUpperBounds = TypeUtils.intersect(JetTypeChecker.DEFAULT, upperBounds, builtIns)
         if (!upperBounds.isEmpty() && intersectionOfUpperBounds != null) {
             if (tryPossibleAnswer(bounds, intersectionOfUpperBounds)) {
                 return setOf(intersectionOfUpperBounds)

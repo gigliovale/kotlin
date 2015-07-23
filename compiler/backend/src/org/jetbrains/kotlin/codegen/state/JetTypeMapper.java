@@ -56,6 +56,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedValueArgument;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.constants.StringValue;
+import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes;
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName;
 import org.jetbrains.kotlin.resolve.jvm.JvmPrimitiveType;
@@ -295,12 +296,16 @@ public class JetTypeMapper {
 
         TypeConstructor constructor = jetType.getConstructor();
         DeclarationDescriptor descriptor = constructor.getDeclarationDescriptor();
-        if (constructor instanceof IntersectionTypeConstructor) {
-            jetType = CommonSupertypes.commonSupertype(new ArrayList<JetType>(constructor.getSupertypes()));
-        }
 
         if (descriptor == null) {
             throw new UnsupportedOperationException("no descriptor for type constructor of " + jetType);
+        }
+
+        if (constructor instanceof IntersectionTypeConstructor) {
+            jetType = CommonSupertypes.commonSupertype(
+                    new ArrayList<JetType>(constructor.getSupertypes()),
+                    DescriptorUtilPackage.getBuiltIns(descriptor)
+            );
         }
 
         if (ErrorUtils.isError(descriptor)) {

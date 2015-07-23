@@ -254,7 +254,7 @@ public class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Express
         returnedExpressionTypes.addIfNotNull(typeOfBodyExpression)
 
         if (returnedExpressionTypes.isEmpty()) return null
-        return CommonSupertypes.commonSupertype(returnedExpressionTypes)
+        return CommonSupertypes.commonSupertype(returnedExpressionTypes, components.builtIns)
     }
 
     private fun collectReturns(functionLiteral: JetFunctionLiteral, trace: BindingTrace): Collection<JetReturnExpression> {

@@ -145,7 +145,8 @@ public class PatternMatchingTypingVisitor extends ExpressionTypingVisitor {
 
         return TypeInfoFactoryPackage.createTypeInfo(expressionTypes.isEmpty() ? null : components.dataFlowAnalyzer.checkType(
                                                              components.dataFlowAnalyzer.checkImplicitCast(
-                                                                     CommonSupertypes.commonSupertype(expressionTypes), expression,
+                                                                     CommonSupertypes.commonSupertype(expressionTypes, components.builtIns),
+                                                                     expression,
                                                                      contextWithExpectedType, isStatement),
                                                              expression, contextWithExpectedType),
                                                      commonDataFlowInfo,

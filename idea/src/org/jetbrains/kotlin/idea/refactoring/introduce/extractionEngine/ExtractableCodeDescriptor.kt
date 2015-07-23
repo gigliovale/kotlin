@@ -253,7 +253,7 @@ abstract class OutputValueBoxer(val outputValues: List<OutputValue>) {
             if (outputValues.isEmpty()) DEFAULT_RETURN_TYPE
             else TypeUtils.substituteParameters(
                     KotlinBuiltIns.getInstance().getList(),
-                    Collections.singletonList(CommonSupertypes.commonSupertype(outputValues.map { it.valueType }))
+                    Collections.singletonList(CommonSupertypes.commonSupertype(outputValues.map { it.valueType }, KotlinBuiltIns.getInstance()))
             )
         }
 

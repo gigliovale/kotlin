@@ -532,7 +532,7 @@ public class JetTypeCheckerTest extends JetLiteFixture {
         for (String type : types) {
             subtypes.add(makeType(type));
         }
-        JetType result = CommonSupertypes.commonSupertype(subtypes);
+        JetType result = CommonSupertypes.commonSupertype(subtypes, KotlinBuiltIns.getInstance());
         assertTrue(result + " != " + expected, result.equals(makeType(expected)));
     }
 

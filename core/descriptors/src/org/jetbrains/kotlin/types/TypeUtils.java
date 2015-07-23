@@ -593,14 +593,14 @@ public class TypeUtils {
     }
 
     @Nullable
-    public static JetType commonSupertypeForNumberTypes(@NotNull Collection<JetType> numberLowerBounds) {
+    public static JetType commonSupertypeForNumberTypes(@NotNull Collection<JetType> numberLowerBounds, @NotNull KotlinBuiltIns builtIns) {
         if (numberLowerBounds.isEmpty()) return null;
         Set<JetType> intersectionOfSupertypes = getIntersectionOfSupertypes(numberLowerBounds);
-        JetType primitiveNumberType = getDefaultPrimitiveNumberType(intersectionOfSupertypes, KotlinBuiltIns.getInstance());
+        JetType primitiveNumberType = getDefaultPrimitiveNumberType(intersectionOfSupertypes, builtIns);
         if (primitiveNumberType != null) {
             return primitiveNumberType;
         }
-        return CommonSupertypes.commonSupertype(numberLowerBounds);
+        return CommonSupertypes.commonSupertype(numberLowerBounds, builtIns);
     }
 
     @NotNull

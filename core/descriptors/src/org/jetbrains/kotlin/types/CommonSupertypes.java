@@ -37,28 +37,28 @@ import static org.jetbrains.kotlin.types.Variance.OUT_VARIANCE;
 
 public class CommonSupertypes {
     @Nullable
-    public static JetType commonSupertypeForNonDenotableTypes(@NotNull Collection<JetType> types) {
+    public static JetType commonSupertypeForNonDenotableTypes(@NotNull Collection<JetType> types, @NotNull KotlinBuiltIns builtIns) {
         if (types.isEmpty()) return null;
         if (types.size() == 1) {
             JetType type = types.iterator().next();
             if (type.getConstructor() instanceof IntersectionTypeConstructor) {
-                return commonSupertypeForNonDenotableTypes(type.getConstructor().getSupertypes());
+                return commonSupertypeForNonDenotableTypes(type.getConstructor().getSupertypes(), builtIns);
             }
         }
-        return commonSupertype(types);
+        return commonSupertype(types, builtIns);
     }
 
     @NotNull
-    public static JetType commonSupertype(@NotNull Collection<JetType> types) {
+    public static JetType commonSupertype(@NotNull Collection<JetType> types, @NotNull KotlinBuiltIns builtIns) {
         // Recursion should not be significantly deeper than the deepest type in question
         // It can be slightly deeper, though: e.g. when initial types are simple, but their supertypes are complex
-        return findCommonSupertype(types, 0, maxDepth(types) + 3);
+        return findCommonSupertype(types, 0, maxDepth(types, builtIns) + 3, builtIns);
     }
 
-    private static int maxDepth(@NotNull Collection<JetType> types) {
+    private static int maxDepth(@NotNull Collection<JetType> types, @NotNull KotlinBuiltIns builtIns) {
         int max = 0;
         for (JetType type : types) {
-            int depth = depth(type);
+            int depth = depth(type, builtIns);
             if (max < depth) {
                 max = depth;
             }
@@ -66,21 +66,26 @@ public class CommonSupertypes {
         return max;
     }
 
-    private static int depth(@NotNull JetType type) {
+    private static int depth(@NotNull JetType type, @NotNull final KotlinBuiltIns builtIns) {
         return 1 + maxDepth(KotlinPackage.map(type.getArguments(), new Function1<TypeProjection, JetType>() {
             @Override
             public JetType invoke(TypeProjection projection) {
                 if (projection.isStarProjection()) {
                     // any type is good enough for depth here
-                    return KotlinBuiltIns.getInstance().getAnyType();
+                    return builtIns.getAnyType();
                 }
                 return projection.getType();
             }
-        }));
+        }), builtIns);
     }
 
     @NotNull
-    private static JetType findCommonSupertype(@NotNull Collection<JetType> types, int recursionDepth, int maxDepth) {
+    private static JetType findCommonSupertype(
+            @NotNull Collection<JetType> types,
+            int recursionDepth,
+            int maxDepth,
+            @NotNull KotlinBuiltIns builtIns
+    ) {
         assert recursionDepth <= maxDepth : "Recursion depth exceeded: " + recursionDepth + " > " + maxDepth + " for types " + types;
         boolean hasFlexible = false;
         List<JetType> upper = new ArrayList<JetType>(types.size());
@@ -100,16 +105,21 @@ public class CommonSupertypes {
             }
         }
 
-        if (!hasFlexible) return commonSuperTypeForInflexible(types, recursionDepth, maxDepth);
+        if (!hasFlexible) return commonSuperTypeForInflexible(types, recursionDepth, maxDepth, builtIns);
         return DelegatingFlexibleType.create(
-                commonSuperTypeForInflexible(lower, recursionDepth, maxDepth),
-                commonSuperTypeForInflexible(upper, recursionDepth, maxDepth),
+                commonSuperTypeForInflexible(lower, recursionDepth, maxDepth, builtIns),
+                commonSuperTypeForInflexible(upper, recursionDepth, maxDepth, builtIns),
                 KotlinPackage.single(capabilities) // mixing different capabilities is not supported
         );
     }
 
     @NotNull
-    private static JetType commonSuperTypeForInflexible(@NotNull Collection<JetType> types, int recursionDepth, int maxDepth) {
+    private static JetType commonSuperTypeForInflexible(
+            @NotNull Collection<JetType> types,
+            int recursionDepth,
+            int maxDepth,
+            @NotNull KotlinBuiltIns builtIns
+    ) {
         assert !types.isEmpty();
         Collection<JetType> typeSet = new HashSet<JetType>(types);
 
@@ -135,7 +145,7 @@ public class CommonSupertypes {
         // Everything deleted => it's Nothing or Nothing?
         if (typeSet.isEmpty()) {
             // TODO : attributes
-            return nullable ? KotlinBuiltIns.getInstance().getNullableNothingType() : KotlinBuiltIns.getInstance().getNothingType();
+            return nullable ? builtIns.getNullableNothingType() : builtIns.getNothingType();
         }
 
         if (typeSet.size() == 1) {
@@ -256,7 +266,7 @@ public class CommonSupertypes {
         if (recursionDepth >= maxDepth) {
             // If recursion is too deep, we cut it by taking <out Any?> as an ultimate supertype argument
             // Example: class A : Base<A>; class B : Base<B>, commonSuperType(A, B) = Base<out Any?>
-            return new TypeProjectionImpl(OUT_VARIANCE, KotlinBuiltIns.getInstance().getNullableAnyType());
+            return new TypeProjectionImpl(OUT_VARIANCE, DescriptorUtilPackage.getBuiltIns(parameterDescriptor).getNullableAnyType());
         }
 
         Set<JetType> ins = new HashSet<JetType>();
@@ -296,21 +306,32 @@ public class CommonSupertypes {
             }
         }
 
+        KotlinBuiltIns builtIns = DescriptorUtilPackage.getBuiltIns(parameterDescriptor);
         if (outs != null) {
             Variance projectionKind = variance == OUT_VARIANCE ? Variance.INVARIANT : OUT_VARIANCE;
-            return new TypeProjectionImpl(projectionKind, findCommonSupertype(outs, recursionDepth + 1, maxDepth));
+            return new TypeProjectionImpl(projectionKind, findCommonSupertype(outs, recursionDepth + 1, maxDepth, builtIns));
         }
         if (ins != null) {
-            JetType intersection = TypeUtils.intersect(JetTypeChecker.DEFAULT, ins, DescriptorUtilPackage.getBuiltIns(parameterDescriptor));
+            JetType intersection = TypeUtils.intersect(JetTypeChecker.DEFAULT, ins, builtIns);
             if (intersection == null) {
-                return new TypeProjectionImpl(OUT_VARIANCE, findCommonSupertype(parameterDescriptor.getUpperBounds(), recursionDepth + 1, maxDepth));
+                return new TypeProjectionImpl(
+                        OUT_VARIANCE,
+                        findCommonSupertype(
+                                parameterDescriptor.getUpperBounds(), recursionDepth + 1, maxDepth, builtIns
+                        )
+                );
             }
             Variance projectionKind = variance == IN_VARIANCE ? Variance.INVARIANT : IN_VARIANCE;
             return new TypeProjectionImpl(projectionKind, intersection);
         }
         else {
             Variance projectionKind = variance == OUT_VARIANCE ? Variance.INVARIANT : OUT_VARIANCE;
-            return new TypeProjectionImpl(projectionKind, findCommonSupertype(parameterDescriptor.getUpperBounds(), recursionDepth + 1, maxDepth));
+            return new TypeProjectionImpl(
+                    projectionKind,
+                    findCommonSupertype(
+                            parameterDescriptor.getUpperBounds(), recursionDepth + 1, maxDepth, builtIns
+                    )
+            );
         }
     }
 

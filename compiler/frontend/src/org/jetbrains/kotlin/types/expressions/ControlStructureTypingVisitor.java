@@ -505,7 +505,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
             return result.clearType();
         }
         else {
-            return result.replaceType(CommonSupertypes.commonSupertype(types));
+            return result.replaceType(CommonSupertypes.commonSupertype(types, components.builtIns));
         }
     }
 

@@ -51,7 +51,6 @@ import org.jetbrains.kotlin.resolve.TargetPlatform;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
-import org.jetbrains.kotlin.types.DynamicTypesSettings;
 import org.jetbrains.kotlin.utils.UtilsPackage;
 
 import java.io.File;

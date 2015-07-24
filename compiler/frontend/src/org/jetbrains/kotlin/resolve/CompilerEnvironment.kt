@@ -19,9 +19,11 @@ package org.jetbrains.kotlin.resolve
 import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.useImpl
 import org.jetbrains.kotlin.container.useInstance
+import org.jetbrains.kotlin.resolve.lazy.LocalDescriptorResolverForCompiler
 
 public object CompilerEnvironment : TargetEnvironment("Compiler") {
     override fun configure(container: StorageComponentContainer) {
         container.useInstance(BodyResolveCache.ThrowException)
+        container.useImpl<LocalDescriptorResolverForCompiler>()
     }
 }

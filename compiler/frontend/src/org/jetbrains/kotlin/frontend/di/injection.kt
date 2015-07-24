@@ -62,7 +62,7 @@ public fun createContainerForBodyResolve(
 
     useInstance(statementFilter)
 
-    CompilerEnvironment.configure(this)
+    useInstance(BodyResolveCache.ThrowException)
 
     useImpl<BodyResolver>()
 }
@@ -112,6 +112,7 @@ private fun createContainerForLazyResolve(
 
     useInstance(declarationProviderFactory)
     useInstance(UsageCollector.DO_NOTHING)
+    CompilerEnvironment.configure(this)
 
     useImpl<LazyResolveToken>()
     useImpl<ResolveSession>()

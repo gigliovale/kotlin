@@ -42,7 +42,8 @@ import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.checker.JetTypeChecker
 import org.jetbrains.kotlin.utils.addIfNotNull
-import java.util.*
+import java.util.HashSet
+import java.util.LinkedHashSet
 
 public class ReferenceVariantsHelper(
         private val context: BindingContext,

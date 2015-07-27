@@ -35,6 +35,8 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.CompilerEnvironment
+import org.jetbrains.kotlin.resolve.TargetEnvironment
 import org.jetbrains.kotlin.resolve.descriptorUtil.classId
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
@@ -88,7 +90,8 @@ public class BuiltInsSerializer(private val dependOnOldBuiltIns: Boolean) {
         val resolver = JvmAnalyzerFacade.setupResolverForProject(
                 ProjectContext(environment.project), listOf(builtInModule),
                 { ModuleContent(files, GlobalSearchScope.EMPTY_SCOPE) },
-                platformParameters = JvmPlatformParameters { throw IllegalStateException() }
+                JvmPlatformParameters { throw IllegalStateException() },
+                CompilerEnvironment
         )
 
         val moduleDescriptor = resolver.descriptorForModule(builtInModule)

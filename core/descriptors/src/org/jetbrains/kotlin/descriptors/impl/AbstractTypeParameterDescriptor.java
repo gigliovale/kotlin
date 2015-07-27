@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.descriptors.SourceElement;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilPackage;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter;
 import org.jetbrains.kotlin.storage.NotNullLazyValue;
@@ -135,8 +136,8 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
     private JetType computeUpperBoundsAsType() {
         Set<JetType> upperBounds = getUpperBounds();
         assert !upperBounds.isEmpty() : "Upper bound list is empty in " + getName();
-        JetType upperBoundsAsType = TypeIntersector.intersect(JetTypeChecker.DEFAULT, upperBounds);
-        return upperBoundsAsType != null ? upperBoundsAsType : getBuiltIns(this).getNothingType();
+        JetType upperBoundsAsType = TypeIntersector.intersectTypes(getBuiltIns(this), JetTypeChecker.DEFAULT, upperBounds);
+        return upperBoundsAsType != null ? upperBoundsAsType : DescriptorUtilPackage.getBuiltIns(this).getNothingType();
     }
 
     @NotNull
@@ -154,7 +155,7 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
     @NotNull
     @Override
     public Set<JetType> getLowerBounds() {
-        return Collections.singleton(getBuiltIns(this).getNothingType());
+        return Collections.singleton(DescriptorUtilPackage.getBuiltIns(this).getNothingType());
     }
 
     @NotNull

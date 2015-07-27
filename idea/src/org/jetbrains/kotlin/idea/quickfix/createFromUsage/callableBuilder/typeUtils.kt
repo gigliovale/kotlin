@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder
 
 import com.intellij.refactoring.psi.SearchUtils
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.cfg.pseudocode.*
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -194,7 +195,7 @@ private fun JetNamedDeclaration.guessType(context: BindingContext): Array<JetTyp
     if (expectedTypes.isEmpty() || expectedTypes.any { expectedType -> ErrorUtils.containsErrorType(expectedType) }) {
         return arrayOf()
     }
-    val theType = TypeIntersector.intersect(JetTypeChecker.DEFAULT, expectedTypes)
+    val theType = TypeIntersector.intersectTypes(KotlinBuiltIns.getInstance(), JetTypeChecker.DEFAULT, expectedTypes)
     if (theType != null) {
         return arrayOf(theType)
     }

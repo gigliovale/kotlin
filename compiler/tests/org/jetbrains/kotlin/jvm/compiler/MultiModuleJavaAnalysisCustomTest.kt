@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetFile
+import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade
 import org.jetbrains.kotlin.resolve.jvm.JvmPlatformParameters
@@ -63,7 +64,8 @@ public class MultiModuleJavaAnalysisCustomTest : UsefulTestCase() {
                     javaClass ->
                     val moduleName = javaClass.getName().asString().toLowerCase().first().toString()
                     modules.first { it._name == moduleName }
-                }
+                },
+                CompilerEnvironment
         )
 
         performChecks(resolverForProject, modules)

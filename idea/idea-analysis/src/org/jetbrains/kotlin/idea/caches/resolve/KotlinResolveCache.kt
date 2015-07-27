@@ -29,18 +29,20 @@ import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.analyzer.analyzeInContext
 import org.jetbrains.kotlin.asJava.LightClassUtil
+import org.jetbrains.kotlin.container.ComponentProvider
 import org.jetbrains.kotlin.container.get
-import org.jetbrains.kotlin.context.SimpleGlobalContext
+import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.context.withProject
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyBodyResolve
-import org.jetbrains.kotlin.idea.project.ResolveSessionForBodies
+import org.jetbrains.kotlin.idea.project.ResolveElementCache
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.util.getScopeAndDataFlowForAnalyzeFragment
 import org.jetbrains.kotlin.types.TypeUtils
 import java.util.HashMap
@@ -60,11 +62,16 @@ private class KotlinResolveCache(
     val moduleResolverProvider: ModuleResolverProvider
         get() = resolverCache.getValue()
 
-    public fun getLazyResolveSession(element: JetElement): ResolveSessionForBodies {
-        return moduleResolverProvider.resolveSessionForBodiesByModule(element.getModuleInfo())
+    public fun getLazyResolveSession(element: JetElement): ResolveSession {
+        return moduleResolverProvider.resolverByModule(element.getModuleInfo()).lazyResolveSession
     }
 
-    public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSessionForBodies {
+    public fun <T> getService(element: JetElement, serviceClass: Class<T>): T {
+        //TODO_R:
+        return moduleResolverProvider.resolverByModule(element.getModuleInfo()).componentProvider.resolve(serviceClass)?.getValue() as T
+    }
+
+    public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSession {
         return moduleResolverProvider.resolveSessionForBodiesByDescriptor(moduleDescriptor)
     }
 
@@ -77,7 +84,7 @@ private class KotlinResolveCache(
         val resolverProvider = moduleResolverProvider
         val results = object : SLRUCache<JetFile, PerFileAnalysisCache>(2, 3) {
             override fun createValue(file: JetFile?): PerFileAnalysisCache {
-                return PerFileAnalysisCache(file!!, resolverProvider.resolveSessionForBodiesByModule(file.getModuleInfo()))
+                return PerFileAnalysisCache(file!!, resolverProvider.resolverByModule(file.getModuleInfo()).componentProvider)
             }
         }
         CachedValueProvider.Result(results, PsiModificationTracker.MODIFICATION_COUNT, resolverProvider.exceptionTracker)
@@ -104,7 +111,7 @@ private class KotlinResolveCache(
     }
 }
 
-private class PerFileAnalysisCache(val file: JetFile, val resolveSession: ResolveSessionForBodies) {
+private class PerFileAnalysisCache(val file: JetFile, val componentProvider: ComponentProvider) {
     private val cache = HashMap<PsiElement, AnalysisResult>()
 
     private fun lookUp(analyzableElement: JetElement): AnalysisResult? {
@@ -157,7 +164,7 @@ private class PerFileAnalysisCache(val file: JetFile, val resolveSession: Resolv
         }
 
         try {
-            return KotlinResolveDataProvider.analyze(project, resolveSession, analyzableElement)
+            return KotlinResolveDataProvider.analyze(project, componentProvider, analyzableElement)
         }
         catch (e: ProcessCanceledException) {
             throw e
@@ -211,11 +218,11 @@ private object KotlinResolveDataProvider {
                     ?: element.getContainingJetFile()
     }
 
-    fun analyze(project: Project, resolveSession: ResolveSessionForBodies, analyzableElement: JetElement): AnalysisResult {
+    fun analyze(project: Project, componentProvider: ComponentProvider, analyzableElement: JetElement): AnalysisResult {
         try {
-            val module = resolveSession.getModuleDescriptor()
+            val module = componentProvider.get<ModuleDescriptor>()
             if (analyzableElement is JetCodeFragment) {
-                return AnalysisResult.success(analyzeExpressionCodeFragment(resolveSession, analyzableElement), module)
+                return AnalysisResult.success(analyzeExpressionCodeFragment(componentProvider, analyzableElement), module)
             }
 
             val file = analyzableElement.getContainingJetFile()
@@ -224,17 +231,17 @@ private object KotlinResolveDataProvider {
                 file.putUserData(LibrarySourceHacks.SKIP_TOP_LEVEL_MEMBERS, true)
             }
 
+            val resolveSession = componentProvider.get<ResolveSession>()
             val trace = DelegatingBindingTrace(resolveSession.getBindingContext(), "Trace for resolution of " + analyzableElement)
 
             val targetPlatform = TargetPlatformDetector.getPlatform(analyzableElement.getContainingJetFile())
-            val globalContext = SimpleGlobalContext(resolveSession.getStorageManager(), resolveSession.getExceptionTracker())
-            val moduleContext = globalContext.withProject(project).withModule(module)
+
             val lazyTopDownAnalyzer = createContainerForLazyBodyResolve(
-                    moduleContext,
+                    componentProvider.get<GlobalContext>().withProject(project).withModule(module),
                     resolveSession,
                     trace,
                     targetPlatform,
-                    resolveSession.getBodyResolveCache()
+                    componentProvider.get<BodyResolveCache>()
             ).get<LazyTopDownAnalyzerForTopLevel>()
 
             lazyTopDownAnalyzer.analyzeDeclarations(
@@ -260,12 +267,13 @@ private object KotlinResolveDataProvider {
         }
     }
 
-    private fun analyzeExpressionCodeFragment(resolveSession: ResolveSessionForBodies, codeFragment: JetCodeFragment): BindingContext {
+    private fun analyzeExpressionCodeFragment(componentProvider: ComponentProvider, codeFragment: JetCodeFragment): BindingContext {
         val codeFragmentExpression = codeFragment.getContentElement()
         if (codeFragmentExpression !is JetExpression) return BindingContext.EMPTY
+        val resolveSession = componentProvider.get<ResolveSession>()
 
         val (scopeForContextElement, dataFlowInfo) = codeFragment.getScopeAndDataFlowForAnalyzeFragment(resolveSession) {
-            resolveSession.resolveToElement(it, BodyResolveMode.PARTIAL_FOR_COMPLETION) //TODO: discuss it
+            componentProvider.get<ResolveElementCache>().resolveToElement(it, BodyResolveMode.PARTIAL_FOR_COMPLETION) //TODO: discuss it
         } ?: return BindingContext.EMPTY
 
 

@@ -19,6 +19,8 @@ package org.jetbrains.kotlin.resolve.jvm
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.*
+import org.jetbrains.kotlin.container.ComponentProvider
+import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.ModuleParameters
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
@@ -36,10 +38,11 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import java.util.ArrayList
 import kotlin.platform.platformStatic
 
+//TODO_R: remove different entities
 public class JvmResolverForModule(
         override val lazyResolveSession: ResolveSession,
         override val packageFragmentProvider: PackageFragmentProvider,
-        public val javaDescriptorResolver: JavaDescriptorResolver
+        override val componentProvider: ComponentProvider
 ) : ResolverForModule
 
 public class JvmPlatformParameters(
@@ -67,9 +70,9 @@ public object JvmAnalyzerFacade : AnalyzerFacade<JvmResolverForModule, JvmPlatfo
 
         val moduleClassResolver = ModuleClassResolverImpl { javaClass ->
             val moduleInfo = platformParameters.moduleByJavaClass(javaClass)
-            resolverForProject.resolverForModule(moduleInfo as M).javaDescriptorResolver
+            resolverForProject.resolverForModule(moduleInfo as M).componentProvider.get<JavaDescriptorResolver>()
         }
-        val (resolveSession, javaDescriptorResolver) = createContainerForLazyResolveWithJava(
+        val container = createContainerForLazyResolveWithJava(
                 moduleContext,
                 CodeAnalyzerInitializer.getInstance(project).createTrace(),
                 declarationProviderFactory,
@@ -77,9 +80,11 @@ public object JvmAnalyzerFacade : AnalyzerFacade<JvmResolverForModule, JvmPlatfo
                 moduleClassResolver,
                 targetEnvironment
         )
+        val resolveSession = container.get<ResolveSession>()
+        val javaDescriptorResolver = container.get<JavaDescriptorResolver>()
 
         val providersForModule = listOf(resolveSession.getPackageFragmentProvider(), javaDescriptorResolver.packageFragmentProvider)
-        return JvmResolverForModule(resolveSession, CompositePackageFragmentProvider(providersForModule), javaDescriptorResolver)
+        return JvmResolverForModule(resolveSession, CompositePackageFragmentProvider(providersForModule), container)
     }
 
     override val moduleParameters: ModuleParameters

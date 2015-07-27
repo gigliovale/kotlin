@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.analyzer
 
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.container.ComponentProvider
 import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.context.withModule
@@ -38,6 +39,7 @@ import java.util.HashMap
 public interface ResolverForModule {
     public val lazyResolveSession: ResolveSession
     public val packageFragmentProvider: PackageFragmentProvider
+    public val componentProvider: ComponentProvider
 }
 
 public interface ResolverForProject<M : ModuleInfo,out R : ResolverForModule> {

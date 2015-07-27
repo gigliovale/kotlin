@@ -70,7 +70,7 @@ public fun StorageComponentContainer.configureJavaTopDownAnalysis(moduleContentS
 public fun createContainerForLazyResolveWithJava(
         moduleContext: ModuleContext, bindingTrace: BindingTrace, declarationProviderFactory: DeclarationProviderFactory,
         moduleContentScope: GlobalSearchScope, moduleClassResolver: ModuleClassResolver, targetEnvironment: TargetEnvironment = CompilerEnvironment
-): Pair<ResolveSession, JavaDescriptorResolver> = createContainer("LazyResolveWithJava") {
+): ComponentProvider = createContainer("LazyResolveWithJava") {
     configureModule(moduleContext, JvmPlatform, bindingTrace)
     configureJavaTopDownAnalysis(moduleContentScope, moduleContext.project, UsageCollector.DO_NOTHING)
 
@@ -84,8 +84,7 @@ public fun createContainerForLazyResolveWithJava(
     useImpl<LazyResolveToken>()
 }.let {
     it.javaAnalysisInit()
-
-    Pair(it.get<ResolveSession>(), it.get<JavaDescriptorResolver>())
+    it
 }
 
 

@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.project.AnalyzerFacadeProvider
-import org.jetbrains.kotlin.idea.project.ResolveSessionForBodies
+import org.jetbrains.kotlin.idea.project.ResolveElementCache
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.js.resolve.JsPlatform
@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.utils.keysToMap
 import kotlin.platform.platformStatic
@@ -173,7 +174,7 @@ public class KotlinCacheService(val project: Project) {
         }
     }
 
-    public fun getLazyResolveSession(element: JetElement): ResolveSessionForBodies {
+    public fun getLazyResolveSession(element: JetElement): ResolveSession {
         val file = element.getContainingJetFile()
         return getCacheToAnalyzeFiles(listOf(file)).getLazyResolveSession(file)
     }
@@ -213,7 +214,8 @@ public class KotlinCacheService(val project: Project) {
 
 private class ResolutionFacadeImpl(private val project: Project, private val cache: KotlinResolveCache) : ResolutionFacade {
     override fun analyze(element: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
-        return cache.getLazyResolveSession(element).resolveToElement(element, bodyResolveMode)
+        val resolveElementCache = cache.getService(element, javaClass<ResolveElementCache>())
+        return resolveElementCache.resolveToElement(element, bodyResolveMode)
     }
 
     override fun findModuleDescriptor(element: JetElement): ModuleDescriptor {

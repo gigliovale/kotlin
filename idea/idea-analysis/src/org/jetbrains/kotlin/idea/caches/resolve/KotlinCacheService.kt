@@ -234,11 +234,18 @@ private class ResolutionFacadeImpl(private val project: Project, private val cac
         return cache.getLazyResolveSession(file).getFileScopeProvider().getFileScope(file)
     }
 
+    override fun <T> getFrontendService(element: JetElement, serviceClass: Class<T>): T {
+        return cache.getService(element, serviceClass)
+    }
+
+    override fun <T> getFrontendService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
+        return cache.getService(moduleDescriptor, serviceClass)
+    }
+
     override fun resolveImportReference(moduleDescriptor: ModuleDescriptor, fqName: FqName): Collection<DeclarationDescriptor> {
         val importDirective = JetPsiFactory(project).createImportDirective(ImportPath(fqName, false))
-        val resolveSession = cache.getLazyResolveSession(moduleDescriptor)
-        val resolver = resolveSession.getQualifiedExpressionResolver()
-        return resolver.processImportReference(
+        val qualifiedExpressionResolver = this.getFrontendService<QualifiedExpressionResolver>(moduleDescriptor)
+        return qualifiedExpressionResolver.processImportReference(
                 importDirective, moduleDescriptor, BindingTraceContext(), QualifiedExpressionResolver.LookupMode.EVERYTHING).getAllDescriptors()
     }
 

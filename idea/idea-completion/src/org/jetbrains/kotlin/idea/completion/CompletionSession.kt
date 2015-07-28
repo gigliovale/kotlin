@@ -48,7 +48,7 @@ import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.psi.psiUtil.prevLeaf
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
-import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastUtils
+import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastManager
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
@@ -146,7 +146,7 @@ abstract class CompletionSession(protected val configuration: CompletionSessionC
             val dataFlowInfo = bindingContext.getDataFlowInfo(expression)
 
             var receiverTypes = receiversData.receivers.flatMap {
-                SmartCastUtils.getSmartCastVariantsWithLessSpecificExcluded(it, bindingContext, moduleDescriptor, dataFlowInfo)
+                SmartCastManager().getSmartCastVariantsWithLessSpecificExcluded(it, bindingContext, moduleDescriptor, dataFlowInfo)
             }
 
             if (receiversData.callType == CallType.SAFE) {

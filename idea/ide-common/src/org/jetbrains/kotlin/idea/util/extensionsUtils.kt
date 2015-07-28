@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.psi.JetPsiUtil
 import org.jetbrains.kotlin.psi.JetThisExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
-import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastUtils
+import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastManager
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
@@ -84,7 +84,7 @@ public fun CallableDescriptor.substituteExtensionIfCallable(
     if (!receiver.exists()) return listOf()
     if (!callType.canCall(this)) return listOf()
 
-    var types = SmartCastUtils.getSmartCastVariants(receiver, bindingContext, containingDeclarationOrModule, dataFlowInfo).asSequence()
+    var types = SmartCastManager().getSmartCastVariants(receiver, bindingContext, containingDeclarationOrModule, dataFlowInfo).asSequence()
 
     if (callType == CallType.SAFE) {
         types = types.map { it.makeNotNullable() }

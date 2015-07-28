@@ -32,6 +32,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.caches.resolve.getService
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.codeInsight.ReferenceVariantsHelper
 import org.jetbrains.kotlin.idea.core.KotlinIndicesHelper
@@ -131,7 +132,8 @@ abstract class CompletionSession(protected val configuration: CompletionSessionC
             val dataFlowInfo = bindingContext.getDataFlowInfo(expression)
 
             var receiverTypes = receiversData.receivers.flatMap {
-                SmartCastManager().getSmartCastVariantsWithLessSpecificExcluded(it, bindingContext, moduleDescriptor, dataFlowInfo)
+                resolutionFacade.getService<SmartCastManager>(file)
+                        .getSmartCastVariantsWithLessSpecificExcluded(it, bindingContext, moduleDescriptor, dataFlowInfo)
             }
 
             if (receiversData.callType == CallType.SAFE) {

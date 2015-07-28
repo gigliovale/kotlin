@@ -61,8 +61,8 @@ public interface ResolutionFacade {
     }
 }
 
-public inline fun <reified T> ResolutionFacade.getFrontendService(element: JetElement): T
+public inline fun <reified T> ResolutionFacade.getService(element: JetElement): T
         = this.getFrontendService(element, javaClass<T>())
 
-public inline fun <reified T> ResolutionFacade.getFrontendService(moduleDescriptor: ModuleDescriptor): T
+public inline fun <reified T> ResolutionFacade.getService(moduleDescriptor: ModuleDescriptor): T
         = this.getFrontendService(moduleDescriptor, javaClass<T>())

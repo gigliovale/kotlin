@@ -244,7 +244,7 @@ private class ResolutionFacadeImpl(private val project: Project, private val cac
 
     override fun resolveImportReference(moduleDescriptor: ModuleDescriptor, fqName: FqName): Collection<DeclarationDescriptor> {
         val importDirective = JetPsiFactory(project).createImportDirective(ImportPath(fqName, false))
-        val qualifiedExpressionResolver = this.getFrontendService<QualifiedExpressionResolver>(moduleDescriptor)
+        val qualifiedExpressionResolver = this.getService<QualifiedExpressionResolver>(moduleDescriptor)
         return qualifiedExpressionResolver.processImportReference(
                 importDirective, moduleDescriptor, BindingTraceContext(), QualifiedExpressionResolver.LookupMode.EVERYTHING).getAllDescriptors()
     }

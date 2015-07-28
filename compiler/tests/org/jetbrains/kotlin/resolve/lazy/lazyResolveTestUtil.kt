@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.ModuleContent
 import org.jetbrains.kotlin.analyzer.ModuleInfo
+import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.ProjectContext
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetFile
@@ -40,7 +41,7 @@ public fun createResolveSessionForFiles(
             JvmPlatformParameters { testModule },
             CompilerEnvironment
     )
-    return resolverForProject.resolverForModule(testModule).lazyResolveSession
+    return resolverForProject.resolverForModule(testModule).componentProvider.get<ResolveSession>()
 }
 
 private class TestModule(val dependsOnBuiltins: Boolean) : ModuleInfo {

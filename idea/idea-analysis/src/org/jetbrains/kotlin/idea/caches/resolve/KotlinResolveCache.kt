@@ -63,7 +63,7 @@ private class KotlinResolveCache(
         get() = resolverCache.getValue()
 
     public fun getLazyResolveSession(element: JetElement): ResolveSession {
-        return moduleResolverProvider.resolverByModule(element.getModuleInfo()).lazyResolveSession
+        return moduleResolverProvider.resolverByModule(element.getModuleInfo()).componentProvider.get<ResolveSession>()
     }
 
     public fun <T> getService(element: JetElement, serviceClass: Class<T>): T {

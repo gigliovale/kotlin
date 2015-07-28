@@ -34,8 +34,8 @@ public object JavaResolveExtension : CacheExtension<(PsiElement) -> Pair<JavaDes
 
     override fun getData(resolverProvider: ModuleResolverProvider): (PsiElement) -> Pair<JavaDescriptorResolver, BindingContext> {
         return {
-            val resolverForModule = resolverProvider.resolverByModule(it.getModuleInfo())
-            Pair(resolverForModule.componentProvider.get(), resolverForModule.lazyResolveSession.getBindingContext())
+            val componentProvider = resolverProvider.resolverByModule(it.getModuleInfo()).componentProvider
+            Pair(componentProvider.get(), componentProvider.get())
         }
     }
 

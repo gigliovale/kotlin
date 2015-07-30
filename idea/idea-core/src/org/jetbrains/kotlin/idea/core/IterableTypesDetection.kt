@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.idea.core
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.frontend.di.createContainerForMacros
 import org.jetbrains.kotlin.idea.util.FuzzyType
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetPsiFactory
@@ -29,19 +28,19 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.types.JetType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
+import org.jetbrains.kotlin.types.expressions.ForLoopConventionsChecker
 import java.util.HashMap
 
 public class IterableTypesDetection(
         private val project: Project,
-        private val moduleDescriptor: ModuleDescriptor
-
+        private val moduleDescriptor: ModuleDescriptor,
+        private val forLoopConventionsChecker: ForLoopConventionsChecker
 ) {
     public fun createDetector(scope: JetScope): IterableTypesDetector {
         return Detector(scope)
     }
 
     public inner class Detector(private val scope: JetScope): IterableTypesDetector {
-        private val container = createContainerForMacros(project, moduleDescriptor)
         private val cache = HashMap<FuzzyType, FuzzyType?>()
         private val iteratorName = Name.identifier("iterator")
 
@@ -71,9 +70,8 @@ public class IterableTypesDetection(
 
             val expression = JetPsiFactory(project).createExpression("fake")
             val expressionReceiver = ExpressionReceiver(expression, type.type)
-            val expressionTypingComponents = container.expressionTypingComponents
             val context = ExpressionTypingContext.newContext(BindingTraceContext(), scope, DataFlowInfo.EMPTY, TypeUtils.NO_EXPECTED_TYPE)
-            val elementType = expressionTypingComponents.getForLoopConventionsChecker().checkIterableConvention(expressionReceiver, context)
+            val elementType = forLoopConventionsChecker.checkIterableConvention(expressionReceiver, context)
             return elementType?.let { FuzzyType(it, type.freeParameters) }
         }
 

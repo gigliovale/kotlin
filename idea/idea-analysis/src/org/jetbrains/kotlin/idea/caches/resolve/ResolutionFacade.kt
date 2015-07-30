@@ -71,8 +71,8 @@ public inline fun <reified T> ResolutionFacade.getService(element: JetElement): 
 public inline fun <reified T> ResolutionFacade.getService(moduleDescriptor: ModuleDescriptor): T
         = this.getFrontendService(moduleDescriptor, javaClass<T>())
 
-public inline fun <reified T> ResolutionFacade.getIdeService(element: JetElement): T
+public inline fun <reified T> ResolutionFacade.ideService(element: JetElement): T
         = this.getIdeService(element, javaClass<T>())
 
-public inline fun <reified T> ResolutionFacade.getIdeService(moduleDescriptor: ModuleDescriptor): T
+public inline fun <reified T> ResolutionFacade.ideService(moduleDescriptor: ModuleDescriptor): T
         = this.getIdeService(moduleDescriptor, javaClass<T>())

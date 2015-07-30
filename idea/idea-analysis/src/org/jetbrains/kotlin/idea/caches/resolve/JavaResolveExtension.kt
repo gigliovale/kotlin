@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.load.java.sources.JavaSourceElement
 import org.jetbrains.kotlin.load.java.structure.*
 import org.jetbrains.kotlin.load.java.structure.impl.*
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
@@ -35,7 +36,7 @@ public object JavaResolveExtension : CacheExtension<(PsiElement) -> Pair<JavaDes
     override fun getData(resolverProvider: ModuleResolverProvider): (PsiElement) -> Pair<JavaDescriptorResolver, BindingContext> {
         return {
             val componentProvider = resolverProvider.resolverByModule(it.getModuleInfo()).componentProvider
-            Pair(componentProvider.get(), componentProvider.get())
+            Pair(componentProvider.get<JavaDescriptorResolver>(), componentProvider.get<BindingTrace>().getBindingContext())
         }
     }
 

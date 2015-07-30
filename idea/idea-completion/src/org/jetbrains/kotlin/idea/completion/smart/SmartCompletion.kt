@@ -27,9 +27,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.caches.resolve.getIdeService
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.completion.*
-import org.jetbrains.kotlin.idea.core.IterableTypesDetector
+import org.jetbrains.kotlin.idea.core.IterableTypesDetection
 import org.jetbrains.kotlin.idea.core.SmartCastCalculator
 import org.jetbrains.kotlin.idea.util.*
 import org.jetbrains.kotlin.lexer.JetTokens
@@ -392,8 +393,8 @@ class SmartCompletion(
         }
 
         val scope = bindingContext.get(BindingContext.RESOLUTION_SCOPE, expressionWithType)!!
-        val iterableDetector = IterableTypesDetector(project, moduleDescriptor, scope)
 
+        val iterableDetector = resolutionFacade.getIdeService<IterableTypesDetection>(expression).createDetector(scope)
         return buildResultByTypeFilter(expressionWithType, receiver, Tail.RPARENTH) { iterableDetector.isIterable(it, loopVarType) }
     }
 

@@ -59,7 +59,7 @@ class TypesWithContainsDetector(
     private fun isGoodContainsFunction(function: FunctionDescriptor, freeTypeParams: Collection<TypeParameterDescriptor>): Boolean {
         if (!TypeUtils.equalTypes(function.getReturnType()!!, booleanType)) return false
         val parameter = function.getValueParameters().singleOrNull() ?: return false
-        val parameterType = HeuristicSignatures.correctedParameterType(function, parameter, moduleDescriptor, project) ?: parameter.getType()
+        val parameterType = HeuristicSignatures(moduleDescriptor, project).correctedParameterType(function, parameter) ?: parameter.getType()
         val fuzzyParameterType = FuzzyType(parameterType, function.getTypeParameters() + freeTypeParams)
         return fuzzyParameterType.checkIsSuperTypeOf(argumentType) != null
     }

@@ -30,6 +30,7 @@ public interface ComponentContainer {
 
 public interface ComponentProvider {
     public fun resolve(request: Type): ValueDescriptor?
+    public fun <T> create(request: Class<T>): T
 }
 
 object DynamicComponentDescriptor : ValueDescriptor {
@@ -93,6 +94,13 @@ public class StorageComponentContainer(id: String) : ComponentContainer, Compone
     public fun registerDescriptors(descriptors: List<ComponentDescriptor>): StorageComponentContainer {
         componentStorage.registerDescriptors(unknownContext, descriptors)
         return this
+    }
+
+    //TODO_R: prettify
+    override fun <T> create(request: Class<T>): T {
+        val constructorBinding = request.bindToConstructor(unknownContext)
+        val args = constructorBinding.argumentDescriptors.map { it.getValue() }.toTypedArray()
+        return constructorBinding.constructor.newInstance(*args) as T
     }
 }
 

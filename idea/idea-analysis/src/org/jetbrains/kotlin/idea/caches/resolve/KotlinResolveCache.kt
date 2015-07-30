@@ -76,6 +76,16 @@ private class KotlinResolveCache(
         return moduleResolverProvider.resolverForProject.resolverForModuleDescriptor(moduleDescriptor).componentProvider.resolve(serviceClass)?.getValue() as T
     }
 
+    public fun <T> getIdeService(element: JetElement, serviceClass: Class<T>): T {
+        //TODO_R:
+        return moduleResolverProvider.resolverForProject.resolverForModule(element.getModuleInfo()).componentProvider.create(serviceClass)
+    }
+
+    public fun <T> getIdeService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
+        //TODO_R:
+        return moduleResolverProvider.resolverForProject.resolverForModuleDescriptor(moduleDescriptor).componentProvider.create(serviceClass)
+    }
+
     public fun getLazyResolveSession(moduleDescriptor: ModuleDescriptor): ResolveSession {
         return moduleResolverProvider.resolveSessionForBodiesByDescriptor(moduleDescriptor)
     }

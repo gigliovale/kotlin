@@ -405,7 +405,7 @@ class SmartCompletion(
 
         val leftOperandType = binaryExpression.getLeft()?.let { bindingContext.getType(it) } ?: return null
         val scope = bindingContext.get(BindingContext.RESOLUTION_SCOPE, expressionWithType)!!
-        val detector = TypesWithContainsDetector(scope, leftOperandType, project, moduleDescriptor)
+        val detector = TypesWithContainsDetector(scope, leftOperandType, resolutionFacade.ideService<HeuristicSignatures>(moduleDescriptor))
 
         return buildResultByTypeFilter(expressionWithType, receiver, null) { detector.hasContains(it) }
     }

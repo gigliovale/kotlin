@@ -50,7 +50,8 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 public class ResolveElementCache(
         private val resolveSession: ResolveSession,
-        private val project: Project
+        private val project: Project,
+        private val targetPlatform: TargetPlatform
 ) : BodyResolveCache {
     // Recreate internal cache after change of modification count
     private val fullResolveCache: CachedValue<MutableMap<JetElement, BindingContext>> = CachedValuesManager.getManager(project).createCachedValue(
@@ -73,8 +74,6 @@ public class ResolveElementCache(
             },
             false)
 
-
-    private fun getTargetPlatform(file: JetFile): TargetPlatform = TargetPlatformDetector.getPlatform(file)
 
     private fun probablyNothingCallableNames(): ProbablyNothingCallableNames {
         return object : ProbablyNothingCallableNames {
@@ -477,7 +476,7 @@ public class ResolveElementCache(
         return createContainerForBodyResolve(
                 globalContext.withProject(file.getProject()).withModule(module),
                 trace,
-                getTargetPlatform(file),
+                targetPlatform,
                 statementFilter
         ).get<BodyResolver>()
     }

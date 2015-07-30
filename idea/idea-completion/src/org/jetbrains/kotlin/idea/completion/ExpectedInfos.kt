@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.caches.resolve.getService
+import org.jetbrains.kotlin.idea.caches.resolve.ideService
 import org.jetbrains.kotlin.idea.completion.smart.toList
 import org.jetbrains.kotlin.idea.core.mapArgumentsToParameters
 import org.jetbrains.kotlin.idea.util.FuzzyType
@@ -255,7 +256,8 @@ class ExpectedInfos(
                 if (alreadyHasStar) continue
 
                 val parameterType = if (useHeuristicSignatures)
-                    HeuristicSignatures.correctedParameterType(descriptor, parameter, moduleDescriptor, project) ?: parameter.getType()
+                    resolutionFacade.ideService<HeuristicSignatures>(moduleDescriptor).
+                            correctedParameterType(descriptor, parameter) ?: parameter.getType()
                 else
                     parameter.getType()
 

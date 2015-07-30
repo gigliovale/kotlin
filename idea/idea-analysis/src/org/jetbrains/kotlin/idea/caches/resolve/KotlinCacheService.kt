@@ -213,6 +213,14 @@ public class KotlinCacheService(val project: Project) {
 }
 
 private class ResolutionFacadeImpl(private val project: Project, private val cache: KotlinResolveCache) : ResolutionFacade {
+    override fun <T> getIdeService(element: JetElement, serviceClass: Class<T>): T {
+        return cache.getIdeService(element, serviceClass)
+    }
+
+    override fun <T> getIdeService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
+        return cache.getIdeService(moduleDescriptor, serviceClass)
+    }
+
     override fun analyze(element: JetElement, bodyResolveMode: BodyResolveMode): BindingContext {
         val resolveElementCache = cache.getService(element, javaClass<ResolveElementCache>())
         return resolveElementCache.resolveToElement(element, bodyResolveMode)

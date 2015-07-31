@@ -36,13 +36,15 @@ public class IterableTypesDetection(
         private val moduleDescriptor: ModuleDescriptor,
         private val forLoopConventionsChecker: ForLoopConventionsChecker
 ) {
+    companion object {
+        private val iteratorName = Name.identifier("iterator")
+    }
+
     public fun createDetector(scope: JetScope): IterableTypesDetector {
         return Detector(scope)
     }
-
-    public inner class Detector(private val scope: JetScope): IterableTypesDetector {
+    private inner class Detector(private val scope: JetScope): IterableTypesDetector {
         private val cache = HashMap<FuzzyType, FuzzyType?>()
-        private val iteratorName = Name.identifier("iterator")
 
         private val typesWithExtensionIterator: Collection<JetType> = scope.getFunctions(iteratorName)
                 .map { it.getExtensionReceiverParameter() }

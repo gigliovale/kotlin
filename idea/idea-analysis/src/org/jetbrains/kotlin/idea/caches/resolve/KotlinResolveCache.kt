@@ -248,6 +248,7 @@ private object KotlinResolveDataProvider {
             val targetPlatform = TargetPlatformDetector.getPlatform(analyzableElement.getContainingJetFile())
 
             val lazyTopDownAnalyzer = createContainerForLazyBodyResolve(
+                    //TODO: should get ModuleContext
                     componentProvider.get<GlobalContext>().withProject(project).withModule(module),
                     resolveSession,
                     trace,

@@ -54,8 +54,7 @@ public object JsAnalyzerFacade : AnalyzerFacade<PlatformAnalysisParameters> {
         )
 
         val container = createContainerForLazyResolve(moduleContext, declarationProviderFactory, BindingTraceContext(), JsPlatform, targetEnvironment)
-        val resolveSession = container.get<ResolveSession>()
-        var packageFragmentProvider = resolveSession.getPackageFragmentProvider()
+        var packageFragmentProvider = container.get<ResolveSession>().getPackageFragmentProvider()
 
         if (moduleInfo is LibraryInfo && KotlinJavaScriptLibraryDetectionUtil.isKotlinJavaScriptLibrary(moduleInfo.library)) {
             val providers = moduleInfo.library.getFiles(OrderRootType.CLASSES)

@@ -82,9 +82,8 @@ public fun createContainerForLazyResolveWithJava(
 
     useImpl<FileScopeProviderImpl>()
     useImpl<LazyResolveToken>()
-}.let {
-    it.javaAnalysisInit()
-    it
+}.apply {
+    javaAnalysisInit()
 }
 
 

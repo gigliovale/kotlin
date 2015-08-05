@@ -16,19 +16,16 @@
 
 package org.jetbrains.kotlin.idea.intentions
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.codeInsight.ReferenceVariantsHelper
 import org.jetbrains.kotlin.idea.core.getResolutionScope
 import org.jetbrains.kotlin.idea.core.isVisible
 import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
-import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForSelector
@@ -61,15 +58,15 @@ class UsePropertyAccessSyntaxIntention : JetSelfTargetingOffsetIndependentIntent
     private fun findExtensionPropertyToUse(callExpression: JetCallExpression): PropertyDescriptor? {
         val callee = callExpression.getCalleeExpression() as? JetSimpleNameExpression ?: return null
 
-        val bindingContext = callExpression.analyze(BodyResolveMode.PARTIAL)
+        val resolutionFacade = callExpression.getResolutionFacade()
+        val bindingContext = resolutionFacade.analyze(callExpression, BodyResolveMode.PARTIAL)
         val resolvedCall = callExpression.getResolvedCall(bindingContext) ?: return null
         if (!resolvedCall.getStatus().isSuccess()) return null
 
         val function = resolvedCall.getResultingDescriptor() as? FunctionDescriptor ?: return null
-        val resolutionScope = callExpression.getResolutionScope(bindingContext, callExpression.getResolutionFacade())
+        val resolutionScope = callExpression.getResolutionScope(bindingContext, resolutionFacade)
         val property = findSyntheticProperty(function, resolutionScope) ?: return null
 
-        val moduleDescriptor = callExpression.getResolutionFacade().findModuleDescriptor(callExpression)
         val inDescriptor = resolutionScope.getContainingDeclaration()
 
         fun isVisible(descriptor: DeclarationDescriptor): Boolean {
@@ -79,7 +76,7 @@ class UsePropertyAccessSyntaxIntention : JetSelfTargetingOffsetIndependentIntent
                 true
         }
 
-        val referenceVariantsHelper = ReferenceVariantsHelper(bindingContext, moduleDescriptor, callExpression.getProject(), ::isVisible)
+        val referenceVariantsHelper = ReferenceVariantsHelper(bindingContext, resolutionFacade, ::isVisible)
         val propertyName = property.getName()
         val accessibleVariables = referenceVariantsHelper.getReferenceVariants(callee, DescriptorKindFilter.VARIABLES, { it == propertyName })
                 .map { it.original }

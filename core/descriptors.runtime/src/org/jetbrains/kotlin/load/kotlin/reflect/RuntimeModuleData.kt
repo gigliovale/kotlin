@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.serialization.deserialization.LocalClassResolver
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.types.TypeIntersector
 
 public class RuntimeModuleData private constructor(public val module: ModuleDescriptor, public val localClassResolver: LocalClassResolver) {
     companion object {
@@ -44,13 +45,15 @@ public class RuntimeModuleData private constructor(public val module: ModuleDesc
             val module = ModuleDescriptorImpl(Name.special("<runtime module for $classLoader>"), storageManager,
                                               ModuleParameters(listOf(), JavaToKotlinClassMap.INSTANCE))
 
+            val builtIns = KotlinBuiltIns.getInstance()
             val reflectKotlinClassFinder = ReflectKotlinClassFinder(classLoader)
             val deserializedDescriptorResolver = DeserializedDescriptorResolver(RuntimeErrorReporter)
             val singleModuleClassResolver = SingleModuleClassResolver()
             val globalJavaResolverContext = JavaResolverComponents(
                     storageManager, ReflectJavaClassFinder(classLoader), reflectKotlinClassFinder, deserializedDescriptorResolver,
                     ExternalAnnotationResolver.EMPTY, ExternalSignatureResolver.DO_NOTHING, RuntimeErrorReporter, JavaResolverCache.EMPTY,
-                    JavaPropertyInitializerEvaluator.DoNothing, SamConversionResolver, RuntimeSourceElementFactory, singleModuleClassResolver
+                    JavaPropertyInitializerEvaluator.DoNothing, SamConversionResolver, RuntimeSourceElementFactory, singleModuleClassResolver,
+                    TypeIntersector(builtIns)
             )
             val lazyJavaPackageFragmentProvider = LazyJavaPackageFragmentProvider(globalJavaResolverContext, module, ReflectionTypes(module))
             val javaDescriptorResolver = JavaDescriptorResolver(lazyJavaPackageFragmentProvider, module)
@@ -60,7 +63,8 @@ public class RuntimeModuleData private constructor(public val module: ModuleDesc
             singleModuleClassResolver.resolver = javaDescriptorResolver
             deserializedDescriptorResolver.setComponents(deserializationComponentsForJava)
 
-            module.setDependencies(module, KotlinBuiltIns.getInstance().getBuiltInsModule())
+
+            module.setDependencies(module, builtIns.getBuiltInsModule())
             module.initialize(javaDescriptorResolver.packageFragmentProvider)
 
             return RuntimeModuleData(module, deserializationComponentsForJava.components.localClassResolver)

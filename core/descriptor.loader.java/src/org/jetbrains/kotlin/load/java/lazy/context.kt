@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.load.kotlin.DeserializedDescriptorResolver
 import org.jetbrains.kotlin.load.kotlin.KotlinClassFinder
 import org.jetbrains.kotlin.serialization.deserialization.ErrorReporter
 import org.jetbrains.kotlin.storage.StorageManager
+import org.jetbrains.kotlin.types.TypeIntersector
 
 class JavaResolverComponents(
         val storageManager: StorageManager,
@@ -45,7 +46,8 @@ class JavaResolverComponents(
         val javaPropertyInitializerEvaluator: JavaPropertyInitializerEvaluator,
         val samConversionResolver: SamConversionResolver,
         val sourceElementFactory: JavaSourceElementFactory,
-        val moduleClassResolver: ModuleClassResolver
+        val moduleClassResolver: ModuleClassResolver,
+        val typeIntersector: TypeIntersector
 )
 
 open class LazyJavaResolverContext(

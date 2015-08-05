@@ -23,13 +23,14 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptorWithResolutionScopes
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.diagnostics.Diagnostic
-import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.core.quickfix.QuickFixUtil
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeGuesser
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.getExpressionForTypeGuess
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.getTypeParameters
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.guessTypes
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.JetParameterInfo
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.JetValVar
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getAssignmentByLHS
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedElement
@@ -52,12 +53,14 @@ object CreateParameterByRefActionFactory : CreateParameterFromUsageFactory<JetSi
             element: JetSimpleNameExpression,
             diagnostic: Diagnostic
     ): CreateParameterData<JetSimpleNameExpression>? {
-        val result = (diagnostic.psiFile as? JetFile)?.analyzeFullyAndGetResult() ?: return null
-        val context = result.bindingContext
+        val jetFile = diagnostic.psiFile as? JetFile ?: return null
+        val resolutionFacade = jetFile.getResolutionFacade()
+        val context = resolutionFacade.analyze(jetFile)
 
         val varExpected = element.getAssignmentByLHS() != null
 
-        val paramType = element.getExpressionForTypeGuess().guessTypes(context, result.moduleDescriptor).let {
+        val typeGuesser = resolutionFacade.ideService<TypeGuesser>(jetFile)
+        val paramType = typeGuesser.guessTypes(element.getExpressionForTypeGuess(), context).let {
             when (it.size()) {
                 0 -> KotlinBuiltIns.getInstance().anyType
                 1 -> it.first()

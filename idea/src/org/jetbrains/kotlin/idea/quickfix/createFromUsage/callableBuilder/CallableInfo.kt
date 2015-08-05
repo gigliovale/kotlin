@@ -21,6 +21,7 @@ import com.intellij.util.ArrayUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.createClass.ClassInfo
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.psi.JetElement
 import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.psi.JetTypeReference
@@ -45,12 +46,14 @@ abstract class TypeInfo(val variance: Variance) {
             KotlinNameSuggester.suggestNamesByExpressionOnly(expression, { true }).toTypedArray()
         }
 
-        override fun getPossibleTypes(builder: CallableBuilder): List<JetType> =
-                expression.guessTypes(
-                        context = builder.currentFileContext,
-                        module = builder.currentFileModule,
-                        pseudocode = builder.pseudocode
-                ).flatMap { it.getPossibleSupertypes(variance) }
+        override fun getPossibleTypes(builder: CallableBuilder): List<JetType> {
+            val typeGuesser = builder.resolutionFacade.ideService<TypeGuesser>(expression)
+            return typeGuesser.guessTypes(
+                    expression,
+                    context = builder.currentFileContext,
+                    pseudocode = builder.pseudocode
+            ).flatMap { it.getPossibleSupertypes(variance) }
+        }
     }
 
     class ByTypeReference(val typeReference: JetTypeReference, variance: Variance): TypeInfo(variance) {

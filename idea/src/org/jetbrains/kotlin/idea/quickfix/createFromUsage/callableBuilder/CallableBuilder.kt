@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl
 import org.jetbrains.kotlin.descriptors.impl.TypeParameterDescriptorImpl
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.idea.caches.resolve.getJavaClassDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.codeInsight.CodeInsightUtils
 import org.jetbrains.kotlin.idea.core.CollectingNameValidator
 import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
@@ -135,18 +136,19 @@ interface CallablePlacement {
 class CallableBuilder(val config: CallableBuilderConfiguration) {
     private var finished: Boolean = false
 
+    val resolutionFacade = config.currentFile.getResolutionFacade()
     val currentFileContext: BindingContext
     val currentFileModule: ModuleDescriptor
+
+    init {
+        val result = resolutionFacade.analyzeFullyAndGetResult(listOf(config.currentFile))
+        currentFileContext = result.bindingContext
+        currentFileModule = result.moduleDescriptor
+    }
 
     val pseudocode: Pseudocode? by lazy { config.originalElement.getContainingPseudocode(currentFileContext) }
 
     private val typeCandidates = HashMap<TypeInfo, List<TypeCandidate>>()
-
-    init {
-        val result = config.currentFile.analyzeFullyAndGetResult()
-        currentFileContext = result.bindingContext
-        currentFileModule = result.moduleDescriptor
-    }
 
     public var placement: CallablePlacement by Delegates.notNull()
 

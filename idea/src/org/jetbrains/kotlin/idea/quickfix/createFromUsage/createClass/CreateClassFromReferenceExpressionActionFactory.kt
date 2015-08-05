@@ -20,7 +20,10 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeGuesser
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeInfo
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getAssignmentByLHS
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
@@ -65,7 +68,8 @@ public object CreateClassFromReferenceExpressionActionFactory : CreateClassFromU
 
         val name = element.getReferencedName()
 
-        val (context, moduleDescriptor) = element.analyzeFullyAndGetResult()
+        val resolutionFacade = element.getResolutionFacade()
+        val context = resolutionFacade.analyze(element)
 
         val fullCallExpr = getFullCallExpression(element) ?: return Collections.emptyList()
 
@@ -99,7 +103,7 @@ public object CreateClassFromReferenceExpressionActionFactory : CreateClassFromU
         val targetParent = getTargetParentByCall(call, file) ?: return Collections.emptyList()
         if (isInnerClassExpected(call)) return Collections.emptyList()
 
-        val filter = fullCallExpr.getInheritableTypeInfo(context, moduleDescriptor, targetParent).second
+        val filter = resolutionFacade.ideService<TypeGuesser>(element).getInheritableTypeInfo(fullCallExpr, context, targetParent).second
 
         return Arrays.asList(ClassKind.OBJECT, ClassKind.ENUM_ENTRY)
                 .filter {
@@ -116,7 +120,8 @@ public object CreateClassFromReferenceExpressionActionFactory : CreateClassFromU
 
         val name = element.getReferencedName()
 
-        val (context, moduleDescriptor) = element.analyzeFullyAndGetResult()
+        val resolutionFacade = element.getResolutionFacade()
+        val context = resolutionFacade.analyze(element)
 
         val fullCallExpr = getFullCallExpression(element) ?: return null
 
@@ -138,7 +143,8 @@ public object CreateClassFromReferenceExpressionActionFactory : CreateClassFromU
         val call = element.getCall(context) ?: return null
         val targetParent = getTargetParentByCall(call, file) ?: return null
 
-        val expectedTypeInfo = fullCallExpr.getInheritableTypeInfo(context, moduleDescriptor, targetParent).first
+        val typeGuesser = resolutionFacade.ideService<TypeGuesser>(element)
+        val expectedTypeInfo = typeGuesser.getInheritableTypeInfo(fullCallExpr, context, targetParent).first
 
         return ClassInfo(
                 name = name,

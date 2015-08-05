@@ -19,29 +19,20 @@ package org.jetbrains.kotlin.idea.quickfix.createFromUsage.createClass
 import com.intellij.codeInsight.daemon.quickFix.CreateClassOrPackageFix
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiPackage
-import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.idea.JetBundle
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.core.refactoring.canRefactor
 import org.jetbrains.kotlin.idea.quickfix.DelegatingIntentionAction
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeInfo
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.guessTypes
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.noSubstitutions
 import org.jetbrains.kotlin.psi.Call
-import org.jetbrains.kotlin.psi.JetExpression
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.psi.JetSimpleNameExpression
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.scopes.receivers.Qualifier
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
-import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.Variance
-import org.jetbrains.kotlin.types.checker.JetTypeChecker
 import org.jetbrains.kotlin.descriptors.ClassKind as ClassDescriptorKind
 
 private fun String.checkClassName(): Boolean = isNotEmpty() && Character.isUpperCase(first())
@@ -81,32 +72,6 @@ private fun getTargetParentByCall(call: Call, file: JetFile): PsiElement? {
 private fun isInnerClassExpected(call: Call): Boolean {
     val receiver = call.getExplicitReceiver()
     return receiver != ReceiverValue.NO_RECEIVER && receiver !is Qualifier
-}
-
-private fun JetExpression.getInheritableTypeInfo(
-        context: BindingContext,
-        moduleDescriptor: ModuleDescriptor,
-        containingDeclaration: PsiElement): Pair<TypeInfo, (ClassKind) -> Boolean> {
-    val types = guessTypes(context, moduleDescriptor, coerceUnusedToUnit = false)
-    if (types.size() != 1) return TypeInfo.Empty to { classKind -> true }
-
-    val type = types.first()
-    val descriptor = type.getConstructor().getDeclarationDescriptor() ?: return TypeInfo.Empty to { classKind -> false }
-
-    val canHaveSubtypes = TypeUtils.canHaveSubtypes(JetTypeChecker.DEFAULT, type)
-    val isEnum = DescriptorUtils.isEnumClass(descriptor)
-
-    if (!(canHaveSubtypes || isEnum)
-        || descriptor is TypeParameterDescriptor) return TypeInfo.Empty to { classKind -> false }
-
-    return TypeInfo.ByType(type, Variance.OUT_VARIANCE).noSubstitutions() to { classKind ->
-        when (classKind) {
-            ClassKind.ENUM_ENTRY -> isEnum && containingDeclaration == DescriptorToSourceUtils.descriptorToDeclaration(descriptor)
-            ClassKind.INTERFACE -> containingDeclaration !is PsiClass
-                                   || (descriptor as? ClassDescriptor)?.getKind() == ClassDescriptorKind.INTERFACE
-            else -> canHaveSubtypes
-        }
-    }
 }
 
 private fun JetSimpleNameExpression.getCreatePackageFixIfApplicable(targetParent: PsiElement): IntentionAction? {

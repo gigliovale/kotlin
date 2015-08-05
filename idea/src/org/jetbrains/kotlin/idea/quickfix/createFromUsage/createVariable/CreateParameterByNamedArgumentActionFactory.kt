@@ -19,12 +19,13 @@ package org.jetbrains.kotlin.idea.quickfix.createFromUsage.createVariable
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.diagnostics.Diagnostic
-import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.core.quickfix.QuickFixUtil
 import org.jetbrains.kotlin.idea.core.refactoring.canRefactor
-import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.guessTypes
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeGuesser
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.JetParameterInfo
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
@@ -36,8 +37,9 @@ public object CreateParameterByNamedArgumentActionFactory: CreateParameterFromUs
     }
 
     override fun createQuickFixData(element: JetValueArgument, diagnostic: Diagnostic): CreateParameterData<JetValueArgument>? {
-        val result = (diagnostic.psiFile as? JetFile)?.analyzeFullyAndGetResult() ?: return null
-        val context = result.bindingContext
+        val jetFile = diagnostic.psiFile as? JetFile ?: return null
+        val resolutionFacade = jetFile.getResolutionFacade()
+        val context = resolutionFacade.analyze(jetFile)
 
         val name = element.getArgumentName()?.text ?: return null
         val argumentExpression = element.getArgumentExpression()
@@ -48,13 +50,17 @@ public object CreateParameterByNamedArgumentActionFactory: CreateParameterFromUs
         if (!((callable is JetFunction || callable is JetClass) && callable.canRefactor())) return null
 
         val anyType = KotlinBuiltIns.getInstance().anyType
-        val paramType = argumentExpression?.guessTypes(context, result.moduleDescriptor)?.let {
-            when (it.size()) {
-                0 -> anyType
-                1 -> it.first()
-                else -> return null
+        val typeGuesser = resolutionFacade.ideService<TypeGuesser>(jetFile)
+        val paramType = argumentExpression?.let {
+            typeGuesser.guessTypes(it, context).let {
+                when (it.size()) {
+                    0 -> anyType
+                    1 -> it.first()
+                    else -> return null
+                }
             }
         } ?: anyType
+
         if (paramType.hasTypeParametersToAdd(functionDescriptor, context)) return null
 
         val parameterInfo = JetParameterInfo(

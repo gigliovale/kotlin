@@ -19,9 +19,12 @@ package org.jetbrains.kotlin.idea.quickfix.createFromUsage.createClass
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.ParameterInfo
+import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeGuesser
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.TypeInfo
 import org.jetbrains.kotlin.idea.quickfix.createFromUsage.callableBuilder.getTypeInfoForTypeArguments
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForSelectorOrThis
@@ -42,14 +45,16 @@ public object CreateClassFromConstructorCallActionFactory: CreateClassFromUsageF
     override fun getPossibleClassKinds(element: JetCallExpression, diagnostic: Diagnostic): List<ClassKind> {
         val inAnnotationEntry = diagnostic.psiElement.getNonStrictParentOfType<JetAnnotationEntry>() != null
 
-        val (context, moduleDescriptor) = element.analyzeFullyAndGetResult()
+        val resolutionFacade = element.getResolutionFacade()
+        val context = resolutionFacade.analyze(element)
         val file = element.containingFile as? JetFile ?: return emptyList()
         val call = element.getCall(context) ?: return emptyList()
         val targetParent = getTargetParentByCall(call, file) ?: return emptyList()
 
         val classKind = if (inAnnotationEntry) ClassKind.ANNOTATION_CLASS else ClassKind.PLAIN_CLASS
         val fullCallExpr = element.getQualifiedExpressionForSelectorOrThis()
-        if (!fullCallExpr.getInheritableTypeInfo(context, moduleDescriptor, targetParent).second(classKind)) return emptyList()
+        val typeGuesser = resolutionFacade.ideService<TypeGuesser>(element)
+        if (!typeGuesser.getInheritableTypeInfo(fullCallExpr, context, targetParent).second(classKind)) return emptyList()
 
         return classKind.singletonList()
     }
@@ -74,7 +79,8 @@ public object CreateClassFromConstructorCallActionFactory: CreateClassFromUsageF
 
         val file = fullCallExpr.containingFile as? JetFile ?: return null
 
-        val (context, moduleDescriptor) = callExpr.analyzeFullyAndGetResult()
+        val resolutionFacade = callExpr.getResolutionFacade()
+        val context = resolutionFacade.analyze(callExpr)
 
         val call = callExpr.getCall(context) ?: return null
         val targetParent = getTargetParentByCall(call, file) ?: return null
@@ -92,7 +98,8 @@ public object CreateClassFromConstructorCallActionFactory: CreateClassFromUsageF
 
         val classKind = if (inAnnotationEntry) ClassKind.ANNOTATION_CLASS else ClassKind.PLAIN_CLASS
 
-        val (expectedTypeInfo, filter) = fullCallExpr.getInheritableTypeInfo(context, moduleDescriptor, targetParent)
+        val typeGuesser = resolutionFacade.ideService<TypeGuesser>(callExpr)
+        val (expectedTypeInfo, filter) = typeGuesser.getInheritableTypeInfo(fullCallExpr, context, targetParent)
         if (!filter(classKind)) return null
 
         val typeArgumentInfos = if (inAnnotationEntry) Collections.emptyList() else callExpr.getTypeInfoForTypeArguments()

@@ -38,6 +38,8 @@ import org.jetbrains.kotlin.idea.core.comparePossiblyOverridingDescriptors
 import org.jetbrains.kotlin.idea.core.getResolutionScope
 import org.jetbrains.kotlin.idea.core.isVisible
 import org.jetbrains.kotlin.idea.references.mainReference
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.idea.util.CallType
 import org.jetbrains.kotlin.idea.util.ShadowedDeclarationsFilter
 import org.jetbrains.kotlin.lexer.JetTokens

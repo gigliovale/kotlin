@@ -26,8 +26,8 @@ import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
-import org.jetbrains.kotlin.idea.caches.resolve.ideService
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.completion.*
 import org.jetbrains.kotlin.idea.core.IterableTypesDetection

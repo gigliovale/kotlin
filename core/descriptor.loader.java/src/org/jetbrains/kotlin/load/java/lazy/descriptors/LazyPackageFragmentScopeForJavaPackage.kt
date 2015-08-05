@@ -44,14 +44,14 @@ public class LazyPackageFragmentScopeForJavaPackage(
     // TODO: Storing references is a temporary hack until modules infrastructure is implemented.
     // See JetTypeMapperWithOutDirectories for details
     public val kotlinBinaryClass: KotlinJvmBinaryClass?
-            = c.kotlinClassFinder.findKotlinClass(PackageClassUtils.getPackageClassId(this.packageFragment.fqName))
+            = c.components.kotlinClassFinder.findKotlinClass(PackageClassUtils.getPackageClassId(this.packageFragment.fqName))
 
     private val deserializedPackageScope = c.storageManager.createLazyValue {
         val kotlinBinaryClass = kotlinBinaryClass
         if (kotlinBinaryClass == null)
             JetScope.Empty
         else
-            c.deserializedDescriptorResolver.createKotlinPackageScope(this.packageFragment, kotlinBinaryClass) ?: JetScope.Empty
+            c.components.deserializedDescriptorResolver.createKotlinPackageScope(this.packageFragment, kotlinBinaryClass) ?: JetScope.Empty
     }
 
     private val packageFragment: LazyJavaPackageFragment get() = getContainingDeclaration() as LazyJavaPackageFragment
@@ -63,10 +63,10 @@ public class LazyPackageFragmentScopeForJavaPackage(
 
         val classId = ClassId(packageFragment.fqName, name)
 
-        val kotlinClass = c.resolveBinaryClass(c.kotlinClassFinder.findKotlinClass(classId))
+        val kotlinClass = c.resolveBinaryClass(c.components.kotlinClassFinder.findKotlinClass(classId))
         if (kotlinClass != null) return kotlinClass.descriptor
 
-        val javaClass = c.finder.findClass(classId)
+        val javaClass = c.components.finder.findClass(classId)
         if (javaClass != null) {
             val classDescriptor = c.javaClassResolver.resolveClass(javaClass)
             assert(classDescriptor == null || classDescriptor.containingDeclaration == packageFragment) {
@@ -119,7 +119,7 @@ public class LazyPackageFragmentScopeForJavaPackage(
     )
 
     override fun computeNonDeclaredFunctions(result: MutableCollection<SimpleFunctionDescriptor>, name: Name) {
-        result.addIfNotNull(c.samConversionResolver.resolveSamConstructor(name, this))
+        result.addIfNotNull(c.components.samConversionResolver.resolveSamConstructor(name, this))
     }
 
     override fun getSubPackages() = subPackages()

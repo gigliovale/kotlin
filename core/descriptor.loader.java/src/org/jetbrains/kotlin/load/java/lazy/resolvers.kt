@@ -70,10 +70,10 @@ fun LazyJavaResolverContext.resolveBinaryClass(kotlinClass: KotlinJvmBinaryClass
 
     val header = kotlinClass.classHeader
     if (!header.isCompatibleAbiVersion) {
-        errorReporter.reportIncompatibleAbiVersion(kotlinClass.classId, kotlinClass.location, header.version)
+        components.errorReporter.reportIncompatibleAbiVersion(kotlinClass.classId, kotlinClass.location, header.version)
     }
     else if (header.kind == KotlinClassHeader.Kind.CLASS) {
-        val descriptor = deserializedDescriptorResolver.resolveClass(kotlinClass)
+        val descriptor = components.deserializedDescriptorResolver.resolveClass(kotlinClass)
         if (descriptor != null) {
             return KotlinClassLookupResult(descriptor)
         }

@@ -29,25 +29,25 @@ import org.jetbrains.kotlin.storage.MemoizedFunctionToNullable
 import org.jetbrains.kotlin.utils.emptyOrSingletonList
 
 public class LazyJavaPackageFragmentProvider(
-        outerContext: GlobalJavaResolverContext,
+        components: JavaResolverComponents,
         module: ModuleDescriptor,
         reflectionTypes: ReflectionTypes
 ) : PackageFragmentProvider {
 
     private val c =
-            LazyJavaResolverContext(outerContext, this, FragmentClassResolver(), module, reflectionTypes, TypeParameterResolver.EMPTY)
+            LazyJavaResolverContext(components, this, FragmentClassResolver(), module, reflectionTypes, TypeParameterResolver.EMPTY)
 
     private val packageFragments: MemoizedFunctionToNullable<FqName, LazyJavaPackageFragment> =
             c.storageManager.createMemoizedFunctionWithNullableValues {
                 fqName ->
-                val jPackage = c.finder.findPackage(fqName)
+                val jPackage = c.components.finder.findPackage(fqName)
                 if (jPackage != null) {
                     LazyJavaPackageFragment(c, jPackage)
                 }
                 else null
             }
 
-    private val topLevelClasses = c.storageManager.createMemoizedFunctionWithNullableValues lambda@ {
+    private val topLevelClasses = c.components.storageManager.createMemoizedFunctionWithNullableValues lambda@ {
         jClass: JavaClass ->
         val fqName = jClass.getFqName()
         if (fqName == null) return@lambda null
@@ -72,12 +72,12 @@ public class LazyJavaPackageFragmentProvider(
             val fqName = javaClass.getFqName()
             if (fqName != null) {
                 if (javaClass.getOriginKind() == JavaClass.OriginKind.KOTLIN_LIGHT_CLASS) {
-                    return c.javaResolverCache.getClassResolvedFromSource(fqName)
+                    return c.components.javaResolverCache.getClassResolvedFromSource(fqName)
                 }
             }
             val outerClass = javaClass.getOuterClass()
             if (outerClass == null) {
-                return c.resolveBinaryClass(c.kotlinClassFinder.findKotlinClass(javaClass))?.descriptor
+                return c.resolveBinaryClass(c.components.kotlinClassFinder.findKotlinClass(javaClass))?.descriptor
                        ?: topLevelClasses(javaClass)
             }
             val outerClassScope = resolveClass(outerClass)?.getUnsubstitutedInnerClassesScope()

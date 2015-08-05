@@ -23,10 +23,8 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
-import org.jetbrains.kotlin.idea.util.CallType
-import org.jetbrains.kotlin.idea.util.ShadowedDeclarationsFilter
-import org.jetbrains.kotlin.idea.util.getImplicitReceiversWithInstance
-import org.jetbrains.kotlin.idea.util.substituteExtensionIfCallable
+import org.jetbrains.kotlin.idea.resolve.ideService
+import org.jetbrains.kotlin.idea.util.*
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -133,7 +131,7 @@ public class ReferenceVariantsHelper(
                 val receiverValue = ExpressionReceiver(receiverExpression, expressionType)
                 descriptors.addMembersFromReceiverAndSyntheticExtensions(receiverValue, callType, kindFilter, nameFilter, resolutionScope, dataFlowInfo)
 
-                descriptors.addCallableExtensions(resolutionScope, receiverValue, dataFlowInfo, callType, kindFilter, nameFilter)
+                descriptors.addCallableExtensions(expression, resolutionScope, receiverValue, dataFlowInfo, callType, kindFilter, nameFilter)
             }
         }
         else {
@@ -149,7 +147,8 @@ public class ReferenceVariantsHelper(
                 if (descriptor is CallableDescriptor && descriptor.getExtensionReceiverParameter() != null) {
                     val dispatchReceiver = descriptor.getDispatchReceiverParameter()
                     if (dispatchReceiver == null || dispatchReceiver in receivers) {
-                        descriptors.addAll(descriptor.substituteExtensionIfCallable(receiverValues, context, dataFlowInfo, CallType.NORMAL, containingDeclaration))
+                        val extensionSubstitutor = resolutionFacade.ideService<ExtensionSubstitutor>(expression)
+                        descriptors.addAll(extensionSubstitutor.substituteExtensionIfCallable(descriptor, receiverValues, context, dataFlowInfo, CallType.NORMAL, containingDeclaration))
                     }
                 }
                 else {
@@ -172,8 +171,9 @@ public class ReferenceVariantsHelper(
     ) {
         val memberFilter = kindFilter exclude DescriptorKindExclude.Extensions
         val containingDeclaration = resolutionScope.getContainingDeclaration()
+        val module = containingDeclaration.module
 
-        val receiverTypes = resolutionFacade.frontendService<SmartCastManager>(containingDeclaration.module)
+        val receiverTypes = resolutionFacade.frontendService<SmartCastManager>(module)
                 .getSmartCastVariantsWithLessSpecificExcluded(receiverValue, context, containingDeclaration, dataFlowInfo)
 
         for (receiverType in receiverTypes) {
@@ -193,7 +193,8 @@ public class ReferenceVariantsHelper(
         if (!kindFilter.excludes.contains(DescriptorKindExclude.Extensions)) {
             fun processExtension(extension: CallableDescriptor) {
                 if (nameFilter(extension.name) && kindFilter.accepts(extension)) {
-                    addAll(extension.substituteExtensionIfCallable(receiverValue, callType, context, dataFlowInfo, containingDeclaration))
+                    val extensionSubstitutor = resolutionFacade.ideService<ExtensionSubstitutor>(module)
+                    addAll(extensionSubstitutor.substituteExtensionIfCallable(extension, receiverValue, callType, context, dataFlowInfo, containingDeclaration))
                 }
             }
 
@@ -234,6 +235,7 @@ public class ReferenceVariantsHelper(
     }
 
     private fun MutableCollection<DeclarationDescriptor>.addCallableExtensions(
+            expression: JetSimpleNameExpression,
             resolutionScope: JetScope,
             receiver: ReceiverValue,
             dataFlowInfo: DataFlowInfo,
@@ -243,9 +245,10 @@ public class ReferenceVariantsHelper(
     ) {
         if (kindFilter.excludes.contains(DescriptorKindExclude.Extensions)) return
         val extensionsFilter = kindFilter.exclude(DescriptorKindExclude.NonExtensions)
+        val extensionSubstitutor = resolutionFacade.ideService<ExtensionSubstitutor>(expression)
 
         fun processExtension(descriptor: DeclarationDescriptor) {
-            addAll((descriptor as CallableDescriptor).substituteExtensionIfCallable(receiver, callType, context, dataFlowInfo, resolutionScope.getContainingDeclaration()))
+            addAll(extensionSubstitutor.substituteExtensionIfCallable((descriptor as CallableDescriptor), receiver, callType, context, dataFlowInfo, resolutionScope.getContainingDeclaration()))
         }
 
         // process member extensions from implicit receivers separately to filter out ones from implicit receivers with no instance

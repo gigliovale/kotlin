@@ -22,15 +22,16 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiShortNamesCache
 import com.intellij.psi.stubs.StringStubIndexExtension
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
-import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
 import org.jetbrains.kotlin.idea.codeInsight.ReferenceVariantsHelper
 import org.jetbrains.kotlin.idea.imports.importableFqName
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.resolve.frontendService
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.idea.util.CallType
+import org.jetbrains.kotlin.idea.util.ExtensionSubstitutor
 import org.jetbrains.kotlin.idea.util.getImplicitReceiversWithInstance
-import org.jetbrains.kotlin.idea.util.substituteExtensionIfCallable
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.JetCallableDeclaration
 import org.jetbrains.kotlin.psi.JetFile
@@ -159,11 +160,12 @@ public class KotlinIndicesHelper(
             bindingContext: BindingContext
     ): Collection<CallableDescriptor> {
         val result = LinkedHashSet<CallableDescriptor>()
+        val extensionSubstitutor = resolutionFacade.ideService<ExtensionSubstitutor>(moduleDescriptor)
 
         fun processDescriptor(descriptor: CallableDescriptor) {
             if (descriptorFilter(descriptor)) {
                 for ((receiverValue, callType) in receiverValues) {
-                    result.addAll(descriptor.substituteExtensionIfCallable(receiverValue, callType, bindingContext, dataFlowInfo, moduleDescriptor))
+                    result.addAll(extensionSubstitutor.substituteExtensionIfCallable(descriptor, receiverValue, callType, bindingContext, dataFlowInfo, moduleDescriptor))
                 }
             }
         }

@@ -31,11 +31,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.VariableDescriptor;
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade;
 import org.jetbrains.kotlin.idea.caches.resolve.ResolvePackage;
 import org.jetbrains.kotlin.idea.core.IterableTypesDetection;
 import org.jetbrains.kotlin.idea.core.IterableTypesDetector;
-import org.jetbrains.kotlin.idea.util.UtilPackage;
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade;
+import org.jetbrains.kotlin.idea.util.ExtensionSubstitutor;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils;
@@ -75,6 +75,7 @@ public abstract class BaseJetVariableMacro extends Macro {
 
         IterableTypesDetector detector =
                 resolutionFacade.getIdeService(contextExpression, IterableTypesDetection.class).createDetector(scope);
+        ExtensionSubstitutor extensionSubstitutor = resolutionFacade.getIdeService(contextExpression, ExtensionSubstitutor.class);
 
         DataFlowInfo dataFlowInfo = getDataFlowInfo(bindingContext, contextExpression);
 
@@ -84,7 +85,7 @@ public abstract class BaseJetVariableMacro extends Macro {
                 VariableDescriptor variableDescriptor = (VariableDescriptor) declarationDescriptor;
 
                 if (variableDescriptor.getExtensionReceiverParameter() != null
-                    && UtilPackage.substituteExtensionIfCallableWithImplicitReceiver(
+                    && extensionSubstitutor.substituteExtensionIfCallableWithImplicitReceiver(
                         variableDescriptor, scope, bindingContext, dataFlowInfo).isEmpty()) {
                     continue;
                 }

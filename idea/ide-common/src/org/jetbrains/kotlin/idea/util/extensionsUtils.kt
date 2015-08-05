@@ -49,63 +49,67 @@ public enum class CallType {
     public open fun canCall(descriptor: DeclarationDescriptor): Boolean = true
 }
 
-public fun CallableDescriptor.substituteExtensionIfCallable(
-        receivers: Collection<ReceiverValue>,
-        context: BindingContext,
-        dataFlowInfo: DataFlowInfo,
-        callType: CallType,
-        containingDeclarationOrModule: DeclarationDescriptor
-): Collection<CallableDescriptor> {
-    val sequence = receivers.asSequence().flatMap { substituteExtensionIfCallable(it, callType, context, dataFlowInfo, containingDeclarationOrModule).asSequence() }
-    if (getTypeParameters().isEmpty()) { // optimization for non-generic callables
-        return sequence.firstOrNull()?.let { listOf(it) } ?: listOf()
-    }
-    else {
-        return sequence.toList()
-    }
-}
-
-public fun CallableDescriptor.substituteExtensionIfCallableWithImplicitReceiver(
-        scope: JetScope,
-        context: BindingContext,
-        dataFlowInfo: DataFlowInfo
-): Collection<CallableDescriptor> {
-    val receiverValues = scope.getImplicitReceiversWithInstance().map { it.getValue() }
-    return substituteExtensionIfCallable(receiverValues, context, dataFlowInfo, CallType.NORMAL, scope.getContainingDeclaration())
-}
-
-public fun CallableDescriptor.substituteExtensionIfCallable(
-        receiver: ReceiverValue,
-        callType: CallType,
-        bindingContext: BindingContext,
-        dataFlowInfo: DataFlowInfo,
-        containingDeclarationOrModule: DeclarationDescriptor
-): Collection<CallableDescriptor> {
-    if (!receiver.exists()) return listOf()
-    if (!callType.canCall(this)) return listOf()
-
-    var types = SmartCastManager().getSmartCastVariants(receiver, bindingContext, containingDeclarationOrModule, dataFlowInfo).asSequence()
-
-    if (callType == CallType.SAFE) {
-        types = types.map { it.makeNotNullable() }
+class ExtensionSubstitutor(
+        private val smartCastManager: SmartCastManager
+) {
+    public fun substituteExtensionIfCallable(
+            callableDescriptor: CallableDescriptor,
+            receivers: Collection<ReceiverValue>,
+            context: BindingContext,
+            dataFlowInfo: DataFlowInfo,
+            callType: CallType, containingDeclarationOrModule: DeclarationDescriptor
+    ): Collection<CallableDescriptor> {
+        val sequence = receivers.asSequence().flatMap { substituteExtensionIfCallable(callableDescriptor, it, callType, context, dataFlowInfo, containingDeclarationOrModule).asSequence() }
+        if (callableDescriptor.getTypeParameters().isEmpty()) { // optimization for non-generic callables
+            return sequence.firstOrNull()?.let { listOf(it) } ?: listOf()
+        }
+        else {
+            return sequence.toList()
+        }
     }
 
-    val extensionReceiverType = fuzzyExtensionReceiverType()!!
-    val substitutors = types
-            .map {
-                var substitutor = extensionReceiverType.checkIsSuperTypeOf(it)
-                // check if we may fail due to receiver expression being nullable
-                if (substitutor == null && it.nullability() == TypeNullability.NULLABLE && extensionReceiverType.nullability() == TypeNullability.NOT_NULL) {
-                    substitutor = extensionReceiverType.checkIsSuperTypeOf(it.makeNotNullable())
+    public fun substituteExtensionIfCallableWithImplicitReceiver(
+            callableDescriptor: CallableDescriptor,
+            scope: JetScope,
+            context: BindingContext, dataFlowInfo: DataFlowInfo
+    ): Collection<CallableDescriptor> {
+        val receiverValues = scope.getImplicitReceiversWithInstance().map { it.getValue() }
+        return substituteExtensionIfCallable(callableDescriptor, receiverValues, context, dataFlowInfo, CallType.NORMAL, scope.getContainingDeclaration())
+    }
+
+    public fun substituteExtensionIfCallable(
+            callableDescriptor: CallableDescriptor,
+            receiver: ReceiverValue,
+            callType: CallType,
+            bindingContext: BindingContext,
+            dataFlowInfo: DataFlowInfo, containingDeclarationOrModule: DeclarationDescriptor
+    ): Collection<CallableDescriptor> {
+        if (!receiver.exists()) return listOf()
+        if (!callType.canCall(callableDescriptor)) return listOf()
+
+        var types = smartCastManager.getSmartCastVariants(receiver, bindingContext, containingDeclarationOrModule, dataFlowInfo).asSequence()
+
+        if (callType == CallType.SAFE) {
+            types = types.map { it.makeNotNullable() }
+        }
+
+        val extensionReceiverType = callableDescriptor.fuzzyExtensionReceiverType()!!
+        val substitutors = types
+                .map {
+                    var substitutor = extensionReceiverType.checkIsSuperTypeOf(it)
+                    // check if we may fail due to receiver expression being nullable
+                    if (substitutor == null && it.nullability() == TypeNullability.NULLABLE && extensionReceiverType.nullability() == TypeNullability.NOT_NULL) {
+                        substitutor = extensionReceiverType.checkIsSuperTypeOf(it.makeNotNullable())
+                    }
+                    substitutor
                 }
-                substitutor
-            }
-            .filterNotNull()
-    if (getTypeParameters().isEmpty()) { // optimization for non-generic callables
-        return if (substitutors.any()) listOf(this) else listOf()
-    }
-    else {
-        return substitutors.map { substitute(it)!! }.toList()
+                .filterNotNull()
+        if (callableDescriptor.getTypeParameters().isEmpty()) { // optimization for non-generic callables
+            return if (substitutors.any()) listOf(callableDescriptor) else listOf()
+        }
+        else {
+            return substitutors.map { callableDescriptor.substitute(it)!! }.toList()
+        }
     }
 }
 

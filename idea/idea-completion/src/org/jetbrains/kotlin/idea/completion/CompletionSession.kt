@@ -30,9 +30,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.DelegatingGlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.caches.resolve.ResolutionFacade
-import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.idea.caches.resolve.frontendService
+import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.codeInsight.ReferenceVariantsHelper
 import org.jetbrains.kotlin.idea.core.KotlinIndicesHelper
@@ -171,7 +169,7 @@ abstract class CompletionSession(protected val configuration: CompletionSessionC
 
     protected val collector: LookupElementsCollector = LookupElementsCollector(prefixMatcher, parameters, resultSet, resolutionFacade, lookupElementFactory, inDescriptor, collectorContext)
 
-    protected val originalSearchScope: GlobalSearchScope = ResolutionFacade.getResolveScope(parameters.getOriginalFile() as JetFile)
+    protected val originalSearchScope: GlobalSearchScope = getResolveScope(parameters.getOriginalFile() as JetFile)
 
     // we need to exclude the original file from scope because our resolve session is built with this file replaced by synthetic one
     protected val searchScope: GlobalSearchScope = object : DelegatingGlobalSearchScope(originalSearchScope) {

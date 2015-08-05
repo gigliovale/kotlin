@@ -22,7 +22,6 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.descriptors.impl.SubpackagesScope
-import org.jetbrains.kotlin.frontend.di.createContainerForMacros
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetPsiFactory
@@ -32,7 +31,10 @@ import org.jetbrains.kotlin.resolve.TypeResolver
 import org.jetbrains.kotlin.resolve.scopes.ChainedScope
 import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.resolve.scopes.UsageLocation
-import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.IndexedParametersSubstitution
+import org.jetbrains.kotlin.types.JetType
+import org.jetbrains.kotlin.types.SubstitutionUtils
+import org.jetbrains.kotlin.types.Variance
 import java.util.HashMap
 
 public class HeuristicSignatures(

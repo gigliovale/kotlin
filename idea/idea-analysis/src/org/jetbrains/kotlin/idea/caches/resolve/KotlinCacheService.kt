@@ -24,21 +24,17 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.SLRUCache
-import org.jetbrains.kotlin.analyzer.AnalysisResult
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.analyzer.EmptyResolverForProject
 import org.jetbrains.kotlin.idea.project.AnalyzerFacadeProvider
-import org.jetbrains.kotlin.idea.project.ResolveElementCache
 import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.js.resolve.JsPlatform
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.psi.JetCodeFragment
+import org.jetbrains.kotlin.psi.JetElement
+import org.jetbrains.kotlin.psi.JetFile
+import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
-import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.utils.keysToMap
 import kotlin.platform.platformStatic
 
@@ -50,37 +46,36 @@ public class KotlinCacheService(val project: Project) {
     }
 
     public fun getResolutionFacade(elements: List<JetElement>): ResolutionFacade {
-        return ResolutionFacadeImpl(
-                project,
-                getCacheToAnalyzeFiles(elements.map { it.getContainingJetFile() })
-        )
+        return getFacadeToAnalyzeFiles(elements.map { it.getContainingJetFile() })
     }
 
-    fun globalResolveSessionProvider(
+    private fun globalResolveSessionProvider(
             platform: TargetPlatform,
             dependencies: Collection<Any>,
             moduleFilter: (IdeaModuleInfo) -> Boolean,
-            reuseDataFromCache: KotlinResolveCache? = null,
+            reuseDataFromCache: ResolutionFacadeImpl? = null,
             syntheticFiles: Collection<JetFile> = listOf(),
             logProcessCanceled: Boolean = false
     ): () -> CachedValueProvider.Result<ModuleResolverProvider> = {
-        val analyzerFacade = AnalyzerFacadeProvider.getAnalyzerFacade(platform)
-        val delegateResolverProvider = reuseDataFromCache?.moduleResolverProvider ?: EmptyModuleResolverProvider
+        val delegateResolverProvider = reuseDataFromCache?.moduleResolverProvider
+        val delegateResolverForProject = delegateResolverProvider?.resolverForProject ?: EmptyResolverForProject()
         val globalContext = (delegateResolverProvider as? ModuleResolverProviderImpl)?.globalContext
                                     ?.withCompositeExceptionTrackerUnderSameLock()
                             ?: GlobalContext(logProcessCanceled)
 
         val moduleResolverProvider = createModuleResolverProvider(
-                project, globalContext, analyzerFacade, syntheticFiles, delegateResolverProvider, moduleFilter
+                project, globalContext,
+                AnalyzerFacadeProvider.getAnalyzerFacade(platform),
+                syntheticFiles, delegateResolverForProject, moduleFilter
         )
         val allDependencies = dependencies + listOf(moduleResolverProvider.exceptionTracker)
         CachedValueProvider.Result.create(moduleResolverProvider, allDependencies)
     }
 
-    private val globalCachesPerPlatform = listOf(JvmPlatform, JsPlatform).keysToMap { platform -> GlobalCache(platform) }
+    private val globalFacadesPerPlatform = listOf(JvmPlatform, JsPlatform).keysToMap { platform -> GlobalFacade(platform) }
 
-    private inner class GlobalCache(platform: TargetPlatform) {
-        val librariesCache = KotlinResolveCache(
+    private inner class GlobalFacade(platform: TargetPlatform) {
+        val facadeForLibraries = ResolutionFacadeImpl(
                 project, globalResolveSessionProvider(platform,
                                                       logProcessCanceled = true,
                                                       moduleFilter = { it.isLibraryClasses() },
@@ -89,18 +84,22 @@ public class KotlinCacheService(val project: Project) {
                                                               ProjectRootModificationTracker.getInstance(project)))
         )
 
-        val modulesCache = KotlinResolveCache(
+        val facadeForModules = ResolutionFacadeImpl(
                 project, globalResolveSessionProvider(platform,
-                                                      reuseDataFromCache = librariesCache,
+                                                      reuseDataFromCache = facadeForLibraries,
                                                       moduleFilter = { !it.isLibraryClasses() },
                                                       dependencies = listOf(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
         )
     }
 
-    private fun getGlobalCache(platform: TargetPlatform) = globalCachesPerPlatform[platform]!!.modulesCache
-    private fun getGlobalLibrariesCache(platform: TargetPlatform) = globalCachesPerPlatform[platform]!!.librariesCache
+    deprecated("Use JetElement.getResolutionFacade(), please avoid introducing new usages")
+    public fun getGlobalFacade(platform: TargetPlatform): ResolutionFacade = globalFacade(platform)
 
-    private fun createCacheForSyntheticFiles(files: Set<JetFile>): KotlinResolveCache {
+    private fun globalFacade(platform: TargetPlatform) = globalFacadesPerPlatform[platform]!!.facadeForModules
+
+    private fun librariesFacade(platform: TargetPlatform) = globalFacadesPerPlatform[platform]!!.facadeForLibraries
+
+    private fun createFacadeForSyntheticFiles(files: Set<JetFile>): ResolutionFacadeImpl {
         // we assume that all files come from the same module
         val targetPlatform = files.map { TargetPlatformDetector.getPlatform(it) }.toSet().single()
         val syntheticFileModule = files.map { it.getModuleInfo() }.toSet().single()
@@ -111,12 +110,12 @@ public class KotlinCacheService(val project: Project) {
         return when {
             syntheticFileModule is ModuleSourceInfo -> {
                 val dependentModules = syntheticFileModule.getDependentModules()
-                KotlinResolveCache(
+                ResolutionFacadeImpl(
                         project,
                         globalResolveSessionProvider(
                                 targetPlatform,
                                 syntheticFiles = files,
-                                reuseDataFromCache = getGlobalCache(targetPlatform),
+                                reuseDataFromCache = globalFacade(targetPlatform),
                                 moduleFilter = { it in dependentModules },
                                 dependencies = dependenciesForSyntheticFileCache
                         )
@@ -124,12 +123,12 @@ public class KotlinCacheService(val project: Project) {
             }
 
             syntheticFileModule is LibrarySourceInfo || syntheticFileModule is NotUnderContentRootModuleInfo -> {
-                KotlinResolveCache(
+                ResolutionFacadeImpl(
                         project,
                         globalResolveSessionProvider(
                                 targetPlatform,
                                 syntheticFiles = files,
-                                reuseDataFromCache = getGlobalLibrariesCache(targetPlatform),
+                                reuseDataFromCache = librariesFacade(targetPlatform),
                                 moduleFilter = { it == syntheticFileModule },
                                 dependencies = dependenciesForSyntheticFileCache
                         )
@@ -141,7 +140,7 @@ public class KotlinCacheService(val project: Project) {
                 // currently the only known scenario is when we cannot determine that file is a library source
                 // (file under both classes and sources root)
                 LOG.warn("Creating cache with synthetic files ($files) in classes of library $syntheticFileModule")
-                KotlinResolveCache(
+                ResolutionFacadeImpl(
                         project,
                         globalResolveSessionProvider(
                                 targetPlatform,
@@ -159,14 +158,14 @@ public class KotlinCacheService(val project: Project) {
     private val syntheticFileCachesLock = Any()
 
     private val slruCacheProvider = CachedValueProvider {
-        CachedValueProvider.Result(object : SLRUCache<Set<JetFile>, KotlinResolveCache>(2, 3) {
-            override fun createValue(files: Set<JetFile>): KotlinResolveCache {
-                return createCacheForSyntheticFiles(files)
+        CachedValueProvider.Result(object : SLRUCache<Set<JetFile>, ResolutionFacadeImpl>(2, 3) {
+            override fun createValue(files: Set<JetFile>): ResolutionFacadeImpl {
+                return createFacadeForSyntheticFiles(files)
             }
         }, LibraryModificationTracker.getInstance(project), ProjectRootModificationTracker.getInstance(project))
     }
 
-    private fun getCacheForSyntheticFiles(files: Set<JetFile>): KotlinResolveCache {
+    private fun getFacadeForSyntheticFiles(files: Set<JetFile>): ResolutionFacadeImpl {
         return synchronized(syntheticFileCachesLock) {
             //NOTE: computations inside createCacheForSyntheticFiles depend on project root structure
             // so we additionally drop the whole slru cache on change
@@ -176,13 +175,13 @@ public class KotlinCacheService(val project: Project) {
 
     public fun getLazyResolveSession(element: JetElement): ResolveSession {
         val file = element.getContainingJetFile()
-        return getCacheToAnalyzeFiles(listOf(file)).getLazyResolveSession(file)
+        return getFacadeToAnalyzeFiles(listOf(file)).getLazyResolveSession(file)
     }
 
-    private fun getCacheToAnalyzeFiles(files: Collection<JetFile>): KotlinResolveCache {
+    private fun getFacadeToAnalyzeFiles(files: Collection<JetFile>): ResolutionFacadeImpl {
         val syntheticFiles = findSyntheticFiles(files)
         return if (syntheticFiles.isNotEmpty()) {
-            getCacheForSyntheticFiles(syntheticFiles)
+            getFacadeForSyntheticFiles(syntheticFiles)
         }
         else {
             val firstFile = files.firstOrNull()
@@ -190,7 +189,7 @@ public class KotlinCacheService(val project: Project) {
                 TargetPlatformDetector.getPlatform(firstFile)
             else
                 TargetPlatformDetector.getDefaultPlatform()
-            getGlobalCache(targetPlatform)
+            globalFacade(targetPlatform)
         }
     }
 
@@ -206,9 +205,4 @@ public class KotlinCacheService(val project: Project) {
                           ?: throw AssertionError("Analyzing kotlin code fragment of type $javaClass with java context of type ${contextElement.javaClass}")
         return if (contextFile is JetCodeFragment) contextFile.getContextFile() else contextFile
     }
-
-    public fun <T> get(extension: CacheExtension<T>): T {
-        return getGlobalCache(extension.platform)[extension]
-    }
 }
-

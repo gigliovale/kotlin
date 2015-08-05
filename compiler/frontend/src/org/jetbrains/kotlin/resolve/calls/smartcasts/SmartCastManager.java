@@ -22,7 +22,6 @@ import kotlin.KotlinPackage;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor;
 import org.jetbrains.kotlin.psi.JetExpression;
@@ -48,7 +47,11 @@ import static org.jetbrains.kotlin.resolve.BindingContext.SMARTCAST;
 
 public class SmartCastManager {
 
-    public SmartCastManager() {
+    @NotNull
+    private final TypeIntersector typeIntersector;
+
+    public SmartCastManager(@NotNull TypeIntersector typeIntersector) {
+        this.typeIntersector = typeIntersector;
     }
 
     @NotNull
@@ -154,7 +157,7 @@ public class SmartCastManager {
         }
         if (subTypes.isEmpty()) return null;
 
-        JetType intersection = TypeIntersector.intersectTypes(KotlinBuiltIns.getInstance(), JetTypeChecker.DEFAULT, subTypes);
+        JetType intersection = typeIntersector.intersect(JetTypeChecker.DEFAULT, subTypes);
         if (intersection == null || !intersection.getConstructor().isDenotable()) {
             return receiverParameterType;
         }

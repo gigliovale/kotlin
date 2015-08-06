@@ -62,8 +62,8 @@ class SmartCompletion(
         val toFromOriginalFileMapper: ToFromOriginalFileMapper,
         val lookupElementFactory: LookupElementFactory
 ) {
-    private val project = expression.getProject()
     private val receiver = if (expression is JetSimpleNameExpression) expression.getReceiverExpression() else null
+    private val expectedInfoFactory = ExpectedInfoFactory()
 
     public class Result(
             val declarationFilter: ((DeclarationDescriptor) -> Collection<LookupElement>)?,
@@ -131,7 +131,7 @@ class SmartCompletion(
 
         // if we complete argument of == or !=, make types in expected info's nullable to allow nullable items too
         val expectedInfos = if ((expressionWithType.getParent() as? JetBinaryExpression)?.getOperationToken() in COMPARISON_TOKENS)
-            filteredExpectedInfos.map { ExpectedInfo(it.fuzzyType.makeNullable(), it.expectedName, it.tail) }
+            filteredExpectedInfos.map { expectedInfoFactory.info(it.fuzzyType.makeNullable(), it.expectedName, it.tail) }
         else
             filteredExpectedInfos
 
@@ -238,7 +238,7 @@ class SmartCompletion(
             if (originalDeclaration != null) {
                 val originalDescriptor = originalDeclaration.resolveToDescriptor() as? CallableDescriptor
                 val returnType = originalDescriptor?.getReturnType()
-                return if (returnType != null) listOf(ExpectedInfo(returnType, declaration.getName(), null)) else null
+                return if (returnType != null) listOf(expectedInfoFactory.info(returnType, declaration.getName(), null)) else null
             }
         }
 

@@ -19,11 +19,11 @@ package org.jetbrains.kotlin.idea.completion
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.idea.completion.smart.toList
+import org.jetbrains.kotlin.idea.core.mapArgumentsToParameters
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.idea.resolve.ideService
-import org.jetbrains.kotlin.idea.completion.smart.toList
-import org.jetbrains.kotlin.idea.core.mapArgumentsToParameters
 import org.jetbrains.kotlin.idea.util.FuzzyType
 import org.jetbrains.kotlin.idea.util.fuzzyReturnType
 import org.jetbrains.kotlin.lexer.JetTokens
@@ -66,31 +66,78 @@ data class ItemOptions(val starPrefix: Boolean) {
     }
 }
 
-open data class ExpectedInfo(val fuzzyType: FuzzyType, val expectedName: String?, val tail: Tail?, val itemOptions: ItemOptions = ItemOptions.DEFAULT) {
-    constructor(type: JetType, expectedName: String?, tail: Tail?) : this(FuzzyType(type, emptyList()), expectedName, tail)
-}
-
 data class ArgumentPosition(val argumentIndex: Int, val argumentName: Name?, val isFunctionLiteralArgument: Boolean) {
     constructor(argumentIndex: Int, isFunctionLiteralArgument: Boolean = false) : this(argumentIndex, null, isFunctionLiteralArgument)
     constructor(argumentIndex: Int, argumentName: Name?) : this(argumentIndex, argumentName, false)
 }
 
-class ArgumentExpectedInfo(type: JetType, name: String?, tail: Tail?, val function: FunctionDescriptor, val position: ArgumentPosition, itemOptions: ItemOptions = ItemOptions.DEFAULT)
-  : ExpectedInfo(FuzzyType(type, function.typeParameters), name, tail, itemOptions) {
-
-    override fun equals(other: Any?)
-            = other is ArgumentExpectedInfo && super.equals(other) && function == other.function && position == other.position
-
-    override fun hashCode()
-            = function.hashCode()
+interface ExpectedInfo {
+    val fuzzyType: FuzzyType
+    val expectedName: String?
+    val tail: Tail?
+    val itemOptions: ItemOptions
 }
 
-class ReturnValueExpectedInfo(type: JetType, val callable: CallableDescriptor) : ExpectedInfo(type, callable.getName().asString(), null) {
-    override fun equals(other: Any?)
-            = other is ReturnValueExpectedInfo && super.equals(other) && callable == other.callable
+interface ArgumentExpectedInfo: ExpectedInfo {
+    val function: FunctionDescriptor
+    val position: ArgumentPosition
+}
 
-    override fun hashCode()
-            = callable.hashCode()
+interface ReturnValueExpectedInfo: ExpectedInfo {
+    val callable: CallableDescriptor
+}
+
+class ExpectedInfoFactory {
+
+    fun argumentInfo(
+            type: JetType, name: String?, tail: Tail?,
+            function: FunctionDescriptor, position: ArgumentPosition, itemOptions: ItemOptions = ItemOptions.DEFAULT
+    ) = ArgumentExpectedInfoImpl(type, name, tail, function, position, itemOptions)
+
+    fun returnValueInfo(type: JetType, callable: CallableDescriptor)
+            = ReturnValueExpectedInfoImpl(type, callable)
+
+    fun info(fuzzyType: FuzzyType, expectedName: String?, tail: Tail?, itemOptions: ItemOptions = ItemOptions.DEFAULT)
+            = ExpectedInfoImpl(fuzzyType, expectedName, tail, itemOptions)
+
+    fun info(type: JetType, expectedName: String?, tail: Tail?)
+            = ExpectedInfoImpl(type, expectedName, tail)
+
+    class ArgumentExpectedInfoImpl(
+            type: JetType,
+            name: String?,
+            tail: Tail?,
+            override val function: FunctionDescriptor,
+            override val position: ArgumentPosition,
+            itemOptions: ItemOptions
+    ) : ExpectedInfoImpl(FuzzyType(type, function.typeParameters), name, tail, itemOptions), ArgumentExpectedInfo {
+
+        override fun equals(other: Any?)
+                = other is ArgumentExpectedInfo && super<ExpectedInfoImpl>.equals(other) && function == other.function && position == other.position
+
+        override fun hashCode()
+                = function.hashCode()
+    }
+
+    class ReturnValueExpectedInfoImpl(
+            type: JetType,
+            override val callable: CallableDescriptor
+    ) : ExpectedInfoImpl(type, callable.getName().asString(), null), ReturnValueExpectedInfo {
+        override fun equals(other: Any?)
+                = other is ReturnValueExpectedInfo && super<ExpectedInfoImpl>.equals(other) && callable == other.callable
+
+        override fun hashCode()
+                = callable.hashCode()
+    }
+
+    open data class ExpectedInfoImpl(
+            override val fuzzyType: FuzzyType,
+            override val expectedName: String?,
+            override val tail: Tail?,
+            override val itemOptions: ItemOptions
+    ): ExpectedInfo {
+        constructor(type: JetType, expectedName: String?, tail: Tail?) : this(FuzzyType(type, emptyList()), expectedName, tail, ItemOptions.DEFAULT)
+    }
 }
 
 class ExpectedInfos(
@@ -100,6 +147,9 @@ class ExpectedInfos(
         val useHeuristicSignatures: Boolean = true,
         val useOuterCallsExpectedTypeCount: Int = 0
 ) {
+
+    private val factory = ExpectedInfoFactory()
+
     public fun calculate(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         return calculateForArgument(expressionWithType)
             ?: calculateForFunctionLiteralArgument(expressionWithType)
@@ -164,7 +214,6 @@ class ExpectedInfos(
         val isFunctionLiteralArgument = argument is FunctionLiteralArgument
         val argumentPosition = ArgumentPosition(argumentIndex, argumentName, isFunctionLiteralArgument)
 
-        val project = call.callElement.getProject()
         val moduleDescriptor = resolutionFacade.findModuleDescriptor(call.callElement)
 
         // leave only arguments before the current one
@@ -246,11 +295,11 @@ class ExpectedInfos(
                     tail
 
                 if (!alreadyHasStar) {
-                    expectedInfos.add(ArgumentExpectedInfo(varargElementType, expectedName?.unpluralize(), varargTail, descriptor, argumentPosition))
+                    expectedInfos.add(factory.argumentInfo(varargElementType, expectedName?.unpluralize(), varargTail, descriptor, argumentPosition))
                 }
 
                 val starOptions = if (!alreadyHasStar) ItemOptions.STAR_PREFIX else ItemOptions.DEFAULT
-                expectedInfos.add(ArgumentExpectedInfo(parameter.getType(), expectedName, varargTail, descriptor, argumentPosition, starOptions))
+                expectedInfos.add(factory.argumentInfo(parameter.getType(), expectedName, varargTail, descriptor, argumentPosition, starOptions))
             }
             else {
                 if (alreadyHasStar) continue
@@ -263,11 +312,11 @@ class ExpectedInfos(
 
                 if (isFunctionLiteralArgument) {
                     if (KotlinBuiltIns.isExactFunctionOrExtensionFunctionType(parameterType)) {
-                        expectedInfos.add(ArgumentExpectedInfo(parameterType, expectedName, null, descriptor, argumentPosition))
+                        expectedInfos.add(factory.argumentInfo(parameterType, expectedName, null, descriptor, argumentPosition))
                     }
                 }
                 else {
-                    expectedInfos.add(ArgumentExpectedInfo(parameterType, expectedName, tail, descriptor, argumentPosition))
+                    expectedInfos.add(factory.argumentInfo(parameterType, expectedName, tail, descriptor, argumentPosition))
                 }
             }
         }
@@ -294,7 +343,7 @@ class ExpectedInfos(
                 val otherOperand = if (expressionWithType == binaryExpression.getRight()) binaryExpression.getLeft() else binaryExpression.getRight()
                 if (otherOperand != null) {
                     val expressionType = bindingContext.getType(otherOperand) ?: return null
-                    return listOf(ExpectedInfo(expressionType, expectedNameFromExpression(otherOperand), null))
+                    return listOf(factory.info(expressionType, expectedNameFromExpression(otherOperand), null))
                 }
             }
         }
@@ -304,9 +353,9 @@ class ExpectedInfos(
     private fun calculateForIf(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val ifExpression = (expressionWithType.getParent() as? JetContainerNode)?.getParent() as? JetIfExpression ?: return null
         return when (expressionWithType) {
-            ifExpression.getCondition() -> listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, Tail.RPARENTH))
+            ifExpression.getCondition() -> listOf(factory.info(KotlinBuiltIns.getInstance().getBooleanType(), null, Tail.RPARENTH))
 
-            ifExpression.getThen() -> calculate(ifExpression)?.map { ExpectedInfo(it.fuzzyType, it.expectedName, Tail.ELSE) }
+            ifExpression.getThen() -> calculate(ifExpression)?.map { factory.info(it.fuzzyType, it.expectedName, Tail.ELSE) }
 
             ifExpression.getElse() -> {
                 val ifExpectedInfo = calculate(ifExpression)
@@ -337,7 +386,7 @@ class ExpectedInfos(
                         expectedInfos
                 }
                 else if (leftTypeNotNullable != null) {
-                    return listOf(ExpectedInfo(leftTypeNotNullable, null, null))
+                    return listOf(factory.info(leftTypeNotNullable, null, null))
                 }
             }
         }
@@ -356,11 +405,11 @@ class ExpectedInfos(
                     ?.filter { KotlinBuiltIns.isExactFunctionOrExtensionFunctionType(it.type) }
                     ?.map {
                         val returnType = KotlinBuiltIns.getReturnTypeFromFunctionType(it.type)
-                        ExpectedInfo(FuzzyType(returnType, it.freeParameters), null, Tail.RBRACE)
+                        factory.info(FuzzyType(returnType, it.freeParameters), null, Tail.RBRACE)
                     }
         }
         else {
-            return calculate(block)?.map { ExpectedInfo(it.fuzzyType, it.expectedName, null) }
+            return calculate(block)?.map { factory.info(it.fuzzyType, it.expectedName, null) }
         }
     }
 
@@ -371,24 +420,24 @@ class ExpectedInfos(
         val subject = whenExpression.getSubjectExpression()
         if (subject != null) {
             val subjectType = bindingContext.getType(subject) ?: return null
-            return listOf(ExpectedInfo(subjectType, null, null))
+            return listOf(factory.info(subjectType, null, null))
         }
         else {
-            return listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
+            return listOf(factory.info(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
         }
     }
 
     private fun calculateForExclOperand(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val prefixExpression = expressionWithType.getParent() as? JetPrefixExpression ?: return null
         if (prefixExpression.getOperationToken() != JetTokens.EXCL) return null
-        return listOf(ExpectedInfo(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
+        return listOf(factory.info(KotlinBuiltIns.getInstance().getBooleanType(), null, null))
     }
 
     private fun calculateForInitializer(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val property = expressionWithType.getParent() as? JetProperty ?: return null
         if (expressionWithType != property.getInitializer()) return null
         val propertyDescriptor = bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, property] as? VariableDescriptor ?: return null
-        return listOf(ExpectedInfo(propertyDescriptor.getType(), propertyDescriptor.getName().asString(), null))
+        return listOf(factory.info(propertyDescriptor.getType(), propertyDescriptor.getName().asString(), null))
     }
 
     private fun calculateForExpressionBody(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
@@ -406,12 +455,12 @@ class ExpectedInfos(
 
     private fun functionReturnValueExpectedInfo(descriptor: FunctionDescriptor): ReturnValueExpectedInfo? {
         return when (descriptor) {
-            is SimpleFunctionDescriptor -> ReturnValueExpectedInfo(descriptor.getReturnType() ?: return null, descriptor)
+            is SimpleFunctionDescriptor -> factory.returnValueInfo(descriptor.getReturnType() ?: return null, descriptor)
 
             is PropertyGetterDescriptor -> {
                 if (descriptor !is PropertyGetterDescriptor) return null
                 val property = descriptor.getCorrespondingProperty()
-                ReturnValueExpectedInfo(property.getType(), property)
+                factory.returnValueInfo(property.getType(), property)
             }
 
             else -> null
@@ -420,7 +469,7 @@ class ExpectedInfos(
 
     private fun getFromBindingContext(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         val expectedType = bindingContext[BindingContext.EXPECTED_EXPRESSION_TYPE, expressionWithType] ?: return null
-        return listOf(ExpectedInfo(expectedType, null, null))
+        return listOf(factory.info(expectedType, null, null))
     }
 
     private fun expectedNameFromExpression(expression: JetExpression?): String? {

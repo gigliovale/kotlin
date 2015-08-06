@@ -65,12 +65,9 @@ import org.jetbrains.kotlin.psi.psiUtil.PsiUtilPackage;
 import org.jetbrains.kotlin.psi.typeRefHelpers.TypeRefHelpersPackage;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
 import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.BindingTraceContext;
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils;
-import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilPackage;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
-import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind;
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
@@ -78,7 +75,6 @@ import org.jetbrains.kotlin.resolve.scopes.UsageLocation;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ThisReceiver;
 import org.jetbrains.kotlin.types.JetType;
-import org.jetbrains.kotlin.types.TypeUtils;
 
 import java.util.*;
 
@@ -733,7 +729,7 @@ public class JetChangeSignatureUsageProcessor implements ChangeSignatureUsagePro
             JetSimpleNameExpression labelExpr = newExpr.getTargetLabel();
             if (labelExpr == null) continue;
 
-            BindingContext newContext = AnalysisPackage.analyzeInContext(newExpr, scope);
+            BindingContext newContext = AnalysisPackage.analyzeInContext(newExpr, scope, originalExpr);
 
             if (newContext.get(BindingContext.AMBIGUOUS_LABEL_TARGET, labelExpr) != null) {
                 result.putValue(

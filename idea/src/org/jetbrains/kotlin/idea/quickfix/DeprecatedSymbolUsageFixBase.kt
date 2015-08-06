@@ -21,17 +21,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
+import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
 import org.jetbrains.kotlin.idea.core.*
-import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
 import org.jetbrains.kotlin.idea.intentions.RemoveExplicitTypeArgumentsIntention
 import org.jetbrains.kotlin.idea.intentions.setType
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
@@ -681,6 +680,7 @@ public abstract class DeprecatedSymbolUsageFixBase(
                         if (valueType != null && !ErrorUtils.containsErrorType(valueType)) {
                             val valueTypeWithoutExpectedType = value.analyzeInContext(
                                     resolutionScope!!,
+                                    expressionToBeReplaced,
                                     dataFlowInfo = bindingContext.getDataFlowInfo(expressionToBeReplaced)
                             ).getType(value)
                             if (valueTypeWithoutExpectedType == null || ErrorUtils.containsErrorType(valueTypeWithoutExpectedType)) {

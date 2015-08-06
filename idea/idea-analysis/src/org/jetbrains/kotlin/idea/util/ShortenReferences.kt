@@ -16,26 +16,23 @@
 
 package org.jetbrains.kotlin.idea.util
 
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiRecursiveElementVisitor
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.imports.canBeReferencedViaImport
 import org.jetbrains.kotlin.idea.imports.getImportableTargets
+import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.ShortenReferences.Options
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
-import org.jetbrains.kotlin.psi.psiUtil.isAncestor
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -341,7 +338,7 @@ public class ShortenReferences(val options: (JetElement) -> Options = { Options.
 
             val scope = bindingContext[BindingContext.RESOLUTION_SCOPE, qualifiedExpression] ?: return false
             val selectorCopy = selector.copy() as JetReferenceExpression
-            val newContext = selectorCopy.analyzeInContext(scope)
+            val newContext = selectorCopy.analyzeInContext(scope, selector)
             val targetsWhenShort = (selectorCopy.getCalleeExpressionIfAny() as JetReferenceExpression).targets(newContext)
             val targetsMatch = targetsWhenShort.singleOrNull()?.asString() == target.asString()
 
@@ -388,7 +385,7 @@ public class ShortenReferences(val options: (JetElement) -> Options = { Options.
 
             val targetBefore = thisExpression.getInstanceReference().targets(bindingContext).singleOrNull() ?: return
             val scope = bindingContext[BindingContext.RESOLUTION_SCOPE, thisExpression] ?: return
-            val newContext = simpleThis.analyzeInContext(scope)
+            val newContext = simpleThis.analyzeInContext(scope, thisExpression)
             val targetAfter = simpleThis.getInstanceReference().targets(newContext).singleOrNull()
             if (targetBefore == targetAfter) {
                 addElementToShorten(thisExpression)

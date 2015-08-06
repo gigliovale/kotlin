@@ -19,9 +19,9 @@ package org.jetbrains.kotlin.idea.intentions
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.core.CommentSaver
@@ -97,7 +97,7 @@ public class ConvertToExpressionBodyIntention : JetSelfTargetingOffsetIndependen
 
         val declaredType = (declaration.resolveToDescriptor() as? CallableDescriptor)?.getReturnType() ?: return false
         val scope = scopeExpression.analyze()[BindingContext.RESOLUTION_SCOPE, scopeExpression] ?: return false
-        val expressionType = expression.analyzeInContext(scope).getType(expression) ?: return false
+        val expressionType = expression.analyzeInContext(scope, declaration).getType(expression) ?: return false
         return expressionType.isSubtypeOf(declaredType)
     }
 

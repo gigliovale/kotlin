@@ -99,7 +99,14 @@ public class StorageComponentContainer(id: String) : ComponentContainer, Compone
     override fun <T> create(request: Class<T>): T {
         val constructorBinding = request.bindToConstructor(unknownContext)
         val args = constructorBinding.argumentDescriptors.map { it.getValue() }.toTypedArray()
-        return constructorBinding.constructor.newInstance(*args) as T
+        val instance = constructorBinding.constructor.newInstance(*args) as T
+        for (setterInfo in request.getInfo().setterInfos) {
+            val arguments = setterInfo.parameters.map {
+                create(it as Class<*>)
+            }
+            setterInfo.method.invoke(instance, arguments.first())
+        }
+        return instance
     }
 }
 

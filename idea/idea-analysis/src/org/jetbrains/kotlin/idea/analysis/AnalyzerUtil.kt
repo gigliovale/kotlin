@@ -32,20 +32,23 @@ import org.jetbrains.kotlin.types.expressions.JetTypeInfo
 jvmOverloads
 public fun JetExpression.computeTypeInfoInContext(
         scope: JetScope,
+        contextExpression: JetExpression = this,
         trace: BindingTrace = BindingTraceContext(),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
 ): JetTypeInfo {
-    return getResolutionFacade().frontendService<ExpressionTypingServices>(this).getTypeInfo(scope, this, expectedType, dataFlowInfo, trace)
+    return contextExpression.getResolutionFacade().frontendService<ExpressionTypingServices>(contextExpression)
+            .getTypeInfo(scope, this, expectedType, dataFlowInfo, trace)
 }
 
 jvmOverloads
 public fun JetExpression.analyzeInContext(
         scope: JetScope,
+        contextExpression: JetExpression = this,
         trace: BindingTrace = BindingTraceContext(),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
         expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
 ): BindingContext {
-    computeTypeInfoInContext(scope, trace, dataFlowInfo, expectedType)
+    computeTypeInfoInContext(scope, contextExpression, trace, dataFlowInfo, expectedType)
     return trace.getBindingContext()
 }

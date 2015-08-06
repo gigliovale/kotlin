@@ -148,7 +148,7 @@ class ExpectedInfos(
         val useOuterCallsExpectedTypeCount: Int = 0
 ) {
 
-    private val factory = ExpectedInfoFactory()
+    private val factory = resolutionFacade.ideService<ExpectedInfoFactory>(moduleDescriptor)
 
     public fun calculate(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         return calculateForArgument(expressionWithType)

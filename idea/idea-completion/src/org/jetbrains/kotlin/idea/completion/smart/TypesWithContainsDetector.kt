@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.idea.completion.HeuristicSignatures
 import org.jetbrains.kotlin.idea.util.FuzzyType
+import org.jetbrains.kotlin.idea.util.FuzzyTypes
 import org.jetbrains.kotlin.idea.util.nullability
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.scopes.JetScope
@@ -32,7 +33,8 @@ import java.util.HashMap
 class TypesWithContainsDetector(
         private val scope: JetScope,
         private val argumentType: JetType,
-        private val heuristicSignatures: HeuristicSignatures
+        private val heuristicSignatures: HeuristicSignatures,
+        private val fuzzyTypes: FuzzyTypes
 ) {
     private val cache = HashMap<FuzzyType, Boolean>()
     private val containsName = Name.identifier("contains")
@@ -55,7 +57,7 @@ class TypesWithContainsDetector(
         if (!TypeUtils.equalTypes(function.getReturnType()!!, booleanType)) return false
         val parameter = function.getValueParameters().singleOrNull() ?: return false
         val parameterType = heuristicSignatures.correctedParameterType(function, parameter) ?: parameter.getType()
-        val fuzzyParameterType = FuzzyType(parameterType, function.getTypeParameters() + freeTypeParams)
+        val fuzzyParameterType = fuzzyTypes.new(parameterType, function.getTypeParameters() + freeTypeParams)
         return fuzzyParameterType.checkIsSuperTypeOf(argumentType) != null
     }
 }

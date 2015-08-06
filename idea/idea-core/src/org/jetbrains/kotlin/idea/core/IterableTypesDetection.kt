@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.core
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.idea.util.FuzzyType
+import org.jetbrains.kotlin.idea.util.FuzzyTypes
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.JetPsiFactory
 import org.jetbrains.kotlin.resolve.BindingTraceContext
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 import org.jetbrains.kotlin.types.expressions.ForLoopConventionsChecker
 import java.util.HashMap
+import javax.inject.Inject
 
 public class IterableTypesDetection(
         private val project: Project,
@@ -39,6 +41,9 @@ public class IterableTypesDetection(
     companion object {
         private val iteratorName = Name.identifier("iterator")
     }
+
+    public var fuzzyTypes: FuzzyTypes? = null
+        @Inject set
 
     public fun createDetector(scope: JetScope): IterableTypesDetector {
         return Detector(scope)
@@ -57,14 +62,14 @@ public class IterableTypesDetection(
         }
 
         override fun isIterable(type: JetType, loopVarType: JetType?): Boolean
-                = isIterable(FuzzyType(type, emptyList()), loopVarType)
+                = isIterable(fuzzyTypes!!.new(type, emptyList()), loopVarType)
 
         private fun elementType(type: FuzzyType): FuzzyType? {
             return cache.getOrPut(type, { elementTypeNoCache(type) })
         }
 
         override fun elementType(type: JetType): FuzzyType?
-                = elementType(FuzzyType(type, emptyList()))
+                = elementType(fuzzyTypes!!.new(type, emptyList()))
 
         private fun elementTypeNoCache(type: FuzzyType): FuzzyType? {
             // optimization
@@ -74,7 +79,7 @@ public class IterableTypesDetection(
             val expressionReceiver = ExpressionReceiver(expression, type.type)
             val context = ExpressionTypingContext.newContext(BindingTraceContext(), scope, DataFlowInfo.EMPTY, TypeUtils.NO_EXPECTED_TYPE)
             val elementType = forLoopConventionsChecker.checkIterableConvention(expressionReceiver, context)
-            return elementType?.let { FuzzyType(it, type.freeParameters) }
+            return elementType?.let { fuzzyTypes!!.new(it, type.freeParameters) }
         }
 
         private fun canBeIterable(type: FuzzyType): Boolean {

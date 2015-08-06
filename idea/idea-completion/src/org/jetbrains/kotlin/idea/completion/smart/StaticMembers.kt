@@ -25,8 +25,8 @@ import org.jetbrains.kotlin.idea.completion.ExpectedInfo
 import org.jetbrains.kotlin.idea.completion.LookupElementFactory
 import org.jetbrains.kotlin.idea.completion.shortenReferences
 import org.jetbrains.kotlin.idea.core.isVisible
+import org.jetbrains.kotlin.idea.util.FuzzyTypes
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
-import org.jetbrains.kotlin.idea.util.fuzzyReturnType
 import org.jetbrains.kotlin.psi.JetSimpleNameExpression
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.render
@@ -39,7 +39,8 @@ import org.jetbrains.kotlin.types.TypeUtils
 // adds java static members, enum members and members from companion object
 class StaticMembers(
         val bindingContext: BindingContext,
-        val lookupElementFactory: LookupElementFactory
+        val lookupElementFactory: LookupElementFactory,
+        private val fuzzyTypes: FuzzyTypes
 ) {
     public fun addToCollection(collection: MutableCollection<LookupElement>,
                                expectedInfos: Collection<ExpectedInfo>,
@@ -68,7 +69,7 @@ class StaticMembers(
 
             val classifier: (ExpectedInfo) -> ExpectedInfoClassification
             if (descriptor is CallableDescriptor) {
-                val returnType = descriptor.fuzzyReturnType() ?: return
+                val returnType = fuzzyTypes.fuzzyReturnType(descriptor) ?: return
                 classifier = { expectedInfo -> returnType.classifyExpectedInfo(expectedInfo) }
             }
             else if (DescriptorUtils.isEnumEntry(descriptor) && !enumEntriesToSkip.contains(descriptor)) {

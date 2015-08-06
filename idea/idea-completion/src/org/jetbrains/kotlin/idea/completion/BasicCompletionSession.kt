@@ -194,7 +194,9 @@ class BasicCompletionSession(configuration: CompletionSessionConfiguration,
                 // if "this" is parsed correctly in the current context - insert it and all this@xxx items
                     "this" -> {
                         if (expression != null) {
-                            collector.addElements(thisExpressionItems(bindingContext, expression, prefix).map { it.factory() })
+                            collector.addElements(thisExpressionItems(bindingContext, expression, prefix, resolutionFacade).map {
+                                it.factory()
+                            })
                         }
                         else {
                             // for completion in secondary constructor delegation call

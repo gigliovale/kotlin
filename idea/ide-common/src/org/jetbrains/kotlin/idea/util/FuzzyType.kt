@@ -27,18 +27,136 @@ import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.typeUtil.*
 import java.util.HashSet
 
-fun CallableDescriptor.fuzzyReturnType(): FuzzyType? {
-    val returnType = getReturnType() ?: return null
-    return FuzzyType(returnType, getTypeParameters())
+public interface FuzzyType {
+    public val type: JetType
+    public val freeParameters: Set<TypeParameterDescriptor>
+
+    public fun checkIsSubtypeOf(otherType: FuzzyType): TypeSubstitutor?
+
+    public fun checkIsSuperTypeOf(otherType: FuzzyType): TypeSubstitutor?
+
+    public fun checkIsSubtypeOf(otherType: JetType): TypeSubstitutor?
+
+    public fun checkIsSuperTypeOf(otherType: JetType): TypeSubstitutor?
+
+    fun makeNotNullable(): FuzzyType
+    fun makeNullable(): FuzzyType
 }
 
-fun CallableDescriptor.fuzzyExtensionReceiverType(): FuzzyType? {
-    val receiverParameter = getExtensionReceiverParameter()
-    return if (receiverParameter != null) FuzzyType(receiverParameter.getType(), getTypeParameters()) else null
+class FuzzyTypes {
+    public fun new(
+            type: JetType,
+            freeParameters: Collection<TypeParameterDescriptor>
+    ): FuzzyType = FuzzyTypeImpl(type, freeParameters)
+
+    fun fuzzyReturnType(callableDescriptor: CallableDescriptor): FuzzyType? {
+        val returnType = callableDescriptor.getReturnType() ?: return null
+        return new(returnType, callableDescriptor.typeParameters)
+    }
+
+    fun fuzzyExtensionReceiverType(callableDescriptor: CallableDescriptor): FuzzyType? {
+        val receiverParameter = callableDescriptor.getExtensionReceiverParameter()
+        return if (receiverParameter != null) new(receiverParameter.getType(), callableDescriptor.typeParameters) else null
+    }
+
+    inner class FuzzyTypeImpl(
+            override val type: JetType,
+            freeParameters: Collection<TypeParameterDescriptor>
+    ) : FuzzyType {
+        public override val freeParameters: Set<TypeParameterDescriptor>
+
+        init {
+            if (freeParameters.isNotEmpty()) {
+                val usedTypeParameters = HashSet<TypeParameterDescriptor>()
+                usedTypeParameters.addUsedTypeParameters(type)
+                this.freeParameters = freeParameters.filter { it in usedTypeParameters }.toSet()
+            }
+            else {
+                this.freeParameters = emptySet()
+            }
+        }
+
+        override fun equals(other: Any?) = other is FuzzyType && other.type == type && other.freeParameters == freeParameters
+
+        override fun hashCode() = type.hashCode()
+
+        private fun MutableSet<TypeParameterDescriptor>.addUsedTypeParameters(type: JetType) {
+            val typeParameter = type.getConstructor().getDeclarationDescriptor() as? TypeParameterDescriptor
+            if (typeParameter != null && add(typeParameter)) {
+                typeParameter.getLowerBounds().forEach { addUsedTypeParameters(it) }
+                typeParameter.getUpperBounds().forEach { addUsedTypeParameters(it) }
+            }
+
+            for (argument in type.getArguments()) {
+                addUsedTypeParameters(argument.getType())
+            }
+        }
+
+        public override fun checkIsSubtypeOf(otherType: FuzzyType): TypeSubstitutor?
+                = matchedSubstitutor(otherType, MatchKind.IS_SUBTYPE)
+
+        public override fun checkIsSuperTypeOf(otherType: FuzzyType): TypeSubstitutor?
+                = matchedSubstitutor(otherType, MatchKind.IS_SUPERTYPE)
+
+        public override fun checkIsSubtypeOf(otherType: JetType): TypeSubstitutor?
+                = checkIsSubtypeOf(FuzzyTypeImpl(otherType, emptyList()))
+
+        public override fun checkIsSuperTypeOf(otherType: JetType): TypeSubstitutor?
+                = checkIsSuperTypeOf(FuzzyTypeImpl(otherType, emptyList()))
+
+        override fun makeNotNullable() = FuzzyTypeImpl(type.makeNotNullable(), freeParameters)
+        override fun makeNullable() = FuzzyTypeImpl(type.makeNullable(), freeParameters)
+
+        private fun matchedSubstitutor(otherType: FuzzyType, matchKind: MatchKind): TypeSubstitutor? {
+            if (type.isError()) return null
+            if (otherType.type.isError()) return null
+
+            fun JetType.checkInheritance(otherType: JetType): Boolean {
+                return when (matchKind) {
+                    MatchKind.IS_SUBTYPE -> this.isSubtypeOf(otherType)
+                    MatchKind.IS_SUPERTYPE -> otherType.isSubtypeOf(this)
+                }
+            }
+
+            if (freeParameters.isEmpty() && otherType.freeParameters.isEmpty()) {
+                return if (type.checkInheritance(otherType.type)) TypeSubstitutor.EMPTY else null
+            }
+
+            val constraintSystem = ConstraintSystemImpl()
+            constraintSystem.registerTypeVariables(freeParameters, { Variance.INVARIANT })
+            constraintSystem.registerTypeVariables(otherType.freeParameters, { Variance.INVARIANT })
+
+            when (matchKind) {
+                MatchKind.IS_SUBTYPE -> constraintSystem.addSubtypeConstraint(type, otherType.type, ConstraintPositionKind.RECEIVER_POSITION.position())
+                MatchKind.IS_SUPERTYPE -> constraintSystem.addSubtypeConstraint(otherType.type, type, ConstraintPositionKind.RECEIVER_POSITION.position())
+            }
+
+            constraintSystem.fixVariables()
+
+            if (!constraintSystem.getStatus().hasContradiction()) {
+                // currently ConstraintSystem return successful status in case there are problems with nullability
+                // that's why we have to check subtyping manually
+                val substitutor = constraintSystem.getResultingSubstitutor()
+                val substitutedType = substitutor.substitute(type, Variance.INVARIANT)
+                val otherSubstitutedType = substitutor.substitute(otherType.type, Variance.INVARIANT)
+                return if (substitutedType != null && otherSubstitutedType != null && substitutedType.checkInheritance(otherSubstitutedType))
+                    substitutor
+                else
+                    null
+            }
+            else {
+                return null
+            }
+        }
+    }
+
+
+    private enum class MatchKind {
+        IS_SUBTYPE,
+        IS_SUPERTYPE
+    }
 }
 
-fun FuzzyType.makeNotNullable() = FuzzyType(type.makeNotNullable(), freeParameters)
-fun FuzzyType.makeNullable() = FuzzyType(type.makeNullable(), freeParameters)
 fun FuzzyType.nullability() = type.nullability()
 
 fun FuzzyType.isAlmostEverything(): Boolean {
@@ -46,97 +164,4 @@ fun FuzzyType.isAlmostEverything(): Boolean {
     val typeParameter = type.constructor.declarationDescriptor as? TypeParameterDescriptor ?: return false
     if (typeParameter !in freeParameters) return false
     return typeParameter.upperBoundsAsType.isAnyOrNullableAny()
-}
-
-class FuzzyType(
-        val type: JetType,
-        freeParameters: Collection<TypeParameterDescriptor>
-) {
-    public val freeParameters: Set<TypeParameterDescriptor>
-
-    init {
-        if (freeParameters.isNotEmpty()) {
-            val usedTypeParameters = HashSet<TypeParameterDescriptor>()
-            usedTypeParameters.addUsedTypeParameters(type)
-            this.freeParameters = freeParameters.filter { it in usedTypeParameters }.toSet()
-        }
-        else {
-            this.freeParameters = emptySet()
-        }
-    }
-
-    override fun equals(other: Any?) = other is FuzzyType && other.type == type && other.freeParameters == freeParameters
-
-    override fun hashCode() = type.hashCode()
-
-    private fun MutableSet<TypeParameterDescriptor>.addUsedTypeParameters(type: JetType) {
-        val typeParameter = type.getConstructor().getDeclarationDescriptor() as? TypeParameterDescriptor
-        if (typeParameter != null && add(typeParameter)) {
-            typeParameter.getLowerBounds().forEach { addUsedTypeParameters(it) }
-            typeParameter.getUpperBounds().forEach { addUsedTypeParameters(it) }
-        }
-
-        for (argument in type.getArguments()) {
-            addUsedTypeParameters(argument.getType())
-        }
-    }
-
-    public fun checkIsSubtypeOf(otherType: FuzzyType): TypeSubstitutor?
-            = matchedSubstitutor(otherType, MatchKind.IS_SUBTYPE)
-
-    public fun checkIsSuperTypeOf(otherType: FuzzyType): TypeSubstitutor?
-            = matchedSubstitutor(otherType, MatchKind.IS_SUPERTYPE)
-
-    public fun checkIsSubtypeOf(otherType: JetType): TypeSubstitutor?
-            = checkIsSubtypeOf(FuzzyType(otherType, emptyList()))
-
-    public fun checkIsSuperTypeOf(otherType: JetType): TypeSubstitutor?
-            = checkIsSuperTypeOf(FuzzyType(otherType, emptyList()))
-
-    private enum class MatchKind {
-        IS_SUBTYPE,
-        IS_SUPERTYPE
-    }
-
-    private fun matchedSubstitutor(otherType: FuzzyType, matchKind: MatchKind): TypeSubstitutor? {
-        if (type.isError()) return null
-        if (otherType.type.isError()) return null
-
-        fun JetType.checkInheritance(otherType: JetType): Boolean {
-            return when (matchKind) {
-                MatchKind.IS_SUBTYPE -> this.isSubtypeOf(otherType)
-                MatchKind.IS_SUPERTYPE -> otherType.isSubtypeOf(this)
-            }
-        }
-
-        if (freeParameters.isEmpty() && otherType.freeParameters.isEmpty()) {
-            return if (type.checkInheritance(otherType.type)) TypeSubstitutor.EMPTY else null
-        }
-
-        val constraintSystem = ConstraintSystemImpl()
-        constraintSystem.registerTypeVariables(freeParameters, { Variance.INVARIANT })
-        constraintSystem.registerTypeVariables(otherType.freeParameters, { Variance.INVARIANT })
-
-        when (matchKind) {
-            MatchKind.IS_SUBTYPE -> constraintSystem.addSubtypeConstraint(type, otherType.type, ConstraintPositionKind.RECEIVER_POSITION.position())
-            MatchKind.IS_SUPERTYPE -> constraintSystem.addSubtypeConstraint(otherType.type, type, ConstraintPositionKind.RECEIVER_POSITION.position())
-        }
-
-        constraintSystem.fixVariables()
-
-        if (!constraintSystem.getStatus().hasContradiction()) {
-            // currently ConstraintSystem return successful status in case there are problems with nullability
-            // that's why we have to check subtyping manually
-            val substitutor = constraintSystem.getResultingSubstitutor()
-            val substitutedType = substitutor.substitute(type, Variance.INVARIANT)
-            val otherSubstitutedType = substitutor.substitute(otherType.type, Variance.INVARIANT)
-            return if (substitutedType != null && otherSubstitutedType != null && substitutedType.checkInheritance(otherSubstitutedType))
-                substitutor
-            else
-                null
-        }
-        else {
-            return null
-        }
-    }
 }

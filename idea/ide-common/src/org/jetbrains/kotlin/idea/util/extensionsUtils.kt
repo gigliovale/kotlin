@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ThisReceiver
 import org.jetbrains.kotlin.types.typeUtil.TypeNullability
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
 import org.jetbrains.kotlin.types.typeUtil.nullability
+import javax.inject.Inject
 
 public enum class CallType {
     NORMAL,
@@ -52,6 +53,9 @@ public enum class CallType {
 class ExtensionSubstitutor(
         private val smartCastManager: SmartCastManager
 ) {
+    public var fuzzyTypes: FuzzyTypes? = null
+        @Inject set
+
     public fun substituteExtensionIfCallable(
             callableDescriptor: CallableDescriptor,
             receivers: Collection<ReceiverValue>,
@@ -93,7 +97,7 @@ class ExtensionSubstitutor(
             types = types.map { it.makeNotNullable() }
         }
 
-        val extensionReceiverType = callableDescriptor.fuzzyExtensionReceiverType()!!
+        val extensionReceiverType = fuzzyTypes!!.fuzzyExtensionReceiverType(callableDescriptor)!!
         val substitutors = types
                 .map {
                     var substitutor = extensionReceiverType.checkIsSuperTypeOf(it)

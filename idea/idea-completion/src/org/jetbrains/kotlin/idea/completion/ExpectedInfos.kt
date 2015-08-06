@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.idea.util.FuzzyType
-import org.jetbrains.kotlin.idea.util.fuzzyReturnType
+import org.jetbrains.kotlin.idea.util.FuzzyTypes
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -51,6 +51,7 @@ import org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils
 import org.jetbrains.kotlin.types.typeUtil.containsError
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
 import java.util.LinkedHashSet
+import javax.inject.Inject
 
 enum class Tail {
     COMMA,
@@ -89,6 +90,9 @@ interface ReturnValueExpectedInfo: ExpectedInfo {
 
 class ExpectedInfoFactory {
 
+    public var fuzzyTypes: FuzzyTypes? = null
+        @Inject set
+
     fun argumentInfo(
             type: JetType, name: String?, tail: Tail?,
             function: FunctionDescriptor, position: ArgumentPosition, itemOptions: ItemOptions = ItemOptions.DEFAULT
@@ -103,14 +107,14 @@ class ExpectedInfoFactory {
     fun info(type: JetType, expectedName: String?, tail: Tail?)
             = ExpectedInfoImpl(type, expectedName, tail)
 
-    class ArgumentExpectedInfoImpl(
+    inner class ArgumentExpectedInfoImpl(
             type: JetType,
             name: String?,
             tail: Tail?,
             override val function: FunctionDescriptor,
             override val position: ArgumentPosition,
             itemOptions: ItemOptions
-    ) : ExpectedInfoImpl(FuzzyType(type, function.typeParameters), name, tail, itemOptions), ArgumentExpectedInfo {
+    ) : ExpectedInfoImpl(fuzzyTypes!!.new(type, function.typeParameters), name, tail, itemOptions), ArgumentExpectedInfo {
 
         override fun equals(other: Any?)
                 = other is ArgumentExpectedInfo && super<ExpectedInfoImpl>.equals(other) && function == other.function && position == other.position
@@ -119,7 +123,7 @@ class ExpectedInfoFactory {
                 = function.hashCode()
     }
 
-    class ReturnValueExpectedInfoImpl(
+    inner class ReturnValueExpectedInfoImpl(
             type: JetType,
             override val callable: CallableDescriptor
     ) : ExpectedInfoImpl(type, callable.getName().asString(), null), ReturnValueExpectedInfo {
@@ -130,13 +134,13 @@ class ExpectedInfoFactory {
                 = callable.hashCode()
     }
 
-    open data class ExpectedInfoImpl(
+    inner open class ExpectedInfoImpl(
             override val fuzzyType: FuzzyType,
             override val expectedName: String?,
             override val tail: Tail?,
             override val itemOptions: ItemOptions
     ): ExpectedInfo {
-        constructor(type: JetType, expectedName: String?, tail: Tail?) : this(FuzzyType(type, emptyList()), expectedName, tail, ItemOptions.DEFAULT)
+        constructor(type: JetType, expectedName: String?, tail: Tail?) : this(fuzzyTypes!!.new(type, emptyList()), expectedName, tail, ItemOptions.DEFAULT)
     }
 }
 
@@ -149,6 +153,7 @@ class ExpectedInfos(
 ) {
 
     private val factory = resolutionFacade.ideService<ExpectedInfoFactory>(moduleDescriptor)
+    private val fuzzyTypes = resolutionFacade.ideService<FuzzyTypes>(moduleDescriptor)
 
     public fun calculate(expressionWithType: JetExpression): Collection<ExpectedInfo>? {
         return calculateForArgument(expressionWithType)
@@ -188,7 +193,7 @@ class ExpectedInfos(
     public fun calculateForArgument(call: Call, argument: ValueArgument): Collection<ExpectedInfo>? {
         val results = calculateForArgument(call, TypeUtils.NO_EXPECTED_TYPE, argument) ?: return null
 
-        if (useOuterCallsExpectedTypeCount > 0 && results.any { it.fuzzyType.freeParameters.isNotEmpty() && it.function.fuzzyReturnType()?.freeParameters?.isNotEmpty() ?: false }) {
+        if (useOuterCallsExpectedTypeCount > 0 && results.any { it.fuzzyType.freeParameters.isNotEmpty() && fuzzyTypes.fuzzyReturnType(it.function)?.freeParameters?.isNotEmpty() ?: false }) {
             val callExpression = (call.callElement as? JetExpression)?.getQualifiedExpressionForSelectorOrThis() ?: return results
             val expectedFuzzyTypes = ExpectedInfos(bindingContext, resolutionFacade, moduleDescriptor, useHeuristicSignatures, useOuterCallsExpectedTypeCount - 1)
                     .calculate(callExpression)
@@ -405,7 +410,7 @@ class ExpectedInfos(
                     ?.filter { KotlinBuiltIns.isExactFunctionOrExtensionFunctionType(it.type) }
                     ?.map {
                         val returnType = KotlinBuiltIns.getReturnTypeFromFunctionType(it.type)
-                        factory.info(FuzzyType(returnType, it.freeParameters), null, Tail.RBRACE)
+                        factory.info(fuzzyTypes.new(returnType, it.freeParameters), null, Tail.RBRACE)
                     }
         }
         else {

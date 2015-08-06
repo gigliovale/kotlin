@@ -32,7 +32,10 @@ import org.jetbrains.kotlin.idea.core.IterableTypesDetection
 import org.jetbrains.kotlin.idea.core.SmartCastCalculator
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.ideService
-import org.jetbrains.kotlin.idea.util.*
+import org.jetbrains.kotlin.idea.util.FuzzyType
+import org.jetbrains.kotlin.idea.util.FuzzyTypes
+import org.jetbrains.kotlin.idea.util.isAlmostEverything
+import org.jetbrains.kotlin.idea.util.nullability
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getReceiverExpression
@@ -64,6 +67,7 @@ class SmartCompletion(
 ) {
     private val receiver = if (expression is JetSimpleNameExpression) expression.getReceiverExpression() else null
     private val expectedInfoFactory = resolutionFacade.ideService<ExpectedInfoFactory>(moduleDescriptor)
+    private val fuzzyTypes = resolutionFacade.ideService<FuzzyTypes>(moduleDescriptor)
 
     public class Result(
             val declarationFilter: ((DeclarationDescriptor) -> Collection<LookupElement>)?,
@@ -173,7 +177,7 @@ class SmartCompletion(
                     .addTo(additionalItems, inheritanceSearchers, expectedInfos)
 
             if (expression is JetSimpleNameExpression) {
-                StaticMembers(bindingContext, lookupElementFactory).addToCollection(additionalItems, expectedInfos, expression, itemsToSkip)
+                StaticMembers(bindingContext, lookupElementFactory, fuzzyTypes).addToCollection(additionalItems, expectedInfos, expression, itemsToSkip)
             }
 
             additionalItems.addThisItems(expression, expectedInfos)
@@ -198,7 +202,7 @@ class SmartCompletion(
 
     private fun MutableCollection<LookupElement>.addThisItems(place: JetExpression, expectedInfos: Collection<ExpectedInfo>) {
         if (shouldCompleteThisItems(prefixMatcher)) {
-            val items = thisExpressionItems(bindingContext, place, prefixMatcher.getPrefix())
+            val items = thisExpressionItems(bindingContext, place, prefixMatcher.getPrefix(), resolutionFacade)
             for ((factory, type) in items) {
                 val classifier = { expectedInfo: ExpectedInfo -> type.classifyExpectedInfo(expectedInfo) }
                 addLookupElements(null, expectedInfos, classifier) {
@@ -210,20 +214,20 @@ class SmartCompletion(
 
     private fun DeclarationDescriptor.fuzzyTypes(smartCastTypes: (VariableDescriptor) -> Collection<JetType>): Collection<FuzzyType> {
         if (this is CallableDescriptor) {
-            var returnType = fuzzyReturnType() ?: return listOf()
+            var returnType = fuzzyTypes.fuzzyReturnType(this) ?: return listOf()
             // skip declarations of type Nothing or of generic parameter type which has no real bounds
             //TODO: maybe we should include them on the second press?
             if (returnType.type.isNothing() || returnType.isAlmostEverything()) return listOf()
 
             if (this is VariableDescriptor) {
-                return smartCastTypes(this).map { FuzzyType(it, listOf()) }
+                return smartCastTypes(this).map { fuzzyTypes.new(it, listOf()) }
             }
             else {
-                return listOf(fuzzyReturnType()!!)
+                return listOf(fuzzyTypes.fuzzyReturnType(this)!!)
             }
         }
         else if (this is ClassDescriptor && getKind().isSingleton()) {
-            return listOf(FuzzyType(getDefaultType(), listOf()))
+            return listOf(fuzzyTypes.new(getDefaultType(), listOf()))
         }
         else {
             return listOf()
@@ -405,7 +409,9 @@ class SmartCompletion(
 
         val leftOperandType = binaryExpression.getLeft()?.let { bindingContext.getType(it) } ?: return null
         val scope = bindingContext.get(BindingContext.RESOLUTION_SCOPE, expressionWithType)!!
-        val detector = TypesWithContainsDetector(scope, leftOperandType, resolutionFacade.ideService<HeuristicSignatures>(moduleDescriptor))
+        val detector = TypesWithContainsDetector(
+                scope, leftOperandType, resolutionFacade.ideService<HeuristicSignatures>(moduleDescriptor), fuzzyTypes
+        )
 
         return buildResultByTypeFilter(expressionWithType, receiver, null) { detector.hasContains(it) }
     }

@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.idea.JetIcons
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.completion.handlers.CastReceiverInsertHandler
 import org.jetbrains.kotlin.idea.completion.handlers.WithTailInsertHandler
+import org.jetbrains.kotlin.idea.resolve.ideService
 import org.jetbrains.kotlin.idea.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -161,7 +162,10 @@ fun shouldCompleteThisItems(prefixMatcher: PrefixMatcher): Boolean {
 
 data class ThisItemInfo(val factory: () -> LookupElement, val type: FuzzyType)
 
-fun thisExpressionItems(bindingContext: BindingContext, position: JetExpression, prefix: String): Collection<ThisItemInfo> {
+fun thisExpressionItems(
+        bindingContext: BindingContext,
+        position: JetExpression,
+        prefix: String, resolutionFacade: ResolutionFacade): Collection<ThisItemInfo> {
     val scope = bindingContext[BindingContext.RESOLUTION_SCOPE, position] ?: return listOf()
 
     val psiFactory = JetPsiFactory(position)
@@ -173,7 +177,7 @@ fun thisExpressionItems(bindingContext: BindingContext, position: JetExpression,
         val expression = expressionFactory.createExpression(psiFactory, shortThis = !prefix.startsWith("this@")) as? JetThisExpression ?: continue
 
         val thisType = receiver.getType()
-        val fuzzyType = FuzzyType(thisType, listOf())
+        val fuzzyType = resolutionFacade.ideService<FuzzyTypes>(position).new(thisType, listOf())
 
         fun createLookupElement() = createKeywordWithLabelElement("this", expression.getLabelNameAsName())
                 .withTypeText(DescriptorRenderer.SHORT_NAMES_IN_TYPES.renderType(thisType))

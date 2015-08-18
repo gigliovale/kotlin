@@ -57,7 +57,8 @@ public class CodeFragmentAnalyzer(
                 codeFragmentExpression,
                 TypeUtils.NO_EXPECTED_TYPE,
                 dataFlowInfo,
-                trace
+                trace,
+                false
         )
     }
 

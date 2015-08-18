@@ -35,10 +35,11 @@ public fun JetExpression.computeTypeInfoInContext(
         contextExpression: JetExpression = this,
         trace: BindingTrace = BindingTraceContext(),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
-        expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
+        expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
+        isStatement: Boolean = false
 ): JetTypeInfo {
     return contextExpression.getResolutionFacade().frontendService<ExpressionTypingServices>(contextExpression)
-            .getTypeInfo(scope, this, expectedType, dataFlowInfo, trace)
+            .getTypeInfo(scope, this, expectedType, dataFlowInfo, trace, isStatement)
 }
 
 jvmOverloads
@@ -47,8 +48,20 @@ public fun JetExpression.analyzeInContext(
         contextExpression: JetExpression = this,
         trace: BindingTrace = BindingTraceContext(),
         dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
-        expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
+        expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE,
+        isStatement: Boolean = false
 ): BindingContext {
-    computeTypeInfoInContext(scope, contextExpression, trace, dataFlowInfo, expectedType)
+    computeTypeInfoInContext(scope, contextExpression, trace, dataFlowInfo, expectedType, isStatement)
     return trace.getBindingContext()
+}
+
+jvmOverloads
+public fun JetExpression.computeTypeInContext(
+        scope: JetScope,
+        contextExpression: JetExpression = this,
+        trace: BindingTrace = BindingTraceContext(),
+        dataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY,
+        expectedType: JetType = TypeUtils.NO_EXPECTED_TYPE
+): JetType? {
+    return computeTypeInfoInContext(scope, contextExpression, trace, dataFlowInfo, expectedType).type
 }

@@ -168,7 +168,7 @@ object ReplaceWithAnnotationAnalyzer {
     ): BindingContext {
         val traceContext = BindingTraceContext()
         resolutionFacade.frontendService<ExpressionTypingServices>(symbolDescriptor.module)
-                .getTypeInfo(scope, expression, TypeUtils.NO_EXPECTED_TYPE, DataFlowInfo.EMPTY, traceContext)
+                .getTypeInfo(scope, expression, TypeUtils.NO_EXPECTED_TYPE, DataFlowInfo.EMPTY, traceContext, false)
         return traceContext.bindingContext
     }
 

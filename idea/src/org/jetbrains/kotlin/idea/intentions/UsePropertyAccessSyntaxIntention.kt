@@ -20,11 +20,8 @@ import com.intellij.openapi.editor.Editor
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Severity
-import org.jetbrains.kotlin.frontend.di.createContainerForMacros
-import org.jetbrains.kotlin.idea.caches.resolve.analyze
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.core.copied
 import org.jetbrains.kotlin.idea.core.getResolutionScope
@@ -99,7 +96,13 @@ class UsePropertyAccessSyntaxIntention : JetSelfTargetingOffsetIndependentIntent
             val callExpressionCopy = ((qualifiedExpressionCopy as? JetQualifiedExpression)?.selectorExpression ?: qualifiedExpressionCopy) as JetCallExpression
             val newExpression = applyTo(callExpressionCopy, property.name)
             val bindingTrace = DelegatingBindingTrace(bindingContext, "Temporary trace")
-            val newBindingContext = newExpression.analyzeInContext(resolutionScope, bindingTrace, dataFlowInfo, expectedType, moduleDescriptor, isStatement = true)
+            val newBindingContext = newExpression.analyzeInContext(
+                    resolutionScope,
+                    trace = bindingTrace,
+                    dataFlowInfo = dataFlowInfo,
+                    expectedType = expectedType,
+                    isStatement = true
+            )
             if (newBindingContext.diagnostics.any { it.severity == Severity.ERROR }) return null
         }
 

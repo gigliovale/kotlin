@@ -20,6 +20,7 @@ import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.completion.smart.TypesWithContainsDetector
+import org.jetbrains.kotlin.idea.core.IterableTypesDetection
 import org.jetbrains.kotlin.idea.core.IterableTypesDetector
 import org.jetbrains.kotlin.idea.core.mapArgumentsToParameters
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
@@ -508,7 +509,7 @@ class ExpectedInfos(
             null
 
         val scope = bindingContext.get(BindingContext.RESOLUTION_SCOPE, expressionWithType)!!
-        val iterableDetector = IterableTypesDetector(forExpression.project, moduleDescriptor, scope)
+        val iterableDetector = resolutionFacade.ideService<IterableTypesDetection>(forExpression).createDetector(scope)
 
         val byTypeFilter = object : ByTypeFilter {
             override fun matchingSubstitutor(descriptorType: FuzzyType): TypeSubstitutor? {

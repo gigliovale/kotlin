@@ -526,7 +526,7 @@ class ExpectedInfos(
 
         val leftOperandType = binaryExpression.left?.let { bindingContext.getType(it) } ?: return null
         val scope = bindingContext.get(BindingContext.RESOLUTION_SCOPE, expressionWithType)!!
-        val detector = TypesWithContainsDetector(scope, leftOperandType, binaryExpression.project, moduleDescriptor)
+        val detector = TypesWithContainsDetector(scope, leftOperandType, resolutionFacade.ideService<HeuristicSignatures>(binaryExpression))
 
         val byTypeFilter = object : ByTypeFilter {
             override fun matchingSubstitutor(descriptorType: FuzzyType): TypeSubstitutor? {

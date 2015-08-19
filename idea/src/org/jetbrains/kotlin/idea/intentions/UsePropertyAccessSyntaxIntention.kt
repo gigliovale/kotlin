@@ -99,6 +99,7 @@ class UsePropertyAccessSyntaxIntention : JetSelfTargetingOffsetIndependentIntent
             val bindingTrace = DelegatingBindingTrace(bindingContext, "Temporary trace")
             val newBindingContext = newExpression.analyzeInContext(
                     resolutionScope,
+                    contextExpression = callExpression,
                     trace = bindingTrace,
                     dataFlowInfo = dataFlowInfo,
                     expectedType = expectedType,

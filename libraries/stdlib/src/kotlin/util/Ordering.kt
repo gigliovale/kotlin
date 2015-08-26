@@ -119,29 +119,27 @@ public fun <T> comparator(vararg functions: (T) -> Comparable<*>?): Comparator<T
 /**
  * Creates a comparator using the function to transform value to a [Comparable] instance for comparison.
  */
-inline public fun <T> compareBy(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> Comparable<*>?): Comparator<T> {
-    return object : Comparator<T> {
-        public override fun compare(a: T, b: T): Int = compareValuesBy(a, b, selector)
-    }
+public fun <T> compareBy(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> Comparable<*>?): SelectorComparator<T, Comparable<*>?> {
+    return SelectorComparator(
+            selector,
+            nullsFirst(naturalOrder<Comparable<Any?>>()) as Comparator<Comparable<*>?>)
 }
 
 /**
  * Creates a comparator using the [selector] function to transform values being compared and then applying
  * the specified [comparator] to compare transformed values.
  */
-inline public fun <T, K> compareBy(comparator: Comparator<in K>, inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> K): Comparator<T> {
-    return object : Comparator<T> {
-        public override fun compare(a: T, b: T): Int = compareValuesBy(a, b, comparator, selector)
-    }
+public fun <T, K> compareBy(comparator: Comparator<in K>, inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> K): SelectorComparator<T, K> {
+    return SelectorComparator(selector, comparator)
 }
 
 /**
  * Creates a descending comparator using the function to transform value to a [Comparable] instance for comparison.
  */
-inline public fun <T> compareByDescending(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> Comparable<*>?): Comparator<T> {
-    return object : Comparator<T> {
-        public override fun compare(a: T, b: T): Int = compareValuesBy(b, a, selector)
-    }
+public fun <T> compareByDescending(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> Comparable<*>?): Comparator<T> {
+    return SelectorComparator(
+            selector,
+            nullsLast(reverseOrder<Comparable<Any?>>()) as Comparator<Comparable<*>?>)
 }
 
 /**
@@ -150,10 +148,8 @@ inline public fun <T> compareByDescending(inlineOptions(InlineOption.ONLY_LOCAL_
  *
  * Note that an order of [comparator] is reversed by this wrapper.
  */
-inline public fun <T, K> compareByDescending(comparator: Comparator<in K>, inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> K): Comparator<T> {
-    return object : Comparator<T> {
-        public override fun compare(a: T, b: T): Int = compareValuesBy(b, a, comparator, selector)
-    }
+public fun <T, K> compareByDescending(comparator: Comparator<in K>, inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> K): SelectorComparator<T, K> {
+    return SelectorComparator(selector, comparator.reversed())
 }
 
 /**
@@ -261,15 +257,9 @@ public fun <T> Comparator<T>.thenDescending(comparator: Comparator<in T>): Compa
  * Extends the given [comparator] of non-nullable values to a comparator of nullable values
  * considering `null` value less than any other value.
  */
-public fun <T: Any> nullsFirst(comparator: Comparator<in T>): Comparator<T?> {
-    return object: Comparator<T?> {
-        override fun compare(a: T?, b: T?): Int {
-            if (a === b) return 0
-            if (a == null) return -1
-            if (b == null) return 1
-            return comparator.compare(a, b)
-        }
-    }
+public fun <T: Any> nullsFirst(comparator: Comparator<in T>): Comparator<T?> = when (comparator) {
+    is NullsComparator<*> -> NullsComparator((comparator as NullsComparator<in T>).comparator, nullIsGreater = false)
+    else -> NullsComparator(comparator, nullIsGreater = false)
 }
 
 /**
@@ -277,29 +267,16 @@ public fun <T: Any> nullsFirst(comparator: Comparator<in T>): Comparator<T?> {
  * considering `null` value less than any other value.
  */
 public fun <T: Comparable<T>> nullsFirst(): Comparator<T?> {
-    return object: Comparator<T?> {
-        override fun compare(a: T?, b: T?): Int {
-            if (a === b) return 0
-            if (a == null) return -1
-            if (b == null) return 1
-            return a.compareTo(b)
-        }
-    }
+    return nullsFirst(naturalOrder())
 }
 
 /**
  * Extends the given [comparator] of non-nullable values to a comparator of nullable values
  * considering `null` value greater than any other value.
  */
-public fun <T: Any> nullsLast(comparator: Comparator<in T>): Comparator<T?> {
-    return object: Comparator<T?> {
-        override fun compare(a: T?, b: T?): Int {
-            if (a === b) return 0
-            if (a == null) return 1
-            if (b == null) return -1
-            return comparator.compare(a, b)
-        }
-    }
+public fun <T: Any> nullsLast(comparator: Comparator<in T>): Comparator<T?> = when (comparator) {
+    is NullsComparator<*> -> NullsComparator((comparator as NullsComparator<in T>).comparator, nullIsGreater = true)
+    else -> NullsComparator(comparator, nullIsGreater = true)
 }
 
 /**
@@ -307,23 +284,47 @@ public fun <T: Any> nullsLast(comparator: Comparator<in T>): Comparator<T?> {
  * considering `null` value greater than any other value.
  */
 public fun <T: Comparable<T>> nullsLast(): Comparator<T?> {
-    return object: Comparator<T?> {
-        override fun compare(a: T?, b: T?): Int {
-            if (a === b) return 0
-            if (a == null) return 1
-            if (b == null) return -1
-            return a.compareTo(b)
-        }
-    }
+    return nullsLast(naturalOrder())
 }
 
 /** Returns a comparator that imposes the reverse ordering of this comparator. */
 public fun <T> Comparator<T>.reversed(): Comparator<T> = when (this) {
     is ReversedComparator -> this.comparator
+    is NullsComparator<*> -> NullsComparator(((this as NullsComparator<T>).comparator).reversed(), nullIsGreater = !nullIsGreater) as Comparator<T>
     else -> ReversedComparator(this)
 }
-
 
 private class ReversedComparator<T>(public val comparator: Comparator<T>): Comparator<T> {
     override fun compare(a: T, b: T): Int = comparator.compare(b, a)
 }
+
+
+private fun <T: Comparable<T>> naturalOrder(): Comparator<T> = object : Comparator<T> {
+    override fun compare(a: T, b: T): Int = a.compareTo(b)
+}
+
+private fun <T: Comparable<T>> reverseOrder(): Comparator<T> = object : Comparator<T> {
+    override fun compare(a: T, b: T): Int = b.compareTo(a)
+}
+
+
+
+private class NullsComparator<T>(public val comparator: Comparator<in T>, public val nullIsGreater: Boolean = false) : Comparator<T?> {
+    override fun compare(a: T?, b: T?): Int {
+        if (a === b) return 0
+        if (a == null) return if (nullIsGreater) 1 else -1
+        if (b == null) return if (nullIsGreater) -1 else 1
+        return comparator.compare(a, b)
+    }
+}
+
+
+public class SelectorComparator<T, K>(public val selector: (T) -> K, public val comparator: Comparator<in K>): Comparator<T> {
+    override fun compare(a: T, b: T): Int = comparator.compare(selector(a), selector(b))
+}
+
+public fun <T, K> SelectorComparator<T, K>.nullsFirst(): SelectorComparator<T, K>
+        = SelectorComparator<T, K>(selector, nullsFirst(comparator))
+
+public fun <T, K> SelectorComparator<T, K>.nullsLast(): SelectorComparator<T, K>
+        = SelectorComparator<T, K>(selector, nullsLast(comparator))

@@ -233,7 +233,6 @@ fun ordering(): List<GenericFunction> {
 
     templates add f("sortedBy(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> R?)") {
         exclude(Strings)
-        inline(true)
         returns("List<T>")
         typeParam("R : Comparable<R>")
 
@@ -249,13 +248,12 @@ fun ordering(): List<GenericFunction> {
         }
 
         body {
-            "return sortedWith(compareBy(selector))"
+            "return sortedWith(compareBy(selector = selector))"
         }
     }
 
     templates add f("sortedByDescending(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) selector: (T) -> R?)") {
         exclude(Strings)
-        inline(true)
         returns("List<T>")
         typeParam("R : Comparable<R>")
 
@@ -271,7 +269,7 @@ fun ordering(): List<GenericFunction> {
         }
 
         body {
-            "return sortedWith(compareByDescending(selector))"
+            "return sortedWith(compareByDescending(selector = selector))"
         }
     }
 
@@ -348,7 +346,6 @@ fun ordering(): List<GenericFunction> {
     }
 
     templates add f("sortBy(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) order: (T) -> R)") {
-        inline(true)
 
         doc {
             """
@@ -362,7 +359,7 @@ fun ordering(): List<GenericFunction> {
         body {
             """
             val sortedList = toArrayList()
-            val sortBy: Comparator<T> = compareBy(order)
+            val sortBy: Comparator<T> = compareBy(selector = order)
             java.util.Collections.sort(sortedList, sortBy)
             return sortedList
             """
@@ -390,7 +387,7 @@ fun ordering(): List<GenericFunction> {
         body {
             """
             val sortedList = toArrayList()
-            val sortBy: Comparator<T> = compareBy(order)
+            val sortBy: Comparator<T> = compareBy(selector = order)
             java.util.Collections.sort(sortedList, sortBy)
             return sortedList
             """
@@ -400,8 +397,6 @@ fun ordering(): List<GenericFunction> {
     }
 
     templates add f("sortDescendingBy(inlineOptions(InlineOption.ONLY_LOCAL_RETURN) order: (T) -> R)") {
-        inline(true)
-
         doc {
             """
             Returns a sorted list of all elements, in descending order by results of specified [order] function.
@@ -414,7 +409,7 @@ fun ordering(): List<GenericFunction> {
         body {
             """
             val sortedList = toArrayList()
-            val sortBy: Comparator<T> = compareByDescending(order)
+            val sortBy: Comparator<T> = compareByDescending(selector = order)
             java.util.Collections.sort(sortedList, sortBy)
             return sortedList
             """

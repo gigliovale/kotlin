@@ -616,6 +616,62 @@ public fun ShortArray.sort(comparison: (Short, Short) -> Int): Unit {
 }
 
 /**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun <T> Array<out T>.sortWith(comparator: Comparator<in T>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun ByteArray.sortWith(comparator: Comparator<in Byte>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun CharArray.sortWith(comparator: Comparator<in Char>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun DoubleArray.sortWith(comparator: Comparator<in Double>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun FloatArray.sortWith(comparator: Comparator<in Float>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun IntArray.sortWith(comparator: Comparator<in Int>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun LongArray.sortWith(comparator: Comparator<in Long>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
+ * Sorts the array inplace according to the order specified by the given [comparator] object.
+ */
+public fun ShortArray.sortWith(comparator: Comparator<in Short>): Unit {
+    sort { a, b -> comparator.compare(a, b) }
+}
+
+/**
  * Returns a *typed* object array containing all of the elements of this primitive array.
  */
 public fun BooleanArray.toTypedArray(): Array<Boolean> {

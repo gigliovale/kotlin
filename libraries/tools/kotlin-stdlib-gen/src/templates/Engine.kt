@@ -16,6 +16,7 @@ enum class Family {
     ArraysOfObjects,
     ArraysOfPrimitives,
     InvariantArraysOfObjects,
+    ArraysOfObjectsSubtype,
     Strings,
     Ranges,
     RangesOfPrimitives,
@@ -167,7 +168,7 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
 
     fun build(vararg families: Family = Family.values()): String {
         val builder = StringBuilder()
-        for (family in families.sortBy { it.name() }) {
+        for (family in families.sortedBy { it.name() }) {
             if (buildFamilies.contains(family))
                 build(builder, family)
         }
@@ -177,7 +178,7 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
     fun build(builder: StringBuilder, f: Family) {
         val onlyPrimitives = buildFamilyPrimitives[f]
         if (f.isPrimitiveSpecialization || onlyPrimitives != null) {
-            for (primitive in (onlyPrimitives ?: buildPrimitives).sortBy { it.name() })
+            for (primitive in (onlyPrimitives ?: buildPrimitives).sortedBy { it.name() })
                 build(builder, f, primitive)
         } else {
             build(builder, f, null)
@@ -262,6 +263,7 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
             Sets -> "Set<$isAsteriskOrT>"
             Sequences -> "Sequence<$isAsteriskOrT>"
             InvariantArraysOfObjects -> "Array<T>"
+            ArraysOfObjectsSubtype -> "A"
             ArraysOfObjects -> "Array<${isAsteriskOrT.replace("T", "out T")}>"
             Strings -> "String"
             Ranges -> "Range<$isAsteriskOrT>"
@@ -277,6 +279,9 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
         fun effectiveTypeParams(): List<String> {
             // TODO: Model for type parameter
             val types = ArrayList(typeParams)
+            if (f == ArraysOfObjectsSubtype) {
+                types.add("A: Array<out T>")
+            }
             if (f == Generic) {
                 // ensure type parameter T, if it's not added to typeParams before
                 if (!types.any { it == "T" || it.startsWith("T:")}) {
@@ -285,9 +290,10 @@ class GenericFunction(val signature: String, val keyword: String = "fun") : Comp
                 return types
             }
             else if (primitive == null && f != Strings) {
-                val implicitTypeParameters = receiver.dropWhile { it != '<' }.drop(1).takeWhile { it != '>' }.split(",")
+                fun getImplicitTypeParameters(type: String) = type.dropWhile { it != '<' }.drop(1).takeWhile { it != '>' }.split(",")
                         .map { it.removePrefix("out").removePrefix("in").trim() }
-                for (implicit in implicitTypeParameters.reverse()) {
+                val implicitTypeParameters = getImplicitTypeParameters(receiver) + types.flatMap { getImplicitTypeParameters(it) }
+                for (implicit in implicitTypeParameters.reversed()) {
                     if (implicit != "*" && !types.any { it.startsWith(implicit) || it.startsWith("reified " + implicit) }) {
                         types.add(0, implicit)
                     }

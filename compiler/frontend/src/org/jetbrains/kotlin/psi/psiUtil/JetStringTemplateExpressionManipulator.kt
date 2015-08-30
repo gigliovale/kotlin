@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.psi.JetStringTemplateExpression
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.psi.JetPsiFactory
 import com.intellij.openapi.util.text.StringUtil
+import org.jetbrains.kotlin.psi.JetCallExpression
+import java.util.*
 
 public class JetStringTemplateExpressionManipulator : AbstractElementManipulator<JetStringTemplateExpression>() {
     override fun handleContentChange(element: JetStringTemplateExpression, range: TextRange, newContent: String): JetStringTemplateExpression? {
@@ -30,7 +32,10 @@ public class JetStringTemplateExpressionManipulator : AbstractElementManipulator
         val newText = oldText.substring(0, range.getStartOffset()) + content + oldText.substring(range.getEndOffset())
         val expression = JetPsiFactory(element.getProject()).createExpression(newText)
         node.replaceAllChildrenToChildrenOf(expression.getNode())
-        return node.getPsi(javaClass())
+
+//        val arrayListOf: JetCallExpression? = arrayListOf(1)
+
+        return node.getPsi(JetStringTemplateExpression::class.java)
     }
 
     override fun getRangeInElement(element: JetStringTemplateExpression): TextRange {

@@ -29,7 +29,7 @@ L2 [else branch]:
     r(true) -> <v5>                                                                                      USE: in: {b=ONLY_WRITTEN_NEVER_READ} out: {b=ONLY_WRITTEN_NEVER_READ}
     w(b|<v5>)                                                             INIT: in: {b=D} out: {b=ID}    USE: in: {} out: {b=ONLY_WRITTEN_NEVER_READ}
 L3 ['if' expression result]:
-  2 merge(if (1 < 2) { use(b) } else { b = true }|<v4>, !<v6>) -> <v7>    INIT: in: {b=D} out: {b=D}
+  2 merge(if (1 < 2) { use(b) } else { b = true }|<v4>, !<v6>) -> <v7>    INIT: in: {b=I?D} out: {b=I?D}
 L1:
   1 <END>                                                                 INIT: in: {} out: {}
 error:

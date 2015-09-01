@@ -155,7 +155,7 @@ public class PseudocodeVariablesData {
         boolean declaredOutsideThisDeclaration =
                 declaredIn == null //declared outside this pseudocode
                 || declaredIn.getLexicalScopeForContainingDeclaration() != instruction.getLexicalScope().getLexicalScopeForContainingDeclaration();
-        return VariableInitState.create(/*isInitialized=*/declaredOutsideThisDeclaration);
+        return VariableInitState.create(/*isInitialized=*/declaredOutsideThisDeclaration ? TriState.YES : TriState.NO);
     }
 
     @NotNull
@@ -169,20 +169,21 @@ public class PseudocodeVariablesData {
 
         Map<VariableDescriptor, VariableInitState> enterInstructionData = Maps.newHashMap();
         for (VariableDescriptor variable : variablesInScope) {
-            boolean isInitialized = true;
+            TriState initTriState = null;
             boolean isDeclared = true;
             for (Map<VariableDescriptor, VariableInitState> edgeData : incomingEdgesData) {
                 VariableInitState initState = edgeData.get(variable);
                 if (initState != null) {
-                    if (!initState.isInitialized) {
-                        isInitialized = false;
-                    }
+                    initTriState = initTriState != null ? initTriState.merge(initState.initTriState) : initState.initTriState;
                     if (!initState.isDeclared) {
                         isDeclared = false;
                     }
                 }
             }
-            enterInstructionData.put(variable, VariableInitState.create(isInitialized, isDeclared));
+            if (initTriState == null) {
+                initTriState = TriState.YES;
+            }
+            enterInstructionData.put(variable, VariableInitState.create(initTriState, isDeclared));
         }
         return enterInstructionData;
     }
@@ -217,9 +218,9 @@ public class PseudocodeVariablesData {
             if (enterInitState == null) {
                 enterInitState = getDefaultValueForInitializers(variable, instruction, lexicalScopeVariableInfo);
             }
-            if (enterInitState == null || !enterInitState.isInitialized || !enterInitState.isDeclared) {
-                boolean isInitialized = enterInitState != null && enterInitState.isInitialized;
-                VariableInitState variableDeclarationInfo = VariableInitState.create(isInitialized, true);
+            if (enterInitState == null || enterInitState.initTriState == TriState.NO || !enterInitState.isDeclared) {
+                boolean isInitialized = enterInitState != null && enterInitState.initTriState != TriState.NO;
+                VariableInitState variableDeclarationInfo = VariableInitState.create(isInitialized ? TriState.YES : TriState.NO, true);
                 exitInstructionData.put(variable, variableDeclarationInfo);
             }
         }
@@ -279,42 +280,64 @@ public class PseudocodeVariablesData {
         );
     }
 
-    public static class VariableInitState {
-        public final boolean isInitialized;
-        public final boolean isDeclared;
+    enum TriState {
+        YES("I"), MAYBE("I?"), NO("");
 
-        private VariableInitState(boolean isInitialized, boolean isDeclared) {
-            this.isInitialized = isInitialized;
-            this.isDeclared = isDeclared;
+        private final String s;
+
+        TriState(String s) {
+            this.s = s;
         }
 
-        private static final VariableInitState VS_TT = new VariableInitState(true, true);
-        private static final VariableInitState VS_TF = new VariableInitState(true, false);
-        private static final VariableInitState VS_FT = new VariableInitState(false, true);
-        private static final VariableInitState VS_FF = new VariableInitState(false, false);
-
-
-        private static VariableInitState create(boolean isInitialized, boolean isDeclared) {
-            if (isInitialized) {
-                if (isDeclared) return VS_TT;
-                return VS_TF;
-            }
-            if (isDeclared) return VS_FT;
-            return VS_FF;
-        }
-
-        private static VariableInitState create(boolean isInitialized) {
-            return create(isInitialized, false);
-        }
-
-        private static VariableInitState create(boolean isDeclaredHere, @Nullable VariableInitState mergedEdgesData) {
-            return create(true, isDeclaredHere || (mergedEdgesData != null && mergedEdgesData.isDeclared));
+        private TriState merge(TriState other) {
+            if (this == other) return this;
+            return MAYBE;
         }
 
         @Override
         public String toString() {
-            if (!isInitialized && !isDeclared) return "-";
-            return (isInitialized ? "I" : "") + (isDeclared ? "D" : "");
+            return s;
+        }
+    }
+
+    public static class VariableInitState {
+
+        public final TriState initTriState;
+        public final boolean isDeclared;
+
+        private VariableInitState(TriState initTriState, boolean isDeclared) {
+            this.initTriState = initTriState;
+            this.isDeclared = isDeclared;
+        }
+
+        private static final VariableInitState VS_TT = new VariableInitState(TriState.YES, true);
+        private static final VariableInitState VS_TF = new VariableInitState(TriState.YES, false);
+        private static final VariableInitState VS_MT = new VariableInitState(TriState.MAYBE, true);
+        private static final VariableInitState VS_MF = new VariableInitState(TriState.MAYBE, false);
+        private static final VariableInitState VS_FT = new VariableInitState(TriState.NO, true);
+        private static final VariableInitState VS_FF = new VariableInitState(TriState.NO, false);
+
+
+        private static VariableInitState create(TriState initTriState, boolean isDeclared) {
+            switch (initTriState) {
+                case YES: return isDeclared ? VS_TT : VS_TF;
+                case MAYBE: return isDeclared ? VS_MT : VS_MF;
+                default: return isDeclared ? VS_FT : VS_FF;
+            }
+        }
+
+        private static VariableInitState create(TriState initTriState) {
+            return create(initTriState, false);
+        }
+
+        private static VariableInitState create(boolean isDeclaredHere, @Nullable VariableInitState mergedEdgesData) {
+            return create(TriState.YES, isDeclaredHere || (mergedEdgesData != null && mergedEdgesData.isDeclared));
+        }
+
+        @Override
+        public String toString() {
+            if (initTriState == TriState.NO && !isDeclared) return "-";
+            return initTriState + (isDeclared ? "D" : "");
         }
     }
 

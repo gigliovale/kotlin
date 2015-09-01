@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.serialization.deserialization.LocalClassResolver
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 
-public class RuntimeModuleData private constructor(public val module: ModuleDescriptor, public val localClassResolver: LocalClassResolver, val packageFacadeProvider: RuntimePackageFacadeProvider) {
+public class RuntimeModuleData private constructor(public val module: ModuleDescriptor, public val localClassResolver: LocalClassResolver, val packageFacadeProvider: RuntimePackagePartProvider) {
     companion object {
         public fun create(classLoader: ClassLoader): RuntimeModuleData {
             val storageManager = LockBasedStorageManager()
@@ -47,7 +47,7 @@ public class RuntimeModuleData private constructor(public val module: ModuleDesc
             val reflectKotlinClassFinder = ReflectKotlinClassFinder(classLoader)
             val deserializedDescriptorResolver = DeserializedDescriptorResolver(RuntimeErrorReporter)
             val singleModuleClassResolver = SingleModuleClassResolver()
-            val runtimePackageFacadeProvider = RuntimePackageFacadeProvider(classLoader)
+            val runtimePackageFacadeProvider = RuntimePackagePartProvider(classLoader)
             val globalJavaResolverContext = JavaResolverComponents(
                     storageManager, ReflectJavaClassFinder(classLoader), reflectKotlinClassFinder, deserializedDescriptorResolver,
                     ExternalAnnotationResolver.EMPTY, ExternalSignatureResolver.DO_NOTHING, RuntimeErrorReporter, JavaResolverCache.EMPTY,

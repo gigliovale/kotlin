@@ -49,3 +49,15 @@ public annotation(retention = AnnotationRetention.RUNTIME, mustBeDocumented = tr
  */
 target(AnnotationTarget.FIELD)
 public annotation(retention = AnnotationRetention.SOURCE, mustBeDocumented = true) class publicField
+
+/**
+ * Specifies the name of the Java class to be generated for the top-level functions and properties in the given file.
+ * See the [Kotlin language documentation](http://kotlinlang.org/docs/reference/java-interop.html) for more information.
+ * @property name the name of the Java class
+ * @property multipleFiles true it the corresponding Java class can possibly contain members from multiple source files
+ */
+target(AnnotationTarget.FILE)
+public annotation(retention = AnnotationRetention.BINARY, mustBeDocumented = true) class JvmClassName(
+        public val name: String,
+        public val multipleFiles: Boolean = false
+)

@@ -20,6 +20,14 @@ import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.rmi.CompileService
 
 public class RemoteIncrementalCacheClient(val cache: CompileService.RemoteIncrementalCache): IncrementalCache {
+    override fun getPackagePartData(fqName: String): ByteArray? {
+        throw UnsupportedOperationException()
+    }
+
+    override fun getModuleMappingData(): ByteArray? {
+        throw UnsupportedOperationException()
+    }
+
     override fun getObsoletePackageParts(): Collection<String> = cache.getObsoletePackageParts()
 
     override fun getPackageData(fqName: String): ByteArray? = cache.getPackageData(fqName)

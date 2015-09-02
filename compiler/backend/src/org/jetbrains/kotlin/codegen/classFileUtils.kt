@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.codegen
 
 import org.jetbrains.kotlin.backend.common.output.OutputFile
+import org.jetbrains.kotlin.load.kotlin.PackageParts
 
 fun ClassFileFactory.getClassFiles(): Iterable<OutputFile> {
     return asList().filterClassFiles()
@@ -25,3 +26,11 @@ fun ClassFileFactory.getClassFiles(): Iterable<OutputFile> {
 fun List<OutputFile>.filterClassFiles(): Iterable<OutputFile> {
     return filter { it.relativePath.endsWith(".class") }
 }
+
+fun List<PackageParts>.normalize(): List<PackageParts> =
+        groupBy { it.packageFqName }.map {
+            val (packageFqName, packageParts) = it
+            val newPackageParts = PackageParts(packageFqName)
+            packageParts.forEach { newPackageParts.parts.addAll(it.parts) }
+            newPackageParts
+        }.sortedBy { it.packageFqName }

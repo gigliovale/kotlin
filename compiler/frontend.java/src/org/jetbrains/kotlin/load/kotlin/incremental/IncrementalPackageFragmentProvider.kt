@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.PackageFragmentDescriptorImpl
+import org.jetbrains.kotlin.load.kotlin.ModuleMapping
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.name.FqName
@@ -32,6 +33,7 @@ import org.jetbrains.kotlin.resolve.scopes.JetScope
 import org.jetbrains.kotlin.serialization.PackageData
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedNewPackageMemberScope
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBuf
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
@@ -39,7 +41,6 @@ import org.jetbrains.kotlin.storage.NotNullLazyValue
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import java.util.*
-import kotlin.reflect.jvm.*
 
 public class IncrementalPackageFragmentProvider(
         sourceFiles: Collection<JetFile>,
@@ -90,7 +91,6 @@ public class IncrementalPackageFragmentProvider(
         return fqNameToPackageFragment[fqName].singletonOrEmptyList()
     }
 
-
     public inner class IncrementalPackageFragment(fqName: FqName) : PackageFragmentDescriptorImpl(module, fqName) {
         public val moduleId: String
             get() = this@IncrementalPackageFragmentProvider.moduleId
@@ -100,12 +100,19 @@ public class IncrementalPackageFragmentProvider(
                 JetScope.Empty
             }
             else {
-                val packageDataBytes = incrementalCache.getPackageData(fqName.asString())
-                if (packageDataBytes == null) {
+                val moduleMapping = incrementalCache.getModuleMappingData()?.let { ModuleMapping(it) }
+
+                val actualPackageFacadeFiles =
+                        moduleMapping?.findPackageParts(fqName.asString().replace('.', '/'))?.let { p -> p.parts.map { p.packageFqName + "/" + it }.filterNot { it in obsoletePackageParts } } ?: emptyList<String>()
+
+                val packageDatas = actualPackageFacadeFiles.map { incrementalCache.getPackagePartData(it) }.filterNotNull()
+
+                if (packageDatas.isEmpty()) {
                     JetScope.Empty
                 }
                 else {
-                    IncrementalPackageScope(JvmProtoBufUtil.readPackageDataFrom(packageDataBytes))
+                    val scopes = packageDatas.map { IncrementalPackageScope(JvmProtoBufUtil.readPackageDataFrom(it)) }
+                    DeserializedNewPackageMemberScope(this, scopes)
                 }
             }
         }

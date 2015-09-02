@@ -21,13 +21,18 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
+import kotlin.KotlinPackage;
+import kotlin.Pair;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import org.jetbrains.kotlin.backend.common.output.OutputFile;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
+import org.jetbrains.kotlin.load.kotlin.ModuleMapping;
 import org.jetbrains.kotlin.load.kotlin.PackageParts;
+import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
@@ -92,14 +97,67 @@ public class ClassFileFactory implements OutputFileCollection {
         final JvmPackageTable.PackageTable.Builder builder = JvmPackageTable.PackageTable.newBuilder();
         String outputFilePath = getMappingFileName(state.getModuleName());
 
+        List<PackageParts> parts = ContainerUtil.newArrayList();
+        Set<File> sourceFiles = new HashSet<File>();
+
         for (PackageCodegen codegen : values) {
-            PackageParts.Companion.serialize(codegen.getPackageParts(), builder);
+            parts.add(codegen.getPackageParts());
+            //for (JetFile jetFile : codegen.getFiles()) {
+            //    sourceFiles.add(new File(state.getOutDirectory(), jetFile.getVirtualFile().getPath()));
+            //}
+            //PackageParts.Companion.serialize(codegen.getPackageParts(), builder);
         }
 
+        IncrementalCache incrementalCache = state.getIncrementalCompilationComponents().getIncrementalCache(state.getModuleId());
+        byte[] moduleMappingData = incrementalCache.getModuleMappingData();
+        if (moduleMappingData != null) {
+            ModuleMapping mapping = new ModuleMapping(moduleMappingData);
+
+            Collection<Pair<String, String>> obsoletePackageParts = KotlinPackage.map(incrementalCache.getObsoletePackageParts(),
+                                                                                      new Function1<String, Pair<String, String>>() {
+                                                                            @Override
+                                                                            public Pair<String, String> invoke(String s) {
+                                                                                int i = s.lastIndexOf('/');
+                                                                                return new Pair<String, String>(i < 0 ? "" : s.substring(0, i), s.substring(i + 1));
+                                                                            }
+                                                                        });
+
+            for (Pair<String, String> part : obsoletePackageParts) {
+                PackageParts packageParts = mapping.findPackageParts(part.getFirst());
+                if (packageParts == null) continue;
+                packageParts.getParts().remove(part.getSecond());
+            }
+
+            for (PackageParts packageParts : mapping.getPackageFqName2Parts().values()) {
+                //packageParts.getParts().removeAll(obsoletePackageParts);
+                parts.add(packageParts);
+                //for (String s : packageParts.getParts()) {
+                //    sourceFiles.add(new File(packageParts.getPackageFqName() + "/" + s + ".class"));
+                //}
+            }
+        }
+
+        parts = CodegenPackage.normalize(parts);
+
+        for (PackageParts part : parts) {
+            for (String s : part.getParts()) {
+                sourceFiles.add(new File(state.getOutDirectory(), part.getPackageFqName() + "/" + s + ".class"));
+            }
+
+            PackageParts.Companion.serialize(part, builder);
+        }
+
+        //incrementalCache.getDirtyOutputClassesMap.markDirty("[:" + ModuleMapping.MAPPING_FILE_EXT);
+
+        //if (moduleMapping.toString().isEmpty()) return;
+
+        // don't report
+        sourceFiles = new HashSet<File>();
+
         if (builder.getPackagePartsCount() != 0) {
-            state.getProgress().reportOutput(Collections.<File>emptyList(), new File(outputFilePath));
+            state.getProgress().reportOutput(sourceFiles, new File(outputFilePath));
             //TODO: source files?
-            generators.put(outputFilePath, new OutAndSourceFileList(Collections.<File>emptyList()) {
+            generators.put(outputFilePath, new OutAndSourceFileList(KotlinPackage.toList(sourceFiles)) {
                 @Override
                 public byte[] asBytes(ClassBuilderFactory factory) {
                     try {

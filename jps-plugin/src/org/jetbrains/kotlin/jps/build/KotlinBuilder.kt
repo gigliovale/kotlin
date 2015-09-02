@@ -70,10 +70,7 @@ import org.jetbrains.kotlin.utils.keysToMap
 import org.jetbrains.kotlin.utils.sure
 import org.jetbrains.org.objectweb.asm.ClassReader
 import java.io.File
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.ServiceLoader
+import java.util.*
 
 public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     companion object {
@@ -139,14 +136,31 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
             return CHUNK_REBUILD_REQUIRED
         }
 
-        if (!dirtyFilesHolder.hasDirtyFiles() && !dirtyFilesHolder.hasRemovedFiles()
-            || !hasKotlinDirtyOrRemovedFiles(dirtyFilesHolder, chunk)) {
+        val incrementalCaches = chunk.getTargets().keysToMap { dataManager.getKotlinCache(it) }
+
+        if (!dirtyFilesHolder.hasDirtyFiles() && !dirtyFilesHolder.hasRemovedFiles()) {
             return NOTHING_DONE
         }
 
-        messageCollector.report(INFO, "Kotlin JPS plugin version " + KotlinVersion.VERSION, CompilerMessageLocation.NO_LOCATION)
+        if (!hasKotlinDirtyOrRemovedFiles(dirtyFilesHolder, chunk)) {
+//            if (IncrementalCompilation.ENABLED) {
+//                for ((t, ic) in incrementalCaches) {
+//                    ic.dirtyOutputClassesMap.markDirty("[:" + ModuleMapping.MAPPING_FILE_EXT)
+//                    ic.clearCacheForRemovedClasses()
+//                }
+//            }
 
-        val incrementalCaches = chunk.getTargets().keysToMap { dataManager.getKotlinCache(it) }
+            return NOTHING_DONE
+        }
+
+//        if (IncrementalCompilation.ENABLED) {
+//            for ((t, ic) in incrementalCaches) {
+//                ic.dirtyOutputClassesMap.markDirty("[:" + ModuleMapping.MAPPING_FILE_EXT)
+////                ic.clearCacheForRemovedClasses()
+//            }
+//        }
+
+        messageCollector.report(INFO, "Kotlin JPS plugin version " + KotlinVersion.VERSION, CompilerMessageLocation.NO_LOCATION)
 
         val project = projectDescriptor.project
 
@@ -175,6 +189,7 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
         statisticsLogger.registerStatistic(chunk, System.nanoTime() - start)
 
         if (outputItemCollector == null) {
+//            clearCaches(incrementalCaches, DO_NOTHING)
             return NOTHING_DONE
         }
 
@@ -189,7 +204,7 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
 
         val generatedFiles = getGeneratedFiles(chunk, outputItemCollector)
 
-        registerOutputItems(outputConsumer, generatedFiles)
+        registerOutputItems(outputConsumer, generatedFiles, dataManager.mappings)
 
         context.checkCanceled()
 
@@ -199,7 +214,7 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
         }
         else {
             val generatedClasses = generatedFiles.filterIsInstance<GeneratedJvmClass>()
-            recompilationDecision = updateKotlinIncrementalCache(compilationErrors, incrementalCaches, generatedClasses)
+            recompilationDecision = updateKotlinIncrementalCache(compilationErrors, incrementalCaches, generatedFiles)
             updateJavaMappings(chunk, compilationErrors, context, dirtyFilesHolder, filesToCompile, generatedClasses)
         }
 
@@ -402,16 +417,31 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
         JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, allCompiled, compiledInThisRound)
     }
 
-    private fun registerOutputItems(outputConsumer: ModuleLevelBuilder.OutputConsumer, generatedFiles: List<GeneratedFile>) {
+    private fun registerOutputItems(outputConsumer: ModuleLevelBuilder.OutputConsumer, generatedFiles: List<GeneratedFile>, mappings: Mappings) {
         for (generatedFile in generatedFiles) {
-            outputConsumer.registerOutputFile(generatedFile.target, generatedFile.outputFile, generatedFile.sourceFiles.map { it.getPath() })
+            val s = generatedFile.sourceFiles.map { it.path }
+//                    if (generatedFile.outputFile.name.endsWith(ModuleMapping.MAPPING_FILE_EXT)) {
+//                generatedFile.sourceFiles.flatMap {
+//                    if (it.path.endsWith(".class")) {
+//                        mappings.getClassSources(mappings.getName(it.path.substringBefore(".class")))?.map { it.path } ?: emptyList()
+//                    }
+//                    else {
+//                        listOf(it.path)
+//                    }
+//                }
+//            }
+//            else {
+//                generatedFile.sourceFiles.map { it.path }
+//            }
+
+            outputConsumer.registerOutputFile(generatedFile.target, generatedFile.outputFile, s)
         }
     }
 
     private fun updateKotlinIncrementalCache(
             compilationErrors: Boolean,
             incrementalCaches: Map<ModuleBuildTarget, IncrementalCacheImpl>,
-            generatedClasses: List<GeneratedJvmClass>
+            generatedClasses: List<GeneratedFile>
     ): IncrementalCacheImpl.RecompilationDecision {
         incrementalCaches.values().forEach { it.saveCacheFormatVersion() }
 
@@ -421,18 +451,29 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
 
         var recompilationDecision = DO_NOTHING
         for (generatedClass in generatedClasses) {
+            if (generatedClass !is GeneratedJvmClass) {
+                incrementalCaches[generatedClass.target]!!.saveFileToCache(generatedClass.sourceFiles, generatedClass.outputFile)
+                continue
+            }
+
             val newDecision = incrementalCaches[generatedClass.target]!!.saveFileToCache(generatedClass.sourceFiles, generatedClass.outputClass)
             recompilationDecision = recompilationDecision.merge(newDecision)
         }
 
         if (!compilationErrors) {
-            incrementalCaches.values().forEach {
-                val newDecision = it.clearCacheForRemovedClasses()
-                recompilationDecision = recompilationDecision.merge(newDecision)
-            }
+            recompilationDecision = clearCaches(incrementalCaches, recompilationDecision)
         }
 
         return recompilationDecision
+    }
+
+    private fun clearCaches(incrementalCaches: Map<ModuleBuildTarget, IncrementalCacheImpl>, recompilationDecision: IncrementalCacheImpl.RecompilationDecision): IncrementalCacheImpl.RecompilationDecision {
+        var recompilationDecision1 = recompilationDecision
+        incrementalCaches.values().forEach {
+            val newDecision = it.clearCacheForRemovedClasses()
+            recompilationDecision1 = recompilationDecision1.merge(newDecision)
+        }
+        return recompilationDecision1
     }
 
     // if null is returned, nothing was done

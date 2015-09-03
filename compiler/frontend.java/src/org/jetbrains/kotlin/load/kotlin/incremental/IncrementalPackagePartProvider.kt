@@ -32,8 +32,8 @@ internal class IncrementalPackagePartProvider(
     private val moduleMappings by lazy { incrementalCaches.map { ModuleMapping(it.getModuleMappingData()) } }
     private val fqNamesToIgnore =
             incrementalCaches.flatMap {
-                it.getObsoletePackageParts().map { JvmClassName.byInternalName(it).getPackageFqName() } +
-                PackagePartClassUtils.getFilesWithCallables(sourceFiles).map { it.getPackageFqName() }
+                it.getObsoletePackageParts().map { JvmClassName.byInternalName(it).getPackageFqName().asString() } +
+                PackagePartClassUtils.getFilesWithCallables(sourceFiles).map { it.getPackageFqName().asString() }
             }.toSet()
 
     override fun findPackageParts(packageFqName: String): List<String> {

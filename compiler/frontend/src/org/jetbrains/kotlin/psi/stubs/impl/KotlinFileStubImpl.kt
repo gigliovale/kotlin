@@ -29,20 +29,16 @@ import org.jetbrains.kotlin.psi.stubs.KotlinImportDirectiveStub
 import org.jetbrains.kotlin.psi.stubs.elements.JetStubElementTypes
 
 // SCRIPT: PsiJetFileStubImpl knows about scripting
-public class KotlinFileStubImpl(
+public open class KotlinFileStubImpl(
         jetFile: JetFile?,
         private val packageName: StringRef,
-        private val facadeSimpleName: StringRef?,
-        private val partSimpleName: StringRef?,
         private val isScript: Boolean
 ) : PsiFileStubImpl<JetFile>(jetFile), KotlinFileStub, PsiClassHolderFileStub<JetFile> {
 
     public constructor(jetFile: JetFile?, packageName: String, isScript: Boolean)
-        : this(jetFile, StringRef.fromString(packageName)!!, null, null, isScript)
+        : this(jetFile, StringRef.fromString(packageName)!!, isScript)
 
     override fun getPackageFqName(): FqName = FqName(StringRef.toString(packageName)!!)
-    override fun getFacadeSimpleName(): String? = StringRef.toString(facadeSimpleName)
-    override fun getPartSimpleName(): String? = StringRef.toString(partSimpleName)
     override fun isScript(): Boolean = isScript
     override fun getType(): IStubFileElementType<KotlinFileStub> = JetStubElementTypes.FILE
 
@@ -55,21 +51,5 @@ public class KotlinFileStubImpl(
     override fun findImportsByAlias(alias: String): List<KotlinImportDirectiveStub> {
         val importList = childrenStubs.firstOrNull { it.stubType == JetStubElementTypes.IMPORT_LIST } ?: return emptyList()
         return importList.childrenStubs.filterIsInstance<KotlinImportDirectiveStub>().filter { it.getAliasName() == alias }
-    }
-
-    companion object {
-        public fun forFile(packageFqName: FqName, isScript: Boolean): KotlinFileStubImpl =
-                KotlinFileStubImpl(jetFile = null,
-                                   packageName = StringRef.fromString(packageFqName.asString())!!,
-                                   facadeSimpleName = null,
-                                   partSimpleName = null,
-                                   isScript = isScript)
-
-        public fun forFileFacadeStub(facadeFqName: FqName, isScript: Boolean): KotlinFileStubImpl =
-                KotlinFileStubImpl(jetFile = null,
-                                   packageName = StringRef.fromString(facadeFqName.parent().asString())!!,
-                                   facadeSimpleName = StringRef.fromString(facadeFqName.shortName().asString())!!,
-                                   partSimpleName = StringRef.fromString(facadeFqName.shortName().asString())!!,
-                                   isScript = isScript)
     }
 }

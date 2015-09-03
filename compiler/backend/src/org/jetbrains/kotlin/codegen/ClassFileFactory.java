@@ -108,32 +108,36 @@ public class ClassFileFactory implements OutputFileCollection {
             //PackageParts.Companion.serialize(codegen.getPackageParts(), builder);
         }
 
-        IncrementalCache incrementalCache = state.getIncrementalCompilationComponents().getIncrementalCache(state.getModuleId());
-        byte[] moduleMappingData = incrementalCache.getModuleMappingData();
-        if (moduleMappingData != null) {
-            ModuleMapping mapping = new ModuleMapping(moduleMappingData);
+        if (state.getIncrementalCompilationComponents() != null) {
+            IncrementalCache incrementalCache = state.getIncrementalCompilationComponents().getIncrementalCache(state.getModuleId());
+            byte[] moduleMappingData = incrementalCache.getModuleMappingData();
+            if (moduleMappingData != null) {
+                ModuleMapping mapping = new ModuleMapping(moduleMappingData);
 
-            Collection<Pair<String, String>> obsoletePackageParts = KotlinPackage.map(incrementalCache.getObsoletePackageParts(),
-                                                                                      new Function1<String, Pair<String, String>>() {
-                                                                            @Override
-                                                                            public Pair<String, String> invoke(String s) {
-                                                                                int i = s.lastIndexOf('/');
-                                                                                return new Pair<String, String>(i < 0 ? "" : s.substring(0, i), s.substring(i + 1));
-                                                                            }
-                                                                        });
+                Collection<Pair<String, String>> obsoletePackageParts = KotlinPackage.map(incrementalCache.getObsoletePackageParts(),
+                                                                                          new Function1<String, Pair<String, String>>() {
+                                                                                              @Override
+                                                                                              public Pair<String, String> invoke(String s) {
+                                                                                                  int i = s.lastIndexOf('/');
+                                                                                                  return new Pair<String, String>(
+                                                                                                          i < 0 ? "" : s.substring(0, i),
+                                                                                                          s.substring(i + 1));
+                                                                                              }
+                                                                                          });
 
-            for (Pair<String, String> part : obsoletePackageParts) {
-                PackageParts packageParts = mapping.findPackageParts(part.getFirst());
-                if (packageParts == null) continue;
-                packageParts.getParts().remove(part.getSecond());
-            }
+                for (Pair<String, String> part : obsoletePackageParts) {
+                    PackageParts packageParts = mapping.findPackageParts(part.getFirst());
+                    if (packageParts == null) continue;
+                    packageParts.getParts().remove(part.getSecond());
+                }
 
-            for (PackageParts packageParts : mapping.getPackageFqName2Parts().values()) {
-                //packageParts.getParts().removeAll(obsoletePackageParts);
-                parts.add(packageParts);
-                //for (String s : packageParts.getParts()) {
-                //    sourceFiles.add(new File(packageParts.getPackageFqName() + "/" + s + ".class"));
-                //}
+                for (PackageParts packageParts : mapping.getPackageFqName2Parts().values()) {
+                    //packageParts.getParts().removeAll(obsoletePackageParts);
+                    parts.add(packageParts);
+                    //for (String s : packageParts.getParts()) {
+                    //    sourceFiles.add(new File(packageParts.getPackageFqName() + "/" + s + ".class"));
+                    //}
+                }
             }
         }
 

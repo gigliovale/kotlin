@@ -57,6 +57,7 @@ import org.jetbrains.kotlin.jps.incremental.IncrementalCacheImpl.RecompilationDe
 import org.jetbrains.kotlin.jps.incremental.IncrementalCacheImpl.RecompilationDecision.RECOMPILE_ALL_IN_CHUNK_AND_DEPENDANTS
 import org.jetbrains.kotlin.jps.incremental.IncrementalCacheImpl.RecompilationDecision.RECOMPILE_OTHER_IN_CHUNK_AND_DEPENDANTS
 import org.jetbrains.kotlin.jps.incremental.IncrementalCacheImpl.RecompilationDecision.RECOMPILE_OTHER_KOTLIN_IN_CHUNK
+import org.jetbrains.kotlin.load.kotlin.ModuleMapping
 import org.jetbrains.kotlin.load.kotlin.PackageClassUtils
 import org.jetbrains.kotlin.load.kotlin.header.isCompatiblePackageFacadeKind
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
@@ -189,7 +190,21 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
         statisticsLogger.registerStatistic(chunk, System.nanoTime() - start)
 
         if (outputItemCollector == null) {
-//            clearCaches(incrementalCaches, DO_NOTHING)
+            if (allCompiledFiles.isEmpty() && IncrementalCompilation.ENABLED) {
+                for ((t, ic) in incrementalCaches) {
+                    ic.dirtyOutputClassesMap.markDirty("[:" + ModuleMapping.MAPPING_FILE_EXT)
+    //                ic.clearCacheForRemovedClasses()
+                }
+                clearCaches(incrementalCaches, DO_NOTHING)
+            }
+//        if (IncrementalCompilation.ENABLED) {
+//            for ((t, ic) in incrementalCaches) {
+//                ic.dirtyOutputClassesMap.markDirty("[:" + ModuleMapping.MAPPING_FILE_EXT)
+////                ic.clearCacheForRemovedClasses()
+//            }
+//        }
+
+            //            clearCaches(incrementalCaches, DO_NOTHING)
             return NOTHING_DONE
         }
 
@@ -658,6 +673,18 @@ private fun hasKotlinDirtyOrRemovedFiles(
 
     return chunk.getTargets().any { !KotlinSourceFileCollector.getRemovedKotlinFiles(dirtyFilesHolder, it).isEmpty() }
 }
+
+//private fun hasModuleDirtyOrRemovedFiles(
+//        dirtyFilesHolder: DirtyFilesHolder<JavaSourceRootDescriptor, ModuleBuildTarget>,
+//        chunk: ModuleChunk
+//): Boolean {
+//    dirtyFilesHolder.hasDirtyFiles()
+//    if (!KotlinSourceFileCollector.getDirtySourceFiles(dirtyFilesHolder).isEmpty()) {
+//        return true
+//    }
+//
+//    return chunk.getTargets().any { !KotlinSourceFileCollector.getRemovedKotlinFiles(dirtyFilesHolder, it).isEmpty() }
+//}
 
 private open class GeneratedFile(
         val target: ModuleBuildTarget,

@@ -129,7 +129,7 @@ public enum TopDownAnalyzerFacadeForJVM {
                 incrementalCompilationComponents != null ? incrementalCompilationComponents.getLookupTracker() : LookupTracker.DO_NOTHING;
 
         packagePartProvider = IncrementalPackage
-                .IncrementalPackagePartProvider(packagePartProvider, moduleIds, incrementalCompilationComponents);
+                .IncrementalPackagePartProvider(packagePartProvider, files, moduleIds, incrementalCompilationComponents);
 
         ContainerForTopDownAnalyzerForJvm container = DiPackage.createContainerForTopDownAnalyzerForJvm(
                 moduleContext,

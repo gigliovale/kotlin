@@ -18,21 +18,34 @@ package org.jetbrains.kotlin.load.kotlin.incremental
 
 import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping
+import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
+import org.jetbrains.kotlin.psi.JetFile
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 
 internal class IncrementalPackagePartProvider(
-        val parent: PackagePartProvider,
+        private val parent: PackagePartProvider,
+        private val sourceFiles: Collection<JetFile>,
         private val incrementalCaches: List<IncrementalCache>
 ) : PackagePartProvider {
     private val moduleMappings by lazy { incrementalCaches.map { ModuleMapping(it.getModuleMappingData()) } }
+    private val fqNamesToIgnore =
+            incrementalCaches.flatMap {
+                it.getObsoletePackageParts().map { JvmClassName.byInternalName(it).getPackageFqName() } +
+                PackagePartClassUtils.getFilesWithCallables(sourceFiles).map { it.getPackageFqName() }
+            }.toSet()
 
-    override fun findPackageParts(packageFqName: String) =
-            (moduleMappings.map { it.findPackageParts(packageFqName) }.filterNotNull().flatMap { it.parts } + parent.findPackageParts(packageFqName)).distinct()
+    override fun findPackageParts(packageFqName: String): List<String> {
+        if (packageFqName in fqNamesToIgnore) return parent.findPackageParts(packageFqName)
+
+        return (moduleMappings.map { it.findPackageParts(packageFqName) }.filterNotNull().flatMap { it.parts } + parent.findPackageParts(packageFqName)).distinct()
+    }
 }
 
 fun IncrementalPackagePartProvider(
         parent: PackagePartProvider,
+        sourceFiles: Collection<JetFile>,
         moduleIds: List<String>?,
         incrementalCompilationComponents: IncrementalCompilationComponents?
 ): PackagePartProvider {
@@ -40,5 +53,5 @@ fun IncrementalPackagePartProvider(
 
     val incrementalCaches = moduleIds.map { incrementalCompilationComponents.getIncrementalCache(it) }
 
-    return IncrementalPackagePartProvider(parent, incrementalCaches)
+    return IncrementalPackagePartProvider(parent, sourceFiles, incrementalCaches)
 }

@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.backend.common.output.OutputFile;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping;
+import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils;
 import org.jetbrains.kotlin.load.kotlin.PackageParts;
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache;
 import org.jetbrains.kotlin.name.FqName;
@@ -106,6 +107,8 @@ public class ClassFileFactory implements OutputFileCollection {
             //    sourceFiles.add(new File(state.getOutDirectory(), jetFile.getVirtualFile().getPath()));
             //}
             //PackageParts.Companion.serialize(codegen.getPackageParts(), builder);
+
+            sourceFiles.addAll(toIoFilesIgnoringNonPhysical(PackagePartClassUtils.getFilesWithCallables(codegen.getFiles())));
         }
 
         if (state.getIncrementalCompilationComponents() != null) {
@@ -144,10 +147,6 @@ public class ClassFileFactory implements OutputFileCollection {
         parts = CodegenPackage.normalize(parts);
 
         for (PackageParts part : parts) {
-            for (String s : part.getParts()) {
-                sourceFiles.add(new File(state.getOutDirectory(), part.getPackageFqName() + "/" + s + ".class"));
-            }
-
             PackageParts.Companion.serialize(part, builder);
         }
 
@@ -156,7 +155,7 @@ public class ClassFileFactory implements OutputFileCollection {
         //if (moduleMapping.toString().isEmpty()) return;
 
         // don't report
-        sourceFiles = new HashSet<File>();
+        //sourceFiles = new HashSet<File>();
 
         if (builder.getPackagePartsCount() != 0) {
             state.getProgress().reportOutput(sourceFiles, new File(outputFilePath));

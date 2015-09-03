@@ -47,7 +47,7 @@ fun createPackageFacadeStub(
         packageFqName: FqName,
         c: ClsStubBuilderContext
 ): KotlinFileStubImpl {
-    val fileStub = KotlinFileStubImpl.forPackageStub(packageFqName, packageFqName.isRoot)
+    val fileStub = KotlinFileStubImpl.forFile(packageFqName, packageFqName.isRoot)
     setupFileStub(fileStub, packageFqName)
     val container = ProtoContainer(null, packageFqName)
     for (callableProto in packageProto.getMemberList()) {
@@ -74,7 +74,7 @@ fun createFileFacadeStub(
 fun createIncompatibleAbiVersionFileStub() = createFileStub(FqName.ROOT)
 
 fun createFileStub(packageFqName: FqName): KotlinFileStubImpl {
-    val fileStub = KotlinFileStubImpl.forPackageStub(packageFqName, packageFqName.isRoot)
+    val fileStub = KotlinFileStubImpl.forFile(packageFqName, packageFqName.isRoot)
     setupFileStub(fileStub, packageFqName)
     return fileStub
 }

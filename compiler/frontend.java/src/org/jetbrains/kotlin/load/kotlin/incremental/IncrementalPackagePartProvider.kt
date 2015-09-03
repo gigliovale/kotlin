@@ -28,7 +28,7 @@ internal class IncrementalPackagePartProvider(
     private val moduleMappings by lazy { incrementalCaches.map { ModuleMapping(it.getModuleMappingData()) } }
 
     override fun findPackageParts(packageFqName: String) =
-            (moduleMappings.map { it.findPackageParts(packageFqName) }.filterNotNull().flatMap { it.parts } + parent.findPackageParts(packageFqName)).toSet().toList()
+            (moduleMappings.map { it.findPackageParts(packageFqName) }.filterNotNull().flatMap { it.parts } + parent.findPackageParts(packageFqName)).distinct()
 }
 
 fun IncrementalPackagePartProvider(

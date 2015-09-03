@@ -103,7 +103,16 @@ public class IncrementalPackageFragmentProvider(
                 val moduleMapping = incrementalCache.getModuleMappingData()?.let { ModuleMapping(it) }
 
                 val actualPackageFacadeFiles =
-                        moduleMapping?.findPackageParts(fqName.asString().replace('.', '/'))?.let { p -> p.parts.map { p.packageFqName + "/" + it }.filterNot { it in obsoletePackageParts } } ?: emptyList<String>()
+                        moduleMapping?.findPackageParts(fqName.asString())?.let {
+                            p ->
+                            p.parts.map {
+                                if (p.packageFqName.isEmpty()) it
+                                else {
+                                    p.packageFqName.replace('.', '/') + "/" + it
+                                }
+                        }.filterNot {
+                            it in obsoletePackageParts }
+                        }?.distinct() ?: emptyList<String>()
 
                 val packageDatas = actualPackageFacadeFiles.map { incrementalCache.getPackagePartData(it) }.filterNotNull()
 

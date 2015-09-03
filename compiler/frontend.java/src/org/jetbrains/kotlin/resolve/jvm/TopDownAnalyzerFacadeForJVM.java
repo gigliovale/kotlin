@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.frontend.java.di.ContainerForTopDownAnalyzerForJvm;
 import org.jetbrains.kotlin.frontend.java.di.DiPackage;
 import org.jetbrains.kotlin.incremental.components.LookupTracker;
+import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackage;
 import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentProvider;
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache;
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents;
@@ -127,7 +128,8 @@ public enum TopDownAnalyzerFacadeForJVM {
         LookupTracker lookupTracker =
                 incrementalCompilationComponents != null ? incrementalCompilationComponents.getLookupTracker() : LookupTracker.DO_NOTHING;
 
-        //packagePartProvider = IncrementalPackage.IncrementalPackagePartProvider(packagePartProvider, moduleIds, incrementalCompilationComponents);
+        packagePartProvider = IncrementalPackage
+                .IncrementalPackagePartProvider(packagePartProvider, moduleIds, incrementalCompilationComponents);
 
         ContainerForTopDownAnalyzerForJvm container = DiPackage.createContainerForTopDownAnalyzerForJvm(
                 moduleContext,

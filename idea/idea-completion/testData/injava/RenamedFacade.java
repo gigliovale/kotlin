@@ -5,4 +5,5 @@ public class Testing {
 }
 
 // EXIST: RenamedNew
+// ABSENT: RenamedFileFacadeKt
 

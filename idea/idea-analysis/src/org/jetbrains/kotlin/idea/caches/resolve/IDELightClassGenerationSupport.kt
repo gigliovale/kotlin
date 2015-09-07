@@ -21,6 +21,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.LibraryUtil
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.UserDataHolder
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.ClassFileViewProvider
 import com.intellij.psi.PsiClass
@@ -152,7 +153,12 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
                     it.virtualFile?.parent?.findChild("$packageClassName.class")
                 }.firstOrNull { it != null } ?: continue
 
-                val clsClassFromPackageClass = createClsJavaClassFromVirtualFile(files.first(), virtualFileForPackageClass, null) ?: continue
+                val clsClassFromPackageClass = createClsJavaClassFromVirtualFile(
+                        mirrorFile = files.first(),
+                        classFile = virtualFileForPackageClass,
+                        cacheHolder = virtualFileForPackageClass,
+                        correspondingClassOrObject = null
+                ) ?: continue
                 result.add(KotlinLightClassForDecompiledDeclaration(clsClassFromPackageClass, null))
             }
         }
@@ -345,21 +351,27 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
 
             val classOrObject = file.declarations.filterIsInstance<JetClassOrObject>().singleOrNull()
 
-            val javaClsClass = createClsJavaClassFromVirtualFile(file, virtualFile, classOrObject) ?: return null
+            val javaClsClass = createClsJavaClassFromVirtualFile(
+                    file, virtualFile,
+                    cacheHolder = file,
+                    correspondingClassOrObject = classOrObject
+            ) ?: return null
+
             return KotlinLightClassForDecompiledDeclaration(javaClsClass, classOrObject)
         }
 
         private fun createClsJavaClassFromVirtualFile(
-                decompiledKotlinFile: JetFile,
-                virtualFile: VirtualFile,
-                decompiledClassOrObject: JetClassOrObject?
+                mirrorFile: JetFile,
+                classFile: VirtualFile,
+                cacheHolder: UserDataHolder,
+                correspondingClassOrObject: JetClassOrObject?
         ): ClsClassImpl? {
-            val javaFileStub = getOrCreateJavaFileStub(decompiledKotlinFile, virtualFile) ?: return null
-            val manager = PsiManager.getInstance(decompiledKotlinFile.project)
-            val fakeFile = object : ClsFileImpl(ClassFileViewProvider(manager, virtualFile)) {
+            val javaFileStub = getOrCreateJavaFileStub(cacheHolder, classFile) ?: return null
+            val manager = PsiManager.getInstance(mirrorFile.project)
+            val fakeFile = object : ClsFileImpl(ClassFileViewProvider(manager, classFile)) {
                 override fun getNavigationElement(): PsiElement {
-                    if (decompiledClassOrObject != null) {
-                        return decompiledClassOrObject.navigationElement.containingFile
+                    if (correspondingClassOrObject != null) {
+                        return correspondingClassOrObject.navigationElement.containingFile
                     }
                     return super.getNavigationElement()
                 }
@@ -369,7 +381,7 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
                 }
 
                 override fun getMirror(): PsiElement {
-                    return decompiledKotlinFile
+                    return mirrorFile
                 }
             }
             fakeFile.isPhysical = false
@@ -380,17 +392,17 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
         private val cachedJavaStubKey = Key.create<CachedJavaStub>("CACHED_JAVA_STUB")
 
         private fun getOrCreateJavaFileStub(
-                decompiledKotlinFile: JetFile,
+                userDataHolder: UserDataHolder,
                 virtualFile: VirtualFile
         ): PsiJavaFileStubImpl? {
-            val cachedJavaStub = decompiledKotlinFile.getUserData(cachedJavaStubKey)
+            val cachedJavaStub = userDataHolder.getUserData(cachedJavaStubKey)
             val fileModificationStamp = virtualFile.modificationStamp
             if (cachedJavaStub != null && cachedJavaStub.modificationStamp == fileModificationStamp) {
                 return cachedJavaStub.javaFileStub
             }
             val stub = createStub(virtualFile) as PsiJavaFileStubImpl?
             if (stub != null) {
-                decompiledKotlinFile.putUserData(cachedJavaStubKey, CachedJavaStub(fileModificationStamp, stub))
+                userDataHolder.putUserData(cachedJavaStubKey, CachedJavaStub(fileModificationStamp, stub))
             }
             return stub
         }

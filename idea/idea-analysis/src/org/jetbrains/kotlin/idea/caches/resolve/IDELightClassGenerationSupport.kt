@@ -37,12 +37,9 @@ import com.intellij.util.cls.ClsFormatException
 import org.jetbrains.kotlin.asJava.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.idea.decompiler.navigation.JetSourceNavigationHelper
-import org.jetbrains.kotlin.idea.stubindex.JetFullClassNameIndex
+import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.idea.stubindex.JetSourceFilterScope.kotlinSourceAndClassFiles
 import org.jetbrains.kotlin.idea.stubindex.JetSourceFilterScope.kotlinSourcesAndLibraries
-import org.jetbrains.kotlin.idea.stubindex.JetTopLevelClassByPackageIndex
-import org.jetbrains.kotlin.idea.stubindex.PackageIndexUtil
-import org.jetbrains.kotlin.idea.stubindex.StaticFacadeIndexUtil
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.load.kotlin.PackageClassUtils
@@ -190,7 +187,7 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
     override fun getFacadeClasses(facadeFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
         val result = ArrayList<PsiClass>()
         val filesByModule = PackagePartClassUtils.getFilesWithCallables(findFilesForFacade(facadeFqName, scope)).groupBy {
-            it.getModuleInfo()
+            it.getModuleInfo(considerDecompiledFilesAsLibrarySource = false)
         }
 
         for ((moduleInfo, files) in filesByModule) {
@@ -227,6 +224,29 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
         catch (e: NoDescriptorForDeclarationException) {
             return null
         }
+    }
+
+    override fun getFacadeNames(packageFqName: FqName, scope: GlobalSearchScope): Collection<String> {
+        val facadeFilesInPackage = JetFileFacadeClassByPackageIndex.getInstance().get(packageFqName.asString(), project, scope)
+        return facadeFilesInPackage.map { it.javaFileFacadeFqName.shortName().asString() }
+    }
+
+    override fun getFacadeClassesInPackage(packageFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
+        val facadeFilesInPackage = JetFileFacadeClassByPackageIndex.getInstance().get(packageFqName.asString(), project, scope)
+        val groupedByFqNameAndModuleInfo = facadeFilesInPackage.groupBy {
+            Pair(it.javaFileFacadeFqName, it.getModuleInfo(considerDecompiledFilesAsLibrarySource = false))
+        }
+        val result = ArrayList<PsiClass>()
+        for ((key, files) in groupedByFqNameAndModuleInfo) {
+            val (fqName, moduleInfo) = key
+            if (moduleInfo is ModuleSourceInfo) {
+                result.addAll(getLightClassesForStaticFacadeWithSources(fqName, files, moduleInfo))
+            }
+            else {
+                result.addAll(getLightClassesForDecompiledFacadeFiles(files))
+            }
+        }
+        return result
     }
 
     private class CachedJavaStub(public var modificationStamp: Long, public var javaFileStub: PsiJavaFileStubImpl)

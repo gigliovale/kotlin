@@ -107,6 +107,12 @@ public class KotlinSourceInJavaCompletionTestGenerated extends AbstractKotlinSou
         doTest(fileName);
     }
 
+    @TestMetadata("RenamedFacade.java")
+    public void testRenamedFacade() throws Exception {
+        String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/injava/RenamedFacade.java");
+        doTest(fileName);
+    }
+
     @TestMetadata("Subpackage.java")
     public void testSubpackage() throws Exception {
         String fileName = JetTestUtils.navigationMetadata("idea/idea-completion/testData/injava/Subpackage.java");

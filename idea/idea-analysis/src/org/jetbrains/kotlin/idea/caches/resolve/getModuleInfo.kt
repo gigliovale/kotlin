@@ -29,7 +29,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.roots.ModuleRootManager
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 
-fun PsiElement.getModuleInfo(): IdeaModuleInfo {
+@jvmOverloads
+fun PsiElement.getModuleInfo(considerDecompiledFilesAsLibrarySource: Boolean = true): IdeaModuleInfo {
     fun logAndReturnDefault(message: String): IdeaModuleInfo {
         LOG.error("Could not find correct module information.\nReason: $message")
         return NotUnderContentRootModuleInfo
@@ -63,7 +64,11 @@ fun PsiElement.getModuleInfo(): IdeaModuleInfo {
     val virtualFile = containingFile.getOriginalFile().getVirtualFile()
             ?: return logAndReturnDefault("Analyzing non-physical file $containingFile of type ${containingFile.javaClass}")
 
-    return getModuleInfoByVirtualFile(project, virtualFile, (containingFile as? JetFile)?.isCompiled() ?: false)
+    return getModuleInfoByVirtualFile(
+            project,
+            virtualFile,
+            isDecompiledFile = considerDecompiledFilesAsLibrarySource && (containingFile as? JetFile)?.isCompiled() ?: false
+    )
 }
 
 private fun getModuleInfoByVirtualFile(project: Project, virtualFile: VirtualFile, isDecompiledFile: Boolean): IdeaModuleInfo {

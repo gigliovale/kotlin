@@ -1,4 +1,4 @@
-@file:JvmClassName("RenamedNew")
+@file:JvmName("RenamedNew")
 package facades
 
 fun foo() {

@@ -224,21 +224,6 @@ public class CliLightClassGenerationSupport extends LightClassGenerationSupport 
 
     @NotNull
     @Override
-    public Collection<PsiClass> getFacadeClassesInPackage(
-            @NotNull FqName packageFqName, @NotNull GlobalSearchScope scope
-    ) {
-        throw new IllegalStateException();
-    }
-
-    @NotNull
-    @Override
-    public Collection<String> getFacadeNames(@NotNull FqName packageFqName, @NotNull GlobalSearchScope scope) {
-        //TODO_R:
-        return null;
-    }
-
-    @NotNull
-    @Override
     public Collection<JetFile> findFilesForFacade(@NotNull FqName facadeFqName, @NotNull GlobalSearchScope scope) {
         // TODO We need a way to plug some platform-dependent stuff into LazyTopDownAnalyzer.
         // It already performs some ad hoc stuff for packages->files mapping, anyway.

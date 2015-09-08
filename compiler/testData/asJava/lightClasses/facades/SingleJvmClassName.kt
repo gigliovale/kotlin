@@ -1,5 +1,5 @@
 //NewName
-@file:JvmClassName("NewName")
+@file:JvmName("NewName")
 
 fun foo() {
 

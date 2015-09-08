@@ -28,10 +28,10 @@ public class CodegenFileClassesProvider private constructor() : JvmFileClassesPr
     private val fileParts = hashMapOf<JetFile, JvmFileClassInfo>()
 
     override fun getFileClassFqName(file: JetFile): FqName =
-            getFileClassInfo(file).fileClassFqName
+            JvmFileClassUtil.getFileClassInfo(file, JvmFileClassUtil.parseJvmNameOnFileNoResolve(file)).fileClassFqName
 
     public fun getFileClassInfo(file: JetFile): JvmFileClassInfo =
-            fileParts.getOrPut(file) { createFileClassInfo(file) }
+            JvmFileClassUtil.getFileClassInfo(file, JvmFileClassUtil.parseJvmNameOnFileNoResolve(file))
 
     private fun createFileClassInfo(file: JetFile): JvmFileClassInfo =
             JvmFileClassUtil.getFileClassInfoNoResolve(file)

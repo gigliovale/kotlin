@@ -218,7 +218,9 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
     }
 
     override fun findFilesForFacade(facadeFqName: FqName, scope: GlobalSearchScope): Collection<JetFile> {
-        return StaticFacadeIndexUtil.findFilesForStaticFacade(facadeFqName, kotlinSourcesAndLibraries(scope, project), project)
+        return PackagePartClassUtils.getFilesWithCallables(
+                JetFileFacadeClassIndex.INSTANCE.get(facadeFqName.asString(), project, scope)
+        )
     }
 
     override fun resolveClassToDescriptor(classOrObject: JetClassOrObject): ClassDescriptor? {

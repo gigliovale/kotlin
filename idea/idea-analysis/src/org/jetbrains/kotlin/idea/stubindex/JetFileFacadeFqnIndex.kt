@@ -26,16 +26,16 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.JetFile
 
-public class JetFileFacadeClassIndex private constructor() : StringStubIndexExtension<JetFile>() {
+public class JetFileFacadeFqnIndex private constructor() : StringStubIndexExtension<JetFile>() {
     override fun getKey(): StubIndexKey<String, JetFile> = KEY
 
     override fun get(key: String, project: Project, scope: GlobalSearchScope) =
             super.get(key, project, JetSourceFilterScope.kotlinSourcesAndLibraries(scope, project))
 
     companion object {
-        private val KEY = KotlinIndexUtil.createIndexKey(JetFileFacadeClassIndex::class.java)
-        public val INSTANCE: JetFileFacadeClassIndex = JetFileFacadeClassIndex()
-        public @jvmStatic fun getInstance(): JetFileFacadeClassIndex = INSTANCE
+        private val KEY = KotlinIndexUtil.createIndexKey(JetFileFacadeFqnIndex::class.java)
+        public val INSTANCE: JetFileFacadeFqnIndex = JetFileFacadeFqnIndex()
+        public @jvmStatic fun getInstance(): JetFileFacadeFqnIndex = INSTANCE
 
         public fun getAllFacadeShortNames(project: Project): Collection<String> {
             return CachedValuesManager.getManager(project).getCachedValue(project) {

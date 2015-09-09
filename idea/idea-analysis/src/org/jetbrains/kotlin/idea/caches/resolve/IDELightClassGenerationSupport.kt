@@ -138,43 +138,42 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
     }
 
     override fun getPackageClasses(packageFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
-        val result = ArrayList<PsiClass>()
         val filesWithCallables = PackagePartClassUtils.getFilesWithCallables(findFilesForPackage(packageFqName, scope))
-        val filesByModule = filesWithCallables.groupBy { it.getModuleInfo() }
-        for ((moduleInfo, files) in filesByModule) {
-            if (files.isEmpty()) continue
-
-            if (moduleInfo is ModuleSourceInfo) {
-                result.addAll(getLightClassesForPackageFacadeWithSources(packageFqName, files, moduleInfo))
-            }
-            else {
-                val packageClassName = PackageClassUtils.getPackageClassName(packageFqName)
-                val virtualFileForPackageClass = files.asSequence().map {
-                    it.virtualFile?.parent?.findChild("$packageClassName.class")
-                }.firstOrNull { it != null } ?: continue
-
-                val clsClassFromPackageClass = createClsJavaClassFromVirtualFile(
-                        mirrorFile = files.first(),
-                        classFile = virtualFileForPackageClass,
-                        cacheHolder = virtualFileForPackageClass,
-                        correspondingClassOrObject = null
-                ) ?: continue
-                result.add(KotlinLightClassForDecompiledDeclaration(clsClassFromPackageClass, null))
-            }
+        val filesByModule = filesWithCallables.groupBy { it.getModuleInfo(considerDecompiledFilesAsLibrarySource = false) }
+        return filesByModule.flatMap {
+            createLightClassForPackageFacade(it.value, it.key, packageFqName)
         }
-        return result
     }
 
-    private fun getLightClassesForPackageFacadeWithSources(
-            packageFqName: FqName,
-            facadeFiles: List<JetFile>,
-            moduleInfo: IdeaModuleInfo
+    private fun createLightClassForPackageFacade(
+            files: List<JetFile>,
+            moduleInfo: IdeaModuleInfo,
+            packageFqName: FqName
     ): List<PsiClass> {
-        val lightClassForFacade = KotlinLightClassForFacade.createForPackageFacade(psiManager, packageFqName, moduleInfo.contentScope(), facadeFiles)
-        return getLightClassesForFacadeWithFiles(lightClassForFacade, facadeFiles)
+        if (moduleInfo is ModuleSourceInfo) {
+            val lightClassForFacade = KotlinLightClassForFacade.createForPackageFacade(
+                    psiManager, packageFqName, moduleInfo.contentScope(), files
+            )
+            return withFakeLightClasses(lightClassForFacade, files)
+
+        }
+        else {
+            val packageClassName = PackageClassUtils.getPackageClassName(packageFqName)
+            val virtualFileForPackageClass = files.asSequence().map {
+                it.virtualFile?.parent?.findChild("$packageClassName.class")
+            }.firstOrNull { it != null } ?: return emptyList()
+
+            val clsClassFromPackageClass = createClsJavaClassFromVirtualFile(
+                    mirrorFile = files.first(),
+                    classFile = virtualFileForPackageClass,
+                    cacheHolder = virtualFileForPackageClass,
+                    correspondingClassOrObject = null
+            ) ?: return emptyList()
+            return listOf(KotlinLightClassForDecompiledDeclaration(clsClassFromPackageClass, null))
+        }
     }
 
-    private fun getLightClassesForFacadeWithFiles(
+    private fun withFakeLightClasses(
             lightClassForFacade: KotlinLightClassForFacade?,
             facadeFiles: List<JetFile>
     ): List<PsiClass> {
@@ -191,32 +190,31 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
     }
 
     override fun getFacadeClasses(facadeFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
-        val result = ArrayList<PsiClass>()
         val filesByModule = PackagePartClassUtils.getFilesWithCallables(findFilesForFacade(facadeFqName, scope)).groupBy {
             it.getModuleInfo(considerDecompiledFilesAsLibrarySource = false)
         }
 
-        for ((moduleInfo, files) in filesByModule) {
-            if (files.isEmpty()) continue
-
-            if (moduleInfo is ModuleSourceInfo) {
-                result.addAll(getLightClassesForStaticFacadeWithSources(facadeFqName, files, moduleInfo))
-            }
-            else {
-                result.addAll(getLightClassesForDecompiledFacadeFiles(files))
-            }
+        return filesByModule.flatMap {
+            createLightClassForFileFacade(facadeFqName, it.value, it.key)
         }
-        return result
     }
 
-    private fun getLightClassesForStaticFacadeWithSources(
+    public fun createLightClassForFileFacade(
             facadeFqName: FqName,
             facadeFiles: List<JetFile>,
             moduleInfo: IdeaModuleInfo
     ): List<PsiClass> {
-        val lightClassForFacade = KotlinLightClassForFacade.createForFacade(
-                psiManager, facadeFqName, moduleInfo.contentScope(), facadeFiles)
-        return getLightClassesForFacadeWithFiles(lightClassForFacade, facadeFiles)
+        if (moduleInfo is ModuleSourceInfo) {
+            if (facadeFiles.isEmpty()) return emptyList()
+
+            val lightClassForFacade = KotlinLightClassForFacade.createForFacade(
+                    psiManager, facadeFqName, moduleInfo.contentScope(), facadeFiles)
+            return withFakeLightClasses(lightClassForFacade, facadeFiles)
+
+        }
+        else {
+            return facadeFiles.filter { it.isCompiled }.map { createLightClassForDecompiledKotlinFile(it) }.filterNotNull()
+        }
     }
 
     override fun findFilesForFacade(facadeFqName: FqName, scope: GlobalSearchScope): Collection<JetFile> {
@@ -242,17 +240,12 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
         val groupedByFqNameAndModuleInfo = facadeFilesInPackage.groupBy {
             Pair(it.javaFileFacadeFqName, it.getModuleInfo(considerDecompiledFilesAsLibrarySource = false))
         }
-        val result = ArrayList<PsiClass>()
-        for ((key, files) in groupedByFqNameAndModuleInfo) {
+
+        return groupedByFqNameAndModuleInfo.flatMap {
+            val (key, files) = it
             val (fqName, moduleInfo) = key
-            if (moduleInfo is ModuleSourceInfo) {
-                result.addAll(getLightClassesForStaticFacadeWithSources(fqName, files, moduleInfo))
-            }
-            else {
-                result.addAll(getLightClassesForDecompiledFacadeFiles(files))
-            }
+            createLightClassForFileFacade(fqName, files, moduleInfo)
         }
-        return result
     }
 
     private class CachedJavaStub(public var modificationStamp: Long, public var javaFileStub: PsiJavaFileStubImpl)
@@ -340,10 +333,6 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
                 return FqName.topLevel(name)
             }
             return getClassRelativeName(parent).child(name)
-        }
-
-        private fun getLightClassesForDecompiledFacadeFiles(filesWithCallables: List<JetFile>): List<PsiClass> {
-            return filesWithCallables.filter { it.isCompiled }.map { createLightClassForDecompiledKotlinFile(it) }.filterNotNull()
         }
 
         private fun createLightClassForDecompiledKotlinFile(file: JetFile): KotlinLightClassForDecompiledDeclaration? {

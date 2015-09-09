@@ -1,9 +1,9 @@
 public class Testing {
     void f() {
-        facades.Multi<caret>
+        MultiFile<caret>
     }
 }
 
 // EXIST: MultiFileFacadeClass
 // NUMBER: 1
-
+// INVOCATION_COUNT: 2

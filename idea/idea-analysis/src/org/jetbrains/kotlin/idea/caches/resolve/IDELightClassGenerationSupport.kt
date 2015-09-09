@@ -219,7 +219,7 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
 
     override fun findFilesForFacade(facadeFqName: FqName, scope: GlobalSearchScope): Collection<JetFile> {
         return PackagePartClassUtils.getFilesWithCallables(
-                JetFileFacadeClassIndex.INSTANCE.get(facadeFqName.asString(), project, scope)
+                JetFileFacadeFqnIndex.INSTANCE.get(facadeFqName.asString(), project, scope)
         )
     }
 

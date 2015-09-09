@@ -45,18 +45,28 @@ public class KotlinFileStubForIde(
     : this(jetFile, StringRef.fromString(packageName)!!, isScript, null, null)
 
     companion object {
-        public fun forFile(packageFqName: FqName, isScript: Boolean): impl.KotlinFileStubImpl =
+        public fun forFile(packageFqName: FqName, isScript: Boolean): KotlinFileStubImpl =
                 KotlinFileStubForIde(jetFile = null,
                                      packageName = StringRef.fromString(packageFqName.asString())!!,
                                      facadeSimpleName = null,
                                      partSimpleName = null,
                                      isScript = isScript)
 
-        public fun forFileFacadeStub(facadeFqName: FqName, isScript: Boolean): impl.KotlinFileStubImpl =
+        public fun forFileFacadeStub(facadeFqName: FqName, isScript: Boolean): KotlinFileStubImpl =
                 KotlinFileStubForIde(jetFile = null,
-                                     packageName = StringRef.fromString(facadeFqName.parent().asString())!!,
-                                     facadeSimpleName = StringRef.fromString(facadeFqName.shortName().asString())!!,
-                                     partSimpleName = StringRef.fromString(facadeFqName.shortName().asString())!!,
+                                     packageName = facadeFqName.parent().stringRef(),
+                                     facadeSimpleName = facadeFqName.shortName().stringRef(),
+                                     partSimpleName = facadeFqName.shortName().stringRef(),
                                      isScript = isScript)
+
+        public fun forMultifileClassStub(facadeFqName: FqName, isScript: Boolean): KotlinFileStubImpl =
+                KotlinFileStubForIde(jetFile = null,
+                                     packageName = facadeFqName.parent().stringRef(),
+                                     facadeSimpleName = facadeFqName.shortName().stringRef(),
+                                     partSimpleName = null,
+                                     isScript = isScript)
+
+        private fun FqName.stringRef() = StringRef.fromString(asString())!!
+        private fun Name.stringRef() = StringRef.fromString(asString())!!
     }
 }

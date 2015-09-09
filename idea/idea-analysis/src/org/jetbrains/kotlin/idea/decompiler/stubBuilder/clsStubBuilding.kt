@@ -79,7 +79,7 @@ fun createMultifileClassStub(
         components: ClsStubBuilderComponents
 ): KotlinFileStubImpl {
     val packageFqName = facadeFqName.parent()
-    val fileStub = KotlinFileStubImpl.forMultifileClassStub(facadeFqName, packageFqName.isRoot)
+    val fileStub = KotlinFileStubForIde.forMultifileClassStub(facadeFqName, packageFqName.isRoot)
     setupFileStub(fileStub, packageFqName)
     val multifileClassContainer = ProtoContainer(null, packageFqName)
     for (partHeader in partHeaders) {

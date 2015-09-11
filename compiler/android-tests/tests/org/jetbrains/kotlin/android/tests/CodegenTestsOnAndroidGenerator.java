@@ -24,6 +24,7 @@ import com.intellij.testFramework.UsefulTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
+import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.codegen.CodegenTestFiles;
 import org.jetbrains.kotlin.codegen.GenerationUtils;
@@ -151,19 +152,22 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         }
 
         public void writeFilesOnDisk() {
-            writeFiles(files);
+            writeFiles(files, environment);
             files = new ArrayList<KtFile>();
             environment = createEnvironment(isFullJdk);
         }
 
-        private void writeFiles(List<KtFile> filesToCompile) {
+        private void writeFiles(List<KtFile> filesToCompile, KotlinCoreEnvironment environment) {
             if (filesToCompile.isEmpty()) return;
 
             System.out.println("Generating " + filesToCompile.size() + " files...");
             OutputFileCollection outputFiles;
             try {
-                outputFiles = GenerationUtils
-                        .compileManyFilesGetGenerationStateForTest(filesToCompile.iterator().next().getProject(), filesToCompile).getFactory();
+                outputFiles = GenerationUtils.compileManyFilesGetGenerationStateForTest(
+                        filesToCompile.iterator().next().getProject(),
+                        filesToCompile,
+                        new JvmPackagePartProvider(environment)
+                ).getFactory();
             }
             catch (Throwable e) {
                 throw new RuntimeException(e);

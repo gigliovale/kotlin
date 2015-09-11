@@ -49,6 +49,8 @@ public class InternalCompiledClassesTest : AbstractInternalCompiledClassesTest()
 
     fun testTraitImplClassIsVisibleAsJavaClass() = doTestTraitImplClassIsVisibleAsJavaClass()
 
+    fun testPackageClassIsInvisible() = doTestNoPsiFilesAreBuiltFor("PackageClass") { isPackageFacade(this) }
+
     override fun getProjectDescriptor(): LightProjectDescriptor {
         return JdkAndMockLibraryProjectDescriptor(TEST_DATA_PATH, /* withSources = */ false)
     }

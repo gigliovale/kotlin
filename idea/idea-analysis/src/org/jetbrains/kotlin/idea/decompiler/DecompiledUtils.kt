@@ -74,7 +74,8 @@ public fun isKotlinInternalCompiledFile(file: VirtualFile): Boolean {
         return true
     }
     val header = KotlinBinaryClassCache.getKotlinBinaryClass(file)?.getClassHeader() ?: return false
-    return (header.kind == KotlinClassHeader.Kind.SYNTHETIC_CLASS && header.syntheticClassKind != KotlinSyntheticClass.Kind.PACKAGE_PART) ||
+    return (header.kind == KotlinClassHeader.Kind.PACKAGE_FACADE) ||
+           (header.kind == KotlinClassHeader.Kind.SYNTHETIC_CLASS && header.syntheticClassKind != KotlinSyntheticClass.Kind.PACKAGE_PART) ||
            (header.kind == KotlinClassHeader.Kind.CLASS && header.classKind != null && header.classKind != KotlinClass.Kind.CLASS) ||
            (header.kind == KotlinClassHeader.Kind.MULTIFILE_CLASS_PART)
 }

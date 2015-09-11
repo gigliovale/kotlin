@@ -71,11 +71,6 @@ public open class KotlinClsStubBuilder : ClsStubBuilder() {
             return null
         }
         return when {
-            header.isCompatiblePackageFacadeKind() -> {
-                val packageData = JvmProtoBufUtil.readPackageDataFrom(annotationData)
-                val context = components.createContext(packageData.getNameResolver(), packageFqName)
-                createPackageFacadeStub(packageData.getPackageProto(), packageFqName, context)
-            }
             header.isCompatibleClassKind() -> {
                 if (header.classKind != JvmAnnotationNames.KotlinClass.Kind.CLASS) return null
                 val classData = JvmProtoBufUtil.readClassDataFrom(annotationData)

@@ -21,8 +21,8 @@ import com.intellij.psi.PsiCompiledFile
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.compiled.ClsFileImpl
-import org.jetbrains.kotlin.idea.test.JetLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.decompiler.navigation.NavigateToDecompiledLibraryTest
+import org.jetbrains.kotlin.idea.test.JetLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames.KotlinClass
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames.KotlinSyntheticClass
@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.load.java.JvmAnnotationNames.KotlinSyntheticClass.Ki
 import org.jetbrains.kotlin.load.kotlin.KotlinBinaryClassCache
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
 import org.junit.Assert
-import kotlin.test.assertFalse
 
 public abstract class AbstractInternalCompiledClassesTest : JetLightCodeInsightFixtureTestCase() {
     private fun isFileWithHeader(predicate: (KotlinClassHeader) -> Boolean) : VirtualFile.() -> Boolean = {
@@ -43,6 +42,11 @@ public abstract class AbstractInternalCompiledClassesTest : JetLightCodeInsightF
 
     private fun isClassOfKind(kind: KotlinClass.Kind) : VirtualFile.() -> Boolean =
             isFileWithHeader { it.classKind == kind }
+
+    protected fun isPackageFacade(file: VirtualFile): Boolean {
+        val isPackageFacade = isFileWithHeader { it.kind == KotlinClassHeader.Kind.PACKAGE_FACADE }
+        return file.isPackageFacade()
+    }
 
     protected fun doTestTraitImplClassIsVisibleAsJavaClass() {
         val project = getProject()

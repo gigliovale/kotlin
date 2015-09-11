@@ -359,7 +359,7 @@ public class IDELightClassGenerationSupport(private val project: Project) : Ligh
                     if (correspondingClassOrObject != null) {
                         return correspondingClassOrObject.navigationElement.containingFile
                     }
-                    return super.getNavigationElement()
+                    return mirrorFile.navigationElement
                 }
 
                 override fun getStub(): PsiClassHolderFileStub<*> {

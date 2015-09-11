@@ -38,7 +38,7 @@ class KotlinLightClassForDecompiledDeclaration(
         }
     }
 
-    override fun getNavigationElement() = origin?.getNavigationElement() ?: super.getNavigationElement()
+    override fun getNavigationElement() = origin?.getNavigationElement() ?: containingFile?.navigationElement ?: super.getNavigationElement()
 
     override fun getDelegate() = clsClass
 

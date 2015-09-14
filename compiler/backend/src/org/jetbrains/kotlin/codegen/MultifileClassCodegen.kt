@@ -26,7 +26,9 @@ import org.jetbrains.kotlin.config.IncrementalCompilation
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
+import org.jetbrains.kotlin.fileClasses.getFileClassType
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames
+import org.jetbrains.kotlin.load.kotlin.PackageParts
 import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentProvider
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.progress.ProgressIndicatorAndCompilationCanceledStatus
@@ -41,7 +43,7 @@ import java.util.*
 
 public class MultifileClassCodegen(
         private val state: GenerationState,
-        private val files: Collection<JetFile>,
+        public val files: Collection<JetFile>,
         private val facadeFqName: FqName
 ) {
     private val facadeClassType = AsmUtil.asmTypeByFqNameWithoutInnerClasses(facadeFqName)
@@ -49,6 +51,8 @@ public class MultifileClassCodegen(
     private val packageFragment = getOnlyPackageFragment(facadeFqName.parent(), files, state.bindingContext)
 
     private val compiledPackageFragment = getCompiledPackageFragment(facadeFqName.parent(), state)
+
+    public val packageParts = PackageParts(facadeFqName.parent().asString())
 
     // TODO incremental compilation support
     // TODO previouslyCompiledCallables
@@ -159,8 +163,8 @@ public class MultifileClassCodegen(
 
         partFqNames.add(partClassInfo.fileClassFqName)
 
-//        val name = partType.internalName
-//        packageParts.parts.add(name.substring(name.lastIndexOf('/') + 1))
+        val name = partType.internalName
+        packageParts.parts.add(name.substring(name.lastIndexOf('/') + 1))
 
         val builder = state.factory.newVisitor(MultifileClassPart(file, packageFragment, facadeFqName), partType, file)
 

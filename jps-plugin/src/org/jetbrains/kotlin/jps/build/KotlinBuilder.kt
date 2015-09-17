@@ -548,16 +548,6 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
     ): OutputItemsCollectorImpl? {
         val outputItemCollector = OutputItemsCollectorImpl()
 
-        if (chunk.getModules().size() > 1) {
-            messageCollector.report(
-                    WARNING,
-                    "Circular dependencies are only partially supported. The following modules depend on each other: "
-                    + chunk.getModules().map { it.getName() }.joinToString(", ") + ". "
-                    + "Kotlin will compile them, but some strange effect may happen",
-                    CompilerMessageLocation.NO_LOCATION
-            )
-        }
-
         allCompiledFiles.addAll(filesToCompile.values())
 
         val processedTargetsWithRemoved = getProcessedTargetsWithRemovedFilesContainer(context)

@@ -456,14 +456,13 @@ public class JetParsing extends AbstractJetParsing {
                 atSet(CONSTRUCTOR_KEYWORD, WHERE_KEYWORD)) break;
 
             if (at(AT)) {
-                if (!tryParseModifier(tokenConsumer)) {
-                    parseAnnotationOrList(annotationParsingMode);
-                }
+                parseAnnotationOrList(annotationParsingMode);
             }
             else if (tryParseModifier(tokenConsumer)) {
                 // modifier advanced
             }
             else if (annotationParsingMode.allowShortAnnotations && at(IDENTIFIER)) {
+                error("Use '@' symbol before annotations");
                 parseAnnotation(annotationParsingMode);
             }
             else {
@@ -482,15 +481,6 @@ public class JetParsing extends AbstractJetParsing {
 
     private boolean tryParseModifier(@Nullable Consumer<IElementType> tokenConsumer) {
         PsiBuilder.Marker marker = mark();
-
-        if (at(AT) && !WHITE_SPACE_OR_COMMENT_BIT_SET.contains(myBuilder.rawLookup(1))) {
-            advance(); // AT
-            if (atSet(ANNOTATION_MODIFIERS_KEYWORDS)) {
-                myBuilder.remapCurrentToken(IDENTIFIER);
-                marker.rollbackTo();
-                return false;
-            }
-        }
 
         if (atSet(MODIFIER_KEYWORDS)) {
             IElementType tt = tt();
@@ -543,11 +533,11 @@ public class JetParsing extends AbstractJetParsing {
 
     /*
      * annotation
-     *   : annotationPrefix? unescapedAnnotation
+     *   : "@" (annotationUseSiteTarget ":")? unescapedAnnotation
      *   ;
      *
      * annotationList
-     *   : annotationPrefix "[" unescapedAnnotation+ "]"
+     *   : "@" (annotationUseSiteTarget ":")? "[" unescapedAnnotation+ "]"
      *   ;
      *
      *   annotationUseSiteTarget
@@ -559,16 +549,9 @@ public class JetParsing extends AbstractJetParsing {
      *   : "param"
      *   : "sparam"
      *   ;
-     *
-     *  annotationPrefix:
-     *   : ("@" (annotationUseSiteTarget ":")?)
-     *   ;
      */
     private boolean parseAnnotationOrList(AnnotationParsingMode mode) {
-        if (mode.allowShortAnnotations && at(IDENTIFIER)) {
-            return parseAnnotation(mode);
-        }
-        else if (at(AT)) {
+        if (at(AT)) {
             IElementType nextRawToken = myBuilder.rawLookup(1);
             IElementType tokenToMatch = nextRawToken;
             boolean isTargetedAnnotation = false;
@@ -711,7 +694,7 @@ public class JetParsing extends AbstractJetParsing {
 
     /*
      * annotation
-     *   : annotationPrefix? unescapedAnnotation
+     *   : "@" (annotationUseSiteTarget ":")? unescapedAnnotation
      *   ;
      *
      * unescapedAnnotation

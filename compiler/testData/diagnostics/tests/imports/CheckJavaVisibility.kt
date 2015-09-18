@@ -10,24 +10,24 @@ public class JavaPublic {
 package j;
 
 class JavaPackage {
-    static void javaM() {}
-    static int javaP = 4
+    static void javaMPackage() {}
+    static int javaPPackage = 4
 }
 
 // FILE: j/JavaProtected.java
 package j;
 
 public class JavaProtected {
-    protected static void javaM() {}
-    protected static int javaP = 4
+    protected static void javaMProtected() {}
+    protected static int javaPProtected = 4
 }
 
 // FILE: j/JavaPrivate.java
 package j;
 
 public class JavaPrivate {
-    private static void javaM() {}
-    private static int javaP = 4
+    private static void javaMPrivate() {}
+    private static int javaPPrivate = 4
 }
 
 
@@ -39,16 +39,16 @@ import j.JavaPublic.javaM
 import j.JavaPublic.javaP
 
 import j.<!INVISIBLE_REFERENCE!>JavaPackage<!>
-import j.<!INVISIBLE_REFERENCE!>JavaPackage<!>.<!INVISIBLE_REFERENCE!>javaM<!>
-import j.<!INVISIBLE_REFERENCE!>JavaPackage<!>.<!INVISIBLE_REFERENCE!>javaP<!>
+import j.<!INVISIBLE_REFERENCE!>JavaPackage<!>.<!INVISIBLE_REFERENCE!>javaMPackage<!>
+import j.<!INVISIBLE_REFERENCE!>JavaPackage<!>.<!INVISIBLE_REFERENCE!>javaPPackage<!>
 
 import j.JavaProtected
-import j.JavaProtected.javaM
-import j.JavaProtected.javaP
+import j.JavaProtected.javaMProtected
+import j.JavaProtected.javaPProtected
 
 import j.JavaPrivate
-import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaM<!>
-import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaP<!>
+import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaMPrivate<!>
+import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaPPrivate<!>
 
 // FILE: k2.kt
 package j
@@ -58,13 +58,13 @@ import j.JavaPublic.javaM
 import j.JavaPublic.javaP
 
 import j.JavaPackage
-import j.JavaPackage.javaM
-import j.JavaPackage.javaP
+import j.JavaPackage.javaMPackage
+import j.JavaPackage.javaPPackage
 
 import j.JavaProtected
-import j.JavaProtected.javaM
-import j.JavaProtected.javaP
+import j.JavaProtected.javaMProtected
+import j.JavaProtected.javaPProtected
 
 import j.JavaPrivate
-import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaM<!>
-import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaP<!>
+import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaMPrivate<!>
+import j.JavaPrivate.<!INVISIBLE_REFERENCE!>javaPPrivate<!>

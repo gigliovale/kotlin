@@ -9,8 +9,8 @@ package j {
         public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
 
         // Static members
-        public/*package*/ final var javaP: kotlin.Int
-        public/*package*/ open fun javaM(): kotlin.Unit
+        public/*package*/ final var javaPPackage: kotlin.Int
+        public/*package*/ open fun javaMPackage(): kotlin.Unit
     }
 
     public open class JavaPrivate {
@@ -20,8 +20,8 @@ package j {
         public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
 
         // Static members
-        private final var javaP: kotlin.Int
-        private open fun javaM(): kotlin.Unit
+        private final var javaPPrivate: kotlin.Int
+        private open fun javaMPrivate(): kotlin.Unit
     }
 
     public open class JavaProtected {
@@ -31,8 +31,8 @@ package j {
         public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
 
         // Static members
-        protected/*protected static*/ final var javaP: kotlin.Int
-        protected/*protected static*/ open fun javaM(): kotlin.Unit
+        protected/*protected static*/ final var javaPProtected: kotlin.Int
+        protected/*protected static*/ open fun javaMProtected(): kotlin.Unit
     }
 
     public open class JavaPublic {

@@ -9,6 +9,6 @@ fun weatherToday() = "snow"
 package myApp
 
 import weatherForecast.weatherToday
-import weatherForecast.weatherToday
+import weatherForecast.<!NAME_ALREADY_IMPORTED!>weatherToday<!>
 
 fun needUmbrella() = weatherToday() == "rain"

@@ -137,7 +137,7 @@ public class QuickFixRegistrar : QuickFixContributor {
         UNRESOLVED_REFERENCE_WRONG_RECEIVER.registerFactory(unresolvedReferenceFactory)
 
         val removeImportFixFactory = RemovePsiElementSimpleFix.createRemoveImportFactory()
-        CONFLICTING_IMPORT.registerFactory(removeImportFixFactory)
+        NAME_ALREADY_IMPORTED.registerFactory(removeImportFixFactory)
 
         SUPERTYPE_NOT_INITIALIZED.registerFactory(SuperClassNotInitialized)
         FUNCTION_CALL_EXPECTED.registerFactory(ChangeToFunctionInvocationFix.createFactory())

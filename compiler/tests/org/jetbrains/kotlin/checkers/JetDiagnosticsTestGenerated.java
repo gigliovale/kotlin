@@ -6627,6 +6627,12 @@ public class JetDiagnosticsTestGenerated extends AbstractJetDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("ImportSameName.kt")
+            public void testImportSameName() throws Exception {
+                String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportSameName.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ImportTwoTimes.kt")
             public void testImportTwoTimes() throws Exception {
                 String fileName = JetTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportTwoTimes.kt");

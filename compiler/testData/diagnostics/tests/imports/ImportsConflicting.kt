@@ -2,7 +2,7 @@
 package a
 
 import b.foo
-import c.foo // TODO: need warning here
+import c.<!NAME_ALREADY_IMPORTED!>foo<!>
 
 //FILE:b.kt
 package b

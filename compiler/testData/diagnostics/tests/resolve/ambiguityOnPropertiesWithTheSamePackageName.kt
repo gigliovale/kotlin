@@ -23,7 +23,7 @@ package d
 
 import a.A
 import b.d
-import c.d
+import c.<!NAME_ALREADY_IMPORTED!>d<!>
 
 fun A.test() {
     <!OVERLOAD_RESOLUTION_AMBIGUITY!>d<!>

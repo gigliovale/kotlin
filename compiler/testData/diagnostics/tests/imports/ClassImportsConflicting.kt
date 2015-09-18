@@ -1,8 +1,8 @@
 //FILE:a.kt
 package a
 
-import <!CONFLICTING_IMPORT!>b.O<!>
-import <!CONFLICTING_IMPORT!>c.O<!>
+import b.O
+import c.<!NAME_ALREADY_IMPORTED!>O<!>
 
 //FILE:b.kt
 package b

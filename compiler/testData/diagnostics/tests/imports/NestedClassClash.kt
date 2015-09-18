@@ -14,8 +14,8 @@ class D {
 }
 
 // FILE: c.kt
-import <!CONFLICTING_IMPORT!>a.A.B<!>
-import <!CONFLICTING_IMPORT!>a.D.B<!>
+import a.A.B
+import a.D.<!NAME_ALREADY_IMPORTED!>B<!>
 
 fun test(b: <!UNRESOLVED_REFERENCE!>B<!>) {
     <!UNRESOLVED_REFERENCE!>B<!>()

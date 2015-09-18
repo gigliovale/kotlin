@@ -12,7 +12,7 @@ fun X(): Int = 1
 package c
 
 import b.X
-import a.X
+import a.<!NAME_ALREADY_IMPORTED!>X<!>
 
 fun foo() {
     val <!UNUSED_VARIABLE!>v<!>: Int = X()

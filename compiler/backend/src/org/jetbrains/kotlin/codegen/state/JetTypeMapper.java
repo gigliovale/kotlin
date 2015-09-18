@@ -58,11 +58,9 @@ import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterKind;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterSignature;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
 import org.jetbrains.kotlin.resolve.scopes.AbstractScopeAdapter;
-import org.jetbrains.kotlin.resolve.scopes.ChainedScope;
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.serialization.deserialization.DeserializedType;
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedCallableMemberDescriptor;
-import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.expressions.OperatorConventions;
 import org.jetbrains.org.objectweb.asm.Type;
@@ -179,57 +177,6 @@ public class JetTypeMapper {
 
         throw new RuntimeException("Unreachable state");
         //return PackageClassUtils.getPackageClassInternalName(packageFragment.getFqName());
-    }
-
-    @Nullable
-    private static String getPackageMemberOwnerInternalName(@NotNull DeserializedCallableMemberDescriptor descriptor) {
-        // XXX This method (and getPackageMemberOwnerShortName) is a dirty hack
-        // introduced to make stdlib work with package facades built as multifile facades for M13.
-        // We need some safe, concise way to identify multifile facade and multifile part
-        // from a deserialized package member descriptor.
-        // Possible approaches:
-        // - create a special instance of DeserializedPackageFragmentDescriptor for each facade class (multifile or single-file),
-        //   keep related mapping information there;
-        // - provide a proper SourceElement for such descriptors (similar to KotlinJvmBinarySourceElement).
-        DeclarationDescriptor containingDeclaration = descriptor.getContainingDeclaration();
-        assert containingDeclaration instanceof PackageFragmentDescriptor : "Not a top-level member: " + descriptor;
-        PackageFragmentDescriptor packageFragmentDescriptor = (PackageFragmentDescriptor) containingDeclaration;
-
-        String facadeShortName = getPackageMemberOwnerShortName(descriptor);
-        if (facadeShortName == null) {
-            return null;
-        }
-
-        FqName facadeFqName = packageFragmentDescriptor.getFqName().child(Name.identifier(facadeShortName));
-        return internalNameByFqNameWithoutInnerClasses(facadeFqName);
-    }
-
-    @Nullable
-    private static String getPackageMemberOwnerShortName(@NotNull DeserializedCallableMemberDescriptor descriptor) {
-        // XXX Dirty hack; see getPackageMemberOwnerInternalName above for more details.
-        DeclarationDescriptor containingDeclaration = descriptor.getContainingDeclaration();
-        if (containingDeclaration instanceof PackageFragmentDescriptor) {
-            PackageFragmentDescriptor packageFragmentDescriptor = (PackageFragmentDescriptor) containingDeclaration;
-            JetScope scope = packageFragmentDescriptor.getMemberScope();
-            if (scope instanceof AbstractScopeAdapter) {
-                scope = ((AbstractScopeAdapter) scope).getActualScope();
-            }
-            if (scope instanceof LazyJavaPackageScope) {
-                Name implClassName = JvmFileClassUtil.getImplClassName(descriptor);
-                return ((LazyJavaPackageScope) scope).getFacadeSimpleNameForPartSimpleName(implClassName.asString());
-            }
-            else if (packageFragmentDescriptor instanceof BuiltinsPackageFragment) {
-                return PackageClassUtils.getPackageClassFqName(packageFragmentDescriptor.getFqName()).shortName().asString();
-            }
-            else {
-                // Incremental compilation ends up here. We do not have multifile classes support in incremental so far,
-                // so "use implementation class name" looks like a safe assumption for this case.
-                // However, this should be fixed; see getPackageMemberOwnerInternalName above for more details.
-                Name implClassName = JvmFileClassUtil.getImplClassName(descriptor);
-                return implClassName.asString();
-            }
-        }
-        return null;
     }
 
     @Nullable

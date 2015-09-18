@@ -1,0 +1,51 @@
+package
+
+package j {
+
+    public/*package*/ open class JavaPackage {
+        public/*package*/ constructor JavaPackage()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        // Static members
+        public/*package*/ final var javaP: kotlin.Int
+        public/*package*/ open fun javaM(): kotlin.Unit
+    }
+
+    public open class JavaPrivate {
+        public constructor JavaPrivate()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        // Static members
+        private final var javaP: kotlin.Int
+        private open fun javaM(): kotlin.Unit
+    }
+
+    public open class JavaProtected {
+        public constructor JavaProtected()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        // Static members
+        protected/*protected static*/ final var javaP: kotlin.Int
+        protected/*protected static*/ open fun javaM(): kotlin.Unit
+    }
+
+    public open class JavaPublic {
+        public constructor JavaPublic()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+        // Static members
+        public final var javaP: kotlin.Int
+        public open fun javaM(): kotlin.Unit
+    }
+}
+
+package k {
+}

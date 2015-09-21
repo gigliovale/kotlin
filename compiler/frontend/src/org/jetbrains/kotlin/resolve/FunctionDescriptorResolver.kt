@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils.isFunctionExpression
 import org.jetbrains.kotlin.resolve.DescriptorUtils.isFunctionLiteral
 import org.jetbrains.kotlin.resolve.ModifiersChecker.resolveModalityFromModifiers
 import org.jetbrains.kotlin.resolve.ModifiersChecker.resolveVisibilityFromModifiers
+import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
@@ -201,6 +202,9 @@ class FunctionDescriptorResolver(
                 trace.report(EXPECTED_PARAMETERS_NUMBER_MISMATCH.on(function, expectedParameterTypes.size(), expectedParameterTypes))
             }
         }
+
+        trace.recordScope(innerScope, function.valueParameterList)
+
         return resolveValueParameters(
                 functionDescriptor,
                 innerScope,

@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.incremental.components.NoLookupLocation;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.*;
+import org.jetbrains.kotlin.resolve.bindingContextUtil.BindingContextUtilPackage;
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
@@ -48,6 +49,7 @@ import org.jetbrains.kotlin.resolve.lazy.declarations.ClassMemberDeclarationProv
 import org.jetbrains.kotlin.resolve.scopes.JetScope;
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope;
 import org.jetbrains.kotlin.resolve.scopes.StaticScopeForKotlinClass;
+import org.jetbrains.kotlin.resolve.source.KotlinSourceElement;
 import org.jetbrains.kotlin.storage.MemoizedFunctionToNotNull;
 import org.jetbrains.kotlin.storage.NotNullLazyValue;
 import org.jetbrains.kotlin.storage.NullableLazyValue;
@@ -443,6 +445,8 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         ForceResolveUtil.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
         ForceResolveUtil.forceResolveAllContents(getUnsubstitutedMemberScope());
         ForceResolveUtil.forceResolveAllContents(getTypeConstructor());
+
+        saveLexicalScope();
     }
 
     // Note: headers of member classes' members are not resolved
@@ -473,6 +477,14 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         }
         getUnsubstitutedPrimaryConstructor();
         getVisibility();
+    }
+
+    private void saveLexicalScope() {
+        SourceElement source = getSource();
+        if (source instanceof KotlinSourceElement) {
+            JetElement jetElement = ((KotlinSourceElement) source).getPsi();
+            BindingContextUtilPackage.recordScope(c.getTrace(), getOuterScope(), jetElement);
+        }
     }
 
     private static class Supertypes {

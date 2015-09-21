@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.psi.codeFragmentUtil.debugTypeInfo
 import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.resolve.PossiblyBareType.type
 import org.jetbrains.kotlin.resolve.TypeResolver.FlexibleTypeCapabilitiesProvider
+import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity
 import org.jetbrains.kotlin.resolve.scopes.JetScope
@@ -109,7 +110,7 @@ public class TypeResolver(
         val typeElement = typeReference.getTypeElement()
 
         val type = resolveTypeElement(c, annotations, typeElement)
-        c.trace.record(BindingContext.LEXICAL_SCOPE, typeReference, c.scope)
+        c.trace.recordScope(c.scope, typeReference)
 
         if (!type.isBare) {
             for (argument in type.actualType.arguments) {

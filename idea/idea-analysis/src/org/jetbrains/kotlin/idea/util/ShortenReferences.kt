@@ -66,6 +66,8 @@ public class ShortenReferences(val options: (JetElement) -> Options = { Options.
             return descriptor.canBeReferencedViaImport()
                    && ImportInsertHelper.getInstance(file.getProject()).mayImportByCodeStyle(descriptor)
         }
+
+        private val MAX_ITERATION_COUNT = 10
     }
 
     @JvmOverloads
@@ -143,7 +145,7 @@ public class ShortenReferences(val options: (JetElement) -> Options = { Options.
 
         val failedToImportDescriptors = LinkedHashSet<DeclarationDescriptor>()
 
-        while (true) {
+        for(i in 0..MAX_ITERATION_COUNT - 1) {
             // Visitor order is important here so that enclosing elements are not shortened before their children are, e.g.
             // test.foo(this@A) -> foo(this)
             val visitors: List<ShorteningVisitor<*>> = listOf(

@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.core.KotlinIndicesHelper
 import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
 import org.jetbrains.kotlin.idea.core.formatter.JetCodeStyleSettings
-import org.jetbrains.kotlin.idea.core.getResolutionScope
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.psi.JetDeclaration
@@ -75,7 +75,7 @@ class ParameterNameAndTypeCompletion(
 
     public fun addFromImportedClasses(position: PsiElement, bindingContext: BindingContext, visibilityFilter: (DeclarationDescriptor) -> Boolean) {
         for ((i, prefixMatcher) in nameSuggestionPrefixMatchers.withIndex()) {
-            val resolutionScope = position.getResolutionScope(bindingContext, resolutionFacade)
+            val resolutionScope = position.getLexicalScope(bindingContext)
             val classifiers = resolutionScope.getDescriptorsFiltered(DescriptorKindFilter.NON_SINGLETON_CLASSIFIERS, prefixMatcher.toClassifierNamePrefixMatcher().asNameFilter())
 
             for (classifier in classifiers) {

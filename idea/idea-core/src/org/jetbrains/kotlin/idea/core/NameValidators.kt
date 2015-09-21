@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.util.getAllAccessibleFunctions
 import org.jetbrains.kotlin.idea.util.getAllAccessibleVariables
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -79,7 +80,7 @@ public class NewDeclarationNameValidator(
 
         if (visibleDeclarationsContext != null) {
             val bindingContext = visibleDeclarationsContext.analyze(BodyResolveMode.PARTIAL_FOR_COMPLETION)
-            val resolutionScope = visibleDeclarationsContext.getResolutionScope(bindingContext, visibleDeclarationsContext.getResolutionFacade())
+            val resolutionScope = visibleDeclarationsContext.getLexicalScope(bindingContext)
             if (resolutionScope.asJetScope().hasConflict(identifier)) return false
         }
 

@@ -23,15 +23,11 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
-import org.jetbrains.kotlin.idea.util.CallType
-import org.jetbrains.kotlin.idea.util.ShadowedDeclarationsFilter
-import org.jetbrains.kotlin.idea.util.getImplicitReceiversWithInstance
-import org.jetbrains.kotlin.idea.util.substituteExtensionIfCallable
+import org.jetbrains.kotlin.idea.util.*
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.getReceiverExpression
 import org.jetbrains.kotlin.psi.psiUtil.isImportDirectiveExpression
 import org.jetbrains.kotlin.psi.psiUtil.isPackageDirectiveExpression
@@ -182,10 +178,7 @@ public class ReferenceVariantsHelper(
             return qualifier.scope.getDescriptorsFiltered(accurateKindFilter, nameFilter)
         }
         else {
-            val lexicalScope = expression.getParentOfType<JetTypeReference>(strict = true)?.let {
-                context[BindingContext.LEXICAL_SCOPE, it]
-            } ?: return emptyList()
-            return lexicalScope.getDescriptorsFiltered(accurateKindFilter, nameFilter)
+            return expression.getLexicalScope(context).getDescriptorsFiltered(accurateKindFilter, nameFilter)
         }
     }
 

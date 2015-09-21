@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptorWithResolutionScopes
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getFileTopLevelScope
 import org.jetbrains.kotlin.idea.references.mainReference
@@ -83,28 +84,6 @@ public fun ThisReceiver.asExpression(resolutionScope: JetScope, psiFactory: JetP
                                     .firstOrNull { it.key.getContainingDeclaration() == this.getDeclarationDescriptor() }
                                     ?.value ?: return null
     return expressionFactory.createExpression(psiFactory)
-}
-
-public fun PsiElement.getResolutionScope(bindingContext: BindingContext, resolutionFacade: ResolutionFacade): LexicalScope {
-    for (parent in parentsWithSelf) {
-        if (parent is JetExpression) {
-            val scope = bindingContext[BindingContext.LEXICAL_SCOPE, parent] ?:
-                        bindingContext[BindingContext.RESOLUTION_SCOPE, parent]?.asLexicalScope() // todo remove this hack
-            if (scope != null) return scope
-        }
-
-        if (parent is JetClassBody) {
-            val classDescriptor = bindingContext[BindingContext.CLASS, parent.getParent()] as? ClassDescriptorWithResolutionScopes
-            if (classDescriptor != null) {
-                return classDescriptor.getScopeForMemberDeclarationResolution()
-            }
-        }
-
-        if (parent is JetFile) {
-            return resolutionFacade.getFileTopLevelScope(parent)
-        }
-    }
-    error("Not in JetFile")
 }
 
 public fun JetImportDirective.targetDescriptors(): Collection<DeclarationDescriptor> {

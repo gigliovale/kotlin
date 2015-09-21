@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.idea.util.CallType
 import org.jetbrains.kotlin.idea.util.ShadowedDeclarationsFilter
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.lexer.JetTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -97,7 +98,7 @@ abstract class CompletionSession(protected val configuration: CompletionSessionC
     }
 
     protected val bindingContext: BindingContext = resolutionFacade.analyze(position.parentsWithSelf.firstIsInstance<JetElement>(), BodyResolveMode.PARTIAL_FOR_COMPLETION)
-    protected val inDescriptor: DeclarationDescriptor = position.getResolutionScope(bindingContext, resolutionFacade).ownerDescriptor
+    protected val inDescriptor: DeclarationDescriptor = position.getLexicalScope(bindingContext).ownerDescriptor
 
     private val kotlinIdentifierStartPattern: ElementPattern<Char>
     private val kotlinIdentifierPartPattern: ElementPattern<Char>

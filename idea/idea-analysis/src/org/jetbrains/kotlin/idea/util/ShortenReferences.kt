@@ -274,8 +274,7 @@ public class ShortenReferences(val options: (JetElement) -> Options = { Options.
             val bindingContext = resolutionFacade.analyze(referenceExpression)
             val target = referenceExpression.targets(bindingContext).singleOrNull() ?: return
 
-            val typeReference = type.getStrictParentOfType<JetTypeReference>()!!
-            val scope = bindingContext[BindingContext.LEXICAL_SCOPE, typeReference] ?: return
+            val scope = type.getLexicalScope(bindingContext)
             val name = target.getName()
             val targetByName = if (target is ClassifierDescriptor) scope.getClassifier(name, NoLookupLocation.FROM_IDE) else {
                 scope.getFileScope().getPackage(name)

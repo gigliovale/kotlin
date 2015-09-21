@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.idea.core.getResolutionScope
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.load.java.descriptors.SamAdapterDescriptor
@@ -112,8 +112,7 @@ public class RedundantSamConstructorInspection : AbstractKotlinInspection() {
         private fun canBeReplaced(parentCall: JetCallExpression, callExpressions: List<JetCallExpression>): Boolean {
             val context = parentCall.analyze(BodyResolveMode.PARTIAL)
 
-            val calleeExpression = parentCall.calleeExpression ?: return false
-            val scope = context[BindingContext.LEXICAL_SCOPE, calleeExpression] ?: return false
+            val scope = parentCall.getLexicalScope(context)
 
             val originalCall = parentCall.getResolvedCall(context) ?: return false
 
@@ -177,7 +176,7 @@ public class RedundantSamConstructorInspection : AbstractKotlinInspection() {
             }
 
             // SAM adapters for member functions
-            val resolutionScope = functionCall.getResolutionScope(bindingContext, functionCall.getResolutionFacade()).getFileScope()
+            val resolutionScope = functionCall.getLexicalScope(bindingContext).getFileScope()
             val syntheticExtensions = resolutionScope.getSyntheticExtensionFunctions(
                     containingClass.defaultType.singletonList(),
                     functionResolvedCall.resultingDescriptor.name,

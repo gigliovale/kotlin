@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.completion.smart.TypesWithContainsDetector
 import org.jetbrains.kotlin.idea.core.IterableTypesDetection
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.idea.core.mapArgumentsToParameters
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
@@ -231,12 +232,12 @@ class ExpectedInfos(
             override fun getFunctionLiteralArguments() = emptyList<FunctionLiteralArgument>()
             override fun getValueArgumentList() = null
         }
-        val resolutionScope = bindingContext[BindingContext.LEXICAL_SCOPE, call.calleeExpression] ?: return emptyList() //TODO: discuss it
-        val inDescriptor = resolutionScope.ownerDescriptor
+        val lexicalScope = call.calleeExpression?.getLexicalScope(bindingContext) ?: return emptyList()
+        val inDescriptor = lexicalScope.ownerDescriptor
 
         val dataFlowInfo = bindingContext.getDataFlowInfo(call.calleeExpression)
         val bindingTrace = DelegatingBindingTrace(bindingContext, "Temporary trace for completion")
-        val context = BasicCallResolutionContext.create(bindingTrace, resolutionScope, truncatedCall, callExpectedType, dataFlowInfo,
+        val context = BasicCallResolutionContext.create(bindingTrace, lexicalScope, truncatedCall, callExpectedType, dataFlowInfo,
                                                         ContextDependency.INDEPENDENT, CheckArgumentTypesMode.CHECK_VALUE_ARGUMENTS,
                                                         CallChecker.DoNothing, false)
         val callResolutionContext = context.replaceCollectAllCandidates(true)

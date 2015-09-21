@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.idea.JetIcons
 import org.jetbrains.kotlin.idea.completion.handlers.CastReceiverInsertHandler
 import org.jetbrains.kotlin.idea.completion.handlers.WithTailInsertHandler
-import org.jetbrains.kotlin.idea.core.getResolutionScope
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.idea.util.ShortenReferences
@@ -189,7 +189,7 @@ fun ThisItemLookupObject.createLookupElement() = createKeywordElement("this", la
         .withTypeText(DescriptorRenderer.SHORT_NAMES_IN_TYPES.renderType(receiverParameter.type))
 
 fun thisExpressionItems(bindingContext: BindingContext, position: JetExpression, prefix: String, resolutionFacade: ResolutionFacade): Collection<ThisItemLookupObject> {
-    val scope = position.getResolutionScope(bindingContext, resolutionFacade)
+    val scope = position.getLexicalScope(bindingContext)
 
     val psiFactory = JetPsiFactory(position)
 

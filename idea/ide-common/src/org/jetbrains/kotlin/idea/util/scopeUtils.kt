@@ -18,11 +18,17 @@
 
 package org.jetbrains.kotlin.idea.util
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
+import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.JetElement
+import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.scopes.JetScope
+import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 
 
 public fun JetScope.getAllAccessibleVariables(name: Name): Collection<VariableDescriptor>
@@ -41,4 +47,15 @@ public fun JetScope.getVariableFromImplicitReceivers(name: Name): VariableDescri
         it.type.memberScope.getProperties(name, NoLookupLocation.FROM_IDE).singleOrNull()?.let { return it }
     }
     return null
+}
+
+public fun PsiElement.getLexicalScope(bindingContext: BindingContext): LexicalScope {
+    for (parent in parentsWithSelf) {
+        if (parent is JetElement) {
+            bindingContext[BindingContext.LEXICAL_SCOPE, parent]?.let { return it }
+        }
+    }
+    error {
+        "Cannot find LEXICAL_SCOPE for element: $this at ${DiagnosticUtils.atLocation(this)}"
+    }
 }

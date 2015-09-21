@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.idea.core.getResolutionScope
+import org.jetbrains.kotlin.idea.util.getLexicalScope
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.getClassDescriptorIfAny
 import org.jetbrains.kotlin.psi.JetClassOrObject
 import org.jetbrains.kotlin.psi.JetNamedDeclaration
@@ -50,7 +50,7 @@ class KotlinPullUpData(val sourceClass: JetClassOrObject,
     val targetClassDescriptor = targetClass.getClassDescriptorIfAny(resolutionFacade)!!
 
     val typeParametersInSourceClassContext by lazy {
-        sourceClassDescriptor.typeConstructor.parameters + sourceClass.getResolutionScope(sourceClassContext, resolutionFacade)
+        sourceClassDescriptor.typeConstructor.parameters + sourceClass.getLexicalScope(sourceClassContext)
                 .getDescriptorsFiltered(DescriptorKindFilter.NON_SINGLETON_CLASSIFIERS)
                 .filterIsInstance<TypeParameterDescriptor>()
     }

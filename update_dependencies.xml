@@ -1,6 +1,9 @@
 <project name="Update Dependencies" default="update" xmlns:if="ant:if" xmlns:unless="ant:unless">
     <property name="ideaVersion" value="142.4675.3"/>
 
+    <property name="kotlin.bootstrap.branch" value="M13"/>
+    <property name="kotlin.bootstrap.branch.locator" value=",branch:${kotlin.bootstrap.branch}"/>
+
     <property name="kotlin.bootstrap.locator" value="buildType:bt345,tag:bootstrap,status:SUCCESS"/>
     <property name="kotlin.bootstrap.locator.force" value="false"/>
 
@@ -9,7 +12,7 @@
     <property name="bootstrap.build.no.tests" value="false"/>
 
     <!-- Uncomment to enable force version increment in branch. Set override.version.disabled to temporary disable feature without commits -->
-    <property name="override.version.url" value="https://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:bt345,status:SUCCESS,branch:M13,count:1"/>
+    <property name="override.version.url" value="https://teamcity.jetbrains.com/guestAuth/app/rest/builds/?locator=buildType:bt345,status:SUCCESS,count:1${kotlin.bootstrap.branch.locator}"/>
     <!--<property name="override.version.disabled" value="true"/>-->
 
     <condition property="isWindows">
@@ -781,7 +784,16 @@
     </target>
 
     <target name="override-version">
-        <sequential unless:set="override.version.disabled">
+        <condition property="need.version.override">
+            <and>
+                <equals arg1="${kotlin.bootstrap.branch}" arg2="${teamcity.build.branch}"/>
+                <not>
+                    <isset property="override.version.disabled"/>
+                </not>
+            </and>
+        </condition>
+
+        <sequential if:set="need.version.override">
             <local name="override.version.build.number"/>
             <loadresource property="override.version.build.number">
                 <url url="${override.version.url}"/>

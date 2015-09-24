@@ -20,14 +20,12 @@ import java.io.File
  * Icrements last segement of version string: 0.12.1223 -> 0.12.1224 and writes result to file.
  */
 fun main(args: Array<String>) {
-    val incrementDefault = 1
     val filePathDefault = "updated-version.txt"
 
-    if (args.isEmpty() || args.size() > 3) {
+    if (args.isEmpty() || args.size() > 2) {
         error("Usage: kotlinc -script increment-version.kts " +
               "<version> " +
-              "<file-path='$filePathDefault'> " +
-              "<increment-value=$incrementDefault>")
+              "<file-path='$filePathDefault'>")
     }
 
     var versionStr = args[0]
@@ -38,11 +36,9 @@ fun main(args: Array<String>) {
 
     var filePath = args.getOrNull(1) ?: filePathDefault
 
-    val increment = args.getOrNull(2)?.toInt() ?: incrementDefault
+    val result = "${versionPrefix}${incrementPart + 1}"
 
-    val result = "${versionPrefix}${incrementPart + increment}"
-
-    println("prefix=$versionPrefix incrementPart=$incrementPart increment=$increment result=$result filePath=$filePath")
+    println("prefix=$versionPrefix incrementPart=$incrementPart result=$result filePath=$filePath")
 
     File("$filePath").writeText("$result")
 }

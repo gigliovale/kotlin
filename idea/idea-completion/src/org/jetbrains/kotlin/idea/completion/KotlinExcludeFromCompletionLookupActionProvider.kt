@@ -33,7 +33,8 @@ public class KotlinExcludeFromCompletionLookupActionProvider : LookupActionProvi
     override fun fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer<LookupElementAction>) {
         val lookupObject = element.getObject() as? DeclarationLookupObject ?: return
 
-        val project = lookup.getPsiFile().getProject()
+        val psiFile = lookup.getPsiFile() ?: return
+        val project = psiFile.getProject()
 
         lookupObject.importableFqName?.let {
             addExcludes(consumer, project, it.asString())

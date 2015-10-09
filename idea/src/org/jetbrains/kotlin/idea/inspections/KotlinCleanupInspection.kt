@@ -30,14 +30,11 @@ import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.idea.highlighter.JetPsiChecker
 import org.jetbrains.kotlin.idea.quickfix.CleanupFix
 import org.jetbrains.kotlin.idea.quickfix.JetIntentionAction
-import org.jetbrains.kotlin.idea.quickfix.ReplaceObsoleteLabelSyntaxFix
 import org.jetbrains.kotlin.idea.quickfix.replaceWith.DeprecatedSymbolUsageFix
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
-import org.jetbrains.kotlin.psi.JetAnnotationEntry
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.psi.JetImportDirective
 import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
-import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.ErrorsJvm
 
 public class KotlinCleanupInspection(): LocalInspectionTool(), CleanupLocalInspectionTool {
@@ -79,7 +76,7 @@ public class KotlinCleanupInspection(): LocalInspectionTool(), CleanupLocalInspe
         return problemDescriptors.toTypedArray()
     }
 
-    private fun Diagnostic.isCleanup() = getFactory() in cleanupDiagnosticsFactories || isObsoleteLabel()
+    private fun Diagnostic.isCleanup() = getFactory() in cleanupDiagnosticsFactories
 
     private val cleanupDiagnosticsFactories = setOf(
             Errors.MISSING_CONSTRUCTOR_KEYWORD,
@@ -96,11 +93,6 @@ public class KotlinCleanupInspection(): LocalInspectionTool(), CleanupLocalInspe
             Errors.DEPRECATED_TYPE_PARAMETER_SYNTAX,
             Errors.MISPLACED_TYPE_PARAMETER_CONSTRAINTS
     )
-
-    private fun Diagnostic.isObsoleteLabel(): Boolean {
-        val annotationEntry = getPsiElement().getNonStrictParentOfType<JetAnnotationEntry>() ?: return false
-        return ReplaceObsoleteLabelSyntaxFix.looksLikeObsoleteLabel(annotationEntry)
-    }
 
     private fun Diagnostic.toCleanupFixes(): Collection<CleanupFix> {
         return JetPsiChecker.createQuickfixes(this).filterIsInstance<CleanupFix>()

@@ -20,11 +20,10 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.diagnostics.Diagnostic
-import org.jetbrains.kotlin.idea.quickfix.quickfixUtil.createIntentionFactory
+import org.jetbrains.kotlin.idea.quickfix.quickfixUtil.addConstructorKeyword
 import org.jetbrains.kotlin.idea.quickfix.quickfixUtil.createIntentionForFirstParentOfType
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.psi.JetPrimaryConstructor
-import org.jetbrains.kotlin.idea.quickfix.quickfixUtil.addConstructorKeyword
 
 public class MissingConstructorKeywordFix(element: JetPrimaryConstructor) : JetIntentionAction<JetPrimaryConstructor>(element), CleanupFix {
     override fun getFamilyName(): String = getText()
@@ -37,13 +36,5 @@ public class MissingConstructorKeywordFix(element: JetPrimaryConstructor) : JetI
     companion object : JetSingleIntentionActionFactory() {
         override fun createAction(diagnostic: Diagnostic): IntentionAction? =
                 diagnostic.createIntentionForFirstParentOfType(::MissingConstructorKeywordFix)
-
-        public fun createWholeProjectFixFactory(): JetSingleIntentionActionFactory = createIntentionFactory {
-            JetWholeProjectForEachElementOfTypeFix.createByPredicate<JetPrimaryConstructor>(
-                    predicate = { it.getModifierList() != null && !it.hasConstructorKeyword() },
-                    taskProcessor = { it.addConstructorKeyword() },
-                    name = "Add missing 'constructor' keyword in whole project"
-            )
-        }
     }
 }

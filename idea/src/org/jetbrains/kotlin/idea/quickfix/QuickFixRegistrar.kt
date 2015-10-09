@@ -305,13 +305,9 @@ public class QuickFixRegistrar : QuickFixContributor {
 
         DEPRECATED_ANNOTATION_METHOD_CALL.registerFactory(MigrateAnnotationMethodCallFix, MigrateAnnotationMethodCallInWholeFile)
 
-        MISSING_CONSTRUCTOR_KEYWORD.registerFactory(MissingConstructorKeywordFix,
-                                               MissingConstructorKeywordFix.createWholeProjectFixFactory())
+        MISSING_CONSTRUCTOR_KEYWORD.registerFactory(MissingConstructorKeywordFix)
 
         FUNCTION_EXPRESSION_WITH_NAME.registerFactory(RemoveNameFromFunctionExpressionFix)
-
-        UNRESOLVED_REFERENCE.registerFactory(ReplaceObsoleteLabelSyntaxFix,
-                                        ReplaceObsoleteLabelSyntaxFix.createWholeProjectFixFactory())
 
         DEPRECATED_SYMBOL_WITH_MESSAGE.registerFactory(DeprecatedSymbolUsageFix,
                                                        DeprecatedSymbolUsageInWholeProjectFix)

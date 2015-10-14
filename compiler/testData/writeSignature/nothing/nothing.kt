@@ -1,6 +1,6 @@
 class C<T>
 fun f(p: Nothing, p1: C<Nothing>): Nothing = throw Exception()
 
-// method: _DefaultPackage::f
+// method: NothingKt::f
 // jvm signature:     (Ljava/lang/Void;LC;)Ljava/lang/Void;
 // generic signature: (Ljava/lang/Void;LC<Ljava/lang/Void;>;)Ljava/lang/Void;

@@ -120,10 +120,6 @@ public class JavaElementFinder extends PsiElementFinder implements KotlinFinderM
 
         answer.addAll(lightClassGenerationSupport.getFacadeClasses(qualifiedName, scope));
 
-        if (PackageClassUtils.isPackageClassFqName(qualifiedName)) {
-            answer.addAll(lightClassGenerationSupport.getPackageClasses(qualifiedName.parent(), scope));
-        }
-
         return sortByClasspath(answer, scope).toArray(new PsiClass[answer.size()]);
     }
 
@@ -169,7 +165,6 @@ public class JavaElementFinder extends PsiElementFinder implements KotlinFinderM
         Collection<JetClassOrObject> declarations = lightClassGenerationSupport.findClassOrObjectDeclarationsInPackage(packageFQN, scope);
 
         Set<String> answer = Sets.newHashSet();
-        answer.add(PackageClassUtils.getPackageClassName(packageFQN));
         answer.addAll(lightClassGenerationSupport.getFacadeNames(packageFQN, scope));
 
         for (JetClassOrObject declaration : declarations) {
@@ -222,7 +217,6 @@ public class JavaElementFinder extends PsiElementFinder implements KotlinFinderM
         List<PsiClass> answer = new SmartList<PsiClass>();
         FqName packageFQN = new FqName(psiPackage.getQualifiedName());
 
-        answer.addAll(lightClassGenerationSupport.getPackageClasses(packageFQN, scope));
         answer.addAll(lightClassGenerationSupport.getFacadeClassesInPackage(packageFQN, scope));
 
         Collection<JetClassOrObject> declarations = lightClassGenerationSupport.findClassOrObjectDeclarationsInPackage(packageFQN, scope);

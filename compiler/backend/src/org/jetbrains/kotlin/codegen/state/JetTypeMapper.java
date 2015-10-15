@@ -41,7 +41,6 @@ import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialJvmSignature.Spec
 import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor;
 import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor;
 import org.jetbrains.kotlin.load.java.lazy.descriptors.LazyJavaPackageScope;
-import org.jetbrains.kotlin.load.kotlin.PackageClassUtils;
 import org.jetbrains.kotlin.load.kotlin.incremental.IncrementalPackageFragmentProvider;
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache;
 import org.jetbrains.kotlin.name.*;
@@ -146,18 +145,13 @@ public class JetTypeMapper {
 
     @NotNull
     public Type mapOwner(@NotNull DeclarationDescriptor descriptor) {
-        return mapOwner(descriptor, false);
-    }
-
-    @NotNull
-    private Type mapOwner(@NotNull DeclarationDescriptor descriptor, boolean isImplementation) {
         if (isLocalFunction(descriptor)) {
             return asmTypeForAnonymousClass(bindingContext, (FunctionDescriptor) descriptor);
         }
 
         DeclarationDescriptor container = descriptor.getContainingDeclaration();
         if (container instanceof PackageFragmentDescriptor) {
-            return Type.getObjectType(internalNameForPackageMemberOwner((CallableMemberDescriptor) descriptor, isImplementation));
+            return Type.getObjectType(internalNameForPackageMemberOwner((CallableMemberDescriptor) descriptor));
         }
         else if (container instanceof ClassDescriptor) {
             return mapClass((ClassDescriptor) container);
@@ -171,11 +165,11 @@ public class JetTypeMapper {
     }
 
     @NotNull
-    private String internalNameForPackageMemberOwner(@NotNull CallableMemberDescriptor descriptor, boolean isImplementation) {
+    private String internalNameForPackageMemberOwner(@NotNull CallableMemberDescriptor descriptor) {
         JetFile file = DescriptorToSourceUtils.getContainingFile(descriptor);
         if (file != null) {
             Visibility visibility = descriptor.getVisibility();
-            if (isImplementation || descriptor instanceof PropertyDescriptor || Visibilities.isPrivate(visibility)) {
+            if (descriptor instanceof PropertyDescriptor || Visibilities.isPrivate(visibility)) {
                 return FileClasses.getFileClassInternalName(fileClassesProvider, file);
             }
             else {
@@ -190,8 +184,8 @@ public class JetTypeMapper {
             if (facadeFqName != null) return facadeFqName;
         }
 
-        throw new RuntimeException("Unreachable state");
-        //return PackageClassUtils.getPackageClassInternalName(packageFragment.getFqName());
+        throw new RuntimeException("Could not find package member for " + descriptor +
+                                   " in package fragment " + descriptor.getContainingDeclaration());
     }
 
     public static class ContainingClassesInfo {
@@ -259,6 +253,8 @@ public class JetTypeMapper {
         return JvmClassName.byClassId(containingClasses.getFacadeClassId()).getInternalName();
     }
 
+    private static final ClassId FAKE_CLASS_ID_FOR_BUILTINS = ClassId.topLevel(new FqName("kotlin.KotlinPackage"));
+
     @Nullable
     private ContainingClassesInfo getPackageMemberContainingClassesInfo(@NotNull DeserializedCallableMemberDescriptor descriptor) {
         // XXX This method is a dirty hack.
@@ -270,8 +266,7 @@ public class JetTypeMapper {
         PackageFragmentDescriptor packageFragmentDescriptor = (PackageFragmentDescriptor) containingDeclaration;
 
         if (packageFragmentDescriptor instanceof BuiltinsPackageFragment) {
-            ClassId builtinsFacadeClassId = ClassId.topLevel(PackageClassUtils.getPackageClassFqName(packageFragmentDescriptor.getFqName()));
-            return new ContainingClassesInfo(builtinsFacadeClassId, builtinsFacadeClassId);
+            return new ContainingClassesInfo(FAKE_CLASS_ID_FOR_BUILTINS, FAKE_CLASS_ID_FOR_BUILTINS);
         }
 
         Name implClassName = JvmFileClassUtil.getImplClassName(descriptor);

@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.codegen.optimization.OptimizationClassBuilderFactory
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
-import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.name.FqName
@@ -52,7 +51,6 @@ public class GenerationState @JvmOverloads constructor(
         public val generateDeclaredClassFilter: GenerationState.GenerateClassFilter = GenerationState.GenerateClassFilter.GENERATE_ALL,
         disableInline: Boolean = false,
         disableOptimization: Boolean = false,
-        public val packageFacadesAsMultifileClasses: Boolean = false,
         public val diagnostics: DiagnosticSink = DiagnosticSink.DO_NOTHING,
         public val packagesWithObsoleteParts: Collection<FqName> = emptySet(),
         public val obsoleteMultifileClasses: Collection<FqName> = emptySet(),
@@ -85,7 +83,7 @@ public class GenerationState @JvmOverloads constructor(
         }
     }
 
-    public val fileClassesProvider: CodegenFileClassesProvider = CodegenFileClassesProvider(packageFacadesAsMultifileClasses)
+    public val fileClassesProvider: CodegenFileClassesProvider = CodegenFileClassesProvider()
 
     private fun getIncrementalCacheForThisTarget() =
             if (incrementalCompilationComponents != null && targetId != null)

@@ -167,7 +167,7 @@ public class JetTypeMapper {
     }
 
     @NotNull
-    private String internalNameForPackageMemberOwner(@NotNull CallableMemberDescriptor descriptor) {
+    public String internalNameForPackageMemberOwner(@NotNull CallableMemberDescriptor descriptor) {
         JetFile file = DescriptorToSourceUtils.getContainingFile(descriptor);
         if (file != null) {
             Visibility visibility = descriptor.getVisibility();

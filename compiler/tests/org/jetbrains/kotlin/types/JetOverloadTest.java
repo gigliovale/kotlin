@@ -162,11 +162,11 @@ public class JetOverloadTest extends JetLiteFixture {
         FunctionDescriptor a = makeFunction(funA);
         FunctionDescriptor b = makeFunction(funB);
         {
-            OverloadUtil.OverloadCompatibilityInfo overloadableWith = OverloadUtil.isOverloadable(a, b);
+            OverloadUtil.OverloadCompatibilityInfo overloadableWith = OverloadUtil.INSTANCE.isOverloadable(a, b);
             assertEquals(overloadableWith.getMessage(), expectedIsError, !overloadableWith.isSuccess());
         }
         {
-            OverloadUtil.OverloadCompatibilityInfo overloadableWith = OverloadUtil.isOverloadable(b, a);
+            OverloadUtil.OverloadCompatibilityInfo overloadableWith = OverloadUtil.INSTANCE.isOverloadable(b, a);
             assertEquals(overloadableWith.getMessage(), expectedIsError, !overloadableWith.isSuccess());
         }
     }

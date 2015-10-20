@@ -91,24 +91,7 @@ public class OverloadResolver {
             @NotNull BodiesResolveContext c,
             @NotNull MultiMap<FqNameUnsafe, ConstructorDescriptor> inPackages
     ) {
-
-        MultiMap<FqNameUnsafe, CallableMemberDescriptor> functionsByName = MultiMap.create();
-
-        for (SimpleFunctionDescriptor function : c.getFunctions().values()) {
-            if (function.getContainingDeclaration() instanceof PackageFragmentDescriptor) {
-                functionsByName.putValue(getFqName(function), function);
-            }
-        }
-        
-        for (PropertyDescriptor property : c.getProperties().values()) {
-            if (property.getContainingDeclaration() instanceof PackageFragmentDescriptor) {
-                functionsByName.putValue(getFqName(property), property);
-            }
-        }
-        
-        for (Map.Entry<FqNameUnsafe, Collection<ConstructorDescriptor>> entry : inPackages.entrySet()) {
-            functionsByName.putValues(entry.getKey(), entry.getValue());
-        }
+        MultiMap<FqNameUnsafe, CallableMemberDescriptor> functionsByName = OverloadUtil.groupModulePackageMembersByFqName(c, inPackages);
 
         for (Map.Entry<FqNameUnsafe, Collection<CallableMemberDescriptor>> e : functionsByName.entrySet()) {
             // TODO: don't render FQ name here, extract this logic to somewhere
@@ -170,7 +153,7 @@ public class OverloadResolver {
                     continue;
                 }
 
-                OverloadUtil.OverloadCompatibilityInfo overloadable = OverloadUtil.isOverloadable(member, member2);
+                OverloadUtil.OverloadCompatibilityInfo overloadable = OverloadUtil.INSTANCE.isOverloadable(member, member2);
                 if (!overloadable.isSuccess() && member.getKind() != CallableMemberDescriptor.Kind.SYNTHESIZED) {
                     KtDeclaration ktDeclaration = (KtDeclaration) DescriptorToSourceUtils.descriptorToDeclaration(member);
                     if (ktDeclaration != null) {

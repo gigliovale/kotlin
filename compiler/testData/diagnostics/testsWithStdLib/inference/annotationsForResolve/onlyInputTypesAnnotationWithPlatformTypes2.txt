@@ -1,0 +1,4 @@
+package
+
+@kotlin.Suppress(names = {"INVISIBLE_MEMBER", "INVISIBLE_REFERENCE"}) public fun </*0*/ T> assertEquals1(/*0*/ t1: T, /*1*/ t2: T): kotlin.Unit
+public fun test(/*0*/ src: kotlin.Array<kotlin.Any>): kotlin.Unit

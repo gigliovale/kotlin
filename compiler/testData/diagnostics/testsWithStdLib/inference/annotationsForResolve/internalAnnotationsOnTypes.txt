@@ -4,3 +4,4 @@ package
 public fun test(): kotlin.Unit
 public fun test(/*0*/ list: kotlin.List<kotlin.Int>): kotlin.Unit
 @kotlin.Suppress(names = {"INVISIBLE_MEMBER", "INVISIBLE_REFERENCE"}) public fun </*0*/ R> kotlin.Iterable<*>.filterIsInstance1(): kotlin.List<R>
+@kotlin.Suppress(names = {"INVISIBLE_MEMBER", "INVISIBLE_REFERENCE"}) public fun </*0*/ R> kotlin.List<*>.filterIsInstance2(): kotlin.List<R>

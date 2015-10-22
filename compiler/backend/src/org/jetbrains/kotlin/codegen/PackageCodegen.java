@@ -50,7 +50,7 @@ public class PackageCodegen {
     ) {
         this.state = state;
         this.files = files;
-        this.packageFragment = getOnlyPackageFragment(packageFqName);
+        this.packageFragment = getRepresentativePackageFragment(packageFqName);
         packageParts = new PackageParts(packageFqName.asString());
     }
 
@@ -121,27 +121,18 @@ public class PackageCodegen {
     }
 
     @Nullable
-    private PackageFragmentDescriptor getOnlyPackageFragment(@NotNull FqName expectedPackageFqName) {
-        SmartList<PackageFragmentDescriptor> fragments = new SmartList<PackageFragmentDescriptor>();
-        for (KtFile file : files) {
-            PackageFragmentDescriptor fragment = state.getBindingContext().get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file);
-            assert fragment != null : "package fragment is null for " + file + "\n" + file.getText();
+    private PackageFragmentDescriptor getRepresentativePackageFragment(@NotNull FqName expectedPackageFqName) {
+        if (files.isEmpty()) return null;
 
-            assert expectedPackageFqName.equals(fragment.getFqName()) :
-                    "expected package fq name: " + expectedPackageFqName + ", actual: " + fragment.getFqName();
+        KtFile file = files.iterator().next();
+        PackageFragmentDescriptor fragment = state.getBindingContext().get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, file);
 
-            if (!fragments.contains(fragment)) {
-                fragments.add(fragment);
-            }
-        }
-        if (fragments.size() > 1) {
-            throw new IllegalStateException("More than one package fragment, files: " + files + " | fragments: " + fragments);
-        }
+        assert fragment != null : "package fragment is null for " + file + "\n" + file.getText();
 
-        if (fragments.isEmpty()) {
-            return null;
-        }
-        return fragments.get(0);
+        assert expectedPackageFqName.equals(fragment.getFqName()) :
+                "expected package fq name: " + expectedPackageFqName + ", actual: " + fragment.getFqName();
+
+        return fragment;
     }
 
     public void generateClassOrObject(@NotNull KtClassOrObject classOrObject, @NotNull PackageContext packagePartContext) {

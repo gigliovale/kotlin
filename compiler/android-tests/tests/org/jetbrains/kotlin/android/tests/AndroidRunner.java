@@ -20,7 +20,7 @@ import com.google.common.io.Files;
 import com.intellij.openapi.util.io.FileUtil;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import kotlin.io.IoPackage;
+import kotlin.io.FilesKt;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public class AndroidRunner extends TestSuite {
         try {
             runTestsOnAndroidDevice(generator, runner, suite, "compiler/testData/codegen/box");
 
-            IoPackage.deleteRecursively(new File(pathManager.getOutputForCompiledFiles()));
+            FilesKt.deleteRecursively(new File(pathManager.getOutputForCompiledFiles()));
 
             runTestsOnAndroidDevice(generator, runner, suite, "compiler/testData/codegen/boxWithStdlib");
         }

@@ -55,6 +55,8 @@ public class SpecialFiles {
         excludedFiles.add("recursiveInnerAnonymousObject.kt"); // Cannot change package name
         excludedFiles.add("extensionMethod.kt"); // Cannot change package name
         excludedFiles.add("platformTypeAssertionStackTrace.kt"); // Cannot change package name
+        excludedFiles.add("importStaticMemberFromObject.kt"); // Cannot change package name
+        excludedFiles.add("noPrivateDelegation.kt"); // Cannot change package name
 
         excludedFiles.add("kt684.kt"); // StackOverflow with StringBuilder (escape())
 
@@ -63,6 +65,15 @@ public class SpecialFiles {
 
         excludedFiles.add("comparisonWithNullCallsFun.kt"); // java.lang.NoClassDefFoundError: kotlin.Nothing
         excludedFiles.add("kt3574.kt"); // java.lang.NoClassDefFoundError: kotlin.Nothing
+        excludedFiles.add("checkNoAccessors.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("fun.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("kt3177-copyToArray.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("privateVisibility.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("field.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("topLevelFieldReflection.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("topLevelFieldReference.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("useReflectionOnKProperty.kt"); // java.lang.ClassNotFoundException
+        excludedFiles.add("platformNamedAccessors.kt"); // java.lang.ClassNotFoundException
 
         excludedFiles.add("genericBackingFieldSignature.kt"); // Wrong signature after package renaming
         excludedFiles.add("genericMethodSignature.kt"); // Wrong signature after package renaming
@@ -73,6 +84,14 @@ public class SpecialFiles {
         excludedFiles.add("realIteratorFoldl.kt"); // Out of memory
 
         excludedFiles.add("smap"); // Line numbers
+        excludedFiles.add("kt3190.kt");
+        excludedFiles.add("kt772.kt");
+        excludedFiles.add("kt773.kt");
+        excludedFiles.add("useAnonymousObjectAsIterator.kt");
+        excludedFiles.add("useImportedMember.kt");
+        excludedFiles.add("useImportedMemberFromCompanion.kt");
+        excludedFiles.add("kt4265.kt");
+        excludedFiles.add("kt581.kt");
     }
 
     private SpecialFiles() {

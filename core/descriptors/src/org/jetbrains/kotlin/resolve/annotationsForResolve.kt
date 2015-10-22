@@ -44,8 +44,6 @@ private val ONLY_INPUT_TYPES_FQ_NAME = FqName("kotlin.internal.OnlyInputTypes")
 
 public fun TypeParameterDescriptor.hasOnlyInputTypesAnnotation(): Boolean = annotations.hasAnnotation(ONLY_INPUT_TYPES_FQ_NAME)
 
-public fun getNoInferInAnnotations(): Annotations = AnnotationsWithOnly(NO_INFER_ANNOTATION_FQ_NAME)
-
 public fun getExactInAnnotations(): Annotations = AnnotationsWithOnly(EXACT_ANNOTATION_FQ_NAME)
 
 private class AnnotationsWithOnly(val presentAnnotation: FqName): Annotations {

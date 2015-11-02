@@ -671,16 +671,29 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
         };
         ObservableBindingTrace traceAdapter = new ObservableBindingTrace(temporaryTrace);
         traceAdapter.addHandler(CLASS, handler);
+        KtObjectDeclaration objectDeclaration = expression.getObjectDeclaration();
+        ExpressionTypingContext argumentContext = context;
+        for (KtDelegationSpecifier specifier : objectDeclaration.getDelegationSpecifiers()) {
+            if (specifier instanceof KtDelegatorToSuperCall) {
+                KtDelegatorToSuperCall superCallDelegator = (KtDelegatorToSuperCall) specifier;
+                for (ValueArgument argument : superCallDelegator.getValueArguments()) {
+                    if (argument.getArgumentExpression() != null) {
+                        DataFlowInfo argumentFlowInfo = facade.getTypeInfo(argument.getArgumentExpression(), context).getDataFlowInfo();
+                        argumentContext = argumentContext.replaceDataFlowInfo(argumentFlowInfo);
+                    }
+                }
+            }
+        }
         components.localClassifierAnalyzer.processClassOrObject(null, // don't need to add classifier of object literal to any scope
-                                                                context.replaceBindingTrace(traceAdapter).replaceContextDependency(INDEPENDENT),
-                                                                context.scope.getOwnerDescriptor(),
-                                                                expression.getObjectDeclaration());
+                                                                argumentContext.replaceBindingTrace(traceAdapter).replaceContextDependency(INDEPENDENT),
+                                                                argumentContext.scope.getOwnerDescriptor(),
+                                                                objectDeclaration);
         temporaryTrace.commit();
-        DataFlowInfo resultFlowInfo = context.dataFlowInfo;
+        DataFlowInfo resultFlowInfo = argumentContext.dataFlowInfo;
         for (KtDelegationSpecifier specifier: expression.getObjectDeclaration().getDelegationSpecifiers()) {
             if (specifier instanceof KtDelegatorToSuperCall) {
                 KtDelegatorToSuperCall delegator = (KtDelegatorToSuperCall)specifier;
-                KotlinTypeInfo delegatorTypeInfo = context.trace.get(EXPRESSION_TYPE_INFO, delegator.getCalleeExpression());
+                KotlinTypeInfo delegatorTypeInfo = argumentContext.trace.get(EXPRESSION_TYPE_INFO, delegator.getCalleeExpression());
                 if (delegatorTypeInfo != null) {
                     resultFlowInfo = resultFlowInfo.and(delegatorTypeInfo.getDataFlowInfo());
                 }
@@ -689,7 +702,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
         // Breaks are not possible inside constructor arguments, so jumpPossible or jumpFlowInfo are not necessary here
         KotlinTypeInfo resultTypeInfo = components.dataFlowAnalyzer.checkType(TypeInfoFactoryKt.createTypeInfo(result[0], resultFlowInfo),
                                                                               expression,
-                                                                              context);
+                                                                              argumentContext);
         // We have to record it here,
         // otherwise ExpressionTypingVisitorDispatcher records wrong information
         context.trace.record(EXPRESSION_TYPE_INFO, expression, resultTypeInfo);

@@ -14667,6 +14667,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("objectLiteralParameters.kt")
+            public void testObjectLiteralParameters() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/objectLiteralParameters.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ownerDeclaresBothModifies.kt")
             public void testOwnerDeclaresBothModifies() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ownerDeclaresBothModifies.kt");

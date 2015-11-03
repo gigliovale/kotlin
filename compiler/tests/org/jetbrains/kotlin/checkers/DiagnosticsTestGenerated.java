@@ -14960,6 +14960,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("entranceBodyJoin.kt")
+                public void testEntranceBodyJoin() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/entranceBodyJoin.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("ifBlockInsideDoWhile.kt")
                 public void testIfBlockInsideDoWhile() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/ifBlockInsideDoWhile.kt");

@@ -311,6 +311,11 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         context = context.replaceDataFlowInfo(
                 loopVisitor.clearDataFlowInfoForAssignedLocalVariables(context.dataFlowInfo)
         );
+        // TODO: think: we have just cleared the necessary information!
+        KtExpression condition = expression.getCondition();
+        DataFlowInfo entranceDataFlowInfo = components.dataFlowAnalyzer.extractDataFlowInfoFromCondition(condition, true, context)
+                                                                       .or(context.dataFlowInfo);
+        context = context.replaceDataFlowInfo(entranceDataFlowInfo);
         // Here we must record data flow information at the end of the body (or at the first jump, to be precise) and
         // .and it with entrance data flow information, because do-while body is executed at least once
         // See KT-6283
@@ -335,7 +340,6 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         else {
             bodyTypeInfo = TypeInfoFactoryKt.noTypeInfo(context);
         }
-        KtExpression condition = expression.getCondition();
         DataFlowInfo conditionDataFlowInfo = checkCondition(conditionScope, condition, context);
         DataFlowInfo dataFlowInfo;
         // Without jumps out, condition is entered and false, with jumps out, we know nothing about it

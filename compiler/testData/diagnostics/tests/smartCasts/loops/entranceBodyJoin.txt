@@ -1,0 +1,14 @@
+package
+
+public fun test1(): kotlin.Unit
+public fun test2(): kotlin.Unit
+public fun test3(): kotlin.Unit
+
+public final class Node {
+    public constructor Node(/*0*/ parent: Node?, /*1*/ value: kotlin.Int)
+    public final val parent: Node?
+    public final val value: kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}

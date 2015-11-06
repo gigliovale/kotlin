@@ -33,8 +33,9 @@ public class DeserializedConstructorDescriptor(
         kind: CallableMemberDescriptor.Kind,
         override val proto: ProtoBuf.Constructor,
         override val nameResolver: NameResolver,
-        override val typeTable: TypeTable
-) : ConstructorDescriptorImpl(containingDeclaration, original, annotations, isPrimary, kind, SourceElement.NO_SOURCE),
+        override val typeTable: TypeTable,
+        sourceElement: SourceElement
+) : ConstructorDescriptorImpl(containingDeclaration, original, annotations, isPrimary, kind, sourceElement),
         DeserializedCallableMemberDescriptor {
 
     override fun createSubstitutedCopy(
@@ -46,7 +47,7 @@ public class DeserializedConstructorDescriptor(
     ): DeserializedConstructorDescriptor {
         return DeserializedConstructorDescriptor(
                 newOwner as ClassDescriptor, original as ConstructorDescriptor?,
-                annotations, isPrimary, kind, proto, nameResolver, typeTable
+                annotations, isPrimary, kind, proto, nameResolver, typeTable, source
         )
     }
 

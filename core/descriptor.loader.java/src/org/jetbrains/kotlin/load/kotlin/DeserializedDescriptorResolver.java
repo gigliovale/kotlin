@@ -82,6 +82,7 @@ public final class DeserializedDescriptorResolver {
             PackageData packageData = JvmProtoBufUtil.readPackageDataFrom(data, strings);
             return new DeserializedPackageMemberScope(
                     descriptor, packageData.getPackageProto(), packageData.getNameResolver(), components,
+                    new KotlinJvmBinarySourceElement(kotlinClass),
                     new Function0<Collection<Name>>() {
                         @Override
                         public Collection<Name> invoke() {

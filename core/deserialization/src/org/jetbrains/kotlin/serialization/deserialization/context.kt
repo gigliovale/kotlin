@@ -46,9 +46,10 @@ class DeserializationComponents(
     fun createContext(
             descriptor: PackageFragmentDescriptor,
             nameResolver: NameResolver,
-            typeTable: TypeTable
+            typeTable: TypeTable,
+            sourceElement: SourceElement
     ): DeserializationContext =
-            DeserializationContext(this, nameResolver, descriptor, typeTable, parentTypeDeserializer = null, typeParameters = listOf())
+            DeserializationContext(this, nameResolver, descriptor, typeTable, sourceElement, parentTypeDeserializer = null, typeParameters = listOf())
 }
 
 
@@ -57,6 +58,7 @@ class DeserializationContext(
         val nameResolver: NameResolver,
         val containingDeclaration: DeclarationDescriptor,
         val typeTable: TypeTable,
+        val sourceElement: SourceElement,
         parentTypeDeserializer: TypeDeserializer?,
         typeParameters: List<ProtoBuf.TypeParameter>
 ) {
@@ -73,7 +75,7 @@ class DeserializationContext(
             nameResolver: NameResolver = this.nameResolver,
             typeTable: TypeTable = this.typeTable
     ) = DeserializationContext(
-            components, nameResolver, descriptor, typeTable,
+            components, nameResolver, descriptor, typeTable, sourceElement,
             parentTypeDeserializer = this.typeDeserializer,
             typeParameters = typeParameterProtos
     )

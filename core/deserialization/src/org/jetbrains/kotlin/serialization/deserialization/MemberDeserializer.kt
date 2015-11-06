@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.*
 import org.jetbrains.kotlin.utils.toReadOnlyList
 
 public class MemberDeserializer(private val c: DeserializationContext) {
-    public fun loadProperty(proto: ProtoBuf.Property): PropertyDescriptor {
+    public fun loadProperty(proto: ProtoBuf.Property, index: Int): PropertyDescriptor {
         val flags = proto.getFlags()
 
         val property = DeserializedPropertyDescriptor(
@@ -46,7 +46,8 @@ public class MemberDeserializer(private val c: DeserializationContext) {
                 Flags.IS_CONST.get(flags),
                 proto,
                 c.nameResolver,
-                c.typeTable
+                c.typeTable,
+                createSource(index)
         )
 
         val local = c.childContext(property, proto.getTypeParameterList())
@@ -134,12 +135,14 @@ public class MemberDeserializer(private val c: DeserializationContext) {
         return property
     }
 
-    public fun loadFunction(proto: ProtoBuf.Function): FunctionDescriptor {
+    public fun loadFunction(proto: ProtoBuf.Function, memberIndex: Int): FunctionDescriptor {
         val annotations = getAnnotations(proto, proto.flags, AnnotatedCallableKind.FUNCTION)
         val receiverAnnotations = if (proto.hasReceiverType() || proto.hasReceiverTypeId())
             getReceiverParameterAnnotations(proto, AnnotatedCallableKind.FUNCTION)
         else Annotations.EMPTY
-        val function = DeserializedSimpleFunctionDescriptor.create(c.containingDeclaration, annotations, proto, c.nameResolver, c.typeTable)
+        val function = DeserializedSimpleFunctionDescriptor.create(
+                c.containingDeclaration, annotations, proto, c.nameResolver, c.typeTable, createSource(memberIndex)
+        )
         val local = c.childContext(function, proto.typeParameterList)
         function.initialize(
                 proto.receiverType(c.typeTable)?.let { local.typeDeserializer.type(it, receiverAnnotations) },
@@ -162,11 +165,11 @@ public class MemberDeserializer(private val c: DeserializationContext) {
         return (c.containingDeclaration as? ClassDescriptor)?.getThisAsReceiverParameter()
     }
 
-    public fun loadConstructor(proto: ProtoBuf.Constructor, isPrimary: Boolean): ConstructorDescriptor {
+    public fun loadConstructor(proto: ProtoBuf.Constructor, isPrimary: Boolean, index: Int): ConstructorDescriptor {
         val classDescriptor = c.containingDeclaration as ClassDescriptor
         val descriptor = DeserializedConstructorDescriptor(
                 classDescriptor, null, getAnnotations(proto, proto.flags, AnnotatedCallableKind.FUNCTION),
-                isPrimary, CallableMemberDescriptor.Kind.DECLARATION, proto, c.nameResolver, c.typeTable
+                isPrimary, CallableMemberDescriptor.Kind.DECLARATION, proto, c.nameResolver, c.typeTable, createSource(index)
         )
         val local = c.childContext(descriptor, listOf())
         descriptor.initialize(
@@ -244,4 +247,12 @@ public class MemberDeserializer(private val c: DeserializationContext) {
         is DeserializedClassDescriptor -> ProtoContainer(classProto, null, c.nameResolver, c.typeTable)
         else -> null // TODO: support annotations on lambdas and their parameters
     }
+
+    private fun createSource(memberIndex: Int): DeserializedMemberSourceElement {
+        return DeserializedMemberSourceElement(c.sourceElement, memberIndex)
+    }
+}
+
+data class DeserializedMemberSourceElement(val parentSource: SourceElement, val memberIndex: Int): SourceElement {
+    override fun getContainingFile() = parentSource.containingFile
 }

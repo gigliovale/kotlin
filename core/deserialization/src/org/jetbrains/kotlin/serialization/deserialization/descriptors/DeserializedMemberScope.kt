@@ -71,8 +71,8 @@ public abstract class DeserializedMemberScope protected constructor(
         val protos = functionProtos()[ProtoKey(name, isExtension = false)].orEmpty() +
                      functionProtos()[ProtoKey(name, isExtension = true)].orEmpty()
 
-        val descriptors = protos.mapTo(linkedSetOf()) {
-            c.memberDeserializer.loadFunction(it)
+        val descriptors = protos.mapIndexedTo(linkedSetOf()) { index, proto ->
+            c.memberDeserializer.loadFunction(proto, index)
         }
 
         computeNonDeclaredFunctions(name, descriptors)
@@ -91,8 +91,8 @@ public abstract class DeserializedMemberScope protected constructor(
         val protos = propertyProtos()[ProtoKey(name, isExtension = false)].orEmpty() +
                      propertyProtos()[ProtoKey(name, isExtension = true)].orEmpty()
 
-        val descriptors = protos.mapTo(linkedSetOf()) {
-            c.memberDeserializer.loadProperty(it)
+        val descriptors = protos.mapIndexedTo(linkedSetOf()) { index, proto ->
+            c.memberDeserializer.loadProperty(proto, index)
         }
 
         computeNonDeclaredProperties(name, descriptors)

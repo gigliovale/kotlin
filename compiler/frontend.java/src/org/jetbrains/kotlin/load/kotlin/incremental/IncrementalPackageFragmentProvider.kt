@@ -22,6 +22,7 @@ import org.apache.log4j.Logger
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
+import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.impl.PackageFragmentDescriptorImpl
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping
@@ -165,7 +166,7 @@ public class IncrementalPackageFragmentProvider(
 
         private inner class IncrementalPackageScope(val packageData: PackageData) : DeserializedPackageMemberScope(
                 this@IncrementalPackageFragment, packageData.packageProto, packageData.nameResolver, deserializationComponents,
-                { listOf() }
+                SourceElement.NO_SOURCE, { listOf() }
         ) {
             override fun filteredFunctionProtos(protos: Collection<ProtoBuf.Function>): Collection<ProtoBuf.Function> =
                     filteredMemberProtos(protos)

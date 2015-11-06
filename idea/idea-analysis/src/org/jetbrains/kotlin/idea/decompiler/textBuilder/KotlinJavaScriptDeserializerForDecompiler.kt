@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.decompiler.textBuilder
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.idea.decompiler.navigation.JsMetaFileUtils
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatform
@@ -73,7 +74,7 @@ public class KotlinJavaScriptDeserializerForDecompiler(
         val (nameResolver, packageProto) = content.toPackageData(nameResolver)
 
         val membersScope = DeserializedPackageMemberScope(
-                createDummyPackageFragment(packageFqName), packageProto, nameResolver, deserializationComponents
+                createDummyPackageFragment(packageFqName), packageProto, nameResolver, deserializationComponents, SourceElement.NO_SOURCE
         ) { emptyList() }
         return membersScope.getContributedDescriptors()
     }

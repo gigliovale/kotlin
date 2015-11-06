@@ -46,9 +46,10 @@ public class DeserializedSimpleFunctionDescriptor extends SimpleFunctionDescript
             @NotNull Kind kind,
             @NotNull ProtoBuf.Function proto,
             @NotNull NameResolver nameResolver,
-            @NotNull TypeTable typeTable
+            @NotNull TypeTable typeTable,
+            @NotNull SourceElement sourceElement
     ) {
-        super(containingDeclaration, original, annotations, name, kind, SourceElement.NO_SOURCE);
+        super(containingDeclaration, original, annotations, name, kind, sourceElement);
         this.proto = proto;
         this.nameResolver = nameResolver;
         this.typeTable = typeTable;
@@ -71,7 +72,9 @@ public class DeserializedSimpleFunctionDescriptor extends SimpleFunctionDescript
                 kind,
                 proto,
                 nameResolver,
-                typeTable
+                typeTable,
+                getSource()
+
         );
     }
 
@@ -105,7 +108,8 @@ public class DeserializedSimpleFunctionDescriptor extends SimpleFunctionDescript
             @NotNull Annotations annotations,
             @NotNull ProtoBuf.Function proto,
             @NotNull NameResolver nameResolver,
-            @NotNull TypeTable typeTable
+            @NotNull TypeTable typeTable,
+            @NotNull SourceElement sourceElement
     ) {
         return new DeserializedSimpleFunctionDescriptor(
                 containingDeclaration,
@@ -115,7 +119,8 @@ public class DeserializedSimpleFunctionDescriptor extends SimpleFunctionDescript
                 Deserialization.memberKind(Flags.MEMBER_KIND.get(proto.getFlags())),
                 proto,
                 nameResolver,
-                typeTable
+                typeTable,
+                sourceElement
         );
     }
 }

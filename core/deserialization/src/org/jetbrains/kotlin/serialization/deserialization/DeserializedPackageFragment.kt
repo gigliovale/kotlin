@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.serialization.deserialization
 
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.descriptors.impl.PackageFragmentDescriptorImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -53,7 +54,10 @@ public abstract class DeserializedPackageFragment(
     internal val deserializedMemberScope by storageManager.createLazyValue {
         val packageStream = loadResourceSure(serializedResourcePaths.getPackageFilePath(fqName))
         val packageProto = ProtoBuf.Package.parseFrom(packageStream, serializedResourcePaths.extensionRegistry)
-        DeserializedPackageMemberScope(this, packageProto, nameResolver, components, classNames = { loadClassNames(packageProto) })
+        DeserializedPackageMemberScope(
+                this, packageProto, nameResolver, components, SourceElement.NO_SOURCE,
+                classNames = { loadClassNames(packageProto) }
+        )
     }
 
     override fun getMemberScope() = deserializedMemberScope

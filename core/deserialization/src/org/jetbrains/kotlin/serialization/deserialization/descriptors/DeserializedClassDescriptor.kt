@@ -110,7 +110,7 @@ public class DeserializedClassDescriptor(
         }
 
         return classProto.constructorList.firstOrNull { !Flags.IS_SECONDARY.get(it.flags) }?.let { constructorProto ->
-            c.memberDeserializer.loadConstructor(constructorProto, true)
+            c.memberDeserializer.loadConstructor(constructorProto, true, 0)
         }
     }
 
@@ -120,8 +120,8 @@ public class DeserializedClassDescriptor(
             computeSecondaryConstructors() + getUnsubstitutedPrimaryConstructor().singletonOrEmptyList()
 
     private fun computeSecondaryConstructors(): List<ConstructorDescriptor> =
-            classProto.constructorList.filter { Flags.IS_SECONDARY.get(it.flags) }.map {
-                c.memberDeserializer.loadConstructor(it, false)
+            classProto.constructorList.filter { Flags.IS_SECONDARY.get(it.flags) }.mapIndexed { index, proto ->
+                c.memberDeserializer.loadConstructor(proto, false, index + 1)
             }
 
     override fun getConstructors() = constructors()

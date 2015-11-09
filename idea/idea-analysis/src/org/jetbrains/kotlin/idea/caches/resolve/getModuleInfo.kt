@@ -70,7 +70,7 @@ fun PsiElement.getModuleInfo(): IdeaModuleInfo {
     )
 }
 
-private fun getModuleInfoByVirtualFile(project: Project, virtualFile: VirtualFile, isDecompiledFile: Boolean): IdeaModuleInfo {
+internal fun getModuleInfoByVirtualFile(project: Project, virtualFile: VirtualFile, isDecompiledFile: Boolean): IdeaModuleInfo {
     val projectFileIndex = ProjectFileIndex.SERVICE.getInstance(project)
 
     val module = projectFileIndex.getModuleForFile(virtualFile)

@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="KotlinJpsPluginCommons">
+    <output-path>$PROJECT_DIR$/out/artifacts/KotlinJpsPluginCommons</output-path>
+    <root id="archive" name="kotlin-jps-plugin-commons.jar">
+      <element id="module-output" name="cli-common" />
+      <element id="module-output" name="container" />
+      <element id="module-output" name="descriptor.loader.java" />
+      <element id="module-output" name="descriptors" />
+      <element id="module-output" name="deserialization" />
+      <element id="module-output" name="frontend" />
+      <element id="module-output" name="frontend.java" />
+      <element id="module-output" name="idea-jps-common" />
+      <element id="module-output" name="plugin-api" />
+      <element id="module-output" name="preloader" />
+      <element id="module-output" name="rmi-interface" />
+      <element id="module-output" name="util" />
+      <element id="module-output" name="util.runtime" />
+    </root>
+  </artifact>
+</component>

@@ -40,6 +40,7 @@
           <element id="artifact" artifact-name="KotlinJpsPlugin" />
         </element>
         <element id="library" level="project" name="markdown" />
+        <element id="artifact" artifact-name="KotlinJpsPluginCommons" />
       </element>
       <element id="directory" name="kotlinc">
         <element id="dir-copy" path="$PROJECT_DIR$/dist/kotlinc" />

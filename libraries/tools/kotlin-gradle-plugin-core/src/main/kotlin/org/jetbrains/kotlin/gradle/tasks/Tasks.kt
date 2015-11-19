@@ -14,6 +14,7 @@ import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.jetbrains.kotlin.cli.common.CLICompiler
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
@@ -46,9 +47,20 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
     private val logger = Logging.getLogger(this.javaClass)
     override fun getLogger() = logger
 
-    @TaskAction
     override fun compile() {
+        assert(false, { "unexpected call to compile()" })
+    }
+
+    @TaskAction
+    fun execute(inputs: IncrementalTaskInputs): Unit {
         getLogger().debug("Starting ${javaClass} task")
+        logger.kotlinDebug("is incremental == ${inputs.isIncremental}")
+        if (inputs.isIncremental) {
+            logger.kotlinDebug("out of date:")
+            inputs.outOfDate { logger.kotlinDebug("${it.file.absolutePath} - added: ${it.isAdded}, removed: ${it.isRemoved}, modified: ${it.isModified}") }
+            logger.kotlinDebug("removed:")
+            inputs.removed { logger.kotlinDebug("${it.file.absolutePath} - added: ${it.isAdded}, removed: ${it.isRemoved}, modified: ${it.isModified}") }
+        }
         val args = createBlankArgs()
         val sources = getKotlinSources()
         if (sources.isEmpty()) {

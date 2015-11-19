@@ -17136,6 +17136,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("CommaInWhenConditionWithoutArgument.kt")
+            public void testCommaInWhenConditionWithoutArgument() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/CommaInWhenConditionWithoutArgument.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ElseOnNullableEnum.kt")
             public void testElseOnNullableEnum() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/ElseOnNullableEnum.kt");

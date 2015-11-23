@@ -17,14 +17,12 @@
 package org.jetbrains.kotlin.codegen.intrinsics
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.AsmUtil.genInvokeAppendMethod
 import org.jetbrains.kotlin.codegen.AsmUtil.genStringBuilderConstructor
-import org.jetbrains.kotlin.codegen.Callable
-import org.jetbrains.kotlin.codegen.CallableMethod
-import org.jetbrains.kotlin.codegen.ExpressionCodegen
-import org.jetbrains.kotlin.codegen.StackValue
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
+import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes
@@ -41,11 +39,11 @@ public class Concat : IntrinsicMethod() {
             arguments: List<KtExpression>,
             receiver: StackValue
     ): Type {
-        if (element is KtBinaryExpression && element.getOperationReference().getReferencedNameElementType() == KtTokens.PLUS) {
+        if (element is KtBinaryExpression && element.operationReference.getReferencedNameElementType() == KtTokens.PLUS) {
             // LHS + RHS
             genStringBuilderConstructor(v)
-            codegen.invokeAppend(element.getLeft())
-            codegen.invokeAppend(element.getRight())
+            codegen.invokeAppend(element.left)
+            codegen.invokeAppend(element.right)
         }
         else {
             // LHS?.plus(RHS)
@@ -60,7 +58,6 @@ public class Concat : IntrinsicMethod() {
         return JAVA_STRING_TYPE
     }
 
-
     override fun toCallable(method: CallableMethod): Callable =
             object : IntrinsicCallable(method) {
                 override fun invokeMethodWithArguments(
@@ -68,16 +65,32 @@ public class Concat : IntrinsicMethod() {
                         receiver: StackValue,
                         codegen: ExpressionCodegen
                 ): StackValue {
+                    if (resolvedCall.call.callElement.parent is KtCallableReferenceExpression) {
+                        // NB we come here only in case of inlined callable reference to String::plus. See KT-10131.
+                        // This will map arguments properly, invoking callbacks defined in Callable.
+                        return super.invokeMethodWithArguments(resolvedCall, receiver, codegen)
+                    }
                     return StackValue.operation(returnType) {
-                        val arguments = resolvedCall.getCall().getValueArguments().map { it.getArgumentExpression()!! }
+                        val arguments = resolvedCall.call.valueArguments.map { it.getArgumentExpression()!! }
                         val actualType = generateImpl(
                                 codegen, it, returnType,
-                                resolvedCall.getCall().getCallElement(),
+                                resolvedCall.call.callElement,
                                 arguments,
                                 StackValue.receiver(resolvedCall, receiver, codegen, this)
                         )
                         StackValue.coerce(actualType, returnType, it)
                     }
+                }
+
+                override fun afterReceiverGeneration(v: InstructionAdapter) {
+                    genStringBuilderConstructor(v)
+                    v.swap()
+                    AsmUtil.genInvokeAppendMethod(v, AsmTypes.OBJECT_TYPE)
+                }
+
+                override fun invokeIntrinsic(v: InstructionAdapter) {
+                    AsmUtil.genInvokeAppendMethod(v, AsmTypes.OBJECT_TYPE)
+                    v.invokevirtual("java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false)
                 }
             }
 }

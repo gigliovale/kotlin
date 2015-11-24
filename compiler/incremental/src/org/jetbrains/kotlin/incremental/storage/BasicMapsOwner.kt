@@ -17,9 +17,8 @@
 package org.jetbrains.kotlin.incremental.storage
 
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.jps.incremental.storage.StorageOwner
 
-open class BasicMapsOwner : StorageOwner {
+open class BasicMapsOwner {
     private val maps = arrayListOf<BasicMap<*, *>>()
 
     companion object {
@@ -31,15 +30,15 @@ open class BasicMapsOwner : StorageOwner {
         return map
     }
 
-    override fun clean() {
+    open fun clean() {
         maps.forEach { it.clean() }
     }
 
-    override fun close() {
+    open fun close() {
         maps.forEach { it.close() }
     }
 
-    override fun flush(memoryCachesOnly: Boolean) {
+    open fun flush(memoryCachesOnly: Boolean) {
         maps.forEach { it.flush(memoryCachesOnly) }
     }
 

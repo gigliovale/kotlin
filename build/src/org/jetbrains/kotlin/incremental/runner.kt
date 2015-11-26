@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compilerRunner.CompilerEnvironment
 import org.jetbrains.kotlin.compilerRunner.KotlinCompilerRunner
 import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
-import org.jetbrains.kotlin.config.CompilerSettings
 import org.jetbrains.kotlin.config.IncrementalCompilation
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.components.LookupTracker
@@ -52,7 +51,7 @@ fun<Target> compileChanged(
         getDependencies: (Target) -> Iterable<Target>,
         commonArguments: CommonCompilerArguments,
         k2JvmArguments: K2JVMCompilerArguments,
-        compilerSettings: CompilerSettings,
+        additionalArguments: Iterable<String>,
         outputDir: File,
         sourcesToCompile: List<File>,
         javaSourceRoots: Iterable<File>,
@@ -72,7 +71,7 @@ fun<Target> compileChanged(
 
     commonArguments.verbose = true // Make compiler report source to output files mapping
 
-    KotlinCompilerRunner.runK2JvmCompiler(commonArguments, k2JvmArguments, compilerSettings, messageCollector, environment, moduleFile, outputItemCollector)
+    KotlinCompilerRunner.runK2JvmCompiler(commonArguments, k2JvmArguments, additionalArguments, messageCollector, environment, moduleFile, outputItemCollector)
 
     moduleFile.delete()
 }

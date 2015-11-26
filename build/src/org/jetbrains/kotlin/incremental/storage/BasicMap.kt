@@ -23,12 +23,12 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.utils.Printer
 import java.io.File
 
-internal abstract class BasicMap<K : Comparable<K>, V>(
+abstract class BasicMap<K : Comparable<K>, V>(
         storageFile: File,
         keyDescriptor: KeyDescriptor<K>,
         valueExternalizer: DataExternalizer<V>
 ) {
-    protected val storage = LazyStorage(storageFile, keyDescriptor, valueExternalizer)
+    internal val storage = LazyStorage(storageFile, keyDescriptor, valueExternalizer)
 
     open fun clean() {
         storage.clean()

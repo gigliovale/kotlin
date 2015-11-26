@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.INFO
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageCollectorUtil
-import org.jetbrains.kotlin.config.CompilerSettings
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.rmi.*
@@ -48,7 +47,7 @@ public object KotlinCompilerRunner {
     public fun runK2JvmCompiler(
             commonArguments: CommonCompilerArguments,
             k2jvmArguments: K2JVMCompilerArguments,
-            compilerSettings: CompilerSettings,
+            additionalArguments: Iterable<String>,
             messageCollector: MessageCollector,
             environment: CompilerEnvironment,
             moduleFile: File,
@@ -56,13 +55,13 @@ public object KotlinCompilerRunner {
         val arguments = mergeBeans(commonArguments, k2jvmArguments)
         setupK2JvmArguments(moduleFile, arguments)
 
-        runCompiler(K2JVM_COMPILER, arguments, compilerSettings.additionalArguments, messageCollector, collector, environment)
+        runCompiler(K2JVM_COMPILER, arguments, additionalArguments, messageCollector, collector, environment)
     }
 
     public fun runK2JsCompiler(
             commonArguments: CommonCompilerArguments,
             k2jsArguments: K2JSCompilerArguments,
-            compilerSettings: CompilerSettings,
+            additionalArguments: Iterable<String>,
             messageCollector: MessageCollector,
             environment: CompilerEnvironment,
             collector: OutputItemsCollector,
@@ -72,7 +71,7 @@ public object KotlinCompilerRunner {
         val arguments = mergeBeans(commonArguments, k2jsArguments)
         setupK2JsArguments(outputFile, sourceFiles, libraryFiles, arguments)
 
-        runCompiler(K2JS_COMPILER, arguments, compilerSettings.additionalArguments, messageCollector, collector, environment)
+        runCompiler(K2JS_COMPILER, arguments, additionalArguments, messageCollector, collector, environment)
     }
 
     private fun processCompilerOutput(
@@ -95,7 +94,7 @@ public object KotlinCompilerRunner {
     private fun runCompiler(
             compilerClassName: String,
             arguments: CommonCompilerArguments,
-            additionalArguments: String,
+            additionalArguments: Iterable<String>,
             messageCollector: MessageCollector,
             collector: OutputItemsCollector,
             environment: CompilerEnvironment) {
@@ -103,7 +102,7 @@ public object KotlinCompilerRunner {
             messageCollector.report(INFO, "Using kotlin-home = " + environment.kotlinPaths.homePath, CompilerMessageLocation.NO_LOCATION)
 
             val argumentsList = ArgumentUtils.convertArgumentsToStringList(arguments)
-            argumentsList.addAll(additionalArguments.split(" "))
+            argumentsList.addAll(additionalArguments)
 
             val argsArray = argumentsList.toTypedArray()
 

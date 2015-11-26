@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.js.K2JSCompiler
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.config.Services
+import org.jetbrains.kotlin.incremental.compileChanged
 import org.jetbrains.kotlin.utils.LibraryUtils
 import java.io.File
 import java.util.*
@@ -70,6 +71,7 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
 
         populateCommonArgs(args, sources)
         populateTargetSpecificArgs(args)
+//        compileChanged()
         callCompiler(args)
         afterCompileHook(args)
     }

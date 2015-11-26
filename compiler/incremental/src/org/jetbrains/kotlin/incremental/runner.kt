@@ -45,32 +45,32 @@ import org.jetbrains.kotlin.utils.keysToMap
 import java.io.File
 
 
-private fun<Target> compileChanged(
+fun<Target> compileChanged(
+        moduleName: String,
+        isTest: Boolean,
         targets: Iterable<Target>,
         getDependencies: (Target) -> Iterable<Target>,
-        name: String,
         commonArguments: CommonCompilerArguments,
         k2JvmArguments: K2JVMCompilerArguments,
+        compilerSettings: CompilerSettings,
         outputDir: File,
         sourcesToCompile: List<File>,
-        allSources: List<File>,
-        roots: Iterable<File>,
+        javaSourceRoots: Iterable<File>,
         classpath: Iterable<File>,
         friendDirs: Iterable<File>,
         compilationCanceledStatus: CompilationCanceledStatus,
         getIncrementalCache: (Target) -> IncrementalCacheImpl<Target>,
         getTargetId: Target.() -> TargetId,
-        compilerSettings: CompilerSettings,
         messageCollector: MessageCollector)
 {
     val outputItemCollector = OutputItemsCollectorImpl()
-    val moduleFile = makeModuleFile(name, outputDir, sourcesToCompile, allSources, roots, classpath, friendDirs)
-
-    // TODO: take as an argument - it should come from use site (may be already merged with common args)
+    val moduleFile = makeModuleFile(moduleName, isTest, outputDir, sourcesToCompile, javaSourceRoots, classpath, friendDirs)
 
     val incrementalCaches = getIncrementalCaches(targets, getDependencies, getIncrementalCache, getTargetId)
     val lookupTracker = getLookupTracker()
     val environment = createCompileEnvironment(incrementalCaches, lookupTracker, compilationCanceledStatus)
+
+    commonArguments.verbose = true // Make compiler report source to output files mapping
 
     KotlinCompilerRunner.runK2JvmCompiler(commonArguments, k2JvmArguments, compilerSettings, messageCollector, environment, moduleFile, outputItemCollector)
 
@@ -78,16 +78,25 @@ private fun<Target> compileChanged(
 }
 
 
-private fun makeModuleFile(name: String, outputDir: File, sourcesToCompile: List<File>, allSources: List<File>, roots: Iterable<File>, classpath: Iterable<File>, friendDirs: Iterable<File>): File {
+fun getJavaSourceRoots(sources: Iterable<File>, roots: Iterable<File>): Iterable<File> =
+        sources
+            .filter { it.isJavaFile() }
+            .map { findSrcDirRoot(it, roots) }
+            .filterNotNull()
+
+private fun File.isJavaFile() = extension.equals(JavaFileType.INSTANCE.defaultExtension, ignoreCase = true)
+
+
+private fun makeModuleFile(name: String, isTest: Boolean, outputDir: File, sourcesToCompile: List<File>, javaSourceRoots: Iterable<File>, classpath: Iterable<File>, friendDirs: Iterable<File>): File {
     val builder = KotlinModuleXmlBuilder()
     builder.addModule(
             name,
             outputDir.absolutePath,
             sourcesToCompile,
-            getJavaSourceRoots(allSources, roots).map { JvmSourceRoot(it) },
+            javaSourceRoots.map { JvmSourceRoot(it) },
             classpath,
             "java-production",
-            false,
+            isTest,
             // this excludes the output directories from the class path, to be removed for true incremental compilation
             setOf(outputDir),
             friendDirs
@@ -99,16 +108,6 @@ private fun makeModuleFile(name: String, outputDir: File, sourcesToCompile: List
 
     return scriptFile
 }
-
-
-private fun getJavaSourceRoots(sources: Iterable<File>, roots: Iterable<File>): Set<File> =
-        sources
-            .filter { it.isJavaFile() }
-            .map { findSrcDirRoot(it, roots) }
-            .filterNotNull()
-            .toSet()
-
-private fun File.isJavaFile() = extension.equals(JavaFileType.INSTANCE.defaultExtension, ignoreCase = true)
 
 
 private fun findSrcDirRoot(file: File, roots: Iterable<File>): File? {
@@ -182,11 +181,11 @@ private fun<Target> getIncrementalCaches(
 }
 
 
-private fun<TargetId> updateKotlinIncrementalCache(
-        targets: Iterable<TargetId>,
+private fun<Target> updateKotlinIncrementalCache(
+        targets: Iterable<Target>,
         compilationErrors: Boolean,
-        incrementalCaches: Map<TargetId, IncrementalCacheImpl<TargetId>>,
-        generatedFiles: List<GeneratedFile<TargetId>>
+        incrementalCaches: Map<Target, IncrementalCacheImpl<Target>>,
+        generatedFiles: List<GeneratedFile<Target>>
 ): CompilationResult {
 
     assert(IncrementalCompilation.isEnabled()) { "updateKotlinIncrementalCache should not be called when incremental compilation disabled" }
@@ -197,7 +196,7 @@ private fun<TargetId> updateKotlinIncrementalCache(
     for (generatedFile in generatedFiles) {
         val ic = incrementalCaches[generatedFile.target]!!
         val newChangesInfo =
-                if (generatedFile is GeneratedJvmClass<TargetId>) {
+                if (generatedFile is GeneratedJvmClass<Target>) {
                     ic.saveFileToCache(generatedFile)
                 }
                 else if (generatedFile.outputFile.isModuleMappingFile()) {

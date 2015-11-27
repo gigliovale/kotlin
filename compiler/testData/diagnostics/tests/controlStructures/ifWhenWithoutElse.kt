@@ -19,10 +19,10 @@ val xx6 = null ?: <!INVALID_IF_AS_EXPRESSION!>if (true) 42<!>
 val xx7 = "" + <!INVALID_IF_AS_EXPRESSION!>if (true) 42<!>
 
 val wxx1 = <!NO_ELSE_IN_WHEN!>when<!> { true -> 42 }
-val wxx2: Unit = when { true -> <!CONSTANT_EXPECTED_TYPE_MISMATCH!>42<!> }
+val wxx2: Unit = <!NO_ELSE_IN_WHEN!>when<!> { true -> <!CONSTANT_EXPECTED_TYPE_MISMATCH!>42<!> }
 val wxx3 = idAny(<!NO_ELSE_IN_WHEN!>when<!> { true -> 42 })
 val wxx4 = id(<!NO_ELSE_IN_WHEN!>when<!> { true -> 42 })
-val wxx5 = idUnit(when { true -> 42 }) // TODO illegal expression
+val wxx5 = idUnit(<!NO_ELSE_IN_WHEN!>when<!> { true -> 42 }) // TODO illegal expression
 val wxx6 = null ?: <!NO_ELSE_IN_WHEN!>when<!> { true -> 42 }
 val wxx7 = "" + <!NO_ELSE_IN_WHEN!>when<!> { true -> 42 }
 
@@ -44,7 +44,7 @@ fun foo1(x: String?) {
     "" + <!INVALID_IF_AS_EXPRESSION!>if (true) 42<!>
     w@while (true) {
         x ?: if (true) break
-        x ?: <!NO_ELSE_IN_WHEN!>when<!> { true -> break@w }
+        x ?: when { true -> break@w }
     }
 }
 

@@ -33,17 +33,14 @@ import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
 import org.jetbrains.kotlin.config.IncrementalCompilation
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.components.LookupTracker
-import org.jetbrains.kotlin.incremental.IncrementalCompilationComponentsImpl
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.modules.KotlinModuleXmlBuilder
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.KotlinPaths
-import org.jetbrains.kotlin.utils.PathUtil
 import org.jetbrains.kotlin.utils.keysToMap
 import java.io.File
-
 
 fun<Target> compileChanged(
         kotlinPaths: KotlinPaths,
@@ -66,6 +63,7 @@ fun<Target> compileChanged(
 {
     val outputItemCollector = OutputItemsCollectorImpl()
     val moduleFile = makeModuleFile(moduleName, isTest, outputDir, sourcesToCompile, javaSourceRoots, classpath, friendDirs)
+    println("module file created: $moduleFile")
 
     val incrementalCaches = getIncrementalCaches(targets, getDependencies, getIncrementalCache, getTargetId)
     val lookupTracker = getLookupTracker()

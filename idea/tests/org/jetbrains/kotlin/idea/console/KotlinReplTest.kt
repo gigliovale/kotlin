@@ -22,12 +22,14 @@ import com.intellij.util.ui.UIUtil
 import org.jetbrains.kotlin.console.KotlinConsoleKeeper
 import org.jetbrains.kotlin.console.KotlinConsoleRunner
 import org.junit.FixMethodOrder
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runners.MethodSorters
 import kotlin.properties.Delegates
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+@Ignore
 @FixMethodOrder(MethodSorters.JVM)
 public class KotlinReplTest : PlatformTestCase() {
     private var consoleRunner: KotlinConsoleRunner by Delegates.notNull()

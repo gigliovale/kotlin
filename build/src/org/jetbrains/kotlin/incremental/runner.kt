@@ -40,7 +40,9 @@ import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.KotlinPaths
 import org.jetbrains.kotlin.utils.keysToMap
+import org.jetbrains.kotlin.utils.sure
 import java.io.File
+import java.util.*
 
 fun<Target> compileChanged(
         kotlinPaths: KotlinPaths,
@@ -59,11 +61,13 @@ fun<Target> compileChanged(
         compilationCanceledStatus: CompilationCanceledStatus,
         getIncrementalCache: (Target) -> IncrementalCacheImpl<Target>,
         getTargetId: Target.() -> TargetId,
-        messageCollector: MessageCollector)
+        messageCollector: MessageCollector,
+        outputItemCollector: OutputItemsCollectorImpl
+        )
 {
-    val outputItemCollector = OutputItemsCollectorImpl()
     val moduleFile = makeModuleFile(moduleName, isTest, outputDir, sourcesToCompile, javaSourceRoots, classpath, friendDirs)
     println("module file created: $moduleFile")
+    println(moduleFile.readText())
 
     val incrementalCaches = getIncrementalCaches(targets, getDependencies, getIncrementalCache, getTargetId)
     val lookupTracker = getLookupTracker()
@@ -181,37 +185,29 @@ private fun<Target> getIncrementalCaches(
 }
 
 
-private fun<Target> updateKotlinIncrementalCache(
+fun<Target> updateKotlinIncrementalCache(
         targets: Iterable<Target>,
         compilationErrors: Boolean,
-        incrementalCaches: Map<Target, IncrementalCacheImpl<Target>>,
+        getIncrementalCache: (Target) -> IncrementalCacheImpl<Target>,
         generatedFiles: List<GeneratedFile<Target>>
 ): CompilationResult {
 
     assert(IncrementalCompilation.isEnabled()) { "updateKotlinIncrementalCache should not be called when incremental compilation disabled" }
 
-    targets.forEach { incrementalCaches[it]!!.saveCacheFormatVersion() }
+    targets.forEach { getIncrementalCache(it).saveCacheFormatVersion() }
 
     var changesInfo = CompilationResult.NO_CHANGES
     for (generatedFile in generatedFiles) {
-        val ic = incrementalCaches[generatedFile.target]!!
-        val newChangesInfo =
-                if (generatedFile is GeneratedJvmClass<Target>) {
-                    ic.saveFileToCache(generatedFile)
-                }
-                else if (generatedFile.outputFile.isModuleMappingFile()) {
-                    ic.saveModuleMappingToCache(generatedFile.sourceFiles, generatedFile.outputFile)
-                }
-                else {
-                    continue
-                }
-
-        changesInfo += newChangesInfo
+        val ic = getIncrementalCache(generatedFile.target)
+        when {
+            generatedFile is GeneratedJvmClass<Target> -> changesInfo += ic.saveFileToCache(generatedFile)
+            generatedFile.outputFile.isModuleMappingFile() -> changesInfo += ic.saveModuleMappingToCache(generatedFile.sourceFiles, generatedFile.outputFile)
+        }
     }
 
     if (!compilationErrors) {
-        incrementalCaches.values().forEach {
-            val newChangesInfo = it.clearCacheForRemovedClasses()
+        targets.forEach {
+            val newChangesInfo = getIncrementalCache(it).clearCacheForRemovedClasses()
             changesInfo += newChangesInfo
         }
     }
@@ -220,7 +216,7 @@ private fun<Target> updateKotlinIncrementalCache(
 }
 
 
-private fun LookupStorage.update(
+fun LookupStorage.update(
         lookupTracker: LookupTracker,
         filesToCompile: Sequence<File>,
         removedFiles: Sequence<File>
@@ -235,3 +231,57 @@ private fun LookupStorage.update(
     lookupTracker.lookups.entrySet().forEach { this.add(it.key, it.value) }
 }
 
+
+fun<Target> getGeneratedFiles(
+        targets: Collection<Target>,
+        representativeTarget: Target,
+        getSources: (Target) -> Iterable<File>,
+        getOutputDir: (Target) -> File?,
+        outputItemCollector: OutputItemsCollectorImpl
+): List<GeneratedFile<Target>> {
+    // If there's only one target, this map is empty: get() always returns null, and the representativeTarget will be used below
+    val sourceToTarget = HashMap<File, Target>()
+    if (targets.size > 1) {
+        for (target in targets) {
+            for (file in getSources(target)) {
+                sourceToTarget.put(file, target)
+            }
+        }
+    }
+
+    val result = ArrayList<GeneratedFile<Target>>()
+
+    for (outputItem in outputItemCollector.outputs) {
+        val sourceFiles = outputItem.sourceFiles
+        val outputFile = outputItem.outputFile
+        val target =
+                sourceFiles.firstOrNull()?.let { sourceToTarget[it] } ?:
+                targets.filter { getOutputDir(it)?.let { outputFile.startsWith(it) } ?: false }.singleOrNull() ?:
+                representativeTarget
+
+        if (outputFile.getName().endsWith(".class")) {
+            result.add(GeneratedJvmClass(target, sourceFiles, outputFile))
+        }
+        else {
+            result.add(GeneratedFile(target, sourceFiles, outputFile))
+        }
+    }
+    return result
+}
+
+
+public open class GeneratedFile<Target> internal constructor(
+        val target: Target,
+        val sourceFiles: Collection<File>,
+        val outputFile: File
+)
+
+class GeneratedJvmClass<Target> (
+        target: Target,
+        sourceFiles: Collection<File>,
+        outputFile: File
+) : GeneratedFile<Target>(target, sourceFiles, outputFile) {
+    val outputClass = LocalFileKotlinClass.create(outputFile).sure {
+        "Couldn't load KotlinClass from $outputFile; it may happen because class doesn't have valid Kotlin annotations"
+    }
+}

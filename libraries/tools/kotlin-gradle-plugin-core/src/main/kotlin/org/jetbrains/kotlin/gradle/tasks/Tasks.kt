@@ -25,9 +25,12 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.js.K2JSCompiler
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
+import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
 import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.incremental.IncrementalCacheImpl
 import org.jetbrains.kotlin.incremental.compileChanged
+import org.jetbrains.kotlin.incremental.getGeneratedFiles
+import org.jetbrains.kotlin.incremental.updateKotlinIncrementalCache
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.KotlinPaths
@@ -134,7 +137,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
 
     override fun populateTargetSpecificArgs(args: K2JVMCompilerArguments) {
         // show kotlin compiler where to look for java source files
-        args.freeArgs = (args.freeArgs + getJavaSourceRoots().map { it.getAbsolutePath() }).toSet().toList()
+//        args.freeArgs = (args.freeArgs + getJavaSourceRoots().map { it.getAbsolutePath() }).toSet().toList()
         getLogger().kotlinDebug("args.freeArgs = ${args.freeArgs}")
 
         if (StringUtils.isEmpty(kotlinOptions.classpath)) {
@@ -192,9 +195,10 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
 
     override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>) {
         val kotlinPaths = GradleKotlinPaths(compiler.javaClass)
-        val moduleName = "abc"
+        val moduleName = args.moduleName
         val targetType = "java-production"
         val outputDir = File(args.destination)
+        val caches = hashMapOf<TargetId, IncrementalCacheImpl<TargetId>>()
 
         fun createIncrementalCacheDir(target: TargetId): File {
             val tmpDir = System.getProperty("java.io.tmpdir")!!
@@ -203,28 +207,49 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             return cacheDir
         }
 
+        val targets = listOf(TargetId(moduleName, targetType))
+        val sourcesToCompile = if (isIncremental) changed else sources
+        val outputItemCollector = OutputItemsCollectorImpl()
+
         compileChanged<TargetId>(
                 kotlinPaths,
                 moduleName = moduleName,
                 isTest = false,
-                targets = listOf(TargetId(moduleName,targetType)),
+                targets = targets,
                 getDependencies = { listOf<TargetId>() },
                 commonArguments = args,
                 k2JvmArguments = args,
                 additionalArguments = listOf(),
                 outputDir = outputDir,
-                sourcesToCompile =  if (isIncremental) changed else sources,
-                javaSourceRoots = sources.filter { it.isDirectory },
+                sourcesToCompile = sourcesToCompile,
+                javaSourceRoots = getJavaSourceRoots(),
                 classpath = args.classpath.split(File.pathSeparator).map { File(it) },
                 friendDirs = listOf(),
                 compilationCanceledStatus = object : CompilationCanceledStatus {
                     override fun checkCanceled() { }
                 },
-                getIncrementalCache = { IncrementalCacheImpl(outputDir, createIncrementalCacheDir(it), it) },
+                getIncrementalCache = { caches.getOrPut(it, { IncrementalCacheImpl(outputDir, createIncrementalCacheDir(it), it) }) },
                 getTargetId = { this },
-                messageCollector = GradleMessageCollector(logger)
-                )
-//        super.callCompiler(args, sources, isIncremental, changed, deleted)
+                messageCollector = GradleMessageCollector(logger),
+                outputItemCollector = outputItemCollector)
+/*
+        val generatedFiles = getGeneratedFiles(
+                targets = targets,
+                representativeTarget = targets.first(),
+                getSources = { sourcesToCompile },
+                getOutputDir = { outputDir },
+                outputItemCollector = outputItemCollector)
+
+        val changes = updateKotlinIncrementalCache(
+                targets = targets,
+                compilationErrors = false,
+                getIncrementalCache = { caches[it]!! },
+                generatedFiles = generatedFiles
+        )
+        changes.changes.forEach {
+            getLogger().kotlinDebug("changed ${it.fqName}")
+        }
+        */
     }
 
 

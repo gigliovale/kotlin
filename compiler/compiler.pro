@@ -104,6 +104,15 @@ messages/**)
 # for j2k
 -keep class com.intellij.codeInsight.NullableNotNullManager { public protected *; }
 
+# for kotlin-build (consider repacking compiler together with kotlin-build and remove this part afterwards)
+-keep class com.intellij.util.io.IOUtil { public *; }
+-keep class com.intellij.util.SystemProperties { public *; }
+-keep class jsr166e.extra.SequenceLock { *; }
+-keep class com.intellij.util.containers.hash.LinkedHashMap { *; }
+-keep class com.intellij.util.containers.ConcurrentIntObjectMap { *; }
+-keep class com.intellij.util.io.PersistentHashMapValueStorage { *; }
+-keep class com.intellij.util.io.PersistentHashMap { *; }
+
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);

@@ -81,7 +81,8 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
 
         populateCommonArgs(args)
         populateTargetSpecificArgs(args)
-        callCompiler(args, sources, inputs.isIncremental, modified, deleted)
+        val cachesDir = File(destinationDir, "caches")
+        callCompiler(args, sources, inputs.isIncremental, modified, deleted, cachesDir)
         afterCompileHook(args)
     }
 
@@ -105,7 +106,7 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
         args.noInline = kotlinOptions.noInline
     }
 
-    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>) {
+    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>, cachesBaseDir: File) {
 
         populateSources(args, sources)
 
@@ -193,18 +194,17 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
     }
 
 
-    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>) {
+    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>, cachesBaseDir: File) {
         val kotlinPaths = GradleKotlinPaths(compiler.javaClass)
         val moduleName = args.moduleName
         val targetType = "java-production"
         val outputDir = File(args.destination)
         val caches = hashMapOf<TargetId, IncrementalCacheImpl<TargetId>>()
 
-        fun createIncrementalCacheDir(target: TargetId): File {
-            val tmpDir = System.getProperty("java.io.tmpdir")!!
-            val cacheDir = File(tmpDir, "inreCache.${target.name}.${System.currentTimeMillis()}")
-            cacheDir.mkdir()
-            return cacheDir
+        fun getOrCreateIncrementalCache(target: TargetId): IncrementalCacheImpl<TargetId> {
+            val cacheDir = File(cachesBaseDir, "increCache.${target.name}")
+            cacheDir.mkdirs()
+            return IncrementalCacheImpl(outputDir, cacheDir, target)
         }
 
         val targets = listOf(TargetId(moduleName, targetType))
@@ -228,11 +228,11 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 compilationCanceledStatus = object : CompilationCanceledStatus {
                     override fun checkCanceled() { }
                 },
-                getIncrementalCache = { caches.getOrPut(it, { IncrementalCacheImpl(outputDir, createIncrementalCacheDir(it), it) }) },
+                getIncrementalCache = { caches.getOrPut(it, { getOrCreateIncrementalCache(it) }) },
                 getTargetId = { this },
                 messageCollector = GradleMessageCollector(logger),
                 outputItemCollector = outputItemCollector)
-/*
+
         val generatedFiles = getGeneratedFiles(
                 targets = targets,
                 representativeTarget = targets.first(),
@@ -244,12 +244,11 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 targets = targets,
                 compilationErrors = false,
                 getIncrementalCache = { caches[it]!! },
-                generatedFiles = generatedFiles
-        )
+                generatedFiles = generatedFiles)
+
         changes.changes.forEach {
             getLogger().kotlinDebug("changed ${it.fqName}")
         }
-        */
     }
 
 

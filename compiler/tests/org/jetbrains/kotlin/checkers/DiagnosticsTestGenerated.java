@@ -14766,6 +14766,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("falseUnnecessaryCall.kt")
+            public void testFalseUnnecessaryCall() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/falseUnnecessaryCall.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("fieldExclExcl.kt")
             public void testFieldExclExcl() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/fieldExclExcl.kt");
@@ -15057,6 +15063,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("typeInComparison.kt")
             public void testTypeInComparison() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/typeInComparison.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unstableToStable.kt")
+            public void testUnstableToStable() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/unstableToStable.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unstableToStableTypes.kt")
+            public void testUnstableToStableTypes() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/unstableToStableTypes.kt");
                 doTest(fileName);
             }
 

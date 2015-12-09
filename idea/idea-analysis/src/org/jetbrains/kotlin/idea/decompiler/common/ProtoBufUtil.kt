@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.decompiler
+package org.jetbrains.kotlin.idea.decompiler.common
 
-import org.jetbrains.kotlin.idea.decompiler.textBuilder.DecompiledText
-import org.jetbrains.kotlin.idea.decompiler.textBuilder.buildDecompiledTextFromJsMetadata
-import org.jetbrains.kotlin.utils.concurrent.block.LockedClearableLazyValue
+import com.google.protobuf.ExtensionRegistryLite
+import org.jetbrains.kotlin.serialization.ProtoBuf
+import java.io.ByteArrayInputStream
 
-public class KotlinJavascriptMetaFile(provider: KotlinClassFileViewProviderBase) : KtClsFileBase(provider) {
-    protected override val decompiledText: LockedClearableLazyValue<DecompiledText> = LockedClearableLazyValue(Any()) {
-        buildDecompiledTextFromJsMetadata(getVirtualFile())
-    }
+fun ByteArray.toPackageProto(extensionRegistry: ExtensionRegistryLite): ProtoBuf.Package {
+    return ProtoBuf.Package.parseFrom(ByteArrayInputStream(this), extensionRegistry)!!
+}
+
+fun ByteArray.toClassProto(extensionRegistry: ExtensionRegistryLite): ProtoBuf.Class {
+    return ProtoBuf.Class.parseFrom(ByteArrayInputStream(this), extensionRegistry)
 }

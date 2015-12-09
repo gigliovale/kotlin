@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.decompiler
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
@@ -30,8 +31,14 @@ import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.utils.concurrent.block.LockedClearableLazyValue
 
-public abstract class KtClsFileBase(val provider: KotlinClassFileViewProviderBase) : KtFile(provider, true) {
-    protected abstract val decompiledText: LockedClearableLazyValue<DecompiledText>
+open class KtDecompiledFile(
+        private val provider: KotlinDecompiledFileViewProvider,
+        buildDecompiledText: (VirtualFile) -> DecompiledText
+) : KtFile(provider, true) {
+
+    private val decompiledText = LockedClearableLazyValue(Any()) {
+        buildDecompiledText(provider.virtualFile)
+    }
 
     public fun getDeclarationForDescriptor(descriptor: DeclarationDescriptor): KtDeclaration? {
         val original = descriptor.getOriginal()

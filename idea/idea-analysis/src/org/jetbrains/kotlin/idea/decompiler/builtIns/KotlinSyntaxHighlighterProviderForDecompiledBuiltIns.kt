@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.decompiler
+package org.jetbrains.kotlin.idea.decompiler.builtIns
 
 import com.intellij.openapi.fileTypes.FileType
+import com.intellij.openapi.fileTypes.SyntaxHighlighter
+import com.intellij.openapi.fileTypes.SyntaxHighlighterProvider
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
+import org.jetbrains.kotlin.idea.highlighter.KotlinHighlighter
 
-public object KotlinJavaScriptMetaFileType : FileType {
-
-    override fun getName() = "KJSM"
-
-    override fun getDescription() = "Kotlin JavaScript meta file"
-
-    override fun getDefaultExtension() = KotlinJavascriptSerializationUtil.CLASS_METADATA_FILE_EXTENSION
-
-    override fun getIcon() = null
-
-    override fun isBinary() = true
-
-    override fun isReadOnly() = true
-
-    override fun getCharset(file: VirtualFile, content: ByteArray) = null
+class KotlinSyntaxHighlighterProviderForDecompiledBuiltIns : SyntaxHighlighterProvider {
+    override fun create(fileType: FileType, project: Project?, file: VirtualFile?): SyntaxHighlighter? {
+        if (fileType == KotlinBuiltInClassFileType || fileType == KotlinBuiltInPackageFileType) {
+            return KotlinHighlighter()
+        }
+        return null
+    }
 }

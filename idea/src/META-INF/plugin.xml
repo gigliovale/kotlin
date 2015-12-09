@@ -275,7 +275,7 @@
 
     <projectService serviceInterface="org.jetbrains.kotlin.idea.caches.resolve.ClsJavaStubByVirtualFileCache"
                     serviceImplementation="org.jetbrains.kotlin.idea.caches.resolve.ClsJavaStubByVirtualFileCache"/>
-      
+
     <projectService serviceInterface="org.jetbrains.kotlin.console.KotlinConsoleKeeper"
                     serviceImplementation="org.jetbrains.kotlin.console.KotlinConsoleKeeper"/>
 
@@ -293,6 +293,7 @@
 
     <fileTypeFactory implementation="org.jetbrains.kotlin.idea.KotlinFileTypeFactory"/>
     <fileTypeFactory implementation="org.jetbrains.kotlin.idea.KotlinJavaScriptMetaFileTypeFactory"/>
+    <fileTypeFactory implementation="org.jetbrains.kotlin.idea.KotlinBuiltInFileTypeFactory"/>
     <fileTypeFactory implementation="org.jetbrains.kotlin.idea.KotlinModuleFileFactory"/>
 
     <compileServer.plugin classpath="jps/kotlin-jps-plugin.jar;kotlin-runtime.jar;kotlin-reflect.jar;kotlin-plugin.jar;kotlin-android-extensions-plugin.jar;kotlin-android-extensions-compiler-plugin.jar"/>
@@ -300,6 +301,7 @@
     <buildProcess.parametersProvider implementation="org.jetbrains.kotlin.idea.compiler.configuration.KotlinBuildProcessParametersProvider"/>
 
     <lang.syntaxHighlighterFactory key="kotlin" implementationClass="org.jetbrains.kotlin.idea.highlighter.KotlinSyntaxHighlighterFactory"/>
+    <syntaxHighlighter factoryClass="org.jetbrains.kotlin.idea.decompiler.builtIns.KotlinSyntaxHighlighterProviderForDecompiledBuiltIns"/>
     <lang.braceMatcher language="kotlin" implementationClass="org.jetbrains.kotlin.idea.KotlinPairMatcher"/>
     <lang.parserDefinition language="kotlin" implementationClass="org.jetbrains.kotlin.parsing.KotlinParserDefinition"/>
     <lang.commenter language="kotlin" implementationClass="org.jetbrains.kotlin.idea.KotlinCommenter"/>
@@ -558,8 +560,9 @@
     <stubIndex implementation="org.jetbrains.kotlin.idea.stubindex.KotlinMultifileClassPartIndex"/>
     <stubIndex implementation="org.jetbrains.kotlin.idea.stubindex.KotlinScriptFqnIndex"/>
 
-    <psi.classFileDecompiler implementation="org.jetbrains.kotlin.idea.decompiler.KotlinClassFileDecompiler"/>
-    <psi.classFileDecompiler implementation="org.jetbrains.kotlin.idea.decompiler.KotlinJavaScriptMetaFileDecompiler"/>
+    <psi.classFileDecompiler implementation="org.jetbrains.kotlin.idea.decompiler.classFile.KotlinClassFileDecompiler"/>
+    <psi.classFileDecompiler implementation="org.jetbrains.kotlin.idea.decompiler.js.KotlinJavaScriptMetaFileDecompiler"/>
+    <psi.classFileDecompiler implementation="org.jetbrains.kotlin.idea.decompiler.builtIns.KotlinBuiltInDecompiler"/>
 
     <fileBasedIndex implementation="org.jetbrains.kotlin.idea.versions.KotlinAbiVersionIndex"/>
     <fileBasedIndex implementation="org.jetbrains.kotlin.idea.versions.KotlinJavaScriptAbiVersionIndex"/>
@@ -1300,10 +1303,16 @@
     <referenceImporter implementation="org.jetbrains.kotlin.idea.quickfix.KotlinReferenceImporter"/>
 
     <fileType.fileViewProviderFactory filetype="KJSM" implementationClass="com.intellij.psi.ClassFileViewProviderFactory"/>
-
     <filetype.stubBuilder filetype="KJSM" implementationClass="com.intellij.psi.impl.compiled.ClassFileStubBuilder"/>
-
     <filetype.decompiler filetype="KJSM" implementationClass="com.intellij.psi.impl.compiled.ClassFileDecompiler"/>
+
+    <fileType.fileViewProviderFactory filetype="kotlin_class" implementationClass="com.intellij.psi.ClassFileViewProviderFactory"/>
+    <filetype.stubBuilder filetype="kotlin_class" implementationClass="com.intellij.psi.impl.compiled.ClassFileStubBuilder"/>
+    <filetype.decompiler filetype="kotlin_class" implementationClass="com.intellij.psi.impl.compiled.ClassFileDecompiler"/>
+
+    <fileType.fileViewProviderFactory filetype="kotlin_package" implementationClass="com.intellij.psi.ClassFileViewProviderFactory"/>
+    <filetype.stubBuilder filetype="kotlin_package" implementationClass="com.intellij.psi.impl.compiled.ClassFileStubBuilder"/>
+    <filetype.decompiler filetype="kotlin_package" implementationClass="com.intellij.psi.impl.compiled.ClassFileDecompiler"/>
 
     <pathMacroExpandableProtocol protocol="kotlin-js-meta"/>
   </extensions>

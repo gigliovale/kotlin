@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.decompiler.textBuilder
+package org.jetbrains.kotlin.idea.decompiler.js
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.idea.decompiler.navigation.JsMetaFileUtils
+import org.jetbrains.kotlin.idea.decompiler.common.DirectoryBasedClassDataFinder
+import org.jetbrains.kotlin.idea.decompiler.textBuilder.DeserializerForDecompilerBase
+import org.jetbrains.kotlin.idea.decompiler.textBuilder.LoggingErrorReporter
+import org.jetbrains.kotlin.idea.decompiler.textBuilder.ResolveEverythingToKotlinAnyLocalClassResolver
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatform
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.serialization.deserialization.*
-import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
-import org.jetbrains.kotlin.serialization.js.KotlinJavascriptAnnotationAndConstantLoader
+import org.jetbrains.kotlin.serialization.js.JsSerializerProtocol
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializedResourcePaths
-import org.jetbrains.kotlin.serialization.js.toPackageData
 import java.io.ByteArrayInputStream
 
 public class KotlinJavaScriptDeserializerForDecompiler(
@@ -46,36 +46,19 @@ public class KotlinJavaScriptDeserializerForDecompiler(
 
     override val targetPlatform: TargetPlatform get() = JsPlatform
 
-    private val metaFileFinder = DirectoryBasedKotlinJavaScriptMetaFileFinder(packageDirectory, directoryPackageFqName, nameResolver)
+    private val finder = DirectoryBasedClassDataFinder(packageDirectory, directoryPackageFqName, nameResolver, KotlinJavascriptSerializedResourcePaths)
 
-    override val classDataFinder = DirectoryBasedKotlinJavaScriptDataFinder(metaFileFinder, LOG)
-
-    override val annotationAndConstantLoader = KotlinJavascriptAnnotationAndConstantLoader(moduleDescriptor)
+    private val annotationAndConstantLoader = AnnotationAndConstantLoaderImpl(moduleDescriptor, JsSerializerProtocol)
 
     override val deserializationComponents = DeserializationComponents(
-            storageManager, moduleDescriptor, classDataFinder, annotationAndConstantLoader, packageFragmentProvider,
-            ResolveEverythingToKotlinAnyLocalClassResolver(targetPlatform.builtIns), ErrorReporter.DO_NOTHING,
+            storageManager, moduleDescriptor, finder, annotationAndConstantLoader, packageFragmentProvider,
+            ResolveEverythingToKotlinAnyLocalClassResolver(targetPlatform.builtIns), LoggingErrorReporter(LOG),
             LookupTracker.DO_NOTHING, FlexibleTypeCapabilitiesDeserializer.Dynamic, ClassDescriptorFactory.EMPTY
     )
 
-    override fun resolveDeclarationsInFacade(facadeFqName: FqName): Collection<DeclarationDescriptor> {
+    override fun resolveDeclarationsInFacade(facadeFqName: FqName): List<DeclarationDescriptor> {
         val packageFqName = facadeFqName.parent()
-        assert(packageFqName == directoryPackageFqName) {
-            "Was called for $facadeFqName; only members of $directoryPackageFqName package are expected."
-        }
-        val file = metaFileFinder.findKotlinJavascriptMetaFile(ClassId.topLevel(facadeFqName))
-        if (file == null) {
-            LOG.error("Could not read data for $facadeFqName")
-            return emptyList()
-        }
-
-        val content = file.contentsToByteArray(false)
-        val (nameResolver, packageProto) = content.toPackageData(nameResolver)
-
-        val membersScope = DeserializedPackageMemberScope(
-                createDummyPackageFragment(packageFqName), packageProto, nameResolver, deserializationComponents
-        ) { emptyList() }
-        return membersScope.getContributedDescriptors()
+        return getDescriptorsFromPackageFile(packageFqName, KotlinJavascriptSerializedResourcePaths, LOG, nameResolver)
     }
 
     companion object {

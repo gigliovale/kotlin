@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.decompiler.stubBuilder
+package org.jetbrains.kotlin.idea.decompiler.js
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.compiled.ClsStubBuilder
 import com.intellij.psi.impl.compiled.ClassFileStubBuilder
 import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.util.indexing.FileContent
-import org.jetbrains.kotlin.idea.decompiler.AnnotationLoaderForKotlinJavaScriptStubBuilder
-import org.jetbrains.kotlin.idea.decompiler.isKotlinJavaScriptInternalCompiledFile
-import org.jetbrains.kotlin.idea.decompiler.navigation.JsMetaFileUtils
-import org.jetbrains.kotlin.idea.decompiler.textBuilder.DirectoryBasedKotlinJavaScriptDataFinder
-import org.jetbrains.kotlin.idea.decompiler.textBuilder.DirectoryBasedKotlinJavaScriptMetaFileFinder
+import org.jetbrains.kotlin.idea.decompiler.common.AnnotationLoaderForStubBuilderImpl
+import org.jetbrains.kotlin.idea.decompiler.common.DirectoryBasedClassDataFinder
+import org.jetbrains.kotlin.idea.decompiler.common.toClassProto
+import org.jetbrains.kotlin.idea.decompiler.common.toPackageProto
+import org.jetbrains.kotlin.idea.decompiler.stubBuilder.ClsStubBuilderComponents
+import org.jetbrains.kotlin.idea.decompiler.stubBuilder.createPackageFacadeStub
+import org.jetbrains.kotlin.idea.decompiler.stubBuilder.createTopLevelClassStub
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 import org.jetbrains.kotlin.serialization.deserialization.NameResolverImpl
 import org.jetbrains.kotlin.serialization.deserialization.TypeTable
+import org.jetbrains.kotlin.serialization.js.JsSerializerProtocol
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializedResourcePaths
-import org.jetbrains.kotlin.serialization.js.toClassData
-import org.jetbrains.kotlin.serialization.js.toPackageData
 import java.io.ByteArrayInputStream
 
-public open class KotlinJavaScriptStubBuilder : ClsStubBuilder() {
+public class KotlinJavaScriptStubBuilder : ClsStubBuilder() {
     override fun getStubVersion() = ClassFileStubBuilder.STUB_VERSION + 1
 
     override fun buildFileStub(content: FileContent): PsiFileStub<*>? {
         val file = content.file
 
-        if (isKotlinJavaScriptInternalCompiledFile(file)) return null
+        if (JsMetaFileUtils.isKotlinJavaScriptInternalCompiledFile(file)) return null
 
         return doBuildFileStub(file)
     }
@@ -63,28 +63,25 @@ public open class KotlinJavaScriptStubBuilder : ClsStubBuilder() {
         val components = createStubBuilderComponents(file, packageFqName, nameResolver)
 
         if (isPackageHeader) {
-            val packageData = content.toPackageData(nameResolver)
+            val packageProto = content.toPackageProto(KotlinJavascriptSerializedResourcePaths.extensionRegistry)
             val context = components.createContext(
-                    packageData.nameResolver, packageFqName, TypeTable(packageData.packageProto.typeTable)
+                    nameResolver, packageFqName, TypeTable(packageProto.typeTable)
             )
-            return createPackageFacadeStub(packageData.packageProto, packageFqName, context)
+            return createPackageFacadeStub(packageProto, packageFqName, context)
         }
         else {
-            val classData = content.toClassData(nameResolver)
-            val context = components.createContext(classData.nameResolver, packageFqName, TypeTable(classData.classProto.typeTable))
+            val classProto = content.toClassProto(KotlinJavascriptSerializedResourcePaths.extensionRegistry)
+            val context = components.createContext(nameResolver, packageFqName, TypeTable(classProto.typeTable))
             val classId = JsMetaFileUtils.getClassId(file)
-            return createTopLevelClassStub(classId, classData.classProto, context)
+            return createTopLevelClassStub(classId, classProto, context)
         }
     }
 
     private fun createStubBuilderComponents(file: VirtualFile, packageFqName: FqName, nameResolver: NameResolver): ClsStubBuilderComponents {
-        val metaFileFinder = DirectoryBasedKotlinJavaScriptMetaFileFinder(file.parent!!, packageFqName, nameResolver)
-        val classDataFinder = DirectoryBasedKotlinJavaScriptDataFinder(metaFileFinder, LOG)
-        val annotationLoader = AnnotationLoaderForKotlinJavaScriptStubBuilder()
+        val classDataFinder = DirectoryBasedClassDataFinder(
+                file.parent!!, packageFqName, nameResolver, KotlinJavascriptSerializedResourcePaths
+        )
+        val annotationLoader = AnnotationLoaderForStubBuilderImpl(JsSerializerProtocol)
         return ClsStubBuilderComponents(classDataFinder, annotationLoader)
-    }
-
-    companion object {
-        val LOG = Logger.getInstance(KotlinJavaScriptStubBuilder::class.java)
     }
 }

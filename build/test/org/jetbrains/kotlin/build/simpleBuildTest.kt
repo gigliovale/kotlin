@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
 import org.jetbrains.kotlin.incremental.IncrementalCacheImpl
 import org.jetbrains.kotlin.incremental.compileChanged
+import org.jetbrains.kotlin.incremental.makeLookupTracker
 import org.jetbrains.kotlin.integration.KotlinIntegrationTestBase
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
@@ -78,9 +79,9 @@ public class SimpleBuildTest : KotlinIntegrationTestBase() {
                     }
                 },
                 getIncrementalCache = { IncrementalCacheImpl(outputPath, Files.createTempDir(), it) },
+                lookupTracker = makeLookupTracker(),
                 getTargetId = { this },
-                messageCollector = messageCollector,
-                outputItemCollector = OutputItemsCollectorImpl()
+                messageCollector = messageCollector, outputItemCollector = OutputItemsCollectorImpl()
         )
 
 //        assertEquals(listOf<String>(), messageCollector.records.map { it.message })

@@ -27,14 +27,10 @@ import org.jetbrains.kotlin.cli.js.K2JSCompiler
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
 import org.jetbrains.kotlin.config.Services
-import org.jetbrains.kotlin.incremental.IncrementalCacheImpl
-import org.jetbrains.kotlin.incremental.compileChanged
-import org.jetbrains.kotlin.incremental.getGeneratedFiles
-import org.jetbrains.kotlin.incremental.updateKotlinIncrementalCache
+import org.jetbrains.kotlin.incremental.*
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.KotlinPaths
-import org.jetbrains.kotlin.utils.KotlinPathsFromHomeDir
 import org.jetbrains.kotlin.utils.LibraryUtils
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
@@ -106,7 +102,7 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
         args.noInline = kotlinOptions.noInline
     }
 
-    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>, cachesBaseDir: File) {
+    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, changed: List<File>, removed: List<File>, cachesBaseDir: File) {
 
         populateSources(args, sources)
 
@@ -194,7 +190,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
     }
 
 
-    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, deleted: List<File>, cachesBaseDir: File) {
+    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, removed: List<File>, cachesBaseDir: File) {
         val kotlinPaths = GradleKotlinPaths(compiler.javaClass)
         val moduleName = args.moduleName
         val targetType = "java-production"
@@ -203,6 +199,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
 
         fun getOrCreateIncrementalCache(target: TargetId): IncrementalCacheImpl<TargetId> {
             val cacheDir = File(cachesBaseDir, "increCache.${target.name}")
+            getLogger().kotlinDebug("incr cache for ${target.name} = $cacheDir")
             cacheDir.mkdirs()
             return IncrementalCacheImpl(outputDir, cacheDir, target)
         }
@@ -210,6 +207,8 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
         val targets = listOf(TargetId(moduleName, targetType))
         val sourcesToCompile = if (isIncremental) changed else sources
         val outputItemCollector = OutputItemsCollectorImpl()
+        val lookupStorage = LookupStorage(File(cachesBaseDir, "lookups"))
+        val lookupTracker = makeLookupTracker()
 
         compileChanged<TargetId>(
                 kotlinPaths,
@@ -229,6 +228,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                     override fun checkCanceled() { }
                 },
                 getIncrementalCache = { caches.getOrPut(it, { getOrCreateIncrementalCache(it) }) },
+                lookupTracker = lookupTracker,
                 getTargetId = { this },
                 messageCollector = GradleMessageCollector(logger),
                 outputItemCollector = outputItemCollector)
@@ -246,6 +246,9 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 getIncrementalCache = { caches[it]!! },
                 generatedFiles = generatedFiles)
 
+        lookupStorage.update(lookupTracker, sourcesToCompile, removed)
+
+        caches.values.forEach { it.cleanDirtyInlineFunctions() }
         changes.changes.forEach {
             getLogger().kotlinDebug("changed ${it.fqName}")
         }

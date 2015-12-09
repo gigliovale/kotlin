@@ -60,17 +60,16 @@ fun<Target> compileChanged(
         friendDirs: Iterable<File>,
         compilationCanceledStatus: CompilationCanceledStatus,
         getIncrementalCache: (Target) -> IncrementalCacheImpl<Target>,
+        lookupTracker: LookupTracker,
         getTargetId: Target.() -> TargetId,
-        messageCollector: MessageCollector,
-        outputItemCollector: OutputItemsCollectorImpl
-        )
+        messageCollector: MessageCollector, outputItemCollector: OutputItemsCollectorImpl
+)
 {
     val moduleFile = makeModuleFile(moduleName, isTest, outputDir, sourcesToCompile, javaSourceRoots, classpath, friendDirs)
     println("module file created: $moduleFile")
     println(moduleFile.readText())
 
     val incrementalCaches = getIncrementalCaches(targets, getDependencies, getIncrementalCache, getTargetId)
-    val lookupTracker = getLookupTracker()
     val environment = createCompileEnvironment(kotlinPaths, incrementalCaches, lookupTracker, compilationCanceledStatus)
 
     commonArguments.verbose = true // Make compiler report source to output files mapping
@@ -149,7 +148,7 @@ private fun createCompileEnvironment(
 }
 
 
-private fun getLookupTracker(parentLookupTracker: LookupTracker = LookupTracker.DO_NOTHING): LookupTracker =
+fun makeLookupTracker(parentLookupTracker: LookupTracker = LookupTracker.DO_NOTHING): LookupTracker =
         if (IncrementalCompilation.isExperimental()) LookupTrackerImpl(parentLookupTracker)
         else parentLookupTracker
 
@@ -218,8 +217,8 @@ fun<Target> updateKotlinIncrementalCache(
 
 fun LookupStorage.update(
         lookupTracker: LookupTracker,
-        filesToCompile: Sequence<File>,
-        removedFiles: Sequence<File>
+        filesToCompile: Iterable<File>,
+        removedFiles: Iterable<File>
 ) {
     if (!IncrementalCompilation.isExperimental()) return
 
@@ -268,6 +267,16 @@ fun<Target> getGeneratedFiles(
     }
     return result
 }
+
+
+fun CompilationResult.dirtyFiles(lookupStorage: LookupStorage) =
+    // TODO group by fqName?
+    changes.mapNotNull { it as? ChangeInfo.MembersChanged }
+           .flatMap { change ->
+               change.names.asSequence()
+                       .flatMap { lookupStorage.get(LookupSymbol(it, change.fqName.asString())).asSequence() }
+                       .map(::File)
+           }
 
 
 public open class GeneratedFile<Target> internal constructor(

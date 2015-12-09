@@ -4754,6 +4754,39 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/Delegation_ScopeInitializationOrder.kt");
                 doTest(fileName);
             }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/delegation/clashes")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Clashes extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInClashes() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/delegation/clashes"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("finalMemberOverridden.kt")
+                public void testFinalMemberOverridden() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/finalMemberOverridden.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("propertyTypeMismatch.kt")
+                public void testPropertyTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/propertyTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("returnTypeMismatch.kt")
+                public void testReturnTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/returnTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varOverriddenByVal.kt")
+                public void testVarOverriddenByVal() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/varOverriddenByVal.kt");
+                    doTest(fileName);
+                }
+            }
         }
 
         @TestMetadata("compiler/testData/diagnostics/tests/deparenthesize")
@@ -11293,6 +11326,69 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             public void testToAbstractMembersFromSuper_kt1996() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/ToAbstractMembersFromSuper-kt1996.kt");
                 doTest(fileName);
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class ClashesOnInheritance extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInClashesOnInheritance() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/override/clashesOnInheritance"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("covariantOverrides.kt")
+                public void testCovariantOverrides() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/covariantOverrides.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("flexibleReturnType.kt")
+                public void testFlexibleReturnType() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/flexibleReturnType.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("flexibleReturnTypeIn.kt")
+                public void testFlexibleReturnTypeIn() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/flexibleReturnTypeIn.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("flexibleReturnTypeList.kt")
+                public void testFlexibleReturnTypeList() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/flexibleReturnTypeList.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("genericWithUpperBound.kt")
+                public void testGenericWithUpperBound() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/genericWithUpperBound.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("returnTypeMismatch.kt")
+                public void testReturnTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/returnTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("unrelatedInherited.kt")
+                public void testUnrelatedInherited() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/unrelatedInherited.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("valTypeMismatch.kt")
+                public void testValTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/valTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varTypeMismatch.kt")
+                public void testVarTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/varTypeMismatch.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/override/parameterNames")

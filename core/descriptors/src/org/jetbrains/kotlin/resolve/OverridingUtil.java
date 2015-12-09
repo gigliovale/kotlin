@@ -34,7 +34,6 @@ import org.jetbrains.kotlin.types.checker.KotlinTypeChecker;
 import java.util.*;
 
 import static org.jetbrains.kotlin.resolve.OverridingUtil.OverrideCompatibilityInfo.Result.*;
-import static org.jetbrains.kotlin.resolve.OverridingUtil.OverrideCompatibilityInfo.Result.INCOMPATIBLE;
 
 public class OverridingUtil {
 
@@ -319,26 +318,30 @@ public class OverridingUtil {
         }
     }
 
-    private static boolean isMoreSpecific(@NotNull CallableMemberDescriptor a, @NotNull CallableMemberDescriptor b) {
+    public static boolean isMoreSpecific(@NotNull CallableMemberDescriptor a, @NotNull CallableMemberDescriptor b) {
+        KotlinType aReturnType = a.getReturnType();
+        KotlinType bReturnType = b.getReturnType();
+
+        assert aReturnType != null : "Return type of " + a + " is null";
+        assert bReturnType != null : "Return type of " + b + " is null";
+
         if (a instanceof SimpleFunctionDescriptor) {
             assert b instanceof SimpleFunctionDescriptor : "b is " + b.getClass();
-
-            KotlinType aReturnType = a.getReturnType();
-            assert aReturnType != null;
-            KotlinType bReturnType = b.getReturnType();
-            assert bReturnType != null;
 
             return KotlinTypeChecker.DEFAULT.isSubtypeOf(aReturnType, bReturnType);
         }
         if (a instanceof PropertyDescriptor) {
             assert b instanceof PropertyDescriptor : "b is " + b.getClass();
 
-            if (((PropertyDescriptor) a).isVar() || ((PropertyDescriptor) b).isVar()) {
-                return ((PropertyDescriptor) a).isVar();
+            PropertyDescriptor pa = (PropertyDescriptor) a;
+            PropertyDescriptor pb = (PropertyDescriptor) b;
+            if (pa.isVar() && pb.isVar()) {
+                return KotlinTypeChecker.DEFAULT.equalTypes(aReturnType, bReturnType);
             }
-
-            // both vals
-            return KotlinTypeChecker.DEFAULT.isSubtypeOf(((PropertyDescriptor) a).getType(), ((PropertyDescriptor) b).getType());
+            else {
+                // both vals or var vs val: val can't be more specific then var
+                return !(!pa.isVar() && pb.isVar()) && KotlinTypeChecker.DEFAULT.isSubtypeOf(aReturnType, bReturnType);
+            }
         }
         throw new IllegalArgumentException("Unexpected callable: " + a.getClass());
     }
@@ -362,9 +365,21 @@ public class OverridingUtil {
         boolean allInvisible = visibleOverridables.isEmpty();
         Collection<CallableMemberDescriptor> effectiveOverridden = allInvisible ? overridables : visibleOverridables;
 
+        // FIXME doesn't work as expected for flexible types: should create a refined signature.
+        // Current algorithm produces bad results in presence of annotated Java signatures such as:
+        //      J: foo(s: String!): String -- @NotNull String foo(String s);
+        //      K: foo(s: String): String?
+        //  --> 'foo(s: String!): String' as an inherited signature with most specific return type.
+        // This is bad because it can be overridden by 'foo(s: String?): String', which is not override-equivalent with K::foo above.
+        // Should be 'foo(s: String): String'.
         Modality modality = getMinimalModality(effectiveOverridden);
         Visibility visibility = allInvisible ? Visibilities.INVISIBLE_FAKE : Visibilities.INHERITED;
-        CallableMemberDescriptor mostSpecific = selectMostSpecificMemberFromSuper(effectiveOverridden);
+        CallableMemberDescriptor mostSpecific =
+                OverridingUtilsKt.getOverriddenWithMostSpecificReturnTypeOrNull(KotlinTypeChecker.DEFAULT, effectiveOverridden);
+        if (mostSpecific == null) {
+            // Use some (possibly erroneous) inherited signature. Will be reported as an error later.
+            mostSpecific = selectMostSpecificMemberFromSuper(effectiveOverridden);
+        }
         CallableMemberDescriptor fakeOverride =
                 mostSpecific.copy(current, modality, visibility, CallableMemberDescriptor.Kind.FAKE_OVERRIDE, false);
         for (CallableMemberDescriptor descriptor : effectiveOverridden) {

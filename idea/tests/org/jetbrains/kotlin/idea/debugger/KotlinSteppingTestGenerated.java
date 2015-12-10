@@ -316,6 +316,12 @@ public class KotlinSteppingTestGenerated extends AbstractKotlinSteppingTest {
             doStepOutTest(fileName);
         }
 
+        @TestMetadata("stepOutInlinedLambdaArgumentOneLine.kt")
+        public void testStepOutInlinedLambdaArgumentOneLine() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/debugger/tinyApp/src/stepping/stepOut/stepOutInlinedLambdaArgumentOneLine.kt");
+            doStepOutTest(fileName);
+        }
+
         @TestMetadata("stepOutSeveralInlineArgumentDeepest.kt")
         public void testStepOutSeveralInlineArgumentDeepest() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/debugger/tinyApp/src/stepping/stepOut/stepOutSeveralInlineArgumentDeepest.kt");
@@ -562,6 +568,12 @@ public class KotlinSteppingTestGenerated extends AbstractKotlinSteppingTest {
         @TestMetadata("smartStepIntoConstructor.kt")
         public void testSmartStepIntoConstructor() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/debugger/tinyApp/src/stepping/custom/smartStepIntoConstructor.kt");
+            doCustomTest(fileName);
+        }
+
+        @TestMetadata("smartStepIntoFunWithDefaultArgs.kt")
+        public void testSmartStepIntoFunWithDefaultArgs() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/debugger/tinyApp/src/stepping/custom/smartStepIntoFunWithDefaultArgs.kt");
             doCustomTest(fileName);
         }
 

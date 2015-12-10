@@ -139,11 +139,13 @@ object KotlinIntroduceVariableHandler : KotlinIntroduceHandlerBase() {
                 allReplaces: List<KtExpression>
         ) {
             val initializer = (expression as? KtParenthesizedExpression)?.expression ?: expression
+            val initializerText = if (initializer.mustBeParenthesizedInInitializerPosition()) "(${initializer.text})" else initializer.text
+
             var property: KtDeclaration = if (componentFunctions.isNotEmpty()) {
                 buildString {
                     componentFunctions.indices.joinTo(this, prefix = "val (", postfix = ")") { nameSuggestions[it].first() }
                     append(" = ")
-                    append(initializer.text)
+                    append(initializerText)
                 }.let { psiFactory.createDestructuringDeclaration(it) }
             }
             else {
@@ -155,7 +157,7 @@ object KotlinIntroduceVariableHandler : KotlinIntroduceHandlerBase() {
                         append(": ").append(IdeDescriptorRenderers.SOURCE_CODE.renderType(typeToRender))
                     }
                     append(" = ")
-                    append(initializer.text)
+                    append(initializerText)
                 }.let { psiFactory.createProperty(it) }
             }
 
@@ -452,10 +454,12 @@ object KotlinIntroduceVariableHandler : KotlinIntroduceHandlerBase() {
 
     private fun suggestNamesForComponent(descriptor: FunctionDescriptor, project: Project, validator: (String) -> Boolean): Set<String> {
         return LinkedHashSet<String>().apply {
-            descriptor.returnType?.let { addAll(KotlinNameSuggester.suggestNamesByType(it, validator)) }
-
+            val descriptorName = descriptor.name.asString()
             val componentName = (DescriptorToSourceUtilsIde.getAnyDeclaration(project, descriptor) as? PsiNamedElement)?.name
-                                ?: descriptor.name.asString()
+                                ?: descriptorName
+            if (componentName == descriptorName) {
+                descriptor.returnType?.let { addAll(KotlinNameSuggester.suggestNamesByType(it, validator)) }
+            }
             add(KotlinNameSuggester.suggestNameByName(componentName, validator))
         }
     }

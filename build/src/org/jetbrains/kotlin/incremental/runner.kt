@@ -40,7 +40,6 @@ import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.KotlinPaths
 import org.jetbrains.kotlin.utils.keysToMap
-import org.jetbrains.kotlin.utils.sure
 import java.io.File
 import java.util.*
 
@@ -279,18 +278,3 @@ fun CompilationResult.dirtyFiles(lookupStorage: LookupStorage) =
            }
 
 
-public open class GeneratedFile<Target> internal constructor(
-        val target: Target,
-        val sourceFiles: Collection<File>,
-        val outputFile: File
-)
-
-class GeneratedJvmClass<Target> (
-        target: Target,
-        sourceFiles: Collection<File>,
-        outputFile: File
-) : GeneratedFile<Target>(target, sourceFiles, outputFile) {
-    val outputClass = LocalFileKotlinClass.create(outputFile).sure {
-        "Couldn't load KotlinClass from $outputFile; it may happen because class doesn't have valid Kotlin annotations"
-    }
-}

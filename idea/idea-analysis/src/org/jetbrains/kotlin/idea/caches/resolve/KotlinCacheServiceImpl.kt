@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.idea.caches.resolve
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootModificationTracker
@@ -27,6 +26,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.analyzer.EmptyResolverForProject
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.project.AnalyzerFacadeProvider
@@ -44,17 +44,12 @@ import org.jetbrains.kotlin.utils.keysToMap
 
 internal val LOG = Logger.getInstance(KotlinCacheService::class.java)
 
-public class KotlinCacheService(val project: Project) {
-    companion object {
-        @JvmStatic
-        public fun getInstance(project: Project): KotlinCacheService = ServiceManager.getService(project, KotlinCacheService::class.java)!!
-    }
-
-    public fun getResolutionFacade(elements: List<KtElement>): ResolutionFacade {
+public class KotlinCacheServiceImpl(val project: Project) : KotlinCacheService {
+    override fun getResolutionFacade(elements: List<KtElement>): ResolutionFacade {
         return getFacadeToAnalyzeFiles(elements.map { it.getContainingKtFile() })
     }
 
-    public fun getSuppressionCache(): KotlinSuppressCache = kotlinSuppressCache.value
+    override fun getSuppressionCache(): KotlinSuppressCache = kotlinSuppressCache.value
 
     private val globalFacadesPerPlatform = listOf(JvmPlatform, JsPlatform).keysToMap { platform -> GlobalFacade(platform) }
 

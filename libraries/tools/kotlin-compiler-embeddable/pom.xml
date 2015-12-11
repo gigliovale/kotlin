@@ -49,6 +49,11 @@
             <artifactId>kotlin-test-junit</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-build</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -107,6 +112,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <artifactSet>
+                            </artifactSet>
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
                             <createDependencyReducedPom>true</createDependencyReducedPom>
@@ -160,10 +167,12 @@
                                     <pattern>jline</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.jline</shadedPattern>
                                 </relocation>
+                                <!--
                                 <relocation>
                                     <pattern>gnu</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.gnu</shadedPattern>
                                 </relocation>
+                                -->
                                 <relocation>
                                     <pattern>javax.inject</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.javax.inject</shadedPattern>

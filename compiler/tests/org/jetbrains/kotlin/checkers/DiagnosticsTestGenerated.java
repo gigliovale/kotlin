@@ -325,6 +325,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("InvokeAndRecursiveResolve.kt")
+        public void testInvokeAndRecursiveResolve() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/InvokeAndRecursiveResolve.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("IsExpressions.kt")
         public void testIsExpressions() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/IsExpressions.kt");
@@ -13424,6 +13430,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("invokeAndSmartCast.kt")
+                public void testInvokeAndSmartCast() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/resolve/invoke/invokeAndSmartCast.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("invokeAsExtension.kt")
                 public void testInvokeAsExtension() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/resolve/invoke/invokeAsExtension.kt");
@@ -14907,6 +14919,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("elvisExprNotNull.kt")
+            public void testElvisExprNotNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/elvisExprNotNull.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("elvisNothingRHS.kt")
             public void testElvisNothingRHS() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/elvisNothingRHS.kt");
@@ -14958,6 +14976,36 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("fieldPlus.kt")
             public void testFieldPlus() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/fieldPlus.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ifCascadeExprNotNull.kt")
+            public void testIfCascadeExprNotNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifCascadeExprNotNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ifExprInConditionNonNull.kt")
+            public void testIfExprInConditionNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifExprInConditionNonNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ifExprInWhenSubjectNonNull.kt")
+            public void testIfExprInWhenSubjectNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifExprInWhenSubjectNonNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ifExprNonNull.kt")
+            public void testIfExprNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifExprNonNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ifWhenExprNonNull.kt")
+            public void testIfWhenExprNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifWhenExprNonNull.kt");
                 doTest(fileName);
             }
 
@@ -15219,6 +15267,30 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("shortIfExprNotNull.kt")
+            public void testShortIfExprNotNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/shortIfExprNotNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("smartCastOnElvis.kt")
+            public void testSmartCastOnElvis() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/smartCastOnElvis.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("smartCastOnIf.kt")
+            public void testSmartCastOnIf() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/smartCastOnIf.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("smartCastOnWhen.kt")
+            public void testSmartCastOnWhen() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/smartCastOnWhen.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("thisWithLabel.kt")
             public void testThisWithLabel() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/thisWithLabel.kt");
@@ -15288,6 +15360,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("varInsideLocalFun.kt")
             public void testVarInsideLocalFun() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varInsideLocalFun.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("whenExprNonNull.kt")
+            public void testWhenExprNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/whenExprNonNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("whenIfExprNonNull.kt")
+            public void testWhenIfExprNonNull() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/whenIfExprNonNull.kt");
                 doTest(fileName);
             }
 

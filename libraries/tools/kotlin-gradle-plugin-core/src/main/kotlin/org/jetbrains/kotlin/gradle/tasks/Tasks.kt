@@ -62,13 +62,16 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
     @TaskAction
     fun execute(inputs: IncrementalTaskInputs): Unit {
         getLogger().debug("Starting ${javaClass} task")
+        getLogger().kotlinDebug("all sources ${getSource().joinToString { it.path }}")
         logger.kotlinDebug("is incremental == ${inputs.isIncremental}")
         val modified = arrayListOf<File>()
-        val deleted = arrayListOf<File>()
+        val removed = arrayListOf<File>()
         if (inputs.isIncremental) {
             inputs.outOfDate { modified.add(it.file) }
-            inputs.removed { deleted.add(it.file) }
+            inputs.removed { removed.add(it.file) }
         }
+        getLogger().kotlinDebug("modified ${modified.joinToString { it.path }}")
+        getLogger().kotlinDebug("removed ${removed.joinToString { it.path }}")
         var commonArgs = createBlankArgs()
         val args = createBlankArgs()
         val sources = getKotlinSources()
@@ -79,14 +82,14 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
 
         populateCommonArgs(args)
         populateTargetSpecificArgs(args)
-        val cachesDir = File(destinationDir, "caches")
-        callCompiler(args, sources, inputs.isIncremental, modified, deleted, cachesDir)
+        val cachesDir = File("caches")
+        callCompiler(args, sources, inputs.isIncremental, modified, removed, cachesDir)
         afterCompileHook(args)
     }
 
     private fun getKotlinSources(): List<File> = (getSource() as Iterable<File>).filter { it.isKotlinFile() }
 
-    private fun File.isKotlinFile(): Boolean {
+    protected fun File.isKotlinFile(): Boolean {
         return when (FilenameUtils.getExtension(getName()).toLowerCase()) {
             "kt", "kts" -> true
             else -> false
@@ -104,7 +107,7 @@ abstract class AbstractKotlinCompile<T : CommonCompilerArguments>() : AbstractCo
         args.noInline = kotlinOptions.noInline
     }
 
-    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, changed: List<File>, removed: List<File>, cachesBaseDir: File) {
+    protected open fun callCompiler(args: T, sources: List<File>, isIncremental: Boolean, modified: List<File>, removed: List<File>, cachesBaseDir: File) {
 
         populateSources(args, sources)
 
@@ -177,7 +180,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             if (tasks.size == 1) {
                 val task = tasks.firstOrNull() as? KotlinCompile
                 if (task != null) {
-                    logger.kotlinDebug("destinantion directory for production = ${task.destinationDir}")
+                    logger.kotlinDebug("destination directory for production = ${task.destinationDir}")
                     args.friendPaths = arrayOf(task.destinationDir.absolutePath)
                     args.moduleName = task.kotlinOptions.moduleName ?: task.extensions.extraProperties.getOrNull<String>("defaultModuleName")
                 }
@@ -191,12 +194,13 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
         getLogger().kotlinDebug("args.moduleName = ${args.moduleName}")
     }
 
-    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, changed: List<File>, removed: List<File>, cachesBaseDir: File) {
+    override fun callCompiler(args: K2JVMCompilerArguments, sources: List<File>, isIncremental: Boolean, modified: List<File>, removed: List<File>, cachesBaseDir: File) {
         val targetType = "java-production"
         val moduleName = args.moduleName
         val targets = listOf(TargetId(moduleName, targetType))
         val outputDir = File(args.destination)
-        var sourcesToCompile = if (isIncremental) changed else sources
+        val modifiedSources = modified.filter { it.isKotlinFile() }
+        var sourcesToCompile = if (isIncremental && modifiedSources.any()) modifiedSources else sources
         val caches = hashMapOf<TargetId, IncrementalCacheImpl<TargetId>>()
         val lookupStorage = LookupStorage(File(cachesBaseDir, "lookups"))
         val lookupTracker = makeLookupTracker()
@@ -234,9 +238,9 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
 
             lookupStorage.update(lookupTracker, sourcesToCompile, currentRemoved)
 
-            changes.changes.forEach {
-                getLogger().kotlinDebug("changed ${it.fqName}")
-            }
+            getLogger().kotlinDebug("generated ${generatedFiles.joinToString { it.outputFile.path }}")
+            getLogger().kotlinDebug("changes: ${changes.changes.joinToString { it.fqName.toString() }}")
+            getLogger().kotlinDebug("dirty: ${changes.dirtyFiles(lookupStorage).joinToString()}")
 
             // TODO: consider using some order-preserving set for sourcesToCompile instead
             val sourcesSet = sourcesToCompile.toHashSet()
@@ -248,6 +252,8 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 currentRemoved = listOf()
             }
         }
+        lookupStorage.forceGC()
+        lookupStorage.close()
     }
 
     private fun compileChanged(targets: List<TargetId>,

@@ -98,6 +98,8 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
     private List<PropertyAndDefaultValue> companionObjectPropertiesToCopy;
 
+    private final DelegationFieldsInfo delegationFieldsInfo;
+
     private final List<Function2<ImplementationBodyCodegen, ClassBuilder, Unit>> additionalTasks =
             new ArrayList<Function2<ImplementationBodyCodegen, ClassBuilder, Unit>>();
 
@@ -112,6 +114,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         super(aClass, context, v, state, parentCodegen);
         this.classAsmType = typeMapper.mapClass(descriptor);
         this.isLocal = isLocal;
+        delegationFieldsInfo = getDelegationFieldsInfo(myClass.getSuperTypeListEntries());
     }
 
     @Override
@@ -227,8 +230,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     }
 
     @Override
-    protected void generateBody() {
-        super.generateBody();
+    protected void generateDefaultImplsIfNeeded() {
         if (isInterface(descriptor) && !isLocal) {
             Type defaultImplsType = state.getTypeMapper().mapDefaultImpls(descriptor);
             ClassBuilder defaultImplsBuilder =
@@ -237,7 +239,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
             CodegenContext parentContext = context.getParentContext();
             assert parentContext != null : "Parent context of interface declaration should not be null";
 
-            ClassContext defaultImplsContext = parentContext.intoClass(descriptor, OwnerKind.DEFAULT_IMPLS, state);
+            ClassContext defaultImplsContext = parentContext.intoDefaultImplsClass(descriptor, (ClassContext) context, state);
             new InterfaceImplBodyCodegen(myClass, defaultImplsContext, defaultImplsBuilder, state, this).generate();
         }
     }
@@ -371,7 +373,31 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         generateCompanionObjectBackingFieldCopies();
 
-        DelegationFieldsInfo delegationFieldsInfo = getDelegationFieldsInfo(myClass.getSuperTypeListEntries());
+        generateTraitMethods();
+
+        generateDelegates(delegationFieldsInfo);
+
+        if (!isInterface(descriptor)  || kind == OwnerKind.DEFAULT_IMPLS) {
+            generateSyntheticAccessors();
+        }
+
+        generateEnumMethods();
+
+        generateFunctionsForDataClasses();
+
+        new CollectionStubMethodGenerator(state, descriptor, functionCodegen, v).generate();
+
+        generateToArray();
+
+        genClosureFields(context.closure, v, typeMapper);
+
+        for (ExpressionCodegenExtension extension : ExpressionCodegenExtension.Companion.getInstances(state.getProject())) {
+            extension.generateClassSyntheticParts(v, state, myClass, descriptor);
+        }
+    }
+
+    @Override
+    protected void generateConstructors() {
         try {
             lookupConstructorExpressionsInClosureIfPresent();
             generatePrimaryConstructor(delegationFieldsInfo);
@@ -387,26 +413,6 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         }
         catch (RuntimeException e) {
             throw new RuntimeException("Error generating constructors of class " + myClass.getName() + " with kind " + kind, e);
-        }
-
-        generateTraitMethods();
-
-        generateDelegates(delegationFieldsInfo);
-
-        generateSyntheticAccessors();
-
-        generateEnumMethods();
-
-        generateFunctionsForDataClasses();
-
-        new CollectionStubMethodGenerator(state, descriptor, functionCodegen, v).generate();
-
-        generateToArray();
-
-        genClosureFields(context.closure, v, typeMapper);
-
-        for (ExpressionCodegenExtension extension : ExpressionCodegenExtension.Companion.getInstances(state.getProject())) {
-            extension.generateClassSyntheticParts(v, state, myClass, descriptor);
         }
     }
 
@@ -958,10 +964,6 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                                                 DefaultParameterValueLoader.DEFAULT, null);
 
         new DefaultParameterValueSubstitutor(state).generatePrimaryConstructorOverloadsIfNeeded(constructorDescriptor, v, kind, myClass);
-
-        if (isCompanionObject(descriptor)) {
-            context.recordSyntheticAccessorIfNeeded(constructorDescriptor, bindingContext);
-        }
     }
 
     private void generateSecondaryConstructor(@NotNull ConstructorDescriptor constructorDescriptor) {
@@ -1331,7 +1333,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     private void generateTraitMethods() {
         if (isInterface(descriptor)) return;
 
-        for (Map.Entry<FunctionDescriptor, FunctionDescriptor> entry : CodegenUtil.getTraitMethods(descriptor).entrySet()) {
+        for (Map.Entry<FunctionDescriptor, FunctionDescriptor> entry : CodegenUtil.getNonPrivateTraitMethods(descriptor).entrySet()) {
             FunctionDescriptor traitFun = entry.getKey();
             //skip java 8 default methods
             if (!(traitFun instanceof JavaCallableMemberDescriptor)) {

@@ -52,6 +52,9 @@ public class AnnotationLoaderForStubBuilderImpl(
         }
     }
 
+    override fun loadEnumEntryAnnotations(container: ProtoContainer, proto: ProtoBuf.EnumEntry): List<ClassId> =
+            proto.getExtension(protocol.enumEntryAnnotation).orEmpty().map { container.nameResolver.getClassId(it.id) }
+
     override fun loadValueParameterAnnotations(
             container: ProtoContainer,
             message: MessageLite,
@@ -59,9 +62,7 @@ public class AnnotationLoaderForStubBuilderImpl(
             parameterIndex: Int,
             proto: ProtoBuf.ValueParameter
     ): List<ClassId> =
-            proto.getExtension(protocol.parameterAnnotation).orEmpty().map {
-                container.nameResolver.getClassId(it.id)
-            }
+            proto.getExtension(protocol.parameterAnnotation).orEmpty().map { container.nameResolver.getClassId(it.id) }
 
     override fun loadExtensionReceiverParameterAnnotations(
             container: ProtoContainer,

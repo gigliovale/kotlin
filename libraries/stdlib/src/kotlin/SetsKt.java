@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package kotlin.jvm
+package kotlin;
 
-import kotlin.jvm.internal.Intrinsic
-
-/**
- * Checks if array can contain element of type [T].
- */
-@Intrinsic("kotlin.jvm.isArrayOf")
-public fun <reified T : Any> Array<*>.isArrayOf(): Boolean =
-        T::class.java.isAssignableFrom(this.javaClass.componentType)
+@java.lang.Deprecated
+@Deprecated(message = "Use kotlin.collections.SetsKt instead")
+public class SetsKt extends kotlin.collections.SetsKt {
+}

@@ -210,7 +210,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             val cacheDir = File(cachesBaseDir, "increCache.${target.name}")
             getLogger().kotlinDebug("incr cache for ${target.name} = $cacheDir")
             cacheDir.mkdirs()
-            return IncrementalCacheImpl(outputDir, cacheDir, target)
+            return IncrementalCacheImpl(targetDataRoot = cacheDir, targetOutputDir = outputDir, target = target)
         }
 
         while (true) {
@@ -252,8 +252,9 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 currentRemoved = listOf()
             }
         }
-        lookupStorage.forceGC()
+        lookupStorage.flush(false)
         lookupStorage.close()
+        caches.values.forEach { it.flush(false); it.close() }
     }
 
     private fun compileChanged(targets: List<TargetId>,

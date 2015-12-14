@@ -137,6 +137,9 @@
                                 <relocation>
                                     <pattern>com.google</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.com.google</shadedPattern>
+                                    <excludes>
+                                        <exclude>com.google.protobuf.*</exclude>
+                                    </excludes>
                                 </relocation>
                                 <!--
                                 <relocation>

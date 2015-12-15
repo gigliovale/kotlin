@@ -33,26 +33,29 @@ import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.util.RefactoringMessageDialog
+import com.intellij.util.containers.MultiMap
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.core.refactoring.checkConflictsInteractively
 import org.jetbrains.kotlin.idea.core.replaced
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.idea.util.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.getAssignmentByLHS
-import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForSelectorOrThis
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getCallWithAssert
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
+import org.jetbrains.kotlin.utils.addIfNotNull
+import org.jetbrains.kotlin.utils.addToStdlib.singletonList
 import org.jetbrains.kotlin.utils.sure
+import java.util.*
 
 class KotlinInlineValHandler : InlineActionHandler() {
     override fun isEnabledForLanguage(l: Language) = l == KotlinLanguage.INSTANCE
@@ -62,13 +65,53 @@ class KotlinInlineValHandler : InlineActionHandler() {
         return element.getter == null && element.receiverTypeReference == null
     }
 
+    private fun doReplace(expression: KtExpression, replacement: KtExpression): List<KtExpression> {
+        val parent = expression.parent
+
+        if (parent is KtStringTemplateEntryWithExpression &&
+            replacement is KtStringTemplateExpression &&
+            // Do not mix raw and non-raw templates
+            parent.parent.firstChild.text == replacement.firstChild.text) {
+            val entriesToAdd = replacement.entries
+            val templateExpression = parent.parent as KtStringTemplateExpression
+            val inlinedExpressions = if (entriesToAdd.size > 0) {
+                val firstAddedEntry = templateExpression.addRangeBefore(entriesToAdd.first(), entriesToAdd.last(), parent)
+                val lastNewEntry = parent.prevSibling
+                val nextElement = parent.nextSibling
+                if (lastNewEntry is KtSimpleNameStringTemplateEntry &&
+                    lastNewEntry.expression != null &&
+                    !canPlaceAfterSimpleNameEntry(nextElement)) {
+                    lastNewEntry.replace(KtPsiFactory(expression).createBlockStringTemplateEntry(lastNewEntry.expression!!))
+                }
+                firstAddedEntry.siblings()
+                        .take(entriesToAdd.size)
+                        .mapNotNull { (it as? KtStringTemplateEntryWithExpression)?.expression }
+                        .toList()
+            }
+            else emptyList()
+
+            parent.delete()
+            return inlinedExpressions
+        }
+
+        return expression.replaced(replacement).singletonList()
+    }
+
     override fun inlineElement(project: Project, editor: Editor, element: PsiElement) {
         val declaration = element as KtProperty
         val file = declaration.getContainingKtFile()
         val name = declaration.name ?: return
 
-        val referenceExpressions = ReferencesSearch.search(declaration).mapNotNull() {
-            (it.element as? KtExpression)?.getQualifiedExpressionForSelectorOrThis()
+        val references = ReferencesSearch.search(declaration)
+        val referenceExpressions = ArrayList<KtExpression>()
+        val foreignUsages = ArrayList<PsiElement>()
+        for (ref in references) {
+            val refElement = ref.element ?: continue
+            if (refElement !is KtElement) {
+                foreignUsages.add(refElement)
+                continue
+            }
+            referenceExpressions.addIfNotNull((refElement as? KtExpression)?.getQualifiedExpressionForSelectorOrThis())
         }
 
         if (referenceExpressions.isEmpty()) {
@@ -108,32 +151,45 @@ class KotlinInlineValHandler : InlineActionHandler() {
             highlightExpressions(project, editor, referenceExpressions)
         }
 
-        if (!showDialog(project, name, declaration, referenceExpressions)) {
-            if (canHighlight) {
-                val statusBar = WindowManager.getInstance().getStatusBar(project)
-                statusBar?.info = RefactoringBundle.message("press.escape.to.remove.the.highlighting")
+        fun performRefactoring() {
+            if (!showDialog(project, name, declaration, referenceExpressions)) {
+                if (canHighlight) {
+                    val statusBar = WindowManager.getInstance().getStatusBar(project)
+                    statusBar?.info = RefactoringBundle.message("press.escape.to.remove.the.highlighting")
+                }
+                return
             }
-            return
+
+            project.executeWriteCommand(RefactoringBundle.message("inline.command", name)) {
+                val inlinedExpressions = referenceExpressions.flatMap { referenceExpression ->
+                    if (assignments.contains(referenceExpression.parent)) return@flatMap emptyList<KtExpression>()
+                    doReplace(referenceExpression, initializer)
+                }
+
+                assignments.forEach { it.delete() }
+                declaration.delete()
+
+                if (inlinedExpressions.isEmpty()) return@executeWriteCommand
+
+                typeArgumentsForCall?.let { addTypeArguments(it, inlinedExpressions) }
+
+                parametersForFunctionLiteral?.let { addFunctionLiteralParameterTypes(it, inlinedExpressions) }
+
+                if (canHighlight) {
+                    highlightExpressions(project, editor, inlinedExpressions)
+                }
+            }
         }
 
-        project.executeWriteCommand(RefactoringBundle.message("inline.command", name)) {
-            val inlinedExpressions = referenceExpressions.mapNotNull { referenceExpression ->
-                if (assignments.contains(referenceExpression.parent)) return@mapNotNull null
-                referenceExpression.replaced(initializer)
+        if (foreignUsages.isNotEmpty()) {
+            val conflicts = MultiMap<PsiElement, String>().apply {
+                putValue(null, "Property '$name' has non-Kotlin usages. They won't be processed by the Inline refactoring.")
+                foreignUsages.forEach { putValue(it, it.text) }
             }
-
-            assignments.forEach { it.delete() }
-            declaration.delete()
-
-            if (inlinedExpressions.isEmpty()) return@executeWriteCommand
-
-            typeArgumentsForCall?.let { addTypeArguments(it, inlinedExpressions) }
-
-            parametersForFunctionLiteral?.let { addFunctionLiteralParameterTypes(it, inlinedExpressions) }
-
-            if (canHighlight) {
-                highlightExpressions(project, editor, inlinedExpressions)
-            }
+            project.checkConflictsInteractively(conflicts) { performRefactoring() }
+        }
+        else {
+            performRefactoring()
         }
     }
 

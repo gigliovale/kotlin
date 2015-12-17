@@ -1073,11 +1073,21 @@ public inline fun <T, K> Iterable<T>.toMap(selector: (T) -> K): Map<K, T> {
  * Returns a [Map] containing the values provided by [transform] and indexed by [selector] functions applied to elements of the given collection.
  * If any two elements would have the same key returned by [selector] the last one gets added to the map.
  */
+@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector, transform)"))
 public inline fun <T, K, V> Iterable<T>.toMap(selector: (T) -> K, transform: (T) -> V): Map<K, V> {
+    return toMapBy(selector, transform)
+}
+
+/**
+ * Returns a [Map] containing key-value pairs provided by [transform] function applied to elements of the given collection.
+ * If any of two pairs would have the same key the last one gets added to the map.
+ */
+@kotlin.jvm.JvmName("toMapOfPairs")
+public inline fun <T, K, V> Iterable<T>.toMap(transform: (T) -> Pair<K, V>): Map<K, V> {
     val capacity = (collectionSizeOrDefault(10)/.75f) + 1
     val result = LinkedHashMap<K, V>(Math.max(capacity.toInt(), 16))
     for (element in this) {
-        result.put(selector(element), transform(element))
+        result += transform(element)
     }
     return result
 }
@@ -1092,6 +1102,19 @@ public inline fun <T, K> Iterable<T>.toMapBy(selector: (T) -> K): Map<K, T> {
     val result = LinkedHashMap<K, T>(Math.max(capacity.toInt(), 16))
     for (element in this) {
         result.put(selector(element), element)
+    }
+    return result
+}
+
+/**
+ * Returns a [Map] containing the values provided by [transform] and indexed by [selector] functions applied to elements of the given collection.
+ * If any two elements would have the same key returned by [selector] the last one gets added to the map.
+ */
+public inline fun <T, K, V> Iterable<T>.toMapBy(selector: (T) -> K, transform: (T) -> V): Map<K, V> {
+    val capacity = (collectionSizeOrDefault(10)/.75f) + 1
+    val result = LinkedHashMap<K, V>(Math.max(capacity.toInt(), 16))
+    for (element in this) {
+        result.put(selector(element), transform(element))
     }
     return result
 }

@@ -547,6 +547,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("ReservedAsync.kt")
+        public void testReservedAsync() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/ReservedAsync.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("ResolveOfJavaGenerics.kt")
         public void testResolveOfJavaGenerics() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/ResolveOfJavaGenerics.kt");
@@ -18183,6 +18189,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("PropertyNotInitialized.kt")
             public void testPropertyNotInitialized() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/PropertyNotInitialized.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ReservedExhaustiveWhen.kt")
+            public void testReservedExhaustiveWhen() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/when/ReservedExhaustiveWhen.kt");
                 doTest(fileName);
             }
 

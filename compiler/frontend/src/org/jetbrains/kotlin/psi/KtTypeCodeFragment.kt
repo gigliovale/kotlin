@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.refactoring.introduce;
+package org.jetbrains.kotlin.psi
 
-import com.intellij.refactoring.RefactoringActionHandler;
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.KtNodeTypes
 
-public abstract class KotlinIntroduceHandlerBase implements RefactoringActionHandler {
+class KtTypeCodeFragment(
+        project: Project,
+        name: String,
+        text: CharSequence,
+        context: PsiElement?
+) : KtCodeFragment(project, name, text, null, KtNodeTypes.TYPE_CODE_FRAGMENT, context) {
+    override fun getContentElement() = findChildByClass(KtTypeReference::class.java)
 }

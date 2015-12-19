@@ -6101,6 +6101,30 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("topLevelFunctionSuppressOnFile.kt")
+            public void testTopLevelFunctionSuppressOnFile() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/annotationPosition/topLevelFunctionSuppressOnFile.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("topLevelFunctionSuppressOnFileOtherAnnotation.kt")
+            public void testTopLevelFunctionSuppressOnFileOtherAnnotation() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/annotationPosition/topLevelFunctionSuppressOnFileOtherAnnotation.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("topLevelFunctionSuppressOnFileWithPackage.kt")
+            public void testTopLevelFunctionSuppressOnFileWithPackage() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/annotationPosition/topLevelFunctionSuppressOnFileWithPackage.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("topLevelFunctionSuppressOnFileWithSuppress.kt")
+            public void testTopLevelFunctionSuppressOnFileWithSuppress() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/annotationPosition/topLevelFunctionSuppressOnFileWithSuppress.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("topLevelFunctionUnrelatedAnnotation.kt")
             public void testTopLevelFunctionUnrelatedAnnotation() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/annotationPosition/topLevelFunctionUnrelatedAnnotation.kt");
@@ -6588,6 +6612,27 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                     String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/forStatement/unavailable/supretype.kt");
                     doTest(fileName);
                 }
+            }
+        }
+
+        @TestMetadata("idea/testData/quickfix/suppress/inspections")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Inspections extends AbstractQuickFixTest {
+            public void testAllFilesPresentInInspections() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/suppress/inspections"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+            }
+
+            @TestMetadata("ifNullToElvis.kt")
+            public void testIfNullToElvis() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/inspections/ifNullToElvis.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unusedImports.kt")
+            public void testUnusedImports() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/suppress/inspections/unusedImports.kt");
+                doTest(fileName);
             }
         }
     }

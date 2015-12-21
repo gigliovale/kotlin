@@ -82,6 +82,10 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
                 ForTestCompileRuntime.reflectJarForTests(),
                 new File(pathManager.getLibsFolderInAndroidTmpFolder() + "/kotlin-reflect.jar")
         );
+        FileUtil.copy(
+                ForTestCompileRuntime.kotlinTestJarForTests(),
+                new File(pathManager.getLibsFolderInAndroidTmpFolder() + "/kotlin-test.jar")
+        );
     }
 
     public void generateAndSave(@NotNull File folder) throws Throwable {

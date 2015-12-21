@@ -231,7 +231,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     }
 
     private static boolean hasBoxMethod(String text) {
-        return text.contains("fun box()");
+        return text.contains("fun box()") && !text.contains("@file");
     }
 
     private String changePackage(String testName, String text) {

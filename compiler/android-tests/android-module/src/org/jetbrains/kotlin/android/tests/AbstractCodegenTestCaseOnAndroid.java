@@ -26,7 +26,7 @@ public class AbstractCodegenTestCaseOnAndroid extends TestCase {
         try {
             Class clazz;
             String packageName = filePath.replaceAll("\\\\|-|\\.|/", "_");
-            clazz = Class.forName(packageName + "." + getPackageClassName(packageName));
+            clazz = Class.forName(packageName + "." + getPackageClassName(filePath));
             Method method;
             method = clazz.getMethod("box");
             assertEquals(expectedResult, method.invoke(null));
@@ -36,7 +36,8 @@ public class AbstractCodegenTestCaseOnAndroid extends TestCase {
         }
     }
 
-    public static String getPackageClassName(String packageName) {
-        return Character.toUpperCase(packageName.charAt(0)) + packageName.substring(1, packageName.length()) + "Package";
+    public static String getPackageClassName(String filePath) {
+        String fileName = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf(".kt"));
+        return Character.toUpperCase(fileName.charAt(0)) + fileName.substring(1) + "Kt";
     }
 }

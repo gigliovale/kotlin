@@ -111,6 +111,7 @@ messages/**)
 -keep class jsr166e.extra.SequenceLock { *; }
 -keep class com.intellij.util.containers.hash.LinkedHashMap { *; }
 -keep class com.intellij.util.containers.ConcurrentIntObjectMap { *; }
+-keep class com.intellij.util.containers.ComparatorUtil { *; }
 -keep class com.intellij.util.io.PersistentHashMapValueStorage { *; }
 -keep class com.intellij.util.io.PersistentHashMap { *; }
 -keep class com.intellij.util.io.BooleanDataDescriptor { *; }

@@ -141,12 +141,10 @@
                                         <exclude>com.google.protobuf.*</exclude>
                                     </excludes>
                                 </relocation>
-                                <!--
                                 <relocation>
                                     <pattern>com.sampullara</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.com.sampullara</shadedPattern>
                                 </relocation>
-                                -->
                                 <relocation>
                                     <pattern>org.apache</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.org.apache</shadedPattern>
@@ -170,12 +168,10 @@
                                     <pattern>jline</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.jline</shadedPattern>
                                 </relocation>
-                                <!--
                                 <relocation>
                                     <pattern>gnu</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.gnu</shadedPattern>
                                 </relocation>
-                                -->
                                 <relocation>
                                     <pattern>javax.inject</pattern>
                                     <shadedPattern>${kotlin.relocated.package}.javax.inject</shadedPattern>

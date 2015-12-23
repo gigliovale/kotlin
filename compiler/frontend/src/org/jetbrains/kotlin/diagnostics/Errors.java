@@ -357,7 +357,6 @@ public interface Errors {
 
     DiagnosticFactory0<PsiElement> REDUNDANT_MODIFIER_IN_GETTER = DiagnosticFactory0.create(WARNING);
     DiagnosticFactory0<PsiElement> GETTER_VISIBILITY_DIFFERS_FROM_PROPERTY_VISIBILITY = DiagnosticFactory0.create(ERROR);
-    DiagnosticFactory0<PsiElement> SETTER_VISIBILITY_DIFFERS_FROM_LATEINIT_VISIBILITY = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<PsiElement> SETTER_VISIBILITY_INCONSISTENT_WITH_PROPERTY_VISIBILITY = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<PsiElement> PRIVATE_SETTER_FOR_ABSTRACT_PROPERTY = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<PsiElement> PRIVATE_SETTER_FOR_OPEN_PROPERTY = DiagnosticFactory0.create(ERROR);
@@ -728,6 +727,8 @@ public interface Errors {
     DiagnosticFactory2<KtElement, KotlinType, KotlinType> INCOMPATIBLE_TYPES = DiagnosticFactory2.create(ERROR);
 
     DiagnosticFactory0<PsiElement> IMPLICIT_NOTHING_RETURN_TYPE = DiagnosticFactory0.create(ERROR);
+    DiagnosticFactory0<PsiElement> IMPLICIT_NOTHING_PROPERTY_TYPE = DiagnosticFactory0.create(WARNING);
+    DiagnosticFactory1<PsiElement, KotlinType> IMPLICIT_INTERSECTION_TYPE = DiagnosticFactory1.create(ERROR);
 
     // Context tracking
 

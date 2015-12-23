@@ -35,24 +35,33 @@ import org.jetbrains.kotlin.psi.stubs.impl.KotlinObjectStubImpl
 import org.jetbrains.kotlin.psi.stubs.impl.KotlinPlaceHolderStubImpl
 import org.jetbrains.kotlin.serialization.Flags
 import org.jetbrains.kotlin.serialization.ProtoBuf
+import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 import org.jetbrains.kotlin.serialization.deserialization.ProtoContainer
 import org.jetbrains.kotlin.serialization.deserialization.TypeTable
 import org.jetbrains.kotlin.serialization.deserialization.supertypes
 import org.jetbrains.kotlin.utils.sure
 
-fun createClassStub(parent: StubElement<out PsiElement>, classProto: ProtoBuf.Class, classId: ClassId, context: ClsStubBuilderContext) {
-    ClassClsStubBuilder(parent, classProto, classId, context).build()
+fun createClassStub(
+        parent: StubElement<out PsiElement>,
+        classProto: ProtoBuf.Class,
+        nameResolver: NameResolver,
+        classId: ClassId,
+        context: ClsStubBuilderContext
+) {
+    ClassClsStubBuilder(parent, classProto, nameResolver, classId, context).build()
 }
 
 private class ClassClsStubBuilder(
         private val parentStub: StubElement<out PsiElement>,
         private val classProto: ProtoBuf.Class,
+        private val nameResolver: NameResolver,
         private val classId: ClassId,
         private val outerContext: ClsStubBuilderContext
 ) {
-    private val c = outerContext.child(classProto.typeParameterList, classId.shortClassName, TypeTable(classProto.typeTable))
-    private val typeStubBuilder = TypeClsStubBuilder(c)
     private val classKind = Flags.CLASS_KIND[classProto.flags]
+    private val c = outerContext.child(classProto.typeParameterList, classKind, classId.shortClassName, nameResolver,
+                                       TypeTable(classProto.typeTable))
+    private val typeStubBuilder = TypeClsStubBuilder(c)
     private val supertypeIds = run {
         val supertypeIds = classProto.supertypes(c.typeTable).map { c.nameResolver.getClassId(it.className) }
         //empty supertype list if single supertype is Any
@@ -64,6 +73,11 @@ private class ClassClsStubBuilder(
         }
     }
     private val companionObjectName = if (classProto.hasCompanionObjectName()) c.nameResolver.getName(classProto.getCompanionObjectName()) else null
+    private val isCompanionOfClass: Boolean get() {
+        return classKind == ProtoBuf.Class.Kind.COMPANION_OBJECT &&
+               (outerContext.classKind?.let { it == ProtoBuf.Class.Kind.CLASS || it == ProtoBuf.Class.Kind.ENUM_CLASS } ?: false)
+    }
+    private val isInterface: Boolean get() = classKind == ProtoBuf.Class.Kind.INTERFACE
 
     private val classOrObjectStub = createClassOrObjectStubAndModifierListStub()
 
@@ -100,7 +114,7 @@ private class ClassClsStubBuilder(
 
     private fun doCreateClassOrObjectStub(): StubElement<out PsiElement> {
         val isCompanionObject = classKind == ProtoBuf.Class.Kind.COMPANION_OBJECT
-        val fqName = outerContext.containerFqName.child(classId.getShortClassName())
+        val fqName = classId.asSingleFqName()
         val shortName = fqName.shortName().ref()
         val superTypeRefs = supertypeIds.filterNot {
             //TODO: filtering function types should go away
@@ -137,7 +151,8 @@ private class ClassClsStubBuilder(
 
         val primaryConstructorProto = classProto.constructorList.find { !Flags.IS_SECONDARY.get(it.flags) } ?: return
 
-        createConstructorStub(classOrObjectStub, primaryConstructorProto, c, ProtoContainer(classProto, null, c.nameResolver, c.typeTable))
+        createConstructorStub(classOrObjectStub, primaryConstructorProto, c,
+                              ProtoContainer.Class(classProto, c.nameResolver, c.typeTable, isCompanionOfClass, isInterface))
     }
 
     private fun createDelegationSpecifierList() {
@@ -175,7 +190,7 @@ private class ClassClsStubBuilder(
     private fun createEnumEntryStubs(classBody: KotlinPlaceHolderStubImpl<KtClassBody>) {
         if (classKind != ProtoBuf.Class.Kind.ENUM_CLASS) return
 
-        val container = ProtoContainer(classProto, null, c.nameResolver, c.typeTable)
+        val container = ProtoContainer.Class(classProto, c.nameResolver, c.typeTable, isCompanionOfClass, isInterface)
         val enumEntries: List<Pair<Int, List<ClassId>>> =
                 if (classProto.enumEntryList.isNotEmpty())
                     classProto.enumEntryList.map { enumEntryProto ->
@@ -206,7 +221,7 @@ private class ClassClsStubBuilder(
     }
 
     private fun createCallableMemberStubs(classBody: KotlinPlaceHolderStubImpl<KtClassBody>) {
-        val container = ProtoContainer(classProto, null, c.nameResolver, c.typeTable)
+        val container = ProtoContainer.Class(classProto, c.nameResolver, c.typeTable, isCompanionOfClass, isInterface)
 
         for (secondaryConstructorProto in classProto.constructorList) {
             if (Flags.IS_SECONDARY.get(secondaryConstructorProto.flags)) {
@@ -248,7 +263,7 @@ private class ClassClsStubBuilder(
             return
         }
         val (nameResolver, classProto) = classDataWithSource.classData
-        createClassStub(classBody, classProto, nestedClassId, c.child(nameResolver, TypeTable(classProto.typeTable)))
+        createClassStub(classBody, classProto, nameResolver, nestedClassId, c)
     }
 
     companion object {

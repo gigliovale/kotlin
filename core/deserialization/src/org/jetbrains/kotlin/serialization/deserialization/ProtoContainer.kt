@@ -16,19 +16,35 @@
 
 package org.jetbrains.kotlin.serialization.deserialization
 
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.ProtoBuf
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.PackagePartSource
 
-public data class ProtoContainer(
-        val classProto: ProtoBuf.Class?,
-        val packageFqName: FqName?,
+sealed class ProtoContainer(
         val nameResolver: NameResolver,
         val typeTable: TypeTable
 ) {
-    init {
-        assert((classProto != null) xor (packageFqName != null))
+    class Class(
+            val classProto: ProtoBuf.Class,
+            nameResolver: NameResolver,
+            typeTable: TypeTable,
+            val isCompanionOfClass: Boolean,
+            val isInterface: Boolean
+    ) : ProtoContainer(nameResolver, typeTable) {
+        val classId: ClassId = nameResolver.getClassId(classProto.fqName)
+
+        override fun debugFqName(): FqName = classId.asSingleFqName()
     }
 
-    fun getFqName(): FqName =
-            packageFqName ?: nameResolver.getClassId(classProto!!.getFqName()).asSingleFqName()
+    class Package(
+            val fqName: FqName,
+            nameResolver: NameResolver,
+            typeTable: TypeTable,
+            val packagePartSource: PackagePartSource?
+    ) : ProtoContainer(nameResolver, typeTable) {
+        override fun debugFqName(): FqName = fqName
+    }
+
+    abstract fun debugFqName(): FqName
 }

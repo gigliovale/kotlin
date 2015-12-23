@@ -16,17 +16,16 @@
 
 package org.jetbrains.kotlin.load.kotlin.incremental
 
-import com.google.protobuf.MessageLite
 import com.intellij.util.containers.MultiMap
-import org.apache.log4j.Logger
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.PackageFragmentDescriptorImpl
-import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
+import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
+import org.jetbrains.kotlin.load.kotlin.incremental.components.JvmPackagePartProto
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -34,8 +33,6 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.resolve.scopes.ChainedMemberScope
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.serialization.PackageData
-import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
@@ -54,8 +51,6 @@ public class IncrementalPackageFragmentProvider(
 ) : PackageFragmentProvider {
 
     companion object {
-        private val LOG = Logger.getLogger(IncrementalPackageFragmentProvider::class.java)
-
         public fun fqNamesToLoad(obsoletePackageParts: Collection<String>, sourceFiles: Collection<KtFile>): Set<FqName> =
                 (obsoletePackageParts.map { JvmClassName.byInternalName(it).packageFqName }
                  + PackagePartClassUtils.getFilesWithCallables(sourceFiles).map { it.packageFqName }).toSet()
@@ -118,13 +113,9 @@ public class IncrementalPackageFragmentProvider(
                             allParts.filterNot { it in obsoletePackageParts }
                         } ?: emptyList<String>()
 
-                val scopes = actualPackagePartFiles
-                        .mapNotNull {
-                            incrementalCache.getPackagePartData(it)
-                        }
-                        .map {
-                            IncrementalPackageScope(JvmProtoBufUtil.readPackageDataFrom(it.data, it.strings))
-                        }
+                val scopes = actualPackagePartFiles.mapNotNull { internalName ->
+                    incrementalCache.getPackagePartData(internalName)?.let { internalName to it }
+                }.map { createPackageScope(it.first, it.second) }
 
                 if (scopes.isEmpty()) {
                     MemberScope.Empty
@@ -148,49 +139,29 @@ public class IncrementalPackageFragmentProvider(
                 val partsNames: Collection<String>
         ) : PackageFragmentDescriptorImpl(moduleDescriptor, multifileClassFqName.parent()) {
             val memberScope = storageManager.createLazyValue {
-                val partsData = partsNames.mapNotNull { incrementalCache.getPackagePartData(it) }
+                val partsData = partsNames.mapNotNull { internalName ->
+                    incrementalCache.getPackagePartData(internalName)?.let { internalName to it }
+                }
                 if (partsData.isEmpty())
                     MemberScope.Empty
                 else {
-                    val scopes = partsData.map { IncrementalPackageScope(JvmProtoBufUtil.readPackageDataFrom(it.data, it.strings)) }
                     ChainedMemberScope(
                             "Member scope for incremental compilation: union of multifile class parts data for $multifileClassFqName",
-                            scopes)
+                            partsData.map { createPackageScope(it.first, it.second) }
+                    )
                 }
             }
 
             override fun getMemberScope(): MemberScope = memberScope()
         }
 
-        private inner class IncrementalPackageScope(val packageData: PackageData) : DeserializedPackageMemberScope(
-                this@IncrementalPackageFragment, packageData.packageProto, packageData.nameResolver, deserializationComponents,
-                { listOf() }
-        ) {
-            override fun filteredFunctionProtos(protos: Collection<ProtoBuf.Function>): Collection<ProtoBuf.Function> =
-                    filteredMemberProtos(protos)
-
-            override fun filteredPropertyProtos(protos: Collection<ProtoBuf.Property>): Collection<ProtoBuf.Property> =
-                    filteredMemberProtos(protos)
-
-            private fun <M : MessageLite> filteredMemberProtos(allMemberProtos: Collection<M>): Collection<M> {
-                fun getPackagePart(callable: MessageLite): Name? =
-                        JvmFileClassUtil.getImplClassName(callable, packageData.nameResolver)
-
-                fun shouldSkipPackagePart(name: Name) =
-                        JvmClassName.byFqNameWithoutInnerClasses(fqName.child(name)).internalName in obsoletePackageParts
-
-                if (LOG.isDebugEnabled) {
-                    val allPackageParts = allMemberProtos
-                            .mapNotNull(::getPackagePart)
-                            .toSet()
-                    val skippedPackageParts = allPackageParts.filter { shouldSkipPackagePart(it) }
-
-                    LOG.debug("Loading incremental package fragment for package '$fqName'," +
-                              " all package parts: $allPackageParts, skipped parts: $skippedPackageParts")
-                }
-
-                return allMemberProtos.filter { getPackagePart(it)?.let { !shouldSkipPackagePart(it) } ?: true }
-            }
+        fun createPackageScope(internalName: String, part: JvmPackagePartProto): DeserializedPackageMemberScope {
+            val packageData = JvmProtoBufUtil.readPackageDataFrom(part.data, part.strings)
+            return DeserializedPackageMemberScope(
+                    this, packageData.packageProto, packageData.nameResolver,
+                    JvmPackagePartSource(JvmClassName.byInternalName(internalName)),
+                    deserializationComponents, { listOf() }
+            )
         }
     }
 }

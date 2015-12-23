@@ -39,7 +39,7 @@ class ClsStubBuilderComponents(
             packageFqName: FqName,
             typeTable: TypeTable
     ): ClsStubBuilderContext {
-        return ClsStubBuilderContext(this, nameResolver, packageFqName, EmptyTypeParameters, typeTable)
+        return ClsStubBuilderContext(this, nameResolver, packageFqName, EmptyTypeParameters, typeTable, classKind = null)
     }
 }
 
@@ -69,29 +69,23 @@ class ClsStubBuilderContext(
         val nameResolver: NameResolver,
         val containerFqName: FqName,
         val typeParameters: TypeParameters,
-        val typeTable: TypeTable
+        val typeTable: TypeTable,
+        val classKind: ProtoBuf.Class.Kind?
 )
 
 internal fun ClsStubBuilderContext.child(
         typeParameterList: List<ProtoBuf.TypeParameter>,
+        classKind: ProtoBuf.Class.Kind? = null,
         name: Name? = null,
+        nameResolver: NameResolver = this.nameResolver,
         typeTable: TypeTable = this.typeTable
 ): ClsStubBuilderContext {
     return ClsStubBuilderContext(
             this.components,
-            this.nameResolver,
+            nameResolver,
             if (name != null) this.containerFqName.child(name) else this.containerFqName,
             this.typeParameters.child(nameResolver, typeParameterList),
-            typeTable
-    )
-}
-
-internal fun ClsStubBuilderContext.child(nameResolver: NameResolver, typeTable: TypeTable): ClsStubBuilderContext {
-    return ClsStubBuilderContext(
-            this.components,
-            nameResolver,
-            this.containerFqName,
-            this.typeParameters,
-            typeTable
+            typeTable,
+            classKind
     )
 }

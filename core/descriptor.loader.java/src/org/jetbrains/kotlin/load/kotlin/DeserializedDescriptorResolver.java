@@ -79,8 +79,9 @@ public final class DeserializedDescriptorResolver {
             String[] strings = kotlinClass.getClassHeader().getStrings();
             assert strings != null : "String table not found in " + kotlinClass;
             PackageData packageData = JvmProtoBufUtil.readPackageDataFrom(data, strings);
+            JvmPackagePartSource source = new JvmPackagePartSource(kotlinClass.getClassId());
             return new DeserializedPackageMemberScope(
-                    descriptor, packageData.getPackageProto(), packageData.getNameResolver(), components,
+                    descriptor, packageData.getPackageProto(), packageData.getNameResolver(), source, components,
                     new Function0<Collection<Name>>() {
                         @Override
                         public Collection<Name> invoke() {

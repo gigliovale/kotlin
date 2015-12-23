@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.idea.stubindex.KotlinFileStubForIde
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
 import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinaryClass
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
@@ -40,8 +41,8 @@ import org.jetbrains.kotlin.serialization.deserialization.TypeTable
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
 
 fun createTopLevelClassStub(classId: ClassId, classProto: ProtoBuf.Class, context: ClsStubBuilderContext): KotlinFileStubImpl {
-    val fileStub = createFileStub(classId.getPackageFqName())
-    createClassStub(fileStub, classProto, classId, context)
+    val fileStub = createFileStub(classId.packageFqName)
+    createClassStub(fileStub, classProto, context.nameResolver, classId, context)
     return fileStub
 }
 
@@ -52,7 +53,7 @@ fun createPackageFacadeStub(
 ): KotlinFileStubImpl {
     val fileStub = KotlinFileStubForIde.forFile(packageFqName, packageFqName.isRoot)
     setupFileStub(fileStub, packageFqName)
-    createCallableStubs(fileStub, c, ProtoContainer(null, packageFqName, c.nameResolver, c.typeTable),
+    createCallableStubs(fileStub, c, ProtoContainer.Package(packageFqName, c.nameResolver, c.typeTable, packagePartSource = null),
                         packageProto.functionList, packageProto.propertyList)
     return fileStub
 }
@@ -65,8 +66,10 @@ fun createFileFacadeStub(
     val packageFqName = facadeFqName.parent()
     val fileStub = KotlinFileStubForIde.forFileFacadeStub(facadeFqName, packageFqName.isRoot)
     setupFileStub(fileStub, packageFqName)
-    createCallableStubs(fileStub, c, ProtoContainer(null, packageFqName, c.nameResolver, c.typeTable),
-                        packageProto.functionList, packageProto.propertyList)
+    val container = ProtoContainer.Package(
+            packageFqName, c.nameResolver, c.typeTable, JvmPackagePartSource(ClassId.topLevel(facadeFqName))
+    )
+    createCallableStubs(fileStub, c, container, packageProto.functionList, packageProto.propertyList)
     return fileStub
 }
 
@@ -84,8 +87,9 @@ fun createMultifileClassStub(
         val partHeader = partFile.classHeader
         val (nameResolver, packageProto) = JvmProtoBufUtil.readPackageDataFrom(partHeader.annotationData!!, partHeader.strings!!)
         val partContext = components.createContext(nameResolver, packageFqName, TypeTable(packageProto.typeTable))
-        createCallableStubs(fileStub, partContext, ProtoContainer(null, packageFqName, partContext.nameResolver, partContext.typeTable),
-                            packageProto.functionList, packageProto.propertyList)
+        val container = ProtoContainer.Package(packageFqName, partContext.nameResolver, partContext.typeTable,
+                                               JvmPackagePartSource(partFile.classId))
+        createCallableStubs(fileStub, partContext, container, packageProto.functionList, packageProto.propertyList)
     }
     return fileStub
 }

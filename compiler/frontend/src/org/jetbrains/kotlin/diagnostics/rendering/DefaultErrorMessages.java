@@ -210,7 +210,6 @@ public class DefaultErrorMessages {
         MAP.put(INAPPLICABLE_LATEINIT_MODIFIER, "''lateinit'' modifier {0}", STRING);
 
         MAP.put(GETTER_VISIBILITY_DIFFERS_FROM_PROPERTY_VISIBILITY, "Getter visibility must be the same as property visibility");
-        MAP.put(SETTER_VISIBILITY_DIFFERS_FROM_LATEINIT_VISIBILITY, "Setter visibility must be the same as lateinit property visibility");
         MAP.put(SETTER_VISIBILITY_INCONSISTENT_WITH_PROPERTY_VISIBILITY, "Setter visibility must be the same or less permissive than property visibility");
         MAP.put(PRIVATE_SETTER_FOR_ABSTRACT_PROPERTY, "Private setters are not allowed for abstract properties");
         MAP.put(PRIVATE_SETTER_FOR_OPEN_PROPERTY, "Private setters are deprecated for open properties");
@@ -528,6 +527,8 @@ public class DefaultErrorMessages {
         MAP.put(TYPE_MISMATCH_IN_CONDITION, "Condition must be of type kotlin.Boolean, but is of type {0}", RENDER_TYPE);
         MAP.put(INCOMPATIBLE_TYPES, "Incompatible types: {0} and {1}", RENDER_TYPE, RENDER_TYPE);
         MAP.put(IMPLICIT_NOTHING_RETURN_TYPE, "''Nothing'' return type needs to be specified explicitly");
+        MAP.put(IMPLICIT_NOTHING_PROPERTY_TYPE, "Deprecated: ''Nothing'' property type needs to be specified explicitly");
+        MAP.put(IMPLICIT_INTERSECTION_TYPE, "Inferred type {0} is an intersection, please specify the required type explicitly", RENDER_TYPE);
         MAP.put(EXPECTED_CONDITION, "Expected condition of type kotlin.Boolean");
 
         MAP.put(CANNOT_CHECK_FOR_ERASED, "Cannot check for instance of erased type: {0}", RENDER_TYPE);

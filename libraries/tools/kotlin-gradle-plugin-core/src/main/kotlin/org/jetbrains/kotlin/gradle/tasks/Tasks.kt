@@ -207,27 +207,18 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
         val moduleName = args.moduleName
         val targets = listOf(TargetId(moduleName, targetType))
         val outputDir = File(args.destination)
-        val caches = hashMapOf<TargetId, IncrementalCacheImpl<TargetId>>()
+        val caches = hashMapOf<TargetId, BasicIncrementalCacheImpl<TargetId>>()
         val lookupStorage = LookupStorage(File(cachesBaseDir, "lookups"))
         val lookupTracker = makeLookupTracker()
-        val dirtyFilesStorage = DirtyFilesStorage(project.rootDir, File(cachesBaseDir, "dirty"))
         var currentRemoved = removed
 
-        fun getOrCreateIncrementalCache(target: TargetId): IncrementalCacheImpl<TargetId> {
+        fun getOrCreateIncrementalCache(target: TargetId): BasicIncrementalCacheImpl<TargetId> {
             val cacheDir = File(cachesBaseDir, "increCache.${target.name}")
             cacheDir.mkdirs()
-            return IncrementalCacheImpl(targetDataRoot = cacheDir, targetOutputDir = outputDir, target = target)
+            return BasicIncrementalCacheImpl(targetDataRoot = cacheDir, targetOutputDir = outputDir, target = target)
         }
 
         fun dirtySourcesFromGradle() = modified.filter { it.isKotlinFile() }
-
-        fun dirtySourcesFromEarlierStages(): Iterable<File> {
-            val dirty = dirtyFilesStorage.popAllFiles(sources)
-            if (dirty.any()) {
-                logger.kotlinDebug("dirty sources from earlier compilation stages: $dirty")
-            }
-            return dirty
-        }
 
         fun isClassPathChanged(): Boolean {
             // TODO: that doesn't look to wise - join it first and then split here, consider storing it somewhere in between
@@ -243,7 +234,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
         // TODO: decide what to do if no files are considered dirty - rebuild or skip the module
         // TODO: more precise will be not to rebuild unconditionally on classpath changes, but retrieve lookup info and try to find out which sources are affected by cp changes
         var sourcesToCompile =
-            if (isIncremental && !isClassPathChanged()) (dirtySourcesFromGradle() + dirtySourcesFromEarlierStages()).distinct()
+            if (isIncremental && !isClassPathChanged()) dirtySourcesFromGradle().distinct()
             else sources
 
         while (sourcesToCompile.any()) {
@@ -281,19 +272,11 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             // TODO: consider using some order-preserving set for sourcesToCompile instead
             val sourcesSet = sourcesToCompile.toHashSet()
             val dirty = changes.dirtyFiles(lookupStorage).filterNot { it in sourcesSet }
-            sourcesToCompile = dirty.filter {
-                if (it in sources) true
-                else {
-                    dirtyFilesStorage.add(it)
-                    false
-                }
-            }.toList()
+            sourcesToCompile = dirty.filter { it in sources }.toList()
             if (currentRemoved.any()) {
                 currentRemoved = listOf()
             }
         }
-        dirtyFilesStorage.flush(false)
-        dirtyFilesStorage.close()
         lookupStorage.flush(false)
         lookupStorage.close()
         caches.values.forEach { it.flush(false); it.close() }
@@ -305,7 +288,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                                sourcesToCompile: List<File>,
                                outputDir: File,
                                args: K2JVMCompilerArguments,
-                               getIncrementalCache: (TargetId) -> IncrementalCacheImpl<TargetId>,
+                               getIncrementalCache: (TargetId) -> BasicIncrementalCacheImpl<TargetId>,
                                lookupTracker: LookupTracker)
             : CompileChangedResults
     {
@@ -504,6 +487,8 @@ private fun <T: Any> ExtraPropertiesExtension.getOrNull(id: String): T? {
 
 class GradleMessageCollector(val logger: Logger, val outputCollector: OutputItemsCollector? = null) : MessageCollector {
     public override fun report(severity: CompilerMessageSeverity, message: String, location: CompilerMessageLocation) {
+        val sb = StringBuilder()
+        sb.append("aaa")
         val text = with(StringBuilder()) {
             append(when (severity) {
                 in CompilerMessageSeverity.VERBOSE -> "v"

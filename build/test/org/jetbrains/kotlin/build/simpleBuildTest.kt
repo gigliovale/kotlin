@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.compilerRunner.OutputItemsCollectorImpl
-import org.jetbrains.kotlin.incremental.IncrementalCacheImpl
+import org.jetbrains.kotlin.incremental.BasicIncrementalCacheImpl
 import org.jetbrains.kotlin.incremental.compileChanged
 import org.jetbrains.kotlin.incremental.makeLookupTracker
 import org.jetbrains.kotlin.integration.KotlinIntegrationTestBase

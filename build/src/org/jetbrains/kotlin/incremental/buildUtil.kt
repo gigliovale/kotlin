@@ -100,9 +100,9 @@ fun makeLookupTracker(parentLookupTracker: LookupTracker = LookupTracker.DO_NOTH
 fun<Target> getIncrementalCaches(
         targets: Iterable<Target>,
         getDependencies: (Target) -> Iterable<Target>,
-        getCache: (Target) -> IncrementalCacheImpl<Target>,
+        getCache: (Target) -> BasicIncrementalCacheImpl<Target>,
         getTargetId: Target.() -> TargetId
-): Map<TargetId, IncrementalCacheImpl<Target>>
+): Map<TargetId, BasicIncrementalCacheImpl<Target>>
 {
     val dependents = targets.keysToMap { hashSetOf<Target>() }
     val targetsWithDependents = targets.toHashSet()
@@ -131,7 +131,7 @@ fun<Target> getIncrementalCaches(
 fun<Target> updateKotlinIncrementalCache(
         targets: Iterable<Target>,
         compilationErrors: Boolean,
-        getIncrementalCache: (Target) -> IncrementalCacheImpl<Target>,
+        getIncrementalCache: (Target) -> BasicIncrementalCacheImpl<Target>,
         generatedFiles: List<GeneratedFile<Target>>
 ): CompilationResult {
 

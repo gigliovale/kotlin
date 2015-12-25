@@ -16,7 +16,7 @@
 
 package org.jetbrains.kotlin.load.java;
 
-import kotlin.SetsKt;
+import kotlin.collections.SetsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.name.ClassId;
 import org.jetbrains.kotlin.name.FqName;
@@ -36,9 +36,6 @@ public final class JvmAnnotationNames {
     public static final FqName KOTLIN_FUNCTION = new FqName("kotlin.jvm.internal.KotlinFunction");
     public static final FqName KOTLIN_INTERFACE_DEFAULT_IMPLS = new FqName("kotlin.jvm.internal.KotlinInterfaceDefaultImpls");
     public static final FqName KOTLIN_LOCAL_CLASS = new FqName("kotlin.jvm.internal.KotlinLocalClass");
-
-    public static final FqName KOTLIN_DELEGATED_METHOD = new FqName("kotlin.jvm.internal.KotlinDelegatedMethod");
-    public static final String IMPLEMENTATION_CLASS_NAME_FIELD_NAME = "implementationClassName";
 
     public static final String VERSION_FIELD_NAME = "version";
     public static final String FILE_PART_CLASS_NAMES_FIELD_NAME = "filePartClassNames";
@@ -64,8 +61,6 @@ public final class JvmAnnotationNames {
     // Just for internal use: there is no such real classes in bytecode
     public static final FqName ENHANCED_NULLABILITY_ANNOTATION = new FqName("kotlin.jvm.internal.EnhancedNullability");
     public static final FqName ENHANCED_MUTABILITY_ANNOTATION = new FqName("kotlin.jvm.internal.EnhancedMutability");
-
-    public static final String OLD_ABI_VERSION_FIELD_NAME = "abiVersion";
 
     // When these annotations appear on a declaration, they are copied to the _type_ of the declaration, becoming type annotations
     // See also DescriptorRendererOptions#excludedTypeAnnotationClasses

@@ -287,25 +287,20 @@ public class DeserializedClassDescriptor(
     }
 
     private inner class EnumEntryClassDescriptors {
-        private val oldEnumEntryNames = classProto.enumEntryNameList.mapTo(LinkedHashSet()) { c.nameResolver.getName(it) }
         private val enumEntryProtos = classProto.enumEntryList.toMapBy { c.nameResolver.getName(it.name) }
+        private val protoContainer =
+                ProtoContainer.Class(classProto, c.nameResolver, c.typeTable, (containingDeclaration as? ClassDescriptor)?.kind)
 
         val enumEntryByName = c.storageManager.createMemoizedFunctionWithNullableValues<Name, ClassDescriptor> {
             name ->
 
-            val annotations = enumEntryProtos[name]?.let { proto ->
-                DeserializedAnnotations(c.storageManager) {
-                    c.components.annotationAndConstantLoader.loadEnumEntryAnnotations(
-                            ProtoContainer.Class(classProto, c.nameResolver, c.typeTable, isCompanionOfClass = false, isInterface = false),
-                            proto
-                    )
-                }
-            } ?: if (name in oldEnumEntryNames) Annotations.EMPTY
-            else null
-
-            annotations?.let { annotations ->
+            enumEntryProtos[name]?.let { proto ->
                 EnumEntrySyntheticClassDescriptor.create(
-                        c.storageManager, this@DeserializedClassDescriptor, name, enumMemberNames, annotations, SourceElement.NO_SOURCE
+                        c.storageManager, this@DeserializedClassDescriptor, name, enumMemberNames,
+                        DeserializedAnnotations(c.storageManager) {
+                            c.components.annotationAndConstantLoader.loadEnumEntryAnnotations(protoContainer, proto)
+                        },
+                        SourceElement.NO_SOURCE
                 )
             }
         }
@@ -332,7 +327,6 @@ public class DeserializedClassDescriptor(
         }
 
         fun all(): Collection<ClassDescriptor> =
-                (if (oldEnumEntryNames.isEmpty()) enumEntryProtos.keys else oldEnumEntryNames)
-                        .mapNotNull { name -> findEnumEntry(name) }
+                enumEntryProtos.keys.mapNotNull { name -> findEnumEntry(name) }
     }
 }

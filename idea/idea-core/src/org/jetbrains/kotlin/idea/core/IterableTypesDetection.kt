@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.core
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.idea.util.FuzzyType
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.Name
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 import org.jetbrains.kotlin.types.expressions.ForLoopConventionsChecker
+import org.jetbrains.kotlin.util.isValidOperator
 import java.util.*
 
 public class IterableTypesDetection(
@@ -48,8 +50,8 @@ public class IterableTypesDetection(
 
         private val typesWithExtensionIterator: Collection<KotlinType> = scope
                 .collectFunctions(iteratorName, NoLookupLocation.FROM_IDE)
-                .mapNotNull { it.extensionReceiverParameter }
-                .map { it.type }
+                .filter { it.isValidOperator() }
+                .mapNotNull { it.extensionReceiverParameter?.type }
 
         override fun isIterable(type: FuzzyType, loopVarType: KotlinType?): Boolean {
             val elementType = elementType(type) ?: return false
@@ -79,7 +81,10 @@ public class IterableTypesDetection(
 
         private fun canBeIterable(type: FuzzyType): Boolean {
             return type.type.memberScope.getContributedFunctions(iteratorName, NoLookupLocation.FROM_IDE).isNotEmpty() ||
-                   typesWithExtensionIterator.any { type.checkIsSubtypeOf(it) != null }
+                   typesWithExtensionIterator.any {
+                       val freeParams = it.arguments.mapNotNull { it.type.constructor.declarationDescriptor as? TypeParameterDescriptor }
+                       type.checkIsSubtypeOf(FuzzyType(it, freeParams)) != null
+                   }
         }
     }
 }

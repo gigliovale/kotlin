@@ -509,6 +509,21 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
         }
     }
 
+    @TestMetadata("idea/testData/quickfix/addValVar")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class AddValVar extends AbstractQuickFixTest {
+        @TestMetadata("addVal.kt")
+        public void testAddVal() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/addValVar/addVal.kt");
+            doTest(fileName);
+        }
+
+        public void testAllFilesPresentInAddValVar() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/addValVar"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+        }
+    }
+
     @TestMetadata("idea/testData/quickfix/asyncUnsupported")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
@@ -2225,6 +2240,12 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                 @TestMetadata("noFunctionalType.kt")
                 public void testNoFunctionalType() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/callableReferences/noFunctionalType.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("nonExtensionWithReceiverInCallableRef.kt")
+                public void testNonExtensionWithReceiverInCallableRef() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/callableReferences/nonExtensionWithReceiverInCallableRef.kt");
                     doTest(fileName);
                 }
 
@@ -5137,6 +5158,12 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             @TestMetadata("implementTraitFinalSupertype.kt")
             public void testImplementTraitFinalSupertype() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/addOpenToClassDeclaration/implementTraitFinalSupertype.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nestedFinalClass.kt")
+            public void testNestedFinalClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/addOpenToClassDeclaration/nestedFinalClass.kt");
                 doTest(fileName);
             }
 

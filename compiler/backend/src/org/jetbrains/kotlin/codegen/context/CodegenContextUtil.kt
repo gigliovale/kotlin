@@ -16,24 +16,18 @@
 
 package org.jetbrains.kotlin.codegen.context
 
-import org.jetbrains.kotlin.codegen.AsmUtil
 import org.jetbrains.org.objectweb.asm.Type
-
 
 public object CodegenContextUtil {
     @JvmStatic
     public fun getImplementationOwnerClassType(owner: CodegenContext<*>): Type? =
             when (owner) {
-                is DelegatingFacadeContext -> owner.delegateToClassType
+                is MultifileClassFacadeContext -> owner.filePartType
                 is DelegatingToPartContext -> owner.implementationOwnerClassType
                 else -> null
             }
 
     @JvmStatic
-    public fun getImplementationClassShortName(owner: CodegenContext<*>): String? =
-            getImplementationOwnerClassType(owner)?.let { AsmUtil.shortNameByAsmType(it) }
-
-    @JvmStatic
     public fun isImplClassOwner(owner: CodegenContext<*>): Boolean =
-            owner !is DelegatingFacadeContext
+            owner !is MultifileClassFacadeContext
 }

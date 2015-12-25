@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor;
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
 import org.jetbrains.kotlin.util.slicedMap.BasicWritableSlice;
 import org.jetbrains.kotlin.util.slicedMap.MutableSlicedMap;
 import org.jetbrains.kotlin.util.slicedMap.SlicedMapImpl;
@@ -35,14 +34,6 @@ public final class JvmSerializationBindings {
     public static final SerializationMappingSlice<PropertyDescriptor, Pair<Type, String>> FIELD_FOR_PROPERTY =
             SerializationMappingSlice.create();
     public static final SerializationMappingSlice<PropertyDescriptor, Method> SYNTHETIC_METHOD_FOR_PROPERTY =
-            SerializationMappingSlice.create();
-    public static final SerializationMappingSlice<FunctionDescriptor, String> METHOD_IMPL_CLASS_NAME =
-            SerializationMappingSlice.create();
-    public static final SerializationMappingSlice<PropertyDescriptor, String> PROPERTY_IMPL_CLASS_NAME =
-            SerializationMappingSlice.create();
-    public static final SerializationMappingSetSlice<PropertyDescriptor> STATIC_FIELD_IN_OUTER_CLASS =
-            SerializationMappingSetSlice.create();
-    public static final SerializationMappingSlice<ValueParameterDescriptor, Integer> INDEX_FOR_VALUE_PARAMETER =
             SerializationMappingSlice.create();
 
     private static final class SerializationMappingSlice<K, V> extends BasicWritableSlice<K, V> {

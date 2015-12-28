@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.load.kotlin.ModuleMapping
 import org.jetbrains.kotlin.utils.sure
 import java.io.File
 
-public open class GeneratedFile<TargetId> internal constructor(
+public open class GeneratedFile<TargetId>(
         val target: TargetId,
         val sourceFiles: Collection<File>,
         val outputFile: File

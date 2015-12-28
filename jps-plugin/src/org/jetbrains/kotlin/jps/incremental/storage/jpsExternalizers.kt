@@ -16,23 +16,10 @@
 
 package org.jetbrains.kotlin.jps.incremental.storage
 
-import org.jetbrains.kotlin.utils.keysToMap
-import java.io.File
+import com.intellij.openapi.util.io.FileUtil
+import gnu.trove.THashSet
+import org.jetbrains.jps.incremental.storage.PathStringDescriptor
+import org.jetbrains.kotlin.incremental.storage.CollectionExternalizer
 
-internal class FileToIdMap(file: File) : BasicMap<File, Int>(file, FileKeyDescriptor, IntExternalizer) {
-    override fun dumpKey(key: File): String = key.toString()
+object PathCollectionExternalizer : CollectionExternalizer<String>(PathStringDescriptor(), { THashSet(FileUtil.PATH_HASHING_STRATEGY) })
 
-    override fun dumpValue(value: Int): String = value.toString()
-
-    public operator fun get(file: File): Int? = storage[file]
-
-    public operator fun set(file: File, id: Int) {
-        storage[file] = id
-    }
-
-    public fun remove(file: File) {
-        storage.remove(file)
-    }
-
-    public fun toMap(): Map<File, Int> = storage.keys.keysToMap { storage[it]!! }
-}

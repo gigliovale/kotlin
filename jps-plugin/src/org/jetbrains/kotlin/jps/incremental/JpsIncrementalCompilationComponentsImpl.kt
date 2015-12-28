@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.incremental
+package org.jetbrains.kotlin.jps.incremental
 
+import org.jetbrains.jps.incremental.ModuleBuildTarget
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.modules.TargetId
 
-public class IncrementalCompilationComponentsImpl(
-        private val caches: Map<TargetId, IncrementalCache>,
+public class JpsIncrementalCompilationComponentsImpl(
+        caches: Map<ModuleBuildTarget, IncrementalCache>,
         private val lookupTracker: LookupTracker
 ): IncrementalCompilationComponents {
-    // Commented out to keep the history for the moment then it should be reused in the jps
-//    private val caches = caches.mapKeys { TargetId(it.key) }
+    private val caches = caches.mapKeys { TargetId(it.key) }
 
     override fun getIncrementalCache(target: TargetId): IncrementalCache =
-            caches[target] ?: throw Exception("Incremental cache for target ${target.name} not found")
+            caches[target]!!
 
     override fun getLookupTracker(): LookupTracker = lookupTracker
 }

@@ -94,8 +94,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
 
         if (!checkEqualsClassProperty(old, new)) return false
 
-        if (!checkEqualsClassEnumEntryName(old, new)) return false
-
         if (!checkEqualsClassEnumEntry(old, new)) return false
 
         if (old.hasTypeTable() != new.hasTypeTable()) return false
@@ -122,7 +120,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
         CONSTRUCTOR_LIST,
         FUNCTION_LIST,
         PROPERTY_LIST,
-        ENUM_ENTRY_NAME_LIST,
         ENUM_ENTRY_LIST,
         TYPE_TABLE,
         CLASS_ANNOTATION_LIST
@@ -156,8 +153,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
         if (!checkEqualsClassFunction(old, new)) result.add(ProtoBufClassKind.FUNCTION_LIST)
 
         if (!checkEqualsClassProperty(old, new)) result.add(ProtoBufClassKind.PROPERTY_LIST)
-
-        if (!checkEqualsClassEnumEntryName(old, new)) result.add(ProtoBufClassKind.ENUM_ENTRY_NAME_LIST)
 
         if (!checkEqualsClassEnumEntry(old, new)) result.add(ProtoBufClassKind.ENUM_ENTRY_LIST)
 
@@ -217,11 +212,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
             if (!checkEquals(old.getExtension(JvmProtoBuf.methodSignature), new.getExtension(JvmProtoBuf.methodSignature))) return false
         }
 
-        if (old.hasExtension(JvmProtoBuf.methodImplClassName) != new.hasExtension(JvmProtoBuf.methodImplClassName)) return false
-        if (old.hasExtension(JvmProtoBuf.methodImplClassName)) {
-            if (!checkStringEquals(old.getExtension(JvmProtoBuf.methodImplClassName), new.getExtension(JvmProtoBuf.methodImplClassName))) return false
-        }
-
         return true
     }
 
@@ -273,11 +263,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
         if (old.hasExtension(JvmProtoBuf.propertySignature) != new.hasExtension(JvmProtoBuf.propertySignature)) return false
         if (old.hasExtension(JvmProtoBuf.propertySignature)) {
             if (!checkEquals(old.getExtension(JvmProtoBuf.propertySignature), new.getExtension(JvmProtoBuf.propertySignature))) return false
-        }
-
-        if (old.hasExtension(JvmProtoBuf.propertyImplClassName) != new.hasExtension(JvmProtoBuf.propertyImplClassName)) return false
-        if (old.hasExtension(JvmProtoBuf.propertyImplClassName)) {
-            if (!checkStringEquals(old.getExtension(JvmProtoBuf.propertyImplClassName), new.getExtension(JvmProtoBuf.propertyImplClassName))) return false
         }
 
         return true
@@ -403,7 +388,7 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
     open fun checkEquals(old: ProtoBuf.EnumEntry, new: ProtoBuf.EnumEntry): Boolean {
         if (old.hasName() != new.hasName()) return false
         if (old.hasName()) {
-            if (old.name != new.name) return false
+            if (!checkStringEquals(old.name, new.name)) return false
         }
 
         return true
@@ -443,11 +428,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
         if (old.hasVarargElementTypeId() != new.hasVarargElementTypeId()) return false
         if (old.hasVarargElementTypeId()) {
             if (old.varargElementTypeId != new.varargElementTypeId) return false
-        }
-
-        if (old.hasExtension(JvmProtoBuf.index) != new.hasExtension(JvmProtoBuf.index)) return false
-        if (old.hasExtension(JvmProtoBuf.index)) {
-            if (old.getExtension(JvmProtoBuf.index) != new.getExtension(JvmProtoBuf.index)) return false
         }
 
         return true
@@ -527,11 +507,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
         if (old.hasDesc() != new.hasDesc()) return false
         if (old.hasDesc()) {
             if (!checkStringEquals(old.desc, new.desc)) return false
-        }
-
-        if (old.hasIsStaticInOuter() != new.hasIsStaticInOuter()) return false
-        if (old.hasIsStaticInOuter()) {
-            if (old.isStaticInOuter != new.isStaticInOuter) return false
         }
 
         return true
@@ -668,16 +643,6 @@ open class ProtoCompareGenerated(public val oldNameResolver: NameResolver, publi
 
         for(i in 0..old.propertyCount - 1) {
             if (!checkEquals(old.getProperty(i), new.getProperty(i))) return false
-        }
-
-        return true
-    }
-
-    open fun checkEqualsClassEnumEntryName(old: ProtoBuf.Class, new: ProtoBuf.Class): Boolean {
-        if (old.enumEntryNameCount != new.enumEntryNameCount) return false
-
-        for(i in 0..old.enumEntryNameCount - 1) {
-            if (!checkStringEquals(old.getEnumEntryName(i), new.getEnumEntryName(i))) return false
         }
 
         return true
@@ -883,10 +848,6 @@ public fun ProtoBuf.Class.hashCode(stringIndexes: (Int) -> Int, fqNameIndexes: (
         hashCode = 31 * hashCode + getProperty(i).hashCode(stringIndexes, fqNameIndexes)
     }
 
-    for(i in 0..enumEntryNameCount - 1) {
-        hashCode = 31 * hashCode + stringIndexes(getEnumEntryName(i))
-    }
-
     for(i in 0..enumEntryCount - 1) {
         hashCode = 31 * hashCode + getEnumEntry(i).hashCode(stringIndexes, fqNameIndexes)
     }
@@ -943,10 +904,6 @@ public fun ProtoBuf.Function.hashCode(stringIndexes: (Int) -> Int, fqNameIndexes
         hashCode = 31 * hashCode + getExtension(JvmProtoBuf.methodSignature).hashCode(stringIndexes, fqNameIndexes)
     }
 
-    if (hasExtension(JvmProtoBuf.methodImplClassName)) {
-        hashCode = 31 * hashCode + stringIndexes(getExtension(JvmProtoBuf.methodImplClassName))
-    }
-
     return hashCode
 }
 
@@ -993,10 +950,6 @@ public fun ProtoBuf.Property.hashCode(stringIndexes: (Int) -> Int, fqNameIndexes
 
     if (hasExtension(JvmProtoBuf.propertySignature)) {
         hashCode = 31 * hashCode + getExtension(JvmProtoBuf.propertySignature).hashCode(stringIndexes, fqNameIndexes)
-    }
-
-    if (hasExtension(JvmProtoBuf.propertyImplClassName)) {
-        hashCode = 31 * hashCode + stringIndexes(getExtension(JvmProtoBuf.propertyImplClassName))
     }
 
     return hashCode
@@ -1122,7 +1075,7 @@ public fun ProtoBuf.EnumEntry.hashCode(stringIndexes: (Int) -> Int, fqNameIndexe
     var hashCode = 1
 
     if (hasName()) {
-        hashCode = 31 * hashCode + name
+        hashCode = 31 * hashCode + stringIndexes(name)
     }
 
     return hashCode
@@ -1163,10 +1116,6 @@ public fun ProtoBuf.ValueParameter.hashCode(stringIndexes: (Int) -> Int, fqNameI
 
     if (hasVarargElementTypeId()) {
         hashCode = 31 * hashCode + varargElementTypeId
-    }
-
-    if (hasExtension(JvmProtoBuf.index)) {
-        hashCode = 31 * hashCode + getExtension(JvmProtoBuf.index)
     }
 
     return hashCode
@@ -1245,10 +1194,6 @@ public fun JvmProtoBuf.JvmFieldSignature.hashCode(stringIndexes: (Int) -> Int, f
 
     if (hasDesc()) {
         hashCode = 31 * hashCode + stringIndexes(desc)
-    }
-
-    if (hasIsStaticInOuter()) {
-        hashCode = 31 * hashCode + isStaticInOuter.hashCode()
     }
 
     return hashCode

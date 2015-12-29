@@ -108,7 +108,7 @@ public class KotlinModuleSettingStep extends ModuleWizardStep {
     public JComponent getComponent() {
         if (panel == null) {
             panel = new JPanel(new VerticalLayout(0));
-            panel.setBorder(BorderFactory.createTitledBorder(IdeBorderFactory.createTitledBorder(getLibraryLabelText())));
+            panel.setBorder(IdeBorderFactory.createTitledBorder(getLibraryLabelText()));
             panel.add(getLibraryPanel().getMainPanel());
         }
         return panel;
@@ -142,8 +142,8 @@ public class KotlinModuleSettingStep extends ModuleWizardStep {
 
         Boolean selected = isLibrarySelected();
         if (selected != null && !selected) {
-            int result = Messages.showYesNoDialog(KotlinBundle.message("prompt.confirm.project.no.kotlin.lib"),
-                                                  KotlinBundle.message("title.no.kotlin.specified"), Messages.getWarningIcon());
+            int result = Messages.showYesNoDialog("Do you want to continue with no Kotlin Runtime library?",
+                                                  "No Kotlin Runtime Specified", Messages.getWarningIcon());
             if (result != Messages.YES) {
                 return false;
             }

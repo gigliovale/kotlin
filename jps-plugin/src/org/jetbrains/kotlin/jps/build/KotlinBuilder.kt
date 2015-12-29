@@ -67,12 +67,11 @@ import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.LibraryUtils
 import org.jetbrains.kotlin.utils.PathUtil
 import org.jetbrains.kotlin.utils.keysToMap
-import org.jetbrains.kotlin.utils.sure
 import org.jetbrains.org.objectweb.asm.ClassReader
 import java.io.File
 import java.util.*
 
-public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
+class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     companion object {
         @JvmField
         public val KOTLIN_BUILDER_NAME: String = "Kotlin Builder"

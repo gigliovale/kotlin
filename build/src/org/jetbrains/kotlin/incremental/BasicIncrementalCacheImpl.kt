@@ -567,14 +567,14 @@ public open class BasicIncrementalCacheImpl<TargetId>(
         override fun dumpValue(value: String): String = value
     }
 
-    protected interface SourceToClassesMapInterface : BasicMapInterface {
+    interface SourceToClassesMapInterface : BasicMapInterface {
         public fun clearOutputsForSource(sourceFile: File)
         public fun add(sourceFile: File, className: JvmClassName)
         public operator fun get(sourceFile: File): Collection<JvmClassName>
     }
 
     // TODO: find how to deal with PathStringDescriptor - it seems too deeply rooted in jps
-    protected inner class SourceToClassesMap(storageFile: File) : SourceToClassesMapInterface, BasicStringMap<Collection<String>>(storageFile, /* PathStringDescriptor.INSTANCE,*/ StringCollectionExternalizer) {
+    inner class SourceToClassesMap(storageFile: File) : SourceToClassesMapInterface, BasicStringMap<Collection<String>>(storageFile, /* PathStringDescriptor.INSTANCE,*/ StringCollectionExternalizer) {
         override fun clearOutputsForSource(sourceFile: File) {
             remove(sourceFile.absolutePath)
         }

@@ -33,7 +33,7 @@ import java.io.File
 
 val KOTLIN_CACHE_DIRECTORY_NAME = "kotlin"
 
-public class IncrementalCacheImpl(
+class IncrementalCacheImpl(
         target: ModuleBuildTarget,
         paths: BuildDataPaths
 ) : StorageOwner, BasicIncrementalCacheImpl<ModuleBuildTarget>(paths.getTargetDataRoot(target), target.outputDir, target) {

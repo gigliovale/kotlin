@@ -455,8 +455,8 @@ public class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR
             context: CompileContext
     ): CompilerEnvironment {
         val compilerServices = Services.Builder()
-                .register(javaClass<IncrementalCompilationComponents>(), JpsIncrementalCompilationComponentsImpl(incrementalCaches, lookupTracker))
-                .register(javaClass<CompilationCanceledStatus>(), object : CompilationCanceledStatus {
+                .register(IncrementalCompilationComponents::class.java, JpsIncrementalCompilationComponentsImpl(incrementalCaches, lookupTracker))
+                .register(CompilationCanceledStatus::class.java, object : CompilationCanceledStatus {
                     override fun checkCanceled() {
                         if (context.getCancelStatus().isCanceled()) throw CompilationCanceledException()
                     }

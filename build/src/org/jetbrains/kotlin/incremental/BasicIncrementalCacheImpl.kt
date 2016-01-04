@@ -71,6 +71,8 @@ public open class BasicIncrementalCacheImpl<TargetId>(
         val SUPERTYPES = "supertypes"
 
         private val MODULE_MAPPING_FILE_NAME = "." + ModuleMapping.MAPPING_FILE_EXT
+
+
     }
 
     private val baseDir = File(targetDataRoot, KOTLIN_CACHE_DIRECTORY_NAME)
@@ -84,13 +86,15 @@ public open class BasicIncrementalCacheImpl<TargetId>(
     protected val String.storageFile: File
         get() = File(baseDir, this + "." + CACHE_EXTENSION)
 
+    protected open fun makeSourceToClassesMap(): SourceToClassesMapInterface = registerMap(SourceToClassesMap(SOURCE_TO_CLASSES.storageFile))
+
     private val protoMap = registerMap(ProtoMap(PROTO_MAP.storageFile))
     private val constantsMap = registerMap(ConstantsMap(CONSTANTS_MAP.storageFile))
     private val inlineFunctionsMap = registerMap(InlineFunctionsMap(INLINE_FUNCTIONS.storageFile))
     private val packagePartMap = registerMap(PackagePartMap(PACKAGE_PARTS.storageFile))
     private val multifileClassFacadeMap = registerMap(MultifileClassFacadeMap(MULTIFILE_CLASS_FACADES.storageFile))
     private val multifileClassPartMap = registerMap(MultifileClassPartMap(MULTIFILE_CLASS_PARTS.storageFile))
-    protected open val sourceToClassesMap: SourceToClassesMapInterface = registerMap(SourceToClassesMap(SOURCE_TO_CLASSES.storageFile))
+    private val sourceToClassesMap: SourceToClassesMapInterface = makeSourceToClassesMap()
     private val dirtyOutputClassesMap = registerMap(DirtyOutputClassesMap(DIRTY_OUTPUT_CLASSES.storageFile))
     private val dirtyInlineFunctionsMap = registerMap(DirtyInlineFunctionsMap(DIRTY_INLINE_FUNCTIONS.storageFile))
     private val inlinedTo = registerMap(InlineFunctionsFilesMap(INLINED_TO.storageFile))

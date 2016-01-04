@@ -38,7 +38,7 @@ class IncrementalCacheImpl(
         paths: BuildDataPaths
 ) : StorageOwner, BasicIncrementalCacheImpl<ModuleBuildTarget>(paths.getTargetDataRoot(target), target.outputDir, target) {
 
-    override val sourceToClassesMap = registerMap(SourceToClassesMap(SOURCE_TO_CLASSES.storageFile))
+    override fun makeSourceToClassesMap(): SourceToClassesMapInterface = registerMap(PathSourceToClassesMap(SOURCE_TO_CLASSES.storageFile))
 
     private val dependents = arrayListOf<IncrementalCacheImpl>()
     private val outputDir = requireNotNull(target.outputDir) { "Target is expected to have output directory: $target" }

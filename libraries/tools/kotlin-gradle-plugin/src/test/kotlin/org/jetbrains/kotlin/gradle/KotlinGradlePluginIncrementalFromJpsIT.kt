@@ -42,24 +42,24 @@ class KotlinGradleIncrementalFromJpsIT: BaseIncrementalGradleIT() {
 //        }
 //    }
 //
-//    @Test
-//    fun testJavaInKotlinChangeSignature() {
-//        val project = JpsTestProject("withJava/javaUsedInKotlin/changeSignature", "2.4")
-//
-//        project.build("build") {
-//            assertSuccessful()
-//            assertReportExists()
-//            assertCompiledKotlinSources("usage.kt")
-//            assertCompiledJavaSources("JavaClass.java")
-//        }
-//
-//        project.modify()
-//
-//        project.build("build") {
-//            assertSuccessful()
-//            assertCompiledKotlinSources("usage.kt")
-//            assertCompiledJavaSources("JavaClass.java")
-//        }
-//    }
+    @Test
+    fun testJavaInKotlinChangeSignature() {
+        val project = JpsTestProject("withJava/javaUsedInKotlin/changeSignature", "2.4")
+
+        project.build("build") {
+            assertSuccessful()
+            assertReportExists()
+            assertCompiledKotlinSources("usage.kt")
+            assertCompiledJavaSources("JavaClass.java")
+        }
+
+        project.modify()
+
+        project.build("build") {
+            assertSuccessful()
+            assertCompiledKotlinSources("usage.kt")
+            assertCompiledJavaSources("JavaClass.java")
+        }
+    }
 
 }

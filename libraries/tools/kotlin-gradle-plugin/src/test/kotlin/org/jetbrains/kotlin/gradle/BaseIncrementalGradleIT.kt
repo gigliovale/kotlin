@@ -21,7 +21,6 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
             File(projectDir, "build.gradle").writeText("""
 buildscript {
   repositories {
-    mavenCentral()
     maven {
         url 'file://' + pathToKotlinPlugin
     }
@@ -48,13 +47,6 @@ repositories {
   maven {
      url 'file://' + pathToKotlinPlugin
   }
-  mavenCentral()
-}
-
-dependencies {
-    compile 'com.google.guava:guava:12.0'
-    testCompile  'org.testng:testng:6.8'
-    compile  'org.jetbrains.kotlin:kotlin-stdlib:0.1-SNAPSHOT'
 }
             """)
         }

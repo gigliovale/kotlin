@@ -23,6 +23,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.Presentation
 import com.intellij.openapi.actionSystem.ex.ActionManagerEx
 import com.intellij.openapi.editor.ex.EditorEx
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -40,20 +41,20 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 
-public abstract class KotlinLightCodeInsightFixtureTestCase : LightCodeInsightFixtureTestCase() {
+abstract class KotlinLightCodeInsightFixtureTestCase : KotlinLightCodeInsightFixtureTestCaseBase() {
     private var kotlinInternalModeOriginalValue = false
 
     private val exceptions = ArrayList<Throwable>()
 
     override fun setUp() {
         super.setUp()
-        (StartupManager.getInstance(getProject()) as StartupManagerImpl).runPostStartupActivities()
+        (StartupManager.getInstance(project) as StartupManagerImpl).runPostStartupActivities()
         VfsRootAccess.allowRootAccess(KotlinTestUtils.getHomeDirectory())
 
         kotlinInternalModeOriginalValue = KotlinInternalMode.enabled
         KotlinInternalMode.enabled = true
 
-        getProject().getComponent(EditorTracker::class.java)?.projectOpened()
+        project.getComponent(EditorTracker::class.java)?.projectOpened()
 
         invalidateLibraryCache(project)
 
@@ -71,7 +72,7 @@ public abstract class KotlinLightCodeInsightFixtureTestCase : LightCodeInsightFi
         KotlinInternalMode.enabled = kotlinInternalModeOriginalValue
         VfsRootAccess.disallowRootAccess(KotlinTestUtils.getHomeDirectory())
 
-        unInvalidateBuiltinsAndStdLib(getProject()) {
+        unInvalidateBuiltinsAndStdLib(project) {
             super.tearDown()
         }
 
@@ -100,7 +101,7 @@ public abstract class KotlinLightCodeInsightFixtureTestCase : LightCodeInsightFi
     protected fun getProjectDescriptorFromFileDirective(): LightProjectDescriptor {
         if (!isAllFilesPresentInTest()) {
             try {
-                val fileText = FileUtil.loadFile(File(getTestDataPath(), fileName()), true)
+                val fileText = FileUtil.loadFile(File(testDataPath, fileName()), true)
 
                 val withLibraryDirective = InTextDirectivesUtils.findLinesWithPrefixesRemoved(fileText, "WITH_LIBRARY:")
                 if (!withLibraryDirective.isEmpty()) {
@@ -130,14 +131,14 @@ public abstract class KotlinLightCodeInsightFixtureTestCase : LightCodeInsightFi
             = getTestName(false) + ".kt"
 
     protected fun performNotWriteEditorAction(actionId: String): Boolean {
-        val dataContext = (myFixture.getEditor() as EditorEx).getDataContext()
+        val dataContext = (myFixture.editor as EditorEx).dataContext
 
         val managerEx = ActionManagerEx.getInstanceEx()
         val action = managerEx.getAction(actionId)
         val event = AnActionEvent(null, dataContext, ActionPlaces.UNKNOWN, Presentation(), managerEx, 0)
 
         action.update(event)
-        if (!event.getPresentation().isEnabled()) {
+        if (!event.presentation.isEnabled) {
             return false
         }
 

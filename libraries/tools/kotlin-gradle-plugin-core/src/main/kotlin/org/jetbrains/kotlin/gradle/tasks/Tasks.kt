@@ -4,6 +4,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.Language
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.PsiJavaFile
 import com.intellij.psi.impl.PsiFileFactoryImpl
@@ -234,6 +235,14 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             return BasicIncrementalCacheImpl(targetDataRoot = cacheDir, targetOutputDir = outputDir, target = target)
         }
 
+        fun PsiClass.findLookupSymbols(): Iterable<LookupSymbol> {
+            val fqn = qualifiedName.orEmpty()
+            return listOf(LookupSymbol(name.orEmpty(), if (fqn == name) "" else fqn.removeSuffix("." + name!!))) +
+                    methods.map { LookupSymbol(it.name, fqn) } +
+                    fields.map { LookupSymbol(it.name.orEmpty(), fqn) } +
+                    innerClasses.flatMap { it.findLookupSymbols() }
+        }
+
         fun dirtyKotlinSourcesFromGradle(): List<File> {
             val kotlinFiles = modified.filter { it.isKotlinFile() }
             val javaFiles = modified.filter { it.isJavaFile() }
@@ -243,16 +252,15 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 val environment = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
                 val project = environment.project
                 val psiFileFactory = PsiFileFactory.getInstance(project) as PsiFileFactoryImpl
-                val classNames = javaFiles.flatMap {
+                val lookupSymbols = javaFiles.flatMap {
                     val javaFile = psiFileFactory.createFileFromText(it.nameWithoutExtension, Language.findLanguageByID("JAVA")!!, it.readText())
-                    if (javaFile is PsiJavaFile) javaFile.classes.map {
-                        LookupSymbol(it.qualifiedName!!, "")
-                    }
+                    if (javaFile is PsiJavaFile)
+                        javaFile.classes.flatMap { it.findLookupSymbols() }
                     else listOf()
                 }
-                logger.kotlinDebug("changed java classes: ${classNames.joinToString()}")
-                if (classNames.any()) {
-                    return kotlinFiles + classNames.flatMap { lookupStorage.get(it) }.map { File(it) }
+                logger.kotlinDebug("changed java symbols: ${lookupSymbols.joinToString { "${it.name}:${it.scope}" }}")
+                if (lookupSymbols.any()) {
+                    return kotlinFiles + lookupSymbols.flatMap { lookupStorage.get(it) }.map { File(it) }
                 }
             }
             return kotlinFiles

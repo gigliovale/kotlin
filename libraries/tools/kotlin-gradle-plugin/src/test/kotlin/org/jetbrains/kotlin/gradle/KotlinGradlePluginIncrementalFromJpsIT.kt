@@ -21,27 +21,27 @@ class KotlinGradleIncrementalFromJpsIT: BaseIncrementalGradleIT() {
             assertCompiledKotlinSources("class.kt", "usage.kt")
         }
     }
-//
-//    @Test
-//    fun testKotlinInJavaFunRenamed() {
-//        val project = JpsTestProject("withJava/kotlinUsedInJava/funRenamed", "2.4")
-//
-//        project.build("build") {
-//            assertSuccessful()
-//            assertReportExists()
-//            assertCompiledKotlinSources("fun.kt")
-//            assertCompiledJavaSources("WillBeUnresolved.java")
-//        }
-//
-//        project.modify()
-//
-//        project.build("build") {
-//            assertCompiledKotlinSources("fun.kt")
-//            assertCompiledJavaSources("WillBeUnresolved.java")
-//            assertFailed()
-//        }
-//    }
-//
+
+    @Test
+    fun testKotlinInJavaFunRenamed() {
+        val project = JpsTestProject("withJava/kotlinUsedInJava/funRenamed", "2.4")
+
+        project.build("build") {
+            assertSuccessful()
+            assertReportExists()
+            assertCompiledKotlinSources("fun.kt")
+            assertCompiledJavaSources("WillBeUnresolved.java")
+        }
+
+        project.modify()
+
+        project.build("build") {
+            assertCompiledKotlinSources("fun.kt")
+            assertCompiledJavaSources("WillBeUnresolved.java")
+            assertFailed()
+        }
+    }
+
     @Test
     fun testJavaInKotlinChangeSignature() {
         val project = JpsTestProject("withJava/javaUsedInKotlin/changeSignature", "2.4")

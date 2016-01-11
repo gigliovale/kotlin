@@ -207,6 +207,11 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire-version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <compilerJar>${artifactId}-${parent.version}.jar</compilerJar>
+                    </systemPropertyVariables>
+                </configuration>
                 <executions>
                     <execution>
                         <id>integration-test</id>

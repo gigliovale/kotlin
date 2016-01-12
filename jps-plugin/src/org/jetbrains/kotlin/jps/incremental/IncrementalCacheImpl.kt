@@ -21,7 +21,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.io.FileUtil.toSystemIndependentName
 import com.intellij.util.io.BooleanDataDescriptor
 import com.intellij.util.io.EnumeratorStringDescriptor
-import com.intellij.util.io.IOUtil
 import gnu.trove.THashSet
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.builders.storage.BuildDataPaths
@@ -105,11 +104,16 @@ class IncrementalCacheImpl(
     private val dependents = arrayListOf<IncrementalCacheImpl>()
     private val outputDir = requireNotNull(target.outputDir) { "Target is expected to have output directory: $target" }
 
-    private val dependentsWithThis: Iterable<IncrementalCacheImpl>
-            get() = dependents + this
+    private val dependentsWithThis: Sequence<IncrementalCacheImpl>
+            get() = sequenceOf(this).plus(dependents.asSequence())
+
+    internal val dependentCaches: Iterable<IncrementalCacheImpl>
+            get() = dependents
 
     override fun registerInline(fromPath: String, jvmSignature: String, toPath: String) {
-        inlinedTo.add(fromPath, jvmSignature, toPath)
+        if (!IncrementalCompilation.isExperimental()) {
+            inlinedTo.add(fromPath, jvmSignature, toPath)
+        }
     }
 
     fun addDependentCache(cache: IncrementalCacheImpl) {
@@ -141,6 +145,9 @@ class IncrementalCacheImpl(
 
         return result.map { File(it) }
     }
+
+    fun getSubtypesOf(className: FqName): Sequence<FqName> =
+            subtypesMap[className].asSequence()
 
     fun cleanDirtyInlineFunctions() {
         dirtyInlineFunctionsMap.clean()
@@ -576,7 +583,7 @@ class IncrementalCacheImpl(
         }
 
         fun add(sourceFile: File, className: JvmClassName) {
-            storage.append(sourceFile.absolutePath, { out -> IOUtil.writeUTF(out, className.internalName) })
+            storage.append(sourceFile.absolutePath, className.internalName)
         }
 
         operator fun get(sourceFile: File): Collection<JvmClassName> =
@@ -600,9 +607,14 @@ class IncrementalCacheImpl(
         val supertypes = classData.classProto.supertypes(TypeTable(classData.classProto.typeTable))
         val parents = supertypes.map { classData.nameResolver.getClassId(it.className).asSingleFqName() }
                                 .filter { it.asString() != "kotlin.Any" }
+                                .toSet()
         val child = kotlinClass.classId.asSingleFqName()
 
         parents.forEach { subtypesMap.add(it, child) }
+
+        val removedSupertypes = supertypesMap[child].filter { it !in parents }
+        removedSupertypes.forEach { subtypesMap.removeValues(it, setOf(child)) }
+
         supertypesMap[child] = parents
     }
 
@@ -674,9 +686,7 @@ class IncrementalCacheImpl(
     private inner class InlineFunctionsFilesMap(storageFile: File) : BasicMap<PathFunctionPair, Collection<String>>(storageFile, PathFunctionPairKeyDescriptor, PathCollectionExternalizer) {
         fun add(sourcePath: String, jvmSignature: String, targetPath: String) {
             val key = PathFunctionPair(sourcePath, jvmSignature)
-            storage.append(key) { out ->
-                IOUtil.writeUTF(out, targetPath)
-            }
+            storage.append(key, targetPath)
         }
 
         operator fun get(sourcePath: String, jvmSignature: String): Collection<String> {

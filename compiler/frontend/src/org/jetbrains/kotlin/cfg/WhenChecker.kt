@@ -37,13 +37,19 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils.isEnumClass
 import org.jetbrains.kotlin.resolve.DescriptorUtils.isEnumEntry
 import org.jetbrains.kotlin.resolve.bindingContextUtil.isUsedAsExpression
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import java.util.*
 
-interface WhenMissingCase
+interface WhenMissingCase {
+
+    val branchConditionText: String
+}
 
 // Always must be first in the list
 private object UnknownMissingCase : WhenMissingCase {
     override fun toString() = "unknown"
+
+    override val branchConditionText = "else"
 }
 
 val List<WhenMissingCase>.hasUnknown: Boolean
@@ -61,14 +67,15 @@ private interface WhenExhaustivenessChecker {
 }
 
 private object NullMissingCase : WhenMissingCase {
-    override fun toString() = "null"
+    override fun toString() = branchConditionText
+
+    override val branchConditionText = "null"
 }
 
-private object WhenOnNullableExhaustivenessChecker : WhenExhaustivenessChecker {
-    override fun getMissingCases(expression: KtWhenExpression, context: BindingContext, subjectDescriptor: ClassDescriptor?, nullable: Boolean) =
+// It's not a regular exhaustiveness checker, invoke it only inside other checkers
+private object WhenOnNullableExhaustivenessChecker /* : WhenExhaustivenessChecker*/ {
+    fun getMissingCases(expression: KtWhenExpression, context: BindingContext, subjectDescriptor: ClassDescriptor?, nullable: Boolean) =
             if (nullable) getNullCaseIfMissing(expression, context) else listOf()
-
-    override fun isApplicable(subjectType: KotlinType): Boolean = TypeUtils.isNullableType(subjectType)
 
     private fun getNullCaseIfMissing(expression: KtWhenExpression, context: BindingContext): List<WhenMissingCase> {
         for (entry in expression.entries) {
@@ -88,7 +95,9 @@ private object WhenOnNullableExhaustivenessChecker : WhenExhaustivenessChecker {
 }
 
 private class BooleanMissingCase(val b: Boolean) : WhenMissingCase {
-    override fun toString() = b.toString()
+    override fun toString() = branchConditionText
+
+    override val branchConditionText = b.toString()
 }
 
 private object WhenOnBooleanExhaustivenessChecker : WhenExhaustivenessChecker {
@@ -111,7 +120,8 @@ private object WhenOnBooleanExhaustivenessChecker : WhenExhaustivenessChecker {
             }
         }
         return (if (!containsTrue) listOf(BooleanMissingCase(true)) else listOf()) +
-               (if (!containsFalse) listOf(BooleanMissingCase(false)) else listOf())
+               (if (!containsFalse) listOf(BooleanMissingCase(false)) else listOf()) +
+               WhenOnNullableExhaustivenessChecker.getMissingCases(expression, context, subjectDescriptor, nullable)
     }
 
     override fun isApplicable(subjectType: KotlinType): Boolean {
@@ -121,6 +131,8 @@ private object WhenOnBooleanExhaustivenessChecker : WhenExhaustivenessChecker {
 
 private class ClassMissingCase(val descriptor: ClassDescriptor): WhenMissingCase {
     override fun toString() = descriptor.name.identifier.let { if (descriptor.kind.isSingleton) it else "is $it" }
+
+    override val branchConditionText = descriptor.fqNameSafe.asString().let { if (descriptor.kind.isSingleton) it else "is $it" }
 }
 
 private abstract class WhenOnClassExhaustivenessChecker : WhenExhaustivenessChecker {
@@ -198,7 +210,8 @@ private object WhenOnEnumExhaustivenessChecker : WhenOnClassExhaustivenessChecke
                         .filter { isEnumEntry(it) }
                         .filterIsInstance<ClassDescriptor>()
                         .toSet()
-        return getMissingClassCases(expression, entryDescriptors, context)
+        return getMissingClassCases(expression, entryDescriptors, context) +
+               WhenOnNullableExhaustivenessChecker.getMissingCases(expression, context, subjectDescriptor, nullable)
     }
 
     override fun isApplicable(subjectType: KotlinType): Boolean {
@@ -220,7 +233,8 @@ private object WhenOnSealedExhaustivenessChecker : WhenOnClassExhaustivenessChec
         val memberClassDescriptors = LinkedHashSet<ClassDescriptor>()
         collectNestedSubclasses(subjectDescriptor!!, subjectDescriptor, memberClassDescriptors)
         // When on a sealed class without derived members is considered non-exhaustive (see test WhenOnEmptySealed)
-        return getMissingClassCases(expression, memberClassDescriptors, context)
+        return getMissingClassCases(expression, memberClassDescriptors, context) +
+               WhenOnNullableExhaustivenessChecker.getMissingCases(expression, context, subjectDescriptor, nullable)
     }
 
     override fun isApplicable(subjectType: KotlinType): Boolean {
@@ -247,8 +261,7 @@ object WhenChecker {
 
     private val exhaustivenessCheckers = listOf(WhenOnBooleanExhaustivenessChecker,
                                                 WhenOnEnumExhaustivenessChecker,
-                                                WhenOnSealedExhaustivenessChecker,
-                                                WhenOnNullableExhaustivenessChecker)
+                                                WhenOnSealedExhaustivenessChecker)
 
     @JvmStatic
     fun getNecessaryCases(expression: KtWhenExpression, context: BindingContext) =

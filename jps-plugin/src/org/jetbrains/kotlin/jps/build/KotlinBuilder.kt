@@ -19,13 +19,12 @@ package org.jetbrains.kotlin.jps.build
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.MultiMap
 import gnu.trove.THashSet
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.BuildTarget
 import org.jetbrains.jps.builders.DirtyFilesHolder
-import org.jetbrains.jps.builders.impl.BuildTargetRegistryImpl
-import org.jetbrains.jps.builders.impl.TargetOutputIndexImpl
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.builders.java.JavaSourceRootDescriptor
 import org.jetbrains.jps.incremental.*
@@ -37,6 +36,9 @@ import org.jetbrains.jps.incremental.storage.BuildDataManager
 import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.JpsSimpleElement
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase
+import org.jetbrains.jps.model.java.JpsJavaClasspathKind
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.kotlin.cli.common.KotlinVersion
 import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
@@ -59,6 +61,7 @@ import org.jetbrains.kotlin.load.kotlin.ModuleMapping
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.modules.TargetId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.progress.CompilationCanceledException
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.LibraryUtils
@@ -256,72 +259,10 @@ class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
             return OK
         }
 
-        val caches = filesToCompile.keySet().map { incrementalCaches[it]!! }
-        processChanges(filesToCompile.values().toSet(), allCompiledFiles, dataManager, caches, changesInfo, fsOperations)
-        caches.forEach { it.cleanDirtyInlineFunctions() }
+        processChanges(filesToCompile.values().toSet(), allCompiledFiles, dataManager, incrementalCaches.values, changesInfo, fsOperations)
+        incrementalCaches.values.forEach { it.cleanDirtyInlineFunctions() }
 
         return ADDITIONAL_PASS_REQUIRED
-    }
-
-    private fun processChanges(
-            compiledFiles: Set<File>,
-            allCompiledFiles: MutableSet<File>,
-            dataManager: BuildDataManager,
-            caches: List<IncrementalCacheImpl>,
-            compilationResult: CompilationResult,
-            fsOperations: FSOperationsHelper
-    ) {
-        fun CompilationResult.doProcessChanges() {
-            LOG.debug("compilationResult = $this")
-
-            when {
-                inlineAdded -> {
-                    allCompiledFiles.clear()
-                    fsOperations.markChunk(recursively = true, kotlinOnly = true, excludeFiles = compiledFiles)
-                    return
-                }
-                constantsChanged -> {
-                    fsOperations.markChunk(recursively = true, kotlinOnly = false, excludeFiles = allCompiledFiles)
-                    return
-                }
-                protoChanged -> {
-                    fsOperations.markChunk(recursively = false, kotlinOnly = true, excludeFiles = allCompiledFiles)
-                }
-            }
-
-            if (inlineChanged) {
-                val files = caches.flatMap { it.getFilesToReinline() }
-                fsOperations.markFiles(files, excludeFiles = compiledFiles)
-            }
-        }
-
-        fun CompilationResult.doProcessChangesUsingLookups() {
-            val lookupStorage = dataManager.getStorage(KotlinDataContainerTarget, LookupStorageProvider)
-
-            LOG.debug("Start processing changes")
-
-            // TODO group by fqName?
-            for (change in changes) {
-                LOG.debug("Process $change")
-
-                if (change !is ChangeInfo.MembersChanged) continue
-
-                val files = change.names.asSequence()
-                        .flatMap { lookupStorage.get(LookupSymbol(it, change.fqName.asString())).asSequence() }
-                        .map(::File)
-
-                fsOperations.markFiles(files.asIterable(), excludeFiles = compiledFiles)
-            }
-
-            LOG.debug("End of processing changes")
-        }
-
-        if (IncrementalCompilation.isExperimental()) {
-            compilationResult.doProcessChangesUsingLookups()
-        }
-        else {
-            compilationResult.doProcessChanges()
-        }
     }
 
     private fun applyActionsOnCacheVersionChange(
@@ -744,8 +685,124 @@ class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     }
 }
 
-private val Iterable<BuildTarget<*>>.moduleTargets: Iterable<ModuleBuildTarget>
-    get() = filterIsInstance(ModuleBuildTarget::class.java)
+private fun processChanges(
+        compiledFiles: Set<File>,
+        allCompiledFiles: MutableSet<File>,
+        dataManager: BuildDataManager,
+        caches: Collection<IncrementalCacheImpl>,
+        compilationResult: CompilationResult,
+        fsOperations: FSOperationsHelper
+) {
+    if (IncrementalCompilation.isExperimental()) {
+        compilationResult.doProcessChangesUsingLookups(compiledFiles, dataManager, fsOperations, caches)
+    }
+    else {
+        compilationResult.doProcessChanges(compiledFiles, allCompiledFiles, caches, fsOperations)
+    }
+}
+
+private fun CompilationResult.doProcessChanges(
+        compiledFiles: Set<File>,
+        allCompiledFiles: MutableSet<File>,
+        caches: Collection<IncrementalCacheImpl>,
+        fsOperations: FSOperationsHelper
+) {
+    KotlinBuilder.LOG.debug("compilationResult = $this")
+
+    when {
+        inlineAdded -> {
+            allCompiledFiles.clear()
+            fsOperations.markChunk(recursively = true, kotlinOnly = true, excludeFiles = compiledFiles)
+            return
+        }
+        constantsChanged -> {
+            fsOperations.markChunk(recursively = true, kotlinOnly = false, excludeFiles = allCompiledFiles)
+            return
+        }
+        protoChanged -> {
+            fsOperations.markChunk(recursively = false, kotlinOnly = true, excludeFiles = allCompiledFiles)
+        }
+    }
+
+    if (inlineChanged) {
+        val files = caches.flatMap { it.getFilesToReinline() }
+        fsOperations.markFiles(files, excludeFiles = compiledFiles)
+    }
+}
+
+private fun CompilationResult.doProcessChangesUsingLookups(
+        compiledFiles: Set<File>,
+        dataManager: BuildDataManager,
+        fsOperations: FSOperationsHelper,
+        caches: Collection<IncrementalCacheImpl>
+) {
+    val dirtyLookupSymbols = HashSet<LookupSymbol>()
+    val lookupStorage = dataManager.getStorage(KotlinDataContainerTarget, LookupStorageProvider)
+    val allCaches = caches.toHashSet()
+    allCaches.addAll(caches.flatMap { it.dependentCaches })
+
+    KotlinBuilder.LOG.debug("Start processing changes")
+
+    for (change in changes) {
+        if (change is ChangeInfo.SignatureChanged) {
+            for (classFqName in withSubtypes(change.fqName, allCaches)) {
+                val scope = classFqName.parent().asString()
+                val name = classFqName.shortName().identifier
+                dirtyLookupSymbols.add(LookupSymbol(name, scope))
+            }
+        }
+        else if (change is ChangeInfo.MembersChanged) {
+            val scopes = withSubtypes(change.fqName, allCaches).map { it.asString() }
+
+            change.names.forAllPairs(scopes) { name, scope ->
+                dirtyLookupSymbols.add(LookupSymbol(name, scope))
+            }
+        }
+    }
+
+    val dirtyFiles = HashSet<File>()
+
+    for (lookup in dirtyLookupSymbols) {
+        val affectedFiles = lookupStorage.get(lookup).map(::File)
+
+        KotlinBuilder.LOG.debug { "${lookup.scope}#${lookup.name} caused recompilation of: $affectedFiles" }
+
+        dirtyFiles.addAll(affectedFiles)
+    }
+
+    fsOperations.markFiles(dirtyFiles.asIterable(), excludeFiles = compiledFiles)
+    KotlinBuilder.LOG.debug("End of processing changes")
+}
+
+/**
+ * Returns type with its subtypes transitively
+ *
+ * For example:
+ *    open class A
+ *    open class B : A()
+ *    class C : B()
+ * withSubtypes(A) will return [A, B, C]
+ */
+private fun withSubtypes(
+        typeFqName: FqName,
+        caches: Collection<IncrementalCacheImpl>
+): Set<FqName> {
+    val types = linkedListOf(typeFqName)
+    val subtypes = hashSetOf<FqName>()
+
+    while (types.isNotEmpty()) {
+        val unprocessedType = types.pollFirst()
+
+        caches.asSequence()
+                .flatMap { it.getSubtypesOf(unprocessedType) }
+                .filter { it !in subtypes }
+                .forEach { types.addLast(it) }
+
+        subtypes.add(unprocessedType)
+    }
+
+    return subtypes
+}
 
 private fun getLookupTracker(project: JpsProject): LookupTracker {
     var lookupTracker = LookupTracker.DO_NOTHING
@@ -764,39 +821,54 @@ private fun getLookupTracker(project: JpsProject): LookupTracker {
 }
 
 private fun getIncrementalCaches(chunk: ModuleChunk, context: CompileContext): Map<ModuleBuildTarget, IncrementalCacheImpl> {
+    val dependentTargets = getDependentTargets(chunk, context)
+
     val dataManager = context.projectDescriptor.dataManager
-    val targets = chunk.targets
+    val chunkCaches = chunk.targets.keysToMap { dataManager.getKotlinCache(it) }
+    val dependentCaches = dependentTargets.map { dataManager.getKotlinCache(it) }
 
-    val buildRegistry = BuildTargetRegistryImpl(context.projectDescriptor.model)
-    val outputIndex = TargetOutputIndexImpl(targets, context)
-
-    val allTargets = buildRegistry.allTargets.moduleTargets
-    val allDependencies = allTargets.keysToMap { target ->
-        target.computeDependencies(buildRegistry, outputIndex).moduleTargets
-    }
-
-    val dependents = targets.keysToMap { hashSetOf<ModuleBuildTarget>() }
-    val targetsWithDependents = HashSet<ModuleBuildTarget>(targets)
-
-    for ((target, dependencies) in allDependencies) {
-        for (dependency in dependencies) {
-            if (dependency !in targets) continue
-
-            dependents[dependency]!!.add(target)
-            targetsWithDependents.add(target)
+    for (chunkCache in chunkCaches.values) {
+        for (dependentCache in dependentCaches) {
+            chunkCache.addDependentCache(dependentCache)
         }
     }
 
-    val caches = targetsWithDependents.keysToMap { dataManager.getKotlinCache(it) }
-
-    for ((target, cache) in caches) {
-        dependents[target]?.forEach {
-            cache.addDependentCache(caches[it]!!)
-        }
-    }
-
-    return caches
+    return chunkCaches
 }
+
+private fun getDependentTargets(
+        compilingChunk: ModuleChunk,
+        context: CompileContext
+): Set<ModuleBuildTarget> {
+    val classpathKind = JpsJavaClasspathKind.compile(compilingChunk.targets.any { it.isTests })
+
+    fun dependsOnCompilingChunk(target: BuildTarget<*>): Boolean {
+        if (target !is ModuleBuildTarget) return false
+
+        val dependencies = getDependenciesRecursively(target.module, classpathKind)
+        return ContainerUtil.intersects(dependencies, compilingChunk.modules)
+    }
+
+    val dependentTargets = HashSet<ModuleBuildTarget>()
+    val sortedChunks = context.projectDescriptor.buildTargetIndex.getSortedTargetChunks(context).iterator()
+
+    // skip chunks that are compiled before compilingChunk
+    while (sortedChunks.hasNext()) {
+        if (sortedChunks.next().targets == compilingChunk.targets) break
+    }
+
+    // process chunks that compiled after compilingChunk
+    for (followingChunk in sortedChunks) {
+        if (followingChunk.targets.none(::dependsOnCompilingChunk)) continue
+
+        dependentTargets.addAll(followingChunk.targets.filterIsInstance<ModuleBuildTarget>())
+    }
+
+    return dependentTargets
+}
+
+private fun getDependenciesRecursively(module: JpsModule, kind: JpsJavaClasspathKind): Set<JpsModule> =
+        JpsJavaExtensionService.dependencies(module).includedIn(kind).recursivelyExportedOnly().modules
 
 // TODO: investigate thread safety
 private val ALL_COMPILED_FILES_KEY = Key.create<MutableSet<File>>("_all_kotlin_compiled_files_")
@@ -844,5 +916,19 @@ class GeneratedJvmClass (
 ) : GeneratedFile(target, sourceFiles, outputFile) {
     val outputClass = LocalFileKotlinClass.create(outputFile).sure {
         "Couldn't load KotlinClass from $outputFile; it may happen because class doesn't have valid Kotlin annotations"
+    }
+}
+
+private inline fun <T, R> Iterable<T>.forAllPairs(other: Iterable<R>, fn: (T, R)->Unit) {
+    for (t in this) {
+        for (r in other) {
+            fn(t, r)
+        }
+    }
+}
+
+private inline fun Logger.debug(message: ()->String) {
+    if (isDebugEnabled) {
+        debug(message())
     }
 }

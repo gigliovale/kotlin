@@ -27,13 +27,11 @@ import org.jetbrains.org.objectweb.asm.MethodVisitor
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
-import org.jetbrains.org.objectweb.asm.signature.SignatureReader
-import org.jetbrains.org.objectweb.asm.signature.SignatureWriter
 import org.jetbrains.org.objectweb.asm.tree.*
 
 private class ParameterNameAndNullability(val name: String, val nullable: Boolean)
 
-class ReifiedTypeInliner(private val parametersMapping: ReifiedTypeParameterMappings?) {
+class ReifiedTypeInliner(private val parametersMapping: TypeParameterMappings?) {
 
     enum class OperationKind {
         NEW_ARRAY, AS, SAFE_AS, IS, JAVA_CLASS;
@@ -68,13 +66,16 @@ class ReifiedTypeInliner(private val parametersMapping: ReifiedTypeParameterMapp
 
     private var maxStackSize = 0
 
+    private val hasReifiedParameters = parametersMapping?.hasReifiedParameters() ?: false
+
     /**
      * @return set of type parameters' identifiers contained in markers that should be reified further
      * e.g. when we're generating inline function containing reified T
      * and another function containing reifiable parts is inlined into that function
      */
     fun reifyInstructions(node: MethodNode): ReifiedTypeParametersUsages {
-        if (parametersMapping == null) return ReifiedTypeParametersUsages()
+        if (!hasReifiedParameters) return ReifiedTypeParametersUsages()
+
         val instructions = node.instructions
         maxStackSize = 0
         var result = ReifiedTypeParametersUsages()
@@ -90,42 +91,6 @@ class ReifiedTypeInliner(private val parametersMapping: ReifiedTypeParameterMapp
         node.maxStack = node.maxStack + maxStackSize
         return result
     }
-
-    fun reifySignature(oldSignature: String): SignatureReificationResult {
-        if (parametersMapping == null) return SignatureReificationResult(oldSignature, ReifiedTypeParametersUsages())
-
-        val signatureRemapper = object : SignatureWriter() {
-            var typeParamsToReify = ReifiedTypeParametersUsages()
-            override fun visitTypeVariable(name: String?) {
-                val mapping = getMappingByName(name) ?:
-                              return super.visitTypeVariable(name)
-                if (mapping.newName != null) {
-                    typeParamsToReify.addUsedReifiedParameter(mapping.newName)
-                    return super.visitTypeVariable(mapping.newName)
-                }
-
-                // else TypeVariable is replaced by concrete type
-                SignatureReader(mapping.signature).accept(this)
-            }
-
-            override fun visitFormalTypeParameter(name: String?) {
-                val mapping = getMappingByName(name) ?:
-                              return super.visitFormalTypeParameter(name)
-                if (mapping.newName != null) {
-                    typeParamsToReify.addUsedReifiedParameter(mapping.newName)
-                    super.visitFormalTypeParameter(mapping.newName)
-                }
-            }
-
-            private fun getMappingByName(name: String?) = parametersMapping[name!!]
-        }
-
-        SignatureReader(oldSignature).accept(signatureRemapper)
-
-        return SignatureReificationResult(signatureRemapper.toString(), signatureRemapper.typeParamsToReify)
-    }
-
-    data class SignatureReificationResult(val newSignature: String, val typeParametersUsages: ReifiedTypeParametersUsages)
 
     /**
      * @return new type parameter identifier if this marker should be reified further
@@ -251,24 +216,30 @@ private val MethodInsnNode.operationKind: ReifiedTypeInliner.OperationKind? get(
         ReifiedTypeInliner.OperationKind.values().getOrNull(it)
     }
 
-class ReifiedTypeParameterMappings() {
-    private val mappingsByName = hashMapOf<String, ReifiedTypeParameterMapping>()
+class TypeParameterMappings() {
+    private val mappingsByName = hashMapOf<String, TypeParameterMapping>()
 
-    fun addParameterMappingToType(name: String, type: KotlinType, asmType: Type, signature: String) {
-        mappingsByName[name] =  ReifiedTypeParameterMapping(name, type, asmType, newName = null, signature = signature)
+    public fun addParameterMappingToType(name: String, type: KotlinType, asmType: Type, signature: String, isReified: Boolean) {
+        mappingsByName[name] =  TypeParameterMapping(name, type, asmType, newName = null, signature = signature, isReified = isReified)
     }
 
-    fun addParameterMappingToNewParameter(name: String, type: KotlinType, newName: String) {
-        mappingsByName[name] = ReifiedTypeParameterMapping(name, type = type, asmType = null, newName = newName, signature = null)
+    public fun addParameterMappingToNewParameter(name: String, type: KotlinType, newName: String, isReified: Boolean) {
+        mappingsByName[name] = TypeParameterMapping(name, type, asmType = null, newName = newName, signature = null, isReified = isReified)
     }
 
-    operator fun get(name: String): ReifiedTypeParameterMapping? {
+    operator fun get(name: String): TypeParameterMapping? {
         return mappingsByName[name]
+    }
+
+    fun hasReifiedParameters() = mappingsByName.values.any { it.isReified }
+
+    internal inline fun forEach(l: (TypeParameterMapping) -> Unit)  {
+        mappingsByName.values.forEach(l)
     }
 }
 
-class ReifiedTypeParameterMapping(
-        val name: String, val type: KotlinType, val asmType: Type?, val newName: String?, val signature: String?
+class TypeParameterMapping(
+        val name: String, val type: KotlinType, val asmType: Type?, val newName: String?, val signature: String?, val isReified: Boolean
 )
 
 class ReifiedTypeParametersUsages {

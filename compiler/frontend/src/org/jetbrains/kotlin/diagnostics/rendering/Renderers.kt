@@ -16,12 +16,15 @@
 
 package org.jetbrains.kotlin.diagnostics.rendering
 
+import com.google.common.base.Strings
 import com.google.common.collect.Lists
 import com.google.common.collect.Sets
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.cfg.WhenMissingCase
+import org.jetbrains.kotlin.cfg.hasUnknown
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.rendering.TabledDescriptorRenderer.newTable
 import org.jetbrains.kotlin.diagnostics.rendering.TabledDescriptorRenderer.newText
@@ -406,5 +409,19 @@ object Renderers {
             append(RENDER_TYPE.render(inferenceErrorData.receiverArgumentType)).append(".")
         }
         append("(").append(renderTypes(inferenceErrorData.valueArgumentsTypes)).append(")")
+    }
+
+    private val WHEN_MISSING_LIMIT = 7
+
+    @JvmField val RENDER_WHEN_MISSING_CASES: Renderer<List<WhenMissingCase>> = Renderer {
+        if (!it.hasUnknown) {
+            val list = it.take(WHEN_MISSING_LIMIT).map { "'$it'" }.joinToString(", ")
+            val branches = if (it.size > 1) "branches" else "branch"
+            val others = if (it.size > WHEN_MISSING_LIMIT) ", ..." else ""
+            "$list$others $branches or 'else' branch instead"
+        }
+        else {
+            "'else' branch"
+        }
     }
 }

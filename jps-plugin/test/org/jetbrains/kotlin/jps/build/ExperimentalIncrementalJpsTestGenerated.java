@@ -1075,9 +1075,27 @@ public class ExperimentalIncrementalJpsTestGenerated extends AbstractExperimenta
             doTest(fileName);
         }
 
+        @TestMetadata("enumEntryAdded")
+        public void testEnumEntryAdded() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/enumEntryAdded/");
+            doTest(fileName);
+        }
+
+        @TestMetadata("enumMemberChanged")
+        public void testEnumMemberChanged() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/enumMemberChanged/");
+            doTest(fileName);
+        }
+
         @TestMetadata("flagsAndMemberInDifferentClassesChanged")
         public void testFlagsAndMemberInDifferentClassesChanged() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/flagsAndMemberInDifferentClassesChanged/");
+            doTest(fileName);
+        }
+
+        @TestMetadata("flagsAndMemberInSameClassChanged")
+        public void testFlagsAndMemberInSameClassChanged() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/flagsAndMemberInSameClassChanged/");
             doTest(fileName);
         }
 
@@ -1138,6 +1156,12 @@ public class ExperimentalIncrementalJpsTestGenerated extends AbstractExperimenta
         @TestMetadata("propertyNullabilityChanged")
         public void testPropertyNullabilityChanged() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/propertyNullabilityChanged/");
+            doTest(fileName);
+        }
+
+        @TestMetadata("sealedClassImplAdded")
+        public void testSealedClassImplAdded() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("jps-plugin/testData/incremental/classHierarchyAffected/sealedClassImplAdded/");
             doTest(fileName);
         }
 

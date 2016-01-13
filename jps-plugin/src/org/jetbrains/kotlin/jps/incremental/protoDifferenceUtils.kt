@@ -29,17 +29,21 @@ import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
 import org.jetbrains.kotlin.utils.HashSetUtil
 import java.util.*
 
-sealed class DifferenceKind() {
-    object NONE: DifferenceKind()
-    object CLASS_SIGNATURE: DifferenceKind()
-    class MEMBERS(val names: Collection<String>): DifferenceKind()
-}
+data class Difference(
+        val isClassSignatureChanged: Boolean = false,
+        val changedMembersNames: Set<String> = emptySet()
+)
 
-fun difference(oldData: ProtoMapValue, newData: ProtoMapValue): DifferenceKind {
-    if (oldData.isPackageFacade != newData.isPackageFacade) return DifferenceKind.CLASS_SIGNATURE
+fun difference(oldData: ProtoMapValue, newData: ProtoMapValue): Difference {
+    if (oldData.isPackageFacade != newData.isPackageFacade) return Difference(isClassSignatureChanged = true)
 
     val differenceObject =
-            if (oldData.isPackageFacade) DifferenceCalculatorForPackageFacade(oldData, newData) else DifferenceCalculatorForClass(oldData, newData)
+            if (oldData.isPackageFacade) {
+                DifferenceCalculatorForPackageFacade(oldData, newData)
+            }
+            else {
+                DifferenceCalculatorForClass(oldData, newData)
+            }
 
     return differenceObject.difference()
 }
@@ -70,9 +74,7 @@ private abstract class DifferenceCalculator() {
 
     protected val compareObject by lazy { ProtoCompareGenerated(oldNameResolver, newNameResolver) }
 
-    abstract fun difference(): DifferenceKind
-
-    protected fun membersOrNone(names: Collection<String>): DifferenceKind = if (names.isEmpty()) DifferenceKind.NONE else DifferenceKind.MEMBERS(names)
+    abstract fun difference(): Difference
 
     protected fun calcDifferenceForMembers(oldList: List<MessageLite>, newList: List<MessageLite>): Collection<String> {
         val result = hashSetOf<String>()
@@ -172,16 +174,10 @@ private class DifferenceCalculatorForClass(oldData: ProtoMapValue, newData: Prot
 
     val diff = compareObject.difference(oldProto, newProto)
 
-    override fun difference(): DifferenceKind {
-        if (diff.isEmpty()) return DifferenceKind.NONE
-
-        CLASS_SIGNATURE_ENUMS.forEach { if (it in diff) return DifferenceKind.CLASS_SIGNATURE }
-
-        return membersOrNone(getChangedMembersNames())
-    }
-
-    private fun getChangedMembersNames(): Set<String> {
+    override fun difference(): Difference {
+        var isClassSignatureChanged = false
         val names = hashSetOf<String>()
+        val classIsSealed = newProto.isSealed && oldProto.isSealed
 
         fun Int.oldToNames() = names.add(oldNameResolver.getString(this))
         fun Int.newToNames() = names.add(newNameResolver.getString(this))
@@ -198,30 +194,35 @@ private class DifferenceCalculatorForClass(oldData: ProtoMapValue, newData: Prot
                     if (oldProto.hasCompanionObjectName()) oldProto.companionObjectName.oldToNames()
                     if (newProto.hasCompanionObjectName()) newProto.companionObjectName.newToNames()
                 }
-                ProtoBufClassKind.NESTED_CLASS_NAME_LIST ->
+                ProtoBufClassKind.NESTED_CLASS_NAME_LIST -> {
+                    if (classIsSealed) {
+                        // when class is sealed, adding an implementation can break exhaustive when expressions
+                        // the workaround is to recompile all class usages
+                        isClassSignatureChanged = true
+                    }
+
                     names.addAll(calcDifferenceForNames(oldProto.nestedClassNameList, newProto.nestedClassNameList))
+                }
                 ProtoBufClassKind.CONSTRUCTOR_LIST ->
                     names.addAll(calcDifferenceForNonPrivateMembers(ProtoBuf.Class::getConstructorList))
                 ProtoBufClassKind.FUNCTION_LIST ->
                     names.addAll(calcDifferenceForNonPrivateMembers(ProtoBuf.Class::getFunctionList))
                 ProtoBufClassKind.PROPERTY_LIST ->
                     names.addAll(calcDifferenceForNonPrivateMembers(ProtoBuf.Class::getPropertyList))
-                ProtoBufClassKind.ENUM_ENTRY_LIST ->
-                    names.addAll(calcDifferenceForNames(oldProto.enumEntryList.map { it.name }, newProto.enumEntryList.map { it.name }))
+                ProtoBufClassKind.ENUM_ENTRY_LIST -> {
+                    isClassSignatureChanged = true
+                }
                 ProtoBufClassKind.TYPE_TABLE -> {
                     // TODO
                 }
-                ProtoBufClassKind.FLAGS,
-                ProtoBufClassKind.FQ_NAME,
-                ProtoBufClassKind.TYPE_PARAMETER_LIST,
-                ProtoBufClassKind.SUPERTYPE_LIST,
-                ProtoBufClassKind.CLASS_ANNOTATION_LIST ->
-                    throw IllegalArgumentException("Unexpected kind: $kind")
-                else ->
-                    throw IllegalArgumentException("Unsupported kind: $kind")
+                in CLASS_SIGNATURE_ENUMS -> {
+                    isClassSignatureChanged = true
+                }
+                else -> throw IllegalArgumentException("Unsupported kind: $kind")
             }
         }
-        return names
+
+        return Difference(isClassSignatureChanged, names)
     }
 }
 
@@ -237,13 +238,7 @@ private class DifferenceCalculatorForPackageFacade(oldData: ProtoMapValue, newDa
 
     val diff = compareObject.difference(oldProto, newProto)
 
-    override fun difference(): DifferenceKind {
-        if (diff.isEmpty()) return DifferenceKind.NONE
-
-        return membersOrNone(getChangedMembersNames())
-    }
-
-    private fun getChangedMembersNames(): Set<String> {
+    override fun difference(): Difference {
         val names = hashSetOf<String>()
 
         fun calcDifferenceForNonPrivateMembers(members: (ProtoBuf.Package) -> List<MessageLite>): Collection<String> {
@@ -261,11 +256,13 @@ private class DifferenceCalculatorForPackageFacade(oldData: ProtoMapValue, newDa
                 ProtoBufPackageKind.TYPE_TABLE -> {
                     // TODO
                 }
-                else ->
-                    throw IllegalArgumentException("Unsupported kind: $kind")
+                else -> throw IllegalArgumentException("Unsupported kind: $kind")
             }
         }
 
-        return names
+        return Difference(isClassSignatureChanged = false, changedMembersNames = names)
     }
 }
+
+private val ProtoBuf.Class.isSealed: Boolean
+    get() = ProtoBuf.Modality.SEALED == Flags.MODALITY.get(flags)

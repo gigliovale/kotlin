@@ -52,7 +52,7 @@ public fun getCacheDirectoryName(): String =
         KOTLIN_CACHE_DIRECTORY_NAME
 
 public open class BasicIncrementalCacheImpl<TargetId>(
-        targetDataRoot: File,
+        private val targetDataRoot: File,
         targetOutputDir: File?,
         private val target: TargetId
 ) : BasicMapsOwner(), IncrementalCache {
@@ -327,12 +327,12 @@ public open class BasicIncrementalCacheImpl<TargetId>(
 
     public override fun clean() {
         super.clean()
-        normalCacheVersion(baseDir).clean()
-        experimentalCacheVersion(baseDir).clean()
+        normalCacheVersion(targetDataRoot).clean()
+        experimentalCacheVersion(targetDataRoot).clean()
     }
 
     public fun cleanExperimental() {
-        experimentalCacheVersion(baseDir).clean()
+        experimentalCacheVersion(targetDataRoot).clean()
         experimentalMaps.forEach { it.clean() }
     }
 

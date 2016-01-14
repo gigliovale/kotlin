@@ -262,7 +262,7 @@ public fun File.relativePath(descendant: File): String {
  * @throws FileAlreadyExistsException if the destination file already exists and 'rewrite' argument is set to `false`.
  * @throws IOException if any errors occur while copying.
  */
-public fun File.copyTo(dst: File, overwrite: Boolean = false, bufferSize: Int = defaultBufferSize): Long {
+public fun File.copyTo(dst: File, overwrite: Boolean = false, bufferSize: Int = DEFAULT_BUFFER_SIZE): Long {
     if (!exists()) {
         throw NoSuchFileException(file = this, reason = "The source file doesn't exist")
     } else if (isDirectory()) {
@@ -367,7 +367,7 @@ public fun File.copyRecursively(dst: File,
  *
  * @return `true` if the file or directory is successfully deleted, `false` otherwise.
  */
-public fun File.deleteRecursively(): Boolean = walkBottomUp().fold(exists(), { res, it -> it.delete() && res })
+public fun File.deleteRecursively(): Boolean = walkBottomUp().fold(true, { res, it -> (it.delete() || !it.exists()) && res })
 
 /**
  * Returns an array of files and directories in the directory that match the specified [filter]

@@ -65,6 +65,7 @@ public fun booleanArrayOf(vararg elements: Boolean) : BooleanArray = elements
 /**
  * Converts the contents of this byte array to a string using the specified [charset].
  */
+@Deprecated("Use ByteArray.toString(Charset) instead.", ReplaceWith("this.toString(charset(charset))"))
 public fun ByteArray.toString(charset: String): String = String(this, charset)
 
 /**
@@ -87,6 +88,6 @@ public inline fun <reified T> Collection<T>.toTypedArray(): Array<T> {
 public inline fun <reified T> Array<out T>?.orEmpty(): Array<out T> = this ?: arrayOf<T>()
 
 /** Internal unsafe construction of array based on reference array type */
-internal fun <T> arrayOfNulls(reference: Array<out T>, size: Int): Array<out T> {
-    return java.lang.reflect.Array.newInstance(reference.javaClass.componentType, size) as Array<out T>
+internal fun <T> arrayOfNulls(reference: Array<T>, size: Int): Array<T> {
+    return java.lang.reflect.Array.newInstance(reference.javaClass.componentType, size) as Array<T>
 }

@@ -3318,6 +3318,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("ifInResultOfLambda.kt")
+            public void testIfInResultOfLambda() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/ifInResultOfLambda.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ifWhenWithoutElse.kt")
             public void testIfWhenWithoutElse() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/ifWhenWithoutElse.kt");
@@ -3333,6 +3339,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("jumpAcrossFunctionBoundary.kt")
             public void testJumpAcrossFunctionBoundary() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/jumpAcrossFunctionBoundary.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt10322.kt")
+            public void testKt10322() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/kt10322.kt");
                 doTest(fileName);
             }
 
@@ -3399,6 +3411,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("valVarLoopParameter.kt")
             public void testValVarLoopParameter() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/valVarLoopParameter.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("whenInResultOfLambda.kt")
+            public void testWhenInResultOfLambda() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/whenInResultOfLambda.kt");
                 doTest(fileName);
             }
 

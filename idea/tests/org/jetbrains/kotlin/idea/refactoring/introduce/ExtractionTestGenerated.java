@@ -343,6 +343,12 @@ public class ExtractionTestGenerated extends AbstractExtractionTest {
             doIntroduceVariableTest(fileName);
         }
 
+        @TestMetadata("qualifier.kt")
+        public void testQualifier() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/introduceVariable/qualifier.kt");
+            doIntroduceVariableTest(fileName);
+        }
+
         @TestMetadata("ReplaceOccurence.kt")
         public void testReplaceOccurence() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/introduceVariable/ReplaceOccurence.kt");
@@ -370,6 +376,12 @@ public class ExtractionTestGenerated extends AbstractExtractionTest {
         @TestMetadata("SuperReference.kt")
         public void testSuperReference() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/introduceVariable/SuperReference.kt");
+            doIntroduceVariableTest(fileName);
+        }
+
+        @TestMetadata("thisAsCallee.kt")
+        public void testThisAsCallee() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/introduceVariable/thisAsCallee.kt");
             doIntroduceVariableTest(fileName);
         }
 

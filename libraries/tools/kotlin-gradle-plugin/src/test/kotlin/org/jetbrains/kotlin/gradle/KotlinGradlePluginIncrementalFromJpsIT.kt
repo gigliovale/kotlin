@@ -1,65 +1,76 @@
 package org.jetbrains.kotlin.gradle
 
 import org.junit.Test
+import java.io.File
 
-class KotlinGradleIncrementalFromJpsIT: BaseIncrementalGradleIT() {
+class KotlinGradleIncrementalFromJpsIT(): BaseIncrementalGradleIT() {
+
+    companion object {
+        val jpsResourcesPath = File("../../../jps-plugin/testData/incremental")
+    }
 
     @Test
     fun testClassSignatureChanged() {
-        val project = JpsTestProject("pureKotlin/classSignatureChanged", "2.4")
+        val project = JpsTestProject(jpsResourcesPath, "pureKotlin/classSignatureChanged", "2.4")
 
         project.build("build") {
             assertSuccessful()
             assertReportExists()
-            assertCompiledKotlinSources("class.kt", "usage.kt")
+            assertCompiledKotlinSources("src/class.kt", "src/usage.kt")
         }
 
         project.modify()
 
         project.build("build") {
             assertSuccessful()
-            assertCompiledKotlinSources("class.kt", "usage.kt")
+            assertCompiledKotlinSources("src/class.kt", "src/usage.kt")
         }
     }
 
     @Test
     fun testKotlinInJavaFunRenamed() {
-        val project = JpsTestProject("withJava/kotlinUsedInJava/funRenamed", "2.4")
+        val project = JpsTestProject(jpsResourcesPath, "withJava/kotlinUsedInJava/funRenamed", "2.4")
 
         project.build("build") {
             assertSuccessful()
             assertReportExists()
-            assertCompiledKotlinSources("fun.kt")
-            assertCompiledJavaSources("WillBeUnresolved.java")
+            assertCompiledKotlinSources("src/fun.kt")
+            assertCompiledJavaSources("src/WillBeUnresolved.java")
         }
 
         project.modify()
 
         project.build("build") {
-            assertCompiledKotlinSources("fun.kt")
-            assertCompiledJavaSources("WillBeUnresolved.java")
+            assertCompiledKotlinSources("src/fun.kt")
+            assertCompiledJavaSources("src/WillBeUnresolved.java")
             assertFailed()
         }
     }
 
     @Test
     fun testJavaInKotlinChangeSignature() {
-        val project = JpsTestProject("withJava/javaUsedInKotlin/changeSignature", "2.4")
+        val project = JpsTestProject(jpsResourcesPath, "withJava/javaUsedInKotlin/changeSignature", "2.4")
 
         project.build("build") {
             assertSuccessful()
             assertReportExists()
-            assertCompiledKotlinSources("usage.kt")
-            assertCompiledJavaSources("JavaClass.java")
+            assertCompiledKotlinSources("src/usage.kt")
+            assertCompiledJavaSources("src/JavaClass.java")
         }
 
         project.modify()
 
         project.build("build") {
             assertSuccessful()
-            assertCompiledKotlinSources("usage.kt")
-            assertCompiledJavaSources("JavaClass.java")
+            assertCompiledKotlinSources("src/usage.kt")
+            assertCompiledJavaSources("src/JavaClass.java")
         }
     }
 
+    @Test
+    fun testClassSignatureChangedAuto() {
+        val project = JpsTestProject(jpsResourcesPath, "pureKotlin/classSignatureChanged", "2.4")
+
+        project.performAndAssertBuildStages()
+    }
 }

@@ -25,7 +25,7 @@ abstract class BaseGradleIT {
         deleteRecursively(workingDir)
     }
 
-    class BuildOptions(val withDaemon: Boolean = false)
+    data class BuildOptions(val withDaemon: Boolean = false, val daemonOptionSupported: Boolean = true)
 
     open inner class Project(val projectName: String, val wrapperVersion: String = "1.4", val minLogLevel: LogLevel = LogLevel.DEBUG) {
         open val resourcesRoot = File(resourcesRootFile, "testProject/$projectName")
@@ -143,26 +143,31 @@ abstract class BaseGradleIT {
         return this
     }
 
-    fun CompiledProject.assertCompiledKotlinSources(vararg sources: String): CompiledProject = assertSameFiles(sources.asIterable(), compiledKotlinSources.projectRelativePaths(this.project), "Compiled Kotlin files differ:\n  ")
+    fun CompiledProject.assertCompiledKotlinSources(sources: Iterable<String>): CompiledProject = assertSameFiles(sources, compiledKotlinSources.projectRelativePaths(this.project), "Compiled Kotlin files differ:\n  ")
+    fun CompiledProject.assertCompiledKotlinSources(vararg sources: String): CompiledProject = assertCompiledKotlinSources(sources.asIterable())
 
     fun CompiledProject.assertCompiledKotlinSourcesContain(vararg sources: String): CompiledProject = assertContainFiles(sources.asIterable(), compiledKotlinSources.projectRelativePaths(this.project), "Compiled Kotlin files differ:\n  ")
 
-    fun CompiledProject.assertCompiledJavaSources(vararg sources: String): CompiledProject = assertSameFiles(sources.asIterable(), compiledJavaSources.projectRelativePaths(this.project), "Compiled Java files differ:\n  ")
+    fun CompiledProject.assertCompiledJavaSources(sources: Iterable<String>): CompiledProject = assertSameFiles(sources, compiledJavaSources.projectRelativePaths(this.project), "Compiled Java files differ:\n  ")
+    fun CompiledProject.assertCompiledJavaSources(vararg sources: String): CompiledProject = assertCompiledJavaSources(sources.asIterable())
 
     fun CompiledProject.assertCompiledJavaSourcesContain(vararg sources: String): CompiledProject = assertContainFiles(sources.asIterable(), compiledJavaSources.projectRelativePaths(this.project), "Compiled Java files differ:\n  ")
 
 
-    private fun Project.createBuildCommand(params: Array<out String>, options: BuildOptions): List<String> {
-        val pathToKotlinPlugin = "-PpathToKotlinPlugin=" + File("local-repo").getAbsolutePath()
-        val tailParameters = params.asList() +
-                listOf( pathToKotlinPlugin,
-                        if (options.withDaemon) "--daemon" else "--no-daemon",
-                        "--stacktrace",
-                        "--${minLogLevel.name().toLowerCase()}",
-                        "-Pkotlin.gradle.test=true")
+    private fun Project.createBuildCommand(params: Array<out String>, options: BuildOptions): List<String> =
+            createGradleCommand(createGradleTailParameters(options, params))
 
-        return createGradleCommand(tailParameters)
-    }
+    protected fun Project.createGradleTailParameters(options: BuildOptions, params: Array<out String> = arrayOf()): List<String> =
+            params.asList() +
+                    listOf("-PpathToKotlinPlugin=" + File("local-repo").absolutePath,
+                            if (options.daemonOptionSupported)
+                                if (options.withDaemon) "--daemon"
+                                else "--no-daemon"
+                            else null,
+                            "--stacktrace",
+                            "--${minLogLevel.name.toLowerCase()}",
+                            "-Pkotlin.gradle.test=true")
+                            .filterNotNull()
 
     private fun createGradleCommand(tailParameters: List<String>): List<String> {
         return if (isWindows())

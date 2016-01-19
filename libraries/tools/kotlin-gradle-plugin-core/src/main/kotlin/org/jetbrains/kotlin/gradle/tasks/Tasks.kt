@@ -154,6 +154,9 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             "compileReleaseUnitTestKotlin" to  "compileReleaseKotlin"
             )
 
+    fun projectRelativePath(f: File) = f.toRelativeString(project.projectDir)
+    fun projectRelativePath(p: String) = File(p).toRelativeString(project.projectDir)
+
     override fun populateTargetSpecificArgs(args: K2JVMCompilerArguments) {
         // show kotlin compiler where to look for java source files
 //        args.freeArgs = (args.freeArgs + getJavaSourceRoots().map { it.getAbsolutePath() }).toSet().toList()
@@ -215,10 +218,8 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
 
         // TODO: consider other ways to pass incremental flag to compiler/builder
         System.setProperty("kotlin.incremental.compilation", "true")
-        if (isIncremental) {
-            // TODO: experimental should be removed as soon as it becomes standard
-            System.setProperty("kotlin.incremental.compilation.experimental", "true")
-        }
+        // TODO: experimental should be removed as soon as it becomes standard
+        System.setProperty("kotlin.incremental.compilation.experimental", "true")
 
         val targetType = "java-production"
         val moduleName = args.moduleName
@@ -277,6 +278,9 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             return false
         }
 
+        fun outputRelativePath(f: File) = f.toRelativeString(outputDir)
+        fun outputRelativePath(p: String) = File(p).toRelativeString(outputDir)
+
         // TODO: decide what to do if no files are considered dirty - rebuild or skip the module
         // TODO: more precise will be not to rebuild unconditionally on classpath changes, but retrieve lookup info and try to find out which sources are affected by cp changes
         var sourcesToCompile =
@@ -309,7 +313,7 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
             caches.values.forEach { it.cleanDirtyInlineFunctions() }
 
             lookupTracker.lookups.entrySet().forEach {
-                logger.kotlinDebug("lookups to ${it.key.name}:${it.key.scope} from ${it.value.joinToString()}")
+                logger.kotlinDebug("lookups to ${it.key.name}:${it.key.scope} from ${it.value.joinToString { projectRelativePath(it) }}")
             }
 
             updateLookupStorage(lookupStorage, lookupTracker, sourcesToCompile, currentRemoved)
@@ -319,8 +323,8 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                 ExitCode.INTERNAL_ERROR -> throw GradleException("Internal compiler error. See log for more details")
             }
 
-            logger.kotlinDebug("generated ${generatedFiles.joinToString { it.outputFile.path }}")
-            logger.kotlinDebug("changes: ${changes.changes.joinToString { it.fqName.toString() }}")
+            logger.kotlinDebug("generated ${generatedFiles.joinToString { outputRelativePath(it.outputFile) }}")
+            logger.kotlinDebug("changes: ${changes.changes.joinToString { "${it.fqName}: ${it.javaClass.simpleName}" }}")
 
             logger.kotlinLazyDebug({
                 "known lookups:\n${lookupStorage.dump(changes.changes.flatMap {
@@ -329,20 +333,31 @@ public open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments
                             change.names.asSequence().map { LookupSymbol(it, change.fqName.asString()) }
                         else
                             sequenceOf<LookupSymbol>()
-                }.toSet())}" })
+                }.toSet(), project.projectDir)}" })
 
             if (!isIncremental) break;
 
             // TODO: consider using some order-preserving set for sourcesToCompile instead
             val compiledSourcesSet = sourcesToCompile.toHashSet()
 
-            val dirty = changes.dirtyFiles(lookupStorage).filter { it !in compiledSourcesSet }
+            val dirtyLookups = changes.dirtyLookups<TargetId>(caches.values.asSequence())
+
+            logger.kotlinDebug("dirty lookups: ${dirtyLookups.joinToString { "${it.name}:${it.scope}" }}")
+
+            val dirty = dirtyLookups.flatMap { lookup ->
+                val files = lookupStorage.get(lookup).map(::File).filter { it !in compiledSourcesSet }
+                if (files.any()) {
+                    logger.kotlinDebug("changes in $lookup causes recompilation of ${files.joinToString { projectRelativePath(it) }}")
+                }
+                files
+            }
+            //val dirty = changes.dirtyFiles(lookupStorage).filter { it !in compiledSourcesSet }
             sourcesToCompile = dirty.filter { it in sources }.toList()
             if (currentRemoved.any()) {
                 currentRemoved = listOf()
             }
-            logger.kotlinDebug("dirty: ${dirty.joinToString()}")
-            logger.kotlinDebug("to compile: ${sourcesToCompile.joinToString()}")
+            logger.kotlinDebug("dirty: ${dirty.joinToString { projectRelativePath(it) }}")
+            logger.kotlinDebug("to compile: ${sourcesToCompile.joinToString { projectRelativePath(it) }}")
         }
         lookupStorage.flush(false)
         lookupStorage.close()

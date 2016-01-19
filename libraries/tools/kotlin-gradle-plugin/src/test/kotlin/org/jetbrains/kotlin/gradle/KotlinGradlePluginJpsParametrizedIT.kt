@@ -1,10 +1,8 @@
 package org.jetbrains.kotlin.gradle
 
-import org.gradle.api.logging.LogLevel
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-
 import java.io.File
 
 @RunWith(Parameterized::class)
@@ -16,22 +14,40 @@ class KotlinGradlePluginJpsParametrizedIT : BaseIncrementalGradleIT() {
 
     @Test
     fun testFromJps() {
-        val project = JpsTestProject(jpsResourcesPath, relativePath, "2.4", LogLevel.DEBUG)
-
-        callPerformAndAssertBuildStages(project)
+        try {
+            JpsTestProject(jpsResourcesPath, relativePath).performAndAssertBuildStages()
+        }
+        finally {
+            if (defaultBuildOptions().withDaemon)
+                checkRecycleDaemon()
+        }
     }
+
+    override fun defaultBuildOptions(): BuildOptions = BuildOptions(withDaemon = true)
 
     companion object {
 
         private val jpsResourcesPath = File("../../../jps-plugin/testData/incremental")
+
+        val MAX_TESTS_ON_SINGLE_DAEMON = 20
+        private var testsCounter = 0
 
         @Suppress("unused")
         @Parameterized.Parameters(name = "{index}: {0}")
         @JvmStatic
         fun data(): List<Array<String>> =
                 jpsResourcesPath.walk()
-                        .filter { it.isDirectory && isKnownJpsTestProject(it).first }
+                        .filter { it.isDirectory && isJpsTestProject(it) }
                         .map { arrayOf(it.toRelativeString(jpsResourcesPath)) }
                         .toList()
+//                        .take(50)
+
+        @Synchronized
+        fun checkRecycleDaemon() {
+            if (testsCounter++ > MAX_TESTS_ON_SINGLE_DAEMON) {
+                BaseGradleIT.tearDownAll()
+                testsCounter = 0
+            }
+        }
     }
 }

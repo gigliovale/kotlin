@@ -3,6 +3,7 @@ package org.jetbrains.kotlin.gradle
 import com.google.common.io.Files
 import org.gradle.api.logging.LogLevel
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Before
 import java.io.File
 import java.io.InputStream
@@ -12,8 +13,9 @@ private val SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator")
 
 abstract class BaseGradleIT {
 
-    protected val resourcesRootFile = File("src/test/resources")
     protected var workingDir = File(".")
+
+    protected open fun defaultBuildOptions(): BuildOptions = BuildOptions(withDaemon = false)
 
     @Before
     fun setUp() {
@@ -23,6 +25,52 @@ abstract class BaseGradleIT {
     @After
     fun tearDown() {
         deleteRecursively(workingDir)
+    }
+
+    companion object {
+        protected val ranDaemonVersions = hashSetOf<String>()
+        val resourcesRootFile = File("src/test/resources")
+
+        @AfterClass
+        @JvmStatic
+        fun tearDownAll() {
+            ranDaemonVersions.forEach {
+                println("Stopping gradle daemon v$it")
+                stopDaemon(it)
+            }
+            ranDaemonVersions.clear()
+        }
+
+        fun createGradleCommand(tailParameters: List<String>): List<String> {
+            return if (isWindows())
+                listOf("cmd", "/C", "gradlew.bat") + tailParameters
+            else
+                listOf("/bin/bash", "./gradlew") + tailParameters
+        }
+
+        fun isWindows(): Boolean {
+            return System.getProperty("os.name")!!.contains("Windows")
+        }
+
+        fun stopDaemon(ver: String) {
+            val wrapperDir = File(resourcesRootFile, "GradleWrapper-$ver")
+            val cmd = createGradleCommand(arrayListOf("-stop"))
+            createProcess(cmd, wrapperDir)
+        }
+
+        fun createProcess(cmd: List<String>, projectDir: File): Process {
+            val builder = ProcessBuilder(cmd)
+            builder.directory(projectDir)
+            builder.redirectErrorStream(true)
+            return builder.start()
+        }
+
+        fun prepareDaemon(version: String) {
+            if (version !in ranDaemonVersions) {
+                stopDaemon(version)
+                ranDaemonVersions.add(version)
+            }
+        }
     }
 
     data class BuildOptions(val withDaemon: Boolean = false, val daemonOptionSupported: Boolean = true)
@@ -46,20 +94,18 @@ abstract class BaseGradleIT {
         val compiledJavaSources : Iterable<File> by lazy { javaSourcesListRegex.findAll(output).asIterable().flatMap { it.groups[1]!!.value.split(" ").filter { it.endsWith(".java", ignoreCase = true) }.map { File(it) } } }
     }
 
-    fun Project.build(vararg tasks: String, options: BuildOptions = BuildOptions(), check: CompiledProject.() -> Unit) {
+    fun Project.build(vararg tasks: String, options: BuildOptions = defaultBuildOptions(), check: CompiledProject.() -> Unit) {
         val cmd = createBuildCommand(tasks, options)
+
+        if (options.withDaemon) {
+            prepareDaemon(wrapperVersion)
+        }
 
         println("<=== Test build: ${this.projectName} $cmd ===>")
 
         runAndCheck(cmd, check)
     }
 
-
-    fun stopDaemon(ver: String) {
-        val wrapperDir = File(resourcesRootFile, "GradleWrapper-$ver")
-        val cmd = createGradleCommand(arrayListOf("-stop"))
-        createProcess(cmd, wrapperDir)
-    }
 
     fun Project.stopDaemon(check: CompiledProject.() -> Unit) {
         val cmd = createGradleCommand(arrayListOf("-stop"))
@@ -134,12 +180,15 @@ abstract class BaseGradleIT {
     }
 
     fun CompiledProject.assertSameFiles(expected: Iterable<String>, actual: Iterable<String>, messagePrefix: String = ""): CompiledProject {
-        assertTrue(actual.toSet() == expected.toSet(), messagePrefix + "expected files: ${expected.joinToString()}\n  actual files: ${actual.joinToString()}")
+        val expectedSet = expected.toSortedSet()
+        val actualSet = actual.toSortedSet()
+        assertTrue(actualSet == expectedSet, messagePrefix + "expected files: ${expectedSet.joinToString()}\n  actual files: ${actualSet.joinToString()}")
         return this
     }
 
     fun CompiledProject.assertContainFiles(expected: Iterable<String>, actual: Iterable<String>, messagePrefix: String = ""): CompiledProject {
-        assertTrue(expected.toSet().containsAll(actual.toList()), messagePrefix + "expected files: ${expected.joinToString()}\n  actual files: ${actual.joinToString()}")
+        val expectedSet = expected.toSortedSet()
+        assertTrue(expectedSet.containsAll(actual.toList()), messagePrefix + "expected files: ${expectedSet.joinToString()}\n  actual files: ${actual.toSortedSet().joinToString()}")
         return this
     }
 
@@ -169,25 +218,7 @@ abstract class BaseGradleIT {
                             "-Pkotlin.gradle.test=true")
                             .filterNotNull()
 
-    private fun createGradleCommand(tailParameters: List<String>): List<String> {
-        return if (isWindows())
-            listOf("cmd", "/C", "gradlew.bat") + tailParameters
-        else
-            listOf("/bin/bash", "./gradlew") + tailParameters
-    }
-
     private fun String.normalize() = this.lineSequence().joinToString(SYSTEM_LINE_SEPARATOR)
-
-    private fun isWindows(): Boolean {
-        return System.getProperty("os.name")!!.contains("Windows")
-    }
-
-    private fun createProcess(cmd: List<String>, projectDir: File): Process {
-        val builder = ProcessBuilder(cmd)
-        builder.directory(projectDir)
-        builder.redirectErrorStream(true)
-        return builder.start()
-    }
 
     private fun readOutput(process: Process): Pair<String, Int> {
         fun InputStream.readFully(): String {

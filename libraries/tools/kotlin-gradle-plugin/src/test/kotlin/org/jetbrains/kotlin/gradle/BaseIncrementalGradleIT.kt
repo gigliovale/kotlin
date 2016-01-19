@@ -2,7 +2,10 @@ package org.jetbrains.kotlin.gradle
 
 import com.google.common.io.Files
 import org.gradle.api.logging.LogLevel
+import org.gradle.tooling.GradleConnectionException
 import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ResultHandler
+import org.junit.Assume
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.OutputStream
@@ -13,7 +16,7 @@ import kotlin.test.assertTrue
 
 abstract class BaseIncrementalGradleIT : BaseGradleIT() {
 
-    open inner class IncrementalTestProject(name: String, wrapperVersion: String = "1.6", minLogLevel: LogLevel = LogLevel.DEBUG) : Project(name, wrapperVersion, minLogLevel) {
+    open inner class IncrementalTestProject(name: String, wrapperVersion: String = "2.4", minLogLevel: LogLevel = LogLevel.DEBUG) : Project(name, wrapperVersion, minLogLevel) {
         var modificationStage: Int = 1
     }
 
@@ -50,14 +53,6 @@ sourceSets {
         srcDir 'src'
      }
   }
-  test {
-     kotlin {
-        srcDir 'src'
-     }
-     java {
-        srcDir 'src'
-     }
-  }
 }
 
 repositories {
@@ -75,6 +70,8 @@ repositories {
         assertTrue(projectSrcDir.exists())
         val actualStage = runStage ?: modificationStage
 
+        println("<--- Modify stage: ${runStage?.toString() ?: "single"}")
+
         fun resource2project(f: File) = File(projectSrcDir, f.toRelativeString(resourcesRoot))
 
         resourcesRoot.walk().filter { it.isFile }.forEach {
@@ -87,14 +84,17 @@ repositories {
                         "touch" -> {
                             assert(orig.exists())
                             orig.setLastModified(Date().time)
+                            println("<--- Modify: touch $orig")
                         }
                         "new" -> {
                             it.copyTo(orig, overwrite = true)
                             orig.setLastModified(Date().time)
+                            println("<--- Modify: new $orig from $it")
                         }
                         "delete" -> {
                             assert(orig.exists())
                             orig.delete()
+                            println("<--- Modify: delete $orig")
                         }
                     }
                 }
@@ -104,7 +104,7 @@ repositories {
         modificationStage = actualStage + 1
     }
 
-    class StageResults(val compiledKotlinFiles: HashSet<String> = hashSetOf(), val compiledJavaFiles: HashSet<String> = hashSetOf(), var compileSucceeded: Boolean = true)
+    class StageResults(val stage: Int, val compiledKotlinFiles: HashSet<String> = hashSetOf(), val compiledJavaFiles: HashSet<String> = hashSetOf(), var compileSucceeded: Boolean = true)
 
     fun parseTestBuildLog(file: File): List<StageResults> {
         class StagedLines(val stage: Int, val line: String)
@@ -116,13 +116,13 @@ repositories {
                 slines.add(StagedLines(curStage + if (line.isBlank() && prevWasBlank) 1 else 0, line))
                 slines
             }
-            .fold(Pair(0, arrayListOf<StageResults>())) { stageAndRes, sline ->
+            .fold(arrayListOf<StageResults>()) { res, sline ->
                 // for lazy creation of the node
                 fun curStageResults(): StageResults {
-                    if (stageAndRes.second.isEmpty() || sline.stage > stageAndRes.first) {
-                        stageAndRes.second.add(StageResults())
+                    if (res.isEmpty() || sline.stage > res.last().stage) {
+                        res.add(StageResults(sline.stage))
                     }
-                    return stageAndRes.second.last()
+                    return res.last()
                 }
 
                 when {
@@ -130,18 +130,17 @@ repositories {
                     sline.line.endsWith(".kt", ignoreCase = true) -> curStageResults().compiledKotlinFiles.add(sline.line)
                     sline.line.equals("COMPILATION FAILED", ignoreCase = true) -> curStageResults().compileSucceeded = false
                 }
-                Pair(sline.stage, stageAndRes.second)
+                res
             }
-            .second
     }
 
 
-    fun IncrementalTestProject.performAndAssertBuildStages() {
+    fun IncrementalTestProject.performAndAssertBuildStages(options: BuildOptions = defaultBuildOptions()) {
 
-        val checkKnown = isKnownJpsTestProject(resourcesRoot)
-        assertTrue(checkKnown.first, checkKnown.second ?: "")
+        val checkKnown = testIsKnownJpsTestProject(resourcesRoot)
+        Assume.assumeTrue(checkKnown.second ?: "", checkKnown.first)
 
-        build("build", options = BuildOptions(withDaemon = true)) {
+        build("build", options = options) {
             assertSuccessful()
             assertReportExists()
         }
@@ -151,6 +150,11 @@ repositories {
 
         val buildLog = parseTestBuildLog(buildLogFile!!)
         assertTrue(buildLog.any())
+
+        println("<--- Build log size: ${buildLog.size}")
+        buildLog.forEach {
+            println("<--- Build log stage: ${if (it.compileSucceeded) "succeeded" else "failed"}: kotlin: ${it.compiledKotlinFiles} java: ${it.compiledJavaFiles}")
+        }
 
         if (buildLog.size == 1) {
             modify()
@@ -164,34 +168,32 @@ repositories {
         }
     }
 
-    fun IncrementalTestProject.buildAndAssertStageResults(expected: StageResults) {
-        build("build", options = BuildOptions(withDaemon = true)) {
+    fun IncrementalTestProject.buildAndAssertStageResults(expected: StageResults, options: BuildOptions = defaultBuildOptions()) {
+        build("build", options = options) {
             if (expected.compileSucceeded) {
                 assertSuccessful()
+                assertCompiledJavaSources(expected.compiledJavaFiles)
+                assertCompiledKotlinSources(expected.compiledKotlinFiles)
             }
             else {
                 assertFailed()
             }
-            assertCompiledJavaSources(expected.compiledJavaFiles)
-            assertCompiledKotlinSources(expected.compiledKotlinFiles)
         }
     }
 
-    fun IncrementalTestProject.buildWithApi(vararg tasks: String, options: BuildOptions = BuildOptions(), check: CompiledProject.() -> Unit) {
+    fun IncrementalTestProject.buildWithApi(vararg tasks: String, options: BuildOptions = defaultBuildOptions(), check: CompiledProject.() -> Unit) {
         val projectDir = File(workingDir, projectName)
         if (!projectDir.exists())
             setupWorkingDir()
 
-        val output = gradleBuild(wrapperVersion, projectDir, tasks, createGradleTailParameters(options.copy(daemonOptionSupported = false)).toTypedArray()).toString()
-        val resultCode = 0 // TODO: take from gradle
-        CompiledProject(this, output, resultCode).check()
+        val (resultCode, output) = gradleBuild(wrapperVersion, projectDir, tasks, createGradleTailParameters(options.copy(daemonOptionSupported = false)).toTypedArray())
+        CompiledProject(this, output.toString(), resultCode).check()
     }
-
-    fun callPerformAndAssertBuildStages(project: IncrementalTestProject) = project.performAndAssertBuildStages()
 }
 
 
 private val knownExtensions = arrayListOf("kt", "java")
+private val knownModifyExtensions = arrayListOf("new", "touch", "delete")
 
 private fun String.toIntOr(defaultVal: Int): Pair<Int, Boolean> {
     try {
@@ -202,17 +204,20 @@ private fun String.toIntOr(defaultVal: Int): Pair<Int, Boolean> {
     }
 }
 
-fun isKnownJpsTestProject(projectRoot: File): Pair<Boolean, String?> {
+fun isJpsTestProject(projectRoot: File): Boolean = projectRoot.listFiles { f: File -> f.name.endsWith("build.log") }?.any() ?: false
+
+fun testIsKnownJpsTestProject(projectRoot: File): Pair<Boolean, String?> {
     var hasKnownSources = false
     projectRoot.walk().filter { it.isFile }.forEach {
         if (it.name.equals("dependencies.txt", ignoreCase = true))
-            return@isKnownJpsTestProject Pair(false, "multimodule tests are not supported yet")
+            return@testIsKnownJpsTestProject Pair(false, "multimodule tests are not supported yet")
         val nameParts = it.name.split(".")
-        if (nameParts.size > 2) {
+        if (nameParts.size > 1) {
             val (fileStage, hasStage) = nameParts.last().toIntOr(0)
-            val ext = nameParts.get(nameParts.size - (if (hasStage) 3 else 2))
-            if (!knownExtensions.contains(ext))
-                return@isKnownJpsTestProject Pair(false, "unknown staged file ${it.name}")
+            val modifyExt = nameParts[nameParts.size - (if (hasStage) 2 else 1)]
+            val ext = nameParts[nameParts.size - (if (hasStage) 3 else 2)]
+            if (modifyExt in knownModifyExtensions && ext !in knownExtensions)
+                return@testIsKnownJpsTestProject Pair(false, "unknown staged file ${it.name}")
         }
         if (!hasKnownSources && it.extension in knownExtensions) {
             hasKnownSources = true
@@ -223,7 +228,23 @@ fun isKnownJpsTestProject(projectRoot: File): Pair<Boolean, String?> {
 }
 
 
-fun gradleBuild(gradleVersion: String, projectDir: File, tasks: Array<out String>, args: Array<out String>): OutputStream {
+class GradleBuildResultHandler : ResultHandler<Any> {
+
+    var success: Boolean? = true
+    var failure: GradleConnectionException? = null
+
+    override fun onFailure(p0: GradleConnectionException?) {
+        success = false
+        failure = p0
+    }
+
+    override fun onComplete(p0: Any?) {
+        success = true
+    }
+}
+
+
+fun gradleBuild(gradleVersion: String, projectDir: File, tasks: Array<out String>, args: Array<out String>): Pair<Int, OutputStream> {
     // Configure the connector and create the connection
     val connector = GradleConnector.newConnector()
 
@@ -241,9 +262,10 @@ fun gradleBuild(gradleVersion: String, projectDir: File, tasks: Array<out String
         launcher.setStandardOutput(output)
         launcher.setStandardError(output)
 
+        val res = GradleBuildResultHandler()
         // Run the build
-        launcher.run()
-        return output
+        launcher.run(res)
+        return Pair(if (res.success ?: false) 0 else 1, output)
     } finally {
         // Clean up
         connection.close()

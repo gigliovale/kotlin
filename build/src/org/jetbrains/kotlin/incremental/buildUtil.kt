@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.modules.KotlinModuleXmlBuilder
 import org.jetbrains.kotlin.modules.TargetId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
 import org.jetbrains.kotlin.utils.keysToMap
 import java.io.File
@@ -209,13 +210,60 @@ fun<Target> getGeneratedFiles(
 }
 
 
-fun CompilationResult.dirtyFiles(lookupStorage: BasicLookupStorage): Sequence<File> =
-    // TODO group by fqName?
-    changes.mapNotNull { it as? ChangeInfo.MembersChanged }
-           .flatMap { change ->
-               change.names.asSequence()
-                       .flatMap { lookupStorage.get(LookupSymbol(it, change.fqName.asString())).asSequence() }
-                       .map(::File)
-           }
+//fun CompilationResult.dirtyFiles(lookupStorage: BasicLookupStorage): Sequence<File> =
+//    // TODO group by fqName?
+//    changes.mapNotNull { it as? ChangeInfo.MembersChanged }
+//           .flatMap { change ->
+//               change.names.asSequence()
+//                       .flatMap { lookupStorage.get(LookupSymbol(it, change.fqName.asString())).asSequence() }
+//                       .map(::File)
+//           }
+
+fun<Target> CompilationResult.dirtyLookups(
+        caches: Sequence<BasicIncrementalCacheImpl<TargetId>>
+): Iterable<LookupSymbol> =
+        changes.asIterable().flatMap { change ->
+            when (change) {
+                is ChangeInfo.SignatureChanged -> {
+                    withSubtypes(change.fqName, caches).map {
+                        val scope = it.parent().asString()
+                        val name = it.shortName().identifier
+                        LookupSymbol(name, scope)
+                    }
+                }
+                is ChangeInfo.MembersChanged -> {
+                    val scopes = withSubtypes(change.fqName, caches).map { it.asString() }
+                    change.names.flatMap { name -> scopes.map { scope -> LookupSymbol(name, scope) } }
+                }
+                else -> listOf<LookupSymbol>()
+            }
+        }
 
 
+private fun<TargetId> withSubtypes(
+        typeFqName: FqName,
+        caches: Sequence<BasicIncrementalCacheImpl<TargetId>>
+): Set<FqName> {
+    val types = linkedListOf(typeFqName)
+    val subtypes = hashSetOf<FqName>()
+
+    while (types.isNotEmpty()) {
+        val unprocessedType = types.pollFirst()
+
+        caches.flatMap { it.getSubtypesOf(unprocessedType) }
+                .filter { it !in subtypes }
+                .forEach { types.addLast(it) }
+
+        subtypes.add(unprocessedType)
+    }
+
+    return subtypes
+}
+
+private inline fun <T, R> Iterable<T>.forAllPairs(other: Iterable<R>, fn: (T, R)->Unit) {
+    for (t in this) {
+        for (r in other) {
+            fn(t, r)
+        }
+    }
+}

@@ -3360,6 +3360,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("kt10706.kt")
+            public void testKt10706() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/kt10706.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt1075.kt")
             public void testKt1075() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/kt1075.kt");
@@ -7184,6 +7190,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("extensionReceiverTypeMismatch.kt")
+                public void testExtensionReceiverTypeMismatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/extensionReceiverTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("extensionResultSubstitution.kt")
                 public void testExtensionResultSubstitution() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/extensionResultSubstitution.kt");
@@ -7193,6 +7205,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("flexibleProjectedScope.kt")
                 public void testFlexibleProjectedScope() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/flexibleProjectedScope.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("inValueParameter.kt")
+                public void testInValueParameter() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/inValueParameter.kt");
                     doTest(fileName);
                 }
 
@@ -7214,15 +7232,33 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("leakedApproximatedType.kt")
+                public void testLeakedApproximatedType() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/leakedApproximatedType.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("MLOut.kt")
                 public void testMLOut() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/MLOut.kt");
                     doTest(fileName);
                 }
 
+                @TestMetadata("multipleArgumentProjectedOut.kt")
+                public void testMultipleArgumentProjectedOut() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/multipleArgumentProjectedOut.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("platformSuperClass.kt")
                 public void testPlatformSuperClass() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/platformSuperClass.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("projectedOutConventions.kt")
+                public void testProjectedOutConventions() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/projectedOutConventions.kt");
                     doTest(fileName);
                 }
 
@@ -7256,6 +7292,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("typeMismatchConventions.kt")
+                public void testTypeMismatchConventions() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/typeMismatchConventions.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("typeMismatchInLambda.kt")
+                public void testTypeMismatchInLambda() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/typeMismatchInLambda.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("typeParameterBounds.kt")
                 public void testTypeParameterBounds() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/typeParameterBounds.kt");
@@ -7265,6 +7313,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("unsafeVarianceStar.kt")
                 public void testUnsafeVarianceStar() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/unsafeVarianceStar.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("varargs.kt")
+                public void testVarargs() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/varargs.kt");
                     doTest(fileName);
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.load.java;
+package org.jetbrains.kotlin.load.java.components
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.serialization.deserialization.BinaryVersion;
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.serialization.deserialization.BinaryVersion
 
-public final class AbiVersionUtil {
-    public static final BinaryVersion INVALID_VERSION = BinaryVersion.create(new int[0]);
-
-    public static boolean isAbiVersionCompatible(@NotNull BinaryVersion actual) {
-        return actual.isCompatibleTo(JvmAbi.VERSION);
-    }
-
-    private AbiVersionUtil() {
-    }
-}
+data class IncompatibleVersionErrorData(
+        val actualVersion: BinaryVersion,
+        val filePath: String,
+        val classId: ClassId
+)

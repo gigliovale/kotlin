@@ -19,8 +19,8 @@ package org.jetbrains.kotlin.codegen;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import kotlin.collections.CollectionsKt;
-import kotlin.text.StringsKt;
 import kotlin.jvm.functions.Function1;
+import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.codegen.binding.CalculatedClosure;
@@ -28,11 +28,10 @@ import org.jetbrains.kotlin.codegen.context.CodegenContext;
 import org.jetbrains.kotlin.codegen.context.FacadePartWithSourceFile;
 import org.jetbrains.kotlin.codegen.context.MethodContext;
 import org.jetbrains.kotlin.codegen.context.RootContext;
-import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames;
+import org.jetbrains.kotlin.load.kotlin.JvmMetadataVersion;
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping;
 import org.jetbrains.kotlin.load.kotlin.ModuleVisibilityUtilsKt;
 import org.jetbrains.kotlin.psi.KtFile;
@@ -223,13 +222,6 @@ public class JvmCodegenUtil {
     }
 
     public static void writeAbiVersion(@NotNull AnnotationVisitor av) {
-        av.visit(JvmAnnotationNames.VERSION_FIELD_NAME, JvmAbi.VERSION.toArray());
-    }
-
-    public static void writeModuleName(@NotNull AnnotationVisitor av, @NotNull GenerationState state) {
-        String name = state.getModuleName();
-        if (!name.equals(JvmAbi.DEFAULT_MODULE_NAME)) {
-            av.visit(JvmAnnotationNames.MODULE_NAME_FIELD_NAME, name);
-        }
+        av.visit(JvmAnnotationNames.VERSION_FIELD_NAME, JvmMetadataVersion.INSTANCE.toArray());
     }
 }

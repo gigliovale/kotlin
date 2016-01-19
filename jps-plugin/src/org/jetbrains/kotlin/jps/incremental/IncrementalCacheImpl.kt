@@ -30,10 +30,7 @@ import org.jetbrains.kotlin.jps.build.GeneratedJvmClass
 import org.jetbrains.kotlin.jps.build.KotlinBuilder
 import org.jetbrains.kotlin.jps.incremental.storage.*
 import org.jetbrains.kotlin.load.kotlin.ModuleMapping
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleClassKind
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleFileFacadeKind
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleMultifileClassKind
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleMultifileClassPartKind
+import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.load.kotlin.incremental.components.JvmPackagePartProto
 import org.jetbrains.kotlin.name.FqName
@@ -146,9 +143,13 @@ open class IncrementalCacheImpl(
             sourceToClassesMap.add(it, className)
         }
 
+        if (kotlinClass.classId.isLocal) {
+            return CompilationResult.NO_CHANGES
+        }
+
         val header = kotlinClass.classHeader
-        val changesInfo = when {
-            header.isCompatibleFileFacadeKind() -> {
+        val changesInfo = when (header.kind) {
+            KotlinClassHeader.Kind.FILE_FACADE -> {
                 assert(sourceFiles.size == 1) { "Package part from several source files: $sourceFiles" }
                 packagePartMap.addPackagePart(className)
 
@@ -156,8 +157,8 @@ open class IncrementalCacheImpl(
                 constantsMap.process(kotlinClass) +
                 additionalProcessChangedClass(kotlinClass, isPackage = true)
             }
-            header.isCompatibleMultifileClassKind() -> {
-                val partNames = kotlinClass.classHeader.filePartClassNames?.toList()
+            KotlinClassHeader.Kind.MULTIFILE_CLASS -> {
+                val partNames = kotlinClass.classHeader.data?.toList()
                                 ?: throw AssertionError("Multifile class has no parts: ${kotlinClass.className}")
                 multifileClassFacadeMap.add(className, partNames)
 
@@ -165,7 +166,7 @@ open class IncrementalCacheImpl(
                 constantsMap.process(kotlinClass) +
                 additionalProcessChangedClass(kotlinClass, isPackage = true)
             }
-            header.isCompatibleMultifileClassPartKind() -> {
+            KotlinClassHeader.Kind.MULTIFILE_CLASS_PART -> {
                 assert(sourceFiles.size == 1) { "Multifile class part from several source files: $sourceFiles" }
                 packagePartMap.addPackagePart(className)
                 multifileClassPartMap.add(className.internalName, header.multifileClassName!!)
@@ -174,7 +175,7 @@ open class IncrementalCacheImpl(
                 constantsMap.process(kotlinClass) +
                 additionalProcessChangedClass(kotlinClass, isPackage = true)
             }
-            header.isCompatibleClassKind() && !header.isLocalClass -> {
+            KotlinClassHeader.Kind.CLASS -> {
                 addToClassStorage(kotlinClass)
 
                 protoMap.process(kotlinClass, isPackage = false) +
@@ -323,7 +324,7 @@ open class IncrementalCacheImpl(
 
         fun process(kotlinClass: LocalFileKotlinClass, isPackage: Boolean): CompilationResult {
             val header = kotlinClass.classHeader
-            val bytes = BitEncoding.decodeBytes(header.annotationData!!)
+            val bytes = BitEncoding.decodeBytes(header.data!!)
             return put(kotlinClass.className, bytes, header.strings!!, isPackage, checkChangesIsOpenPart = true)
         }
 
@@ -497,7 +498,7 @@ open class IncrementalCacheImpl(
     private fun addToClassStorage(kotlinClass: LocalFileKotlinClass) {
         if (!IncrementalCompilation.isExperimental()) return
 
-        val classData = JvmProtoBufUtil.readClassDataFrom(kotlinClass.classHeader.annotationData!!, kotlinClass.classHeader.strings!!)
+        val classData = JvmProtoBufUtil.readClassDataFrom(kotlinClass.classHeader.data!!, kotlinClass.classHeader.strings!!)
         val supertypes = classData.classProto.supertypes(TypeTable(classData.classProto.typeTable))
         val parents = supertypes.map { classData.nameResolver.getClassId(it.className).asSingleFqName() }
                                 .filter { it.asString() != "kotlin.Any" }

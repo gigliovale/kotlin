@@ -21,8 +21,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.ModuleContent
 import org.jetbrains.kotlin.analyzer.ModuleInfo
+import org.jetbrains.kotlin.builtins.BuiltInsBinaryVersion
 import org.jetbrains.kotlin.builtins.BuiltInsSerializedResourcePaths
-import org.jetbrains.kotlin.builtins.BuiltinsPackageFragment
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -119,12 +119,13 @@ class BuiltInsSerializer(private val dependOnOldBuiltIns: Boolean) {
             private val onFileWrite: (bytesWritten: Int) -> Unit
     ) {
         private val fqName = packageView.fqName
+        private val fragments = packageView.fragments
         private val builtinsMessage = BuiltInsProtoBuf.BuiltIns.newBuilder()
-        private val extension = BuiltInsSerializerExtension()
+        private val extension = BuiltInsSerializerExtension(fragments)
 
         fun run() {
             serializeClasses(packageView.memberScope)
-            serializePackageFragments(packageView.fragments)
+            serializePackageFragments(fragments)
             serializeStringTable()
             serializeBuiltInsFile()
         }
@@ -169,7 +170,7 @@ class BuiltInsSerializer(private val dependOnOldBuiltIns: Boolean) {
         private fun serializeBuiltInsFile() {
             val stream = ByteArrayOutputStream()
             with(DataOutputStream(stream)) {
-                val version = BuiltinsPackageFragment.VERSION.toArray()
+                val version = BuiltInsBinaryVersion.INSTANCE.toArray()
                 writeInt(version.size)
                 version.forEach { writeInt(it) }
             }

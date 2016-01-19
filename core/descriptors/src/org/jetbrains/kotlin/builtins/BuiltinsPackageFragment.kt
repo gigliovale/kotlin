@@ -18,10 +18,7 @@ package org.jetbrains.kotlin.builtins
 
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.builtins.BuiltInsProtoBuf
-import org.jetbrains.kotlin.serialization.deserialization.BinaryVersion
 import org.jetbrains.kotlin.serialization.deserialization.DeserializedPackageFragment
 import org.jetbrains.kotlin.serialization.deserialization.NameResolverImpl
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
@@ -35,15 +32,16 @@ class BuiltinsPackageFragment(
         module: ModuleDescriptor,
         loadResource: (path: String) -> InputStream?
 ) : DeserializedPackageFragment(fqName, storageManager, module, BuiltInsSerializedResourcePaths, loadResource) {
-    val builtinsMessage = loadResource(BuiltInsSerializedResourcePaths.getBuiltInsFilePath(fqName))?.let { stream ->
+    private val builtinsMessage = run {
+        val stream = loadResourceSure(BuiltInsSerializedResourcePaths.getBuiltInsFilePath(fqName))
         val dataInput = DataInputStream(stream)
-        val version = BinaryVersion.create((1..dataInput.readInt()).map { dataInput.readInt() }.toIntArray())
+        val version = BuiltInsBinaryVersion(*(1..dataInput.readInt()).map { dataInput.readInt() }.toIntArray())
 
-        if (!version.isCompatibleTo(BuiltinsPackageFragment.VERSION)) {
+        if (!version.isCompatible()) {
             // TODO: report a proper diagnostic
             throw UnsupportedOperationException(
                     "Kotlin built-in definition format version is not supported: " +
-                    "expected ${BuiltinsPackageFragment.VERSION}, actual $version. " +
+                    "expected ${BuiltInsBinaryVersion.INSTANCE}, actual $version. " +
                     "Please update Kotlin"
             )
         }
@@ -51,29 +49,16 @@ class BuiltinsPackageFragment(
         BuiltInsProtoBuf.BuiltIns.parseFrom(stream, BuiltInsSerializedResourcePaths.extensionRegistry)
     }
 
-    override val nameResolver =
-            builtinsMessage?.let { NameResolverImpl(it.strings, it.qualifiedNames) }
-            ?: NameResolverImpl.read(loadResourceSure(serializedResourcePaths.getStringTableFilePath(fqName)))
+    override val nameResolver = NameResolverImpl(builtinsMessage.strings, builtinsMessage.qualifiedNames)
 
-    override val classIdToProto = builtinsMessage?.let { builtins ->
-        builtins.classList.toMapBy { klass ->
-            nameResolver.getClassId(klass.fqName)
-        }
-    }
+    override val classIdToProto =
+            builtinsMessage.classList.toMapBy { klass ->
+                nameResolver.getClassId(klass.fqName)
+            }
 
-    override fun computeMemberScope() = builtinsMessage?.let { builtins ->
-        DeserializedPackageMemberScope(
-                this, builtins.`package`, nameResolver, packagePartSource = null, components = components,
-                classNames = { classIdToProto!!.keys.filter { classId -> !classId.isNestedClass }.map { it.shortClassName } }
-        )
-    } ?: super.computeMemberScope()
-
-    override fun loadClassNames(packageProto: ProtoBuf.Package): Collection<Name> {
-        return packageProto.getExtension(BuiltInsProtoBuf.className)?.map { id -> nameResolver.getName(id) } ?: listOf()
-    }
-
-    companion object {
-        // Advance this version when the common or builtins-specific binary metadata format is changed
-        val VERSION = BinaryVersion.create(1, 0, 0)
-    }
+    override fun computeMemberScope() =
+            DeserializedPackageMemberScope(
+                    this, builtinsMessage.`package`, nameResolver, packagePartSource = null, components = components,
+                    classNames = { classIdToProto.keys.filter { classId -> !classId.isNestedClass }.map { it.shortClassName } }
+            )
 }

@@ -252,6 +252,10 @@ public class DescriptorSerializer {
         if (flags != builder.getFlags()) {
             builder.setFlags(flags);
         }
+        int newFlags = (flags & 0x3f) + ((flags >> 2) & ~0x3f);
+        if (newFlags != builder.getNewFlags()) {
+            builder.setNewFlags(newFlags);
+        }
 
         builder.setName(getSimpleNameIndex(descriptor.getName()));
 
@@ -294,6 +298,10 @@ public class DescriptorSerializer {
         );
         if (flags != builder.getFlags()) {
             builder.setFlags(flags);
+        }
+        int newFlags = (flags & 0x3f) + ((flags >> 2) & ~0x3f);
+        if (newFlags != builder.getNewFlags()) {
+            builder.setNewFlags(newFlags);
         }
 
         builder.setName(getSimpleNameIndex(descriptor.getName()));
@@ -587,7 +595,7 @@ public class DescriptorSerializer {
             builder.setTypeTable(typeTableProto);
         }
 
-        extension.serializePackage(fragments, builder);
+        extension.serializePackage(builder);
 
         return builder;
     }
@@ -609,6 +617,8 @@ public class DescriptorSerializer {
         if (typeTableProto != null) {
             builder.setTypeTable(typeTableProto);
         }
+
+        extension.serializePackage(builder);
 
         return builder;
     }

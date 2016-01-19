@@ -20,9 +20,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.jps.incremental.storage.ProtoMapValue
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleClassKind
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleFileFacadeKind
-import org.jetbrains.kotlin.load.kotlin.header.isCompatibleMultifileClassPartKind
+import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinaryClass
+import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
 import org.jetbrains.kotlin.serialization.jvm.BitEncoding
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.jetbrains.kotlin.test.MockLibraryUtil
@@ -30,7 +29,6 @@ import org.jetbrains.kotlin.utils.Printer
 import java.io.File
 
 abstract class AbstractProtoComparisonTest : UsefulTestCase() {
-
     fun doTest(testDataPath: String) {
         val testDir = KotlinTestUtils.tmpDir("testDirectory")
 
@@ -79,39 +77,30 @@ abstract class AbstractProtoComparisonTest : UsefulTestCase() {
     }
 
     private fun Printer.printDifference(oldClassFile: File, newClassFile: File) {
-        val oldLocalFileKotlinClass = LocalFileKotlinClass.create(oldClassFile)!!
-        val newLocalFileKotlinClass = LocalFileKotlinClass.create(newClassFile)!!
-
-        val oldClassHeader = oldLocalFileKotlinClass.classHeader
-        val newClassHeader = newLocalFileKotlinClass.classHeader
-
-        if (oldClassHeader.annotationData == null || newClassHeader.annotationData == null) {
-            println("skip ${oldLocalFileKotlinClass.classId}")
-            return
-        }
-
-        val oldProtoBytes = BitEncoding.decodeBytes(oldClassHeader.annotationData!!)
-        val newProtoBytes = BitEncoding.decodeBytes(newClassHeader.annotationData!!)
-
-        val oldProto = ProtoMapValue(
-                oldClassHeader.isCompatibleFileFacadeKind() || oldClassHeader.isCompatibleMultifileClassPartKind(),
-                oldProtoBytes, oldClassHeader.strings!!
-        )
-        val newProto = ProtoMapValue(
-                newClassHeader.isCompatibleFileFacadeKind() || newClassHeader.isCompatibleMultifileClassPartKind(),
-                newProtoBytes, newClassHeader.strings!!
-        )
-
-        val diff = when {
-            newClassHeader.isCompatibleClassKind() ||
-            newClassHeader.isCompatibleFileFacadeKind() ||
-            newClassHeader.isCompatibleMultifileClassPartKind() ->
-                difference(oldProto, newProto)
-            else ->  {
-                println("ignore ${oldLocalFileKotlinClass.classId}")
-                return
+        fun KotlinJvmBinaryClass.readProto(): ProtoMapValue? {
+            assert(classHeader.metadataVersion.isCompatible()) { "Incompatible class ($classHeader): $location" }
+            return when (classHeader.kind) {
+                KotlinClassHeader.Kind.CLASS, KotlinClassHeader.Kind.FILE_FACADE, KotlinClassHeader.Kind.MULTIFILE_CLASS_PART -> {
+                    ProtoMapValue(
+                            classHeader.kind != KotlinClassHeader.Kind.CLASS,
+                            BitEncoding.decodeBytes(classHeader.data!!),
+                            classHeader.strings!!
+                    )
+                }
+                else -> {
+                    println("skip $classId")
+                    return null
+                }
             }
         }
+
+        val oldClass = LocalFileKotlinClass.create(oldClassFile)!!
+        val newClass = LocalFileKotlinClass.create(newClassFile)!!
+
+        val diff = difference(
+                oldClass.readProto() ?: return,
+                newClass.readProto() ?: return
+        )
 
         val changes = SmartList<String>()
 
@@ -127,7 +116,7 @@ abstract class AbstractProtoComparisonTest : UsefulTestCase() {
             changes.add("NONE")
         }
 
-        println("changes in ${oldLocalFileKotlinClass.classId}: ${changes.joinToString()}")
+        println("changes in ${oldClass.classId}: ${changes.joinToString()}")
     }
 
     private fun File.createSubDirectory(relativePath: String): File {

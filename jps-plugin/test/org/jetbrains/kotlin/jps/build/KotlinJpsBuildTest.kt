@@ -551,7 +551,7 @@ class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
     fun testCircularDependencyWithReferenceToOldVersionLib() {
         initProject()
 
-        val libraryJar = MockLibraryUtil.compileLibraryToJar(workDir.absolutePath + File.separator + "oldModuleLib/src", "module-lib", false)
+        val libraryJar = MockLibraryUtil.compileLibraryToJar(workDir.absolutePath + File.separator + "oldModuleLib/src", "module-lib", false, false)
 
         AbstractKotlinJpsBuildTestCase.addDependency(JpsJavaDependencyScope.COMPILE, Lists.newArrayList(findModule("module1"), findModule("module2")), false, "module-lib", libraryJar)
 
@@ -562,7 +562,7 @@ class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
     fun testDependencyToOldKotlinLib() {
         initProject()
 
-        val libraryJar = MockLibraryUtil.compileLibraryToJar(workDir.absolutePath + File.separator + "oldModuleLib/src", "module-lib", false)
+        val libraryJar = MockLibraryUtil.compileLibraryToJar(workDir.absolutePath + File.separator + "oldModuleLib/src", "module-lib", false, false)
 
         AbstractKotlinJpsBuildTestCase.addDependency(JpsJavaDependencyScope.COMPILE, Lists.newArrayList(findModule("module")), false, "module-lib", libraryJar)
 
@@ -695,6 +695,16 @@ class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
                     it.messageText.replace(File("").absolutePath, "TEST_PATH").replace("\\", "/")
                 }.sorted().toTypedArray()
         )
+    }
+
+    fun testCodeInKotlinPackage() {
+        initProject()
+
+        val result = makeAll()
+        result.assertFailed()
+        val errors = result.getMessages(BuildMessage.Kind.ERROR)
+
+        Assert.assertEquals("Only the Kotlin standard library is allowed to use the 'kotlin' package", errors.single().messageText)
     }
 
     fun testDoNotCreateUselessKotlinIncrementalCaches() {

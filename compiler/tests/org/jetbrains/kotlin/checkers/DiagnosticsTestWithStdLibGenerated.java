@@ -151,6 +151,12 @@ public class DiagnosticsTestWithStdLibGenerated extends AbstractDiagnosticsTestW
             doTest(fileName);
         }
 
+        @TestMetadata("JvmSyntheticOnDelegate.kt")
+        public void testJvmSyntheticOnDelegate() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/annotations/JvmSyntheticOnDelegate.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("qualifiedCallValue.kt")
         public void testQualifiedCallValue() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/annotations/qualifiedCallValue.kt");
@@ -166,6 +172,12 @@ public class DiagnosticsTestWithStdLibGenerated extends AbstractDiagnosticsTestW
         @TestMetadata("targetuse.kt")
         public void testTargetuse() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/annotations/targetuse.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("TransientOnDelegate.kt")
+        public void testTransientOnDelegate() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/annotations/TransientOnDelegate.kt");
             doTest(fileName);
         }
 

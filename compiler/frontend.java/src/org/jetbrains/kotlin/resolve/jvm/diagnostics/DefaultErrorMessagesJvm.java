@@ -64,6 +64,7 @@ public class DefaultErrorMessagesJvm implements DefaultErrorMessages.Extension {
         MAP.put(ErrorsJvm.INAPPLICABLE_JVM_NAME, "''@JvmName'' annotation is not applicable to this declaration");
         MAP.put(ErrorsJvm.ILLEGAL_JVM_NAME, "Illegal JVM name");
         MAP.put(ErrorsJvm.VOLATILE_ON_VALUE, "''@Volatile'' annotation cannot be used on immutable properties");
+        MAP.put(ErrorsJvm.VOLATILE_ON_DELEGATE, "''@Volatile'' annotation cannot be used on delegated properties");
         MAP.put(ErrorsJvm.SYNCHRONIZED_ON_ABSTRACT, "''@Synchronized'' annotation cannot be used on abstract functions");
         MAP.put(ErrorsJvm.EXTERNAL_DECLARATION_CANNOT_BE_ABSTRACT, "External declaration can not be abstract");
         MAP.put(ErrorsJvm.EXTERNAL_DECLARATION_CANNOT_HAVE_BODY, "External declaration can not have a body");
@@ -100,6 +101,8 @@ public class DefaultErrorMessagesJvm implements DefaultErrorMessages.Extension {
         MAP.put(ErrorsJvm.UPPER_BOUND_CANNOT_BE_ARRAY, "Upper bound of a type parameter cannot be an array");
 
         MAP.put(ErrorsJvm.INAPPLICABLE_JVM_FIELD, "{0}", Renderers.TO_STRING);
+
+        MAP.put(ErrorsJvm.JVM_SYNTHETIC_ON_DELEGATE, "''@JvmSynthetic'' annotation cannot be used on delegated properties");
 
         MAP.put(ErrorsJvm.SUPER_CALL_WITH_DEFAULT_PARAMETERS, "Super-calls with default arguments are not allowed. Please specify all arguments of ''super.{0}'' explicitly", Renderers.TO_STRING);
     }

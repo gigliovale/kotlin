@@ -7599,6 +7599,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("ImportNestedWithDifferentName.kt")
+            public void testImportNestedWithDifferentName() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportNestedWithDifferentName.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ImportObjectAndUseAsSupertype.kt")
             public void testImportObjectAndUseAsSupertype() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportObjectAndUseAsSupertype.kt");
@@ -7650,6 +7656,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("ImportsConflicting.kt")
             public void testImportsConflicting() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/ImportsConflicting.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("InaccessiblePrivateClass.kt")
+            public void testInaccessiblePrivateClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/imports/InaccessiblePrivateClass.kt");
                 doTest(fileName);
             }
 
@@ -18045,21 +18057,6 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("upperBoundCannotBeArray.kt")
             public void testUpperBoundCannotBeArray() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typeParameters/upperBoundCannotBeArray.kt");
-                doTest(fileName);
-            }
-        }
-
-        @TestMetadata("compiler/testData/diagnostics/tests/typedefs")
-        @TestDataPath("$PROJECT_ROOT")
-        @RunWith(JUnit3RunnerWithInners.class)
-        public static class Typedefs extends AbstractDiagnosticsTest {
-            public void testAllFilesPresentInTypedefs() throws Exception {
-                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/typedefs"), Pattern.compile("^(.+)\\.kt$"), true);
-            }
-
-            @TestMetadata("TypedefsUnsupported.kt")
-            public void testTypedefsUnsupported() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typedefs/TypedefsUnsupported.kt");
                 doTest(fileName);
             }
         }

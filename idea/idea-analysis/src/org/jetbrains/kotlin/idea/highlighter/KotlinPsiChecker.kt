@@ -28,6 +28,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.MultiRangeReference
 import com.intellij.psi.PsiElement
@@ -44,10 +45,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.idea.quickfix.QuickFixes
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
-import org.jetbrains.kotlin.psi.KtCodeFragment
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtParameter
-import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 import org.jetbrains.kotlin.utils.singletonOrEmptyList
@@ -80,8 +78,17 @@ open class KotlinPsiChecker : Annotator, HighlightRangeExtension {
     open protected fun shouldSuppressUnusedParameter(parameter: KtParameter): Boolean = false
 
     fun annotateElement(element: PsiElement, holder: AnnotationHolder, diagnostics: Diagnostics) {
+        val diagnosticsForElement = diagnostics.forElement(element)
+
+        if (element is KtNameReferenceExpression) {
+            val unresolved = diagnostics.any { it.factory == Errors.UNRESOLVED_REFERENCE }
+            element.putUserData(UNRESOLVED_KEY, if (unresolved) Unit else null)
+        }
+
+        if (diagnosticsForElement.isEmpty()) return
+
         if (ProjectRootsUtil.isInProjectSource(element) || element.containingFile is KtCodeFragment) {
-            ElementAnnotator(element, holder, { param -> shouldSuppressUnusedParameter(param) }).registerDiagnosticsAnnotations(diagnostics.forElement(element))
+            ElementAnnotator(element, holder, { param -> shouldSuppressUnusedParameter(param) }).registerDiagnosticsAnnotations(diagnosticsForElement)
         }
     }
 
@@ -95,6 +102,10 @@ open class KotlinPsiChecker : Annotator, HighlightRangeExtension {
 
         fun createQuickFixes(diagnostic: Diagnostic): Collection<IntentionAction> =
                 createQuickFixes(diagnostic.singletonOrEmptyList())[diagnostic]
+
+        private val UNRESOLVED_KEY = Key<Unit>("KotlinPsiChecker.UNRESOLVED_KEY")
+
+        fun wasUnresolved(element: KtNameReferenceExpression) = element.getUserData(UNRESOLVED_KEY) != null
     }
 }
 
@@ -263,7 +274,7 @@ private class AnnotationPresentationInfo(
         val textAttributes: TextAttributesKey? = null) {
 
     fun create(diagnostic: Diagnostic, range: TextRange, holder: AnnotationHolder): Annotation {
-        val defaultMessage = nonDefaultMessage?: getDefaultMessage(diagnostic)
+        val defaultMessage = nonDefaultMessage ?: getDefaultMessage(diagnostic)
 
         val annotation = when (diagnostic.severity) {
             Severity.ERROR -> holder.createErrorAnnotation(range, defaultMessage)

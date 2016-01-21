@@ -1,5 +1,6 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
         <javaCoverageEngineExtension implementation="org.jetbrains.kotlin.idea.coverage.KotlinCoverageExtension"/>
+        <projectViewNodeDecorator implementation="org.jetbrains.kotlin.idea.coverage.KotlinCoverageProjectViewDecorator"/>
     </extensions>
 </idea-plugin>

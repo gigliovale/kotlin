@@ -63,8 +63,7 @@ class KotlinCoverageExtension(): JavaCoverageEngineExtension() {
         }
         LOG.info("Retrieving coverage for " + element.name)
 
-        val qualifiedNames = collectGeneratedClassQualifiedNames(findOutputRoot(element), element)
-        return if (qualifiedNames == null) null else totalCoverageForQualifiedNames(coverageAnnotator, qualifiedNames)
+        return getSummaryCoverageForFile(coverageAnnotator, element)
     }
 
     // Implements API added in IDEA 14.1
@@ -97,6 +96,11 @@ class KotlinCoverageExtension(): JavaCoverageEngineExtension() {
 
     companion object {
         private val LOG = Logger.getInstance(KotlinCoverageExtension::class.java)
+
+        fun getSummaryCoverageForFile(coverageAnnotator: JavaCoverageAnnotator, element: KtFile): PackageAnnotator.ClassCoverageInfo? {
+            val qualifiedNames = collectGeneratedClassQualifiedNames(findOutputRoot(element), element)
+            return if (qualifiedNames == null) null else totalCoverageForQualifiedNames(coverageAnnotator, qualifiedNames)
+        }
 
         fun collectGeneratedClassQualifiedNames(outputRoot: VirtualFile?, file: KtFile): List<String>? {
             val existingClassFiles = getClassesGeneratedFromFile(outputRoot, file)

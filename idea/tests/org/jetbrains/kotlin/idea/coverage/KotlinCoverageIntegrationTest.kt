@@ -25,7 +25,13 @@ import com.intellij.execution.configurations.CommandLineState
 import com.intellij.execution.configurations.RunConfigurationBase
 import com.intellij.execution.configurations.coverage.JavaCoverageEnabledConfiguration
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.ide.projectView.PresentationData
+import com.intellij.ide.projectView.ProjectView
+import com.intellij.ide.projectView.ProjectViewNode
+import com.intellij.ide.projectView.impl.AbstractProjectViewPSIPane
+import com.intellij.ide.projectView.impl.ProjectViewPane
 import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
@@ -36,6 +42,8 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.psi.PsiManager
+import com.intellij.testFramework.ProjectViewTestUtil
 import com.intellij.testFramework.TestDataProvider
 import com.intellij.ui.classFilter.ClassFilter
 import com.intellij.util.containers.hash.HashMap
@@ -61,6 +69,8 @@ class KotlinCoverageIntegrationTest : CodeInsightTestCase() {
         return JavaAwareProjectJdkTableImpl.getInstanceEx().internalJdk
     }
 
+    override fun isAddDirToContentRoot(): Boolean = false
+
     override fun setUpProject() {
         myProject = ProjectManagerEx.getInstanceEx().loadProject(testDataPath)
         ProjectManagerEx.getInstanceEx().openTestProject(myProject)
@@ -73,17 +83,46 @@ class KotlinCoverageIntegrationTest : CodeInsightTestCase() {
         val outDir = File(testDataPath, "out/production/kotlinCoverage")
         MockLibraryUtil.compileKotlin(File(testDataPath, "src").path, outDir)
         LocalFileSystem.getInstance().refreshIoFiles(listOf(outDir))
+
+        ProjectViewTestUtil.setupImpl(project, true)
+        val projectView = ProjectView.getInstance(project)
+        projectView.changeView(ProjectViewPane.ID)
     }
 
     fun testSimple() {
-        configureByFile("src/demo.kt")
-        val coverageFilePath = executeRunConfigurationFromContext()
-        val bundle = loadCoverageSuite(IDEACoverageRunner::class.java, coverageFilePath)
+        val vFile = openFileInEditor("src/demo.kt")
+        val bundle = runAndLoadCoverage()
 
         val consumer = annotatePackage(bundle)
         val demoKtClassCoverage = consumer.classCoverageInfoMap["demo.DemoKt"]!!
         assertEquals(4, demoKtClassCoverage.fullyCoveredLineCount)
         assertEquals(4, demoKtClassCoverage.totalLineCount)
+
+        val presentationData = getProjectViewPresentation(vFile)
+        assertEquals("100% methods, 100% lines covered", presentationData.locationString)
+    }
+
+    fun testClassCoverageInProjectView() {
+        openFileInEditor("src/BarRunner.kt")
+        runAndLoadCoverage()
+
+        val bar = LocalFileSystem.getInstance().findFileByIoFile(File(testDataPath, "src/Bar.kt"))!!
+        val presentationData = getProjectViewPresentation(bar)
+        assertEquals("75% methods, 83% lines covered", presentationData.locationString)
+    }
+
+    private fun openFileInEditor(path: String): VirtualFile {
+        val vFile = LocalFileSystem.getInstance().findFileByIoFile(File(testDataPath, path))!!
+        configureByExistingFile(vFile)
+        val caretMarkerOffset = editor.document.text.indexOf("<<<caret")
+        val caretLine = editor.document.getLineNumber(caretMarkerOffset)
+        editor.caretModel.moveToLogicalPosition(LogicalPosition(caretLine, 0))
+        return vFile
+    }
+
+    private fun runAndLoadCoverage(): CoverageSuitesBundle {
+        val coverageFilePath = executeRunConfigurationFromContext()
+        return loadCoverageSuite(IDEACoverageRunner::class.java, coverageFilePath)
     }
 
     private fun executeRunConfigurationFromContext(): String {
@@ -125,6 +164,15 @@ class KotlinCoverageIntegrationTest : CodeInsightTestCase() {
         val consumer = PackageAnnotationConsumer()
         annotator.annotate(bundle, consumer)
         return consumer
+    }
+
+    private fun getProjectViewPresentation(vFile: VirtualFile): PresentationData {
+        val ktFile = PsiManager.getInstance(myProject).findFile(vFile)
+        val pane = ProjectView.getInstance(myProject).getProjectViewPaneById(ProjectViewPane.ID) as AbstractProjectViewPSIPane
+        pane.selectCB(ktFile, vFile, false).waitFor(1000)
+        val node = pane.selectedNode.userObject as ProjectViewNode<*>
+        node.update()
+        return node.presentation
     }
 
     private class PackageAnnotationConsumer : PackageAnnotator.Annotator {

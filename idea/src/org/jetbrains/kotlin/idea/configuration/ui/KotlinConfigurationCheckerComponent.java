@@ -22,12 +22,16 @@ import com.intellij.openapi.components.AbstractProjectComponent;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupManager;
-import org.jetbrains.kotlin.idea.configuration.ConfigureKotlinInProjectUtils;
+import org.jetbrains.kotlin.idea.configuration.ConfigureKotlinInProjectUtilsKt;
+import org.jetbrains.kotlin.idea.versions.OutdatedKotlinRuntimeCheckerKt;
+import org.jetbrains.kotlin.idea.versions.VersionedLibrary;
 
-public class NonConfiguredKotlinProjectComponent extends AbstractProjectComponent {
+import java.util.List;
+
+public class KotlinConfigurationCheckerComponent extends AbstractProjectComponent {
     public static final String CONFIGURE_NOTIFICATION_GROUP_ID = "Configure Kotlin in Project";
 
-    protected NonConfiguredKotlinProjectComponent(Project project) {
+    protected KotlinConfigurationCheckerComponent(Project project) {
         super(project);
 
         NotificationsConfiguration.getNotificationsConfiguration().
@@ -44,7 +48,13 @@ public class NonConfiguredKotlinProjectComponent extends AbstractProjectComponen
                 DumbService.getInstance(myProject).smartInvokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        ConfigureKotlinInProjectUtils.showConfigureKotlinNotificationIfNeeded(myProject);
+                        List<VersionedLibrary> libraries = OutdatedKotlinRuntimeCheckerKt.findOutdatedKotlinLibraries(myProject);
+                        if (!libraries.isEmpty()) {
+                            OutdatedKotlinRuntimeCheckerKt.notifyOutdatedKotlinRuntime(myProject, libraries);
+                        }
+                        ConfigureKotlinInProjectUtilsKt.showConfigureKotlinNotificationIfNeeded(myProject,
+                                                                                                OutdatedKotlinRuntimeCheckerKt
+                                                                                                        .collectModulesWithOutdatedRuntime(libraries));
                     }
                 });
             }

@@ -35,15 +35,16 @@ import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.idea.KotlinBundle
 import org.jetbrains.kotlin.idea.KotlinPluginUtil
-import org.jetbrains.kotlin.idea.configuration.ConfigureKotlinInProjectUtils
 import org.jetbrains.kotlin.idea.configuration.KotlinJavaModuleConfigurator
 import org.jetbrains.kotlin.idea.configuration.KotlinProjectConfigurator
 import org.jetbrains.kotlin.idea.configuration.KotlinWithGradleConfigurator
+import org.jetbrains.kotlin.idea.configuration.showInfoNotification
 import org.jetbrains.kotlin.idea.framework.JavaRuntimePresentationProvider
 import org.jetbrains.kotlin.idea.quickfix.KotlinQuickFixAction
 import org.jetbrains.kotlin.idea.quickfix.KotlinSingleIntentionActionFactory
 import org.jetbrains.kotlin.idea.quickfix.quickfixUtil.createIntentionForFirstParentOfType
-import org.jetbrains.kotlin.idea.versions.KotlinRuntimeLibraryUtil
+import org.jetbrains.kotlin.idea.versions.bundledRuntimeVersion
+import org.jetbrains.kotlin.idea.versions.findAllUsedLibraries
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
@@ -155,7 +156,7 @@ abstract class AddKotlinLibQuickFix(element: KtElement) : KotlinQuickFixAction<K
         val configurator = Extensions.getExtensions(KotlinProjectConfigurator.EP_NAME)
                                    .firstIsInstanceOrNull<KotlinJavaModuleConfigurator>() ?: return
 
-        for (library in KotlinRuntimeLibraryUtil.findKotlinLibraries(project)) {
+        for (library in findAllUsedLibraries(project).keySet()) {
             val runtimeJar = JavaRuntimePresentationProvider.getRuntimeJar(library) ?: continue
             if (hasLibJarInLibrary(library)) continue
 
@@ -174,7 +175,7 @@ abstract class AddKotlinLibQuickFix(element: KtElement) : KotlinQuickFixAction<K
 
             model.commit()
 
-            ConfigureKotlinInProjectUtils.showInfoNotification(
+            showInfoNotification(
                     project, "${libraryPath()} was added to the library ${library.name}")
         }
     }
@@ -194,7 +195,7 @@ abstract class AddKotlinLibQuickFix(element: KtElement) : KotlinQuickFixAction<K
                 }
             }
 
-            val pluginVersion = KotlinRuntimeLibraryUtil.bundledRuntimeVersion()
+            val pluginVersion = bundledRuntimeVersion()
             if ("@snapshot@" == pluginVersion) {
                 return "0.1-SNAPSHOT"
             }

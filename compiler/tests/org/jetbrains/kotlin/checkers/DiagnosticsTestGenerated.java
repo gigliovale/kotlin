@@ -15615,6 +15615,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("genericIntersection.kt")
+            public void testGenericIntersection() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/genericIntersection.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("genericSet.kt")
+            public void testGenericSet() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/genericSet.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ifCascadeExprNotNull.kt")
             public void testIfCascadeExprNotNull() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/ifCascadeExprNotNull.kt");
@@ -16510,6 +16522,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/whileTrueReturn.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("WhileTrueWithBreakInIfCondition.kt")
+                public void testWhileTrueWithBreakInIfCondition() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/loops/WhileTrueWithBreakInIfCondition.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/smartCasts/objectLiterals")
@@ -17045,6 +17063,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("infix.kt")
                 public void testInfix() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/infix.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("initInTryReturnInCatch.kt")
+                public void testInitInTryReturnInCatch() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/initInTryReturnInCatch.kt");
                     doTest(fileName);
                 }
 

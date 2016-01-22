@@ -57,7 +57,7 @@ class KotlinCoverageExtension(): JavaCoverageEngineExtension() {
 
     // Implements API added in IDEA 14.1
     override fun getSummaryCoverageInfo(coverageAnnotator: JavaCoverageAnnotator,
-                               element: PsiNamedElement): PackageAnnotator.ClassCoverageInfo? {
+                                        element: PsiNamedElement): PackageAnnotator.ClassCoverageInfo? {
         if (element !is KtFile) {
             return null
         }

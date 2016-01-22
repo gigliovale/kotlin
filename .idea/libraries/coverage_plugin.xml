@@ -8,6 +8,9 @@
     <JAVADOC />
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/ideaSDK/sources/sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/dependencies/idea/idea-sdk-sources.jar!/plugins/coverage-common/src" />
+      <root url="jar://$PROJECT_DIR$/dependencies/idea/idea-sdk-sources.jar!/plugins/coverage/src" />
+      <root url="jar://$PROJECT_DIR$/dependencies/idea/idea-sdk-sources.jar!/plugins/coverage/testSrc" />
     </SOURCES>
   </library>
 </component>

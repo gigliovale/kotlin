@@ -7376,9 +7376,21 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/generics/tpAsReified"), Pattern.compile("^(.+)\\.kt$"), true);
                 }
 
+                @TestMetadata("CapturedAsReified.kt")
+                public void testCapturedAsReified() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/tpAsReified/CapturedAsReified.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("Conventions.kt")
                 public void testConventions() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/tpAsReified/Conventions.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("GenericAsReifiedArgument.kt")
+                public void testGenericAsReifiedArgument() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/tpAsReified/GenericAsReifiedArgument.kt");
                     doTest(fileName);
                 }
 
@@ -9684,6 +9696,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("annotationWithArgumentsMissingDependencies.kt")
+            public void testAnnotationWithArgumentsMissingDependencies() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/annotationWithArgumentsMissingDependencies.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("arrayOfStarParametrized.kt")
             public void testArrayOfStarParametrized() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/arrayOfStarParametrized.kt");
@@ -10136,6 +10154,45 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("var.kt")
                 public void testVar() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/properties/var.kt");
+                    doTest(fileName);
+                }
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class SamByProjectedType extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInSamByProjectedType() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/j+k/samByProjectedType"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("genericInReturnType.kt")
+                public void testGenericInReturnType() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType/genericInReturnType.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("genericInValueParameter.kt")
+                public void testGenericInValueParameter() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType/genericInValueParameter.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("genericSuperWildcard.kt")
+                public void testGenericSuperWildcard() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType/genericSuperWildcard.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("noAdapterBecuaseOfRecursiveUpperBound.kt")
+                public void testNoAdapterBecuaseOfRecursiveUpperBound() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType/noAdapterBecuaseOfRecursiveUpperBound.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("starProjectionComplexUpperBound.kt")
+                public void testStarProjectionComplexUpperBound() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/samByProjectedType/starProjectionComplexUpperBound.kt");
                     doTest(fileName);
                 }
             }
@@ -11934,6 +11991,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("methodTypeParameterDefaultBound.kt")
             public void testMethodTypeParameterDefaultBound() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/methodTypeParameterDefaultBound.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("noAnnotationInClassPath.kt")
+            public void testNoAnnotationInClassPath() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/noAnnotationInClassPath.kt");
                 doTest(fileName);
             }
 

@@ -56,7 +56,7 @@ public class Regex(pattern: String, options: Set<RegexOption>) {
     public fun matches(input: CharSequence): Boolean {
         nativePattern.reset()
         val match = nativePattern.exec(input.toString())
-        return match != null && (match as RegExpMatch).index == 0 && nativePattern.lastIndex == input.length()
+        return match != null && (match as RegExpMatch).index == 0 && nativePattern.lastIndex == input.length
     }
 
     /** Indicates whether the regular expression can find at least one match in the specified [input]. */
@@ -114,13 +114,13 @@ public class Regex(pattern: String, options: Set<RegexOption>) {
         if (match == null) return input.toString()
 
         var lastStart = 0
-        val length = input.length()
+        val length = input.length
         val sb = StringBuilder(length)
         do {
             val foundMatch = match!!
             sb.append(input, lastStart, foundMatch.range.start)
             sb.append(transform(foundMatch))
-            lastStart = foundMatch.range.end + 1
+            lastStart = foundMatch.range.endInclusive + 1
             match = foundMatch.next()
         } while (lastStart < length && match != null)
 
@@ -154,9 +154,9 @@ public class Regex(pattern: String, options: Set<RegexOption>) {
 
         for (match in matches) {
             result.add(input.subSequence(lastStart, match.range.start).toString())
-            lastStart = match.range.end + 1
+            lastStart = match.range.endInclusive + 1
         }
-        result.add(input.subSequence(lastStart, input.length()).toString())
+        result.add(input.subSequence(lastStart, input.length).toString())
         return result
     }
 
@@ -223,7 +223,7 @@ private fun RegExp.findNext(input: String, from: Int): MatchResult? {
                 return groupValues_!!
             }
 
-        override fun next(): MatchResult? = this@findNext.findNext(input, if (range.isEmpty()) range.start + 1 else range.end + 1)
+        override fun next(): MatchResult? = this@findNext.findNext(input, if (range.isEmpty()) range.start + 1 else range.endInclusive + 1)
     }
 }
 

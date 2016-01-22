@@ -437,26 +437,6 @@ public operator fun ShortArray.contains(element: Short): Boolean {
 }
 
 /**
- * Returns `true` if [element] is found in the collection.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("contains(element as T)"))
-@kotlin.jvm.JvmName("containsAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-public operator fun <T> Array<out T>.contains(element: T): Boolean {
-    return contains(element as T)
-}
-
-/**
- * Returns `true` if [element] is found in the array.
- * Allows to overcome type-safety restriction of `contains` that requires to pass an element of type `T`.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("contains(element as Any?)"))
-@Suppress("NOTHING_TO_INLINE")
-public inline fun <T> Array<out T>.containsRaw(element: Any?): Boolean {
-    return contains(element as Any?)
-}
-
-/**
  * Returns an element at the given [index] or throws an [IndexOutOfBoundsException] if the [index] is out of bounds of this array.
  */
 public fun <T> Array<out T>.elementAt(index: Int): T {
@@ -1320,17 +1300,6 @@ public fun ShortArray.indexOf(element: Short): Int {
 }
 
 /**
- * Returns first index of [element], or -1 if the collection does not contain element.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("indexOf(element as T)"))
-@kotlin.jvm.JvmName("indexOfAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-@Suppress("NOTHING_TO_INLINE")
-public fun <T> Array<out T>.indexOf(element: T): Int {
-    return indexOf(element as T)
-}
-
-/**
  * Returns index of the first element matching the given [predicate], or -1 if the array does not contain such element.
  */
 public inline fun <T> Array<out T>.indexOfFirst(predicate: (T) -> Boolean): Int {
@@ -1544,16 +1513,6 @@ public inline fun ShortArray.indexOfLast(predicate: (Short) -> Boolean): Int {
         }
     }
     return -1
-}
-
-/**
- * Returns first index of [element], or -1 if the array does not contain element.
- * Allows to overcome type-safety restriction of `indexOf` that requires to pass an element of type `T`.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("indexOf(element as Any?)"))
-@Suppress("NOTHING_TO_INLINE")
-public inline fun <T> Array<out T>.indexOfRaw(element: Any?): Int {
-    return indexOf(element as Any?)
 }
 
 /**
@@ -1868,27 +1827,6 @@ public fun ShortArray.lastIndexOf(element: Short): Int {
         }
     }
     return -1
-}
-
-/**
- * Returns last index of [element], or -1 if the collection does not contain element.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("lastIndexOf(element as T)"))
-@kotlin.jvm.JvmName("lastIndexOfAny")
-@kotlin.internal.LowPriorityInOverloadResolution
-@Suppress("NOTHING_TO_INLINE")
-public fun <T> Array<out T>.lastIndexOf(element: T): Int {
-    return lastIndexOf(element as T)
-}
-
-/**
- * Returns last index of [element], or -1 if the array does not contain element.
- * Allows to overcome type-safety restriction of `lastIndexOf` that requires to pass an element of type `T`.
- */
-@Deprecated("Array and element have incompatible types. Upcast element to Any? if you're sure.", ReplaceWith("lastIndexOf(element as Any?)"))
-@Suppress("NOTHING_TO_INLINE")
-public inline fun <T> Array<out T>.lastIndexOfRaw(element: Any?): Int {
-    return lastIndexOf(element as Any?)
 }
 
 /**
@@ -5708,78 +5646,6 @@ public fun ShortArray.toHashSet(): HashSet<Short> {
 }
 
 /**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun <T> Array<out T>.toLinkedList(): LinkedList<T> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun BooleanArray.toLinkedList(): LinkedList<Boolean> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun ByteArray.toLinkedList(): LinkedList<Byte> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun CharArray.toLinkedList(): LinkedList<Char> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun DoubleArray.toLinkedList(): LinkedList<Double> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun FloatArray.toLinkedList(): LinkedList<Float> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun IntArray.toLinkedList(): LinkedList<Int> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun LongArray.toLinkedList(): LinkedList<Long> {
-    return toCollection(LinkedList())
-}
-
-/**
- * Returns a [LinkedList] containing all elements.
- */
-@Deprecated("Use toCollection(LinkedList()) instead.", ReplaceWith("toCollection(LinkedList())"))
-public fun ShortArray.toLinkedList(): LinkedList<Short> {
-    return toCollection(LinkedList())
-}
-
-/**
  * Returns a [List] containing all elements.
  */
 public fun <T> Array<out T>.toList(): List<T> {
@@ -5840,51 +5706,6 @@ public fun LongArray.toList(): List<Long> {
  */
 public fun ShortArray.toList(): List<Short> {
     return this.toArrayList()
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <T, K> Array<out T>.toMap(selector: (T) -> K): Map<K, T> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> BooleanArray.toMap(selector: (Boolean) -> K): Map<K, Boolean> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> ByteArray.toMap(selector: (Byte) -> K): Map<K, Byte> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> CharArray.toMap(selector: (Char) -> K): Map<K, Char> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> DoubleArray.toMap(selector: (Double) -> K): Map<K, Double> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> FloatArray.toMap(selector: (Float) -> K): Map<K, Float> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> IntArray.toMap(selector: (Int) -> K): Map<K, Int> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> LongArray.toMap(selector: (Long) -> K): Map<K, Long> {
-    return toMapBy(selector)
-}
-
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector)"), level = DeprecationLevel.HIDDEN)
-public inline fun <K> ShortArray.toMap(selector: (Short) -> K): Map<K, Short> {
-    return toMapBy(selector)
 }
 
 /**
@@ -10685,51 +10506,6 @@ public fun <A : Appendable> ShortArray.joinTo(buffer: A, separator: CharSequence
     return buffer
 }
 
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <T, A : Appendable> Array<out T>.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((T) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> BooleanArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Boolean) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> ByteArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Byte) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> CharArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Char) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> DoubleArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Double) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> FloatArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Float) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> IntArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Int) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> LongArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Long) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <A : Appendable> ShortArray.joinTo(buffer: A, separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Short) -> String)? = null): A {
-    return joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
-}
-
 /**
  * Creates a string from all the elements separated using [separator] and using the given [prefix] and [postfix] if supplied.
  * If the collection could be huge, you can specify a non-negative value of [limit], in which case only the first [limit]
@@ -10808,51 +10584,6 @@ public fun LongArray.joinToString(separator: CharSequence = ", ", prefix: CharSe
  * elements will be appended, followed by the [truncated] string (which defaults to "...").
  */
 public fun ShortArray.joinToString(separator: CharSequence = ", ", prefix: CharSequence = "", postfix: CharSequence = "", limit: Int = -1, truncated: CharSequence = "...", transform: ((Short) -> CharSequence)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun <T> Array<out T>.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((T) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun BooleanArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Boolean) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun ByteArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Byte) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun CharArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Char) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun DoubleArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Double) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun FloatArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Float) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun IntArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Int) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun LongArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Long) -> String)? = null): String {
-    return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
-}
-
-@Deprecated("Provided for binary compatibility", level = DeprecationLevel.HIDDEN)
-public fun ShortArray.joinToString(separator: String = ", ", prefix: String = "", postfix: String = "", limit: Int = -1, truncated: String = "...", transform: ((Short) -> String)? = null): String {
     return joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
 }
 

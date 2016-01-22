@@ -61,6 +61,7 @@ private val DEFAULT_IMPORTS_FOR_JVM: List<ImportPath> = ArrayList<ImportPath>().
     }
 
     val builtIns = JvmPlatform.builtIns
-    addAllClassifiersFromScope(builtIns.builtInsPackageScope)
-    addAllClassifiersFromScope(builtIns.annotationPackageScope)
+    for (builtinPackageFragment in builtIns.builtinsPackageFragments) {
+        addAllClassifiersFromScope(builtinPackageFragment.getMemberScope())
+    }
 }

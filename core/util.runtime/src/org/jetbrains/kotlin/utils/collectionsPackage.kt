@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package kotlin;
+package kotlin.collections
 
-@java.lang.Deprecated
-@Deprecated(message = "Use kotlin.text.StringsKt instead", level = DeprecationLevel.HIDDEN)
-public class StringsKt extends kotlin.text.StringsKt {
-}
+// remove after bootstrapping packages
+public class PackagePlaceholder

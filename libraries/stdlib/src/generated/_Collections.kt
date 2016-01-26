@@ -756,7 +756,7 @@ public fun <T> MutableList<T>.reverse(): Unit {
  */
 public fun <T> Iterable<T>.reversed(): List<T> {
     if (this is Collection && isEmpty()) return emptyList()
-    val list = toArrayList()
+    val list = toMutableList()
     Collections.reverse(list)
     return list
 }
@@ -787,10 +787,10 @@ public fun <T : Comparable<T>> MutableList<T>.sortDescending(): Unit {
  */
 public fun <T : Comparable<T>> Iterable<T>.sorted(): List<T> {
     if (this is Collection) {
-        if (size <= 1) return this.toArrayList()
+        if (size <= 1) return this.toMutableList()
         return (toTypedArray<Comparable<T>>() as Array<T>).apply { sort() }.asList()
     }
-    return toArrayList().apply { sort() }
+    return toMutableList().apply { sort() }
 }
 
 /**
@@ -819,10 +819,10 @@ public fun <T : Comparable<T>> Iterable<T>.sortedDescending(): List<T> {
  */
 public fun <T> Iterable<T>.sortedWith(comparator: Comparator<in T>): List<T> {
     if (this is Collection) {
-       if (size <= 1) return this.toArrayList()
+       if (size <= 1) return this.toMutableList()
        return (toTypedArray<Any?>() as Array<T>).apply { sortWith(comparator) }.asList()
     }
-    return toArrayList().apply { sortWith(comparator) }
+    return toMutableList().apply { sortWith(comparator) }
 }
 
 /**
@@ -914,8 +914,76 @@ public fun Collection<Short>.toShortArray(): ShortArray {
 }
 
 /**
+ * Returns a [Map] containing key-value pairs provided by [transform] function
+ * applied to elements of the given collection.
+ * If any of two pairs would have the same key the last one gets added to the map.
+ */
+public inline fun <T, K, V> Iterable<T>.associate(transform: (T) -> Pair<K, V>): Map<K, V> {
+    val capacity = ((collectionSizeOrDefault(10)/.75f) + 1).toInt().coerceAtLeast(16)
+    return associateTo(LinkedHashMap<K, V>(capacity), transform)
+}
+
+/**
+ * Returns a [Map] containing the elements from the given collection indexed by the key
+ * returned from [keySelector] function applied to each element.
+ * If any two elements would have the same key returned by [keySelector] the last one gets added to the map.
+ */
+public inline fun <T, K> Iterable<T>.associateBy(keySelector: (T) -> K): Map<K, T> {
+    val capacity = ((collectionSizeOrDefault(10)/.75f) + 1).toInt().coerceAtLeast(16)
+    return associateByTo(LinkedHashMap<K, T>(capacity), keySelector)
+}
+
+/**
+ * Returns a [Map] containing the values provided by [valueTransform] and indexed by [keySelector] functions applied to elements of the given collection.
+ * If any two elements would have the same key returned by [keySelector] the last one gets added to the map.
+ */
+public inline fun <T, K, V> Iterable<T>.associateBy(keySelector: (T) -> K, valueTransform: (T) -> V): Map<K, V> {
+    val capacity = ((collectionSizeOrDefault(10)/.75f) + 1).toInt().coerceAtLeast(16)
+    return associateByTo(LinkedHashMap<K, V>(capacity), keySelector, valueTransform)
+}
+
+/**
+ * Populates and returns the [destination] mutable map with key-value pairs,
+ * where key is provided by the [keySelector] function applied to each element of the given collection
+ * and value is the element itself.
+ * If any two elements would have the same key returned by [keySelector] the last one gets added to the map.
+ */
+public inline fun <T, K, M : MutableMap<in K, in T>> Iterable<T>.associateByTo(destination: M, keySelector: (T) -> K): M {
+    for (element in this) {
+        destination.put(keySelector(element), element)
+    }
+    return destination
+}
+
+/**
+ * Populates and returns the [destination] mutable map with key-value pairs,
+ * where key is provided by the [keySelector] function and
+ * and value is provided by the [valueTransform] function applied to elements of the given collection.
+ * If any two elements would have the same key returned by [keySelector] the last one gets added to the map.
+ */
+public inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateByTo(destination: M, keySelector: (T) -> K, valueTransform: (T) -> V): M {
+    for (element in this) {
+        destination.put(keySelector(element), valueTransform(element))
+    }
+    return destination
+}
+
+/**
+ * Populates and returns the [destination] mutable map with key-value pairs
+ * provided by [transform] function applied to each element of the given collection.
+ * If any of two pairs would have the same key the last one gets added to the map.
+ */
+public inline fun <T, K, V, M : MutableMap<in K, in V>> Iterable<T>.associateTo(destination: M, transform: (T) -> Pair<K, V>): M {
+    for (element in this) {
+        destination += transform(element)
+    }
+    return destination
+}
+
+/**
  * Returns an [ArrayList] of all elements.
  */
+@Deprecated("Use toMutableList instead or toCollection(ArrayList()) if you need ArrayList's ensureCapacity and trimToSize.", ReplaceWith("toCollection(arrayListOf())"))
 public fun <T> Collection<T>.toArrayList(): ArrayList<T> {
     return ArrayList(this)
 }
@@ -923,6 +991,7 @@ public fun <T> Collection<T>.toArrayList(): ArrayList<T> {
 /**
  * Returns an [ArrayList] of all elements.
  */
+@Deprecated("Use toMutableList instead or toCollection(ArrayList()) if you need ArrayList's ensureCapacity and trimToSize.", ReplaceWith("toCollection(arrayListOf())"))
 public fun <T> Iterable<T>.toArrayList(): ArrayList<T> {
     if (this is Collection<T>)
         return this.toArrayList()
@@ -950,57 +1019,48 @@ public fun <T> Iterable<T>.toHashSet(): HashSet<T> {
  * Returns a [List] containing all elements.
  */
 public fun <T> Iterable<T>.toList(): List<T> {
-    return this.toArrayList()
+    return this.toMutableList()
 }
 
 /**
  * Returns a [Map] containing the values provided by [transform] and indexed by [selector] functions applied to elements of the given collection.
  * If any two elements would have the same key returned by [selector] the last one gets added to the map.
  */
-@Deprecated("Use toMapBy instead.", ReplaceWith("toMapBy(selector, transform)"))
+@Deprecated("Use associateBy instead.", ReplaceWith("associateBy(selector, transform)"))
 public inline fun <T, K, V> Iterable<T>.toMap(selector: (T) -> K, transform: (T) -> V): Map<K, V> {
-    return toMapBy(selector, transform)
+    return associateBy(selector, transform)
 }
 
-/**
- * Returns a [Map] containing key-value pairs provided by [transform] function applied to elements of the given collection.
- * If any of two pairs would have the same key the last one gets added to the map.
- */
+@Deprecated("Use associate instead.", ReplaceWith("associate(transform)"))
 @kotlin.jvm.JvmName("toMapOfPairs")
 public inline fun <T, K, V> Iterable<T>.toMap(transform: (T) -> Pair<K, V>): Map<K, V> {
-    val capacity = (collectionSizeOrDefault(10)/.75f) + 1
-    val result = LinkedHashMap<K, V>(Math.max(capacity.toInt(), 16))
-    for (element in this) {
-        result += transform(element)
-    }
-    return result
+    return associate(transform)
 }
 
-/**
- * Returns a [Map] containing the elements from the given collection indexed by the key
- * returned from [selector] function applied to each element.
- * If any two elements would have the same key returned by [selector] the last one gets added to the map.
- */
+@Deprecated("Use associateBy instead.", ReplaceWith("associateBy(selector)"))
 public inline fun <T, K> Iterable<T>.toMapBy(selector: (T) -> K): Map<K, T> {
-    val capacity = (collectionSizeOrDefault(10)/.75f) + 1
-    val result = LinkedHashMap<K, T>(Math.max(capacity.toInt(), 16))
-    for (element in this) {
-        result.put(selector(element), element)
-    }
-    return result
+    return associateBy(selector)
+}
+
+@Deprecated("Use associateBy instead.", ReplaceWith("associateBy(selector, transform)"))
+public inline fun <T, K, V> Iterable<T>.toMapBy(selector: (T) -> K, transform: (T) -> V): Map<K, V> {
+    return associateBy(selector, transform)
 }
 
 /**
- * Returns a [Map] containing the values provided by [transform] and indexed by [selector] functions applied to elements of the given collection.
- * If any two elements would have the same key returned by [selector] the last one gets added to the map.
+ * Returns a [MutableList] filled with all elements of this collection.
  */
-public inline fun <T, K, V> Iterable<T>.toMapBy(selector: (T) -> K, transform: (T) -> V): Map<K, V> {
-    val capacity = (collectionSizeOrDefault(10)/.75f) + 1
-    val result = LinkedHashMap<K, V>(Math.max(capacity.toInt(), 16))
-    for (element in this) {
-        result.put(selector(element), transform(element))
-    }
-    return result
+public fun <T> Collection<T>.toMutableList(): MutableList<T> {
+    return ArrayList(this)
+}
+
+/**
+ * Returns a [MutableList] filled with all elements of this collection.
+ */
+public fun <T> Iterable<T>.toMutableList(): MutableList<T> {
+    if (this is Collection<T>)
+        return this.toMutableList()
+    return toCollection(ArrayList<T>())
 }
 
 /**

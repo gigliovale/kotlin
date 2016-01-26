@@ -3330,6 +3330,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("ForLoopWithExtensionIteratorOnNullable.kt")
+            public void testForLoopWithExtensionIteratorOnNullable() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/ForLoopWithExtensionIteratorOnNullable.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("forLoopWithNullableRange.kt")
             public void testForLoopWithNullableRange() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/forLoopWithNullableRange.kt");
@@ -3591,6 +3597,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("emptyConstructor.kt")
             public void testEmptyConstructor() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/dataClasses/emptyConstructor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("extensionComponentsOnNullable.kt")
+            public void testExtensionComponentsOnNullable() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/dataClasses/extensionComponentsOnNullable.kt");
                 doTest(fileName);
             }
 
@@ -6195,6 +6207,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("nested.kt")
             public void testNested() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/exposed/nested.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("object.kt")
+            public void testObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/exposed/object.kt");
                 doTest(fileName);
             }
 
@@ -11328,6 +11346,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("ObjectsNested.kt")
             public void testObjectsNested() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/objects/ObjectsNested.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("OpenInObject.kt")
+            public void testOpenInObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/objects/OpenInObject.kt");
                 doTest(fileName);
             }
 

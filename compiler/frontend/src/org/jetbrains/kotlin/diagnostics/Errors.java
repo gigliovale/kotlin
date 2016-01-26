@@ -75,7 +75,7 @@ public interface Errors {
     DiagnosticFactory3<PsiElement, DeclarationDescriptor, Visibility, DeclarationDescriptor> INVISIBLE_MEMBER = DiagnosticFactory3.create(ERROR, CALL_ELEMENT);
 
     // Exposed visibility group
-    DiagnosticFactory2<KtProperty, EffectiveVisibility, EffectiveVisibility> EXPOSED_PROPERTY_TYPE = DiagnosticFactory2.create(ERROR);
+    DiagnosticFactory2<PsiElement, EffectiveVisibility, EffectiveVisibility> EXPOSED_PROPERTY_TYPE = DiagnosticFactory2.create(ERROR);
     DiagnosticFactory2<PsiElement, EffectiveVisibility, EffectiveVisibility> EXPOSED_FUNCTION_RETURN_TYPE = DiagnosticFactory2.create(ERROR);
     DiagnosticFactory2<KtParameter, EffectiveVisibility, EffectiveVisibility> EXPOSED_PARAMETER_TYPE = DiagnosticFactory2.create(ERROR);
     DiagnosticFactory2<KtTypeReference, EffectiveVisibility, EffectiveVisibility> EXPOSED_RECEIVER_TYPE = DiagnosticFactory2.create(ERROR);
@@ -299,6 +299,9 @@ public interface Errors {
             DiagnosticFactory2.create(ERROR, DECLARATION_SIGNATURE_OR_DEFAULT);
 
     DiagnosticFactory0<KtNamedDeclaration> NON_FINAL_MEMBER_IN_FINAL_CLASS = DiagnosticFactory0.create(WARNING, modifierSetPosition(
+            KtTokens.OPEN_KEYWORD));
+
+    DiagnosticFactory0<KtNamedDeclaration> NON_FINAL_MEMBER_IN_OBJECT = DiagnosticFactory0.create(WARNING, modifierSetPosition(
             KtTokens.OPEN_KEYWORD));
 
     DiagnosticFactory1<KtModifierListOwner, CallableMemberDescriptor> NOTHING_TO_OVERRIDE = DiagnosticFactory1.create(ERROR, OVERRIDE_MODIFIER);

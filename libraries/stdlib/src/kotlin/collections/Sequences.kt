@@ -467,11 +467,19 @@ public fun <T> Sequence<T>.constrainOnce(): Sequence<T> {
 
 @kotlin.jvm.JvmVersion
 private class ConstrainedOnceSequence<T>(sequence: Sequence<T>) : Sequence<T> {
-    private val sequenceRef = java.util.concurrent.atomic.AtomicReference(sequence)
+    private @Volatile var sequenceRef: Sequence<T>? = sequence
 
     override fun iterator(): Iterator<T> {
-        val sequence = sequenceRef.getAndSet(null) ?: throw IllegalStateException("This sequence can be consumed only once.")
-        return sequence.iterator()
+        val sequence = constrainedOnceSequenceRefUpdater.getAndSet(this, null) ?: throw IllegalStateException("This sequence can be consumed only once.")
+        return (sequence as Sequence<T>).iterator()
+    }
+
+    private companion object {
+        @JvmField
+        internal val constrainedOnceSequenceRefUpdater = java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater(
+                ConstrainedOnceSequence::class.java,
+                Sequence::class.java,
+                "sequenceRef")
     }
 }
 

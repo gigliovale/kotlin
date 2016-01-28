@@ -13224,6 +13224,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("ea76264.kt")
+            public void testEa76264() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/regressions/ea76264.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ErrorsOnIbjectExpressionsAsParameters.kt")
             public void testErrorsOnIbjectExpressionsAsParameters() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/regressions/ErrorsOnIbjectExpressionsAsParameters.kt");
@@ -17432,6 +17438,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("prefixNullableIncrement.kt")
                 public void testPrefixNullableIncrement() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/prefixNullableIncrement.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("toFlexibleType.kt")
+                public void testToFlexibleType() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/toFlexibleType.kt");
                     doTest(fileName);
                 }
 

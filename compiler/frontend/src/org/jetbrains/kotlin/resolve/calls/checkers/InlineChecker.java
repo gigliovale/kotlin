@@ -63,14 +63,6 @@ class InlineChecker implements CallChecker {
                 inlinableParameters.add(param);
             }
         }
-
-        //add extension receiver as inlinable
-        ReceiverParameterDescriptor receiverParameter = descriptor.getExtensionReceiverParameter();
-        if (receiverParameter != null) {
-            if (isInlinableParameter(receiverParameter)) {
-                inlinableParameters.add(receiverParameter);
-            }
-        }
     }
 
     @Override
@@ -147,9 +139,7 @@ class InlineChecker implements CallChecker {
         if (argumentCallee != null && inlinableParameters.contains(argumentCallee)) {
             if (InlineUtil.isInline(targetDescriptor) && isInlinableParameter(targetParameterDescriptor)) {
                 if (allowsNonLocalReturns(argumentCallee) && !allowsNonLocalReturns(targetParameterDescriptor)) {
-                    context.trace.report(
-                            NON_LOCAL_RETURN_NOT_ALLOWED.on(argumentExpression, argumentExpression, argumentCallee, descriptor)
-                    );
+                    context.trace.report(NON_LOCAL_RETURN_NOT_ALLOWED.on(argumentExpression, argumentExpression));
                 }
                 else {
                     checkNonLocalReturn(context, argumentCallee, argumentExpression);
@@ -275,7 +265,7 @@ class InlineChecker implements CallChecker {
         if (!allowsNonLocalReturns(inlinableParameterDescriptor)) return;
 
         if (!checkNonLocalReturnUsage(descriptor, parameterUsage, context.trace)) {
-            context.trace.report(NON_LOCAL_RETURN_NOT_ALLOWED.on(parameterUsage, parameterUsage, inlinableParameterDescriptor, descriptor));
+            context.trace.report(NON_LOCAL_RETURN_NOT_ALLOWED.on(parameterUsage, parameterUsage));
         }
     }
 }

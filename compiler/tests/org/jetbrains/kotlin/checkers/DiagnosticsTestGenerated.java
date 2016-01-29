@@ -7322,6 +7322,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("iterateOnExtension.kt")
+                public void testIterateOnExtension() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/iterateOnExtension.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("kt7296.kt")
                 public void testKt7296() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/projectionsScope/kt7296.kt");
@@ -7437,6 +7443,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             public static class StarProjections extends AbstractDiagnosticsTest {
                 public void testAllFilesPresentInStarProjections() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/generics/starProjections"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("checkBounds.kt")
+                public void testCheckBounds() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/starProjections/checkBounds.kt");
+                    doTest(fileName);
                 }
 
                 @TestMetadata("collectionInheritedFromJava.kt")
@@ -8564,6 +8576,39 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("nontrivialCallExpression.kt")
                 public void testNontrivialCallExpression() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/nestedCalls/nontrivialCallExpression.kt");
+                    doTest(fileName);
+                }
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class RecursiveLocalFuns extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInRecursiveLocalFuns() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("localFactorial.kt")
+                public void testLocalFactorial() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns/localFactorial.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("recursiveFun.kt")
+                public void testRecursiveFun() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns/recursiveFun.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("recursiveLambda.kt")
+                public void testRecursiveLambda() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns/recursiveLambda.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("selfCall.kt")
+                public void testSelfCall() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/recursiveLocalFuns/selfCall.kt");
                     doTest(fileName);
                 }
             }

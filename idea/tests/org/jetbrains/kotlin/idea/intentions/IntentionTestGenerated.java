@@ -439,6 +439,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("emptyBody.kt")
+        public void testEmptyBody() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/anonymousFunctionToLambda/emptyBody.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("expressionBody.kt")
         public void testExpressionBody() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/anonymousFunctionToLambda/expressionBody.kt");
@@ -4735,6 +4741,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("final.kt")
+            public void testFinal() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/declarations/convertMemberToExtension/final.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("funcitonNoName.kt")
             public void testFuncitonNoName() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/declarations/convertMemberToExtension/funcitonNoName.kt");
@@ -4816,6 +4828,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             @TestMetadata("nonBlockBodyWithType.kt")
             public void testNonBlockBodyWithType() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/declarations/convertMemberToExtension/nonBlockBodyWithType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("open.kt")
+            public void testOpen() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/declarations/convertMemberToExtension/open.kt");
                 doTest(fileName);
             }
 

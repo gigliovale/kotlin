@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 class ConvertToExpressionBodyIntention : SelfTargetingOffsetIndependentIntention<KtDeclarationWithBody>(
         KtDeclarationWithBody::class.java, "Convert to expression body"
@@ -57,7 +57,7 @@ class ConvertToExpressionBodyIntention : SelfTargetingOffsetIndependentIntention
         val deleteTypeHandler: (KtCallableDeclaration) -> Unit = {
             it.deleteChildRange(it.colon!!, it.typeReference!!)
         }
-        applyTo(declaration, deleteTypeHandler.check { canDeleteTypeRef })
+        applyTo(declaration, deleteTypeHandler.satisfying { canDeleteTypeRef })
     }
 
     private fun applyTo(declaration: KtDeclarationWithBody, deleteTypeHandler: ((KtCallableDeclaration) -> Unit)?) {

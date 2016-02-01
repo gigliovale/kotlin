@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.typeUtil.*
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import java.util.*
 
@@ -555,7 +555,7 @@ class ExpectedInfos(
 
         val loopVar = forExpression.loopParameter
         val loopVarType = if (loopVar != null && loopVar.typeReference != null)
-            (resolutionFacade.resolveToDescriptor(loopVar) as VariableDescriptor).type.check { !it.isError }
+            (resolutionFacade.resolveToDescriptor(loopVar) as VariableDescriptor).type.satisfying { !it.isError }
         else
             null
 

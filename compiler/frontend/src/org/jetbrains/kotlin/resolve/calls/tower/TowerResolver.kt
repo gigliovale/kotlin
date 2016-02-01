@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.resolve.scopes.ImportingScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.resolve.scopes.utils.parentsWithSelf
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.util.*
 
 interface TowerContext<C> {
@@ -221,13 +221,13 @@ class TowerResolver {
 
         override fun getSuccessfulCandidates(): Collection<C>? = getResolved() ?: getResolvedSynthetic()
 
-        fun getResolved() = currentCandidates.check { currentLevel == ResolutionCandidateApplicability.RESOLVED }
+        fun getResolved() = currentCandidates.satisfying { currentLevel == ResolutionCandidateApplicability.RESOLVED }
 
-        fun getResolvedSynthetic() = currentCandidates.check { currentLevel == ResolutionCandidateApplicability.RESOLVED_SYNTHESIZED }
+        fun getResolvedSynthetic() = currentCandidates.satisfying { currentLevel == ResolutionCandidateApplicability.RESOLVED_SYNTHESIZED }
 
-        fun getResolvedLowPriority() = currentCandidates.check { currentLevel == ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY }
+        fun getResolvedLowPriority() = currentCandidates.satisfying { currentLevel == ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY }
 
-        fun getErrors() = currentCandidates.check {
+        fun getErrors() = currentCandidates.satisfying {
             currentLevel == null || currentLevel!! > ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY
         }
 

@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import org.jetbrains.kotlin.utils.addToStdlib.singletonList
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptySet
 import java.util.*
@@ -88,7 +88,7 @@ class SmartCompletion(
     val descriptorFilter: ((DeclarationDescriptor, AbstractLookupElementFactory) -> Collection<LookupElement>)? =
             { descriptor: DeclarationDescriptor, factory: AbstractLookupElementFactory ->
                 filterDescriptor(descriptor, factory).map { postProcess(it) }
-            }.check { expectedInfos.isNotEmpty() }
+            }.satisfying { expectedInfos.isNotEmpty() }
 
     fun additionalItems(lookupElementFactory: LookupElementFactory): Pair<Collection<LookupElement>, InheritanceItemsSearcher?> {
         val (items, inheritanceSearcher) = additionalItemsNoPostProcess(lookupElementFactory)

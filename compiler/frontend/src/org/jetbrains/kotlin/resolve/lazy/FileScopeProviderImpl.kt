@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.storage.getValue
 import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.utils.Printer
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 open class FileScopeProviderImpl(
         private val topLevelDescriptorProvider: TopLevelDescriptorProvider,
@@ -159,7 +159,7 @@ open class FileScopeProviderImpl(
                 if (name in excludedNames) return null
                 val classifier = scope.getContributedClassifier(name, location) ?: return null
                 val visible = Visibilities.isVisibleWithIrrelevantReceiver(classifier as ClassDescriptor, fromDescriptor)
-                return classifier.check { filteringKind == if (visible) FilteringKind.VISIBLE_CLASSES else FilteringKind.INVISIBLE_CLASSES }
+                return classifier.satisfying { filteringKind == if (visible) FilteringKind.VISIBLE_CLASSES else FilteringKind.INVISIBLE_CLASSES }
             }
 
             override fun getContributedVariables(name: Name, location: LookupLocation): Collection<PropertyDescriptor> {

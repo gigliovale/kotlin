@@ -24,12 +24,12 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 val KotlinType.nameIfStandardType: Name?
     get() {
         return constructor.declarationDescriptor
-                ?.check { descriptor ->
+                ?.satisfying { descriptor ->
                     descriptor.builtIns.isBuiltInPackageFragment(descriptor.containingDeclaration as? PackageFragmentDescriptor)
                 }
                 ?.name

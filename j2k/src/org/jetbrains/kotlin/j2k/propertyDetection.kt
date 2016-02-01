@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.synthetic.SyntheticJavaPropertyDescriptor
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.util.*
 
 class PropertyInfo(
@@ -162,7 +162,7 @@ private class PropertyDetector(
                 converter.convertModifiers(field, false).accessModifier()
             else
                 propertyAccess
-            val specialSetterAccess = setterAccess?.check { it != propertyAccess }
+            val specialSetterAccess = setterAccess?.satisfying { it != propertyAccess }
 
             val propertyInfo = PropertyInfo(Identifier(propertyName).assignNoPrototype(),
                                             isVar,

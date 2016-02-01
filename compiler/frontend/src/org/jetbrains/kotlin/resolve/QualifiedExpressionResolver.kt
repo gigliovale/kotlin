@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator) {
 
@@ -90,7 +90,7 @@ class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator
 
         val qualifier = resolveToPackageOrClass(
                 qualifierPartList.subList(0, qualifierPartList.size - 1), module,
-                trace, scope.ownerDescriptor, scope.check { !userType.startWithPackage }, position = QualifierPosition.TYPE
+                trace, scope.ownerDescriptor, scope.satisfying { !userType.startWithPackage }, position = QualifierPosition.TYPE
         ) ?: return TypeQualifierResolutionResult(qualifierPartList, null)
 
         val lastPart = qualifierPartList.last()
@@ -194,7 +194,7 @@ class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator
         }
 
         val importedDescriptors = candidates.filter { isVisible(it, packageFragmentForVisibilityCheck, position = QualifierPosition.IMPORT) }.
-                check { it.isNotEmpty() } ?: candidates
+                satisfying { it.isNotEmpty() } ?: candidates
 
         return SingleImportScope(aliasName, importedDescriptors)
     }
@@ -410,14 +410,14 @@ class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator
         val qualifierDescriptor = when {
             receiver is PackageQualifier -> {
                 val childPackageFQN = receiver.packageView.fqName.child(name)
-                receiver.packageView.module.getPackage(childPackageFQN).check { !it.isEmpty() } ?:
+                receiver.packageView.module.getPackage(childPackageFQN).satisfying { !it.isEmpty() } ?:
                 receiver.packageView.memberScope.getContributedClassifier(name, KotlinLookupLocation(expression))
             }
             receiver is ClassQualifier ->
                 receiver.scope.getContributedClassifier(name, KotlinLookupLocation(expression))
             receiver == null ->
                 context.scope.findClassifier(name, KotlinLookupLocation(expression)) ?:
-                context.scope.ownerDescriptor.module.getPackage(FqName.ROOT.child(name)).check { !it.isEmpty() }
+                context.scope.ownerDescriptor.module.getPackage(FqName.ROOT.child(name)).satisfying { !it.isEmpty() }
             receiver is ReceiverValue ->
                 receiver.type.memberScope.memberScopeAsImportingScope().findClassifier(name, KotlinLookupLocation(expression))
             else -> null

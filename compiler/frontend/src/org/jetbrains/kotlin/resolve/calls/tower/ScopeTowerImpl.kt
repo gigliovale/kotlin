@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.resolve.scopes.utils.getImplicitReceiversHierarchy
 import org.jetbrains.kotlin.resolve.scopes.utils.parentsWithSelf
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.containsError
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.util.*
 
 
@@ -50,7 +50,7 @@ internal class ScopeTowerImpl(
     override val lexicalScope: LexicalScope = resolutionContext.scope
 
     override val implicitReceivers = resolutionContext.scope.getImplicitReceiversHierarchy().
-            mapNotNull { it.value.check { !it.type.containsError() } }
+            mapNotNull { it.value.satisfying { !it.type.containsError() } }
 }
 
 private class DataFlowDecoratorImpl(private val resolutionContext: ResolutionContext<*>): DataFlowDecorator {

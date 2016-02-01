@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.config.Services
 import org.jetbrains.kotlin.daemon.common.*
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.PrintStream
@@ -347,7 +347,7 @@ class CompileServiceImpl(
                 if (fattestOpts memorywiseFitsInto daemonJVMOptions && !(daemonJVMOptions memorywiseFitsInto fattestOpts)) {
                     // all others are smaller that me, take overs' clients and shut them down
                     aliveWithOpts.forEach {
-                        it.first.getClients().check { it.isGood }?.let {
+                        it.first.getClients().satisfying { it.isGood }?.let {
                             it.get().forEach { registerClient(it) }
                         }
                         it.first.scheduleShutdown(true)
@@ -357,7 +357,7 @@ class CompileServiceImpl(
                     // there is at least one bigger, handover my clients to it and shutdown
                     scheduleShutdown(true)
                     aliveWithOpts.first().first.let { fattest ->
-                        getClients().check { it.isGood }?.let {
+                        getClients().satisfying { it.isGood }?.let {
                             it.get().forEach { fattest.registerClient(it) }
                         }
                     }

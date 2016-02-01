@@ -22,14 +22,14 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ClassQualifier
 import org.jetbrains.kotlin.resolve.scopes.receivers.QualifierReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.Receiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 
 internal class KnownResultProcessor<C>(
         val result: Collection<C>
 ): ScopeTowerProcessor<C> {
     override fun process(data: TowerData)
-            = if (data == TowerData.Empty) listOfNotNull(result.check { it.isNotEmpty() }) else emptyList()
+            = if (data == TowerData.Empty) listOfNotNull(result.satisfying { it.isNotEmpty() }) else emptyList()
 }
 
 internal class CompositeScopeTowerProcessor<C>(
@@ -45,7 +45,7 @@ internal abstract class AbstractSimpleScopeTowerProcessor<C>(
 
     protected abstract fun simpleProcess(data: TowerData): Collection<C>
 
-    override fun process(data: TowerData): List<Collection<C>> = listOfNotNull(simpleProcess(data).check { it.isNotEmpty() })
+    override fun process(data: TowerData): List<Collection<C>> = listOfNotNull(simpleProcess(data).satisfying { it.isNotEmpty() })
 }
 
 internal class ExplicitReceiverScopeTowerProcessor<C>(

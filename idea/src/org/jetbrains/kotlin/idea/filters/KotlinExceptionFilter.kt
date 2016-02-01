@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.tail
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import org.jetbrains.org.objectweb.asm.ClassReader
 import org.jetbrains.org.objectweb.asm.ClassVisitor
 import java.io.File
@@ -98,7 +98,7 @@ class KotlinExceptionFilter(private val searchScope: GlobalSearchScope) : Filter
     }
 
     private fun findClassFileByPath(packageName: String, className: String, outputDir: VirtualFile): File? {
-        val outDirFile = File(outputDir.path).check { it.exists() } ?: return null
+        val outDirFile = File(outputDir.path).satisfying { it.exists() } ?: return null
 
         val parentDirectory = File(outDirFile, packageName.replace(".", File.separator))
         if (!parentDirectory.exists()) return null

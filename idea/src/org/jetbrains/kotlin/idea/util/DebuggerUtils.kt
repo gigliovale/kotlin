@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.resolve.inline.InlineUtil
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedSimpleFunctionDescriptor
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.util.*
 
 object DebuggerUtils {
@@ -51,7 +51,7 @@ object DebuggerUtils {
         if (!KOTLIN_EXTENSIONS.contains(extension)) return null
         if (DumbService.getInstance(project).isDumb) return null
 
-        val filesWithExactName = findFilesByNameInPackage(className, fileName, project, searchScope).check { it.isNotEmpty() }
+        val filesWithExactName = findFilesByNameInPackage(className, fileName, project, searchScope).satisfying { it.isNotEmpty() }
                                  // Source files for libraries aren't included into ModuleWithDependencies scope
                                  ?: findFilesByNameInPackage(
                                             className, fileName, project,

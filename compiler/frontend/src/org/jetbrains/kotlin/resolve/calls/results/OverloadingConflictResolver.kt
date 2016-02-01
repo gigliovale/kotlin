@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionMutableResolve
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCall
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 class OverloadingConflictResolver(private val builtIns: KotlinBuiltIns) {
 
@@ -89,7 +89,7 @@ class OverloadingConflictResolver(private val builtIns: KotlinBuiltIns) {
 
         val bestCandidatesByParameterTypes = conflictingCandidates.mapNotNull {
             candidate ->
-            candidate.check {
+            candidate.satisfying {
                 isMostSpecific(candidate, conflictingCandidates) {
                     call1, call2 ->
                     isNotLessSpecificCallWithArgumentMapping(call1, call2, discriminateGenerics)

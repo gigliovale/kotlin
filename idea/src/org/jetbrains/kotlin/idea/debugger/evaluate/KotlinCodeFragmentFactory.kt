@@ -49,7 +49,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.typeUtil.makeNullable
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
@@ -171,7 +171,7 @@ class KotlinCodeFragmentFactory: CodeFragmentFactory() {
             return containingFile
         }
 
-        private fun KtElement?.check(): Boolean = this != null && this.check { KotlinEditorTextProvider.isAcceptedAsCodeFragmentContext(it) } != null
+        private fun KtElement?.check(): Boolean = this != null && this.satisfying { KotlinEditorTextProvider.isAcceptedAsCodeFragmentContext(it) } != null
 
         //internal for tests
         fun createCodeFragmentForLabeledObjects(project: Project, markupMap: Map<*, ValueMarkup>): Pair<String, Map<String, Value>> {

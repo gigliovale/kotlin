@@ -45,7 +45,7 @@ import org.jetbrains.kotlin.resolve.lazy.*
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyScriptDescriptor
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 
 class ResolveElementCache(
         private val resolveSession: ResolveSession,
@@ -147,7 +147,7 @@ class ResolveElementCache(
                 val statementToResolve = PartialBodyResolveFilter.findStatementToResolve(contextElement, resolveElement)
                 val partialResolveMap = partialBodyResolveCache.value
                 partialResolveMap[statementToResolve ?: resolveElement]
-                        ?.check { it.isUpToDate(file) }
+                        ?.satisfying { it.isUpToDate(file) }
                         ?.let { return it.bindingContext } // partial resolve is already cached for this statement
                 val (bindingContext, statementFilter) = performElementAdditionalResolve(resolveElement, contextElement, BodyResolveMode.PARTIAL)
 

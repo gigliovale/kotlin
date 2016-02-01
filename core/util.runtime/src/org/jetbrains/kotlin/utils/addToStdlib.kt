@@ -76,7 +76,7 @@ fun <T> sequenceOfLazyValues(vararg elements: () -> T): Sequence<T> = elements.a
 
 fun <T1, T2> Pair<T1, T2>.swap(): Pair<T2, T1> = Pair(second, first)
 
-fun <T: Any> T.check(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
+fun <T: Any> T.satisfying(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
 
 fun <T : Any> constant(calculator: () -> T): T {
     val cached = constantMap[calculator]

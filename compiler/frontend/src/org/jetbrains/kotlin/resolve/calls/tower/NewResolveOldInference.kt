@@ -50,7 +50,7 @@ import org.jetbrains.kotlin.types.DeferredType
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.isDynamic
 import org.jetbrains.kotlin.util.OperatorNameConventions
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.satisfying
 import org.jetbrains.kotlin.utils.sure
 
 class NewResolveOldInference(
@@ -290,7 +290,7 @@ class NewResolveOldInference(
             tracing.bindReference(variable.resolvedCall.trace, variable.resolvedCall)
             // todo hacks
             val functionCall = CallTransformer.CallForImplicitInvoke(
-                    basicCallContext.call.explicitReceiver?.check { useExplicitReceiver },
+                    basicCallContext.call.explicitReceiver?.satisfying { useExplicitReceiver },
                     variableReceiver, basicCallContext.call)
             val tracingForInvoke = TracingStrategyForInvoke(calleeExpression, functionCall, variableReceiver.type)
             val basicCallResolutionContext = basicCallContext.replaceBindingTrace(variable.resolvedCall.trace)

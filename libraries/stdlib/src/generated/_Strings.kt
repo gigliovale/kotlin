@@ -16,13 +16,15 @@ import java.util.Collections // TODO: it's temporary while we have java.util.Col
 /**
  * Returns a character at the given [index] or throws an [IndexOutOfBoundsException] if the [index] is out of bounds of this char sequence.
  */
-public fun CharSequence.elementAt(index: Int): Char {
+@kotlin.internal.InlineOnly
+public inline fun CharSequence.elementAt(index: Int): Char {
     return get(index)
 }
 
 /**
  * Returns a character at the given [index] or the result of calling the [defaultValue] function if the [index] is out of bounds of this char sequence.
  */
+@kotlin.internal.InlineOnly
 public inline fun CharSequence.elementAtOrElse(index: Int, defaultValue: (Int) -> Char): Char {
     return if (index >= 0 && index <= lastIndex) get(index) else defaultValue(index)
 }
@@ -30,13 +32,15 @@ public inline fun CharSequence.elementAtOrElse(index: Int, defaultValue: (Int) -
 /**
  * Returns a character at the given [index] or `null` if the [index] is out of bounds of this char sequence.
  */
-public fun CharSequence.elementAtOrNull(index: Int): Char? {
-    return if (index >= 0 && index <= lastIndex) get(index) else null
+@kotlin.internal.InlineOnly
+public inline fun CharSequence.elementAtOrNull(index: Int): Char? {
+    return this.getOrNull(index)
 }
 
 /**
  * Returns the first character matching the given [predicate], or `null` if no such character was found.
  */
+@kotlin.internal.InlineOnly
 public inline fun CharSequence.find(predicate: (Char) -> Boolean): Char? {
     return firstOrNull(predicate)
 }
@@ -44,6 +48,7 @@ public inline fun CharSequence.find(predicate: (Char) -> Boolean): Char? {
 /**
  * Returns the last character matching the given [predicate], or `null` if no such character was found.
  */
+@kotlin.internal.InlineOnly
 public inline fun CharSequence.findLast(predicate: (Char) -> Boolean): Char? {
     return lastOrNull(predicate)
 }
@@ -85,6 +90,7 @@ public inline fun CharSequence.firstOrNull(predicate: (Char) -> Boolean): Char? 
 /**
  * Returns a character at the given [index] or the result of calling the [defaultValue] function if the [index] is out of bounds of this char sequence.
  */
+@kotlin.internal.InlineOnly
 public inline fun CharSequence.getOrElse(index: Int, defaultValue: (Int) -> Char): Char {
     return if (index >= 0 && index <= lastIndex) get(index) else defaultValue(index)
 }
@@ -387,14 +393,9 @@ public fun CharSequence.slice(indices: Iterable<Int>): CharSequence {
 /**
  * Returns a string containing characters of the original string at specified [indices].
  */
-public fun String.slice(indices: Iterable<Int>): String {
-    val size = indices.collectionSizeOrDefault(10)
-    if (size == 0) return ""
-    val result = StringBuilder(size)
-    for (i in indices) {
-        result.append(get(i))
-    }
-    return result.toString()
+@kotlin.internal.InlineOnly
+public inline fun String.slice(indices: Iterable<Int>): String {
+    return (this as CharSequence).slice(indices).toString()
 }
 
 /**
@@ -487,8 +488,9 @@ public fun CharSequence.reversed(): CharSequence {
 /**
  * Returns a string with characters in reversed order.
  */
-public fun String.reversed(): String {
-    return StringBuilder(this).reverse().toString()
+@kotlin.internal.InlineOnly
+public inline fun String.reversed(): String {
+    return (this as CharSequence).reversed().toString()
 }
 
 /**
@@ -497,7 +499,8 @@ public fun String.reversed(): String {
  * If any of two pairs would have the same key the last one gets added to the map.
  */
 public inline fun <K, V> CharSequence.associate(transform: (Char) -> Pair<K, V>): Map<K, V> {
-    val capacity = ((length/.75f) + 1).toInt().coerceAtLeast(16)
+    @Suppress("INVISIBLE_MEMBER_FROM_INLINE")
+    val capacity = mapCapacity(length).coerceAtLeast(16)
     return associateTo(LinkedHashMap<K, V>(capacity), transform)
 }
 
@@ -507,7 +510,8 @@ public inline fun <K, V> CharSequence.associate(transform: (Char) -> Pair<K, V>)
  * If any two characters would have the same key returned by [keySelector] the last one gets added to the map.
  */
 public inline fun <K> CharSequence.associateBy(keySelector: (Char) -> K): Map<K, Char> {
-    val capacity = ((length/.75f) + 1).toInt().coerceAtLeast(16)
+    @Suppress("INVISIBLE_MEMBER_FROM_INLINE")
+    val capacity = mapCapacity(length).coerceAtLeast(16)
     return associateByTo(LinkedHashMap<K, Char>(capacity), keySelector)
 }
 
@@ -516,7 +520,8 @@ public inline fun <K> CharSequence.associateBy(keySelector: (Char) -> K): Map<K,
  * If any two characters would have the same key returned by [keySelector] the last one gets added to the map.
  */
 public inline fun <K, V> CharSequence.associateBy(keySelector: (Char) -> K, valueTransform: (Char) -> V): Map<K, V> {
-    val capacity = ((length/.75f) + 1).toInt().coerceAtLeast(16)
+    @Suppress("INVISIBLE_MEMBER_FROM_INLINE")
+    val capacity = mapCapacity(length).coerceAtLeast(16)
     return associateByTo(LinkedHashMap<K, V>(capacity), keySelector, valueTransform)
 }
 
@@ -809,7 +814,8 @@ public inline fun CharSequence.any(predicate: (Char) -> Boolean): Boolean {
 /**
  * Returns the length of this char sequence.
  */
-public fun CharSequence.count(): Int {
+@kotlin.internal.InlineOnly
+public inline fun CharSequence.count(): Int {
     return length
 }
 

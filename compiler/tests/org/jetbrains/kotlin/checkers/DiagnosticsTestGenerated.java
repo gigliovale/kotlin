@@ -2853,6 +2853,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("delegatedPropertyEarlyAccess.kt")
+            public void testDelegatedPropertyEarlyAccess() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/delegatedPropertyEarlyAccess.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("elvisNotProcessed.kt")
             public void testElvisNotProcessed() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/elvisNotProcessed.kt");
@@ -13080,6 +13086,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("ConflictingExtensionProperties.kt")
             public void testConflictingExtensionProperties() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/redeclarations/ConflictingExtensionProperties.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("FunVsCtorInDifferentFiles.kt")
+            public void testFunVsCtorInDifferentFiles() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/redeclarations/FunVsCtorInDifferentFiles.kt");
                 doTest(fileName);
             }
 

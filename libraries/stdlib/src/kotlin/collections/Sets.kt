@@ -7,24 +7,11 @@ import java.io.Serializable
 import java.util.*
 
 
-internal object EmptySet : Set<Nothing>, Serializable {
-    override fun equals(other: Any?): Boolean = other is Set<*> && other.isEmpty()
-    override fun hashCode(): Int = 0
-    override fun toString(): String = "[]"
-
-    override val size: Int get() = 0
-    override fun isEmpty(): Boolean = true
-    override fun contains(element: Nothing): Boolean = false
-    override fun containsAll(elements: Collection<Nothing>): Boolean = elements.isEmpty()
-
-    override fun iterator(): Iterator<Nothing> = EmptyIterator
-
-    private fun readResolve(): Any = EmptySet
-}
 
 
 /** Returns an empty read-only set.  The returned set is serializable (JVM). */
-public fun <T> emptySet(): Set<T> = EmptySet
+@kotlin.jvm.JvmVersion
+public fun <T> emptySet(): Set<T> = Collections.emptySet()
 /** Returns a new read-only ordered set with the given elements.  The returned set is serializable (JVM). */
 public fun <T> setOf(vararg elements: T): Set<T> = if (elements.size > 0) elements.toSet() else emptySet()
 

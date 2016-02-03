@@ -3,7 +3,7 @@
 
 package kotlin.collections
 
-import java.util.Enumeration
+import java.util.*
 
 /**
  * Creates an [Iterator] for an [Enumeration], allowing to use it in `for` loops.
@@ -31,6 +31,16 @@ public fun <T> Iterator<T>.withIndex(): Iterator<IndexedValue<T>> = IndexingIter
  */
 public inline fun <T> Iterator<T>.forEach(operation: (T) -> Unit) : Unit {
     for (element in this) operation(element)
+}
+
+
+internal object EmptyIterator : ListIterator<Nothing> {
+    override fun hasNext(): Boolean = false
+    override fun hasPrevious(): Boolean = false
+    override fun nextIndex(): Int = 0
+    override fun previousIndex(): Int = -1
+    override fun next(): Nothing = throw NoSuchElementException()
+    override fun previous(): Nothing = throw NoSuchElementException()
 }
 
 /**

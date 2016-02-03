@@ -6,26 +6,9 @@ package kotlin.collections
 import java.io.Serializable
 import java.util.*
 
-private object EmptyMap : Map<Any?, Nothing>, Serializable {
-    override fun equals(other: Any?): Boolean = other is Map<*,*> && other.isEmpty()
-    override fun hashCode(): Int = 0
-    override fun toString(): String = "{}"
-
-    override val size: Int get() = 0
-    override fun isEmpty(): Boolean = true
-
-    override fun containsKey(key: Any?): Boolean = false
-    override fun containsValue(value: Nothing): Boolean = false
-    override fun get(key: Any?): Nothing? = null
-    override val entries: Set<Map.Entry<Any?, Nothing>> get() = EmptySet
-    override val keys: Set<Any?> get() = EmptySet
-    override val values: Collection<Nothing> get() = EmptyList
-
-    private fun readResolve(): Any = EmptyMap
-}
-
 /** Returns an empty read-only map of specified type. The returned map is serializable (JVM). */
-public fun <K, V> emptyMap(): Map<K, V> = EmptyMap as Map<K, V>
+@kotlin.jvm.JvmVersion
+public fun <K, V> emptyMap(): Map<K, V> = Collections.emptyMap<K, V>()
 
 /**
  * Returns a new read-only map with the specified contents, given as a list of pairs

@@ -1,0 +1,4 @@
+package
+
+public var selected: kotlin.Int?
+public inline fun </*0*/ T> observable(/*0*/ initialValue: T, /*1*/ crossinline onChange: (kotlin.reflect.KProperty<*>, T, T) -> kotlin.Unit): kotlin.properties.ReadWriteProperty<kotlin.Any?, T>

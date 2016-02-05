@@ -1,0 +1,99 @@
+package
+
+public val a: kotlin.Int?
+public val aa: [ERROR : Type for adapt(null) { y -> 42 }]
+public val aa1: kotlin.Int?
+public val aaa: Base?
+public val aaa1: Base?
+public val c: Consume<kotlin.Int?>
+public val c1: Consume<kotlin.Int?>
+public val cc: Consume<kotlin.Nothing?>
+public val cc1: Consume<kotlin.Nothing?>
+public val ccc: Consume<Base?>
+public val i: Transform<kotlin.Int?>
+public val ii: Transform<kotlin.Nothing?>
+public val ii1: Transform<kotlin.Int?>
+public val iii: Transform<Base?>
+public val j: Transform<kotlin.Int?>
+public val jj: Transform<kotlin.Nothing?>
+public val jjj: Transform<Base?>
+public val m: Mapper<kotlin.Int?, kotlin.String>
+public val m1: Mapper<kotlin.Int?, kotlin.String>
+public val mm: Mapper<kotlin.Nothing?, kotlin.String>
+public val mm1: Mapper<kotlin.Nothing?, kotlin.String>
+public val mmm: Mapper<Base?, kotlin.String>
+public val p: Produce<kotlin.Int?>
+public val pp: Produce<kotlin.Int?>
+public val ppp: Produce<Base?>
+public val r: Printer<kotlin.Int?>
+public val r1: Printer<kotlin.Int?>
+public val rr: Printer<kotlin.Nothing?>
+public val rr1: Printer<kotlin.Nothing?>
+public val rrr: Printer<Base?>
+public val t: Transform<kotlin.Int?>
+public val tt: [ERROR : Type for Transform(null) { y -> bar(y) }]
+public val tt1: Transform<kotlin.Int?>
+public val ttt: Transform<Base?>
+public fun </*0*/ T> adapt(/*0*/ x: T, /*1*/ a: (T) -> T): T
+public fun bar(/*0*/ arg: kotlin.Any?): kotlin.Int?
+public fun foo(/*0*/ arg: kotlin.Any?): kotlin.Unit
+public fun </*0*/ T> id(/*0*/ arg: T): T
+
+public open class Base {
+    public constructor Base()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Consume</*0*/ T> {
+    public constructor Consume</*0*/ T>(/*0*/ x: T, /*1*/ f: (T) -> kotlin.Unit)
+    public final val f: (T) -> kotlin.Unit
+    public final val x: T
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Derived : Base {
+    public constructor Derived()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Mapper</*0*/ T, /*1*/ R> {
+    public constructor Mapper</*0*/ T, /*1*/ R>(/*0*/ x: T, /*1*/ f: (T) -> R)
+    public final val f: (T) -> R
+    public final val x: T
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Printer</*0*/ T> {
+    public constructor Printer</*0*/ T>(/*0*/ x: T, /*1*/ f: (T) -> kotlin.String)
+    public final val f: (T) -> kotlin.String
+    public final val x: T
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Produce</*0*/ T> {
+    public constructor Produce</*0*/ T>(/*0*/ x: T, /*1*/ f: () -> T)
+    public final val f: () -> T
+    public final val x: T
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}
+
+public final class Transform</*0*/ T> {
+    public constructor Transform</*0*/ T>(/*0*/ x: T, /*1*/ f: (T) -> T)
+    public final val f: (T) -> T
+    public final val x: T
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}

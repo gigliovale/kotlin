@@ -8101,6 +8101,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("NullVsNullable.kt")
+            public void testNullVsNullable() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/NullVsNullable.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("Projections.kt")
             public void testProjections() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/Projections.kt");

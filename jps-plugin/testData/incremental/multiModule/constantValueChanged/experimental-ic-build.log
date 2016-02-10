@@ -1,34 +1,30 @@
 ================ Step #1 =================
 
 Cleaning output files:
-  out/production/module/B.class
+  out/production/module1/META-INF/module1.kotlin_module
+  out/production/module1/test/Module1_constKt.class
 End of files
 Compiling files:
-  src/B.kt
+  module1/src/module1_const.kt
 End of files
 Marked as dirty by Kotlin:
-  src/BA.kt
+  module2/src/module2_usage.kt
 Exit code: ADDITIONAL_PASS_REQUIRED
 ------------------------------------------
 Cleaning output files:
-  out/production/module/BA.class
+  out/production/module1/META-INF/module1.kotlin_module
+  out/production/module1/test/Module1_constKt.class
 End of files
 Compiling files:
-  src/BA.kt
+  module1/src/module1_const.kt
 End of files
-Exit code: ABORT
+Exit code: OK
 ------------------------------------------
-COMPILATION FAILED
-Class 'BA' must be declared abstract or implement abstract member public abstract fun f(c: C<kotlin.Any>): kotlin.Unit defined in A
-
-================ Step #2 =================
-
 Cleaning output files:
-  out/production/module/B.class
+  out/production/module2/usage/Usage.class
 End of files
 Compiling files:
-  src/B.kt
-  src/BA.kt
+  module2/src/module2_usage.kt
 End of files
 Exit code: OK
 ------------------------------------------

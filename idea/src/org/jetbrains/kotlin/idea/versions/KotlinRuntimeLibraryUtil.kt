@@ -40,6 +40,7 @@ import com.intellij.util.indexing.ScalarIndexExtension
 import org.jetbrains.kotlin.idea.KotlinPluginUtil
 import org.jetbrains.kotlin.idea.configuration.KotlinJavaModuleConfigurator
 import org.jetbrains.kotlin.idea.configuration.KotlinJsModuleConfigurator
+import org.jetbrains.kotlin.idea.configuration.createConfigureKotlinNotificationCollector
 import org.jetbrains.kotlin.idea.configuration.getConfiguratorByName
 import org.jetbrains.kotlin.idea.framework.JSLibraryStdPresentationProvider
 import org.jetbrains.kotlin.idea.framework.JavaRuntimePresentationProvider
@@ -67,11 +68,13 @@ fun updateLibraries(
         project: Project,
         libraries: Collection<Library>) {
     ApplicationManager.getApplication().invokeLater {
-        val kJvmConfigurator = getConfiguratorByName(KotlinJavaModuleConfigurator.NAME) as KotlinJavaModuleConfigurator?
-        assert(kJvmConfigurator != null) { "Configurator with given name doesn't exists: " + KotlinJavaModuleConfigurator.NAME }
+        val kJvmConfigurator = getConfiguratorByName(KotlinJavaModuleConfigurator.NAME) as KotlinJavaModuleConfigurator? ?:
+                               error("Configurator with given name doesn't exists: " + KotlinJavaModuleConfigurator.NAME)
 
-        val kJsConfigurator = getConfiguratorByName(KotlinJsModuleConfigurator.NAME) as KotlinJsModuleConfigurator?
-        assert(kJsConfigurator != null) { "Configurator with given name doesn't exists: " + KotlinJsModuleConfigurator.NAME }
+        val kJsConfigurator = getConfiguratorByName(KotlinJsModuleConfigurator.NAME) as KotlinJsModuleConfigurator? ?:
+                              error("Configurator with given name doesn't exists: " + KotlinJsModuleConfigurator.NAME)
+
+        val collector = createConfigureKotlinNotificationCollector(project)
 
         for (library in libraries) {
             if (LibraryPresentationProviderUtil.isDetected(JavaRuntimePresentationProvider.getInstance(), library)) {
@@ -79,8 +82,8 @@ fun updateLibraries(
                 updateJar(project, JavaRuntimePresentationProvider.getReflectJar(library), LibraryJarDescriptor.REFLECT_JAR)
                 updateJar(project, JavaRuntimePresentationProvider.getTestJar(library), LibraryJarDescriptor.TEST_JAR)
 
-                if (kJvmConfigurator!!.changeOldSourcesPathIfNeeded(project, library)) {
-                    kJvmConfigurator.copySourcesToPathFromLibrary(project, library)
+                if (kJvmConfigurator.changeOldSourcesPathIfNeeded(library, collector)) {
+                    kJvmConfigurator.copySourcesToPathFromLibrary(library, collector)
                 }
                 else {
                     updateJar(project, JavaRuntimePresentationProvider.getRuntimeSrcJar(library), LibraryJarDescriptor.RUNTIME_SRC_JAR)
@@ -89,14 +92,16 @@ fun updateLibraries(
             else if (LibraryPresentationProviderUtil.isDetected(JSLibraryStdPresentationProvider.getInstance(), library)) {
                 updateJar(project, JSLibraryStdPresentationProvider.getJsStdLibJar(library), LibraryJarDescriptor.JS_STDLIB_JAR)
 
-                if (kJsConfigurator!!.changeOldSourcesPathIfNeeded(project, library)) {
-                    kJsConfigurator.copySourcesToPathFromLibrary(project, library)
+                if (kJsConfigurator.changeOldSourcesPathIfNeeded(library, collector)) {
+                    kJsConfigurator.copySourcesToPathFromLibrary(library, collector)
                 }
                 else {
                     updateJar(project, JSLibraryStdPresentationProvider.getJsStdLibSrcJar(library), LibraryJarDescriptor.JS_STDLIB_SRC_JAR)
                 }
             }
         }
+
+        collector.showNotification()
     }
 }
 
@@ -123,10 +128,7 @@ private fun updateJar(
         return
     }
 
-    val localJar = getLocalJar(fileToReplace)
-    assert(localJar != null)
-
-    replaceFile(jarPath, localJar!!)
+    replaceFile(jarPath, getLocalJar(fileToReplace)!!)
 }
 
 fun findAllUsedLibraries(project: Project): MultiMap<Library, Module> {
@@ -196,8 +198,8 @@ internal fun replaceFile(updatedFile: File, replacedJarFile: VirtualFile) {
     try {
         val replacedFile = getLocalFile(replacedJarFile)
 
-        val localPath = getLocalPath(replacedFile)
-        assert(localPath != null) { "Should be called for replacing valid root file: " + replacedJarFile }
+        val localPath = getLocalPath(replacedFile) ?:
+                        error("Should be called for replacing valid root file: $replacedJarFile")
 
         val libraryJarPath = File(localPath)
 
@@ -229,13 +231,12 @@ private fun getLibraryRootsWithAbiIncompatibleVersion(
     val fileIndex = ProjectFileIndex.SERVICE.getInstance(module.project)
 
     for (version in badVersions) {
-        val indexedFiles = FileBasedIndex.getInstance().getContainingFiles(
-                id, version, moduleWithAllDependentLibraries)
-
+        val indexedFiles = FileBasedIndex.getInstance().getContainingFiles(id, version, moduleWithAllDependentLibraries)
         for (indexedFile in indexedFiles) {
-            val libraryRoot = fileIndex.getClassRootForFile(indexedFile)
-            assert(libraryRoot != null) { "Only library roots were requested, " + "and only class files should be indexed with KotlinAbiVersionIndex key. " + "File: " + indexedFile.path }
-            badRoots.add(getLocalFile(libraryRoot!!))
+            val libraryRoot = fileIndex.getClassRootForFile(indexedFile) ?:
+                    error("Only library roots were requested, and only class files should be indexed with KotlinAbiVersionIndex key. " +
+                          "File: ${indexedFile.path}")
+            badRoots.add(getLocalFile(libraryRoot))
         }
     }
 

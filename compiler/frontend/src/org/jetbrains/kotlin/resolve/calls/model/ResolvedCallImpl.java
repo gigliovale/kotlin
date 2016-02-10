@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.resolve.calls.model;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.util.Function;
+import com.intellij.util.SmartList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
@@ -40,9 +41,7 @@ import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.kotlin.types.TypeProjection;
 import org.jetbrains.kotlin.types.TypeSubstitutor;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.jetbrains.kotlin.resolve.calls.results.ResolutionStatus.INCOMPLETE_TYPE_INFERENCE;
 import static org.jetbrains.kotlin.resolve.calls.results.ResolutionStatus.UNKNOWN_STATUS;
@@ -84,7 +83,6 @@ public class ResolvedCallImpl<D extends CallableDescriptor> implements MutableRe
 
     private final Map<TypeParameterDescriptor, KotlinType> typeArguments = Maps.newLinkedHashMap();
     private final Map<ValueParameterDescriptor, ResolvedValueArgument> valueArguments = Maps.newLinkedHashMap();
-    private Map<ValueParameterDescriptor, ResolvedValueArgument> valueArgumentsBeforeSubstitution;
     private final MutableDataFlowInfoForArguments dataFlowInfoForArguments;
     private final Map<ValueArgument, ArgumentMatchImpl> argumentToParameterMap = Maps.newHashMap();
 
@@ -196,25 +194,27 @@ public class ResolvedCallImpl<D extends CallableDescriptor> implements MutableRe
             }
         }
 
-        Map<ValueParameterDescriptor, ValueParameterDescriptor> substitutedParametersMap = Maps.newHashMap();
-        for (ValueParameterDescriptor valueParameterDescriptor : resultingDescriptor.getValueParameters()) {
-            substitutedParametersMap.put(valueParameterDescriptor.getOriginal(), valueParameterDescriptor);
-        }
+        List<ValueParameterDescriptor> substitutedParameters = resultingDescriptor.getValueParameters();
 
-        valueArgumentsBeforeSubstitution = Maps.newLinkedHashMap(valueArguments);
+        Collection<Map.Entry<ValueParameterDescriptor, ResolvedValueArgument>> valueArgumentsBeforeSubstitution =
+                new SmartList<Map.Entry<ValueParameterDescriptor, ResolvedValueArgument>>(valueArguments.entrySet());
+
         valueArguments.clear();
-        for (Map.Entry<ValueParameterDescriptor, ResolvedValueArgument> entry : valueArgumentsBeforeSubstitution.entrySet()) {
-            ValueParameterDescriptor substitutedVersion = substitutedParametersMap.get(entry.getKey().getOriginal());
+
+        for (Map.Entry<ValueParameterDescriptor, ResolvedValueArgument> entry : valueArgumentsBeforeSubstitution) {
+            ValueParameterDescriptor substitutedVersion = substitutedParameters.get(entry.getKey().getIndex());
             assert substitutedVersion != null : entry.getKey();
             valueArguments.put(substitutedVersion, entry.getValue());
         }
 
-        Map<ValueArgument, ArgumentMatchImpl> originalArgumentToParameterMap = Maps.newLinkedHashMap(argumentToParameterMap);
+        Collection<Map.Entry<ValueArgument, ArgumentMatchImpl>> unsubstitutedArgumentMappings =
+                new SmartList<Map.Entry<ValueArgument, ArgumentMatchImpl>>(argumentToParameterMap.entrySet());
+
         argumentToParameterMap.clear();
-        for (Map.Entry<ValueArgument, ArgumentMatchImpl> entry : originalArgumentToParameterMap.entrySet()) {
+        for (Map.Entry<ValueArgument, ArgumentMatchImpl> entry : unsubstitutedArgumentMappings) {
             ArgumentMatchImpl argumentMatch = entry.getValue();
             ValueParameterDescriptor valueParameterDescriptor = argumentMatch.getValueParameter();
-            ValueParameterDescriptor substitutedVersion = substitutedParametersMap.get(valueParameterDescriptor.getOriginal());
+            ValueParameterDescriptor substitutedVersion = substitutedParameters.get(valueParameterDescriptor.getIndex());
             assert substitutedVersion != null : valueParameterDescriptor;
             argumentToParameterMap.put(entry.getKey(), argumentMatch.replaceValueParameter(substitutedVersion));
         }
@@ -263,14 +263,6 @@ public class ResolvedCallImpl<D extends CallableDescriptor> implements MutableRe
     @NotNull
     public Map<ValueParameterDescriptor, ResolvedValueArgument> getValueArguments() {
         return valueArguments;
-    }
-
-    @Override
-    @NotNull
-    public Map<ValueParameterDescriptor, ResolvedValueArgument> getUnsubstitutedValueArguments() {
-        // TODO We need unsubstituted value arguments to compare signatures for specificity when explicit type arguments are provided.
-        // Current implementation is questionable (mostly due to lack of well-defined contract for MutableResolvedCall).
-        return valueArgumentsBeforeSubstitution != null ? valueArgumentsBeforeSubstitution : valueArguments;
     }
 
     @Nullable

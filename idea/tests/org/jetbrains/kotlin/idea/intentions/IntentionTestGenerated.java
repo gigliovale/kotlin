@@ -4561,6 +4561,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("comment.kt")
+        public void testComment() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/comment.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("consecutiveNewlines.kt")
         public void testConsecutiveNewlines() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/consecutiveNewlines.kt");
@@ -4576,6 +4582,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("doesNotCorruptExistingTemplateWithBraces.kt")
         public void testDoesNotCorruptExistingTemplateWithBraces() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/doesNotCorruptExistingTemplateWithBraces.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("endOfLineComment.kt")
+        public void testEndOfLineComment() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/endOfLineComment.kt");
             doTest(fileName);
         }
 
@@ -4696,6 +4708,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("requiresPlusOperator.kt")
         public void testRequiresPlusOperator() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/requiresPlusOperator.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("simple.kt")
+        public void testSimple() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/simple.kt");
             doTest(fileName);
         }
 
@@ -6878,15 +6896,27 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
-        @TestMetadata("binaryEqualsEqualsNullableOperands.kt")
-        public void testBinaryEqualsEqualsNullableOperands() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binaryEqualsEqualsNullableOperands.kt");
+        @TestMetadata("binarayNotEqNullable.kt")
+        public void testBinarayNotEqNullable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binarayNotEqNullable.kt");
             doTest(fileName);
         }
 
-        @TestMetadata("binaryNotEqualsNonNullableOperands.kt")
-        public void testBinaryNotEqualsNonNullableOperands() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binaryNotEqualsNonNullableOperands.kt");
+        @TestMetadata("binaryEqEqNonNullable.kt")
+        public void testBinaryEqEqNonNullable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binaryEqEqNonNullable.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("binaryEqEqNullable.kt")
+        public void testBinaryEqEqNullable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binaryEqEqNullable.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("binaryNotEqNonNullable.kt")
+        public void testBinaryNotEqNonNullable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/operatorToFunction/binaryNotEqNonNullable.kt");
             doTest(fileName);
         }
 

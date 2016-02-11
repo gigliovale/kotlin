@@ -66,6 +66,7 @@ import org.jetbrains.kotlin.psi.typeRefHelpers.setReceiverTypeReference
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassOrAny
 import org.jetbrains.kotlin.resolve.scopes.HierarchicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeImpl
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
@@ -436,7 +437,9 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 fun renderParamList(): String {
                     val prefix = if (classKind == ClassKind.ANNOTATION_CLASS) "val " else ""
                     val list = callableInfo.parameterInfos.indices.map { i -> "${prefix}p$i: Any" }.joinToString(", ")
-                    return if (callableInfo.parameterInfos.isNotEmpty() || callableInfo.kind == CallableKind.FUNCTION) "($list)" else list
+                    return if (callableInfo.parameterInfos.isNotEmpty()
+                               || callableInfo.kind == CallableKind.FUNCTION
+                               || callableInfo.kind == CallableKind.SECONDARY_CONSTRUCTOR) "($list)" else list
                 }
 
                 val paramList = when (callableInfo.kind) {
@@ -460,6 +463,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                     CallableKind.FUNCTION, CallableKind.SECONDARY_CONSTRUCTOR -> {
                         val body = when {
                             containingElement is KtClass && containingElement.isInterface() && !config.isExtension -> ""
+                            callableInfo.kind == CallableKind.SECONDARY_CONSTRUCTOR -> ""
                             else -> "{}"
                         }
                         @Suppress("USELESS_CAST") // KT-10755
@@ -588,6 +592,16 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 }
                 calcNecessaryEmptyLines(declarationInPlace, true).let {
                     if (it > 0) parent.addAfter(psiFactory.createNewLine(it), declarationInPlace)
+                }
+
+                if (declarationInPlace is KtSecondaryConstructor) {
+                    val containingClass = declarationInPlace.containingClassOrObject!!
+                    if (containingClass.getPrimaryConstructorParameters().isNotEmpty()) {
+                        declarationInPlace.replaceImplicitDelegationCallWithExplicit(true)
+                    }
+                    else if ((receiverClassDescriptor as ClassDescriptor).getSuperClassOrAny().constructors.all { it.valueParameters.isNotEmpty() }) {
+                        declarationInPlace.replaceImplicitDelegationCallWithExplicit(false)
+                    }
                 }
 
                 return declarationInPlace
@@ -921,6 +935,10 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 val range = initializer.textRange
                 containingFileEditor.selectionModel.setSelection(range.startOffset, range.endOffset)
                 containingFileEditor.caretModel.moveToOffset(range.endOffset)
+                return
+            }
+            if (declaration is KtSecondaryConstructor && !declaration.hasImplicitDelegationCall()) {
+                containingFileEditor.caretModel.moveToOffset(declaration.getDelegationCall().valueArgumentList!!.startOffset + 1)
                 return
             }
             setupEditorSelection(containingFileEditor, declaration)

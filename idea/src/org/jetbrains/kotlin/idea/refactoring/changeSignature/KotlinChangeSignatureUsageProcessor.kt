@@ -370,7 +370,9 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
                         val targetDescriptor = implicitReceiver.declarationDescriptor
                         if (compareDescriptors(callElement.project, targetDescriptor, callableDescriptor)) {
                             assert(originalReceiverInfo != null) { "No original receiver info provided: " + functionUsageInfo.declaration.text }
-                            result.add(KotlinImplicitThisToParameterUsage(callElement, originalReceiverInfo!!, functionUsageInfo))
+                            if (originalReceiverInfo in changeInfo.getNonReceiverParameters()) {
+                                result.add(KotlinImplicitThisToParameterUsage(callElement, originalReceiverInfo!!, functionUsageInfo))
+                            }
                         }
                         else {
                             result.add(KotlinImplicitThisUsage(callElement, targetDescriptor))
@@ -584,6 +586,7 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
         if (function is KtCallableDeclaration && newReceiverInfo != originalReceiverInfo) {
             findReceiverIntroducingConflicts(result, function, newReceiverInfo)
             findInternalExplicitReceiverConflicts(refUsages.get(), result, originalReceiverInfo)
+            findReceiverToParameterInSafeCallsConflicts(refUsages.get(), result, info)
             findThisLabelConflicts(refUsages, result, info, function)
         }
 
@@ -670,6 +673,28 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
             if (parent is KtQualifiedExpression && parent.selectorExpression === callElement) {
                 val message = "Explicit receiver is already present in call element: " + CommonRefactoringUtil.htmlEmphasize(parent.text)
                 result.putValue(callElement, message)
+            }
+        }
+    }
+
+    private fun findReceiverToParameterInSafeCallsConflicts(
+            usages: Array<UsageInfo>,
+            result: MultiMap<PsiElement, String>,
+            changeInfo: KotlinChangeInfo
+    ) {
+        val originalReceiverInfo = changeInfo.methodDescriptor.receiver
+        if (originalReceiverInfo == null || originalReceiverInfo !in changeInfo.getNonReceiverParameters()) return
+
+        for (usageInfo in usages) {
+            if (!(usageInfo is KotlinFunctionCallUsage || usageInfo is KotlinPropertyCallUsage)) continue
+
+            val callElement = usageInfo.element as? KtElement ?: continue
+            val qualifiedExpression = callElement.getQualifiedExpressionForSelector()
+            if (qualifiedExpression is KtSafeQualifiedExpression) {
+                result.putValue(
+                        callElement,
+                        "Receiver can't be safely transformed to value argument: ${CommonRefactoringUtil.htmlEmphasize(qualifiedExpression.text)}"
+                )
             }
         }
     }

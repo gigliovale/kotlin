@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.resolve.calls
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.ReflectionTypes
+import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionTypeOrSubtype
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
@@ -325,6 +326,14 @@ class GenericCandidateResolver(private val argumentTypeResolver: ArgumentTypeRes
                     context, "trace to resolve function literal with expected return type", argumentExpression)
 
             val statementExpression = KtPsiUtil.getExpressionOrLastStatementInBlock(functionLiteral.bodyExpression) ?: return
+            // KT-10930: preliminary literal analysis is performed iff
+            // effective return type is s simple (proper) type (not a type parameter itself, not a generic type).
+            // Parameter types are not taken into account to prevent TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH in future
+            if (effectiveExpectedType.isFunctionType) {
+                val effectiveReturnType = getReturnTypeForCallable(effectiveExpectedType)
+                if (!TypeUtils.contains(effectiveReturnType) { it.constructor.declarationDescriptor is TypeParameterDescriptor })
+                    return
+            }
             val mismatch = BooleanArray(1)
             val errorInterceptingTrace = ExpressionTypingUtils.makeTraceInterceptingTypeMismatch(
                     temporaryToResolveFunctionLiteral.trace, statementExpression, mismatch)

@@ -24,7 +24,7 @@ class Transform<T>(val x: T, val f: (T) -> T)
 
 class Produce<T>(val x: T, val f: () -> T)
 
-val c: Consume<Int?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Consume(null) { y -> foo(<!DEBUG_INFO_CONSTANT!>y<!>) }<!>
+val c: Consume<Int?> = Consume(null) { y -> foo(y) }
 
 val c1: Consume<Int?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>id(Consume(null) { foo(<!DEBUG_INFO_CONSTANT!>it<!>) })<!>
 
@@ -32,9 +32,9 @@ val cc = Consume(null) { y -> foo(<!DEBUG_INFO_CONSTANT!>y<!>) }
 
 val cc1 = Consume(null) { y: Int? -> foo(y) }
 
-val ccc: Consume<Base?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Consume(Derived()) { y -> foo(y) }<!>
+val ccc: Consume<Base?> = Consume(Derived()) { y -> foo(y) }
 
-val r: Printer<Int?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Printer(null) { y -> y.toString() }<!>
+val r: Printer<Int?> = Printer(null) { y -> y.toString() }
 
 val r1: Printer<Int?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>id(Printer(null) { "$<!DEBUG_INFO_CONSTANT!>it<!>" } )<!>
 
@@ -42,7 +42,7 @@ val rr = Printer(null) { y -> y.toString() }
 
 val rr1 = Printer(null) { y: Int? -> y.toString() }
 
-val rrr: Printer<Base?> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Printer(Derived()) { y -> y.toString() }<!>
+val rrr: Printer<Base?> = Printer(Derived()) { y -> y.toString() }
 
 val m: Mapper<Int?, String> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Mapper(null) { y -> y.toString() }<!>
 
@@ -54,6 +54,7 @@ val mm1 = Mapper(null) { y: Int? -> y.toString() }
 
 val mmm: Mapper<Base?, String> = <!TYPE_INFERENCE_EXPECTED_TYPE_MISMATCH!>Mapper(Derived()) { y -> y.toString() }<!>
 
+// Ideally we should have no errors for 't' and 'tt'
 val t: Transform<Int?> = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>Transform<!>(null) { y -> bar(<!DEBUG_INFO_CONSTANT!>y<!>) }
 
 val tt = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>Transform<!>(null) { y -> bar(<!DEBUG_INFO_CONSTANT!>y<!>) }
@@ -82,11 +83,12 @@ val pp = Produce(null) { 42 }
 
 val ppp: Produce<Base?> = Produce(Derived()) { Base() }
 
-val a: Int? = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>adapt<!>(null) { y -> 42 }
+// Ideally we should have no errors for 'a' and 'aa'
+val a: Int? = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>adapt<!>(null) { <!UNUSED_PARAMETER!>y<!> -> 42 }
 
-val aa = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>adapt<!>(null) { y -> 42 }
+val aa = <!TYPE_INFERENCE_CONFLICTING_SUBSTITUTIONS!>adapt<!>(null) { <!UNUSED_PARAMETER!>y<!> -> 42 }
 
-val aa1 = adapt(null) { y: Int? -> 42 }
+val aa1 = adapt(null) { <!UNUSED_PARAMETER!>y<!>: Int? -> 42 }
 
 val aaa: Base? = adapt(Derived()) { it }
 

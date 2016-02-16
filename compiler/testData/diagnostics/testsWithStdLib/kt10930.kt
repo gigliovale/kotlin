@@ -7,4 +7,4 @@ inline fun <T> observable(initialValue: T, crossinline onChange: (property: KPro
     override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) = onChange(property, oldValue, newValue)
 }
 
-var selected: Int? by <!DELEGATE_SPECIAL_FUNCTION_NONE_APPLICABLE!>observable(null) { p, old, new -> println("$<!DEBUG_INFO_CONSTANT!>old<!>-->$<!DEBUG_INFO_CONSTANT!>new<!>") }<!>
+var selected: Int? by observable(null) { <!UNUSED_PARAMETER!>p<!>, old, new -> println("$old-->$new") }

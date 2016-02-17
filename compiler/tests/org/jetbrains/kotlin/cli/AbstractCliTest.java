@@ -17,10 +17,10 @@
 package org.jetbrains.kotlin.cli;
 
 import com.intellij.util.ArrayUtil;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
 import kotlin.Pair;
+import kotlin.collections.CollectionsKt;
 import kotlin.io.FilesKt;
+import kotlin.jvm.functions.Function1;
 import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.cli.common.CLICompiler;
@@ -30,28 +30,22 @@ import org.jetbrains.kotlin.cli.js.K2JSCompiler;
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler;
 import org.jetbrains.kotlin.load.kotlin.JvmMetadataVersion;
 import org.jetbrains.kotlin.serialization.deserialization.BinaryVersion;
+import org.jetbrains.kotlin.test.InTextDirectivesUtils;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
-import org.jetbrains.kotlin.test.Tmpdir;
+import org.jetbrains.kotlin.test.TestCaseWithTmpdir;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.jetbrains.kotlin.utils.PathUtil;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import org.jetbrains.kotlin.utils.StringsKt;
+import org.junit.Assert;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
-public class CliBaseTest {
-    static final String JS_TEST_DATA = "compiler/testData/cli/js";
-    static final String JVM_TEST_DATA = "compiler/testData/cli/jvm";
-
-    @Rule
-    public final Tmpdir tmpdir = new Tmpdir();
-    @Rule
-    public final TestName testName = new TestName();
-
+public abstract class AbstractCliTest extends TestCaseWithTmpdir {
     @NotNull
     public static Pair<String, ExitCode> executeCompilerGrabOutput(@NotNull CLICompiler<?> compiler, @NotNull List<String> args) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -67,11 +61,6 @@ public class CliBaseTest {
         finally {
             System.setErr(origErr);
         }
-    }
-
-    @NotNull
-    public static String getNormalizedCompilerOutput(@NotNull String pureOutput, @NotNull ExitCode exitCode, @NotNull String testDataDir) {
-        return getNormalizedCompilerOutput(pureOutput, exitCode, testDataDir, JvmMetadataVersion.INSTANCE);
     }
 
     @NotNull
@@ -91,31 +80,63 @@ public class CliBaseTest {
         return normalizedOutputWithoutExitCode + exitCode;
     }
 
-    private void executeCompilerCompareOutput(@NotNull CLICompiler<?> compiler, @NotNull String testDataDir) throws Exception {
+    private void doTest(@NotNull String fileName, @NotNull CLICompiler<?> compiler) throws Exception {
         System.setProperty("java.awt.headless", "true");
-        Pair<String, ExitCode> outputAndExitCode =
-                executeCompilerGrabOutput(compiler, readArgs(testDataDir + "/" + testName.getMethodName() + ".args", testDataDir,
-                                                             tmpdir.getTmpDir().getPath()));
-        String actual = getNormalizedCompilerOutput(outputAndExitCode.getFirst(), outputAndExitCode.getSecond(), testDataDir);
+        Pair<String, ExitCode> outputAndExitCode = executeCompilerGrabOutput(compiler, readArgs(fileName, tmpdir.getPath()));
+        String actual = getNormalizedCompilerOutput(
+                outputAndExitCode.getFirst(), outputAndExitCode.getSecond(), new File(fileName).getParent(), JvmMetadataVersion.INSTANCE
+        );
 
-        KotlinTestUtils.assertEqualsToFile(new File(testDataDir + "/" + testName.getMethodName() + ".out"), actual);
+        File outFile = new File(fileName.replaceFirst("\\.args$", ".out"));
+        KotlinTestUtils.assertEqualsToFile(outFile, actual);
+
+        File additionalTestConfig = new File(fileName.replaceFirst("\\.args$", ".test"));
+        if (additionalTestConfig.exists()) {
+            doTestAdditionalChecks(additionalTestConfig);
+        }
+    }
+
+    private void doTestAdditionalChecks(@NotNull File testConfigFile) throws IOException {
+        List<String> diagnostics = new ArrayList<String>(0);
+        String content = FilesKt.readText(testConfigFile, Charsets.UTF_8);
+
+        List<String> existsList = InTextDirectivesUtils.findListWithPrefixes(content, "// EXISTS: ");
+        for (String fileName : existsList) {
+            File file = new File(tmpdir, fileName);
+            if (!file.exists()) {
+                diagnostics.add("File does not exist, but should: " + fileName);
+            }
+            else if (!file.isFile()) {
+                diagnostics.add("File is a directory, but should be a normal file: " + fileName);
+            }
+        }
+
+        List<String> absentList = InTextDirectivesUtils.findListWithPrefixes(content, "// ABSENT: ");
+        for (String fileName : absentList) {
+            File file = new File(tmpdir, fileName);
+            if (file.exists() && file.isFile()) {
+                diagnostics.add("File exists, but shouldn't: " + fileName);
+            }
+        }
+
+        if (!diagnostics.isEmpty()) {
+            diagnostics.add(0, diagnostics.size() + " problem(s) found:");
+            Assert.fail(StringsKt.join(diagnostics, "\n"));
+        }
     }
 
     @NotNull
-    static List<String> readArgs(
-            @NotNull String argsFilePath,
-            @NotNull final String testDataDir,
-            @NotNull final String tempDir
-    ) throws IOException {
+    static List<String> readArgs(@NotNull final String argsFilePath, @NotNull final String tempDir) throws IOException {
         List<String> lines = FilesKt.readLines(new File(argsFilePath), Charsets.UTF_8);
 
-        return ContainerUtil.mapNotNull(lines, new Function<String, String>() {
+        return CollectionsKt.mapNotNull(lines, new Function1<String, String>() {
             @Override
-            public String fun(String arg) {
+            public String invoke(String arg) {
                 if (arg.isEmpty()) {
                     return null;
                 }
-                // Do not replace : after \ (used in compiler plugin tests)
+
+                // Do not replace ':' after '\' (used in compiler plugin tests)
                 String argsWithColonsReplaced = arg
                         .replace("\\:", "$COLON$")
                         .replace(":", File.pathSeparator)
@@ -123,16 +144,16 @@ public class CliBaseTest {
 
                 return argsWithColonsReplaced
                         .replace("$TEMP_DIR$", tempDir)
-                        .replace("$TESTDATA_DIR$", testDataDir);
+                        .replace("$TESTDATA_DIR$", new File(argsFilePath).getParent());
             }
         });
     }
 
-    protected void executeCompilerCompareOutputJVM() throws Exception {
-        executeCompilerCompareOutput(new K2JVMCompiler(), JVM_TEST_DATA);
+    protected void doJvmTest(@NotNull String fileName) throws Exception {
+        doTest(fileName, new K2JVMCompiler());
     }
 
-    protected void executeCompilerCompareOutputJS() throws Exception {
-        executeCompilerCompareOutput(new K2JSCompiler(), JS_TEST_DATA);
+    protected void doJsTest(@NotNull String fileName) throws Exception {
+        doTest(fileName, new K2JSCompiler());
     }
 }

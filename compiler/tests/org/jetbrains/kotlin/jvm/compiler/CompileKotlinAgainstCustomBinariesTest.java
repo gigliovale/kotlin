@@ -23,7 +23,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.analyzer.AnalysisResult;
-import org.jetbrains.kotlin.cli.CliBaseTest;
+import org.jetbrains.kotlin.cli.AbstractCliTest;
 import org.jetbrains.kotlin.cli.common.ExitCode;
 import org.jetbrains.kotlin.cli.common.messages.AnalyzerWithCompilerReport;
 import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector;
@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.codegen.inline.InlineCodegenUtil;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
+import org.jetbrains.kotlin.load.kotlin.JvmMetadataVersion;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
@@ -77,7 +78,9 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
 
     @NotNull
     private String normalizeOutput(@NotNull Pair<String, ExitCode> output) {
-        return CliBaseTest.getNormalizedCompilerOutput(output.getFirst(), output.getSecond(), getTestDataDirectory().getPath());
+        return AbstractCliTest.getNormalizedCompilerOutput(
+                output.getFirst(), output.getSecond(), getTestDataDirectory().getPath(), JvmMetadataVersion.INSTANCE
+        );
     }
 
     private void doTestWithTxt(@NotNull File... extraClassPath) throws Exception {
@@ -159,7 +162,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
 
         File libSrc = new File(getTestDataDirectory(), "library/test/lib.kt");
 
-        Pair<String, ExitCode> outputLib = CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        Pair<String, ExitCode> outputLib = AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 libSrc.getPath(),
                 "-classpath", tmpdir.getPath(),
                 "-d", tmpdir.getPath()
@@ -167,7 +170,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
 
         File mainSrc = new File(getTestDataDirectory(), "main.kt");
 
-        Pair<String, ExitCode> outputMain = CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        Pair<String, ExitCode> outputMain = AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 mainSrc.getPath(),
                 "-classpath", tmpdir.getPath(),
                 "-d", tmpdir.getPath()
@@ -240,7 +243,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
 
         File source = new File(getTestDataDirectory(), "source.kt");
 
-        Pair<String, ExitCode> output = CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        Pair<String, ExitCode> output = AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 source.getPath(),
                 "-classpath", tmpdir.getPath(),
                 "-d", tmpdir.getPath()
@@ -256,7 +259,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
 
         File source = new File(getTestDataDirectory(), "source.kt");
 
-        Pair<String, ExitCode> output = CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        Pair<String, ExitCode> output = AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 source.getPath(),
                 "-classpath", library.getPath(),
                 "-d", tmpdir.getPath()
@@ -269,7 +272,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
     public void testInlineFunWithoutDebugInfo() throws Exception {
         File inlineSource = new File(getTestDataDirectory(), "sourceInline.kt");
 
-        CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 inlineSource.getPath(),
                 "-d", tmpdir.getPath()
         ));
@@ -303,7 +306,7 @@ public class CompileKotlinAgainstCustomBinariesTest extends TestCaseWithTmpdir {
         }
 
         File resultSource = new File(getTestDataDirectory(), "source.kt");
-        CliBaseTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
+        AbstractCliTest.executeCompilerGrabOutput(new K2JVMCompiler(), Arrays.asList(
                 resultSource.getPath(),
                 "-classpath", tmpdir.getPath(),
                 "-d", tmpdir.getPath()

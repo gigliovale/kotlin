@@ -1,6 +1,9 @@
 object KoKobject {
-    @JvmStatic
+    @JvmField
     val JvmStatic: Int = 1
+
+    @JvmField
+    val JvmStaticString: String? = "123"
 }
 
 fun test() {
@@ -17,6 +20,7 @@ fun test() {
     JClass.PrimitiveFloat
     JClass.PrimitiveDouble
     JClass.Str
+    JClass.StrNullable
 
     JClass.BoxedInt
     JClass.NonFinal
@@ -24,6 +28,7 @@ fun test() {
     JClass().NonStatic
 
     KoKobject.JvmStatic
+    KoKobject.JvmStaticString
 }
 
 // @TestKt.class:
@@ -39,9 +44,11 @@ fun test() {
 // 1 LDC 36.6
 // 1 LDC 42.4242
 // 1 LDC ":J"
+// 1 LDC "nullable"
 // 1 GETSTATIC JClass.BoxedInt : Ljava/lang/Integer;
 // 1 GETSTATIC JClass.NonFinal : I
 // 1 GETFIELD JClass.NonStatic : I
-// 1 INVOKESTATIC KoKobject.getJvmStatic \(\)I
+// 1 GETSTATIC KoKobject.JvmStatic : I
+// 1 GETSTATIC KoKobject.JvmStaticString : Ljava/lang/String
 // 3 POP2
-// 16 POP
+// 18 POP

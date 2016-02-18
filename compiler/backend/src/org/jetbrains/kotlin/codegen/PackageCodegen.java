@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor;
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassInfo;
-import org.jetbrains.kotlin.load.kotlin.PackageParts;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.progress.ProgressIndicatorAndCompilationCanceledStatus;
 import org.jetbrains.kotlin.psi.*;
@@ -41,17 +40,18 @@ public class PackageCodegen {
     private final GenerationState state;
     private final Collection<KtFile> files;
     private final PackageFragmentDescriptor packageFragment;
-    private final PackageParts packageParts;
+    private final PackagePartRegistry packagePartRegistry;
 
     public PackageCodegen(
             @NotNull GenerationState state,
             @NotNull Collection<KtFile> files,
-            @NotNull FqName packageFqName
+            @NotNull FqName packageFqName,
+            @NotNull PackagePartRegistry registry
     ) {
         this.state = state;
         this.files = files;
         this.packageFragment = getOnlyPackageFragment(packageFqName);
-        packageParts = new PackageParts(packageFqName.asString());
+        packagePartRegistry = registry;
     }
 
     public void generate(@NotNull CompilationErrorHandler errorHandler) {
@@ -59,6 +59,7 @@ public class PackageCodegen {
             ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
             try {
                 generateFile(file);
+                state.afterIndependentPart();
             }
             catch (ProcessCanceledException e) {
                 throw e;
@@ -75,12 +76,11 @@ public class PackageCodegen {
         }
     }
 
-    @Nullable
-    private ClassBuilder generateFile(@NotNull KtFile file) {
+    private void generateFile(@NotNull KtFile file) {
         JvmFileClassInfo fileClassInfo = state.getFileClassesProvider().getFileClassInfo(file);
 
         if (fileClassInfo.getWithJvmMultifileClass()) {
-            return null;
+            return;
         }
 
         Type fileClassType = AsmUtil.asmTypeByFqNameWithoutInnerClasses(fileClassInfo.getFileClassFqName());
@@ -107,16 +107,14 @@ public class PackageCodegen {
             }
         }
 
-        if (!generatePackagePart || !state.getGenerateDeclaredClassFilter().shouldGeneratePackagePart(file)) return null;
+        if (!generatePackagePart || !state.getGenerateDeclaredClassFilter().shouldGeneratePackagePart(file)) return;
 
         String name = fileClassType.getInternalName();
-        packageParts.getParts().add(name.substring(name.lastIndexOf('/') + 1));
+        packagePartRegistry.addPart(name.substring(name.lastIndexOf('/') + 1));
 
         ClassBuilder builder = state.getFactory().newVisitor(JvmDeclarationOriginKt.PackagePart(file, packageFragment), fileClassType, file);
 
         new PackagePartCodegen(builder, file, fileClassType, packagePartContext, state).generate();
-
-        return builder;
     }
 
     @Nullable
@@ -145,10 +143,6 @@ public class PackageCodegen {
 
     public void generateClassOrObject(@NotNull KtClassOrObject classOrObject, @NotNull PackageContext packagePartContext) {
         MemberCodegen.genClassOrObject(packagePartContext, classOrObject, state, null);
-    }
-
-    public PackageParts getPackageParts() {
-        return packageParts;
     }
 
     public Collection<KtFile> getFiles() {

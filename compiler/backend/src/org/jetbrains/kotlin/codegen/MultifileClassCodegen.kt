@@ -58,7 +58,8 @@ import java.util.*
 class MultifileClassCodegen(
         private val state: GenerationState,
         val files: Collection<KtFile>,
-        private val facadeFqName: FqName
+        private val facadeFqName: FqName,
+        private val packagePartRegistry: PackagePartRegistry
 ) {
     private val facadeClassType = AsmUtil.asmTypeByFqNameWithoutInnerClasses(facadeFqName)
 
@@ -74,8 +75,6 @@ class MultifileClassCodegen(
 
     private fun getDeserializedCallables(compiledPackageFragment: PackageFragmentDescriptor) =
             compiledPackageFragment.getMemberScope().getContributedDescriptors(DescriptorKindFilter.CALLABLES, MemberScope.ALL_NAME_FILTER).filterIsInstance<DeserializedCallableMemberDescriptor>()
-
-    val packageParts = PackageParts(facadeFqName.parent().asString())
 
     private val classBuilder = ClassBuilderOnDemand {
         val originFile = files.firstOrNull()
@@ -115,6 +114,8 @@ class MultifileClassCodegen(
         if (!partFqNames.isEmpty()) {
             generateMultifileFacadeClass(generateCallableMemberTasks, partFqNames)
         }
+
+        done()
     }
 
     private fun generateCodeForSourceFiles(
@@ -126,6 +127,7 @@ class MultifileClassCodegen(
             ProgressIndicatorAndCompilationCanceledStatus.checkCanceled()
             try {
                 generatePart(file, generateCallableMemberTasks, partFqNames)
+                state.afterIndependentPart()
             }
             catch (e: ProcessCanceledException) {
                 throw e
@@ -200,7 +202,7 @@ class MultifileClassCodegen(
         partFqNames.add(partClassInfo.fileClassFqName)
 
         val name = partType.internalName
-        packageParts.parts.add(name.substring(name.lastIndexOf('/') + 1))
+        packagePartRegistry.addPart(name.substring(name.lastIndexOf('/') + 1))
 
         val builder = state.factory.newVisitor(MultifileClassPart(file, packageFragment, facadeFqName), partType, file)
 
@@ -289,8 +291,11 @@ class MultifileClassCodegen(
                 override fun generateKotlinMetadataAnnotation() = throw UnsupportedOperationException()
             }
 
-    fun done() {
+    private fun done() {
         classBuilder.done()
+        if (classBuilder.isComputed) {
+            state.afterIndependentPart()
+        }
     }
 
     companion object {

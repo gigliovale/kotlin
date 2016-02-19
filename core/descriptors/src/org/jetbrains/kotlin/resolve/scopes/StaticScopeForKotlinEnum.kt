@@ -19,43 +19,29 @@ package org.jetbrains.kotlin.resolve.scopes
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.DescriptorFactory.*
+import org.jetbrains.kotlin.resolve.DescriptorFactory.createEnumValueOfMethod
+import org.jetbrains.kotlin.resolve.DescriptorFactory.createEnumValuesMethod
 import org.jetbrains.kotlin.utils.Printer
 import java.util.*
 
 // We don't need to track lookups here since this scope used only for introduce special Enum class members
-class StaticScopeForKotlinClass(
-        private val containingClass: ClassDescriptor
-) : MemberScopeImpl() {
+class StaticScopeForKotlinEnum(private val containingClass: ClassDescriptor) : MemberScopeImpl() {
+    init {
+        assert(containingClass.kind == ClassKind.ENUM_CLASS) { "Class should be an enum: $containingClass" }
+    }
+
     override fun getContributedClassifier(name: Name, location: LookupLocation) = null // TODO
 
     private val functions: List<FunctionDescriptor> by lazy {
-        if (containingClass.kind != ClassKind.ENUM_CLASS) {
-            listOf<FunctionDescriptor>()
-        }
-        else {
-            listOf(createEnumValueOfMethod(containingClass), createEnumValuesMethod(containingClass))
-        }
+        listOf(createEnumValueOfMethod(containingClass), createEnumValuesMethod(containingClass))
     }
 
-    private val properties: List<PropertyDescriptor> by lazy {
-        if (containingClass.kind != ClassKind.ENUM_CLASS) {
-            listOf<PropertyDescriptor>()
-        }
-        else {
-            listOf(createEnumValuesProperty(containingClass))
-        }
-    }
+    override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean) = functions
 
-    override fun getContributedDescriptors(kindFilter: DescriptorKindFilter,
-                                           nameFilter: (Name) -> Boolean) = functions + properties
-
-    override fun getContributedVariables(name: Name, location: LookupLocation) = properties.filterTo(ArrayList(1)) { it.name == name }
-
-    override fun getContributedFunctions(name: Name, location: LookupLocation) = functions.filterTo(ArrayList<FunctionDescriptor>(2)) { it.name == name }
+    override fun getContributedFunctions(name: Name, location: LookupLocation) =
+            functions.filterTo(ArrayList<FunctionDescriptor>(1)) { it.name == name }
 
     override fun printScopeStructure(p: Printer) {
         p.println("Static scope for $containingClass")

@@ -1,7 +1,6 @@
 class Greeter(var name : String) {
     fun greet() {
         name = name.plus("")
-        System.out?.println("Hello, $name");
     }
 }
 

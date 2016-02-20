@@ -1,5 +1,3 @@
-// !DIAGNOSTICS: -UNUSED_VARIABLE
-
 fun foo() {
     <!NON_TOPLEVEL_CLASS_DECLARATION!>class A<!> {
         inner <!NON_TOPLEVEL_CLASS_DECLARATION!>class E<!> {
@@ -8,5 +6,9 @@ fun foo() {
     }
 
     <!LOCAL_INTERFACE_NOT_ALLOWED, NON_TOPLEVEL_CLASS_DECLARATION!>interface T<!> {
+    }
+
+    object {
+        inner <!NON_TOPLEVEL_CLASS_DECLARATION!>class B<!>
     }
 }

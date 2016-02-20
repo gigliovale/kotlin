@@ -20,6 +20,8 @@ import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.useImpl
 import org.jetbrains.kotlin.container.useInstance
 import org.jetbrains.kotlin.js.resolve.diagnostics.JsCallChecker
+import org.jetbrains.kotlin.js.resolve.diagnostics.LocalClassChecker
+import org.jetbrains.kotlin.js.resolve.diagnostics.NativeInnerClassChecker
 import org.jetbrains.kotlin.resolve.IdentifierChecker
 import org.jetbrains.kotlin.resolve.OverloadFilter
 import org.jetbrains.kotlin.resolve.PlatformConfigurator
@@ -28,7 +30,8 @@ import org.jetbrains.kotlin.types.DynamicTypesAllowed
 
 object JsPlatformConfigurator : PlatformConfigurator(
         DynamicTypesAllowed(),
-        additionalDeclarationCheckers = listOf(NativeInvokeChecker(), NativeGetterChecker(), NativeSetterChecker(), ClassDeclarationChecker()),
+        additionalDeclarationCheckers = listOf(NativeInvokeChecker(), NativeGetterChecker(), NativeSetterChecker(), LocalClassChecker(),
+                                               NativeInnerClassChecker()),
         additionalCallCheckers = listOf(),
         additionalTypeCheckers = listOf(),
         additionalSymbolUsageValidators = listOf(),

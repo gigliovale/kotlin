@@ -16,21 +16,21 @@
 
 package org.jetbrains.kotlin.js.translate.callTranslator
 
-import com.google.dart.compiler.backend.js.ast.JsExpression
-import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.js.translate.context.TranslationContext
-import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
-import org.jetbrains.kotlin.js.translate.utils.JsDescriptorUtils.getReceiverParameterForReceiver
-import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind.*
-import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
-import org.jetbrains.kotlin.js.translate.reference.CallArgumentTranslator
-import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
-import com.google.dart.compiler.backend.js.ast.JsLiteral
-import com.google.dart.compiler.backend.js.ast.JsConditional
 import com.google.dart.compiler.backend.js.ast.JsBlock
+import com.google.dart.compiler.backend.js.ast.JsConditional
+import com.google.dart.compiler.backend.js.ast.JsExpression
+import com.google.dart.compiler.backend.js.ast.JsLiteral
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
+import org.jetbrains.kotlin.js.translate.context.TranslationContext
+import org.jetbrains.kotlin.js.translate.reference.CallArgumentTranslator
+import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
+import org.jetbrains.kotlin.js.translate.utils.JsDescriptorUtils.getReceiverParameterForReceiver
+import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind.*
+import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 
 interface CallInfo {
     val context: TranslationContext
@@ -55,6 +55,7 @@ class VariableAccessInfo(callInfo: CallInfo, val value: JsExpression? = null) : 
 
 class FunctionCallInfo(callInfo: CallInfo, val argumentsInfo: CallArgumentTranslator.ArgumentsInfo) : AbstractCallInfo(), CallInfo by callInfo
 
+
 /**
  * no receivers - extensionOrDispatchReceiver = null,     extensionReceiver = null
  * this -         extensionOrDispatchReceiver = this,     extensionReceiver = null
@@ -65,10 +66,6 @@ class ExplicitReceivers(val extensionOrDispatchReceiver: JsExpression?, val exte
 
 fun TranslationContext.getCallInfo(resolvedCall: ResolvedCall<out CallableDescriptor>, extensionOrDispatchReceiver: JsExpression?): CallInfo {
     return createCallInfo(resolvedCall, ExplicitReceivers(extensionOrDispatchReceiver))
-}
-
-fun TranslationContext.getCallInfo(resolvedCall: ResolvedCall<out FunctionDescriptor>, extensionOrDispatchReceiver: JsExpression?): FunctionCallInfo {
-    return getCallInfo(resolvedCall, ExplicitReceivers(extensionOrDispatchReceiver));
 }
 
 // two receiver need only for FunctionCall in VariableAsFunctionResolvedCall

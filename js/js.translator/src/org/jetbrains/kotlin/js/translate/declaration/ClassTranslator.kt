@@ -181,7 +181,7 @@ class ClassTranslator private constructor(
             return emptyList()
         }
         if (supertypes.size == 1) {
-            val type = supertypes.get(0)
+            val type = supertypes[0]
             val supertypeDescriptor = getClassDescriptorForType(type)
             return listOf<JsExpression>(getClassReference(supertypeDescriptor))
         }

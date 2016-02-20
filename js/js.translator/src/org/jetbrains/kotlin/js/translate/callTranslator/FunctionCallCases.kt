@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.util.OperatorNameConventions
-import java.util.ArrayList
+import java.util.*
 
 fun CallArgumentTranslator.ArgumentsInfo.argsWithReceiver(receiver: JsExpression): List<JsExpression> {
     val allArguments = ArrayList<JsExpression>(1 + reifiedArguments.size + valueArguments.size)
@@ -203,17 +203,21 @@ object ConstructorCallCase : FunctionCallCase() {
         return callInfo.callableDescriptor is ConstructorDescriptor
     }
 
-    override fun FunctionCallInfo.noReceivers(): JsExpression {
-        val fqName = context.getQualifiedReference(callableDescriptor)
+    override fun FunctionCallInfo.noReceivers() = doTranslate { translateArguments }
 
+    override fun FunctionCallInfo.dispatchReceiver() = doTranslate { argsWithReceiver(dispatchReceiver!!) }
+
+    private inline fun FunctionCallInfo.doTranslate(getArguments: CallArgumentTranslator.ArgumentsInfo.() -> List<JsExpression>): JsExpression {
+        val fqName = context.getQualifiedReference(callableDescriptor)
         val functionRef = if (isNative()) fqName else context.aliasOrValue(callableDescriptor) { fqName }
+        val arguments = argumentsInfo.getArguments()
 
         val constructorDescriptor = callableDescriptor as ConstructorDescriptor
-        if(constructorDescriptor.isPrimary || AnnotationsUtils.isNativeObject(constructorDescriptor)) {
-            return JsNew(functionRef, argumentsInfo.translateArguments)
+        if (constructorDescriptor.isPrimary || AnnotationsUtils.isNativeObject(constructorDescriptor)) {
+            return JsNew(functionRef, arguments)
         }
         else {
-            return JsInvocation(functionRef, argumentsInfo.translateArguments)
+            return JsInvocation(functionRef, arguments)
         }
     }
 }
@@ -225,9 +229,9 @@ object SuperCallCase : FunctionCallCase() {
 
     override fun FunctionCallInfo.dispatchReceiver(): JsExpression {
         // TODO: spread operator
-        val prototypeClass = JsNameRef(Namer.getPrototypeName(), dispatchReceiver!!)
+        val prototypeClass = JsNameRef(Namer.getPrototypeName(), calleeOwner)
         val functionRef = Namer.getFunctionCallRef(JsNameRef(functionName, prototypeClass))
-        return JsInvocation(functionRef, argumentsInfo.argsWithReceiver(JsLiteral.THIS))
+        return JsInvocation(functionRef, argumentsInfo.argsWithReceiver(dispatchReceiver!!))
     }
 }
 

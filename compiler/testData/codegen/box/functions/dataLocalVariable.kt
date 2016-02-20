@@ -1,3 +1,5 @@
+// TODO: Enable when JS backed gets support of Java class library
+// TARGET_BACKEND: JVM
 fun ok(b: Boolean) = if (b) "OK" else "Fail"
 
 fun box(): String {

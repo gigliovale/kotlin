@@ -91,19 +91,22 @@ var Kotlin = {};
         }
     }
 
-    function computeMetadata(bases, properties) {
+    function computeMetadata(bases, properties, staticProperties) {
         var metadata = {};
+        var p, property;
 
         metadata.baseClasses = toArray(bases);
         metadata.baseClass = getClass(metadata.baseClasses);
         metadata.classIndex = Kotlin.newClassIndex();
         metadata.functions = {};
         metadata.properties = {};
+        metadata.types = {};
+        metadata.staticMembers = {};
 
         if (!(properties == null)) {
-            for (var p in properties) {
+            for (p in properties) {
                 if (properties.hasOwnProperty(p)) {
-                    var property = properties[p];
+                    property = properties[p];
                     property.$classIndex$ = metadata.classIndex;
                     if (typeof property === "function") {
                         metadata.functions[p] = property;
@@ -111,6 +114,20 @@ var Kotlin = {};
                     else {
                         metadata.properties[p] = property;
                     }
+                }
+            }
+        }
+        if (typeof staticProperties !== 'undefined') {
+            for (p in staticProperties) {
+                //noinspection JSUnfilteredForInLoop
+                property = staticProperties[p];
+                if (typeof property === "function" && property.type === Kotlin.TYPE.INIT_FUN) {
+                    //noinspection JSUnfilteredForInLoop
+                    metadata.types[p] = property;
+                }
+                else {
+                    //noinspection JSUnfilteredForInLoop
+                    metadata.staticMembers[p] = property;
                 }
             }
         }
@@ -146,10 +163,10 @@ var Kotlin = {};
         if (constructor == null) {
             constructor = emptyFunction();
         }
-        copyProperties(constructor, staticProperties);
 
-        var metadata = computeMetadata(bases, properties);
+        var metadata = computeMetadata(bases, properties, staticProperties);
         metadata.type = Kotlin.TYPE.CLASS;
+        copyProperties(constructor, metadata.staticMembers);
 
         var prototypeObj;
         if (metadata.baseClass !== null) {
@@ -161,6 +178,7 @@ var Kotlin = {};
         Object.defineProperties(prototypeObj, metadata.properties);
         copyProperties(prototypeObj, metadata.functions);
         prototypeObj.constructor = constructor;
+        defineNestedTypes(constructor, metadata.types);
 
         if (metadata.baseClass != null) {
             constructor.baseInitializer = metadata.baseClass;
@@ -172,24 +190,41 @@ var Kotlin = {};
         return constructor;
     };
 
-    Kotlin.createObjectNow = function (bases, constructor, functions) {
-        var noNameClass = Kotlin.createClassNow(bases, constructor, functions);
+    function defineNestedTypes(constructor, types) {
+        for (var innerTypeName in types) {
+            // since types object does not inherit from anything, it's just a map
+            //noinspection JSUnfilteredForInLoop
+            var innerType = types[innerTypeName];
+            innerType.className = innerTypeName;
+            //noinspection JSUnfilteredForInLoop
+            Object.defineProperty(constructor, innerTypeName, {
+                get: innerType,
+                configurable: true
+            });
+        }
+    }
+
+    Kotlin.createObjectNow = function (bases, constructor, functions, staticProperties) {
+        var noNameClass = Kotlin.createClassNow(bases, constructor, functions, staticProperties);
         var obj = new noNameClass();
         noNameClass.$metadata$.type = Kotlin.TYPE.OBJECT;
-        return  obj;
+        defineNestedTypes(obj, noNameClass.$metadata$.types);
+        return obj;
     };
 
     Kotlin.createTraitNow = function (bases, properties, staticProperties) {
         var obj = function () {};
-        copyProperties(obj, staticProperties);
 
-        obj.$metadata$ = computeMetadata(bases, properties);
+        obj.$metadata$ = computeMetadata(bases, properties, staticProperties);
         obj.$metadata$.type = Kotlin.TYPE.TRAIT;
+        copyProperties(obj, obj.$metadata$.staticMembers);
 
         obj.prototype = {};
         Object.defineProperties(obj.prototype, obj.$metadata$.properties);
         copyProperties(obj.prototype, obj.$metadata$.functions);
         Object.defineProperty(obj, "object", {get: class_object, configurable: true});
+
+        defineNestedTypes(constructor, obj.$metadata$.types);
         return obj;
     };
 
@@ -281,11 +316,12 @@ var Kotlin = {};
      * @param {function()|null} basesFun
      * @param {(function(new: T): T)|null=} constructor
      * @param {Object=} functions
+     * @param {Object=} staticProperties
      * @returns {Object}
      * @template T
      */
-    Kotlin.createObject = function (basesFun, constructor, functions) {
-        return Kotlin.createObjectNow(getBases(basesFun), constructor, functions);
+    Kotlin.createObject = function (basesFun, constructor, functions, staticProperties) {
+        return Kotlin.createObjectNow(getBases(basesFun), constructor, functions, staticProperties);
     };
 
     Kotlin.callGetter = function (thisObject, klass, propertyName) {

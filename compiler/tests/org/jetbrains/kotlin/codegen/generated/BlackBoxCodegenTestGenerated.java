@@ -4117,6 +4117,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("dataLocalVariable.kt")
+        public void testDataLocalVariable() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/functions/dataLocalVariable.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("defaultargs.kt")
         public void testDefaultargs() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/functions/defaultargs.kt");
@@ -4639,12 +4645,6 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("createdNestedInOuterMember.kt")
         public void testCreatedNestedInOuterMember() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/innerNested/createdNestedInOuterMember.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("dataLocalVariable.kt")
-        public void testDataLocalVariable() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/innerNested/dataLocalVariable.kt");
             doTest(fileName);
         }
 
@@ -7765,6 +7765,18 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("innerClassLabeledSuperProperty2.kt")
         public void testInnerClassLabeledSuperProperty2() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/super/innerClassLabeledSuperProperty2.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("innerClassQualifiedFunctionCall.kt")
+        public void testInnerClassQualifiedFunctionCall() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/super/innerClassQualifiedFunctionCall.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("innerClassQualifiedPropertyAccess.kt")
+        public void testInnerClassQualifiedPropertyAccess() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/super/innerClassQualifiedPropertyAccess.kt");
             doTest(fileName);
         }
 

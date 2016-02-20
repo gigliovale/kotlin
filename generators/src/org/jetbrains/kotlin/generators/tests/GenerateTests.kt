@@ -1063,6 +1063,21 @@ fun main(args: Array<String>) {
             model("codegen/box/secondaryConstructors", targetBackend = TargetBackend.JS)
         }
 
+        testClass<AbstractNestedTypesTest>() {
+            model("codegen/box/classes/inner", targetBackend = TargetBackend.JS)
+        }
+
+        testClass<AbstractClassesTest>() {
+            model("codegen/box/classes/", targetBackend = TargetBackend.JS)
+        }
+
+        testClass<AbstractInnerNestedTest>() {
+            model("codegen/box/innerNested/", targetBackend = TargetBackend.JS)
+        }
+
+        testClass<AbstractSuperTest>() {
+            model("codegen/box/super/", targetBackend = TargetBackend.JS)
+        }
     }
 }
 

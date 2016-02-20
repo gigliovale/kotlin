@@ -4,8 +4,6 @@ class Reluctant() {
      }
 }
 
-fun p(o : Any?) = System.out?.println(o)
-
 fun test1() : String {
   try {
       val b = Reluctant()

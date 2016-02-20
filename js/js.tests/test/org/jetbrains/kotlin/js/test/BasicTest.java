@@ -29,6 +29,9 @@ import com.intellij.psi.PsiManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
+import org.jetbrains.kotlin.cli.common.messages.AnalyzerWithCompilerReport;
+import org.jetbrains.kotlin.cli.common.messages.MessageRenderer;
+import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
@@ -50,8 +53,10 @@ import org.jetbrains.kotlin.psi.KtPsiFactory;
 import org.jetbrains.kotlin.resolve.lazy.KotlinTestWithEnvironment;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -193,7 +198,17 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
         K2JSTranslator translator = new K2JSTranslator(config);
         TranslationResult translationResult = translator.translate(jetFiles, mainCallParameters);
 
-        if (!(translationResult instanceof TranslationResult.Success)) return;
+        if (!(translationResult instanceof TranslationResult.Success)) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            PrintingMessageCollector collector = new PrintingMessageCollector(
+                    new PrintStream(outputStream),
+                    MessageRenderer.PLAIN_FULL_PATHS,
+                    true
+            );
+            AnalyzerWithCompilerReport.Companion.reportDiagnostics(translationResult.getDiagnostics(), collector);
+            String messages = new String(outputStream.toByteArray(), "UTF-8");
+            throw new AssertionError("The following errors occurred compiling test:\n" + messages);
+        }
 
         TranslationResult.Success successResult = (TranslationResult.Success) translationResult;
 

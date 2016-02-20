@@ -56,14 +56,19 @@ public final class ReferenceTranslator {
         // Ignore qualifier if expression is EnumEntry or companion object reference and always use FQ name.
         DeclarationDescriptor descriptor = BindingUtils.getDescriptorForReferenceExpression(context.bindingContext(), expression);
         //TODO: should go away when objects inside classes are supported
-        if (DescriptorUtils.isCompanionObject(descriptor) && !AnnotationsUtils.isNativeObject(descriptor)) {
+        if (descriptor != null && DescriptorUtils.isCompanionObject(descriptor) && !AnnotationsUtils.isNativeObject(descriptor)) {
             return simpleName;
         }
         if (descriptor instanceof ClassDescriptor) {
             ClassDescriptor entryClass = (ClassDescriptor) descriptor;
-            if (entryClass.getKind() == ClassKind.ENUM_ENTRY && !AnnotationsUtils.isNativeObject(entryClass)) {
-                DeclarationDescriptor enumClass = entryClass.getContainingDeclaration();
-                qualifier = Namer.getCompanionObjectAccessor(translateAsFQReference(enumClass, context));
+            if (entryClass.getKind() == ClassKind.ENUM_ENTRY) {
+                if (!AnnotationsUtils.isNativeObject(entryClass)) {
+                    DeclarationDescriptor enumClass = entryClass.getContainingDeclaration();
+                    qualifier = Namer.getCompanionObjectAccessor(translateAsFQReference(enumClass, context));
+                }
+            }
+            else if (DescriptorUtils.isClassOrEnumClass(entryClass)) {
+                qualifier = null;
             }
         }
 

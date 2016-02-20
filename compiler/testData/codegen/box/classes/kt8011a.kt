@@ -1,3 +1,6 @@
+// TODO: Enable for JS when it supports local classes.
+// TARGET_BACKEND: JVM
+
 fun testFun1(str: String): String {
     val capture = str
 

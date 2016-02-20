@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,35 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.js.resolve
+package org.jetbrains.kotlin.js.resolve.diagnostics
 
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
-import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.diagnostics.rendering.renderKind
-import org.jetbrains.kotlin.diagnostics.rendering.renderKindWithName
-import org.jetbrains.kotlin.js.resolve.diagnostics.ErrorsJs
 import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
-import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DeclarationChecker
-import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.DescriptorUtils.*
 
-class ClassDeclarationChecker : DeclarationChecker {
+class LocalClassChecker : DeclarationChecker {
     override fun check(
             declaration: KtDeclaration,
             descriptor: DeclarationDescriptor,
             diagnosticHolder: DiagnosticSink,
             bindingContext: BindingContext
     ) {
-        if (declaration !is KtClassOrObject || declaration is KtObjectDeclaration || declaration is KtEnumEntry) return
+        if (descriptor !is ClassDescriptor || declaration !is KtNamedDeclaration) {
+            return;
+        }
+        if (isAnonymousObject(descriptor) || isObject(descriptor) || AnnotationsUtils.isNativeObject(descriptor)) {
+            return
+        }
 
-        // hack to avoid to get diagnostics when compile kotlin builtins
-        val fqNameUnsafe = DescriptorUtils.getFqName(descriptor)
-        if (fqNameUnsafe.asString().startsWith("kotlin.")) return
-
-        if (!DescriptorUtils.isTopLevelDeclaration(descriptor) && !AnnotationsUtils.isNativeObject(descriptor)) {
-            diagnosticHolder.report(ErrorsJs.NON_TOPLEVEL_CLASS_DECLARATION.on(declaration, (descriptor as ClassDescriptor).renderKind()))
+        if (isLocal(descriptor)) {
+            diagnosticHolder.report(ErrorsJs.NON_TOPLEVEL_CLASS_DECLARATION.on(declaration, descriptor.renderKind()))
         }
     }
 }

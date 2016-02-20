@@ -1113,6 +1113,70 @@ public inline fun String.partition(predicate: (Char) -> Boolean): Pair<String, S
 }
 
 /**
+ * Provides a sliding window on the original char sequence. The sliding window is represented by a sequence of sub strings.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+}
+
+/**
+ * Provides a sliding window on the original string. The sliding window is represented by a sequence of sub strings.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+}
+
+/**
+ * Provides a sliding window on the original char sequence. The sliding window is represented by a sequence of sub strings.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+}
+
+/**
+ * Provides a sliding window on the original string. The sliding window is represented by a sequence of sub strings.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun String.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+}
+
+/**
  * Returns a list of pairs built from characters of both char sequences with same indexes. List has length of shortest char sequence.
  */
 public infix fun CharSequence.zip(other: CharSequence): List<Pair<Char, Char>> {

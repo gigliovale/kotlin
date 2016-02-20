@@ -162,6 +162,76 @@ public class SequenceTest {
         assertEquals("(0, 0), (1, 2), (1, 2), (2, 4), (3, 6), (5, 10), (8, 16), (13, 26), (21, 42), (34, 68), ...", pairStr)
     }
 
+    @test fun window() {
+        assertFailsWith<IllegalArgumentException>("1, -1") {
+            emptySequence<Int>().window(1, step = -1)
+        }
+        assertFailsWith<IllegalArgumentException>("1, 0") {
+            emptySequence<Int>().window(1, step = 0)
+        }
+        assertFailsWith<IllegalArgumentException>("-1, 1") {
+            emptySequence<Int>().window(-1, step = 1)
+        }
+
+        // window size > source size
+        expect(emptyList()) {
+            emptySequence<Int>().window(10).toList()
+        }
+        expect(emptyList()) {
+            emptySequence<Int>().window(0).toList()
+        }
+        expect(emptyList()) {
+            emptySequence<Int>().window(1, step = 10).toList()
+        }
+        expect(listOf(listOf(1))) {
+            sequenceOf(1).window(10).toList()
+        }
+        expect(emptyList()) {
+            sequenceOf(1).window(10, dropTrailing = true).toList()
+        }
+
+        // step = size = source size
+        expect(listOf(listOf(1))) {
+            sequenceOf(1).window(1).toList()
+        }
+
+        // overlap
+        expect(listOf(listOf(1, 2), listOf(3, 4))) {
+            sequenceOf(1, 2, 3, 4).window(2).toList()
+        }
+        expect(listOf(listOf(1, 2), listOf(2, 3), listOf(3, 4), listOf(4))) {
+            sequenceOf(1, 2, 3, 4).window(2, step = 1).toList()
+        }
+        expect(listOf(listOf(1, 2), listOf(2, 3), listOf(3, 4))) {
+            sequenceOf(1, 2, 3, 4).window(2, step = 1, dropTrailing = true).toList()
+        }
+
+        // step > size (there are gaps)
+        expect(listOf(listOf(1, 2), listOf(4))) {
+            sequenceOf(1, 2, 3, 4).window(2, step = 3).toList()
+        }
+        expect(listOf(listOf(1, 2))) {
+            sequenceOf(1, 2, 3, 4).window(2, step = 3, dropTrailing = true).toList()
+        }
+        expect(listOf(listOf(1, 2))) {
+            sequenceOf(1, 2, 3, 4).window(2, step = 100).toList()
+        }
+
+        // window size = 0
+        expect(listOf(listOf(), listOf(), listOf(), listOf())) {
+            sequenceOf(1, 2, 3, 4).window(0).toList()
+        }
+        expect(listOf(listOf(), listOf())) {
+            sequenceOf(1, 2, 3, 4).window(0, step = 2).toList()
+        }
+        expect(listOf(listOf())) {
+            sequenceOf(1, 2, 3, 4).window(0, step = 20).toList()
+        }
+        expect(listOf(listOf())) {
+            sequenceOf(1, 2, 3, 4).window(0, step = 20, dropTrailing = true).toList()
+        }
+    }
+
     @test fun toStringJoinsNoMoreThanTheFirstTenElements() {
         assertEquals("0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...", fibonacci().joinToString(limit = 10))
         assertEquals("13, 21, 34, 55, 89, 144, 233, 377, 610, 987, ...", fibonacci().filter { it > 10 }.joinToString(limit = 10))

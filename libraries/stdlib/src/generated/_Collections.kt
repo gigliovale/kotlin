@@ -1843,6 +1843,56 @@ public inline fun <T> Collection<T>.plusElement(element: T): List<T> {
 }
 
 /**
+ * Provides a sliding window on the original collection. The sliding window is represented by a sequence of lists.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * [step] shouldn't be zero or negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive value defines a sliding step
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun <T> Iterable<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+    require(step > 0) { "step should be positive but it is $step" }
+    require(size >= 0) { "size shouldn't be negative but it is $size" }
+    return Sequence {
+        windowForwardOnlySequenceImpl(iterator(), size, step, dropTrailing).iterator()
+    }
+}
+
+/**
+ * Provides a sliding window on the original list. The sliding window is represented by a sequence of sub lists.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun <T> List<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+}
+
+/**
+ * Provides a sliding window on the original list. The sliding window is represented by a sequence of sub lists.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
+ * [step] shouldn't be zero otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun <T> List<T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+    require(step > 0) { "step should be positive but it is $step" }
+    return windowImpl(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+}
+
+/**
  * Returns a list of pairs built from elements of both collections with same indexes. List has length of shortest collection.
  */
 public infix fun <T, R> Iterable<T>.zip(other: Array<out R>): List<Pair<T, R>> {

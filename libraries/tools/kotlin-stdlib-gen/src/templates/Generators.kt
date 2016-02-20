@@ -523,6 +523,144 @@ fun generators(): List<GenericFunction> {
         }
     }
 
+    templates add f("windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
+        exclude(Sequences, Iterables)
+
+        doc(Lists, ArraysOfObjects, ArraysOfPrimitives) { f ->
+            """
+            Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of sub lists.
+            It is possible to configure forward and backward sliding with any custom [step] and window [size].
+            If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
+            [step] shouldn't be zero otherwise the function will throw an exception.
+            If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+
+            @param size of a window, shouldn't be negative
+            @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+            @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+
+            @return a sequence of windows, possibly empty
+            """
+        }
+
+        // require(step > 0) { "step should be positive but it is ${'$'}step" }
+        returns(Lists, ArraysOfObjects, ArraysOfPrimitives) { "Sequence<List<T>>" }
+        body(Lists) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+            """
+        }
+        body(ArraysOfObjects, ArraysOfPrimitives) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+            """
+        }
+
+        doc(CharSequences, Strings) { f ->
+            """
+            Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of sub strings.
+            It is possible to configure forward and backward sliding with any custom [step] and window [size].
+            If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+            [step] shouldn't be zero otherwise the function will throw an exception.
+            If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+
+            @param size of a window, shouldn't be negative
+            @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+            @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+
+            @return a sequence of windows, possibly empty
+            """
+        }
+        returns(CharSequences, Strings) { "Sequence<String>" }
+        body(CharSequences, Strings) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+            """
+        }
+    }
+
+    templates add f("window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
+        doc(Lists, ArraysOfObjects, ArraysOfPrimitives) { f ->
+            """
+            Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of sub lists.
+            It is possible to configure forward and backward sliding with any custom [step] and window [size].
+            If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
+            [step] shouldn't be zero otherwise the function will throw an exception.
+            If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+
+            @param size of a window, shouldn't be negative
+            @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+            @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+
+            @return a sequence of windows, possibly empty
+            """
+        }
+        returns(Lists, ArraysOfObjects, ArraysOfPrimitives) { "Sequence<List<T>>" }
+        body(Lists) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+            """
+        }
+        body(ArraysOfObjects, ArraysOfPrimitives) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+            """
+        }
+
+        doc(CharSequences, Strings) { f ->
+            """
+            Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of sub strings.
+            It is possible to configure forward and backward sliding with any custom [step] and window [size].
+            If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
+            [step] shouldn't be zero otherwise the function will throw an exception.
+            If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+
+            @param size of a window, shouldn't be negative
+            @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+            @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+
+            @return a sequence of windows, possibly empty
+            """
+        }
+        returns(CharSequences, Strings) { "Sequence<String>" }
+        body(CharSequences, Strings) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+            """
+        }
+
+        doc(Sequences, Iterables) { f ->
+            """
+            Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of lists.
+            It is possible to configure forward and backward sliding with any custom [step] and window [size].
+            [step] shouldn't be zero or negative otherwise the function will throw an exception.
+            If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+
+            @param size of a window, shouldn't be negative
+            @param step positive value defines a sliding step
+            @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+
+            @return a sequence of windows, possibly empty
+            """
+        }
+        returns(Sequences, Iterables) { "Sequence<List<T>>" }
+        body(Sequences, Iterables) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            require(size >= 0) { "size shouldn't be negative but it is ${'$'}size" }
+
+            return Sequence {
+                windowForwardOnlySequenceImpl(iterator(), size, step, dropTrailing).iterator()
+            }
+            """
+        }
+    }
+
     templates add f("zip(other: Iterable<R>, transform: (T, R) -> V)") {
         exclude(Sequences)
         doc {

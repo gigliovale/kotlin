@@ -1139,6 +1139,24 @@ public inline fun <T> Sequence<T>.plusElement(element: T): Sequence<T> {
 }
 
 /**
+ * Provides a sliding window on the original sequence. The sliding window is represented by a sequence of lists.
+ * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * [step] shouldn't be zero or negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * @param size of a window, shouldn't be negative
+ * @param step positive value defines a sliding step
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @return a sequence of windows, possibly empty
+ */
+public fun <T> Sequence<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+    require(step > 0) { "step should be positive but it is $step" }
+    require(size >= 0) { "size shouldn't be negative but it is $size" }
+    return Sequence {
+        windowForwardOnlySequenceImpl(iterator(), size, step, dropTrailing).iterator()
+    }
+}
+
+/**
  * Returns a sequence of pairs built from elements of both sequences with same indexes.
  * Resulting sequence has length of shortest input sequence.
  */

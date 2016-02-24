@@ -1139,10 +1139,20 @@ public inline fun <T> Sequence<T>.plusElement(element: T): Sequence<T> {
 }
 
 /**
- * Provides a sliding window on the original sequence. The sliding window is represented by a sequence of lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * [step] shouldn't be zero or negative otherwise the function will throw an exception.
+ * Provides a sliding window on the original sequence. The sliding window is represented by a sequence of sub lists.
+ * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]

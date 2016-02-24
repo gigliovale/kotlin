@@ -163,13 +163,13 @@ public class SequenceTest {
     }
 
     @test fun window() {
-        assertFailsWith<IllegalArgumentException>("1, -1") {
+        assertFails {
             emptySequence<Int>().window(1, step = -1)
         }
-        assertFailsWith<IllegalArgumentException>("1, 0") {
+        assertFails {
             emptySequence<Int>().window(1, step = 0)
         }
-        assertFailsWith<IllegalArgumentException>("-1, 1") {
+        assertFails {
             emptySequence<Int>().window(-1, step = 1)
         }
 

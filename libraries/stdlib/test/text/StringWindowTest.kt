@@ -22,22 +22,22 @@ import kotlin.test.*
 class StringWindowTest {
     @Test
     fun testInvalidArguments() {
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".window(-1)
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".window(0, -1)
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".window(0, 0)
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".windowBackward(-1)
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".windowBackward(0, -1)
         }
-        assertFailsWith<IllegalArgumentException> {
+        assertFails {
             "".windowBackward(0, 0)
         }
     }

@@ -11140,291 +11140,453 @@ public inline fun CharArray.partition(predicate: (Char) -> Boolean): Pair<List<C
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Byte>> {
+public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Short>> {
+public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Int>> {
+public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Long>> {
+public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Float>> {
+public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Double>> {
+public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Boolean>> {
+public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
+ * Provides a sliding window on the original array. The sliding window is represented by a sequence of subarrays.
  * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * ```
+ * ```
+ * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Char>> {
+public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Byte>> {
+public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Short>> {
+public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Int>> {
+public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Long>> {
+public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Float>> {
+public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Double>> {
+public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Boolean>> {
+public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**
- * Provides a sliding window on the original array. The sliding window is represented by a sequence of sub lists.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the list.
- * [step] shouldn't be zero otherwise the function will throw an exception.
+ * Provides a sliding window on the original array from the end to the beginning.
+ * The sliding window is represented by a sequence of subarrays.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * ```
+ * ```
+ * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * ```
  * @param size of a window, shouldn't be negative
- * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
+ * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
  * @return a sequence of windows, possibly empty
  */
-public fun CharArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<Char>> {
+public fun CharArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { asList().subList(it.start, it.endInclusive + 1) }
+    return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
 
 /**

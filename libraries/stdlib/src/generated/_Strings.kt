@@ -1113,11 +1113,20 @@ public inline fun String.partition(predicate: (Char) -> Boolean): Pair<String, S
 }
 
 /**
- * Provides a sliding window on the original char sequence. The sliding window is represented by a sequence of sub strings.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
- * [step] shouldn't be zero otherwise the function will throw an exception.
- * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Provides a sliding window on the original char sequence from the end to the beginning.
+ * The sliding window is represented by a sequence of substrings.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * "123".window(2) -> sequenceOf("12", "3")
+ * ```
+ * ```
+ * "123".window(2, step = 1) -> sequenceOf("12", "23", "3")
+ * ```
+ * ```
+ * "123".window(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
+ * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
@@ -1129,11 +1138,20 @@ public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dro
 }
 
 /**
- * Provides a sliding window on the original string. The sliding window is represented by a sequence of sub strings.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
- * [step] shouldn't be zero otherwise the function will throw an exception.
- * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Provides a sliding window on the original string from the end to the beginning.
+ * The sliding window is represented by a sequence of substrings.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * "123".window(2) -> sequenceOf("12", "3")
+ * ```
+ * ```
+ * "123".window(2, step = 1) -> sequenceOf("12", "23", "3")
+ * ```
+ * ```
+ * "123".window(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
+ * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
@@ -1145,11 +1163,20 @@ public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrail
 }
 
 /**
- * Provides a sliding window on the original char sequence. The sliding window is represented by a sequence of sub strings.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
- * [step] shouldn't be zero otherwise the function will throw an exception.
- * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Provides a sliding window on the original char sequence from the end to the beginning.
+ * The sliding window is represented by a sequence of substrings.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * "123".windowBackward(2) -> sequenceOf("23", "1")
+ * ```
+ * ```
+ * "123".windowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
+ * ```
+ * ```
+ * "123".windowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
+ * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
@@ -1161,11 +1188,20 @@ public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast
 }
 
 /**
- * Provides a sliding window on the original string. The sliding window is represented by a sequence of sub strings.
- * It is possible to configure forward and backward sliding with any custom [step] and window [size].
- * If a [step] is negative then it is a backward sliding configured and the sliding will start from the end of the string.
- * [step] shouldn't be zero otherwise the function will throw an exception.
- * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
+ * Provides a sliding window on the original string from the end to the beginning.
+ * The sliding window is represented by a sequence of substrings.
+ * [step] shouldn't be neither zero nor negative otherwise the function will throw an exception.
+ * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
+ * Examples:
+ * ```
+ * "123".windowBackward(2) -> sequenceOf("23", "1")
+ * ```
+ * ```
+ * "123".windowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
+ * ```
+ * ```
+ * "123".windowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
+ * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]

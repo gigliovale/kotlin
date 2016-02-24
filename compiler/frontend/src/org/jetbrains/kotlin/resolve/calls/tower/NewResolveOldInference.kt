@@ -106,7 +106,7 @@ class NewResolveOldInference(
 
             val callCandidateResolutionContext = CallCandidateResolutionContext.create(
                     resolvedCall, basicCallContext, candidateTrace, tracing, basicCallContext.call,
-                    null, CandidateResolveMode.FULLY // todo
+                    CandidateResolveMode.FULLY // todo
             )
             candidateResolver.performResolutionForCandidateCall(callCandidateResolutionContext, basicCallContext.checkArguments) // todo
 
@@ -161,7 +161,7 @@ class NewResolveOldInference(
             explicitReceiver: Receiver?,
             create: (ReceiverValue?) -> ScopeTowerProcessor<Candidate>
     ): ScopeTowerProcessor<Candidate> {
-        return if (explicitReceiver is Qualifier) {
+        return if (explicitReceiver is QualifierReceiver) {
             (explicitReceiver as? ClassQualifier)?.classValueReceiver?.let(create)
             ?: KnownResultProcessor<Candidate>(listOf())
         }
@@ -260,7 +260,7 @@ class NewResolveOldInference(
 
             val callCandidateResolutionContext = CallCandidateResolutionContext.create(
                     candidateCall, basicCallContext, candidateTrace, tracing, basicCallContext.call,
-                    null, CandidateResolveMode.FULLY // todo
+                    CandidateResolveMode.FULLY // todo
             )
             candidateResolver.performResolutionForCandidateCall(callCandidateResolutionContext, basicCallContext.checkArguments) // todo
 

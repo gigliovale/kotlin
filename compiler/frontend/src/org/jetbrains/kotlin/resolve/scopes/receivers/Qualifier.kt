@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,131 +17,76 @@
 package org.jetbrains.kotlin.resolve.scopes.receivers
 
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
 import org.jetbrains.kotlin.psi.psiUtil.getTopmostParentQualifiedExpressionForSelector
-import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.classValueType
 import org.jetbrains.kotlin.resolve.scopes.ChainedMemberScope
-import org.jetbrains.kotlin.resolve.scopes.FilteringScope
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
-import org.jetbrains.kotlin.resolve.scopes.ScopeUtils
-import org.jetbrains.kotlin.utils.addIfNotNull
+import org.jetbrains.kotlin.types.KotlinType
 import java.util.*
 
-interface Qualifier: Receiver {
-
-    val expression: KtExpression
-
-    val referenceExpression: KtSimpleNameExpression
-
-    val name: Name
-        get() = descriptor.name
-
+interface QualifierReceiver : Receiver {
     val descriptor: DeclarationDescriptor
 
-    val scope: MemberScope
+    val staticScope: MemberScope
+
+    val classValueReceiver: ReceiverValue?
 }
 
-abstract class QualifierReceiver(
-        override val referenceExpression: KtSimpleNameExpression
-) : Qualifier {
-
-    override val expression: KtExpression
-        get() = referenceExpression.getTopmostParentQualifiedExpressionForSelector() ?: referenceExpression
-
-    abstract fun getNestedClassesAndPackageMembersScope(): MemberScope
+interface Qualifier : QualifierReceiver {
+    val referenceExpression: KtSimpleNameExpression
 }
+
+val Qualifier.expression: KtExpression
+    get() = referenceExpression.getTopmostParentQualifiedExpressionForSelector() ?: referenceExpression
 
 class PackageQualifier(
-        referenceExpression: KtSimpleNameExpression,
-        val packageView: PackageViewDescriptor
-) : QualifierReceiver(referenceExpression) {
+        override val referenceExpression: KtSimpleNameExpression,
+        override val descriptor: PackageViewDescriptor
+) : Qualifier {
+    override val classValueReceiver: ReceiverValue? get() = null
+    override val staticScope: MemberScope get() = descriptor.memberScope
 
-    override val descriptor: DeclarationDescriptor
-        get() = packageView
-
-    override val scope: MemberScope get() = packageView.memberScope
-
-    override fun getNestedClassesAndPackageMembersScope(): MemberScope = packageView.memberScope
-
-    override fun toString() = "Package{$packageView}"
+    override fun toString() = "Package{$descriptor}"
 }
 
-abstract class ClassifierQualifier(referenceExpression: KtSimpleNameExpression) : QualifierReceiver(referenceExpression) {
-    abstract val classifier: ClassifierDescriptor
+class TypeParameterQualifier(
+        override val referenceExpression: KtSimpleNameExpression,
+        override val descriptor: TypeParameterDescriptor
+) : Qualifier {
+    override val classValueReceiver: ReceiverValue? get() = null
+    override val staticScope: MemberScope get() = MemberScope.Empty
 
-    override val descriptor: DeclarationDescriptor
-        get() = classifier
-}
-
-class ClassifierQualifierWithEmptyScope(
-        referenceExpression: KtSimpleNameExpression,
-        override val classifier: ClassifierDescriptor
-) : ClassifierQualifier(referenceExpression) {
-
-    override fun getNestedClassesAndPackageMembersScope(): MemberScope = MemberScope.Empty
-
-    override val scope: MemberScope = MemberScope.Empty
+    override fun toString() = "TypeParameter{$descriptor}"
 }
 
 class ClassQualifier(
-        referenceExpression: KtSimpleNameExpression,
-        override val classifier: ClassDescriptor,
-        val classValueReceiver: ReceiverValue?
-) : ClassifierQualifier(referenceExpression) {
-
-    override val scope: MemberScope get() {
-        if (classifier !is ClassDescriptor) {
-            return MemberScope.Empty
-        }
-
-        val scopes = ArrayList<MemberScope>(3)
-
-        val classObjectTypeScope = classifier.classValueType?.memberScope?.let {
-            FilteringScope(it) { it !is ClassDescriptor }
-        }
-        scopes.addIfNotNull(classObjectTypeScope)
-
-        scopes.add(classifier.staticScope)
-
-        if (classifier.kind != ClassKind.ENUM_ENTRY) {
-            scopes.add(classifier.unsubstitutedInnerClassesScope)
-        }
-
-        return ChainedMemberScope("Member scope for $name as class or object", scopes)
+        override val referenceExpression: KtSimpleNameExpression,
+        override val descriptor: ClassDescriptor
+) : Qualifier {
+    override val classValueReceiver: ClassValueReceiver? = descriptor.classValueType?.let {
+        ClassValueReceiver(this, it)
     }
 
-    override fun getNestedClassesAndPackageMembersScope(): MemberScope {
-        if (classifier !is ClassDescriptor) {
-            return MemberScope.Empty
-        }
-
+    override val staticScope: MemberScope get() {
         val scopes = ArrayList<MemberScope>(2)
 
-        scopes.add(classifier.staticScope)
+        scopes.add(descriptor.staticScope)
 
-        if (classifier.kind != ClassKind.ENUM_ENTRY) {
-            scopes.add(ScopeUtils.getStaticNestedClassesScope(classifier))
+        if (descriptor.kind != ClassKind.ENUM_ENTRY) {
+            scopes.add(descriptor.unsubstitutedInnerClassesScope)
         }
 
-        return ChainedMemberScope("Static scope for $name as class or object", scopes)
+        return ChainedMemberScope("Static scope for ${descriptor.name} as class or object", scopes)
     }
 
-    override fun toString() = "Class{$classifier}"
+    override fun toString() = "Class{$descriptor}"
 }
 
-fun createClassifierQualifier(
-        referenceExpression: KtSimpleNameExpression,
-        classifier: ClassifierDescriptor,
-        bindingContext: BindingContext
-): ClassifierQualifier {
-    val companionObjectReceiver = (classifier as? ClassDescriptor)?.classValueType?.let {
-        ExpressionReceiver.create(referenceExpression, it, bindingContext)
-    }
-    return if (classifier is ClassDescriptor)
-        ClassQualifier(referenceExpression, classifier, companionObjectReceiver)
-    else
-        ClassifierQualifierWithEmptyScope(referenceExpression, classifier)
+class ClassValueReceiver(val classQualifier: ClassQualifier, private val type: KotlinType) : ExpressionReceiver {
+    override fun getType() = type
+
+    override val expression: KtExpression
+        get() = classQualifier.expression
 }

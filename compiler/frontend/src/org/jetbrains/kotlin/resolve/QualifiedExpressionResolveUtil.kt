@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,7 @@ import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.resolve.descriptorUtil.classValueDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.classValueTypeDescriptor
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasCompanionObject
-import org.jetbrains.kotlin.resolve.scopes.receivers.ClassQualifier
-import org.jetbrains.kotlin.resolve.scopes.receivers.ClassifierQualifier
-import org.jetbrains.kotlin.resolve.scopes.receivers.PackageQualifier
-import org.jetbrains.kotlin.resolve.scopes.receivers.Qualifier
+import org.jetbrains.kotlin.resolve.scopes.receivers.*
 import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 
@@ -73,8 +70,8 @@ private fun resolveQualifierReferenceTarget(
         context: ExpressionTypingContext,
         symbolUsageValidator: SymbolUsageValidator
 ): DeclarationDescriptor {
-    if (qualifier is ClassifierQualifier && qualifier.classifier is TypeParameterDescriptor) {
-        return qualifier.classifier
+    if (qualifier is TypeParameterQualifier) {
+        return qualifier.descriptor
     }
 
     val selectorContainer = when (selector) {
@@ -86,14 +83,14 @@ private fun resolveQualifierReferenceTarget(
 
     if (qualifier is PackageQualifier &&
         (selectorContainer is PackageFragmentDescriptor || selectorContainer is PackageViewDescriptor) &&
-        DescriptorUtils.getFqName(qualifier.packageView) == DescriptorUtils.getFqName(selectorContainer)
+        DescriptorUtils.getFqName(qualifier.descriptor) == DescriptorUtils.getFqName(selectorContainer)
     ) {
-        return qualifier.packageView
+        return qualifier.descriptor
     }
 
     // TODO make decisions about short reference to companion object somewhere else
     if (qualifier is ClassQualifier) {
-        val classifier = qualifier.classifier
+        val classifier = qualifier.descriptor
         val selectorIsCallable = selector is CallableDescriptor &&
                                  (selector.dispatchReceiverParameter != null || selector.extensionReceiverParameter != null)
         // TODO simplify this code.

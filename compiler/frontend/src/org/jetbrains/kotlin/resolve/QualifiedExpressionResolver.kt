@@ -407,16 +407,17 @@ class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator
     ): Qualifier? {
         val name = expression.getReferencedNameAsName()
 
+        val location = KotlinLookupLocation(expression)
         val qualifierDescriptor = when (receiver) {
             is PackageQualifier -> {
-                val childPackageFQN = receiver.packageView.fqName.child(name)
-                receiver.packageView.module.getPackage(childPackageFQN).check { !it.isEmpty() } ?:
-                receiver.packageView.memberScope.getContributedClassifier(name, KotlinLookupLocation(expression))
+                val childPackageFQN = receiver.descriptor.fqName.child(name)
+                receiver.descriptor.module.getPackage(childPackageFQN).check { !it.isEmpty() } ?:
+                receiver.descriptor.memberScope.getContributedClassifier(name, location)
             }
-            is ClassQualifier -> receiver.scope.getContributedClassifier(name, KotlinLookupLocation(expression))
-            null -> context.scope.findClassifier(name, KotlinLookupLocation(expression)) ?:
+            is ClassQualifier -> receiver.staticScope.getContributedClassifier(name, location)
+            null -> context.scope.findClassifier(name, location) ?:
                     context.scope.ownerDescriptor.module.getPackage(FqName.ROOT.child(name)).check { !it.isEmpty() }
-            is ReceiverValue -> receiver.type.memberScope.memberScopeAsImportingScope().findClassifier(name, KotlinLookupLocation(expression))
+            is ReceiverValue -> receiver.type.memberScope.memberScopeAsImportingScope().findClassifier(name, location)
             else -> null
         }
 
@@ -583,7 +584,8 @@ class QualifiedExpressionResolver(val symbolUsageValidator: SymbolUsageValidator
         val qualifier =
                 when (descriptor) {
                     is PackageViewDescriptor -> PackageQualifier(referenceExpression, descriptor)
-                    is ClassifierDescriptor -> createClassifierQualifier(referenceExpression, descriptor, trace.bindingContext)
+                    is ClassDescriptor -> ClassQualifier(referenceExpression, descriptor)
+                    is TypeParameterDescriptor -> TypeParameterQualifier(referenceExpression, descriptor)
                     else -> return null
                 }
 

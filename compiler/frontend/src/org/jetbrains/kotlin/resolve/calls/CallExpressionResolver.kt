@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,26 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
+import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.bindingContextUtil.*
-import org.jetbrains.kotlin.resolve.calls.callUtil.*
+import org.jetbrains.kotlin.resolve.bindingContextUtil.recordDataFlowInfo
+import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
+import org.jetbrains.kotlin.resolve.calls.callUtil.getCalleeExpressionIfAny
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CheckArgumentTypesMode
+import org.jetbrains.kotlin.resolve.calls.context.ContextDependency.INDEPENDENT
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.TemporaryTraceAndCache
 import org.jetbrains.kotlin.resolve.calls.model.DataFlowInfoForArgumentsImpl
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults.Code.CANDIDATES_WITH_WRONG_RECEIVER
+import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults.Code.NAME_NOT_FOUND
 import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResultsUtil
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValue
@@ -43,20 +52,14 @@ import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.TypeUtils.NO_EXPECTED_TYPE
 import org.jetbrains.kotlin.types.expressions.DataFlowAnalyzer
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 import org.jetbrains.kotlin.types.expressions.KotlinTypeInfo
-import org.jetbrains.kotlin.types.expressions.typeInfoFactory.*
-
+import org.jetbrains.kotlin.types.expressions.typeInfoFactory.createTypeInfo
+import org.jetbrains.kotlin.types.expressions.typeInfoFactory.noTypeInfo
 import javax.inject.Inject
-
-import org.jetbrains.kotlin.diagnostics.Errors.*
-import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
-import org.jetbrains.kotlin.resolve.calls.context.ContextDependency.INDEPENDENT
-import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults.Code.CANDIDATES_WITH_WRONG_RECEIVER
-import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults.Code.NAME_NOT_FOUND
-import org.jetbrains.kotlin.types.TypeUtils.NO_EXPECTED_TYPE
 
 class CallExpressionResolver(
         private val callResolver: CallResolver,
@@ -310,7 +313,7 @@ class CallExpressionResolver(
         val selector = element.selector
         var selectorTypeInfo = getUnsafeSelectorTypeInfo(receiver, element.node, selector, context, initialDataFlowInfoForArguments)
 
-        if (receiver is QualifierReceiver) {
+        if (receiver is Qualifier) {
             resolveDeferredReceiverInQualifiedExpression(receiver, selector, context)
         }
 
@@ -380,7 +383,7 @@ class CallExpressionResolver(
         for (element in elementChain) {
             val receiverType = receiverTypeInfo.type ?: ErrorUtils.createErrorType("Type for " + element.receiver.text)
 
-            val receiver = trace.get(BindingContext.QUALIFIER, element.receiver) as QualifierReceiver?
+            val receiver = trace.get(BindingContext.QUALIFIER, element.receiver)
                            ?: ExpressionReceiver.create(element.receiver, receiverType, trace.bindingContext)
 
             val qualifiedExpression = element.qualified
@@ -416,7 +419,7 @@ class CallExpressionResolver(
     }
 
     private fun resolveDeferredReceiverInQualifiedExpression(
-            qualifierReceiver: QualifierReceiver,
+            qualifier: Qualifier,
             selectorExpression: KtExpression?,
             context: ExpressionTypingContext
     ) {
@@ -425,7 +428,7 @@ class CallExpressionResolver(
             context.trace.get(BindingContext.REFERENCE_TARGET, it)
         }
 
-        resolveQualifierAsReceiverInExpression(qualifierReceiver, selectorDescriptor, context, symbolUsageValidator)
+        resolveQualifierAsReceiverInExpression(qualifier, selectorDescriptor, context, symbolUsageValidator)
     }
 
     companion object {
@@ -481,7 +484,7 @@ class CallExpressionResolver(
                 assert(expressionQualifier is ClassQualifier) { "Only class can (package cannot) be accessed by instance reference: " + expressionQualifier }
                 context.trace.report(NESTED_CLASS_ACCESSED_VIA_INSTANCE_REFERENCE.on(
                         selectorExpression,
-                        (expressionQualifier as ClassQualifier).classifier))
+                        (expressionQualifier as ClassQualifier).descriptor))
             }
         }
     }

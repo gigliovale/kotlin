@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,6 @@
 package org.jetbrains.kotlin.resolve.scopes
 
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.incremental.components.LookupLocation
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.scopes.utils.takeSnapshot
 import org.jetbrains.kotlin.utils.Printer
 
 class LexicalScopeImpl @JvmOverloads constructor(
@@ -28,20 +25,13 @@ class LexicalScopeImpl @JvmOverloads constructor(
         override val isOwnerDescriptorAccessibleByLabel: Boolean,
         override val implicitReceiver: ReceiverParameterDescriptor?,
         override val kind: LexicalScopeKind,
-        redeclarationHandler: RedeclarationHandler = RedeclarationHandler.DO_NOTHING,
+        redeclarationChecker: LocalRedeclarationChecker = LocalRedeclarationChecker.DO_NOTHING,
         initialize: LexicalScopeImpl.InitializeHandler.() -> Unit = {}
-): LexicalScope, WritableScopeStorage(redeclarationHandler) {
-    override val parent = parent.takeSnapshot()
+): LexicalScope, LexicalScopeStorage(parent, redeclarationChecker) {
 
     init {
         InitializeHandler().initialize()
     }
-
-    override fun getContributedClassifier(name: Name, location: LookupLocation) = getClassifier(name)
-    override fun getContributedVariables(name: Name, location: LookupLocation) = getVariables(name)
-
-    override fun getContributedFunctions(name: Name, location: LookupLocation) = getFunctions(name)
-    override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean) = addedDescriptors
 
     override fun toString(): String = kind.toString()
 

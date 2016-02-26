@@ -1859,7 +1859,7 @@ public inline fun <T> Collection<T>.plusElement(element: T): List<T> {
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> Iterable<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
@@ -1887,7 +1887,7 @@ public fun <T> Iterable<T>.window(size: Int, step: Int = size.coerceAtLeast(1), 
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> List<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
@@ -1912,7 +1912,7 @@ public fun <T> List<T>.window(size: Int, step: Int = size.coerceAtLeast(1), drop
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> List<T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {

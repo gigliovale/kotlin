@@ -1129,7 +1129,7 @@ public inline fun String.partition(predicate: (Char) -> Boolean): Pair<String, S
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
@@ -1154,7 +1154,7 @@ public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dro
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
@@ -1179,7 +1179,7 @@ public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrail
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
@@ -1204,7 +1204,7 @@ public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun String.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {

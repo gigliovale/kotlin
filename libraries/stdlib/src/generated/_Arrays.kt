@@ -11156,7 +11156,7 @@ public inline fun CharArray.partition(predicate: (Char) -> Boolean): Pair<List<C
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
@@ -11181,7 +11181,7 @@ public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1),
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
@@ -11206,7 +11206,7 @@ public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
@@ -11231,7 +11231,7 @@ public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropT
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
@@ -11256,7 +11256,7 @@ public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTra
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
@@ -11281,7 +11281,7 @@ public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
@@ -11306,7 +11306,7 @@ public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropT
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
@@ -11331,7 +11331,7 @@ public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), drop
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
@@ -11356,7 +11356,7 @@ public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dro
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
@@ -11381,7 +11381,7 @@ public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
@@ -11406,7 +11406,7 @@ public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtL
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
@@ -11431,7 +11431,7 @@ public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1)
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
@@ -11456,7 +11456,7 @@ public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
@@ -11481,7 +11481,7 @@ public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1),
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
@@ -11506,7 +11506,7 @@ public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1)
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
@@ -11531,7 +11531,7 @@ public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
@@ -11556,7 +11556,7 @@ public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
@@ -11581,7 +11581,7 @@ public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun CharArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {

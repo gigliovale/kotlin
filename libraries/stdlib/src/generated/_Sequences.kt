@@ -1155,7 +1155,7 @@ public inline fun <T> Sequence<T>.plusElement(element: T): Sequence<T> {
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
- * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]
+ * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
 public fun <T> Sequence<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {

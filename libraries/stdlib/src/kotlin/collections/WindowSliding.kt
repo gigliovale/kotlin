@@ -68,12 +68,13 @@ internal fun <T> windowForwardOnlySequenceImpl(iterator: Iterator<T>, size: Int,
 private fun <T> windowForwardWithGap(iterator: Iterator<T>, size: Int, step: Int, dropTrailing: Boolean): Sequence<List<T>> {
     require(step >= size)
     var first = true
+    val gap = step - size
 
     return generateSequence {
         if (first) {
             first = false
         } else {
-            for (skip in 1..step - size) {
+            for (skip in 1..gap) {
                 if (!iterator.hasNext()) {
                     break
                 }

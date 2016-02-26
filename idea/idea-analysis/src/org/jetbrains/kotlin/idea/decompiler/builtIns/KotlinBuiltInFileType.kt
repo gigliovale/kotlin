@@ -18,31 +18,15 @@ package org.jetbrains.kotlin.idea.decompiler.builtIns
 
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.kotlin.builtins.BuiltInsSerializedResourcePaths
+import org.jetbrains.kotlin.builtins.BuiltInSerializerProtocol
 import org.jetbrains.kotlin.idea.KotlinIcons
 
-object KotlinBuiltInClassFileType : FileType {
-    override fun getName() = "kotlin_class"
+object KotlinBuiltInFileType : FileType {
+    override fun getName() = "kotlin_builtins"
 
-    override fun getDescription() = "Kotlin builtin class"
+    override fun getDescription() = "Kotlin built-in declarations"
 
-    override fun getDefaultExtension() = BuiltInsSerializedResourcePaths.CLASS_METADATA_FILE_EXTENSION
-
-    override fun getIcon() = KotlinIcons.CLASS
-
-    override fun isBinary() = true
-
-    override fun isReadOnly() = true
-
-    override fun getCharset(file: VirtualFile, content: ByteArray) = null
-}
-
-object KotlinBuiltInPackageFileType : FileType {
-    override fun getName() = "kotlin_package"
-
-    override fun getDescription() = "Kotlin builtin package"
-
-    override fun getDefaultExtension() = BuiltInsSerializedResourcePaths.PACKAGE_FILE_EXTENSION
+    override fun getDefaultExtension() = BuiltInSerializerProtocol.BUILTINS_FILE_EXTENSION
 
     override fun getIcon() = KotlinIcons.FILE
 

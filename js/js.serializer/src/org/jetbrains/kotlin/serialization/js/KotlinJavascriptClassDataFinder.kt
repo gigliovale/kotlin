@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,36 +14,23 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.decompiler.common
+package org.jetbrains.kotlin.serialization.js
 
-import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.ClassData
 import org.jetbrains.kotlin.serialization.ClassDataWithSource
-import org.jetbrains.kotlin.serialization.SerializedResourcePaths
+import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.ClassDataFinder
 import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import java.io.InputStream
 
-class DirectoryBasedClassDataFinder(
-        private val packageDirectory: VirtualFile,
-        private val directoryPackageFqName: FqName,
+class KotlinJavascriptClassDataFinder(
         private val nameResolver: NameResolver,
-        private val paths: SerializedResourcePaths
+        private val loadResource: (path: String) -> InputStream?
 ) : ClassDataFinder {
-    fun findFileForClass(classId: ClassId): VirtualFile? {
-        if (classId.packageFqName != directoryPackageFqName) return null
-
-        val pathRelativeToDir = paths.getClassMetadataPath(classId).substringAfterLast("/")
-        return packageDirectory.findChild(pathRelativeToDir)
-    }
-
     override fun findClassData(classId: ClassId): ClassDataWithSource? {
-        val virtualFile = findFileForClass(classId) ?: return null
-
-        val content = virtualFile.contentsToByteArray(false)
-        val classProto = content.toClassProto(paths.extensionRegistry)
+        val stream = loadResource(KotlinJavascriptSerializedResourcePaths.getClassMetadataPath(classId)) ?: return null
+        val classProto = ProtoBuf.Class.parseFrom(stream, JsSerializerProtocol.extensionRegistry)
         return ClassDataWithSource(ClassData(nameResolver, classProto))
     }
 }
-

@@ -16,49 +16,62 @@
 
 package org.jetbrains.kotlin.idea.decompiler.stubBuilder
 
+import com.intellij.psi.stubs.PsiFileStub
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.util.indexing.FileContentImpl
-import org.jetbrains.kotlin.idea.decompiler.builtIns.KotlinBuiltInClassFileType
-import org.jetbrains.kotlin.idea.decompiler.builtIns.KotlinBuiltInPackageFileType
+import org.jetbrains.kotlin.builtins.BuiltInSerializerProtocol
+import org.jetbrains.kotlin.builtins.BuiltInsBinaryVersion
 import org.jetbrains.kotlin.idea.decompiler.builtIns.KotlinBuiltInStubBuilder
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.stubs.elements.KtFileStubBuilder
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.junit.Assert
 import java.io.File
 
-class BuiltInDecompilerTest : LightCodeInsightFixtureTestCase() {
-
-    fun testAny() {
-        doTest("Any.${KotlinBuiltInClassFileType.defaultExtension}", "Any")
-    }
-
-    fun testInt() {
-        doTest("Int.${KotlinBuiltInClassFileType.defaultExtension}", "Int")
-    }
-
-    fun testKotlinPackage() {
-        doTest("kotlin.${KotlinBuiltInPackageFileType.defaultExtension}", "kotlin_package")
-    }
-
-    private fun doTest(fileName: String, testDataName: String) {
-        val kotlinDirInRuntime = findDir("kotlin", project)
-        val anyKotlinClass = kotlinDirInRuntime.findChild(fileName)!!
-        val stubTreeFromDecompiler = KotlinBuiltInStubBuilder().buildFileStub(FileContentImpl.createByFile(anyKotlinClass))!!
-        myFixture.configureFromExistingVirtualFile(anyKotlinClass)
-        val psiFile = myFixture.file
-        KotlinTestUtils.assertEqualsToFile(File(testDirPath + "$testDataName.text"), psiFile.text)
-
-        val stubTreeFromDecompiledText = KtFileStubBuilder().buildStubTree(psiFile)
+abstract class AbstractBuiltInDecompilerTest : LightCodeInsightFixtureTestCase() {
+    protected fun doTest(packageFqName: String): String {
+        val stubTreeFromDecompiler = configureAndBuildFileStub(packageFqName)
+        val stubTreeFromDecompiledText = KtFileStubBuilder().buildStubTree(myFixture.file)
         val expectedText = stubTreeFromDecompiledText.serializeToString()
-        Assert.assertEquals(expectedText, stubTreeFromDecompiler.serializeToString())
-        KotlinTestUtils.assertEqualsToFile(File(testDirPath + "$testDataName.stubs"), expectedText)
+        Assert.assertEquals("Stub mismatch for package $packageFqName", expectedText, stubTreeFromDecompiler.serializeToString())
+        return expectedText
     }
+
+    abstract fun configureAndBuildFileStub(packageFqName: String): PsiFileStub<*>
 
     override fun getProjectDescriptor() = KotlinWithJdkAndRuntimeLightProjectDescriptor.INSTANCE
+}
 
-    companion object {
-        private val testDirPath = PluginTestCaseBase.getTestDataPathBase() + "/decompiler/builtIns/"
+class BuiltInDecompilerTest : AbstractBuiltInDecompilerTest() {
+    override fun configureAndBuildFileStub(packageFqName: String): PsiFileStub<*> {
+        val dirInRuntime = findDir(packageFqName, project)
+        val kotlinBuiltInsVirtualFile = dirInRuntime.children.single { it.extension == BuiltInSerializerProtocol.BUILTINS_FILE_EXTENSION }
+        myFixture.configureFromExistingVirtualFile(kotlinBuiltInsVirtualFile)
+        return KotlinBuiltInStubBuilder().buildFileStub(FileContentImpl.createByFile(kotlinBuiltInsVirtualFile))!!
+    }
+
+    fun testBuiltInStubTreeEqualToStubTreeFromDecompiledText() {
+        doTest("kotlin")
+        doTest("kotlin.collections")
+    }
+}
+
+class BuiltInDecompilerForWrongAbiVersionTest : AbstractBuiltInDecompilerTest() {
+    override fun getTestDataPath() = PluginTestCaseBase.getTestDataPathBase() + "/decompiler/builtins/"
+
+    override fun configureAndBuildFileStub(packageFqName: String): PsiFileStub<*> {
+        myFixture.configureByFile(testDataPath + BuiltInSerializerProtocol.getBuiltInsFilePath(FqName(packageFqName)))
+        return KotlinBuiltInStubBuilder().buildFileStub(FileContentImpl.createByFile(myFixture.file.virtualFile))!!
+    }
+
+    fun testStubTreesEqualForIncompatibleAbiVersion() {
+        val serializedStub = doTest("test")
+        KotlinTestUtils.assertEqualsToFile(
+                File(testDataPath + "test.text"),
+                myFixture.file.text.replace(BuiltInsBinaryVersion.INSTANCE.toString(), "\$VERSION\$")
+        )
+        KotlinTestUtils.assertEqualsToFile(File(testDataPath + "test.stubs"), serializedStub)
     }
 }

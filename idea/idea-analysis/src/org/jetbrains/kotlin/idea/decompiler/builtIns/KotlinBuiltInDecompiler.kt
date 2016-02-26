@@ -17,37 +17,38 @@
 package org.jetbrains.kotlin.idea.decompiler.builtIns
 
 import com.intellij.ide.highlighter.JavaClassFileType
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.FileViewProvider
 import com.intellij.psi.PsiManager
 import com.intellij.psi.compiled.ClassFileDecompilers
-import org.jetbrains.kotlin.builtins.BuiltInsSerializedResourcePaths
+import org.jetbrains.annotations.TestOnly
+import org.jetbrains.kotlin.builtins.BuiltInSerializerProtocol
+import org.jetbrains.kotlin.builtins.BuiltInsBinaryVersion
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.decompiler.KotlinDecompiledFileViewProvider
 import org.jetbrains.kotlin.idea.decompiler.KtDecompiledFile
-import org.jetbrains.kotlin.idea.decompiler.common.toClassProto
-import org.jetbrains.kotlin.idea.decompiler.common.toPackageProto
+import org.jetbrains.kotlin.idea.decompiler.common.createIncompatibleAbiVersionDecompiledText
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.DecompiledText
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.buildDecompiledText
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.defaultDecompilerRendererOptions
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
-import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.builtins.BuiltInsProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.NameResolverImpl
+import java.io.ByteArrayInputStream
 
 class KotlinBuiltInDecompiler : ClassFileDecompilers.Full() {
     private val stubBuilder = KotlinBuiltInStubBuilder()
 
     override fun accepts(file: VirtualFile): Boolean {
-        return file.fileType == KotlinBuiltInClassFileType || file.fileType == KotlinBuiltInPackageFileType
+        return file.fileType == KotlinBuiltInFileType
     }
 
     override fun getStubBuilder() = stubBuilder
 
     override fun createFileViewProvider(file: VirtualFile, manager: PsiManager, physical: Boolean): FileViewProvider {
         return KotlinDecompiledFileViewProvider(manager, file, physical) { provider ->
-            if (isInternalBuiltInFile(provider.virtualFile)) {
+            if (BuiltInDefinitionFile.read(provider.virtualFile) == null) {
                 null
             }
             else {
@@ -57,62 +58,79 @@ class KotlinBuiltInDecompiler : ClassFileDecompilers.Full() {
             }
         }
     }
-
-    companion object {
-        val LOG = Logger.getInstance(KotlinBuiltInDecompiler::class.java)
-    }
 }
 
 private val decompilerRendererForBuiltIns = DescriptorRenderer.withOptions { defaultDecompilerRendererOptions() }
 
-fun buildDecompiledTextForBuiltIns(
-        builtInFile: VirtualFile
-): DecompiledText {
-    val directory = builtInFile.parent!!
-    val nameResolver = readStringTable(directory, KotlinBuiltInDecompiler.LOG)!!
-    val content = builtInFile.contentsToByteArray()
-    return when (builtInFile.fileType) {
-        KotlinBuiltInPackageFileType -> {
-            val packageFqName = content.toPackageProto(BuiltInsSerializedResourcePaths.extensionRegistry).packageFqName(nameResolver)
-            val resolver = KotlinBuiltInDeserializerForDecompiler(directory, packageFqName, nameResolver)
-            buildDecompiledText(packageFqName, resolver.resolveDeclarationsInFacade(packageFqName), decompilerRendererForBuiltIns)
+fun buildDecompiledTextForBuiltIns(builtInFile: VirtualFile): DecompiledText {
+    if (builtInFile.fileType != KotlinBuiltInFileType) {
+        error("Unexpected file type ${builtInFile.fileType}")
+    }
+
+    val file = BuiltInDefinitionFile.read(builtInFile)
+               ?: error("Unexpectedly empty built-in file: $builtInFile")
+
+    when (file) {
+        is BuiltInDefinitionFile.Incompatible -> {
+            return createIncompatibleAbiVersionDecompiledText(BuiltInsBinaryVersion.INSTANCE, file.version)
         }
-        KotlinBuiltInClassFileType -> {
-            val classProto = content.toClassProto(BuiltInsSerializedResourcePaths.extensionRegistry)
-            val classId = nameResolver.getClassId(classProto.fqName)
-            val packageFqName = classId.packageFqName
-            val resolver = KotlinBuiltInDeserializerForDecompiler(directory, packageFqName, nameResolver)
-            buildDecompiledText(
-                    packageFqName,
-                    listOfNotNull(resolver.resolveTopLevelClass(classId)),
-                    decompilerRendererForBuiltIns
-            )
+        is BuiltInDefinitionFile.Compatible -> {
+            val packageFqName = file.packageFqName
+            val resolver = KotlinBuiltInDeserializerForDecompiler(file.packageDirectory, packageFqName, file.proto, file.nameResolver)
+            val declarations = arrayListOf<DeclarationDescriptor>()
+            declarations.addAll(resolver.resolveDeclarationsInFacade(packageFqName))
+            for (classProto in file.classesToDecompile) {
+                val classId = file.nameResolver.getClassId(classProto.fqName)
+                declarations.add(resolver.resolveTopLevelClass(classId)!!)
+            }
+            return buildDecompiledText(packageFqName, declarations, decompilerRendererForBuiltIns)
         }
-        else -> error("Unexpected filetype ${builtInFile.fileType}")
     }
 }
 
-fun ProtoBuf.Package.packageFqName(nameResolver: NameResolverImpl): FqName {
-    return nameResolver.getPackageFqName(getExtension(BuiltInsProtoBuf.packageFqName))
-}
+sealed class BuiltInDefinitionFile {
+    class Incompatible(val version: BuiltInsBinaryVersion) : BuiltInDefinitionFile()
 
-fun isInternalBuiltInFile(virtualFile: VirtualFile): Boolean {
-    when (virtualFile.fileType) {
-        KotlinBuiltInPackageFileType -> {
-            // do not accept kotlin_package files without packageFqName extension to avoid failing on older runtimes
-            // this check may be costly but there are few kotlin_package files
-            val packageProto = virtualFile.contentsToByteArray().toPackageProto(BuiltInsSerializedResourcePaths.extensionRegistry)
-            return !packageProto.hasExtension(BuiltInsProtoBuf.packageFqName)
+    class Compatible(val proto: BuiltInsProtoBuf.BuiltIns, val packageDirectory: VirtualFile) : BuiltInDefinitionFile() {
+        val nameResolver = NameResolverImpl(proto.strings, proto.qualifiedNames)
+        val packageFqName = nameResolver.getPackageFqName(proto.`package`.getExtension(BuiltInsProtoBuf.packageFqName))
+
+        val classesToDecompile =
+                if (FILTER_OUT_CLASSES_EXISTING_AS_JVM_CLASS_FILES) proto.classList.filter { classProto ->
+                    shouldDecompileBuiltInClass(nameResolver.getClassId(classProto.fqName))
+                }
+                else proto.classList
+
+        private fun shouldDecompileBuiltInClass(classId: ClassId): Boolean {
+            if (classId.isNestedClass) return false
+
+            val realJvmClassFileName = classId.shortClassName.asString() + "." + JavaClassFileType.INSTANCE.defaultExtension
+            return packageDirectory.findChild(realJvmClassFileName) == null
         }
-        KotlinBuiltInClassFileType -> {
-            val correspondsToInnerClass = virtualFile.nameWithoutExtension.contains('.')
-            if (correspondsToInnerClass) {
-                return true
+    }
+
+    companion object {
+        var FILTER_OUT_CLASSES_EXISTING_AS_JVM_CLASS_FILES = true
+            @TestOnly set
+
+        fun read(file: VirtualFile): BuiltInDefinitionFile? {
+            val stream = ByteArrayInputStream(file.contentsToByteArray())
+
+            val version = BuiltInsBinaryVersion.readFrom(stream)
+            if (!version.isCompatible()) {
+                return BuiltInDefinitionFile.Incompatible(version)
             }
-            val classFileName = virtualFile.nameWithoutExtension + "." + JavaClassFileType.INSTANCE.defaultExtension
-            val classFileForTheSameClassIsPresent = virtualFile.parent!!.findChild(classFileName) != null
-            return classFileForTheSameClassIsPresent
+
+            val proto = BuiltInsProtoBuf.BuiltIns.parseFrom(stream, BuiltInSerializerProtocol.extensionRegistry)
+            val result = BuiltInDefinitionFile.Compatible(proto, file.parent)
+            if (result.classesToDecompile.isEmpty() &&
+                result.proto.`package`.functionCount == 0 &&
+                result.proto.`package`.propertyCount == 0) {
+                // No callables or top-level classes to decompile: should skip this file
+                return null
+            }
+
+            return result
         }
-        else -> error("Unexpected filetype ${virtualFile.fileType}")
     }
 }

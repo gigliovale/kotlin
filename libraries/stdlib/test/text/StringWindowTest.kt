@@ -40,6 +40,7 @@ class StringWindowTest {
         assertFails {
             "".windowBackward(0, 0)
         }
+        assertTrue { true } // it is required for JS tests to have at least one assertion
     }
 
     @Test
@@ -144,6 +145,12 @@ class StringWindowTest {
 
                 assertEquals(text, concat)
             }
+        }
+    }
+
+    private fun String.repeat(times: Int) = buildString {
+        for (i in 1 .. times) {
+            append(this@repeat)
         }
     }
 }

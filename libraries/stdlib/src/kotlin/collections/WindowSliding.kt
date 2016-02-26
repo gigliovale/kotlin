@@ -58,40 +58,63 @@ internal fun <T> windowForwardOnlySequenceImpl(iterator: Iterator<T>, size: Int,
     require(size >= 0) { "size should not be negative" }
     require(step > 0) { "step should be positive non zero" }
 
-    val buffer = LinkedList<T>()
-
-    fun rollBuffer() {
-        if (step >= buffer.size) {
-            val bufferSize = buffer.size
-            buffer.clear()
-
-            for (i in bufferSize .. step - 1) {
-                if (!iterator.hasNext())
-                    break
-                iterator.next()
-            }
-        } else {
-            repeat(step) {
-                buffer.removeAt(0)
-            }
-        }
+    return if (step >= size) {
+        windowForwardWithGap(iterator, size, step, dropTrailing)
+    } else {
+        windowForwardWithOverlap(iterator, size, step, dropTrailing)
     }
+}
+
+private fun <T> windowForwardWithGap(iterator: Iterator<T>, size: Int, step: Int, dropTrailing: Boolean): Sequence<List<T>> {
+    require(step >= size)
+    var first = true
 
     return generateSequence {
-        while (buffer.size < size && iterator.hasNext()) {
+        if (first) {
+            first = false
+        } else {
+            for (skip in 1..step - size) {
+                if (!iterator.hasNext()) {
+                    break
+                }
+                iterator.next()
+            }
+        }
+
+        val buffer = ArrayList<T>(size)
+        for (i in 1..size) {
+            if (!iterator.hasNext()) {
+                break
+            }
             buffer.add(iterator.next())
         }
 
         when {
-            !iterator.hasNext() && buffer.size < size && dropTrailing -> null
-            !iterator.hasNext() && buffer.isEmpty() -> null
-            else -> {
-                val part = buffer.toList()
+            buffer.isEmpty() && !iterator.hasNext() -> null
+            buffer.size < size && dropTrailing -> null
+            else -> buffer
+        }
+    }
+}
 
-                rollBuffer()
+private fun <T> windowForwardWithOverlap(iterator: Iterator<T>, size: Int, step: Int, dropTrailing: Boolean): Sequence<List<T>> {
+    require(step < size)
 
-                part
-            }
+    val buffer = RingBuffer<T>(size)
+
+    return generateSequence {
+        if (buffer.size >= step) {
+            buffer.removeFirst(step)
+        }
+
+        while (!buffer.isFull() && iterator.hasNext()) {
+            buffer.add(iterator.next())
+        }
+
+        when {
+            buffer.isEmpty() && !iterator.hasNext() -> null
+            !buffer.isFull() && dropTrailing -> null
+            else -> buffer.toList()
         }
     }
 }

@@ -33,8 +33,6 @@ import org.jetbrains.kotlin.cli.AbstractCliTest
 import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.defaultConstructor.AbstractDefaultArgumentsReflectionTest
 import org.jetbrains.kotlin.codegen.flags.AbstractWriteFlagsTest
-import org.jetbrains.kotlin.codegen.generated.AbstractBlackBoxCodegenTest
-import org.jetbrains.kotlin.codegen.generated.AbstractBlackBoxInlineCodegenTest
 import org.jetbrains.kotlin.findUsages.AbstractFindUsagesTest
 import org.jetbrains.kotlin.findUsages.AbstractKotlinFindUsagesWithLibraryTest
 import org.jetbrains.kotlin.formatter.AbstractFormatterTest
@@ -196,23 +194,15 @@ fun main(args: Array<String>) {
         }
 
         testClass<AbstractBlackBoxInlineCodegenTest>("BlackBoxInlineCodegenTestGenerated") {
-            model("codegen/boxInline", extension = "1.kt", testMethod = "doTestMultiFileWithInlineCheck")
+            model("codegen/boxInline")
         }
 
         testClass<AbstractCompileKotlinAgainstInlineKotlinTest>("CompileKotlinAgainstInlineKotlinTestGenerated") {
-            model("codegen/boxInline", extension = "1.kt", testMethod = "doBoxTestWithInlineCheck")
-        }
-
-        testClass(AbstractBlackBoxMultifileClassCodegenTest::class.java, "BlackBoxMultifileClassKotlinTestGenerated") {
-            model("codegen/boxMultifileClasses", extension = "1.kt", testMethod = "doTestMultifileClassAgainstSources")
-        }
-
-        testClass(AbstractCompileKotlinAgainstMultifileKotlinTest::class.java, "CompileKotlinAgainstMultifileKotlinTestGenerated") {
-            model("codegen/boxMultifileClasses", extension = "1.kt", testMethod = "doBoxTest")
+            model("codegen/boxInline")
         }
 
         testClass<AbstractBlackBoxCodegenTest>("BlackBoxMultiFileCodegenTestGenerated") {
-            model("codegen/boxMultiFile", extension = null, recursive = false, testMethod = "doTestMultiFile")
+            model("codegen/boxMultiFile")
         }
 
         testClass<AbstractBlackBoxCodegenTest>("BlackBoxAgainstJavaCodegenTestGenerated") {
@@ -284,7 +274,7 @@ fun main(args: Array<String>) {
         }
 
         testClass<AbstractCompileKotlinAgainstKotlinTest>() {
-            model("compileKotlinAgainstKotlin", extension = "A.kt")
+            model("compileKotlinAgainstKotlin")
         }
 
         testClass<AbstractDescriptorRendererTest>() {

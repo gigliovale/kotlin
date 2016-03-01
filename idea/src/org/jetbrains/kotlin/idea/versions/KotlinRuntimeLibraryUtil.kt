@@ -42,9 +42,7 @@ import org.jetbrains.kotlin.idea.configuration.KotlinJavaModuleConfigurator
 import org.jetbrains.kotlin.idea.configuration.KotlinJsModuleConfigurator
 import org.jetbrains.kotlin.idea.configuration.createConfigureKotlinNotificationCollector
 import org.jetbrains.kotlin.idea.configuration.getConfiguratorByName
-import org.jetbrains.kotlin.idea.framework.JSLibraryStdPresentationProvider
-import org.jetbrains.kotlin.idea.framework.JavaRuntimePresentationProvider
-import org.jetbrains.kotlin.idea.framework.LibraryPresentationProviderUtil
+import org.jetbrains.kotlin.idea.framework.*
 import org.jetbrains.kotlin.serialization.deserialization.BinaryVersion
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import org.jetbrains.kotlin.utils.PathUtil
@@ -64,9 +62,7 @@ fun getLibraryRootsWithAbiIncompatibleForKotlinJs(module: Module): Collection<Vi
 }
 
 
-fun updateLibraries(
-        project: Project,
-        libraries: Collection<Library>) {
+fun updateLibraries(project: Project, libraries: Collection<Library>) {
     ApplicationManager.getApplication().invokeLater {
         val kJvmConfigurator = getConfiguratorByName(KotlinJavaModuleConfigurator.NAME) as KotlinJavaModuleConfigurator? ?:
                                error("Configurator with given name doesn't exists: " + KotlinJavaModuleConfigurator.NAME)
@@ -77,26 +73,26 @@ fun updateLibraries(
         val collector = createConfigureKotlinNotificationCollector(project)
 
         for (library in libraries) {
-            if (LibraryPresentationProviderUtil.isDetected(JavaRuntimePresentationProvider.getInstance(), library)) {
-                updateJar(project, JavaRuntimePresentationProvider.getRuntimeJar(library), LibraryJarDescriptor.RUNTIME_JAR)
-                updateJar(project, JavaRuntimePresentationProvider.getReflectJar(library), LibraryJarDescriptor.REFLECT_JAR)
-                updateJar(project, JavaRuntimePresentationProvider.getTestJar(library), LibraryJarDescriptor.TEST_JAR)
+            if (isDetected(JavaRuntimePresentationProvider.getInstance(), library)) {
+                updateJar(project, getRuntimeJar(library), LibraryJarDescriptor.RUNTIME_JAR)
+                updateJar(project, getReflectJar(library), LibraryJarDescriptor.REFLECT_JAR)
+                updateJar(project, getTestJar(library), LibraryJarDescriptor.TEST_JAR)
 
                 if (kJvmConfigurator.changeOldSourcesPathIfNeeded(library, collector)) {
                     kJvmConfigurator.copySourcesToPathFromLibrary(library, collector)
                 }
                 else {
-                    updateJar(project, JavaRuntimePresentationProvider.getRuntimeSrcJar(library), LibraryJarDescriptor.RUNTIME_SRC_JAR)
+                    updateJar(project, getRuntimeSrcJar(library), LibraryJarDescriptor.RUNTIME_SRC_JAR)
                 }
             }
-            else if (LibraryPresentationProviderUtil.isDetected(JSLibraryStdPresentationProvider.getInstance(), library)) {
-                updateJar(project, JSLibraryStdPresentationProvider.getJsStdLibJar(library), LibraryJarDescriptor.JS_STDLIB_JAR)
+            else if (isDetected(JSLibraryStdPresentationProvider.getInstance(), library)) {
+                updateJar(project, getJsStdLibJar(library), LibraryJarDescriptor.JS_STDLIB_JAR)
 
                 if (kJsConfigurator.changeOldSourcesPathIfNeeded(library, collector)) {
                     kJsConfigurator.copySourcesToPathFromLibrary(library, collector)
                 }
                 else {
-                    updateJar(project, JSLibraryStdPresentationProvider.getJsStdLibSrcJar(library), LibraryJarDescriptor.JS_STDLIB_SRC_JAR)
+                    updateJar(project, getJsStdLibSrcJar(library), LibraryJarDescriptor.JS_STDLIB_SRC_JAR)
                 }
             }
         }

@@ -70,16 +70,20 @@ private fun <T> windowForwardWithGap(iterator: Iterator<T>, size: Int, step: Int
     var first = true
     val gap = step - size
 
+    fun skipGap() {
+        for (skip in 1..gap) {
+            if (!iterator.hasNext()) {
+                break
+            }
+            iterator.next()
+        }
+    }
+
     return generateSequence {
         if (first) {
             first = false
         } else {
-            for (skip in 1..gap) {
-                if (!iterator.hasNext()) {
-                    break
-                }
-                iterator.next()
-            }
+            skipGap()
         }
 
         val buffer = ArrayList<T>(size)
@@ -104,8 +108,8 @@ private fun <T> windowForwardWithOverlap(iterator: Iterator<T>, size: Int, step:
     val buffer = RingBuffer<T>(size)
 
     return generateSequence {
-        if (buffer.size >= step) {
-            buffer.removeFirst(step)
+        if (!buffer.isEmpty()) {
+            buffer.removeFirst(Math.min(step, buffer.size))
         }
 
         while (!buffer.isFull() && iterator.hasNext()) {

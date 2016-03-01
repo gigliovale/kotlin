@@ -92,15 +92,6 @@ public open class HashSet<E>(
 }
 
 @library
-public interface SortedSet<E> : Set<E> {
-}
-
-@library
-public open class TreeSet<E>() : AbstractCollection<E>(), MutableSet<E>, SortedSet<E> {
-    override val size: Int get() = noImpl
-}
-
-@library
 public open class LinkedHashSet<E>(
         initialCapacity: Int = DEFAULT_INITIAL_CAPACITY, loadFactor: Float = DEFAULT_LOAD_FACTOR
 ) : HashSet<E>(initialCapacity, loadFactor), MutableSet<E> {
@@ -130,12 +121,6 @@ public open class LinkedHashMap<K, V>(
 
 @library
 public open class NoSuchElementException(message: String? = null) : Exception() {}
-
-@library
-public interface Enumeration<E> {
-    public fun hasMoreElements(): Boolean
-    public fun nextElement(): E
-}
 
 @native
 public class Date() {

@@ -111,7 +111,10 @@ import org.jetbrains.kotlin.jps.build.*
 import org.jetbrains.kotlin.jps.build.android.AbstractAndroidJpsTestCase
 import org.jetbrains.kotlin.jps.incremental.AbstractProtoComparisonTest
 import org.jetbrains.kotlin.js.test.semantics.*
-import org.jetbrains.kotlin.jvm.compiler.*
+import org.jetbrains.kotlin.jvm.compiler.AbstractCompileJavaAgainstKotlinTest
+import org.jetbrains.kotlin.jvm.compiler.AbstractLoadJavaTest
+import org.jetbrains.kotlin.jvm.compiler.AbstractLoadKotlinWithTypeTableTest
+import org.jetbrains.kotlin.jvm.compiler.AbstractWriteSignatureTest
 import org.jetbrains.kotlin.jvm.runtime.AbstractJvmRuntimeDescriptorLoaderTest
 import org.jetbrains.kotlin.lang.resolve.android.test.AbstractAndroidBoxTest
 import org.jetbrains.kotlin.lang.resolve.android.test.AbstractAndroidBytecodeShapeTest
@@ -205,12 +208,12 @@ fun main(args: Array<String>) {
             model("codegen/boxMultiFile")
         }
 
-        testClass<AbstractBlackBoxCodegenTest>("BlackBoxAgainstJavaCodegenTestGenerated") {
-            model("codegen/boxAgainstJava", testMethod = "doTestAgainstJava")
+        testClass<AbstractBlackBoxAgainstJavaCodegenTest>() {
+            model("codegen/boxAgainstJava")
         }
 
         testClass<AbstractBlackBoxCodegenTest>("BlackBoxWithJavaCodegenTestGenerated") {
-            model("codegen/boxWithJava", testMethod = "doTestWithJava", extension = null, recursive = true, excludeParentDirs = true)
+            model("codegen/boxWithJava")
         }
 
         testClass<AbstractBlackBoxCodegenTest>("BlackBoxWithStdlibCodegenTestGenerated") {
@@ -221,12 +224,8 @@ fun main(args: Array<String>) {
             model("codegen/script", extension = "kts")
         }
 
-        testClass(AbstractBytecodeTextTest::class.java) {
+        testClass<AbstractBytecodeTextTest>() {
             model("codegen/bytecodeText")
-        }
-
-        testClass(AbstractBytecodeTextTest::class.java, "BytecodeTextMultifileTestGenerated") {
-            model("codegen/bytecodeTextMultifile", extension = null, recursive = false, testMethod = "doTestMultiFile")
         }
 
         testClass<AbstractBytecodeListingTest>() {
@@ -349,7 +348,7 @@ fun main(args: Array<String>) {
 
     testGroup("compiler/java8-tests/tests", "compiler/testData") {
         testClass<AbstractBlackBoxCodegenTest>("BlackBoxWithJava8CodegenTestGenerated") {
-            model("codegen/java8/boxWithJava", testMethod = "doTestWithJava", extension = null, recursive = true, excludeParentDirs = true)
+            model("codegen/java8/box")
         }
         testClass<AbstractDiagnosticsWithFullJdkTest>("DiagnosticsWithJava8TestGenerated") {
             model("diagnostics/testsWithJava8")

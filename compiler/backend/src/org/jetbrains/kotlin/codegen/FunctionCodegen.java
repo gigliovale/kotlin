@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.codegen.annotation.AnnotatedWithOnlyTargetedAnnotati
 import org.jetbrains.kotlin.codegen.context.*;
 import org.jetbrains.kotlin.codegen.optimization.OptimizationMethodVisitor;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
-import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotated;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor;
@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.resolve.constants.KClassValue;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKind;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt;
+import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodGenericSignature;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterKind;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterSignature;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
@@ -85,7 +86,7 @@ import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
 public class FunctionCodegen {
     public final GenerationState state;
-    private final JetTypeMapper typeMapper;
+    private final KotlinTypeMapper typeMapper;
     private final BindingContext bindingContext;
     private final CodegenContext owner;
     private final ClassBuilder v;
@@ -152,7 +153,7 @@ public class FunctionCodegen {
             return;
         }
 
-        JvmMethodSignature jvmSignature = typeMapper.mapSignature(functionDescriptor, contextKind);
+        JvmMethodGenericSignature jvmSignature = typeMapper.mapSignatureWithGeneric(functionDescriptor, contextKind);
         Method asmMethod = jvmSignature.getAsmMethod();
 
         int flags = getMethodAsmFlags(functionDescriptor, contextKind);
@@ -180,7 +181,7 @@ public class FunctionCodegen {
 
         generateMethodAnnotations(functionDescriptor, asmMethod, mv);
 
-        generateParameterAnnotations(functionDescriptor, mv, typeMapper.mapSignature(functionDescriptor));
+        generateParameterAnnotations(functionDescriptor, mv, typeMapper.mapSignatureSkipGeneric(functionDescriptor));
 
         generateBridges(functionDescriptor);
 
@@ -212,10 +213,10 @@ public class FunctionCodegen {
             // native @JvmStatic foo() in companion object should delegate to the static native function moved to the outer class
             mv.visitCode();
             FunctionDescriptor staticFunctionDescriptor = JvmStaticGenerator.createStaticFunctionDescriptor(functionDescriptor);
-            JvmMethodSignature jvmMethodSignature =
-                    typeMapper.mapSignature(memberCodegen.getContext().accessibleDescriptor(staticFunctionDescriptor, null));
+            Method accessorMethod =
+                    typeMapper.mapAsmMethod(memberCodegen.getContext().accessibleDescriptor(staticFunctionDescriptor, null));
             Type owningType = typeMapper.mapClass((ClassifierDescriptor) staticFunctionDescriptor.getContainingDeclaration());
-            generateDelegateToMethodBody(false, mv, jvmMethodSignature.getAsmMethod(), owningType.getInternalName());
+            generateDelegateToMethodBody(false, mv, accessorMethod, owningType.getInternalName());
         }
 
         endVisit(mv, null, origin.getElement());
@@ -300,7 +301,7 @@ public class FunctionCodegen {
     private static Type getThisTypeForFunction(
             @NotNull FunctionDescriptor functionDescriptor,
             @NotNull MethodContext context,
-            @NotNull JetTypeMapper typeMapper
+            @NotNull KotlinTypeMapper typeMapper
     ) {
         ReceiverParameterDescriptor dispatchReceiver = functionDescriptor.getDispatchReceiverParameter();
         if (functionDescriptor instanceof ConstructorDescriptor) {
@@ -332,7 +333,7 @@ public class FunctionCodegen {
         Label methodBegin = new Label();
         mv.visitLabel(methodBegin);
 
-        JetTypeMapper typeMapper = parentCodegen.typeMapper;
+        KotlinTypeMapper typeMapper = parentCodegen.typeMapper;
         if (BuiltinSpecialBridgesUtil.shouldHaveTypeSafeBarrier(functionDescriptor, getSignatureMapper(typeMapper))) {
             generateTypeCheckBarrierIfNeeded(
                     new InstructionAdapter(mv), functionDescriptor, signature.getReturnType(), /* delegateParameterType = */null);
@@ -362,7 +363,7 @@ public class FunctionCodegen {
             mv.visitLabel(methodEntry);
             context.setMethodStartLabel(methodEntry);
 
-            if (!JetTypeMapper.isAccessor(functionDescriptor)) {
+            if (!KotlinTypeMapper.isAccessor(functionDescriptor)) {
                 genNotNullAssertionsForParameters(new InstructionAdapter(mv), parentCodegen.state, functionDescriptor, frameMap);
             }
             methodEnd = new Label();
@@ -582,7 +583,7 @@ public class FunctionCodegen {
                 CallableDescriptor overridden = SpecialBuiltinMembers.getOverriddenBuiltinReflectingJvmDescriptor(descriptor);
                 assert overridden != null;
 
-                Method method = typeMapper.mapSignature(descriptor).getAsmMethod();
+                Method method = typeMapper.mapAsmMethod(descriptor);
                 int flags = ACC_ABSTRACT | getVisibilityAccessFlag(descriptor);
                 v.newMethod(JvmDeclarationOriginKt.OtherOrigin(overridden), flags, method.getName(), method.getDescriptor(), null, null);
             }
@@ -590,11 +591,11 @@ public class FunctionCodegen {
     }
 
     @NotNull
-    private static Function1<FunctionDescriptor, Method> getSignatureMapper(final @NotNull  JetTypeMapper typeMapper) {
+    private static Function1<FunctionDescriptor, Method> getSignatureMapper(final @NotNull KotlinTypeMapper typeMapper) {
         return new Function1<FunctionDescriptor, Method>() {
             @Override
             public Method invoke(FunctionDescriptor descriptor) {
-                return typeMapper.mapSignature(descriptor).getAsmMethod();
+                return typeMapper.mapAsmMethod(descriptor);
             }
         };
     }
@@ -612,7 +613,7 @@ public class FunctionCodegen {
     }
 
     @NotNull
-    public static String[] getThrownExceptions(@NotNull FunctionDescriptor function, @NotNull final JetTypeMapper mapper) {
+    public static String[] getThrownExceptions(@NotNull FunctionDescriptor function, @NotNull final KotlinTypeMapper mapper) {
         AnnotationDescriptor annotation = function.getAnnotations().findAnnotation(new FqName("kotlin.throws"));
         if (annotation == null) {
             annotation = function.getAnnotations().findAnnotation(new FqName("kotlin.jvm.Throws"));
@@ -708,7 +709,7 @@ public class FunctionCodegen {
             @NotNull Method defaultMethod
     ) {
         GenerationState state = parentCodegen.state;
-        JvmMethodSignature signature = state.getTypeMapper().mapSignature(functionDescriptor, methodContext.getContextKind());
+        JvmMethodSignature signature = state.getTypeMapper().mapSignatureWithGeneric(functionDescriptor, methodContext.getContextKind());
 
         boolean isStatic = isStaticMethod(methodContext.getContextKind(), functionDescriptor);
         FrameMap frameMap = createFrameMap(state, functionDescriptor, signature, isStatic);
@@ -978,7 +979,7 @@ public class FunctionCodegen {
                             @NotNull MemberCodegen<?> parentCodegen
                     ) {
                         Method delegateToMethod = typeMapper.mapToCallableMethod(delegatedTo, /* superCall = */ false).getAsmMethod();
-                        Method delegateMethod = typeMapper.mapSignature(delegateFunction).getAsmMethod();
+                        Method delegateMethod = typeMapper.mapAsmMethod(delegateFunction);
 
                         Type[] argTypes = delegateMethod.getArgumentTypes();
                         Type[] originalArgTypes = delegateToMethod.getArgumentTypes();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve.jvm.jvmSignature
+package org.jetbrains.kotlin.resolve.jvm.kotlinSignature
 
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.org.objectweb.asm.commons.Method
 
-interface KotlinToJvmSignatureMapper {
-    fun mapToJvmMethodSignature(function: FunctionDescriptor): Method
+internal fun FunctionDescriptor.containsVarargs() = valueParameters.any { it.varargElementType != null }
+
+internal fun Collection<FunctionDescriptor>.containsAnyNotTrivialSignature() = any { it.hasNotTrivialSignature() }
+
+private fun FunctionDescriptor.hasNotTrivialSignature(): Boolean {
+    if (extensionReceiverParameter != null) return true
+    if (hasStableParameterNames()) return true
+
+    return containsVarargs()
 }
-
-fun erasedSignaturesEqualIgnoringReturnTypes(subFunction: Method, superFunction: Method) =
-        subFunction.parametersDescriptor() == superFunction.parametersDescriptor()
-
-private fun Method.parametersDescriptor() = descriptor.substring(1, descriptor.lastIndexOf(")"))

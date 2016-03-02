@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.codegen.ClosureCodegen;
 import org.jetbrains.kotlin.codegen.StackValue;
 import org.jetbrains.kotlin.codegen.intrinsics.IntrinsicMethods;
 import org.jetbrains.kotlin.codegen.optimization.MandatoryMethodTransformer;
-import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.utils.SmartSet;
 import org.jetbrains.org.objectweb.asm.Label;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
@@ -58,7 +58,7 @@ public class MethodInliner {
 
     private final InlineCallSiteInfo inlineCallSiteInfo;
 
-    private final JetTypeMapper typeMapper;
+    private final KotlinTypeMapper typeMapper;
 
     private final List<InvokeCall> invokeCalls = new ArrayList<InvokeCall>();
 
@@ -260,8 +260,8 @@ public class MethodInliner {
 
                     //return value boxing/unboxing
                     Method bridge =
-                            typeMapper.mapSignature(ClosureCodegen.getErasedInvokeFunction(info.getFunctionDescriptor())).getAsmMethod();
-                    Method delegate = typeMapper.mapSignature(info.getFunctionDescriptor()).getAsmMethod();
+                            typeMapper.mapAsmMethod(ClosureCodegen.getErasedInvokeFunction(info.getFunctionDescriptor()));
+                    Method delegate = typeMapper.mapAsmMethod(info.getFunctionDescriptor());
                     StackValue.onStack(delegate.getReturnType()).put(bridge.getReturnType(), this);
                     setLambdaInlining(false);
                     addInlineMarker(this, false);

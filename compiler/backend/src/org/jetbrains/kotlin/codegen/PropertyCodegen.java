@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.codegen.annotation.AnnotatedSimple;
 import org.jetbrains.kotlin.codegen.annotation.AnnotatedWithFakeAnnotations;
 import org.jetbrains.kotlin.codegen.context.*;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
-import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotated;
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationSplitter;
@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.resolve.annotations.AnnotationUtilKt;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt;
+import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodGenericSignature;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPropertyDescriptor;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
@@ -74,7 +75,7 @@ public class PropertyCodegen {
     private final GenerationState state;
     private final ClassBuilder v;
     private final FunctionCodegen functionCodegen;
-    private final JetTypeMapper typeMapper;
+    private final KotlinTypeMapper typeMapper;
     private final BindingContext bindingContext;
     private final FieldOwnerContext context;
     private final MemberCodegen<?> memberCodegen;
@@ -212,7 +213,7 @@ public class PropertyCodegen {
     }
 
     public void generateConstructorPropertyAsMethodForAnnotationClass(KtParameter p, PropertyDescriptor descriptor) {
-        JvmMethodSignature signature = typeMapper.mapAnnotationParameterSignature(descriptor);
+        JvmMethodGenericSignature signature = typeMapper.mapAnnotationParameterSignature(descriptor);
         String name = p.getName();
         if (name == null) return;
         MethodVisitor mv = v.newMethod(
@@ -487,7 +488,7 @@ public class PropertyCodegen {
     public static StackValue invokeDelegatedPropertyConventionMethod(
             @NotNull PropertyDescriptor propertyDescriptor,
             @NotNull ExpressionCodegen codegen,
-            @NotNull JetTypeMapper typeMapper,
+            @NotNull KotlinTypeMapper typeMapper,
             @NotNull ResolvedCall<FunctionDescriptor> resolvedCall,
             final int indexInPropertyMetadataArray,
             int propertyMetadataArgumentIndex

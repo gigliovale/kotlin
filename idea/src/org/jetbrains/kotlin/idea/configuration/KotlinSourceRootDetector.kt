@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.configuration;
+package org.jetbrains.kotlin.idea.configuration
 
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.module.Module;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.roots.OrderRootType
+import com.intellij.openapi.roots.libraries.ui.FileTypeBasedRootFilter
+import org.jetbrains.kotlin.idea.KotlinFileType
 
-public abstract class KotlinModuleTypeManager {
-    public static KotlinModuleTypeManager getInstance() {
-        return ServiceManager.getService(KotlinModuleTypeManager.class);
-    }
-
-    public abstract boolean isAndroidGradleModule(@NotNull Module module);
-    public abstract boolean isGradleModule(@NotNull Module module);
-}
+class KotlinSourceRootDetector : FileTypeBasedRootFilter(OrderRootType.SOURCES, false, KotlinFileType.INSTANCE, "sources")

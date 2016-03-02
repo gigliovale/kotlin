@@ -18,7 +18,7 @@ package kotlin.collections
 
 import java.util.*
 
-internal fun windowImpl(sourceSize: Int, size: Int, step: Int, dropTrailing: Boolean): Sequence<IntRange> {
+internal fun windowIndices(sourceSize: Int, size: Int, step: Int, dropTrailing: Boolean): Sequence<IntRange> {
     require(size >= 0) { "size should not be negative" }
     require(step != 0) { "step shouldn't be zero" }
 
@@ -116,10 +116,11 @@ private fun <T> windowForwardWithOverlap(iterator: Iterator<T>, size: Int, step:
             buffer.add(iterator.next())
         }
 
+        @Suppress("UNCHECKED_CAST")
         when {
             buffer.isEmpty() && !iterator.hasNext() -> null
             !buffer.isFull() && dropTrailing -> null
-            else -> buffer.toList()
+            else -> buffer.toArray().asList() as List<T>
         }
     }
 }

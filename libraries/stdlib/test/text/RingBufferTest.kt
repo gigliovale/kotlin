@@ -88,4 +88,37 @@ class RingBufferTest {
             assertTrue { buffer.isEmpty() }
         }
     }
+
+    @Test
+    fun toArrayTestNoWrap() {
+        buffer.add(1)
+        buffer.add(2)
+
+        assertEquals(listOf(1, 2), buffer.toArray().toList())
+
+        buffer.add(3)
+        assertEquals(listOf(1, 2, 3), buffer.toArray().toList())
+
+        buffer.add(4)
+        assertEquals(listOf(1, 2, 3, 4), buffer.toArray().toList())
+
+        buffer.add(5)
+        assertEquals(listOf(1, 2, 3, 4, 5), buffer.toArray().toList())
+    }
+
+    @Test
+    fun toArrayTestWithWrap() {
+        for (i in 1..5) {
+            buffer.add(i)
+        }
+        buffer.removeFirst(2)
+        assertEquals(listOf(3, 4, 5), buffer.toArray().toList())
+
+        buffer.add(6)
+        assertEquals(listOf(3, 4, 5, 6), buffer.toArray().toList())
+
+        buffer.add(7)
+        assertEquals(listOf(3, 4, 5, 6, 7), buffer.toArray().toList())
+
+    }
 }

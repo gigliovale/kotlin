@@ -1132,9 +1132,9 @@ public inline fun String.partition(predicate: (Char) -> Boolean): Pair<String, S
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharSequence> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+    return windowIndices(length, size, step, dropTrailing).map { subSequence(it) }
 }
 
 /**
@@ -1159,7 +1159,7 @@ public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dro
  */
 public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+    return windowIndices(length, size, step, dropTrailing).map { substring(it) }
 }
 
 /**
@@ -1184,7 +1184,7 @@ public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrail
  */
 public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+    return windowIndices(length, size, -step, dropTrailing).map { substring(it) }
 }
 
 /**
@@ -1209,7 +1209,7 @@ public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast
  */
 public fun String.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+    return windowIndices(length, size, -step, dropTrailing).map { substring(it) }
 }
 
 /**

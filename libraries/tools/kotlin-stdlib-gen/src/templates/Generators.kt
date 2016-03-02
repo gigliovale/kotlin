@@ -560,7 +560,7 @@ fun generators(): List<GenericFunction> {
         body(Lists) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+            return windowIndices(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
             """
         }
 
@@ -598,7 +598,7 @@ fun generators(): List<GenericFunction> {
         body(ArraysOfObjects, ArraysOfPrimitives) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
+            return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
             """
         }
 
@@ -635,7 +635,7 @@ fun generators(): List<GenericFunction> {
         body(CharSequences, Strings) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(length, size, -step, dropTrailing).map { substring(it) }
+            return windowIndices(length, size, -step, dropTrailing).map { substring(it) }
             """
         }
     }
@@ -673,7 +673,7 @@ fun generators(): List<GenericFunction> {
         body(Lists) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+            return windowIndices(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
             """
         }
 
@@ -709,7 +709,7 @@ fun generators(): List<GenericFunction> {
         body(ArraysOfObjects, ArraysOfPrimitives) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
+            return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
             """
         }
 
@@ -742,11 +742,18 @@ fun generators(): List<GenericFunction> {
             @return a sequence of windows, possibly empty
             """
         }
-        returns(CharSequences, Strings) { "Sequence<String>" }
-        body(CharSequences, Strings) { f ->
+        returns(CharSequences) { "Sequence<CharSequence>" }
+        body(CharSequences) { f ->
             """
             require(step > 0) { "step should be positive but it is ${'$'}step" }
-            return windowImpl(length, size, step, dropTrailing).map { substring(it) }
+            return windowIndices(length, size, step, dropTrailing).map { subSequence(it) }
+            """
+        }
+        returns(Strings) { "Sequence<String>" }
+        body(Strings) { f ->
+            """
+            require(step > 0) { "step should be positive but it is ${'$'}step" }
+            return windowIndices(length, size, step, dropTrailing).map { substring(it) }
             """
         }
 

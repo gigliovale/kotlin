@@ -1892,7 +1892,7 @@ public fun <T> Iterable<T>.window(size: Int, step: Int = size.coerceAtLeast(1), 
  */
 public fun <T> List<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+    return windowIndices(this.size, size, step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
 }
 
 /**
@@ -1917,7 +1917,7 @@ public fun <T> List<T>.window(size: Int, step: Int = size.coerceAtLeast(1), drop
  */
 public fun <T> List<T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
     require(step > 0) { "step should be positive but it is $step" }
-    return windowImpl(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
+    return windowIndices(this.size, size, -step, dropTrailing).map { subList(it.start, it.endInclusive + 1) }
 }
 
 /**

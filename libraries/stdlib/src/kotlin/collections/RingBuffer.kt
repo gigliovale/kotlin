@@ -40,6 +40,28 @@ internal class RingBuffer<T>(val capacity: Int): Iterable<T> {
         }
     }
 
+    fun toArray(): Array<out Any?> {
+        val size = this.size
+        val result = arrayOfNulls<Any?>(size)
+        var widx = 0
+        var idx = writePosition.backward(size)
+
+        while (widx < size && idx < capacity) {
+            result[widx] = buffer[idx]
+            widx++
+            idx++
+        }
+
+        idx = 0
+        while (widx < size) {
+            result[widx] = buffer[idx]
+            widx++
+            idx++
+        }
+
+        return result
+    }
+
     /**
      * Add [element] to the buffer or fail with [IllegalStateException] if no free space available in the buffer
      */

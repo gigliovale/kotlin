@@ -21,7 +21,6 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.Processor;
 import kotlin.collections.ArraysKt;
 import kotlin.io.FilesKt;
-import kotlin.text.Charsets;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
@@ -52,31 +51,38 @@ import static org.jetbrains.kotlin.test.KotlinTestUtils.compilerConfigurationFor
 import static org.jetbrains.kotlin.test.KotlinTestUtils.getAnnotationsJar;
 
 public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
+    private boolean addRuntime = false;
+    private boolean addReflect = false;
+
     @Override
     protected void doMultiFileTest(@NotNull File wholeFile, @NotNull List<TestFile> files, @Nullable File javaFilesDir) throws Exception {
         TestJdkKind jdkKind = TestJdkKind.MOCK_JDK;
         List<String> javacOptions = new ArrayList<String>(0);
         for (TestFile file : files) {
-            if (isFullJdkDirectiveDefined(file.content)) {
+            if (InTextDirectivesUtils.isDirectiveDefined(file.content, "FULL_JDK")) {
                 jdkKind = TestJdkKind.FULL_JDK;
-                break;
             }
+            if (InTextDirectivesUtils.isDirectiveDefined(file.content, "WITH_RUNTIME")) {
+                addRuntime = true;
+            }
+            if (InTextDirectivesUtils.isDirectiveDefined(file.content, "WITH_REFLECT")) {
+                addReflect = true;
+            }
+
             javacOptions.addAll(InTextDirectivesUtils.findListWithPrefixes(file.content, "// JAVAC_OPTIONS:"));
         }
+
+        configurationKind =
+                addReflect ? ConfigurationKind.ALL :
+                addRuntime ? ConfigurationKind.NO_KOTLIN_REFLECT :
+                ConfigurationKind.JDK_ONLY;
 
         compileAndRun(files, javaFilesDir, jdkKind, javacOptions);
     }
 
-    protected void doTestWithStdlib(@NotNull String filename) {
-        configurationKind = InTextDirectivesUtils.isDirectiveDefined(
-                FilesKt.readText(new File(filename), Charsets.UTF_8), "NO_KOTLIN_REFLECT"
-        ) ? ConfigurationKind.NO_KOTLIN_REFLECT : ConfigurationKind.ALL;
-
-        myEnvironment = KotlinTestUtils.createEnvironmentWithJdkAndNullabilityAnnotationsFromIdea(
-                getTestRootDisposable(), configurationKind, getTestJdkKind(filename)
-        );
-
-        blackBoxFileByFullPath(filename);
+    protected void doTestWithStdlib(@NotNull String filename) throws Exception {
+        addReflect = true;
+        doTest(filename);
     }
 
     protected void compileAndRun(
@@ -86,7 +92,7 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
             @NotNull List<String> javacOptions
     ) {
         CompilerConfiguration configuration = compilerConfigurationForTests(
-                ConfigurationKind.ALL, jdkKind, Collections.singletonList(getAnnotationsJar()),
+                configurationKind, jdkKind, Collections.singletonList(getAnnotationsJar()),
                 ArraysKt.filterNotNull(new File[] {javaSourceDir})
         );
 
@@ -100,23 +106,25 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
                 myEnvironment.getProject(), myFiles.getPsiFiles(), new JvmPackagePartProvider(myEnvironment)
         ).getFactory();
 
-        File kotlinOut;
-        try {
-            kotlinOut = KotlinTestUtils.tmpDir(toString());
-        }
-        catch (IOException e) {
-            throw ExceptionUtilsKt.rethrow(e);
-        }
-
-        OutputUtilsKt.writeAllTo(classFileFactory, kotlinOut);
-
         if (javaSourceDir != null) {
+            // If there are Java files, they should be compiled against the class files produced by Kotlin, so we dump them to the disk
+            File kotlinOut;
+            try {
+                kotlinOut = KotlinTestUtils.tmpDir(toString());
+            }
+            catch (IOException e) {
+                throw ExceptionUtilsKt.rethrow(e);
+            }
+
+            OutputUtilsKt.writeAllTo(classFileFactory, kotlinOut);
+
             File output = CodegenTestUtil.compileJava(
                     findJavaSourcesInDirectory(javaSourceDir), Collections.singletonList(kotlinOut.getPath()), javacOptions
             );
             // Add javac output to classpath so that the created class loader can find generated Java classes
             JvmContentRootsKt.addJvmClasspathRoot(configuration, output);
         }
+
         blackBox();
     }
 
@@ -135,26 +143,6 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
         });
 
         return javaFilePaths;
-    }
-
-    // NOTE: tests under fullJdk/ are run with FULL_JDK instead of MOCK_JDK
-    @NotNull
-    private static TestJdkKind getTestJdkKind(@NotNull String sourcePath) {
-        if (sourcePath.contains("compiler/testData/codegen/boxWithStdlib/fullJdk")) {
-            return TestJdkKind.FULL_JDK;
-        }
-
-        String content = FilesKt.readText(new File(sourcePath), Charsets.UTF_8);
-        return isFullJdkDirectiveDefined(content) ? TestJdkKind.FULL_JDK : TestJdkKind.MOCK_JDK;
-    }
-
-    private static boolean isFullJdkDirectiveDefined(@NotNull String content) {
-        return InTextDirectivesUtils.isDirectiveDefined(content, "FULL_JDK");
-    }
-
-    private void blackBoxFileByFullPath(@NotNull String filename) {
-        loadFileByFullPath(filename);
-        blackBox();
     }
 
     protected void blackBox() {

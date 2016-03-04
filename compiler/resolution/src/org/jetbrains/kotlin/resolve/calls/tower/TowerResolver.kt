@@ -87,70 +87,99 @@ class TowerResolver {
         return result
     }
 
-    private fun ScopeTower.createTowerDataSequence(): Sequence<TowerData> {
-        val result = ArrayList<TowerData>()
+    private class SequenceBuilder<T> private constructor() {
+        private val currentBunch: MutableList<T> = ArrayList()
+        private val bunches = ArrayList<() -> Unit>()
+        private val bunchBuilder = BunchBuilder()
 
-        operator fun TowerData.unaryPlus() = result.add(this)
+        inner class BunchBuilder {
+            operator fun T.unaryPlus() {
+                currentBunch.add(this)
+            }
+        }
+
+        fun addBunch(build: BunchBuilder.() -> Unit) {
+            bunches.add { bunchBuilder.build() }
+        }
+
+        companion object {
+            fun <T> build(f: SequenceBuilder<T>.() -> Unit): Sequence<T> {
+                val builder = SequenceBuilder<T>()
+                builder.f()
+
+                return builder.bunches.asSequence().flatMap {
+                    builder.currentBunch.clear()
+                    it()
+
+                    builder.currentBunch.asSequence()
+                }
+            }
+        }
+    }
+
+    private fun ScopeTower.createTowerDataSequence(): Sequence<TowerData> = SequenceBuilder.build {
 
         val localLevels = lexicalScope.parentsWithSelf.
                 filterIsInstance<LexicalScope>().filter { it.kind.withLocalDescriptors }.
-                map { ScopeBasedTowerLevel(this@createTowerDataSequence, it) }
+                map { ScopeBasedTowerLevel(this@createTowerDataSequence, it) }.toList()
 
         val nonLocalLevels = createNonLocalLevels()
-        val hidesMembersLevel = HidesMembersTowerLevel(this)
-        val syntheticLevel = SyntheticScopeBasedTowerLevel(this, syntheticScopes)
+        val hidesMembersLevel = HidesMembersTowerLevel(this@createTowerDataSequence)
+        val syntheticLevel = SyntheticScopeBasedTowerLevel(this@createTowerDataSequence, syntheticScopes)
 
-        // hides members extensions for explicit receiver
-        + TowerData.TowerLevel(hidesMembersLevel)
-        // possibly there is explicit member
-        + TowerData.Empty
-        // synthetic member for explicit receiver
-        + TowerData.TowerLevel(syntheticLevel)
+        addBunch {
+            // hides members extensions for explicit receiver
+            +TowerData.TowerLevel(hidesMembersLevel)
+            // possibly there is explicit member
+            +TowerData.Empty
+            // synthetic member for explicit receiver
+            +TowerData.TowerLevel(syntheticLevel)
 
-        // local non-extensions or extension for explicit receiver
-        for (localLevel in localLevels) {
-            + TowerData.TowerLevel(localLevel)
-        }
-
-        for (scope in this.lexicalScope.parentsWithSelf) {
-            if (scope is LexicalScope) {
-                // statics
-                if (!scope.kind.withLocalDescriptors) {
-                    + TowerData.TowerLevel(ScopeBasedTowerLevel(this, scope))
-                }
-
-                val implicitReceiver = scope.implicitReceiver?.value
-                if (implicitReceiver != null) {
-                    // hides members extensions
-                    + TowerData.BothTowerLevelAndImplicitReceiver(hidesMembersLevel, implicitReceiver)
-
-                    // members of implicit receiver or member extension for explicit receiver
-                    + TowerData.TowerLevel(ReceiverScopeTowerLevel(this, implicitReceiver))
-
-                    // synthetic members
-                    + TowerData.BothTowerLevelAndImplicitReceiver(syntheticLevel, implicitReceiver)
-
-                    // invokeExtension on local variable
-                    + TowerData.OnlyImplicitReceiver(implicitReceiver)
-
-                    // local extensions for implicit receiver
-                    for (localLevel in localLevels) {
-                        + TowerData.BothTowerLevelAndImplicitReceiver(localLevel, implicitReceiver)
-                    }
-
-                    // extension for implicit receiver
-                    for (nonLocalLevel in nonLocalLevels) {
-                        + TowerData.BothTowerLevelAndImplicitReceiver(nonLocalLevel, implicitReceiver)
-                    }
-                }
-            }
-            else {
-                // functions with no receiver or extension for explicit receiver
-                + TowerData.TowerLevel(ImportingScopeBasedTowerLevel(this, scope as ImportingScope))
+            // local non-extensions or extension for explicit receiver
+            for (localLevel in localLevels) {
+                +TowerData.TowerLevel(localLevel)
             }
         }
 
-        return result.asSequence()
+        for (scope in lexicalScope.parentsWithSelf) {
+            addBunch {
+                if (scope is LexicalScope) {
+                    // statics
+                    if (!scope.kind.withLocalDescriptors) {
+                        +TowerData.TowerLevel(ScopeBasedTowerLevel(this@createTowerDataSequence, scope))
+                    }
+
+                    val implicitReceiver = scope.implicitReceiver?.value
+                    if (implicitReceiver != null) {
+                        // hides members extensions
+                        +TowerData.BothTowerLevelAndImplicitReceiver(hidesMembersLevel, implicitReceiver)
+
+                        // members of implicit receiver or member extension for explicit receiver
+                        +TowerData.TowerLevel(ReceiverScopeTowerLevel(this@createTowerDataSequence, implicitReceiver))
+
+                        // synthetic members
+                        +TowerData.BothTowerLevelAndImplicitReceiver(syntheticLevel, implicitReceiver)
+
+                        // invokeExtension on local variable
+                        +TowerData.OnlyImplicitReceiver(implicitReceiver)
+
+                        // local extensions for implicit receiver
+                        for (localLevel in localLevels) {
+                            +TowerData.BothTowerLevelAndImplicitReceiver(localLevel, implicitReceiver)
+                        }
+
+                        // extension for implicit receiver
+                        for (nonLocalLevel in nonLocalLevels) {
+                            +TowerData.BothTowerLevelAndImplicitReceiver(nonLocalLevel, implicitReceiver)
+                        }
+                    }
+                }
+                else {
+                    // functions with no receiver or extension for explicit receiver
+                    +TowerData.TowerLevel(ImportingScopeBasedTowerLevel(this@createTowerDataSequence, scope as ImportingScope))
+                }
+            }
+        }
     }
 
     fun <C> run(

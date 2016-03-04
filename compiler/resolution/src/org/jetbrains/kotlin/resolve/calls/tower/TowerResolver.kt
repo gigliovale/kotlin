@@ -65,10 +65,10 @@ class TowerResolver {
             context: TowerContext<C>,
             processor: ScopeTowerProcessor<C>,
             useOrder: Boolean
-    ): Collection<C> = run(context.scopeTower.createTowerDataList(), processor, SuccessfulResultCollector { context.getStatus(it) }, useOrder)
+    ): Collection<C> = run(context.scopeTower.createTowerDataSequence(), processor, SuccessfulResultCollector { context.getStatus(it) }, useOrder)
 
     fun <C> collectAllCandidates(context: TowerContext<C>, processor: ScopeTowerProcessor<C>): Collection<C>
-            = run(context.scopeTower.createTowerDataList(), processor, AllCandidatesCollector { context.getStatus(it) }, false)
+            = run(context.scopeTower.createTowerDataSequence(), processor, AllCandidatesCollector { context.getStatus(it) }, false)
 
     private fun ScopeTower.createNonLocalLevels(): List<ScopeTowerLevel> {
         val result = ArrayList<ScopeTowerLevel>()
@@ -87,14 +87,14 @@ class TowerResolver {
         return result
     }
 
-    private fun ScopeTower.createTowerDataList(): List<TowerData> {
+    private fun ScopeTower.createTowerDataSequence(): Sequence<TowerData> {
         val result = ArrayList<TowerData>()
 
         operator fun TowerData.unaryPlus() = result.add(this)
 
         val localLevels = lexicalScope.parentsWithSelf.
                 filterIsInstance<LexicalScope>().filter { it.kind.withLocalDescriptors }.
-                map { ScopeBasedTowerLevel(this@createTowerDataList, it) }
+                map { ScopeBasedTowerLevel(this@createTowerDataSequence, it) }
 
         val nonLocalLevels = createNonLocalLevels()
         val hidesMembersLevel = HidesMembersTowerLevel(this)
@@ -150,11 +150,11 @@ class TowerResolver {
             }
         }
 
-        return result
+        return result.asSequence()
     }
 
     fun <C> run(
-            towerDataList: List<TowerData>,
+            towerDataList: Sequence<TowerData>,
             processor: ScopeTowerProcessor<C>,
             resultCollector: ResultCollector<C>,
             useOrder: Boolean

@@ -22,30 +22,42 @@ import kotlin.jvm.internal.markers.*;
 
 import java.util.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "deprecation"})
+@Deprecated
+@kotlin.Deprecated(message = "This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
 public class TypeIntrinsics {
     private static <T extends Throwable> T sanitizeStackTrace(T throwable) {
         return Intrinsics.sanitizeStackTrace(throwable, TypeIntrinsics.class.getName());
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static void throwCce(Object argument, String requestedClassName) {
         String argumentClassName = argument == null ? "null" : argument.getClass().getName();
         throwCce(argumentClassName + " cannot be cast to " + requestedClassName);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static void throwCce(String message) {
         throw throwCce(new ClassCastException(message));
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static ClassCastException throwCce(ClassCastException e) {
         throw sanitizeStackTrace(e);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableIterator(Object obj) {
         return obj instanceof Iterator &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableIterator);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterator asMutableIterator(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableIterator)) {
             throwCce(obj, "kotlin.collections.MutableIterator");
@@ -53,6 +65,8 @@ public class TypeIntrinsics {
         return castToIterator(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterator asMutableIterator(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableIterator)) {
             throwCce(message);
@@ -60,6 +74,8 @@ public class TypeIntrinsics {
         return castToIterator(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterator castToIterator(Object obj) {
         try {
             return (Iterator) obj;
@@ -69,11 +85,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableListIterator(Object obj) {
         return obj instanceof ListIterator &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableListIterator);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static ListIterator asMutableListIterator(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableListIterator)) {
             throwCce(obj, "kotlin.collections.MutableListIterator");
@@ -81,6 +101,8 @@ public class TypeIntrinsics {
         return castToListIterator(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static ListIterator asMutableListIterator(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableListIterator)) {
             throwCce(message);
@@ -88,6 +110,8 @@ public class TypeIntrinsics {
         return castToListIterator(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static ListIterator castToListIterator(Object obj) {
         try {
             return (ListIterator) obj;
@@ -97,11 +121,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableIterable(Object obj) {
         return obj instanceof Iterable &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableIterable);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterable asMutableIterable(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableIterable)) {
             throwCce(obj, "kotlin.collections.MutableIterable");
@@ -109,6 +137,8 @@ public class TypeIntrinsics {
         return castToIterable(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterable asMutableIterable(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableIterable)) {
             throwCce(message);
@@ -116,6 +146,8 @@ public class TypeIntrinsics {
         return castToIterable(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Iterable castToIterable(Object obj) {
         try {
             return (Iterable) obj;
@@ -125,11 +157,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableCollection(Object obj) {
         return obj instanceof Collection &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableCollection);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Collection asMutableCollection(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableCollection)) {
             throwCce(obj, "kotlin.collections.MutableCollection");
@@ -137,6 +173,8 @@ public class TypeIntrinsics {
         return castToCollection(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Collection asMutableCollection(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableCollection)) {
             throwCce(message);
@@ -144,6 +182,8 @@ public class TypeIntrinsics {
         return castToCollection(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Collection castToCollection(Object obj) {
         try {
             return (Collection) obj;
@@ -153,11 +193,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableList(Object obj) {
         return obj instanceof List &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableList);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static List asMutableList(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableList)) {
             throwCce(obj, "kotlin.collections.MutableList");
@@ -165,6 +209,8 @@ public class TypeIntrinsics {
         return castToList(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static List asMutableList(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableList)) {
             throwCce(message);
@@ -172,6 +218,8 @@ public class TypeIntrinsics {
         return castToList(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static List castToList(Object obj) {
         try {
             return (List) obj;
@@ -181,11 +229,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableSet(Object obj) {
         return obj instanceof Set &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableSet);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Set asMutableSet(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableSet)) {
             throwCce(obj, "kotlin.collections.MutableSet");
@@ -193,6 +245,8 @@ public class TypeIntrinsics {
         return castToSet(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Set asMutableSet(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableSet)) {
             throwCce(message);
@@ -200,6 +254,8 @@ public class TypeIntrinsics {
         return castToSet(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Set castToSet(Object obj) {
         try {
             return (Set) obj;
@@ -209,11 +265,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableMap(Object obj) {
         return obj instanceof Map &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableMap);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map asMutableMap(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableMap)) {
             throwCce(obj, "kotlin.collections.MutableMap");
@@ -221,6 +281,8 @@ public class TypeIntrinsics {
         return castToMap(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map asMutableMap(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableMap)) {
             throwCce(message);
@@ -228,6 +290,8 @@ public class TypeIntrinsics {
         return castToMap(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map castToMap(Object obj) {
         try {
             return (Map) obj;
@@ -237,11 +301,15 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isMutableMapEntry(Object obj) {
         return obj instanceof Map.Entry &&
                (!(obj instanceof KMappedMarker) || obj instanceof KMutableMap.Entry);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map.Entry asMutableMapEntry(Object obj) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableMap.Entry)) {
             throwCce(obj, "kotlin.collections.MutableMap.MutableEntry");
@@ -249,6 +317,8 @@ public class TypeIntrinsics {
         return castToMapEntry(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map.Entry asMutableMapEntry(Object obj, String message) {
         if (obj instanceof KMappedMarker && !(obj instanceof KMutableMap.Entry)) {
             throwCce(message);
@@ -256,6 +326,8 @@ public class TypeIntrinsics {
         return castToMapEntry(obj);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Map.Entry castToMapEntry(Object obj) {
         try {
             return (Map.Entry) obj;
@@ -265,6 +337,8 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static int getFunctionArity(Object obj) {
         if (obj instanceof FunctionImpl) {
             return ((FunctionImpl) obj).getArity();
@@ -343,10 +417,14 @@ public class TypeIntrinsics {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static boolean isFunctionOfArity(Object obj, int arity) {
         return obj instanceof Function && getFunctionArity(obj) == arity;
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Object beforeCheckcastToFunctionOfArity(Object obj, int arity) {
         // TODO should we instead inline bytecode for this in TypeIntrinsics.kt?
         if (obj != null && !isFunctionOfArity(obj, arity)) {
@@ -355,6 +433,8 @@ public class TypeIntrinsics {
         return obj;
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Object beforeCheckcastToFunctionOfArity(Object obj, int arity, String message) {
         if (obj != null && !isFunctionOfArity(obj, arity)) {
             throwCce(message);

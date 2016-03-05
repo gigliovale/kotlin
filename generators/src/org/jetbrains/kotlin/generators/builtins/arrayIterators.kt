@@ -35,7 +35,8 @@ class GenerateArrayIterators(out: PrintWriter) : BuiltInsSourceGenerator(out) {
         }
         for (kind in PrimitiveType.values()) {
             val s = kind.capitalized
-            out.println("internal fun iterator(array: ${s}Array): ${s}Iterator = Array${s}Iterator(array)")
+            out.println("""@Deprecated("This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)""")
+            out.println("public fun iterator(array: ${s}Array): ${s}Iterator = Array${s}Iterator(array)")
         }
     }
 }

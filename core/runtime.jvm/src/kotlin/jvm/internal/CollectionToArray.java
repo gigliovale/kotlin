@@ -20,12 +20,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+@Deprecated
+@kotlin.Deprecated(message = "This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
 public class CollectionToArray {
     // Based on the implementation from AbstractCollection
 
     @SuppressWarnings("SSBasedInspection")
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static Object[] toArray(Collection<?> collection) {
         int size = collection.size();
         if (size == 0) return EMPTY_OBJECT_ARRAY;
@@ -42,6 +46,8 @@ public class CollectionToArray {
         return it.hasNext() ? finishToArray(r, it) : r;
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static <T, E> T[] toArray(Collection<E> collection, T[] a) {
         // Estimate size of array; be prepared to see more or fewer elements
         int size = collection.size();

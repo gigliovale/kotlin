@@ -16,7 +16,8 @@
 
 package kotlin.jvm.internal
 
-internal object DoubleCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object DoubleCompanionObject {
     val MIN_VALUE: Double = java.lang.Double.MIN_VALUE
     val MAX_VALUE: Double = java.lang.Double.MAX_VALUE
     val POSITIVE_INFINITY : Double = java.lang.Double.POSITIVE_INFINITY
@@ -24,7 +25,8 @@ internal object DoubleCompanionObject {
     val NaN : Double = java.lang.Double.NaN
 }
 
-internal object FloatCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object FloatCompanionObject {
     val MIN_VALUE: Float = java.lang.Float.MIN_VALUE
     val MAX_VALUE: Float = java.lang.Float.MAX_VALUE
     val POSITIVE_INFINITY : Float = java.lang.Float.POSITIVE_INFINITY
@@ -32,28 +34,33 @@ internal object FloatCompanionObject {
     val NaN : Float = java.lang.Float.NaN
 }
 
-internal object IntCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object IntCompanionObject {
     const val MIN_VALUE: Int = java.lang.Integer.MIN_VALUE
     const val MAX_VALUE: Int = java.lang.Integer.MAX_VALUE
 }
 
-internal object LongCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object LongCompanionObject {
     const val MIN_VALUE: Long = java.lang.Long.MIN_VALUE
     const val MAX_VALUE: Long = java.lang.Long.MAX_VALUE
 }
 
-internal object ShortCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object ShortCompanionObject {
     const val MIN_VALUE: Short = java.lang.Short.MIN_VALUE
     const val MAX_VALUE: Short = java.lang.Short.MAX_VALUE
 }
 
-internal object ByteCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object ByteCompanionObject {
     const val MIN_VALUE: Byte = java.lang.Byte.MIN_VALUE
     const val MAX_VALUE: Byte = java.lang.Byte.MAX_VALUE
 }
 
 
-internal object CharCompanionObject {
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object CharCompanionObject {
     const val MIN_HIGH_SURROGATE: Char = '\uD800'
     const val MAX_HIGH_SURROGATE: Char = '\uDBFF'
     const val MIN_LOW_SURROGATE: Char = '\uDC00'
@@ -62,5 +69,7 @@ internal object CharCompanionObject {
     const val MAX_SURROGATE: Char = MAX_LOW_SURROGATE
 }
 
-internal object StringCompanionObject {}
-internal object EnumCompanionObject {}
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object StringCompanionObject {}
+@Deprecated("This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public object EnumCompanionObject {}

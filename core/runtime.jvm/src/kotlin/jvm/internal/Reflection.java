@@ -22,7 +22,9 @@ import kotlin.reflect.*;
  * This class serves as a facade to the actual reflection implementation. JVM back-end generates calls to static methods of this class
  * on any reflection-using construct.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "deprecation"})
+@Deprecated
+@kotlin.Deprecated(message = "This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
 public class Reflection {
     private static final ReflectionFactory factory;
 
@@ -44,26 +46,36 @@ public class Reflection {
 
     private static final KClass[] EMPTY_K_CLASS_ARRAY = new KClass[0];
 
+    @Deprecated
     public static KClass createKotlinClass(Class javaClass) {
         return factory.createKotlinClass(javaClass);
     }
 
+    @Deprecated
     public static KClass createKotlinClass(Class javaClass, String internalName) {
         return factory.createKotlinClass(javaClass, internalName);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KDeclarationContainer getOrCreateKotlinPackage(Class javaClass, String moduleName) {
         return factory.getOrCreateKotlinPackage(javaClass, moduleName);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KClass getOrCreateKotlinClass(Class javaClass) {
         return factory.getOrCreateKotlinClass(javaClass);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KClass getOrCreateKotlinClass(Class javaClass, String internalName) {
         return factory.getOrCreateKotlinClass(javaClass, internalName);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KClass[] getOrCreateKotlinClasses(Class[] javaClasses) {
         int size = javaClasses.length;
         if (size == 0) return EMPTY_K_CLASS_ARRAY;
@@ -76,32 +88,46 @@ public class Reflection {
 
     // Functions
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KFunction function(FunctionReference f) {
         return factory.function(f);
     }
 
     // Properties
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KProperty0 property0(PropertyReference0 p) {
         return factory.property0(p);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KMutableProperty0 mutableProperty0(MutablePropertyReference0 p) {
         return factory.mutableProperty0(p);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KProperty1 property1(PropertyReference1 p) {
         return factory.property1(p);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KMutableProperty1 mutableProperty1(MutablePropertyReference1 p) {
         return factory.mutableProperty1(p);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KProperty2 property2(PropertyReference2 p) {
         return factory.property2(p);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public static KMutableProperty2 mutableProperty2(MutablePropertyReference2 p) {
         return factory.mutableProperty2(p);
     }

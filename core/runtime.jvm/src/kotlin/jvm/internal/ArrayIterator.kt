@@ -22,4 +22,5 @@ private class ArrayIterator<T>(val array: Array<T>) : Iterator<T> {
     override fun next() = array[index++]
 }
 
-internal fun <T> iterator(array: Array<T>): Iterator<T> = ArrayIterator(array)
+@Deprecated("This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = DeprecationLevel.HIDDEN)
+public fun <T> iterator(array: Array<T>): Iterator<T> = ArrayIterator(array)

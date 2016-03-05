@@ -21,14 +21,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+@Deprecated
+@kotlin.Deprecated(message = "This class supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
 public class SpreadBuilder {
 
     private final ArrayList<Object> list;
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public SpreadBuilder(int size) {
         list = new ArrayList<Object>(size);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public void addSpread(Object container) {
         if (container == null) return;
 
@@ -59,14 +65,20 @@ public class SpreadBuilder {
         }
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public int size() {
         return list.size();
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public void add(Object element) {
         list.add(element);
     }
 
+    @Deprecated
+    @kotlin.Deprecated(message = "This function supports the compiler infrastructure and is not intended to be used directly from user code.", level = kotlin.DeprecationLevel.HIDDEN)
     public Object[] toArray(Object[] a) {
         return list.toArray(a);
     }

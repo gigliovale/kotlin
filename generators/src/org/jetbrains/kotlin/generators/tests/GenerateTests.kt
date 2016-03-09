@@ -204,20 +204,8 @@ fun main(args: Array<String>) {
             model("codegen/boxInline")
         }
 
-        testClass<AbstractBlackBoxCodegenTest>("BlackBoxMultiFileCodegenTestGenerated") {
-            model("codegen/boxMultiFile")
-        }
-
         testClass<AbstractBlackBoxAgainstJavaCodegenTest>() {
             model("codegen/boxAgainstJava")
-        }
-
-        testClass<AbstractBlackBoxCodegenTest>("BlackBoxWithJavaCodegenTestGenerated") {
-            model("codegen/boxWithJava")
-        }
-
-        testClass<AbstractBlackBoxCodegenTest>("BlackBoxWithStdlibCodegenTestGenerated") {
-            model("codegen/boxWithStdlib", testMethod = "doTestWithStdlib")
         }
 
         testClass<AbstractScriptCodegenTest>() {

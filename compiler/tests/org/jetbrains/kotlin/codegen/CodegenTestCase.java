@@ -187,9 +187,9 @@ public abstract class CodegenTestCase extends UsefulTestCase {
     protected GeneratedClassLoader createClassLoader() {
         return new GeneratedClassLoader(
                 generateClassesInFile(),
-                configurationKind == ConfigurationKind.NO_KOTLIN_REFLECT ?
-                ForTestCompileRuntime.runtimeJarClassLoader() :
-                ForTestCompileRuntime.runtimeAndReflectJarClassLoader(),
+                configurationKind.getWithReflection()
+                ? ForTestCompileRuntime.runtimeAndReflectJarClassLoader()
+                : ForTestCompileRuntime.runtimeJarClassLoader(),
                 getClassPathURLs()
         );
     }
@@ -229,12 +229,6 @@ public abstract class CodegenTestCase extends UsefulTestCase {
     protected Class<?> generateFacadeClass() {
         FqName facadeClassFqName = JvmFileClassUtil.getFileClassInfoNoResolve(myFiles.getPsiFile()).getFacadeClassFqName();
         return generateClass(facadeClassFqName.asString());
-    }
-
-    @NotNull
-    protected Class<?> generateFileClass() {
-        FqName fileClassFqName = JvmFileClassUtil.getFileClassInfoNoResolve(myFiles.getPsiFile()).getFileClassFqName();
-        return generateClass(fileClassFqName.asString());
     }
 
     @NotNull

@@ -80,11 +80,7 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
         compileAndRun(files, javaFilesDir, jdkKind, javacOptions);
     }
 
-    protected void doTestWithStdlib(@NotNull String filename) throws Exception {
-        addReflect = true;
-        doTest(filename);
-    }
-
+    @SuppressWarnings("WeakerAccess")
     protected void compileAndRun(
             @NotNull List<TestFile> files,
             @Nullable File javaSourceDir,

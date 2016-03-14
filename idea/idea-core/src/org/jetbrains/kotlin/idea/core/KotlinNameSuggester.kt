@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.idea.core
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.lexer.KotlinLexer
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
@@ -215,7 +216,7 @@ object KotlinNameSuggester {
                 }
             }
         }
-        else if (KotlinBuiltIns.isExactFunctionOrExtensionFunctionType(type)) {
+        else if (type.isFunctionType) {
             addName("function", validator)
         }
         else {

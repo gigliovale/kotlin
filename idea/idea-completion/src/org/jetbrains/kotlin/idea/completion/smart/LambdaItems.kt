@@ -19,12 +19,12 @@ package org.jetbrains.kotlin.idea.completion.smart
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.idea.completion.handlers.insertLambdaTemplate
 import org.jetbrains.kotlin.idea.completion.handlers.lambdaPresentation
 import org.jetbrains.kotlin.idea.completion.suppressAutoInsertion
 import org.jetbrains.kotlin.idea.core.ExpectedInfo
 import org.jetbrains.kotlin.idea.core.fuzzyType
+import org.jetbrains.kotlin.resolve.getValueParametersCountFromFunctionType
 import java.util.*
 
 object LambdaItems {
@@ -43,7 +43,7 @@ object LambdaItems {
                 .toSet()
 
         val singleType = if (distinctTypes.size == 1) distinctTypes.single() else null
-        val singleSignatureLength = singleType?.let { KotlinBuiltIns.getParameterTypeProjectionsFromFunctionType(it).size }
+        val singleSignatureLength = singleType?.let(::getValueParametersCountFromFunctionType)
         val offerNoParametersLambda = singleSignatureLength == 0 || singleSignatureLength == 1
         if (offerNoParametersLambda) {
             val lookupElement = LookupElementBuilder.create(lambdaPresentation(null))

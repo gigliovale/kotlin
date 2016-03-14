@@ -74,7 +74,7 @@ class ReflectionTypes(private val module: ModuleDescriptor) {
             parameterTypes: List<KotlinType>,
             returnType: KotlinType
     ): KotlinType {
-        val arguments = KotlinBuiltIns.getFunctionTypeArgumentProjections(receiverType, parameterTypes, returnType)
+        val arguments = getFunctionTypeArgumentProjections(receiverType, parameterTypes, returnType)
 
         val classDescriptor = getKFunction(arguments.size - 1 /* return type */)
 
@@ -117,7 +117,7 @@ class ReflectionTypes(private val module: ModuleDescriptor) {
         }
 
         fun isCallableType(type: KotlinType): Boolean =
-                KotlinBuiltIns.isFunctionOrExtensionFunctionType(type) || isKCallableType(type)
+                type.isFunctionTypeOrSubtype || isKCallableType(type)
 
         private fun isKCallableType(type: KotlinType): Boolean =
                 isExactKCallableType(type) ||

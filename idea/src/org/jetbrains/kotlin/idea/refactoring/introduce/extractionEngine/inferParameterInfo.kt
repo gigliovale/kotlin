@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.calls.resolvedCallUtil.hasBothReceivers
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import org.jetbrains.kotlin.resolve.calls.tasks.isSynthesizedInvoke
+import org.jetbrains.kotlin.resolve.createFunctionType
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getImportableDescriptor
@@ -297,10 +298,13 @@ private fun suggestParameterType(
     return when {
                extractFunctionRef -> {
                    originalDescriptor as FunctionDescriptor
-                   builtIns.getFunctionType(Annotations.EMPTY,
-                                            originalDescriptor.extensionReceiverParameter?.type,
-                                            originalDescriptor.valueParameters.map { it.type },
-                                            originalDescriptor.returnType ?: builtIns.defaultReturnType)
+                   createFunctionType(
+                           builtIns,
+                           Annotations.EMPTY,
+                           originalDescriptor.extensionReceiverParameter?.type,
+                           originalDescriptor.valueParameters.map { it.type },
+                           originalDescriptor.returnType ?: builtIns.defaultReturnType
+                   )
                }
 
                parameterExpression != null ->

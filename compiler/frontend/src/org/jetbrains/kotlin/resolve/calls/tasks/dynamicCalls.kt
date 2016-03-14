@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.DescriptorFactory
+import org.jetbrains.kotlin.resolve.createFunctionType
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.scopes.MemberScopeImpl
 import org.jetbrains.kotlin.resolve.scopes.receivers.TransientReceiver
@@ -174,7 +175,7 @@ class DynamicCallableDescriptors(private val builtIns: KotlinBuiltIns) {
             val receiverType = funLiteral.receiverTypeReference?.let { dynamicType }
             val parameterTypes = funLiteral.valueParameters.map { dynamicType }
 
-            return owner.builtIns.getFunctionType(Annotations.EMPTY, receiverType, parameterTypes, dynamicType)
+            return createFunctionType(owner.builtIns, Annotations.EMPTY, receiverType, parameterTypes, dynamicType)
         }
 
         for (arg in call.valueArguments) {

@@ -206,11 +206,9 @@ class TypeResolver(
                 val returnType = if (returnTypeRef != null) resolveType(c.noBareTypes(), returnTypeRef)
                                  else moduleDescriptor.builtIns.unitType
 
-                result = type(
-                        moduleDescriptor.builtIns.getFunctionType(
-                                annotations, receiverType, parameterDescriptors.map { it.type }, returnType
-                        )
-                )
+                result = type(createFunctionType(
+                        moduleDescriptor.builtIns, annotations, receiverType, parameterDescriptors.map { it.type }, returnType
+                ))
             }
 
             private fun resolveParametersOfFunctionType(parameters: List<KtParameter>): List<VariableDescriptor> {

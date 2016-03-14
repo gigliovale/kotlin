@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingTrace;
+import org.jetbrains.kotlin.resolve.FunctionTypeResolveUtilsKt;
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace;
 import org.jetbrains.kotlin.resolve.TypeResolver;
 import org.jetbrains.kotlin.resolve.callableReferences.CallableReferencesResolutionUtilsKt;
@@ -245,7 +246,8 @@ public class ArgumentTypeResolver {
                         callResolver);
         return CallableReferencesResolutionUtilsKt.getResolvedCallableReferenceShapeType(
                 callableReferenceExpression, receiverType, overloadResolutionResults, context, expectedTypeIsUnknown,
-                reflectionTypes, builtIns, functionPlaceholders);
+                reflectionTypes, builtIns, functionPlaceholders
+        );
     }
 
     @NotNull
@@ -274,7 +276,9 @@ public class ArgumentTypeResolver {
             return expectedTypeIsUnknown
                    ? functionPlaceholders
                            .createFunctionPlaceholderType(Collections.<KotlinType>emptyList(), /* hasDeclaredArguments = */ false)
-                   : builtIns.getFunctionType(Annotations.Companion.getEMPTY(), null, Collections.<KotlinType>emptyList(), DONT_CARE);
+                   : FunctionTypeResolveUtilsKt.createFunctionType(
+                           builtIns, Annotations.Companion.getEMPTY(), null, Collections.<KotlinType>emptyList(), DONT_CARE
+                   );
         }
         List<KtParameter> valueParameters = function.getValueParameters();
         TemporaryBindingTrace temporaryTrace = TemporaryBindingTrace.create(
@@ -289,7 +293,9 @@ public class ArgumentTypeResolver {
 
         return expectedTypeIsUnknown && isFunctionLiteral
                ? functionPlaceholders.createFunctionPlaceholderType(parameterTypes, /* hasDeclaredArguments = */ true)
-               : builtIns.getFunctionType(Annotations.Companion.getEMPTY(), receiverType, parameterTypes, returnType);
+               : FunctionTypeResolveUtilsKt.createFunctionType(
+                       builtIns, Annotations.Companion.getEMPTY(), receiverType, parameterTypes, returnType
+               );
     }
 
     @Nullable

@@ -28,10 +28,7 @@ import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
 import org.jetbrains.kotlin.psi.ValueArgument
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.TypeResolver
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.CallResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
@@ -211,11 +208,9 @@ private fun bindFunctionReference(expression: KtCallableReferenceExpression, typ
     )
 
     functionDescriptor.initialize(
-            KotlinBuiltIns.getReceiverType(type),
-            null,
-            emptyList(),
-            KotlinBuiltIns.getValueParameters(functionDescriptor, type),
-            KotlinBuiltIns.getReturnTypeFromFunctionType(type),
+            null, null, emptyList(),
+            createValueParametersForInvokeInFunctionType(functionDescriptor, type.arguments.dropLast(1)),
+            type.arguments.last().type,
             Modality.FINAL,
             Visibilities.PUBLIC
     )
@@ -320,5 +315,5 @@ fun getResolvedCallableReferenceShapeType(
             expectedTypeUnknown /* && overload resolution was ambiguous */ ->
                 functionPlaceholders.createFunctionPlaceholderType(emptyList(), false)
             else ->
-                builtIns.getFunctionType(Annotations.EMPTY, null, emptyList(), TypeUtils.DONT_CARE)
+                createFunctionType(builtIns, Annotations.EMPTY, null, emptyList(), TypeUtils.DONT_CARE)
         }

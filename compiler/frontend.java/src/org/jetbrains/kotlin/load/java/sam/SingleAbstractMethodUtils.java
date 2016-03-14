@@ -26,12 +26,13 @@ import org.jetbrains.kotlin.load.java.descriptors.*;
 import org.jetbrains.kotlin.load.java.lazy.types.LazyJavaTypeResolver;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
+import org.jetbrains.kotlin.resolve.FunctionTypeResolveUtilsKt;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.jvm.JavaResolverUtils;
 import org.jetbrains.kotlin.types.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,9 @@ public class SingleAbstractMethodUtils {
         for (ValueParameterDescriptor parameter : valueParameters) {
             parameterTypes.add(parameter.getType());
         }
-        return DescriptorUtilsKt.getBuiltIns(function).getFunctionType(Annotations.Companion.getEMPTY(), null, parameterTypes, returnType);
+        return FunctionTypeResolveUtilsKt.createFunctionType(
+                DescriptorUtilsKt.getBuiltIns(function), Annotations.Companion.getEMPTY(), null, parameterTypes, returnType
+        );
     }
 
     @Nullable
@@ -142,7 +145,7 @@ public class SingleAbstractMethodUtils {
                 null,
                 null,
                 typeParameters.descriptors,
-                Arrays.asList(parameter),
+                Collections.singletonList(parameter),
                 returnType,
                 Modality.FINAL,
                 samInterface.getVisibility()

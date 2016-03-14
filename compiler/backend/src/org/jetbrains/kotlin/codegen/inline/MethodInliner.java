@@ -63,7 +63,7 @@ public class MethodInliner {
     private final List<InvokeCall> invokeCalls = new ArrayList<InvokeCall>();
 
     //keeps order
-    private final List<AnonymousObjectGeneration> anonymousObjectGenerations = new ArrayList<AnonymousObjectGeneration>();
+    private final List<TransformationInfo> transformations = new ArrayList<TransformationInfo>();
     //current state
     private final Map<String, String> currentTypeMapping = new HashMap<String, String>();
 
@@ -160,7 +160,7 @@ public class MethodInliner {
 
         final MethodNode resultNode = new MethodNode(node.access, node.name, node.desc, node.signature, null);
 
-        final Iterator<AnonymousObjectGeneration> iterator = anonymousObjectGenerations.iterator();
+        final Iterator<TransformationInfo> iterator = transformations.iterator();
 
         final TypeRemapper remapper = TypeRemapper.createFrom(currentTypeMapping);
         final RemappingMethodAdapter remappingMethodAdapter = new RemappingMethodAdapter(
@@ -173,34 +173,32 @@ public class MethodInliner {
         final int markerShift = InlineCodegenUtil.calcMarkerShift(parameters, node);
         InlineAdapter lambdaInliner = new InlineAdapter(remappingMethodAdapter, parameters.getArgsSizeOnStack(), sourceMapper) {
 
-            private AnonymousObjectGeneration anonymousObjectGen;
-            private void handleAnonymousObjectGeneration() {
-                anonymousObjectGen = iterator.next();
+            private TransformationInfo transformationInfo;
+            private void handleAnonymousObjectRegeneration() {
+                transformationInfo = iterator.next();
 
-                if (anonymousObjectGen.shouldRegenerate()) {
+                if (transformationInfo.shouldRegenerate(isSameModule)) {
                     //TODO: need poping of type but what to do with local funs???
-                    String oldClassName = anonymousObjectGen.getOwnerInternalName();
-                    String newClassName = inliningContext.nameGenerator.genLambdaClassName();
+                    String oldClassName = transformationInfo.getOldClassName();
+                    String newClassName = transformationInfo.getNewClassName();
                     remapper.addMapping(oldClassName, newClassName);
-                    AnonymousObjectTransformer transformer =
-                            new AnonymousObjectTransformer(oldClassName,
-                                                           inliningContext
-                                                                   .subInlineWithClassRegeneration(
-                                                                           inliningContext.nameGenerator,
-                                                                           currentTypeMapping,
-                                                                           anonymousObjectGen,
-                                                                           inlineCallSiteInfo),
-                                                           isSameModule, Type.getObjectType(newClassName)
-                            );
 
-                    InlineResult transformResult = transformer.doTransform(anonymousObjectGen, nodeRemapper);
+                    InliningContext childInliningContext = inliningContext.subInlineWithClassRegeneration(
+                            inliningContext.nameGenerator,
+                            currentTypeMapping,
+                            inlineCallSiteInfo
+                    );
+                    ObjectTransformer transformer = transformationInfo.createTransformer(
+                            childInliningContext,
+                            isSameModule
+                    );
+
+                    InlineResult transformResult = transformer.doTransform(nodeRemapper);
                     result.addAllClassesToRemove(transformResult);
                     result.addChangedType(oldClassName, newClassName);
 
-                    if (inliningContext.isInliningLambda && !anonymousObjectGen.isStaticOrigin()) {
+                    if (inliningContext.isInliningLambda && transformationInfo.canRemoveAfterTransformation()) {
                         // this class is transformed and original not used so we should remove original one after inlining
-                        // Note: It is unsafe to remove anonymous class that is referenced by GETSTATIC within lambda
-                        // because it can be local function from outer scope
                         result.addClassToRemove(oldClassName);
                     }
 
@@ -214,10 +212,10 @@ public class MethodInliner {
             @Override
             public void anew(@NotNull Type type) {
                 if (isAnonymousConstructorCall(type.getInternalName(), "<init>")) {
-                    handleAnonymousObjectGeneration();
+                    handleAnonymousObjectRegeneration();
                 }
 
-                //in case of regenerated anonymousObjectGen type would be remapped to new one via remappingMethodAdapter
+                //in case of regenerated transformationInfo type would be remapped to new one via remappingMethodAdapter
                 super.anew(type);
             }
 
@@ -272,22 +270,24 @@ public class MethodInliner {
                     }
                 }
                 else if (isAnonymousConstructorCall(owner, name)) { //TODO add method
-                    assert anonymousObjectGen != null : "<init> call not corresponds to new call" + owner + " " + name;
-                    if (anonymousObjectGen.shouldRegenerate()) {
+                    //TODO add proper message
+                    assert transformationInfo instanceof AnonymousObjectTransformationInfo :
+                            "<init> call doesn't correspond to object transformation info: " + owner + "." + name + ", info " + transformationInfo;
+                    if (transformationInfo.shouldRegenerate(isSameModule)) {
                         //put additional captured parameters on stack
-                        for (CapturedParamDesc capturedParamDesc : anonymousObjectGen.getAllRecapturedParameters()) {
+                        for (CapturedParamDesc capturedParamDesc : ((AnonymousObjectTransformationInfo) transformationInfo).getAllRecapturedParameters()) {
                             visitFieldInsn(Opcodes.GETSTATIC, capturedParamDesc.getContainingLambdaName(),
                                            "$$$" + capturedParamDesc.getFieldName(), capturedParamDesc.getType().getDescriptor());
                         }
-                        String newInternalName = anonymousObjectGen.getNewLambdaType().getInternalName();
-                        super.visitMethodInsn(opcode, newInternalName, name, anonymousObjectGen.getNewConstructorDescriptor(), itf);
+                        super.visitMethodInsn(opcode, transformationInfo.getNewClassName(), name,
+                                              ((AnonymousObjectTransformationInfo) transformationInfo).getNewConstructorDescriptor(), itf);
 
                         //TODO: add new inner class also for other contexts
                         if (inliningContext.getParent() instanceof RegeneratedClassContext) {
-                            inliningContext.getParent().typeRemapper.addAdditionalMappings(anonymousObjectGen.getOwnerInternalName(), newInternalName);
+                            inliningContext.getParent().typeRemapper.addAdditionalMappings(transformationInfo.getOldClassName(), transformationInfo.getNewClassName());
                         }
 
-                        anonymousObjectGen = null;
+                        transformationInfo = null;
                     } else {
                         super.visitMethodInsn(opcode, changeOwnerForExternalPackage(owner, opcode), name, desc, itf);
                     }
@@ -302,8 +302,8 @@ public class MethodInliner {
 
             @Override
             public void visitFieldInsn(int opcode, @NotNull String owner, @NotNull String name, @NotNull String desc) {
-                if (opcode == Opcodes.GETSTATIC && isAnonymousSingletonLoad(owner, name)) {
-                    handleAnonymousObjectGeneration();
+                if (opcode == Opcodes.GETSTATIC && (isAnonymousSingletonLoad(owner, name) || isWhenMappingAccess(owner, name))) {
+                    handleAnonymousObjectRegeneration();
                 }
                 super.visitFieldInsn(opcode, owner, name, desc);
             }
@@ -489,7 +489,7 @@ public class MethodInliner {
                             offset += i == 0 ? 1 : argTypes[i - 1].getSize();
                         }
 
-                        anonymousObjectGenerations.add(
+                        transformations.add(
                                 buildConstructorInvocation(
                                         owner, desc, lambdaMapping, awaitClassReification
                                 )
@@ -499,15 +499,23 @@ public class MethodInliner {
                 }
                 else if (cur.getOpcode() == Opcodes.GETSTATIC) {
                     FieldInsnNode fieldInsnNode = (FieldInsnNode) cur;
-                    String owner = fieldInsnNode.owner;
-                    if (isAnonymousSingletonLoad(owner, fieldInsnNode.name)) {
-                        anonymousObjectGenerations.add(
-                                new AnonymousObjectGeneration(
-                                        owner, isSameModule, awaitClassReification, isAlreadyRegenerated(owner), true
+                    String className = fieldInsnNode.owner;
+                    if (isAnonymousSingletonLoad(className, fieldInsnNode.name)) {
+                        transformations.add(
+                                new AnonymousObjectTransformationInfo(
+                                        className, awaitClassReification, isAlreadyRegenerated(className), true,
+                                        inliningContext.nameGenerator
                                 )
                         );
                         awaitClassReification = false;
                     }
+                    else if (isWhenMappingAccess(className, fieldInsnNode.name)) {
+                        transformations.add(
+                            new WhenMappingTransformationInfo(
+                                    className, inliningContext.nameGenerator, isAlreadyRegenerated(className), fieldInsnNode)
+                        );
+                    }
+
                 }
             }
             AbstractInsnNode prevNode = cur;
@@ -552,18 +560,19 @@ public class MethodInliner {
     }
 
     @NotNull
-    private AnonymousObjectGeneration buildConstructorInvocation(
-            @NotNull String owner,
+    private AnonymousObjectTransformationInfo buildConstructorInvocation(
+            @NotNull String anonymousType,
             @NotNull String desc,
             @NotNull Map<Integer, LambdaInfo> lambdaMapping,
             boolean needReification
     ) {
-        return new AnonymousObjectGeneration(
-                owner, needReification, isSameModule, lambdaMapping,
+        return new AnonymousObjectTransformationInfo(
+                anonymousType, needReification, lambdaMapping,
                 inliningContext.classRegeneration,
-                isAlreadyRegenerated(owner),
+                isAlreadyRegenerated(anonymousType),
                 desc,
-                false
+                false,
+                inliningContext.nameGenerator
         );
     }
 

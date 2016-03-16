@@ -247,6 +247,18 @@ public class FormatterTestGenerated extends AbstractFormatterTest {
             doTest(fileName);
         }
 
+        @TestMetadata("FormatFirstColumnComments.after.kt")
+        public void testFormatFirstColumnComments() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/FormatFirstColumnComments.after.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("FormatFirstColumnCommentsBeforeDeclaration.after.kt")
+        public void testFormatFirstColumnCommentsBeforeDeclaration() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/FormatFirstColumnCommentsBeforeDeclaration.after.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("FunctionCallParametersAlign.after.kt")
         public void testFunctionCallParametersAlign() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/FunctionCallParametersAlign.after.kt");
@@ -388,6 +400,12 @@ public class FormatterTestGenerated extends AbstractFormatterTest {
         @TestMetadata("PrimaryConstructor.after.kt")
         public void testPrimaryConstructor() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/PrimaryConstructor.after.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("PropertyAccessors.after.kt")
+        public void testPropertyAccessors() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/PropertyAccessors.after.kt");
             doTest(fileName);
         }
 
@@ -862,6 +880,18 @@ public class FormatterTestGenerated extends AbstractFormatterTest {
         @TestMetadata("ForLineBreak.after.inv.kt")
         public void testForLineBreak() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/ForLineBreak.after.inv.kt");
+            doTestInverted(fileName);
+        }
+
+        @TestMetadata("FormatFirstColumnComments.after.inv.kt")
+        public void testFormatFirstColumnComments() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/FormatFirstColumnComments.after.inv.kt");
+            doTestInverted(fileName);
+        }
+
+        @TestMetadata("FormatFirstColumnCommentsBeforeDeclaration.after.inv.kt")
+        public void testFormatFirstColumnCommentsBeforeDeclaration() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/formatter/FormatFirstColumnCommentsBeforeDeclaration.after.inv.kt");
             doTestInverted(fileName);
         }
 

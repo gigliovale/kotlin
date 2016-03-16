@@ -21,6 +21,7 @@ import com.intellij.formatting.Spacing
 import com.intellij.formatting.SpacingBuilder
 import com.intellij.formatting.SpacingBuilder.RuleBuilder
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.formatter.FormatterUtil
 import com.intellij.psi.tree.IElementType
@@ -144,6 +145,7 @@ fun createSpacingBuilder(settings: CodeStyleSettings): KotlinSpacingBuilder {
             betweenInside(VAR_KEYWORD, IDENTIFIER, PROPERTY).spaces(1)
             betweenInside(VAL_KEYWORD, TYPE_REFERENCE, PROPERTY).spaces(1)
             betweenInside(VAR_KEYWORD, TYPE_REFERENCE, PROPERTY).spaces(1)
+            beforeInside(PROPERTY_ACCESSOR, PROPERTY).spacing(1, 0, 0, true, 0)
             betweenInside(VAL_KEYWORD, IDENTIFIER, VALUE_PARAMETER).spaces(1)
             betweenInside(VAR_KEYWORD, IDENTIFIER, VALUE_PARAMETER).spaces(1)
             betweenInside(VAL_KEYWORD, TYPE_REFERENCE, VALUE_PARAMETER).spaces(1)
@@ -286,6 +288,22 @@ fun createSpacingBuilder(settings: CodeStyleSettings): KotlinSpacingBuilder {
             val leftBraceRuleIfBlockIsWrapped = {
                 parent: ASTBlock, left: ASTBlock, right: ASTBlock ->
                 spacingForLeftBrace(right.node!!.firstChildNode)
+            }
+
+            if (kotlinCommonSettings.KEEP_FIRST_COLUMN_COMMENT) {
+                inPosition(parent = null, left = EOL_COMMENT, right = EOL_COMMENT).customRule { parent, left, right ->
+                    val nodeBeforeRight = right.node.treePrev
+                    if (nodeBeforeRight is PsiWhiteSpace && !nodeBeforeRight.textContains('\n')) {
+                        // Several line comments happened to be generated in one line
+                        Spacing.createSpacing(1, 0, 1, settings.KEEP_LINE_BREAKS, settings.KEEP_BLANK_LINES_IN_CODE)
+                    }
+                    else {
+                        null
+                    }
+                }
+
+                inPosition(rightSet = TokenSet.create(EOL_COMMENT, BLOCK_COMMENT)).spacing(
+                        Spacing.createKeepingFirstColumnSpacing(0, Integer.MAX_VALUE, settings.KEEP_LINE_BREAKS, kotlinCommonSettings.KEEP_BLANK_LINES_IN_CODE))
             }
 
             inPosition(parent = IF, right = THEN).customRule(leftBraceRuleIfBlockIsWrapped)

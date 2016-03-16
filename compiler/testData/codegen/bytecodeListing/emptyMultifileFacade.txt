@@ -1,7 +1,9 @@
 @kotlin.Metadata
-public final class test/Foo
+public final class test/Foo {
+    private method <init>(): void
+}
 
 @kotlin.Metadata
 synthetic final class test/Foo__EmptyMultifileFacadeKt {
-    private final static method privateOnly(): void
+    private final static method privateOnly$emptyMultifileFacade_kt(): void
 }

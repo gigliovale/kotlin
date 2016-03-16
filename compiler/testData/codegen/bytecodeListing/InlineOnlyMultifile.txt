@@ -1,5 +1,6 @@
 @kotlin.Metadata
 public final class test/Foo {
+    private method <init>(): void
     public final static method foo(): void
 }
 

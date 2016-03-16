@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.configuration;
 import com.intellij.codeInsight.CodeInsightUtilCore;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.application.Result;
+import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -49,16 +50,19 @@ import org.jetbrains.plugins.groovy.lang.psi.api.util.GrStatementOwner;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfigurator {
-    protected static final String VERSION_TEMPLATE = "$VERSION$";
+    private static final String VERSION_TEMPLATE = "$VERSION$";
 
     protected static final String CLASSPATH = "classpath \"org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version\"";
     protected static final String SNAPSHOT_REPOSITORY = "maven {\nurl 'http://oss.sonatype.org/content/repositories/snapshots'\n}";
-    public static final String REPOSITORY = "mavenCentral()\n";
+    private static final String MAVEN_CENTRAL = "mavenCentral()\n";
+    private static final String JCENTER = "jcenter()\n";
     public static final String LIBRARY = "compile \"org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version\"";
     protected static final String SOURCE_SET = "main.java.srcDirs += 'src/main/kotlin'\n";
-    protected static final String VERSION = String.format("ext.kotlin_version = '%s'", VERSION_TEMPLATE);
+    private static final String VERSION = String.format("ext.kotlin_version = '%s'", VERSION_TEMPLATE);
 
     @Override
     public boolean isConfigured(@NotNull Module module) {
@@ -66,11 +70,11 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
             return true;
         }
 
-        GroovyFile moduleGradleFile = getBuildGradleFile(module.getProject(), getDefaultPathToBuildGradleFile(module));
+        GroovyFile moduleGradleFile = getBuildGradleFile(module.getProject(), getModuleFilePath(module));
         if (moduleGradleFile != null && isFileConfigured(moduleGradleFile)) {
             return true;
         }
-        GroovyFile projectGradleFile = getBuildGradleFile(module.getProject(), getDefaultPathToBuildGradleFile(module.getProject()));
+        GroovyFile projectGradleFile = getBuildGradleFile(module.getProject(), getTopLevelProjectFilePath(module.getProject()));
         return projectGradleFile != null && isFileConfigured(projectGradleFile);
     }
 
@@ -80,30 +84,49 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
     }
 
     @Override
-    public void configure(@NotNull Project project, Collection<Module> excludeModules) {
-        ConfigureDialogWithModulesAndVersion dialog =
+    public void configure(@NotNull final Project project, Collection<Module> excludeModules) {
+        final ConfigureDialogWithModulesAndVersion dialog =
                 new ConfigureDialogWithModulesAndVersion(project, this, excludeModules);
 
         dialog.show();
         if (!dialog.isOK()) return;
 
-        NotificationMessageCollector collector = NotificationMessageCollectorKt.createConfigureKotlinNotificationCollector(project);
-        for (Module module : dialog.getModulesToConfigure()) {
-            String gradleFilePath = getDefaultPathToBuildGradleFile(module);
-            GroovyFile file = getBuildGradleFile(project, gradleFilePath);
-            if (file != null && canConfigureFile(file)) {
-                changeGradleFile(file, dialog.getKotlinVersion(), collector);
-                OpenFileAction.openFile(gradleFilePath, project);
+        CommandProcessor.getInstance().executeCommand(project, new Runnable() {
+            @Override
+            public void run() {
+                NotificationMessageCollector collector = NotificationMessageCollectorKt.createConfigureKotlinNotificationCollector(project);
+                Set<GroovyFile> changedFiles = new HashSet<GroovyFile>();
+                GroovyFile projectGradleFile = getBuildGradleFile(project, getTopLevelProjectFilePath(project));
+                if (projectGradleFile != null && canConfigureFile(projectGradleFile)) {
+                    boolean isModified = changeGradleFile(projectGradleFile, true, dialog.getKotlinVersion(), collector);
+                    if (isModified) {
+                        changedFiles.add(projectGradleFile);
+                    }
+                }
+
+                for (Module module : dialog.getModulesToConfigure()) {
+                    GroovyFile file = getBuildGradleFile(project, getModuleFilePath(module));
+                    if (file != null && canConfigureFile(file)) {
+                        boolean isModified = changeGradleFile(file, false, dialog.getKotlinVersion(), collector);
+                        if (isModified) {
+                            changedFiles.add(file);
+                        }
+                    }
+                    else {
+                        showErrorMessage(project, "Cannot find build.gradle file for module " + module.getName());
+                    }
+                }
+
+                for (GroovyFile file : changedFiles) {
+                    OpenFileAction.openFile(file.getVirtualFile(), project);
+                }
+                collector.showNotification();
             }
-            else {
-                showErrorMessage(project, "Cannot find build.gradle file for module " + module.getName());
-            }
-        }
-        collector.showNotification();
+        }, "Configure Kotlin", null);
     }
 
     public static void addKotlinLibraryToModule(final Module module, final DependencyScope scope, final ExternalLibraryDescriptor libraryDescriptor) {
-        String gradleFilePath = getDefaultPathToBuildGradleFile(module);
+        String gradleFilePath = getModuleFilePath(module);
         final GroovyFile gradleFile = getBuildGradleFile(module.getProject(), gradleFilePath);
 
         if (gradleFile != null && canConfigureFile(gradleFile)) {
@@ -156,7 +179,7 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
 
     @Nullable
     public static String getKotlinStdlibVersion(@NotNull Module module) {
-        String gradleFilePath = getDefaultPathToBuildGradleFile(module);
+        String gradleFilePath = getModuleFilePath(module);
         GroovyFile gradleFile = getBuildGradleFile(module.getProject(), gradleFilePath);
 
         if (gradleFile == null) return null;
@@ -181,56 +204,91 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
         return null;
     }
 
-    private void addElements(@NotNull GroovyFile file, @NotNull String version) {
+    protected static boolean addElementsToProjectFile(@NotNull GroovyFile file, @NotNull String version) {
+        boolean wasModified;
+
         GrClosableBlock buildScriptBlock = getBuildScriptBlock(file);
-        addFirstExpressionInBlockIfNeeded(VERSION.replace(VERSION_TEMPLATE, version), buildScriptBlock);
+        wasModified = addFirstExpressionInBlockIfNeeded(VERSION.replace(VERSION_TEMPLATE, version), buildScriptBlock);
 
         GrClosableBlock buildScriptRepositoriesBlock = getBuildScriptRepositoriesBlock(file);
         if (isSnapshot(version)) {
-            addLastExpressionInBlockIfNeeded(SNAPSHOT_REPOSITORY, buildScriptRepositoriesBlock);
+            wasModified |= addLastExpressionInBlockIfNeeded(SNAPSHOT_REPOSITORY, buildScriptRepositoriesBlock);
         }
-        else if (!buildScriptRepositoriesBlock.getText().contains(REPOSITORY)) {
-            addLastExpressionInBlockIfNeeded(REPOSITORY, buildScriptRepositoriesBlock);
+        else if (!isRepositoryConfigured(buildScriptRepositoriesBlock)) {
+            wasModified |= addLastExpressionInBlockIfNeeded(MAVEN_CENTRAL, buildScriptRepositoriesBlock);
         }
 
         GrClosableBlock buildScriptDependenciesBlock = getBuildScriptDependenciesBlock(file);
-        addLastExpressionInBlockIfNeeded(CLASSPATH, buildScriptDependenciesBlock);
+        wasModified |= addLastExpressionInBlockIfNeeded(CLASSPATH, buildScriptDependenciesBlock);
+
+        return wasModified;
+    }
+
+    protected boolean addElementsToModuleFile(@NotNull GroovyFile file, @NotNull String version) {
+        boolean wasModified = false;
 
         if (!file.getText().contains(getApplyPluginDirective())) {
             GrExpression apply = GroovyPsiElementFactory.getInstance(file.getProject()).createExpressionFromText(getApplyPluginDirective());
             GrApplicationStatement applyStatement = getApplyStatement(file);
             if (applyStatement != null) {
                 file.addAfter(apply, applyStatement);
+                wasModified = true;
             }
             else {
-                file.addAfter(apply, buildScriptBlock.getParent());
+                GrClosableBlock buildScript = getBlockByName(file, "buildscript");
+                if (buildScript != null) {
+                    file.addAfter(apply, buildScript.getParent());
+                    wasModified = true;
+                }
+                else {
+                    GrStatement[] statements = file.getStatements();
+                    if (statements.length > 0) {
+                        file.addAfter(apply, statements[statements.length - 1]);
+                    }
+                    else {
+                        file.addAfter(apply, file.getFirstChild());
+                    }
+                    wasModified = true;
+                }
             }
         }
 
         GrClosableBlock repositoriesBlock = getRepositoriesBlock(file);
         if (isSnapshot(version)) {
-            addLastExpressionInBlockIfNeeded(SNAPSHOT_REPOSITORY, repositoriesBlock);
+            wasModified |= addLastExpressionInBlockIfNeeded(SNAPSHOT_REPOSITORY, repositoriesBlock);
         }
-        else if (!repositoriesBlock.getText().contains(REPOSITORY)) {
-            addLastExpressionInBlockIfNeeded(REPOSITORY, repositoriesBlock);
+        else if (!isRepositoryConfigured(repositoriesBlock)) {
+            wasModified |= addLastExpressionInBlockIfNeeded(MAVEN_CENTRAL, repositoriesBlock);
         }
 
         GrClosableBlock dependenciesBlock = getDependenciesBlock(file);
-        addLastExpressionInBlockIfNeeded(LIBRARY, dependenciesBlock);
+        wasModified |= addExpressionInBlockIfNeeded(LIBRARY, dependenciesBlock, false);
 
-        addSourceSetsBlock(file);
+        wasModified |= addSourceSetsBlock(file);
+
+        return wasModified;
+    }
+
+    private static boolean isRepositoryConfigured(GrClosableBlock repositoriesBlock) {
+        return repositoriesBlock.getText().contains(MAVEN_CENTRAL) || repositoriesBlock.getText().contains(JCENTER);
     }
 
     protected abstract String getApplyPluginDirective();
 
-    protected abstract void addSourceSetsBlock(@NotNull GroovyFile file);
+    protected abstract boolean addSourceSetsBlock(@NotNull GroovyFile file);
 
-    protected static boolean canConfigureFile(@NotNull GroovyFile file) {
+    protected abstract boolean addElementsToFile(
+            @NotNull GroovyFile groovyFile,
+            boolean isTopLevelProjectFile,
+            @NotNull String version
+    );
+
+    private static boolean canConfigureFile(@NotNull GroovyFile file) {
         return WritingAccessProvider.isPotentiallyWritable(file.getVirtualFile(), null);
     }
 
     @Nullable
-    protected static GroovyFile getBuildGradleFile(Project project, String path) {
+    private static GroovyFile getBuildGradleFile(Project project, String path) {
         VirtualFile file = VfsUtil.findFileByIoFile(new File(path), true);
         if (file == null) {
             return null;
@@ -241,41 +299,44 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
     }
 
     @NotNull
-    protected static String getDefaultPathToBuildGradleFile(@NotNull Project project) {
+    private static String getTopLevelProjectFilePath(@NotNull Project project) {
         return project.getBasePath() + "/" + GradleConstants.DEFAULT_SCRIPT_NAME;
     }
 
     @NotNull
-    protected static String getDefaultPathToBuildGradleFile(@NotNull Module module) {
+    private static String getModuleFilePath(@NotNull Module module) {
         return new File(module.getModuleFilePath()).getParent() + "/" + GradleConstants.DEFAULT_SCRIPT_NAME;
     }
 
-    protected static boolean isSnapshot(@NotNull String version) {
+    private static boolean isSnapshot(@NotNull String version) {
         return version.contains("SNAPSHOT");
     }
 
-    protected void changeGradleFile(
+    protected boolean changeGradleFile(
             @NotNull final GroovyFile groovyFile,
+            final boolean isTopLevelProjectFile,
             @NotNull final String version,
             @NotNull NotificationMessageCollector collector
     ) {
+        final boolean[] isModified = {false};
         new WriteCommandAction(groovyFile.getProject()) {
             @Override
             protected void run(@NotNull Result result) {
-                addElements(groovyFile, version);
+                isModified[0] = addElementsToFile(groovyFile, isTopLevelProjectFile, version);
 
                 CodeInsightUtilCore.forcePsiPostprocessAndRestoreElement(groovyFile);
             }
         }.execute();
 
         VirtualFile virtualFile = groovyFile.getVirtualFile();
-        if (virtualFile != null) {
+        if (virtualFile != null && isModified[0]) {
             collector.addMessage(virtualFile.getPath() + " was modified");
         }
+        return isModified[0];
     }
 
     @NotNull
-    protected static GrClosableBlock getDependenciesBlock(@NotNull GrStatementOwner file) {
+    private static GrClosableBlock getDependenciesBlock(@NotNull GrStatementOwner file) {
         return getBlockOrCreate(file, "dependencies");
     }
 
@@ -285,24 +346,24 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
     }
 
     @NotNull
-    protected static GrClosableBlock getBuildScriptBlock(@NotNull GrStatementOwner file) {
+    private static GrClosableBlock getBuildScriptBlock(@NotNull GrStatementOwner file) {
         return getBlockOrCreate(file, "buildscript");
     }
 
     @NotNull
-    protected static GrClosableBlock getBuildScriptDependenciesBlock(@NotNull GrStatementOwner file) {
+    private static GrClosableBlock getBuildScriptDependenciesBlock(@NotNull GrStatementOwner file) {
         GrClosableBlock buildScript = getBuildScriptBlock(file);
         return getBlockOrCreate(buildScript, "dependencies");
     }
 
     @NotNull
-    protected static GrClosableBlock getBuildScriptRepositoriesBlock(@NotNull GrStatementOwner file) {
+    private static GrClosableBlock getBuildScriptRepositoriesBlock(@NotNull GrStatementOwner file) {
         GrClosableBlock buildScript = getBuildScriptBlock(file);
         return getBlockOrCreate(buildScript, "repositories");
     }
 
     @NotNull
-    protected static GrClosableBlock getRepositoriesBlock(@NotNull GrStatementOwner file) {
+    private static GrClosableBlock getRepositoriesBlock(@NotNull GrStatementOwner file) {
         return getBlockOrCreate(file, "repositories");
     }
 
@@ -325,12 +386,12 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
         return block;
     }
 
-    protected static void addLastExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block) {
-        addExpressionInBlockIfNeeded(text, block, false);
+    protected static boolean addLastExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block) {
+        return addExpressionInBlockIfNeeded(text, block, false);
     }
 
-    protected static void addFirstExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block) {
-        addExpressionInBlockIfNeeded(text, block, true);
+    private static boolean addFirstExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block) {
+        return addExpressionInBlockIfNeeded(text, block, true);
     }
 
     @Nullable
@@ -348,8 +409,8 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
         return null;
     }
 
-    private static void addExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block, boolean isFirst) {
-        if (block.getText().contains(text)) return;
+    private static boolean addExpressionInBlockIfNeeded(@NotNull String text, @NotNull GrClosableBlock block, boolean isFirst) {
+        if (block.getText().contains(text)) return false;
         GrExpression newStatement = GroovyPsiElementFactory.getInstance(block.getProject()).createExpressionFromText(text);
         CodeStyleManager.getInstance(block.getProject()).reformat(newStatement);
         GrStatement[] statements = block.getStatements();
@@ -365,6 +426,7 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
                 block.addAfter(newStatement, firstChild);
             }
         }
+        return true;
     }
 
     @Nullable
@@ -380,7 +442,7 @@ public abstract class KotlinWithGradleConfigurator implements KotlinProjectConfi
         return null;
     }
 
-    protected static void showErrorMessage(@NotNull Project project, @Nullable String message) {
+    private static void showErrorMessage(@NotNull Project project, @Nullable String message) {
         Messages.showErrorDialog(project,
                                  "<html>Couldn't configure kotlin-gradle plugin automatically.<br/>" +
                                  (message != null ? message : "") +

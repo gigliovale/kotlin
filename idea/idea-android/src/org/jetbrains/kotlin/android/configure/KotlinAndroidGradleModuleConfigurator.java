@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.configuration;
+package org.jetbrains.kotlin.android.configure;
 
 import com.intellij.openapi.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.idea.KotlinPluginUtil;
+import org.jetbrains.kotlin.idea.configuration.KotlinWithGradleConfigurator;
 import org.jetbrains.kotlin.resolve.TargetPlatform;
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform;
 import org.jetbrains.plugins.groovy.lang.psi.GroovyFile;
 import org.jetbrains.plugins.groovy.lang.psi.api.statements.blocks.GrClosableBlock;
 
-public class KotlinGradleModuleConfigurator extends KotlinWithGradleConfigurator {
-    public static final String NAME = "gradle";
+public class KotlinAndroidGradleModuleConfigurator extends KotlinWithGradleConfigurator {
+    public static final String NAME = "android-gradle";
 
-    public static final String APPLY_KOTLIN = "apply plugin: 'kotlin'";
+    private static final String APPLY_KOTLIN_ANDROID = "apply plugin: 'kotlin-android'";
 
     @NotNull
     @Override
@@ -44,36 +45,40 @@ public class KotlinGradleModuleConfigurator extends KotlinWithGradleConfigurator
     @NotNull
     @Override
     public String getPresentableText() {
-        return "Gradle";
+        return "Android with Gradle";
     }
 
     @Override
     public boolean isApplicable(@NotNull Module module) {
-        return KotlinPluginUtil.isGradleModule(module) &&
-               !KotlinPluginUtil.isAndroidGradleModule(module);
+        return KotlinPluginUtil.isAndroidGradleModule(module);
     }
 
     @Override
     protected String getApplyPluginDirective() {
-        return APPLY_KOTLIN;
+        return APPLY_KOTLIN_ANDROID;
     }
 
     @Override
     protected boolean addSourceSetsBlock(@NotNull GroovyFile file) {
-        GrClosableBlock sourceSetBlock = getSourceSetsBlock(file);
-        return addLastExpressionInBlockIfNeeded(SOURCE_SET, sourceSetBlock);
+        GrClosableBlock androidBlock = getAndroidBlock(file);
+        return addLastExpressionInBlockIfNeeded(SOURCE_SET, getSourceSetsBlock(androidBlock));
     }
 
     @Override
     protected boolean addElementsToFile(@NotNull GroovyFile groovyFile, boolean isTopLevelProjectFile, @NotNull String version) {
-        if (!isTopLevelProjectFile) {
-            boolean wasModified = addElementsToProjectFile(groovyFile, version);
-            wasModified |= addElementsToModuleFile(groovyFile, version);
-            return wasModified;
+        if (isTopLevelProjectFile) {
+            return addElementsToProjectFile(groovyFile, version);
         }
-        return false;
+        else {
+            return addElementsToModuleFile(groovyFile, version);
+        }
     }
 
-    KotlinGradleModuleConfigurator() {
+    @NotNull
+    private static GrClosableBlock getAndroidBlock(@NotNull GroovyFile file) {
+        return getBlockOrCreate(file, "android");
+    }
+
+    KotlinAndroidGradleModuleConfigurator() {
     }
 }

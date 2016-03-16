@@ -24,14 +24,15 @@
     <orderEntry type="module" module-name="js.dart-ast" scope="TEST" />
     <orderEntry type="module" module-name="js.frontend" scope="TEST" />
     <orderEntry type="module" module-name="util" scope="TEST" />
-    <orderEntry type="module" module-name="android-compiler-plugin" scope="TEST" />
-    <orderEntry type="module" module-name="android-idea-plugin" scope="TEST" />
-    <orderEntry type="module" module-name="android-jps-plugin" scope="TEST" />
+    <orderEntry type="module" module-name="android-extensions-compiler" scope="TEST" />
+    <orderEntry type="module" module-name="android-extensions-idea" scope="TEST" />
+    <orderEntry type="module" module-name="android-extensions-jps" scope="TEST" />
     <orderEntry type="module" module-name="idea-test-framework" scope="TEST" />
     <orderEntry type="module" module-name="idea-completion" scope="TEST" />
     <orderEntry type="module" module-name="annotation-collector" scope="TEST" />
     <orderEntry type="module" module-name="container" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="kotlin-test" level="project" />
     <orderEntry type="module" module-name="build-common" scope="TEST" />
+    <orderEntry type="module" module-name="idea-android" scope="TEST" />
   </component>
 </module>

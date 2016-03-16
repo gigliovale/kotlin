@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.android.AbstractAndroidCompletionTest
 import org.jetbrains.kotlin.android.AbstractAndroidFindUsagesTest
 import org.jetbrains.kotlin.android.AbstractAndroidGotoTest
 import org.jetbrains.kotlin.android.AbstractAndroidRenameTest
+import org.jetbrains.kotlin.android.configure.AbstractConfigureProjectTest
 import org.jetbrains.kotlin.annotation.AbstractAnnotationProcessorBoxTest
 import org.jetbrains.kotlin.asJava.AbstractCompilerLightClassTest
 import org.jetbrains.kotlin.cfg.AbstractControlFlowTest
@@ -568,7 +569,6 @@ fun main(args: Array<String>) {
         }
 
         testClass<AbstractConfigureProjectByChangingFileTest>() {
-            model("configuration/android-gradle", pattern = """(\w+)_before\.gradle$""", testMethod = "doTestAndroidGradle")
             model("configuration/gradle", pattern = """(\w+)_before\.gradle$""", testMethod = "doTestGradle")
             model("configuration/maven", extension = null, recursive = false, testMethod = "doTestWithMaven")
             model("configuration/js-maven", extension = null, recursive = false, testMethod = "doTestWithJSMaven")
@@ -935,7 +935,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    testGroup("plugins/android-compiler-plugin/tests", "plugins/android-compiler-plugin/testData") {
+    testGroup("plugins/android-extensions/android-extensions-compiler/tests", "plugins/android-extensions/android-extensions-compiler/testData") {
         testClass<AbstractAndroidSyntheticPropertyDescriptorTest>() {
             model("descriptors", recursive = false, extension = null)
         }
@@ -956,7 +956,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    testGroup("plugins/android-idea-plugin/tests", "plugins/android-idea-plugin/testData") {
+    testGroup("plugins/android-extensions/android-extensions-idea/tests", "plugins/android-extensions/android-extensions-idea/testData") {
         testClass<AbstractAndroidCompletionTest>() {
             model("android/completion", recursive = false, extension = null)
         }
@@ -974,7 +974,13 @@ fun main(args: Array<String>) {
         }
     }
 
-    testGroup("plugins/android-jps-plugin/tests", "plugins/android-jps-plugin/testData") {
+    testGroup("idea/idea-android/tests", "idea/testData") {
+        testClass<AbstractConfigureProjectTest>() {
+            model("configuration/android-gradle", pattern = """(\w+)_before\.gradle$""", testMethod = "doTestAndroidGradle")
+        }
+    }
+
+    testGroup("plugins/android-extensions/android-extensions-jps/tests", "plugins/android-extensions/android-extensions-jps/testData") {
         testClass<AbstractAndroidJpsTestCase>() {
             model("android", recursive = false, extension = null)
         }

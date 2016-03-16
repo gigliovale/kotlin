@@ -392,6 +392,7 @@ object KotlinToJVMBytecodeCompiler {
                 configuration.get(JVMConfigurationKeys.DISABLE_INLINE, false),
                 configuration.get(JVMConfigurationKeys.DISABLE_OPTIMIZATION, false),
                 /* useTypeTableInSerializer = */ false,
+                configuration.get(JVMConfigurationKeys.INHERIT_MULTIFILE_PARTS, false),
                 packagesWithObsoleteParts,
                 obsoleteMultifileClasses,
                 targetId,

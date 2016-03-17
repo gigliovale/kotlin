@@ -78,5 +78,6 @@ public interface ClassBuilder {
     @NotNull
     String getThisName();
 
-    void addSMAP(FileMapping mapping);
+    void addSMAP(FileMapping mapping, boolean isDefaultNotDebug);
+
 }

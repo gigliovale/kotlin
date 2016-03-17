@@ -139,10 +139,8 @@ interface SourceMapper {
     }
 
     companion object {
-        fun flushToClassBuilder(mapper: SourceMapper, v: ClassBuilder) {
-            for (fileMapping in mapper.resultMappings) {
-                v.addSMAP(fileMapping)
-            }
+        fun flushToClassBuilder(mapper: SourceMapper, v: ClassBuilder, isDefaultNotDebug: Boolean) {
+            mapper.resultMappings.forEach { fileMapping -> v.addSMAP(fileMapping, isDefaultNotDebug) }
         }
 
         fun createFromSmap(smap: SMAP): DefaultSourceMapper {
@@ -216,7 +214,7 @@ open class DefaultSourceMapper(val sourceInfo: SourceInfo, override val parent: 
         iv.visitLineNumber(mappedLineIndex, start)
     }
 
-    protected fun createMapping(lineNumber: Int): Int {
+    private fun createMapping(lineNumber: Int): Int {
         val fileMapping = lastVisited!!
         val mappedLineIndex = fileMapping.mapLine(lineNumber, maxUsedValue, lastMappedWithChanges == lastVisited)
         if (mappedLineIndex > maxUsedValue) {

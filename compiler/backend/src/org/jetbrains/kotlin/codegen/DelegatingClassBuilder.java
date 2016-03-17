@@ -115,7 +115,7 @@ public abstract class DelegatingClassBuilder implements ClassBuilder {
     }
 
     @Override
-    public void addSMAP(FileMapping mapping) {
-        getDelegate().addSMAP(mapping);
+    public void addSMAP(FileMapping mapping, boolean isDefaultNotDebug) {
+        getDelegate().addSMAP(mapping, isDefaultNotDebug);
     }
 }

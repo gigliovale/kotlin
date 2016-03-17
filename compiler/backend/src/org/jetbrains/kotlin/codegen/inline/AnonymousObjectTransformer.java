@@ -177,7 +177,7 @@ public class AnonymousObjectTransformer extends ObjectTransformer<AnonymousObjec
 
         generateConstructorAndFields(classBuilder, allCapturedParamBuilder, constructorParamBuilder, parentRemapper, additionalFakeParams);
 
-        SourceMapper.Companion.flushToClassBuilder(sourceMapper, classBuilder);
+        SourceMapper.Companion.flushToClassBuilder(sourceMapper, classBuilder, true);
 
         ClassVisitor visitor = classBuilder.getVisitor();
         for (InnerClassNode node : innerClassNodes) {

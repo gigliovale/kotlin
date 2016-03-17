@@ -39,6 +39,8 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
 
     private final List<FileMapping> fileMappings = new ArrayList<FileMapping>();
 
+    private final List<FileMapping> debugFileMappings = new ArrayList<FileMapping>();
+
     private String sourceName;
 
     private String debugInfo;
@@ -155,7 +157,13 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
     }
 
     @Override
-    public void addSMAP(FileMapping mapping) {
-        fileMappings.add(mapping);
+    public void addSMAP(FileMapping mapping, boolean isDefaultNotDebug) {
+        if (isDefaultNotDebug) {
+            fileMappings.add(mapping);
+        }
+        else {
+            debugFileMappings.add(mapping);
+        }
     }
+
 }

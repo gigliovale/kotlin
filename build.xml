@@ -877,7 +877,7 @@
     </target>
 
     <target name="stdlib">
-        <new-kotlinc output="${output}/classes/stdlib" moduleName="kotlin-stdlib">
+        <new-kotlinc output="${output}/classes/stdlib" moduleName="kotlin-stdlib" additionalOptions="-Xmultifile-parts-inherit">
             <src>
                 <include name="libraries/stdlib/src"/>
             </src>

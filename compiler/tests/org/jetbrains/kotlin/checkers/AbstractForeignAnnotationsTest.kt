@@ -19,11 +19,14 @@ package org.jetbrains.kotlin.checkers
 import org.jetbrains.kotlin.test.MockLibraryUtil
 import java.io.File
 
-abstract class AbstractForeignAnnotationsTest : AbstractDiagnosticsTest() {
+abstract class AbstractForeignAnnotationsTest : AbstractDiagnosticsWithFullJdkTest() {
     override fun getExtraClasspath(): List<File> {
         return listOf(MockLibraryUtil.compileLibraryToJar(
-                "compiler/testData/foreignAnnotations/annotations",
+                annotationsPath,
                 "foreign-annotations", /* addSources = */false, /* allowKotlinPackage = */ false
         ))
     }
+
+    open protected val annotationsPath: String
+        get() = "compiler/testData/foreignAnnotations/annotations"
 }

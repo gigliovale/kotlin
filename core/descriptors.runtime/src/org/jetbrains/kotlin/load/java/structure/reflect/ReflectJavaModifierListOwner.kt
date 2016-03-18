@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.load.java.structure.reflect
 
 import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.Visibility
 import org.jetbrains.kotlin.load.java.JavaVisibilities
 import org.jetbrains.kotlin.load.java.structure.JavaModifierListOwner
 import java.lang.reflect.Modifier
@@ -24,18 +25,24 @@ import java.lang.reflect.Modifier
 interface ReflectJavaModifierListOwner : JavaModifierListOwner {
     /* protected // KT-3029 */ val modifiers: Int
 
-    override fun isAbstract() = Modifier.isAbstract(modifiers)
-    override fun isStatic() = Modifier.isStatic(modifiers)
-    override fun isFinal() = Modifier.isFinal(modifiers)
+    override val isAbstract: Boolean
+        get() = Modifier.isAbstract(modifiers)
 
-    override fun getVisibility() = modifiers.let { modifiers ->
-        when {
-            Modifier.isPublic(modifiers) -> Visibilities.PUBLIC
-            Modifier.isPrivate(modifiers) -> Visibilities.PRIVATE
-            Modifier.isProtected(modifiers) ->
-                if (Modifier.isStatic(modifiers)) JavaVisibilities.PROTECTED_STATIC_VISIBILITY
-                else JavaVisibilities.PROTECTED_AND_PACKAGE
-            else -> JavaVisibilities.PACKAGE_VISIBILITY
+    override val isStatic: Boolean
+        get() = Modifier.isStatic(modifiers)
+
+    override val isFinal: Boolean
+        get() = Modifier.isFinal(modifiers)
+
+    override val visibility: Visibility
+        get() = modifiers.let { modifiers ->
+            when {
+                Modifier.isPublic(modifiers) -> Visibilities.PUBLIC
+                Modifier.isPrivate(modifiers) -> Visibilities.PRIVATE
+                Modifier.isProtected(modifiers) ->
+                    if (Modifier.isStatic(modifiers)) JavaVisibilities.PROTECTED_STATIC_VISIBILITY
+                    else JavaVisibilities.PROTECTED_AND_PACKAGE
+                else -> JavaVisibilities.PACKAGE_VISIBILITY
+            }
         }
-    }
 }

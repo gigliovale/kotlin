@@ -19,17 +19,20 @@ package org.jetbrains.kotlin.load.java.structure.impl;
 import com.intellij.psi.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.load.java.structure.*;
+import org.jetbrains.kotlin.load.java.structure.JavaClassifierType;
+import org.jetbrains.kotlin.load.java.structure.JavaType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class JavaClassifierTypeImpl extends JavaTypeImpl<PsiClassType> implements JavaClassifierType {
     private static class ResolutionResult {
-        private final JavaClassifier classifier;
-        private final JavaTypeSubstitutor substitutor;
+        private final JavaClassifierImpl<?> classifier;
+        private final PsiSubstitutor substitutor;
         private final boolean isRaw;
 
-        private ResolutionResult(@Nullable JavaClassifier classifier, @NotNull JavaTypeSubstitutor substitutor, boolean isRaw) {
+        private ResolutionResult(@Nullable JavaClassifierImpl<?> classifier, @NotNull PsiSubstitutor substitutor, boolean isRaw) {
             this.classifier = classifier;
             this.substitutor = substitutor;
             this.isRaw = isRaw;
@@ -44,14 +47,13 @@ public class JavaClassifierTypeImpl extends JavaTypeImpl<PsiClassType> implement
 
     @Override
     @Nullable
-    public JavaClassifier getClassifier() {
+    public JavaClassifierImpl<?> getClassifier() {
         resolve();
         return resolutionResult.classifier;
     }
 
-    @Override
     @NotNull
-    public JavaTypeSubstitutor getSubstitutor() {
+    public PsiSubstitutor getSubstitutor() {
         resolve();
         return resolutionResult.substitutor;
     }
@@ -62,38 +64,9 @@ public class JavaClassifierTypeImpl extends JavaTypeImpl<PsiClassType> implement
             PsiClass psiClass = result.getElement();
             PsiSubstitutor substitutor = result.getSubstitutor();
             resolutionResult = new ResolutionResult(
-                    psiClass == null ? null : JavaClassifierImpl.create(psiClass),
-                    new JavaTypeSubstitutorImpl(convertSubstitutionMap(substitutor.getSubstitutionMap())),
-                    PsiClassType.isRaw(result));
+                    psiClass == null ? null : JavaClassifierImpl.create(psiClass), substitutor, PsiClassType.isRaw(result)
+            );
         }
-    }
-
-    @NotNull
-    private static Map<JavaTypeParameter, JavaType> convertSubstitutionMap(@NotNull Map<PsiTypeParameter, PsiType> psiMap) {
-        if (psiMap.isEmpty()) return Collections.emptyMap();
-
-        Map<JavaTypeParameter, JavaType> substitutionMap = new HashMap<JavaTypeParameter, JavaType>();
-        for (Map.Entry<PsiTypeParameter, PsiType> entry : psiMap.entrySet()) {
-            PsiType value = entry.getValue();
-            substitutionMap.put(new JavaTypeParameterImpl(entry.getKey()), value == null ? null : JavaTypeImpl.create(value));
-        }
-
-        return substitutionMap;
-    }
-
-    @Override
-    @NotNull
-    public Collection<JavaClassifierType> getSupertypes() {
-        PsiType[] psiTypes = getPsi().getSuperTypes();
-        if (psiTypes.length == 0) return Collections.emptyList();
-        List<JavaClassifierType> result = new ArrayList<JavaClassifierType>(psiTypes.length);
-        for (PsiType psiType : psiTypes) {
-            if (!(psiType instanceof PsiClassType)) {
-                throw new IllegalStateException("Supertype should be a class: " + psiType + ", type: " + getPsi());
-            }
-            result.add(new JavaClassifierTypeImpl((PsiClassType) psiType));
-        }
-        return result;
     }
 
     @Override
@@ -111,18 +84,18 @@ public class JavaClassifierTypeImpl extends JavaTypeImpl<PsiClassType> implement
     @Override
     @NotNull
     public List<JavaType> getTypeArguments() {
-        JavaClassifier classifier = getClassifier();
+        JavaClassifierImpl<?> classifier = getClassifier();
+        if (!(classifier instanceof JavaClassImpl)) return Collections.emptyList();
 
         // parameters including ones from outer class
-        Iterable<PsiTypeParameter> parameters = classifier instanceof JavaClassImpl
-                                                ? getTypeParameters(((JavaClassImpl) classifier).getPsi())
-                                                : Collections.<PsiTypeParameter>emptyList();
+        List<PsiTypeParameter> parameters = getTypeParameters(classifier.getPsi());
 
-        JavaTypeSubstitutor substitutor = getSubstitutor();
+        PsiSubstitutor substitutor = getSubstitutor();
 
-        List<JavaType> result = new ArrayList<JavaType>();
+        List<JavaType> result = new ArrayList<JavaType>(parameters.size());
         for (PsiTypeParameter typeParameter : parameters) {
-            result.add(substitutor.substitute(new JavaTypeParameterImpl(typeParameter)));
+            PsiType substitutedType = substitutor.substitute(typeParameter);
+            result.add(substitutedType == null ? null : JavaTypeImpl.create(substitutedType));
         }
 
         return result;
@@ -138,7 +111,7 @@ public class JavaClassifierTypeImpl extends JavaTypeImpl<PsiClassType> implement
     // PsiUtil.typeParametersIterable returns H3, H2, H1
     // But we would like to have H2, H3, H1 as such order is consistent with our type representation
     @NotNull
-    public static List<PsiTypeParameter> getTypeParameters(@NotNull PsiClass owner) {
+    private static List<PsiTypeParameter> getTypeParameters(@NotNull PsiClass owner) {
         List<PsiTypeParameter> result = null;
 
         PsiTypeParameterListOwner currentOwner = owner;

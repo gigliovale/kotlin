@@ -20,7 +20,6 @@ import com.intellij.psi.PsiAnnotationMethod;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.PsiType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.load.java.structure.JavaMethod;
 import org.jetbrains.kotlin.load.java.structure.JavaType;
 import org.jetbrains.kotlin.load.java.structure.JavaTypeParameter;
@@ -58,7 +57,7 @@ public class JavaMethodImpl extends JavaMemberImpl<PsiMethod> implements JavaMet
     }
 
     @Override
-    public boolean hasAnnotationParameterDefaultValue() {
+    public boolean getHasAnnotationParameterDefaultValue() {
         PsiMethod psiMethod = getPsi();
         return psiMethod instanceof PsiAnnotationMethod && ((PsiAnnotationMethod) psiMethod).getDefaultValue() != null;
     }

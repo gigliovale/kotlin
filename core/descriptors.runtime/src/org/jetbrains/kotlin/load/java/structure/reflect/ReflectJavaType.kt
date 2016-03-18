@@ -16,16 +16,13 @@
 
 package org.jetbrains.kotlin.load.java.structure.reflect
 
-import org.jetbrains.kotlin.load.java.structure.JavaArrayType
 import org.jetbrains.kotlin.load.java.structure.JavaType
 import java.lang.reflect.GenericArrayType
 import java.lang.reflect.Type
 import java.lang.reflect.WildcardType
 
 abstract class ReflectJavaType : JavaType {
-    protected abstract val type: Type
-
-    override fun createArrayType(): JavaArrayType = throw UnsupportedOperationException()
+    protected abstract val reflectType: Type
 
     companion object Factory {
         fun create(type: Type): ReflectJavaType {
@@ -38,9 +35,9 @@ abstract class ReflectJavaType : JavaType {
         }
     }
 
-    override fun equals(other: Any?) = other is ReflectJavaType && type == other.type
+    override fun equals(other: Any?) = other is ReflectJavaType && reflectType == other.reflectType
 
-    override fun hashCode() = type.hashCode()
+    override fun hashCode() = reflectType.hashCode()
 
-    override fun toString() = javaClass.name + ": " + type
+    override fun toString() = javaClass.name + ": " + reflectType
 }

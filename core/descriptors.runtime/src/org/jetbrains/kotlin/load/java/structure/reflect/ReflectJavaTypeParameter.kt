@@ -16,41 +16,27 @@
 
 package org.jetbrains.kotlin.load.java.structure.reflect
 
-import org.jetbrains.kotlin.load.java.structure.*
+import org.jetbrains.kotlin.load.java.structure.JavaTypeParameter
 import org.jetbrains.kotlin.name.Name
 import java.lang.reflect.AnnotatedElement
-import java.lang.reflect.Constructor
-import java.lang.reflect.Method
 import java.lang.reflect.TypeVariable
 
 class ReflectJavaTypeParameter(
         val typeVariable: TypeVariable<*>
 ) : ReflectJavaElement(), JavaTypeParameter, ReflectJavaAnnotationOwner {
-    override fun getUpperBounds(): List<ReflectJavaClassifierType> {
-        val bounds = typeVariable.bounds.map { bound -> ReflectJavaClassifierType(bound) }
-        if (bounds.singleOrNull()?.type == Any::class.java) return emptyList()
-        return bounds
-    }
+    override val upperBounds: List<ReflectJavaClassifierType>
+        get() {
+            val bounds = typeVariable.bounds.map { bound -> ReflectJavaClassifierType(bound) }
+            if (bounds.singleOrNull()?.reflectType == Any::class.java) return emptyList()
+            return bounds
+        }
 
     override val element: AnnotatedElement?
         // TypeVariable is AnnotatedElement only in JDK8
         get() = typeVariable as? AnnotatedElement
 
-    override fun getOwner(): JavaTypeParameterListOwner? {
-        val owner = typeVariable.genericDeclaration
-        return when (owner) {
-            is Class<*> -> ReflectJavaClass(owner)
-            is Method -> ReflectJavaMethod(owner)
-            is Constructor<*> -> ReflectJavaConstructor(owner)
-            else -> throw UnsupportedOperationException("Unsupported type parameter list owner (${owner.javaClass}): $owner")
-        }
-    }
-
-    override fun getType(): JavaType = throw UnsupportedOperationException()
-
-    override fun getTypeProvider(): JavaTypeProvider = throw UnsupportedOperationException()
-
-    override fun getName() = Name.identifier(typeVariable.name)
+    override val name: Name
+        get() = Name.identifier(typeVariable.name)
 
     override fun equals(other: Any?) = other is ReflectJavaTypeParameter && typeVariable == other.typeVariable
 

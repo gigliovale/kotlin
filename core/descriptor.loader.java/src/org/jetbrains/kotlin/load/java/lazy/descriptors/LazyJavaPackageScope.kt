@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.load.java.structure.JavaClass
 import org.jetbrains.kotlin.load.java.structure.JavaPackage
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.name.SpecialNames
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -159,9 +158,9 @@ class LazyJavaPackageScope(
         // neither objects nor enum members can be in java package
         if (!kindFilter.acceptsKinds(DescriptorKindFilter.NON_SINGLETON_CLASSIFIERS_MASK)) return listOf()
 
-        return jPackage.getClasses(nameFilter).asSequence()
-                .filter { c -> c.originKind != JavaClass.OriginKind.KOTLIN_LIGHT_CLASS }
-                .map { c -> c.name }.toList()
+        return jPackage.getClasses(nameFilter).mapNotNull { klass ->
+            if (klass.isKotlinLightClass) null else klass.name
+        }
     }
 
     override fun getFunctionNames(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean): Collection<Name> {
@@ -173,7 +172,7 @@ class LazyJavaPackageScope(
 
     private val subPackages = c.storageManager.createRecursionTolerantLazyValue(
             {
-                jPackage.getSubPackages().map { sp -> sp.getFqName() }
+                jPackage.subPackages.map { sp -> sp.fqName }
             },
             // This breaks infinite recursion between loading Java descriptors and building light classes
             onRecursiveCall = listOf()

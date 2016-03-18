@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.load.java.structure.impl;
 
 import com.intellij.psi.*;
-import com.intellij.psi.impl.PsiSubstitutorImpl;
 import kotlin.collections.ArraysKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
@@ -27,11 +26,10 @@ import org.jetbrains.kotlin.descriptors.Visibility;
 import org.jetbrains.kotlin.load.java.structure.*;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.name.SpecialNames;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.jetbrains.kotlin.load.java.structure.impl.JavaElementCollectionFromPsiArrayUtil.*;
 
@@ -58,7 +56,7 @@ public class JavaClassImpl extends JavaClassifierImpl<PsiClass> implements JavaC
     @NotNull
     @Override
     public Name getName() {
-        return Name.identifier(getPsi().getName());
+        return SpecialNames.safeIdentifier(getPsi().getName());
     }
 
     @Override
@@ -78,7 +76,7 @@ public class JavaClassImpl extends JavaClassifierImpl<PsiClass> implements JavaC
 
     @Override
     @Nullable
-    public JavaClass getOuterClass() {
+    public JavaClassImpl getOuterClass() {
         PsiClass outer = getPsi().getContainingClass();
         return outer == null ? null : new JavaClassImpl(outer);
     }
@@ -155,47 +153,8 @@ public class JavaClassImpl extends JavaClassifierImpl<PsiClass> implements JavaC
     }
 
     @Override
-    @NotNull
-    public JavaClassifierType getDefaultType() {
-        return new JavaClassifierTypeImpl(JavaPsiFacade.getElementFactory(getPsi().getProject()).createType(getPsi()));
-    }
-
-    @Override
-    @NotNull
-    public OriginKind getOriginKind() {
-        PsiClass psiClass = getPsi();
-        if (psiClass instanceof KtJavaMirrorMarker) {
-            return OriginKind.KOTLIN_LIGHT_CLASS;
-        }
-        else if (psiClass instanceof PsiCompiledElement) {
-            return OriginKind.COMPILED;
-        }
-        else {
-            return OriginKind.SOURCE;
-        }
-    }
-
-    @NotNull
-    @Override
-    public JavaType createImmediateType(@NotNull JavaTypeSubstitutor substitutor) {
-        return new JavaClassifierTypeImpl(
-                JavaPsiFacade.getElementFactory(getPsi().getProject()).createType(getPsi(), createPsiSubstitutor(substitutor)));
-    }
-
-    @NotNull
-    private static PsiSubstitutor createPsiSubstitutor(@NotNull JavaTypeSubstitutor substitutor) {
-        Map<PsiTypeParameter, PsiType> substMap = new HashMap<PsiTypeParameter, PsiType>();
-        for (Map.Entry<JavaTypeParameter, JavaType> entry : substitutor.getSubstitutionMap().entrySet()) {
-            PsiTypeParameter key = ((JavaTypeParameterImpl) entry.getKey()).getPsi();
-            if (entry.getValue() == null) {
-                substMap.put(key, null);
-            }
-            else {
-                substMap.put(key, ((JavaTypeImpl) entry.getValue()).getPsi());
-            }
-        }
-
-        return PsiSubstitutorImpl.createSubstitutor(substMap);
+    public boolean isKotlinLightClass() {
+        return getPsi() instanceof KtJavaMirrorMarker;
     }
 
     @Nullable

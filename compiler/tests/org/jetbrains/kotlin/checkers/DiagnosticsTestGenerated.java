@@ -301,6 +301,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("implicitNestedIntersection.kt")
+        public void testImplicitNestedIntersection() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/implicitNestedIntersection.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("implicitNothing.kt")
         public void testImplicitNothing() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/implicitNothing.kt");
@@ -10314,6 +10320,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("UnboxingNulls.kt")
             public void testUnboxingNulls() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/UnboxingNulls.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("wrongVarianceInJava.kt")
+            public void testWrongVarianceInJava() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/wrongVarianceInJava.kt");
                 doTest(fileName);
             }
 

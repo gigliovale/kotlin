@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.Variance.*
 import org.jetbrains.kotlin.types.typeUtil.createProjection
 import org.jetbrains.kotlin.types.typeUtil.replaceAnnotations
+import org.jetbrains.kotlin.types.typeUtil.replaceArgumentsWithStarProjections
 import org.jetbrains.kotlin.utils.sure
 import org.jetbrains.kotlin.utils.toReadOnlyList
 
@@ -145,14 +146,20 @@ class LazyJavaTypeResolver(
 
             val kotlinDescriptor = javaToKotlin.mapJavaToKotlin(fqName) ?: return null
 
-            if (howThisTypeIsUsedEffectively == MEMBER_SIGNATURE_COVARIANT || howThisTypeIsUsedEffectively == SUPERTYPE) {
-                if (javaToKotlin.isReadOnly(kotlinDescriptor)) {
+            if (javaToKotlin.isReadOnly(kotlinDescriptor)) {
+                if (howThisTypeIsUsedEffectively == MEMBER_SIGNATURE_COVARIANT
+                        || howThisTypeIsUsedEffectively == SUPERTYPE
+                        // Convert (Mutable)List<in A> to MutableList<in A>
+                        // Same for (Mutable)Map<K, in V>
+                        || javaType.typeArguments.lastOrNull().isSuperWildcard()) {
                     return javaToKotlin.convertReadOnlyToMutable(kotlinDescriptor)
                 }
             }
 
             return kotlinDescriptor
         }
+
+        private fun JavaType?.isSuperWildcard(): Boolean = (this as? JavaWildcardType)?.let { it.bound != null && !it.isExtends } ?: false
 
         private fun isRaw(): Boolean {
             if (javaType.isRaw) return true
@@ -217,18 +224,24 @@ class LazyJavaTypeResolver(
             return when (javaType) {
                 is JavaWildcardType -> {
                     val bound = javaType.bound
-                    if (bound == null)
+                    val projectionKind = if (javaType.isExtends) OUT_VARIANCE else IN_VARIANCE
+                    if (bound == null || projectionKind.isConflictingArgumentFor(typeParameter))
                         makeStarProjection(typeParameter, attr)
                     else {
                         createProjection(
                                 type = transformJavaType(bound, UPPER_BOUND.toAttributes()),
-                                projectionKind = if (javaType.isExtends) OUT_VARIANCE else IN_VARIANCE,
+                                projectionKind = projectionKind,
                                 typeParameterDescriptor = typeParameter
                         )
                     }
                 }
                 else -> TypeProjectionImpl(INVARIANT, transformJavaType(javaType, attr))
             }
+        }
+
+        private fun Variance.isConflictingArgumentFor(typeParameter: TypeParameterDescriptor): Boolean {
+            if (typeParameter.variance == INVARIANT) return false
+            return this != typeParameter.variance
         }
 
         override fun getCapabilities(): TypeCapabilities = if (isRaw()) RawTypeCapabilities else TypeCapabilities.NONE
@@ -415,27 +428,3 @@ internal fun TypeParameterDescriptor.getErasedUpperBound(
     return defaultValue()
 }
 
-private fun KotlinType.replaceArgumentsWithStarProjections(): KotlinType {
-    if (constructor.parameters.isEmpty() || constructor.declarationDescriptor == null) return this
-
-    // We could just create JetTypeImpl with current type constructor and star projections,
-    // but we want to preserve flexibility of type, and that it what TypeSubstitutor does
-    return TypeSubstitutor.create(ConstantStarSubstitution).substitute(this, Variance.INVARIANT)!!
-}
-
-private object ConstantStarSubstitution : TypeSubstitution() {
-    override fun get(key: KotlinType): TypeProjection? {
-        // Let substitutor deal with flexibility
-        if (key.isFlexible()) return null
-
-        val newProjections = key.constructor.parameters.map(::StarProjectionImpl)
-
-        val substitution = TypeConstructorSubstitution.create(key.constructor, newProjections)
-
-        return TypeProjectionImpl(
-                TypeSubstitutor.create(substitution).substitute(key.constructor.declarationDescriptor!!.defaultType, Variance.INVARIANT)!!
-        )
-    }
-
-    override fun isEmpty() = false
-}

@@ -301,6 +301,9 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                     if (this.kind == ExceptionThrown.ExceptionKind.FROM_EVALUATED_CODE) {
                         exception(InvocationException(this.exception.value as ObjectReference))
                     }
+                    else if (this.kind == ExceptionThrown.ExceptionKind.BROKEN_CODE) {
+                        throw exception.value as Throwable
+                    }
                     else {
                         exception(exception.toString())
                     }
@@ -461,7 +464,9 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
 
                 val bindingContext = analysisResult.bindingContext
                 bindingContext.diagnostics.firstOrNull { it.severity == Severity.ERROR }?.let {
-                    exception(DefaultErrorMessages.render(it))
+                    if (it.psiElement.containingFile == this) {
+                        exception(DefaultErrorMessages.render(it))
+                    }
                 }
 
                 if (analyzeInlineFunctions) {

@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.codegen.inline
 
+import org.jetbrains.kotlin.codegen.ClassBuilder
 import org.jetbrains.kotlin.codegen.ExpressionCodegen
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
@@ -76,5 +77,21 @@ class InlineOnlySmapSkipper(codegen: ExpressionCodegen) {
             mv.visitLabel(label)
             mv.visitLineNumber(callLineNumber, label)
         }
+    }
+}
+
+fun addStackTraceSmap(inlineSourceMapper: SourceMapper, classBuilder: ClassBuilder, skip: Int, lineNumber: Int) {
+    if (inlineSourceMapper !is NestedSourceMapper) error("Source mapper $inlineSourceMapper should be 'NestedSourceMapper' subclass ")
+
+    val resultMappings = inlineSourceMapper.parent!!.resultMappings.drop(skip)
+
+
+    resultMappings.forEach { filemapping ->
+        val newMapping = FileMapping(filemapping.name, filemapping.path)
+        //remapped
+        filemapping.lineMappings.forEach { rangeMapping ->
+            newMapping.addRangeMapping(RangeMapping(lineNumber, rangeMapping.dest, rangeMapping.range))
+        }
+        classBuilder.addSMAP(newMapping, false)
     }
 }

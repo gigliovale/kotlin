@@ -29,6 +29,8 @@ public class InlineResult {
     private final Map<String, String> changedTypes = new HashMap<String, String>();
     private final ReifiedTypeParametersUsages reifiedTypeParametersUsages = new ReifiedTypeParametersUsages();
 
+    private SourceMapper sourceMapper;
+
     private InlineResult() {
     }
 
@@ -63,5 +65,13 @@ public class InlineResult {
     @NotNull
     public ReifiedTypeParametersUsages getReifiedTypeParametersUsages() {
         return reifiedTypeParametersUsages;
+    }
+
+    public SourceMapper getSourceMapper() {
+        return sourceMapper;
+    }
+
+    public void setSourceMapper(SourceMapper sourceMapper) {
+        this.sourceMapper = sourceMapper;
     }
 }

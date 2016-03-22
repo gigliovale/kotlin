@@ -27,9 +27,10 @@ import java.util.*
 class SMAPBuilder(
         val source: String,
         val path: String,
-        val fileMappings: List<FileMapping>
+        val fileMappings: List<FileMapping>,
+        val debugFileMappings: List<FileMapping>
 ) {
-    private val header = "SMAP\n$source\nKotlin\n*S Kotlin"
+    private val header = "SMAP\n$source\nKotlin"
 
     fun build(): String? {
         var realMappings = fileMappings.filter {
@@ -41,10 +42,34 @@ class SMAPBuilder(
             return null
         }
 
+        val defautStrata = generateDefaultStrata(realMappings)
+        val debugStrata = generateDebugStrata(debugFileMappings)
+
+        return "$header\n$defautStrata\n$debugStrata\n"
+    }
+
+    private fun generateDefaultStrata(realMappings: List<FileMapping>): String {
         val fileIds = "*F" + realMappings.mapIndexed { id, file -> "\n${file.toSMAPFile(id + 1)}" }.joinToString("")
         val lineMappings = "*L" + realMappings.joinToString("") { it.toSMAPMapping() }
+        val strata = "*S Kotlin\n$fileIds\n$lineMappings\n*E"
+        return strata
+    }
 
-        return "$header\n$fileIds\n$lineMappings\n*E\n"
+    private fun generateDebugStrata(realMappings: List<FileMapping>): String {
+        val combinedMapping = FileMapping(source, path)
+        realMappings.forEach { fileMapping ->
+            fileMapping.lineMappings.forEach { rangeMapping ->
+                for (i in rangeMapping.dest..(rangeMapping.dest + rangeMapping.range - 1)) {
+                    combinedMapping.addRangeMapping(RangeMapping(rangeMapping.source, i, 1))
+                }
+            }
+        }
+
+        var newMappings = listOf(combinedMapping)
+        val fileIds = "*F" + newMappings.mapIndexed { id, file -> "\n${file.toSMAPFile(id + 1)}" }.joinToString("")
+        val lineMappings = "*L" + newMappings.joinToString("") { it.toSMAPMapping() }
+        val strata = "*S KotlinDebug\n$fileIds\n$lineMappings\n*E"
+        return strata
     }
 
     private fun RangeMapping.toSMAP(fileId: Int): String {
@@ -140,7 +165,12 @@ interface SourceMapper {
 
     companion object {
         fun flushToClassBuilder(mapper: SourceMapper, v: ClassBuilder, isDefaultNotDebug: Boolean) {
-            mapper.resultMappings.forEach { fileMapping -> v.addSMAP(fileMapping, isDefaultNotDebug) }
+            val resultMappings = mapper.resultMappings
+            addToClassBuilder(isDefaultNotDebug, resultMappings, v)
+        }
+
+        public fun addToClassBuilder(isDefaultNotDebug: Boolean, resultMappings: List<FileMapping>, v: ClassBuilder) {
+            resultMappings.forEach { fileMapping -> v.addSMAP(fileMapping, isDefaultNotDebug) }
         }
 
         fun createFromSmap(smap: SMAP): DefaultSourceMapper {

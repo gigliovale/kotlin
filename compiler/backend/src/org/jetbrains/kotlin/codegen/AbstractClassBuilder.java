@@ -110,7 +110,7 @@ public abstract class AbstractClassBuilder implements ClassBuilder {
         if (!fileMappings.isEmpty() && InlineCodegenUtil.GENERATE_SMAP) {
             FileMapping origin = fileMappings.get(0);
             assert sourceName == null || origin.getName().equals(sourceName) : "Error " + origin.getName() +  " != "  + sourceName;
-            getVisitor().visitSource(origin.getName(), new SMAPBuilder(origin.getName(), origin.getPath(), fileMappings).build());
+            getVisitor().visitSource(origin.getName(), new SMAPBuilder(origin.getName(), origin.getPath(), fileMappings, debugFileMappings).build());
         }
         else {
             getVisitor().visitSource(sourceName, debugInfo);

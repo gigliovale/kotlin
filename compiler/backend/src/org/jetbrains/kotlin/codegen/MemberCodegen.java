@@ -71,7 +71,7 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
     protected final GenerationState state;
     protected final T element;
     protected final FieldOwnerContext context;
-    protected final ClassBuilder v;
+    public final ClassBuilder v; //TODO temp hack
     protected final FunctionCodegen functionCodegen;
     protected final PropertyCodegen propertyCodegen;
     protected final KotlinTypeMapper typeMapper;
@@ -85,6 +85,7 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
     private NameGenerator inlineNameGenerator;
 
     private SourceMapper sourceMapper;
+    private SourceMapper debugSourceMapper;
     private final ConstantExpressionEvaluator constantExpressionEvaluator;
 
     public MemberCodegen(
@@ -168,7 +169,7 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
         writeInnerClasses();
 
         if (sourceMapper != null) {
-            SourceMapper.Companion.flushToClassBuilder(sourceMapper, v);
+            SourceMapper.Companion.flushToClassBuilder(sourceMapper, v, true);
         }
 
         v.done();

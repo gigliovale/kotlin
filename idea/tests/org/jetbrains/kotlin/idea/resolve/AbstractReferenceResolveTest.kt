@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ abstract class AbstractReferenceResolveTest : KotlinLightPlatformCodeInsightFixt
 
     protected fun doSingleResolveTest() {
         forEachCaret { index, offset ->
-            val expectedResolveData = readResolveData(myFixture.file.text, index)
+            val expectedResolveData = readResolveData(myFixture.file.text, index, refMarkerText)
             val psiReference = myFixture.file.findReferenceAt(offset)
             checkReferenceResolve(expectedResolveData, offset, psiReference)
         }
@@ -64,7 +64,7 @@ abstract class AbstractReferenceResolveTest : KotlinLightPlatformCodeInsightFixt
 
     protected fun doMultiResolveTest() {
         forEachCaret { index, offset ->
-            val expectedReferences = getExpectedReferences(myFixture.file.text, index)
+            val expectedReferences = getExpectedReferences(myFixture.file.text, index, refMarkerText)
 
             val psiReference = myFixture.file.findReferenceAt(offset)
             assertTrue(psiReference is PsiPolyVariantReference)
@@ -93,13 +93,15 @@ abstract class AbstractReferenceResolveTest : KotlinLightPlatformCodeInsightFixt
 
     override fun getTestDataPath() = "./"
 
+    open val refMarkerText: String = "REF"
+
     companion object {
         val MULTIRESOLVE: String = "MULTIRESOLVE"
         val REF_EMPTY: String = "REF_EMPTY"
 
-        fun readResolveData(fileText: String, index: Int): ExpectedResolveData {
+        fun readResolveData(fileText: String, index: Int, refMarkerText: String = "REF"): ExpectedResolveData {
             val shouldBeUnresolved = InTextDirectivesUtils.isDirectiveDefined(fileText, REF_EMPTY)
-            val refs = getExpectedReferences(fileText, index)
+            val refs = getExpectedReferences(fileText, index, refMarkerText)
 
             val referenceToString: String
             if (shouldBeUnresolved) {
@@ -117,8 +119,8 @@ abstract class AbstractReferenceResolveTest : KotlinLightPlatformCodeInsightFixt
 
         // purpose of this helper is to deal with the case when navigation element is a file
         // see ReferenceResolveInJavaTestGenerated.testPackageFacade()
-        private fun getExpectedReferences(text: String, index: Int): List<String> {
-            val prefix = if (index > 0) "// REF$index:" else "// REF:"
+        private fun getExpectedReferences(text: String, index: Int, refMarkerText: String): List<String> {
+            val prefix = if (index > 0) "// $refMarkerText$index:" else "// $refMarkerText:"
             val prefixes = InTextDirectivesUtils.findLinesWithPrefixesRemoved(text, prefix)
             return prefixes.map {
                 val replaced = it.replace("<test dir>", PluginTestCaseBase.getTestDataPathBase())

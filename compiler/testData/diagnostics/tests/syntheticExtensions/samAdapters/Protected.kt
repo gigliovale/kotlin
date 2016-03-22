@@ -4,9 +4,9 @@ package k
 import JavaClass
 
 fun foo(javaClass: JavaClass) {
-    javaClass.<!INVISIBLE_MEMBER!>doSomething<!> <!TYPE_MISMATCH!>{
+    javaClass.<!NONE_APPLICABLE!>doSomething<!> {
         bar()
-    }<!>
+    }
 }
 
 class X : JavaClass() {

@@ -10,7 +10,7 @@ public class JavaClass<T> {
         return new Inner<X>();
     }
 
-    public interface Inner<X>{
-        public T doSomething(T t, X x, Runnable runnable);
+    public class Inner<X>{
+        public T doSomething(T t, X x, Runnable runnable) { return t; }
     }
 }

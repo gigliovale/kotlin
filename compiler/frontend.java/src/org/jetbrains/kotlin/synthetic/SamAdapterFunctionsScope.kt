@@ -115,7 +115,6 @@ class SamAdapterFunctionsScope(storageManager: StorageManager) : SyntheticScope 
                 descriptor.sourceFunction = sourceFunction
 
                 val sourceTypeParams = sourceFunction.typeParameters
-                val ownerClass = sourceFunction.containingDeclaration as ClassDescriptor
 
                 val typeParameters = ArrayList<TypeParameterDescriptor>(sourceTypeParams.size)
                 val typeSubstitutor = DescriptorSubstitutor.substituteTypeParameters(sourceTypeParams, TypeSubstitution.EMPTY, descriptor, typeParameters)
@@ -128,7 +127,7 @@ class SamAdapterFunctionsScope(storageManager: StorageManager) : SyntheticScope 
                 // TODO: check this
                 val visibility = syntheticExtensionVisibility(sourceFunction)
 
-                descriptor.initialize(null, ownerClass.thisAsReceiverParameter, typeParameters, valueParameters, returnType,
+                descriptor.initialize(null, sourceFunction.dispatchReceiverParameter, typeParameters, valueParameters, returnType,
                                       sourceFunction.modality, visibility)
 
                 descriptor.isOperator = sourceFunction.isOperator

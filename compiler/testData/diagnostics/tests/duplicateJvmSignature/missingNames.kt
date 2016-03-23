@@ -58,11 +58,11 @@ class Outer {
 }
 
 fun outerFun() {
-    <!FUNCTION_DECLARATION_WITH_NO_NAME, CONFLICTING_OVERLOADS!>fun ()<!> {
+    <!UNUSED_EXPRESSION!>fun () {
 
-    }
-    <!FUNCTION_DECLARATION_WITH_NO_NAME, CONFLICTING_OVERLOADS!>fun ()<!> {
+    }<!>
+    <!UNUSED_EXPRESSION!>fun () {
 
-    }
+    }<!>
 }
 

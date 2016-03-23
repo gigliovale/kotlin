@@ -18422,6 +18422,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("privateValInClass.kt")
+                public void testPrivateValInClass() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/syntheticExtensions/javaProperties/privateValInClass.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("SetterHasHigherAccess.kt")
                 public void testSetterHasHigherAccess() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/syntheticExtensions/javaProperties/SetterHasHigherAccess.kt");

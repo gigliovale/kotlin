@@ -2895,6 +2895,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("initializationInLocalClass.kt")
+            public void testInitializationInLocalClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/initializationInLocalClass.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("initializationInLocalFun.kt")
+            public void testInitializationInLocalFun() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/initializationInLocalFun.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt1001.kt")
             public void testKt1001() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/kt1001.kt");

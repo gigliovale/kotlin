@@ -1,25 +1,22 @@
 package
 
-public val z: kotlin.Int
+public val top: kotlin.Int
 public fun bar(): kotlin.Unit
-public fun bar2(): kotlin.Unit
-public fun exec(/*0*/ f: () -> kotlin.Unit): kotlin.Unit
 public fun foo(): kotlin.Unit
-public fun ignoreIt(/*0*/ f: () -> kotlin.Unit): kotlin.Unit
+public fun gau(): kotlin.Unit
+public fun gav(): kotlin.Unit
+public fun init(): kotlin.Unit
 
-public final class My {
-    public constructor My()
-    public constructor My(/*0*/ cond: kotlin.Boolean)
-    public final val cond: kotlin.Boolean
-    public final val y: kotlin.Int
+public open class Gau {
+    public constructor Gau(/*0*/ s: kotlin.String)
+    public final val s: kotlin.String
     public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
     public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
 }
 
-public final class Your {
-    public constructor Your()
-    public final val y: kotlin.Int
+public final class My {
+    public constructor My()
     public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
     public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String

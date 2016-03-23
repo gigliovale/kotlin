@@ -391,6 +391,50 @@ public class ControlFlowInformationProvider {
         }
     }
 
+    // Should return KtDeclarationWithBody or KtClassOrObject
+    @Nullable
+    public static KtDeclaration getElementParentDeclaration(@NotNull KtElement element) {
+        //noinspection unchecked
+        return PsiTreeUtil.getParentOfType(element, KtDeclarationWithBody.class, KtClassOrObject.class);
+    }
+
+    @Nullable
+    private DeclarationDescriptor getDeclarationDescriptor(@Nullable KtDeclaration declaration) {
+        DeclarationDescriptor descriptor = trace.get(BindingContext.DECLARATION_TO_DESCRIPTOR, declaration);
+        if (descriptor instanceof ClassDescriptor) {
+            // For a class primary constructor, we cannot directly get ConstructorDescriptor by KtClassInitializer,
+            // so we have to do additional conversion: KtClassInitializer -> KtClassOrObject -> ClassDescriptor -> ConstructorDescriptor
+            ClassDescriptor classDescriptor = (ClassDescriptor) descriptor;
+            return classDescriptor.getUnsubstitutedPrimaryConstructor();
+        }
+        else {
+            return descriptor;
+        }
+    }
+
+    private boolean isCapturedWrite(
+            @NotNull VariableDescriptor variableDescriptor,
+            @NotNull WriteValueInstruction writeValueInstruction
+    ) {
+        DeclarationDescriptor containingDeclarationDescriptor = variableDescriptor.getContainingDeclaration();
+        // Do not consider member / top-level properties
+        if (containingDeclarationDescriptor instanceof ClassOrPackageFragmentDescriptor) return false;
+        KtDeclaration parentDeclaration = getElementParentDeclaration(writeValueInstruction.getElement());
+        while (true) {
+            DeclarationDescriptor parentDescriptor = getDeclarationDescriptor(parentDeclaration);
+            if (containingDeclarationDescriptor.equals(parentDescriptor)) {
+                return false;
+            }
+            else if (parentDeclaration instanceof KtObjectDeclaration) {
+                // anonymous object counts here the same as its owner
+                parentDeclaration = getElementParentDeclaration(parentDeclaration);
+            }
+            else {
+                return true;
+            }
+        }
+    }
+
     private boolean checkValReassignment(
             @NotNull VariableInitContext ctxt,
             @NotNull KtExpression expression,
@@ -434,7 +478,8 @@ public class ControlFlowInformationProvider {
         }
         boolean isThisOrNoDispatchReceiver =
                 PseudocodeUtil.isThisOrNoDispatchReceiver(writeValueInstruction, trace.getBindingContext());
-        if ((mayBeInitializedNotHere || !hasBackingField || !isThisOrNoDispatchReceiver) && !variableDescriptor.isVar()) {
+        boolean captured = isCapturedWrite(variableDescriptor, writeValueInstruction);
+        if ((mayBeInitializedNotHere || !hasBackingField || !isThisOrNoDispatchReceiver || captured) && !variableDescriptor.isVar()) {
             boolean hasReassignMethodReturningUnit = false;
             KtSimpleNameExpression operationReference = null;
             PsiElement parent = expression.getParent();
@@ -465,7 +510,12 @@ public class ControlFlowInformationProvider {
             }
             if (!hasReassignMethodReturningUnit) {
                 if (!isThisOrNoDispatchReceiver || !varWithValReassignErrorGenerated.contains(variableDescriptor)) {
-                    report(Errors.VAL_REASSIGNMENT.on(expression, variableDescriptor), ctxt);
+                    if (captured && !mayBeInitializedNotHere && hasBackingField && isThisOrNoDispatchReceiver) {
+                        report(Errors.CAPTURED_VAL_INITIALIZATION.on(expression, variableDescriptor), ctxt);
+                    }
+                    else {
+                        report(Errors.VAL_REASSIGNMENT.on(expression, variableDescriptor), ctxt);
+                    }
                 }
                 if (isThisOrNoDispatchReceiver) {
                     // try to get rid of repeating VAL_REASSIGNMENT diagnostic only for vars with no receiver

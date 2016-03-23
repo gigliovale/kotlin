@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@ package org.jetbrains.kotlin.resolve.calls.results
 import gnu.trove.THashSet
 import gnu.trove.TObjectHashingStrategy
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.ScriptDescriptor
-import org.jetbrains.kotlin.descriptors.VariableDescriptor
-import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.resolve.calls.context.CheckArgumentTypesMode
 import org.jetbrains.kotlin.resolve.calls.inference.toHandle
 import org.jetbrains.kotlin.resolve.calls.model.MutableResolvedCall
@@ -92,7 +89,13 @@ class OverloadingConflictResolver(private val builtIns: KotlinBuiltIns) {
             }
         }
 
-        return bestCandidatesByParameterTypes.exactMaxWith {
+        val bestCandidatesByKind = bestCandidatesByParameterTypes.filter { candidate ->
+            isMostSpecific(candidate, bestCandidatesByParameterTypes) {
+                call1, call2 -> isNotLessSpecificByKind(call1.candidateDescriptor(), call2.candidateDescriptor())
+            }
+        }
+
+        return bestCandidatesByKind.exactMaxWith {
             call1, call2 ->
             isOfNotLessSpecificShape(call1, call2) && isOfNotLessSpecificVisibilityForDebugger(call1, call2, isDebuggerContext)
         }?.origin
@@ -156,6 +159,8 @@ class OverloadingConflictResolver(private val builtIns: KotlinBuiltIns) {
             // two generics are non-comparable
             if (isGeneric1 && isGeneric2) return false
         }
+
+        if (!isNotLessSpecificByPropertyKind(call1.candidateDescriptor(), call2.candidateDescriptor())) return false
 
         return isSignatureNotLessSpecific(call1, call2, SpecificityComparisonWithNumerics, call1.callHandle())
     }
@@ -238,12 +243,26 @@ class OverloadingConflictResolver(private val builtIns: KotlinBuiltIns) {
      * `null` if undecided.
      */
     private fun isNotLessSpecificCallableReferenceDescriptor(f: CallableDescriptor, g: CallableDescriptor): Boolean {
+        if (!isNotLessSpecificByKind(f, g)) return false
+
         if (f.valueParameters.size != g.valueParameters.size) return false
         if (f.varargParameterPosition() != g.varargParameterPosition()) return false
 
         val fSignature = FlatSignature.createFromCallableDescriptor(f)
         val gSignature = FlatSignature.createFromCallableDescriptor(g)
         return isSignatureNotLessSpecific(fSignature, gSignature, SpecificityComparisonWithNumerics)
+    }
+
+    private fun isNotLessSpecificByKind(f: CallableDescriptor, g: CallableDescriptor): Boolean {
+        if (f is CallableMemberDescriptor && f.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
+            && (g !is CallableMemberDescriptor || g.kind != CallableMemberDescriptor.Kind.SYNTHESIZED)) return false
+
+        return true
+    }
+
+    private fun isNotLessSpecificByPropertyKind(f: CallableDescriptor, g: CallableDescriptor): Boolean {
+        if (f !is PropertyDescriptor || g !is PropertyDescriptor) return true
+        return isNotLessSpecificByKind(f, g)
     }
 
     private fun isNotLessSpecificCallableReference(f: CallableDescriptor, g: CallableDescriptor): Boolean =

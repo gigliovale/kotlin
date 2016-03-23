@@ -355,7 +355,7 @@ class ReferenceVariantsHelper(
         }
 
         if (kindFilter.acceptsKinds(DescriptorKindFilter.FUNCTIONS_MASK)) {
-            for (extension in syntheticScopes.collectSyntheticExtensionFunctions(receiverTypes)) {
+            for (extension in syntheticScopes.collectSyntheticMemberFunctions(receiverTypes)) {
                 process(extension)
             }
         }

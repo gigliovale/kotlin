@@ -127,7 +127,8 @@ internal class ReceiverScopeTowerLevel(
 
     override fun getFunctions(name: Name, extensionReceiver: ReceiverValue?): Collection<CandidateWithBoundDispatchReceiver<FunctionDescriptor>> {
         return collectMembers {
-            getContributedFunctions(name, location) + it.getInnerConstructors(name, location)
+            getContributedFunctions(name, location) + it.getInnerConstructors(name, location) +
+            scopeTower.syntheticScopes.collectSyntheticMemberFunctions(listOfNotNull(it), name, location)
         }
     }
 }
@@ -181,14 +182,8 @@ internal class SyntheticScopeBasedTowerLevel(
         }
     }
 
-    override fun getFunctions(name: Name, extensionReceiver: ReceiverValue?): Collection<CandidateWithBoundDispatchReceiver<FunctionDescriptor>> {
-        if (extensionReceiver == null) return emptyList()
-
-        val extensionReceiverTypes = scopeTower.dataFlowInfo.getAllPossibleTypes(extensionReceiver)
-        return syntheticScopes.collectSyntheticExtensionFunctions(extensionReceiverTypes, name, location).map {
-            createCandidateDescriptor(it, dispatchReceiver = null)
-        }
-    }
+    override fun getFunctions(name: Name, extensionReceiver: ReceiverValue?): Collection<CandidateWithBoundDispatchReceiver<FunctionDescriptor>>
+            = emptyList()
 }
 
 internal class HidesMembersTowerLevel(scopeTower: ScopeTower): AbstractScopeTowerLevel(scopeTower) {

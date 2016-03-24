@@ -175,6 +175,24 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         }
     }
 
+    override fun getMultifilePartClasses(partFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
+        val facadeKtFiles = StaticFacadeIndexUtil.getMultifileClassForPart(partFqName, scope, project)
+        val partShortName = partFqName.shortName().asString()
+        val partClassFileShortName = partShortName + ".class"
+
+        return facadeKtFiles.mapNotNull { facadeKtFile ->
+            if (facadeKtFile.isCompiled) {
+                val partClassFile = facadeKtFile.virtualFile.parent.findChild(partClassFileShortName) ?: return@mapNotNull null
+                val javaClsClass = createClsJavaClassFromVirtualFile(facadeKtFile, partClassFile, null) ?: return@mapNotNull null
+                KtLightClassForDecompiledDeclaration(javaClsClass, null)
+            }
+            else {
+                // TODO should we build light classes for parts from source?
+                null
+            }
+        }
+    }
+
     fun createLightClassForFileFacade(
             facadeFqName: FqName,
             facadeFiles: List<KtFile>,

@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.asJava;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.*;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.SearchScope;
@@ -31,7 +32,7 @@ import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
 
 import java.util.List;
 
-public class KtLightParameter extends LightParameter implements KtLightElement<KtParameter, PsiParameter> {
+public class KtLightParameter extends LightParameter implements KtLightDeclaration<KtParameter, PsiParameter> {
     private static String getName(PsiParameter delegate, int index) {
         String name = delegate.getName();
         return name != null ? name : "p" + index;
@@ -41,6 +42,7 @@ public class KtLightParameter extends LightParameter implements KtLightElement<K
     private final PsiParameter delegate;
     private final int index;
     private final KtLightMethod method;
+    private final KtLightIdentifier lightIdentifier;
 
     public KtLightParameter(final PsiParameter delegate, int index, KtLightMethod method) {
         super(getName(delegate, index), delegate.getType(), method, KotlinLanguage.INSTANCE);
@@ -49,12 +51,14 @@ public class KtLightParameter extends LightParameter implements KtLightElement<K
         this.index = index;
         this.method = method;
 
-        this.modifierList = new KtLightModifierList(method.getManager(), ArrayUtil.EMPTY_STRING_ARRAY) {
+        this.modifierList = new KtLightModifierListWithExplicitModifiers(this, ArrayUtil.EMPTY_STRING_ARRAY) {
             @Override
             public PsiAnnotationOwner getDelegate() {
                 return delegate.getModifierList();
             }
         };
+
+        lightIdentifier = new KtLightIdentifier(this, getOrigin());
     }
 
     @NotNull
@@ -139,5 +143,21 @@ public class KtLightParameter extends LightParameter implements KtLightElement<K
     @Override
     public String getText() {
         return "";
+    }
+
+    @Override
+    public TextRange getTextRange() {
+        KtParameter origin = getOrigin();
+        return origin != null ? origin.getTextRange() : TextRange.EMPTY_RANGE;
+    }
+
+    @Override
+    public PsiIdentifier getNameIdentifier() {
+        return lightIdentifier;
+    }
+
+    @Override
+    public PsiElement getParent() {
+        return getMethod().getParameterList();
     }
 }

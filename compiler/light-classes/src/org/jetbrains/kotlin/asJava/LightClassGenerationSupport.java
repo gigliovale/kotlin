@@ -23,9 +23,13 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
+import org.jetbrains.kotlin.psi.KtDeclaration;
+import org.jetbrains.kotlin.psi.KtElement;
 import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.resolve.BindingContext;
 
 import java.util.Collection;
 
@@ -68,7 +72,10 @@ public abstract class LightClassGenerationSupport {
     public abstract KtLightClass getLightClass(@NotNull KtClassOrObject classOrObject);
 
     @Nullable
-    public abstract ClassDescriptor resolveClassToDescriptor(@NotNull KtClassOrObject classOrObject);
+    public abstract DeclarationDescriptor resolveToDescriptor(@NotNull KtDeclaration declaration);
+
+    @NotNull
+    public abstract BindingContext analyze(@NotNull KtElement element);
 
     @NotNull
     public abstract Collection<PsiClass> getFacadeClasses(@NotNull FqName facadeFqName, @NotNull GlobalSearchScope scope);

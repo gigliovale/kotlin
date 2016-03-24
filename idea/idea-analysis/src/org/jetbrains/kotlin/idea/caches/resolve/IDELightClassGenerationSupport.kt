@@ -29,6 +29,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.asJava.*
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
@@ -43,6 +44,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
@@ -192,14 +194,16 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         return KotlinFileFacadeFqNameIndex.INSTANCE.get(facadeFqName.asString(), project, scope)
     }
 
-    override fun resolveClassToDescriptor(classOrObject: KtClassOrObject): ClassDescriptor? {
+    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor? {
         try {
-            return classOrObject.resolveToDescriptor() as ClassDescriptor
+            return declaration.resolveToDescriptor()
         }
         catch (e: NoDescriptorForDeclarationException) {
             return null
         }
     }
+
+    override fun analyze(element: KtElement) = element.analyze(BodyResolveMode.PARTIAL)
 
     override fun getFacadeNames(packageFqName: FqName, scope: GlobalSearchScope): Collection<String> {
         val facadeFilesInPackage = KotlinFileFacadeClassByPackageIndex.getInstance().get(packageFqName.asString(), project, scope)

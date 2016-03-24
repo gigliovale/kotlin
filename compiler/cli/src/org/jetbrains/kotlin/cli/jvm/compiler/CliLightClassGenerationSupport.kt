@@ -33,10 +33,7 @@ import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPsiUtil
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
 import org.jetbrains.kotlin.resolve.lazy.ResolveSessionUtils
@@ -137,9 +134,11 @@ class CliLightClassGenerationSupport(project: Project) : LightClassGenerationSup
         return KtLightClassForExplicitDeclaration.create(classOrObject)
     }
 
-    override fun resolveClassToDescriptor(classOrObject: KtClassOrObject): ClassDescriptor? {
-        return bindingContext.get(BindingContext.CLASS, classOrObject)
+    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor? {
+        return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, declaration)
     }
+
+    override fun analyze(element: KtElement) = bindingContext
 
     override fun getFacadeClasses(facadeFqName: FqName, scope: GlobalSearchScope): Collection<PsiClass> {
         val filesForFacade = findFilesForFacade(facadeFqName, scope)

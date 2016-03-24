@@ -56,6 +56,8 @@ open class KtLightClassForExplicitDeclaration(
 : KtWrappingLightClass(classOrObject.manager), KtJavaMirrorMarker, StubBasedPsiElement<KotlinClassOrObjectStub<out KtClassOrObject>> {
     private var delegate: PsiClass? = null
 
+    private val lightIdentifier = KtLightIdentifier(this, classOrObject)
+
     private fun getLocalClassParent(): PsiElement? {
         fun getParentByPsiMethod(method: PsiMethod?, name: String?, forceMethodWrapping: Boolean): PsiElement? {
             if (method == null || name == null) return null
@@ -170,7 +172,7 @@ open class KtLightClassForExplicitDeclaration(
     private fun getJavaFileStub(): PsiJavaFileStub = getLightClassData().javaFileStub
 
     protected fun getDescriptor(): ClassDescriptor? {
-        return LightClassGenerationSupport.getInstance(project).resolveClassToDescriptor(classOrObject)
+        return LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor
     }
 
     private fun getLightClassData(): OutermostKotlinClassLightClassData {
@@ -262,10 +264,9 @@ open class KtLightClassForExplicitDeclaration(
     override fun getQualifiedName(): String = classFqName.asString()
 
     private val _modifierList : PsiModifierList by lazy {
-        object : KtLightModifierList(this.manager, computeModifiers()) {
-            override fun getDelegate(): PsiModifierList {
-                return this@KtLightClassForExplicitDeclaration.getDelegate().modifierList!!
-            }
+        object : KtLightModifierListWithExplicitModifiers(this@KtLightClassForExplicitDeclaration, computeModifiers()) {
+            override val delegate: PsiAnnotationOwner
+                get() = this@KtLightClassForExplicitDeclaration.getDelegate().modifierList!!
         }
     }
 
@@ -383,6 +384,8 @@ open class KtLightClassForExplicitDeclaration(
 
     override fun getElementType(): IStubElementType<out StubElement<*>, *>? = classOrObject.elementType
     override fun getStub(): KotlinClassOrObjectStub<out KtClassOrObject>? = classOrObject.stub
+
+    override fun getNameIdentifier() = lightIdentifier
 
     companion object {
         private val JAVA_API_STUB = Key.create<CachedValue<WithFileStubAndExtraDiagnostics>>("JAVA_API_STUB")

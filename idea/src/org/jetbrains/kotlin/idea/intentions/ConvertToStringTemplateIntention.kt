@@ -99,7 +99,12 @@ class ConvertToStringTemplateIntention : SelfTargetingOffsetIndependentIntention
                 val type = bindingContext.getType(expression)!!
 
                 if (KotlinBuiltIns.isChar(type)) {
-                    return expressionText.removePrefix("'").removeSuffix("'")
+                    val value = expressionText.removePrefix("'").removeSuffix("'")
+                    return when (value) { // escape double quote and unescape single one
+                        "\"" -> "\\\""
+                        "\\'" -> "'"
+                        else -> value
+                    }
                 }
 
                 val constant = ConstantExpressionEvaluator.getConstant(expression, bindingContext)

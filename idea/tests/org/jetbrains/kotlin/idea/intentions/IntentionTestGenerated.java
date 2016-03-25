@@ -4735,6 +4735,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("kt11295.kt")
+        public void testKt11295() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/kt11295.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("multilineString.kt")
         public void testMultilineString() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/multilineString.kt");
@@ -4798,6 +4804,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("tricky.kt")
         public void testTricky() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/tricky.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("unescapeSingleQuote.kt")
+        public void testUnescapeSingleQuote() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToStringTemplate/unescapeSingleQuote.kt");
             doTest(fileName);
         }
 
@@ -5703,6 +5715,18 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("FromCompanionObject.kt")
         public void testFromCompanionObject() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/importMember/FromCompanionObject.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("NestedClass1.kt")
+        public void testNestedClass1() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/importMember/NestedClass1.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("NestedClass2.kt")
+        public void testNestedClass2() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/importMember/NestedClass2.kt");
             doTest(fileName);
         }
 

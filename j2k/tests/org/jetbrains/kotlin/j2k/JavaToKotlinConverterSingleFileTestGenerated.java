@@ -1825,6 +1825,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("needInitializer.java")
+        public void testNeedInitializer() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/field/needInitializer.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("privateField.java")
         public void testPrivateField() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/field/privateField.java");
@@ -4060,6 +4066,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("j2k/testData/fileOrElement/strings"), Pattern.compile("^(.+)\\.java$"), true);
         }
 
+        @TestMetadata("escapedDollar.java")
+        public void testEscapedDollar() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/strings/escapedDollar.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("formattedString.java")
         public void testFormattedString() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/strings/formattedString.java");
@@ -4216,6 +4228,21 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
         @TestMetadata("simpleThrowStatement.java")
         public void testSimpleThrowStatement() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/throwStatement/simpleThrowStatement.java");
+            doTest(fileName);
+        }
+    }
+
+    @TestMetadata("j2k/testData/fileOrElement/toArray")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class ToArray extends AbstractJavaToKotlinConverterSingleFileTest {
+        public void testAllFilesPresentInToArray() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("j2k/testData/fileOrElement/toArray"), Pattern.compile("^(.+)\\.java$"), true);
+        }
+
+        @TestMetadata("toArray.java")
+        public void testToArray() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/toArray/toArray.java");
             doTest(fileName);
         }
     }

@@ -181,10 +181,10 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         val partClassFileShortName = partShortName + ".class"
 
         return facadeKtFiles.mapNotNull { facadeKtFile ->
-            if (facadeKtFile.isCompiled) {
+            if (facadeKtFile is KtClsFile) {
                 val partClassFile = facadeKtFile.virtualFile.parent.findChild(partClassFileShortName) ?: return@mapNotNull null
                 val javaClsClass = createClsJavaClassFromVirtualFile(facadeKtFile, partClassFile, null) ?: return@mapNotNull null
-                KtLightClassForDecompiledDeclaration(javaClsClass, null)
+                KtLightClassForDecompiledDeclaration(javaClsClass, null, facadeKtFile)
             }
             else {
                 // TODO should we build light classes for parts from source?

@@ -35,7 +35,7 @@ sealed class KtLightFieldImpl(
         private val delegate: PsiField,
         private val containingClass: KtLightClass
 ) : LightElement(delegate.manager, KotlinLanguage.INSTANCE), KtLightField {
-    private val lightIdentifier = KtLightIdentifier(this, origin as? KtNamedDeclaration)
+    private val lightIdentifier = KtLightIdentifier(this, getOrigin() as? KtNamedDeclaration)
 
     @Throws(IncorrectOperationException::class)
     override fun setInitializer(initializer: PsiExpression?) = throw IncorrectOperationException("Not supported")

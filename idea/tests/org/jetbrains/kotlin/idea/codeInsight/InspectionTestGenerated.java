@@ -112,6 +112,12 @@ public class InspectionTestGenerated extends AbstractInspectionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("arrayInDataClass/inspectionData/inspections.test")
+        public void testArrayInDataClass_inspectionData_Inspections_test() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/inspections/arrayInDataClass/inspectionData/inspections.test");
+            doTest(fileName);
+        }
+
         @TestMetadata("canBeVal/inspectionData/inspections.test")
         public void testCanBeVal_inspectionData_Inspections_test() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/inspections/canBeVal/inspectionData/inspections.test");
@@ -133,6 +139,12 @@ public class InspectionTestGenerated extends AbstractInspectionTest {
         @TestMetadata("overridingDeprecatedMember/inspectionData/inspections.test")
         public void testOverridingDeprecatedMember_inspectionData_Inspections_test() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/inspections/overridingDeprecatedMember/inspectionData/inspections.test");
+            doTest(fileName);
+        }
+
+        @TestMetadata("protectedInFinal/inspectionData/inspections.test")
+        public void testProtectedInFinal_inspectionData_Inspections_test() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/inspections/protectedInFinal/inspectionData/inspections.test");
             doTest(fileName);
         }
 

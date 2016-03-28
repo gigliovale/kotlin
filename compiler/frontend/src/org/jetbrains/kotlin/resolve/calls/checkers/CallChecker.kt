@@ -16,10 +16,18 @@
 
 package org.jetbrains.kotlin.resolve.calls.checkers
 
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
+import org.jetbrains.kotlin.types.DeferredType
+import org.jetbrains.kotlin.types.KotlinType
 
 interface CallChecker {
-    fun <F : CallableDescriptor> check(resolvedCall: ResolvedCall<F>, context: BasicCallResolutionContext)
+    fun check(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext)
 }
+
+// Use this utility to avoid premature computation of deferred return type of a resolved callable descriptor.
+// Computing it in CallChecker#check is not feasible since it would trigger "type checking has run into a recursive problem" errors.
+// Receiver parameter is present to emphasize that this function should ideally be only used from call checkers.
+@Suppress("unused")
+fun CallChecker.isComputingDeferredType(type: KotlinType) =
+        type is DeferredType && type.isComputing

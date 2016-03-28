@@ -31,10 +31,10 @@ import org.jetbrains.kotlin.resolve.constants.ArrayValue
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasDefaultValue
+import org.jetbrains.kotlin.serialization.deserialization.NotFoundClasses
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.ErrorUtils.UninferredParameterTypeConstructor
 import org.jetbrains.kotlin.types.TypeUtils.CANT_INFER_FUNCTION_PARAM_TYPE
-import org.jetbrains.kotlin.types.error.MissingDependencyErrorClass
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import java.util.*
 
@@ -116,9 +116,6 @@ internal class DescriptorRendererImpl(
     private fun renderFqName(pathSegments: List<Name>) = escape(org.jetbrains.kotlin.renderer.renderFqName(pathSegments))
 
     override fun renderClassifierName(klass: ClassifierDescriptor): String {
-        if (klass is MissingDependencyErrorClass) {
-            return klass.fullFqName.asString()
-        }
         if (ErrorUtils.isError(klass)) {
             return klass.typeConstructor.toString()
         }
@@ -378,7 +375,7 @@ internal class DescriptorRendererImpl(
             append(renderType(annotationType))
             if (verbose) {
                 renderAndSortAnnotationArguments(annotation).joinTo(this, ", ", "(", ")")
-                if (annotationType.isError) {
+                if (annotationType.isError || annotationType.constructor.declarationDescriptor is NotFoundClasses.MockClassDescriptor) {
                     append(" /* annotation class not found */")
                 }
             }

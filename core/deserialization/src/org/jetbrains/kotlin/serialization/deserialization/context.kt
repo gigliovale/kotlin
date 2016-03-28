@@ -37,6 +37,7 @@ class DeserializationComponents(
         val lookupTracker: LookupTracker,
         val flexibleTypeCapabilitiesDeserializer: FlexibleTypeCapabilitiesDeserializer,
         val fictitiousClassDescriptorFactory: ClassDescriptorFactory,
+        val notFoundClasses: NotFoundClasses,
         val typeCapabilitiesLoader: TypeCapabilitiesLoader = TypeCapabilitiesLoader.NONE,
         val additionalSupertypes: AdditionalSupertypes = AdditionalSupertypes.None
 ) {

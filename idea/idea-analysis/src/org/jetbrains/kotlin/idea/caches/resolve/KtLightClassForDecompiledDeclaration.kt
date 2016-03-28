@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,20 @@
 package org.jetbrains.kotlin.idea.caches.resolve
 
 import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiField
+import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.compiled.ClsClassImpl
+import org.jetbrains.kotlin.asJava.KtLightFieldImpl
+import org.jetbrains.kotlin.asJava.KtLightMethodImpl
 import org.jetbrains.kotlin.asJava.KtWrappingLightClass
+import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
 class KtLightClassForDecompiledDeclaration(
         private val clsClass: ClsClassImpl,
-        private val origin: KtClassOrObject?
+        private val origin: KtClassOrObject?,
+        private val file: KtClsFile
 ) : KtWrappingLightClass(clsClass.manager) {
     private val fqName = origin?.fqName ?: FqName(clsClass.qualifiedName)
 
@@ -34,17 +40,25 @@ class KtLightClassForDecompiledDeclaration(
         val nestedClasses = origin?.declarations?.filterIsInstance<KtClassOrObject>() ?: emptyList()
         return clsClass.ownInnerClasses.map { innerClsClass ->
             KtLightClassForDecompiledDeclaration(innerClsClass as ClsClassImpl,
-                                                 nestedClasses.firstOrNull { innerClsClass.name == it.name })
+                                                 nestedClasses.firstOrNull { innerClsClass.name == it.name }, file)
         }
     }
 
-    override fun getNavigationElement() = origin?.navigationElement ?: super.getNavigationElement()
+    override fun getOwnFields(): List<PsiField> {
+        return delegate.ownFields.map { KtLightFieldImpl.create(LightMemberOriginForCompiledField(it, file), it, this) }
+    }
+
+    override fun getNavigationElement() = origin?.navigationElement ?: file
 
     override fun getDelegate() = clsClass
 
     override fun getOrigin() = origin
 
     override fun getFqName() = fqName
+
+    override fun getOwnMethods(): List<PsiMethod> {
+        return delegate.ownMethods.map { KtLightMethodImpl.create(it, LightMemberOriginForCompiledMethod(it, file), this) }
+    }
 
     override fun getParent() = clsClass.parent
 
@@ -55,3 +69,4 @@ class KtLightClassForDecompiledDeclaration(
     override fun hashCode(): Int =
             getFqName().hashCode()
 }
+

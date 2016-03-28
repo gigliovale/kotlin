@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ sealed class KtLightMethodImpl(
         }, false)
     }
 
-    override fun getNavigationElement(): PsiElement = origin ?: super.getNavigationElement()
+    override fun getNavigationElement(): PsiElement = origin?.navigationElement ?: super.getNavigationElement()
     override fun getOriginalElement(): PsiElement = origin ?: super.getOriginalElement()
     override fun getDelegate() = delegate
     override fun getOrigin() = origin

@@ -123,9 +123,7 @@ public abstract class KtWrappingLightClass extends AbstractLightClass implements
             @Override
             public PsiField fun(PsiField field) {
                 LightMemberOrigin origin = ClsWrapperStubPsiFactory.getMemberOrigin(field);
-                return KtLightFieldImpl.Factory.create(origin != null ? origin.getOriginalElement() : null,
-                                                       field,
-                                                       KtWrappingLightClass.this);
+                return KtLightFieldImpl.Factory.create(origin, field, KtWrappingLightClass.this);
             }
         });
     }
@@ -137,11 +135,12 @@ public abstract class KtWrappingLightClass extends AbstractLightClass implements
             @Override
             public PsiMethod invoke(PsiMethod method) {
                 LightMemberOrigin origin = ClsWrapperStubPsiFactory.getMemberOrigin(method);
-                KtDeclaration originalElement = origin != null ? origin.getOriginalElement() : null;
-                if (originalElement instanceof KtPropertyAccessor) {
-                    //noinspection ConstantConditions
-                    origin = origin.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty.class), origin.getOriginKind());
-                }
+                //TODO_R: wtf is this code?
+                //KtDeclaration originalElement = origin != null ? origin.getOriginalElement() : null;
+                //if (originalElement instanceof KtPropertyAccessor) {
+                //    //noinspection ConstantConditions
+                //    origin = origin.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty.class), origin.getOriginKind());
+                //}
 
                 return KtLightMethodImpl.Factory.create(method, origin, KtWrappingLightClass.this);
             }

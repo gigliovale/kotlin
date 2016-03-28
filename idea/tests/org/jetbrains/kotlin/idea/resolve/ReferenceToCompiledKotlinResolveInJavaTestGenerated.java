@@ -77,6 +77,12 @@ public class ReferenceToCompiledKotlinResolveInJavaTestGenerated extends Abstrac
         doTest(fileName);
     }
 
+    @TestMetadata("MethodWithParameters.java")
+    public void testMethodWithParameters() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/resolve/referenceInJava/binaryAndSource/MethodWithParameters.java");
+        doTest(fileName);
+    }
+
     @TestMetadata("ObjectInstance.java")
     public void testObjectInstance() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/resolve/referenceInJava/binaryAndSource/ObjectInstance.java");

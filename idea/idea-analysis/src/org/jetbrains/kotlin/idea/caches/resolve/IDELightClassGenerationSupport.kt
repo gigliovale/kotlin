@@ -204,7 +204,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
             return withFakeLightClasses(lightClassForFacade, facadeFiles)
         }
         else {
-            return facadeFiles.filter { it.isCompiled }.mapNotNull { createLightClassForDecompiledKotlinFile(it) }
+            return facadeFiles.filterIsInstance<KtClsFile>().mapNotNull { createLightClassForDecompiledKotlinFile(it) }
         }
     }
 
@@ -324,7 +324,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         return getClassRelativeName(parent).child(name)
     }
 
-    fun createLightClassForDecompiledKotlinFile(file: KtFile): KtLightClassForDecompiledDeclaration? {
+    fun createLightClassForDecompiledKotlinFile(file: KtClsFile): KtLightClassForDecompiledDeclaration? {
         val virtualFile = file.virtualFile ?: return null
 
         val classOrObject = file.declarations.filterIsInstance<KtClassOrObject>().singleOrNull()
@@ -334,7 +334,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
                 correspondingClassOrObject = classOrObject
         ) ?: return null
 
-        return KtLightClassForDecompiledDeclaration(javaClsClass, classOrObject)
+        return KtLightClassForDecompiledDeclaration(javaClsClass, classOrObject, file)
     }
 
     private fun createClsJavaClassFromVirtualFile(

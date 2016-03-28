@@ -40,6 +40,7 @@
 - [KT-11406](https://youtrack.jetbrains.com/issue/KT-11406) Support Spring EL injections inside of Kotlin string literals
 - [KT-11604](https://youtrack.jetbrains.com/issue/KT-11604) Support "Configure Spring facet" inspection on Kotlin classes
 - [KT-11407](https://youtrack.jetbrains.com/issue/KT-11407) Implemented "Generate Spring Dependency..." actions
+- [KT-11408](https://youtrack.jetbrains.com/issue/KT-11408) Implemented "Generate @Autowired Dependency..." action
 
 ### Tools.Gradle
 - Added project property 'kotlin.incremental'

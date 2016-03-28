@@ -120,7 +120,7 @@ private fun findExistedConstructor(
 }
 
 // TODO: GenerateSpringBeanDependenciesUtil.reformat() can't be used here because of too strict argument type
-private fun reformat(element: KtElement) {
+internal fun reformat(element: KtElement) {
     val project = element.project
     val formatter = CodeStyleManager.getInstance(project)
     ShortenReferences.DEFAULT.process(formatter.reformat(element) as KtElement)
@@ -143,7 +143,7 @@ private fun SpringBean.getFactoryFunctionName(factoryBeanClass: KtClass): String
     return KotlinNameSuggester.suggestNameByName("create${beanClass!!.name}") { it !in existingNames }
 }
 
-private val PsiClass.defaultTypeText: String
+internal val PsiClass.defaultTypeText: String
     get() {
         val qName = qualifiedName ?: return "Any"
         val typeParameters = typeParameters.ifEmpty { return qName }
@@ -181,29 +181,32 @@ private fun createSettable(
     }
 }
 
-private fun getSuggestedNames(
+internal fun getSuggestedNames(
         beanPointer: SpringBeanPointer<CommonSpringBean>,
         declaration: KtCallableDeclaration,
+        existingNames: Collection<String> = emptyList(),
         getType: CallableDescriptor.() -> KotlinType?
 ): Collection<String> {
     val names = LinkedHashSet<String>()
 
-    val validator = NewDeclarationNameValidator(declaration.parent, null, NewDeclarationNameValidator.Target.VARIABLES, listOf(declaration))
+    val newDeclarationNameValidator =
+            NewDeclarationNameValidator(declaration.parent, null, NewDeclarationNameValidator.Target.VARIABLES, listOf(declaration))
+    fun validate(name: String) = name !in existingNames && newDeclarationNameValidator(name)
 
     SpringBeanUtils.getInstance()
             .findBeanNames(beanPointer.springBean)
             .asSequence()
             .filter { KotlinNameSuggester.isIdentifier(it) }
-            .mapTo(names) { KotlinNameSuggester.suggestNameByName(it, validator) }
+            .mapTo(names) { KotlinNameSuggester.suggestNameByName(it, ::validate) }
 
     (declaration.resolveToDescriptor() as CallableDescriptor).getType()?.let {
-        names += KotlinNameSuggester.suggestNamesByType(it, validator)
+        names += KotlinNameSuggester.suggestNamesByType(it, ::validate)
     }
 
     return names
 }
 
-private fun TemplateBuilderImpl.appendVariableTemplate(
+internal fun TemplateBuilderImpl.appendVariableTemplate(
         variable: KtCallableDeclaration,
         candidateBeanClasses: Array<out PsiClass>,
         computeSuggestions: (() -> Collection<String>)?

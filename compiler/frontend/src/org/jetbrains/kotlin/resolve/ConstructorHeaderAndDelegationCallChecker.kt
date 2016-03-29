@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,15 @@ import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
-import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
+import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind.CLASS_DELEGATION
+import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind.CONSTRUCTOR_HEADER
 import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.Receiver
 import org.jetbrains.kotlin.resolve.scopes.utils.parentsWithSelf
 
-object ConstructorHeaderCallChecker : CallChecker {
+object ConstructorHeaderAndDelegationCallChecker : CallChecker {
     override fun check(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext) {
+        val reportElement = context.call.calleeExpression ?: return
         val dispatchReceiverClass = resolvedCall.dispatchReceiver.classDescriptorForImplicitReceiver
         val extensionReceiverClass = resolvedCall.extensionReceiver.classDescriptorForImplicitReceiver
 
@@ -42,13 +44,16 @@ object ConstructorHeaderCallChecker : CallChecker {
 
         if (dispatchReceiverClass == null && extensionReceiverClass == null && labelReferenceClass == null) return
 
-        if (context.scope.parentsWithSelf.any() {
-            it is LexicalScope && it.kind == LexicalScopeKind.CONSTRUCTOR_HEADER
-                && (it.ownerDescriptor as ConstructorDescriptor).containingDeclaration in
+        val scope = context.scope.parentsWithSelf.firstOrNull {
+            it is LexicalScope && (it.kind == CONSTRUCTOR_HEADER || it.kind == CLASS_DELEGATION)
+            && (it.ownerDescriptor as ConstructorDescriptor).containingDeclaration in
                     setOf(dispatchReceiverClass, extensionReceiverClass, labelReferenceClass)
-        }) {
-            context.trace.report(
-                    Errors.INSTANCE_ACCESS_BEFORE_SUPER_CALL.on(context.call.calleeExpression ?: return, resolvedCall.resultingDescriptor))
+        }
+        when ((scope as? LexicalScope)?.kind) {
+            CONSTRUCTOR_HEADER -> context.trace.report(
+                    Errors.INSTANCE_ACCESS_BEFORE_SUPER_CALL.on(reportElement, resolvedCall.resultingDescriptor))
+            CLASS_DELEGATION -> context.trace.report(
+                    Errors.INSTANCE_ACCESS_FROM_CLASS_DELEGATION.on(reportElement, resolvedCall.resultingDescriptor))
         }
     }
 }

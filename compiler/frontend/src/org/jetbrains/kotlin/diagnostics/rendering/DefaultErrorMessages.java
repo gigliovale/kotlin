@@ -40,7 +40,7 @@ import java.util.List;
 
 import static org.jetbrains.kotlin.diagnostics.Errors.*;
 import static org.jetbrains.kotlin.diagnostics.rendering.Renderers.*;
-import static org.jetbrains.kotlin.diagnostics.rendering.RenderingContext.*;
+import static org.jetbrains.kotlin.diagnostics.rendering.RenderingContext.of;
 
 public class DefaultErrorMessages {
 
@@ -461,6 +461,7 @@ public class DefaultErrorMessages {
                 "Explicit 'this' or 'super' call is required. There is no constructor in superclass that can be called without arguments");
 
         MAP.put(INSTANCE_ACCESS_BEFORE_SUPER_CALL, "Cannot access ''{0}'' before superclass constructor has been called", NAME);
+        MAP.put(INSTANCE_ACCESS_FROM_CLASS_DELEGATION, "''{0}'' is not accessible in a delegate expression", NAME);
 
         MAP.put(ILLEGAL_SELECTOR, "Expression ''{0}'' cannot be a selector (occur after a dot)", STRING);
 

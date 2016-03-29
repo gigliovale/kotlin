@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -224,6 +224,7 @@ public interface Errors {
             DiagnosticFactory0.create(ERROR, PositioningStrategies.SECONDARY_CONSTRUCTOR_DELEGATION_CALL);
 
     DiagnosticFactory1<PsiElement, DeclarationDescriptor> INSTANCE_ACCESS_BEFORE_SUPER_CALL = DiagnosticFactory1.create(ERROR);
+    DiagnosticFactory1<PsiElement, DeclarationDescriptor> INSTANCE_ACCESS_FROM_CLASS_DELEGATION = DiagnosticFactory1.create(ERROR);
 
     // Interface-specific
 

@@ -59,6 +59,7 @@ enum class LexicalScopeKind(val withLocalDescriptors: Boolean) {
     CLASS_HEADER(false),
     CLASS_INHERITANCE(false),
     CONSTRUCTOR_HEADER(false),
+    CLASS_DELEGATION(false),
     CLASS_STATIC_SCOPE(false),
     CLASS_MEMBER_SCOPE(false),
     CLASS_INITIALIZER(true),

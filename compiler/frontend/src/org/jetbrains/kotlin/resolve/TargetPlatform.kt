@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ private val DEFAULT_DECLARATION_CHECKERS = listOf(
 
 private val DEFAULT_CALL_CHECKERS = listOf(CapturingInClosureChecker(), InlineCheckerWrapper(), ReifiedTypeParameterSubstitutionChecker(),
                                            SafeCallChecker(), InvokeConventionChecker(), CallReturnsArrayOfNothingChecker(),
-                                           ConstructorHeaderCallChecker)
+                                           ConstructorHeaderAndDelegationCallChecker)
 private val DEFAULT_TYPE_CHECKERS = emptyList<AdditionalTypeChecker>()
 private val DEFAULT_VALIDATORS = listOf(DeprecatedSymbolValidator(), OperatorValidator(), InfixValidator())
 

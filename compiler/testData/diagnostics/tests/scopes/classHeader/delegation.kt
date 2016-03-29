@@ -17,13 +17,13 @@ open class S(
 class A : I by S(
         foo(),
         Nested(),
-        <!UNRESOLVED_REFERENCE!>Inner<!>(),
+        <!INSTANCE_ACCESS_FROM_CLASS_DELEGATION!>Inner<!>(),
         CONST,
         Companion.CONST,
         Nested.CONST,
         Interface.CONST,
-        <!UNRESOLVED_REFERENCE!>a<!>,
-        <!UNRESOLVED_REFERENCE!>b<!>()
+        <!INSTANCE_ACCESS_FROM_CLASS_DELEGATION, UNINITIALIZED_VARIABLE!>a<!>,
+        <!INSTANCE_ACCESS_FROM_CLASS_DELEGATION!>b<!>()
 ) {
 
     class Nested {

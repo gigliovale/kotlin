@@ -61,11 +61,21 @@ public class FunctionDescriptorUtil {
     @NotNull
     public static LexicalScope getFunctionInnerScope(
             @NotNull LexicalScope outerScope,
-            @NotNull final FunctionDescriptor descriptor,
+            @NotNull FunctionDescriptor descriptor,
             @NotNull LocalRedeclarationChecker redeclarationChecker
     ) {
+        return getFunctionInnerScope(outerScope, descriptor, redeclarationChecker, LexicalScopeKind.FUNCTION_INNER_SCOPE);
+    }
+
+    @NotNull
+    public static LexicalScope getFunctionInnerScope(
+            @NotNull LexicalScope outerScope,
+            @NotNull final FunctionDescriptor descriptor,
+            @NotNull LocalRedeclarationChecker redeclarationChecker,
+            @NotNull LexicalScopeKind scopeKind
+    ) {
         ReceiverParameterDescriptor receiver = descriptor.getExtensionReceiverParameter();
-        return new LexicalScopeImpl(outerScope, descriptor, true, receiver, LexicalScopeKind.FUNCTION_INNER_SCOPE, redeclarationChecker,
+        return new LexicalScopeImpl(outerScope, descriptor, true, receiver, scopeKind, redeclarationChecker,
                                     new Function1<LexicalScopeImpl.InitializeHandler, Unit>() {
                                         @Override
                                         public Unit invoke(LexicalScopeImpl.InitializeHandler handler) {

@@ -242,7 +242,7 @@ public class BodyResolver {
             resolveSuperTypeEntryList(c.getOuterDataFlowInfo(), classOrObject, descriptor,
                                       descriptor.getUnsubstitutedPrimaryConstructor(),
                                       descriptor.getScopeForConstructorHeaderResolution(),
-                                      descriptor.getScopeForMemberDeclarationResolution());
+                                      descriptor.getScopeForInitializerResolution());
         }
     }
 
@@ -251,13 +251,13 @@ public class BodyResolver {
             @NotNull KtClassOrObject jetClass,
             @NotNull final ClassDescriptor descriptor,
             @Nullable final ConstructorDescriptor primaryConstructor,
-            @NotNull LexicalScope scopeForConstructorResolution,
-            @NotNull final LexicalScope scopeForMemberResolution
+            @NotNull final LexicalScope scopeForConstructorHeaderResolution,
+            @NotNull final LexicalScope scopeForInitializerResolution
     ) {
         final LexicalScope scopeForConstructor =
                 primaryConstructor == null
                 ? null
-                : FunctionDescriptorUtil.getFunctionInnerScope(scopeForConstructorResolution, primaryConstructor, trace);
+                : FunctionDescriptorUtil.getFunctionInnerScope(scopeForConstructorHeaderResolution, primaryConstructor, trace);
         final ExpressionTypingServices typeInferrer = expressionTypingServices; // TODO : flow
 
         final Map<KtTypeReference, KotlinType> supertypes = Maps.newLinkedHashMap();
@@ -285,13 +285,19 @@ public class BodyResolver {
                     }
                 }
                 KtExpression delegateExpression = specifier.getDelegateExpression();
+                LexicalScope scope;
+                if (primaryConstructor == null) {
+                    scope = scopeForInitializerResolution;
+                    trace.report(UNSUPPORTED.on(specifier, "Delegation without primary constructor is not supported"));
+                }
+                else {
+                    scope = FunctionDescriptorUtil.getFunctionInnerScope(scopeForInitializerResolution, primaryConstructor,
+                                                                         LocalRedeclarationChecker.DO_NOTHING.INSTANCE, // checked in scopeForConstructor
+                                                                         LexicalScopeKind.CLASS_DELEGATION);
+                }
                 if (delegateExpression != null) {
-                    LexicalScope scope = scopeForConstructor == null ? scopeForMemberResolution : scopeForConstructor;
                     KotlinType expectedType = supertype != null ? supertype : NO_EXPECTED_TYPE;
                     typeInferrer.getType(scope, delegateExpression, expectedType, outerDataFlowInfo, trace);
-                }
-                if (primaryConstructor == null) {
-                    trace.report(UNSUPPORTED.on(specifier, "Delegation without primary constructor is not supported"));
                 }
             }
 

@@ -187,7 +187,7 @@ fun LexicalScope.addImportingScope(importScope: ImportingScope): LexicalScope
         = addImportingScopes(listOf(importScope))
 
 fun ImportingScope.withParent(newParent: ImportingScope?): ImportingScope {
-    return object: ImportingScope by this {
+    return object: ImportingScope by this@withParent {
         override val parent: ImportingScope?
             get() = newParent
     }

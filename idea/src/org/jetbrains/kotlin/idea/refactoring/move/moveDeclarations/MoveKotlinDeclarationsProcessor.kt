@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,10 @@ import org.jetbrains.kotlin.idea.refactoring.move.postProcessMoveUsages
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference.ShorteningMode
 import org.jetbrains.kotlin.idea.search.projectScope
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
+import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
+import org.jetbrains.kotlin.psi.psiUtil.isAncestor
+import org.jetbrains.kotlin.psi.psiUtil.isInsideOf
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
@@ -166,7 +169,7 @@ class MoveKotlinDeclarationsProcessor(
         }
 
         fun PackageFragmentDescriptor.withSource(sourceFile: KtFile): PackageFragmentDescriptor {
-            return object : PackageFragmentDescriptor by this {
+            return object : PackageFragmentDescriptor by this@withSource {
                 override fun getOriginal() = this
                 override fun getSource() = KotlinSourceElement(sourceFile)
             }
@@ -181,13 +184,13 @@ class MoveKotlinDeclarationsProcessor(
             }
             return when (this) {
                 // We rely on visibility not depending on more specific type of CallableMemberDescriptor
-                is CallableMemberDescriptor -> object : CallableMemberDescriptor by this {
+                is CallableMemberDescriptor -> object : CallableMemberDescriptor by this@asPredicted {
                     override fun getOriginal() = this
                     override fun getContainingDeclaration() = newContainer
                     override fun getVisibility(): Visibility = visibility
                     override fun getSource() = SourceElement { DescriptorUtils.getContainingSourceFile(newContainer) }
                 }
-                is ClassDescriptor -> object: ClassDescriptor by this {
+                is ClassDescriptor -> object: ClassDescriptor by this@asPredicted {
                     override fun getOriginal() = this
                     override fun getContainingDeclaration() = newContainer
                     override fun getVisibility(): Visibility = visibility

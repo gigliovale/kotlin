@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ class LookupElementFactory(
         var parametersRenderer = DescriptorRenderer.SHORT_NAMES_IN_TYPES
         if (descriptor.valueParameters.size > 1) {
             parametersRenderer = parametersRenderer.withOptions {
-                valueParametersHandler = object: DescriptorRenderer.ValueParametersHandler by this.valueParametersHandler {
+                valueParametersHandler = object: DescriptorRenderer.ValueParametersHandler by this@withOptions.valueParametersHandler {
                     override fun appendBeforeValueParameter(parameter: ValueParameterDescriptor, parameterIndex: Int, parameterCount: Int, builder: StringBuilder) {
                         builder.append("..., ")
                     }

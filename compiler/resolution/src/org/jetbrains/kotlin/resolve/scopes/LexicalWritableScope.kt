@@ -65,7 +65,7 @@ class LexicalWritableScope(
         }
     }
 
-    private inner class Snapshot(val descriptorLimit: Int) : LexicalScope by this {
+    private inner class Snapshot(val descriptorLimit: Int) : LexicalScope by this@LexicalWritableScope {
         override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean)
                 = addedDescriptors.subList(0, descriptorLimit)
 

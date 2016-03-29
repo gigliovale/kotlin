@@ -1,0 +1,37 @@
+<project default="build_artifact">
+    <property name="artifact.root" value="out/artifacts/Kotlin"/>
+    <property name="production.root" value="out/production/kotlin-ultimate"/>
+    <property name="meta.inf" value="${production.root}/META-INF"/>
+    <property name="kotlin.plugin.jar" value="${artifact.root}/lib/kotlin-plugin.jar"/>
+
+    <target name="build_artifact">
+        <copy todir="${artifact.root}">
+            <fileset dir="../${artifact.root}"/>
+        </copy>
+
+        <loadfile srcfile="${meta.inf}/ultimate-plugin.xml" property="ultimate.plugin.xml.content">
+            <filterchain>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern="\&lt;idea-plugin\&gt;" replace="" />
+                    <replaceregex pattern="\&lt;/idea-plugin\&gt;" replace="" />
+                </tokenfilter>
+            </filterchain>
+        </loadfile>
+
+        <unzip src="${kotlin.plugin.jar}" dest="${production.root}">
+            <patternset>
+                <include name="META-INF/plugin.xml"/>
+            </patternset>
+        </unzip>
+
+        <replace file="${meta.inf}/plugin.xml" token="&lt;!-- ULTIMATE-PLUGIN-PLACEHOLDER --&gt;" value="${ultimate.plugin.xml.content}"/>
+
+        <jar destfile="${kotlin.plugin.jar}" update="true">
+            <fileset dir="${production.root}"/>
+            <file file="${meta.inf}/plugin.xml"/>
+        </jar>
+
+        <delete file="${meta.inf}/plugin.xml"/>
+    </target>
+</project>

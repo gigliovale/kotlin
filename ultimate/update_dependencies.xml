@@ -1,0 +1,36 @@
+<project name="Update Ultimate Dependencies" default="update">
+    <property name="use.ultimate.by.default" value="true"/>
+    <property name="dependencies" value="../dependencies"/>
+    <property name="generators" value="../generators"/>
+
+    <import file="../update_dependencies.xml" as="main"/>
+
+    <property name="download" value="dependencies/download"/>
+
+    <macrodef name="get-spring-library">
+        <attribute name="lib"/>
+        <attribute name="version"/>
+
+        <sequential>
+            <get-maven-library
+                    server="http://central.maven.org/maven2"
+                    prefix="org/springframework"
+                    lib="@{lib}"
+                    version="@{version}"
+                    src="false"
+                    download="${download}"
+                    dependencies="dependencies/spring/@{version}"/>
+        </sequential>
+    </macrodef>
+
+    <target name="fetch-extras">
+        <mkdir dir="${download}"/>
+
+        <get-spring-library lib="spring-core" version="4.2.0.RELEASE"/>
+        <get-spring-library lib="spring-beans" version="4.2.0.RELEASE"/>
+        <get-spring-library lib="spring-context" version="4.2.0.RELEASE"/>
+    </target>
+
+    <!-- Override fetch-third-party from the main buildfile -->
+    <target name="fetch-third-party" depends="main.fetch-third-party,fetch-extras"/>
+</project>

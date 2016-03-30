@@ -23,21 +23,21 @@ import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.createExpressionByPattern
+import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.types.KotlinType
 
-class AddArrayOfTypeFix(expression: KtExpression, val expectedType: KotlinType) : KotlinQuickFixAction<KtExpression>(expression) {
+class AddArrayOfTypeFix(expression: KtExpression, expectedType: KotlinType) : KotlinQuickFixAction<KtExpression>(expression) {
 
-    val prefix = if (KotlinBuiltIns.isArray(expectedType)) {
+    private val prefix = if (KotlinBuiltIns.isArray(expectedType)) {
         "arrayOf"
     }
     else {
-        val name = "$expectedType"
-        "${name.decapitalize()}Of"
+        val typeName = DescriptorRenderer.SHORT_NAMES_IN_TYPES.renderType(expectedType)
+        "${typeName.decapitalize()}Of"
 
     }
 
     override fun getText() = "Add $prefix wrapper"
-
     override fun getFamilyName() = "Add arrayOf wrapper"
 
     override fun invoke(project: Project, editor: Editor?, file: KtFile) {

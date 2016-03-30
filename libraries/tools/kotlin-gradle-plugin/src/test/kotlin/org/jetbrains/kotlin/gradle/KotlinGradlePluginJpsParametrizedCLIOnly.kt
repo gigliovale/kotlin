@@ -1,6 +1,6 @@
 package org.jetbrains.kotlin.gradle
 
-import org.junit.Ignore
+import org.jetbrains.kotlin.incremental.testingUtils.BuildLogFinder
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -21,10 +21,11 @@ class KotlinGradlePluginJpsParametrizedCLIOnly : BaseIncrementalGradleIT() {
 
     @Test
     fun testFromJps() {
-        JpsTestProject(jpsResourcesPath, relativePath).performAndAssertBuildStages(weakTesting = true)
+        JpsTestProject(buildLogFinder, jpsResourcesPath, relativePath).performAndAssertBuildStages(weakTesting = true)
     }
 
-    override fun defaultBuildOptions(): BuildOptions = BuildOptions(withDaemon = true)
+    override fun defaultBuildOptions(): BuildOptions =
+            BuildOptions(withDaemon = true, incremental = true)
 
     companion object {
 
@@ -33,6 +34,7 @@ class KotlinGradlePluginJpsParametrizedCLIOnly : BaseIncrementalGradleIT() {
                                         File(jpsResourcesPath, "changeIncrementalOption"),
                                         File(jpsResourcesPath, "custom"),
                                         File(jpsResourcesPath, "lookupTracker"))
+        private val buildLogFinder = BuildLogFinder(isExperimentalEnabled = true, isGradleEnabled = true)
 
         @Suppress("unused")
         @Parameterized.Parameters(name = "{index}: {0}")
@@ -40,7 +42,7 @@ class KotlinGradlePluginJpsParametrizedCLIOnly : BaseIncrementalGradleIT() {
         fun data(): List<Array<String>> =
                 jpsResourcesPath.walk()
                         .onEnter { it !in ignoredDirs }
-                        .filter { it.isDirectory && isJpsTestProject(it) }
+                        .filter { it.isDirectory && buildLogFinder.findBuildLog(it) != null  }
                         .map { arrayOf(it.toRelativeString(jpsResourcesPath)) }
                         .toList()
     }

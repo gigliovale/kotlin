@@ -20,19 +20,23 @@ Executing process was ${if (isSuccessful) "successful" else "unsuccessful"}
 """
 }
 
-fun runProcess(cmd: List<String>, workingDir: File): ProcessRunResult {
+fun runProcess(cmd: List<String>, workingDir: File, environmentVariables: Map<String, String> = mapOf()): ProcessRunResult {
     val builder = ProcessBuilder(cmd)
+    builder.environment().putAll(environmentVariables)
     builder.directory(workingDir)
     // redirectErrorStream merges stdout and stderr, so it can be get from process.inputStream
     builder.redirectErrorStream(true)
 
     val process = builder.start()
     // important to read inputStream, otherwise the process may hang on some systems
-    val output = process.inputStream!!.bufferedReader().readText()
-    System.out.println(output)
+    val sb = StringBuilder()
+    process.inputStream!!.bufferedReader().forEachLine {
+        System.out.println(it)
+        sb.appendln(it)
+    }
     val exitCode = process.waitFor()
 
-    return ProcessRunResult(cmd, workingDir, exitCode, output)
+    return ProcessRunResult(cmd, workingDir, exitCode, sb.toString())
 }
 
 fun createGradleCommand(tailParameters: List<String>): List<String> {

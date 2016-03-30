@@ -35,6 +35,10 @@
 - Show error message when debug info for some local variable is corrupted
 - [KT-11638](https://youtrack.jetbrains.com/issue/KT-11638) Fixed hashCode() implementation in "Generate equals/hashCode" action
 
+### Tools.Gradle
+- Added project property 'kotlin.incremental'
+- Fixed a bug causing Java rebuild when both Java and Kotlin are up-to-date
+
 ## 1.0.1-2
 
 ### Compiler

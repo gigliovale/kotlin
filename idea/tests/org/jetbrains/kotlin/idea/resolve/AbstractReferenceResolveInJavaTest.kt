@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,15 @@
 
 package org.jetbrains.kotlin.idea.resolve
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.asJava.KtLightElement
+import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
+import org.jetbrains.kotlin.idea.test.JdkAndMockLibraryProjectDescriptor
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
+import org.jetbrains.kotlin.psi.KtDeclaration
+import org.junit.Assert
 
-private val FILE_WITH_KOTLIN_CODE = PluginTestCaseBase.getTestDataPathBase() +  "/resolve/referenceInJava/dependencies.kt"
+private val FILE_WITH_KOTLIN_CODE = PluginTestCaseBase.getTestDataPathBase() + "/resolve/referenceInJava/dependency/dependencies.kt"
 
 abstract class AbstractReferenceResolveInJavaTest : AbstractReferenceResolveTest() {
     override fun doTest(path: String) {
@@ -26,5 +32,23 @@ abstract class AbstractReferenceResolveInJavaTest : AbstractReferenceResolveTest
         myFixture.configureByFile(FILE_WITH_KOTLIN_CODE)
         myFixture.configureByFile(path)
         performChecks()
+    }
+}
+
+abstract class AbstractReferenceToCompiledKotlinResolveInJavaTest : AbstractReferenceResolveTest() {
+    override fun doTest(path: String) {
+        myFixture.configureByFile(path)
+        performChecks()
+    }
+
+    override fun getProjectDescriptor() = JdkAndMockLibraryProjectDescriptor(FILE_WITH_KOTLIN_CODE, true)
+
+    override val refMarkerText: String
+        get() = "CLS_REF"
+
+    override fun checkResolvedTo(element: PsiElement) {
+        val navigationElement = element.navigationElement
+        Assert.assertFalse("Reference should not navigate to a light element\nWas: ${navigationElement.javaClass.simpleName}", navigationElement is KtLightElement<*, *>)
+        Assert.assertTrue("Reference should navigate to a kotlin declaration\nWas: ${navigationElement.javaClass.simpleName}", navigationElement is KtDeclaration || navigationElement is KtClsFile)
     }
 }

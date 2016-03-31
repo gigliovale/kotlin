@@ -19,8 +19,8 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
             srcDir.mkdirs()
             val sourceMapping = copyTestSources(resourcesRoot, srcDir, filePrefix = "")
             mapWorkingToOriginalFile.putAll(sourceMapping)
-            copyDirRecursively(File(resourcesRootFile, "GradleWrapper-$wrapperVersion"), projectDir)
-            copyDirRecursively(File(resourcesRootFile, "incrementalGradleProject"), projectDir)
+            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(projectDir)
+            File(resourcesRootFile, "incrementalGradleProject").copyRecursively(projectDir)
         }
     }
 
@@ -77,7 +77,7 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
         val outDir = File(File(projectDir, "build"), "classes")
         val incrementalOutDir = File(workingDir, "kotlin-classes-incremental")
         incrementalOutDir.mkdirs()
-        copyDirRecursively(outDir, incrementalOutDir)
+        outDir.copyRecursively(incrementalOutDir)
 
         build("clean", "build") {
             val rebuildSucceed = resultCode == 0

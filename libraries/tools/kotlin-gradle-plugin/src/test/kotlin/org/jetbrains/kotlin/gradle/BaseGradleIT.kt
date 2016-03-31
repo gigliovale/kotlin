@@ -10,7 +10,10 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import java.io.File
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 private val SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator")
 
@@ -27,7 +30,7 @@ abstract class BaseGradleIT {
 
     @After
     fun tearDown() {
-        deleteRecursively(workingDir)
+        workingDir.deleteRecursively()
     }
 
     companion object {
@@ -83,8 +86,8 @@ abstract class BaseGradleIT {
         val projectDir = File(workingDir.canonicalFile, projectName)
 
         open fun setupWorkingDir() {
-            copyRecursively(this.resourcesRoot, workingDir)
-            copyDirRecursively(File(resourcesRootFile, "GradleWrapper-$wrapperVersion"), projectDir)
+            resourcesRoot.copyRecursively(projectDir)
+            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(projectDir)
         }
 
         fun relativePaths(files: Iterable<File>): List<String> =
@@ -229,36 +232,4 @@ abstract class BaseGradleIT {
             }
 
     private fun String.normalize() = this.lineSequence().joinToString(SYSTEM_LINE_SEPARATOR)
-
-    fun copyRecursively(source: File, target: File) {
-        assertTrue(target.isDirectory)
-        val targetFile = File(target, source.name)
-        if (source.isDirectory) {
-            targetFile.mkdir()
-            source.listFiles()?.forEach { copyRecursively(it, targetFile) }
-        } else {
-            Files.copy(source, targetFile)
-        }
-    }
-
-    fun copyDirRecursively(source: File, target: File) {
-        assertTrue(source.isDirectory)
-        assertTrue(target.isDirectory)
-        source.listFiles()?.forEach { copyRecursively(it, target) }
-    }
-
-    fun deleteRecursively(f: File): Unit {
-        if (f.isDirectory) {
-            f.listFiles()?.forEach { deleteRecursively(it) }
-            val fileList = f.listFiles()
-            if (fileList != null) {
-                if (!fileList.isEmpty()) {
-                    fail("Expected $f to be empty but it has files: ${fileList.joinToString { it.name }}")
-                }
-            } else {
-                fail("Error listing directory content")
-            }
-        }
-        f.delete()
-    }
 }

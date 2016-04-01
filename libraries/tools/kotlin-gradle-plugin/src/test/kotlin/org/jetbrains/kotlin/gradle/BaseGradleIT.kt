@@ -3,19 +3,25 @@ package org.jetbrains.kotlin.gradle
 import com.google.common.io.Files
 import com.intellij.openapi.util.io.FileUtil
 import org.gradle.api.logging.LogLevel
+import org.gradle.tooling.BuildException
+import org.gradle.tooling.ProjectConnection
 import org.jetbrains.kotlin.gradle.plugin.ThreadTracker
 import org.jetbrains.kotlin.gradle.util.createGradleCommand
 import org.jetbrains.kotlin.gradle.util.runProcess
 import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.OutputStream
+import java.io.PrintStream
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 private val SYSTEM_LINE_SEPARATOR = System.getProperty("line.separator")
+private const val UTF_8 = "UTF-8"
 
 abstract class BaseGradleIT {
 
@@ -83,11 +89,15 @@ abstract class BaseGradleIT {
 
     open inner class Project(val projectName: String, val wrapperVersion: String = "1.4", val minLogLevel: LogLevel = LogLevel.DEBUG) {
         open val resourcesRoot = File(resourcesRootFile, "testProject/$projectName")
-        val projectDir = File(workingDir.canonicalFile, projectName)
+        val projectDir by lazy {
+            val file = File(workingDir.canonicalFile, projectName)
+            setupWorkingDir(file)
+            file
+        }
 
-        open fun setupWorkingDir() {
-            resourcesRoot.copyRecursively(projectDir)
-            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(projectDir)
+        protected open fun setupWorkingDir(workingDir: File) {
+            resourcesRoot.copyRecursively(workingDir)
+            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(workingDir)
         }
 
         fun relativePaths(files: Iterable<File>): List<String> =
@@ -113,14 +123,47 @@ abstract class BaseGradleIT {
         }
 
         println("<=== Test build: ${this.projectName} $cmd ===>")
-
-        val projectDir = File(workingDir, projectName)
-        if (!projectDir.exists()) {
-            setupWorkingDir()
-        }
-
         val result = runProcess(cmd, projectDir, env)
         CompiledProject(this, result.output, result.exitCode).check()
+    }
+
+    fun Project.build(vararg tasks: String, options: BuildOptions = defaultBuildOptions(), connection: ProjectConnection, check: CompiledProject.() -> Unit) {
+        // tooling api does not support non-daemon mode
+        val params = createGradleTailParameters(options.copy(daemonOptionSupported = false))
+        val outBytes = ByteArrayOutputStream()
+        val errBytes = ByteArrayOutputStream()
+        val outputStream = DelegatingOutputStream(outBytes, System.out)
+        val errorStream = DelegatingOutputStream(errBytes, System.err)
+        var exitCode = 0
+
+        try {
+            connection.newBuild().apply {
+                forTasks(*tasks)
+                withArguments(*params.toTypedArray())
+                setJvmArguments("-Xmx1024m", "-XX:MaxPermSize=512m")
+                setStandardOutput(outputStream)
+                setStandardError(errorStream)
+                run()
+            }
+        }
+        catch (e: BuildException) {
+            val errorPrintStream = PrintStream(errorStream)
+            try {
+                e.printStackTrace(errorPrintStream)
+            }
+            finally {
+                errorPrintStream.close()
+            }
+
+            exitCode = 1
+        }
+        finally {
+            outputStream.flush()
+            errorStream.flush()
+        }
+
+        val output = outBytes.toString(UTF_8)
+        CompiledProject(this, output, exitCode).check()
     }
 
     fun CompiledProject.assertSuccessful(): CompiledProject {
@@ -232,4 +275,19 @@ abstract class BaseGradleIT {
             }
 
     private fun String.normalize() = this.lineSequence().joinToString(SYSTEM_LINE_SEPARATOR)
+}
+
+class DelegatingOutputStream(
+        private val delegate1: OutputStream,
+        private val delegate2: OutputStream
+) : OutputStream() {
+    override fun write(b: Int) {
+        delegate1.write(b)
+        delegate2.write(b)
+    }
+
+    override fun flush() {
+        delegate1.flush()
+        delegate2.flush()
+    }
 }

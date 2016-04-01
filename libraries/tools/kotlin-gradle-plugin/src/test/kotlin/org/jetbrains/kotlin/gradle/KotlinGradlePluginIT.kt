@@ -274,7 +274,6 @@ class KotlinGradleIT: BaseGradleIT() {
     @Test
     fun testIncrementalPropertyFromLocalPropertiesFile() {
         val project = Project("kotlinProject", "2.10")
-        project.setupWorkingDir()
 
         val localPropertyFile = File(project.projectDir, "local.properties")
         localPropertyFile.writeText("kotlin.incremental=true")

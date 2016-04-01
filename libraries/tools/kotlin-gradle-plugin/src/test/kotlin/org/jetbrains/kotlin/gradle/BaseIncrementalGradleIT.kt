@@ -1,6 +1,8 @@
 package org.jetbrains.kotlin.gradle
 
 import org.gradle.api.logging.LogLevel
+import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ProjectConnection
 import org.jetbrains.kotlin.gradle.incremental.BuildStep
 import org.jetbrains.kotlin.gradle.incremental.parseTestBuildLog
 import org.jetbrains.kotlin.incremental.testingUtils.*
@@ -14,13 +16,13 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
         override val resourcesRoot = File(resourcesBase, relPath)
         val mapWorkingToOriginalFile = hashMapOf<File, File>()
 
-        override fun setupWorkingDir() {
-            val srcDir = File(projectDir, "src")
+        override fun setupWorkingDir(workingDir: File) {
+            val srcDir = File(workingDir, "src")
             srcDir.mkdirs()
             val sourceMapping = copyTestSources(resourcesRoot, srcDir, filePrefix = "")
             mapWorkingToOriginalFile.putAll(sourceMapping)
-            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(projectDir)
-            File(resourcesRootFile, "incrementalGradleProject").copyRecursively(projectDir)
+            File(resourcesRootFile, "GradleWrapper-$wrapperVersion").copyRecursively(workingDir)
+            File(resourcesRootFile, "incrementalGradleProject").copyRecursively(workingDir)
         }
     }
 
@@ -30,7 +32,22 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
             Assume.assumeTrue("multimodule tests are not supported yet", false)
         }
 
-        build("build", options = options) {
+        val connection = with(GradleConnector.newConnector()) {
+            forProjectDirectory(projectDir)
+            useGradleVersion(wrapperVersion)
+            connect()
+        }
+
+        try {
+            doPerformAndAssertBuildStages(options, connection, weakTesting)
+        }
+        finally {
+            connection.close()
+        }
+    }
+
+    private fun JpsTestProject.doPerformAndAssertBuildStages(options: BuildOptions, connection: ProjectConnection, weakTesting: Boolean) {
+        build("classes", options = options, connection = connection) {
             assertSuccessful()
             assertReportExists()
         }
@@ -54,14 +71,14 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
 
         for ((modificationStep, buildLogStep) in modifications.zip(buildLogSteps)) {
             modificationStep.forEach { it.perform(projectDir, mapWorkingToOriginalFile) }
-            buildAndAssertStageResults(buildLogStep, weakTesting = weakTesting)
+            buildAndAssertStageResults(buildLogStep, options, connection, weakTesting)
         }
 
-        rebuildAndCompareOutput(rebuildSucceedExpected = buildLogSteps.last().compileSucceeded)
+        rebuildAndCompareOutput(buildLogSteps.last().compileSucceeded, options, connection)
     }
 
-    private fun JpsTestProject.buildAndAssertStageResults(expected: BuildStep, options: BuildOptions = defaultBuildOptions(), weakTesting: Boolean = false) {
-        build("build", options = options) {
+    private fun JpsTestProject.buildAndAssertStageResults(expected: BuildStep, options: BuildOptions, connection: ProjectConnection, weakTesting: Boolean) {
+        build("classes", options = options, connection = connection) {
             if (expected.compileSucceeded) {
                 assertSuccessful()
                 assertCompiledJavaSources(expected.compiledJavaFiles, weakTesting)
@@ -73,13 +90,13 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
         }
     }
 
-    private fun JpsTestProject.rebuildAndCompareOutput(rebuildSucceedExpected: Boolean) {
+    private fun JpsTestProject.rebuildAndCompareOutput(rebuildSucceedExpected: Boolean, options: BuildOptions, connection: ProjectConnection) {
         val outDir = File(File(projectDir, "build"), "classes")
         val incrementalOutDir = File(workingDir, "kotlin-classes-incremental")
         incrementalOutDir.mkdirs()
         outDir.copyRecursively(incrementalOutDir)
 
-        build("clean", "build") {
+        build("clean", "classes", options = options, connection = connection) {
             val rebuildSucceed = resultCode == 0
             assertEquals(rebuildSucceed, rebuildSucceedExpected, "Rebuild exit code differs from incremental exit code")
             outDir.mkdirs()
@@ -87,7 +104,4 @@ abstract class BaseIncrementalGradleIT : BaseGradleIT() {
         }
     }
 }
-
-fun isJpsTestProject(projectRoot: File): Boolean = projectRoot.listFiles { f: File -> f.name.endsWith("build.log") }?.any() ?: false
-
 

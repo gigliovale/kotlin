@@ -11,6 +11,10 @@
 
 ### IDE
 
+#### Debugger
+
+- Do not cast to runtime type unavailable in current scope
+
 ## 1.0.2
 
 ### Compiler

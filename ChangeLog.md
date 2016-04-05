@@ -15,6 +15,7 @@
 
 #### Debugger
 
+- Fix text with line breaks in popup with line breakpoint variants
 - Do not cast to runtime type unavailable in current scope
 
 ## 1.0.2

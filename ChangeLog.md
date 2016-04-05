@@ -11,6 +11,8 @@
 
 ### IDE
 
+- Do not spam idea.log with "Using default platform" message during debug
+
 #### Debugger
 
 - Do not cast to runtime type unavailable in current scope

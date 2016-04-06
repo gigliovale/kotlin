@@ -18,6 +18,7 @@
 - Do not cast to runtime type unavailable in current scope
 - Fix text with line breaks in popup with line breakpoint variants
 - Fix breakpoints inside inline functions in libraries sources
+- Allow breakpoints at catch clause declaration
 
 ## 1.0.2
 

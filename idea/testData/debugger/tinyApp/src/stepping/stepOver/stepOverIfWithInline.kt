@@ -51,7 +51,7 @@ fun test(i: Int) = 1
 
 inline fun <reified T> reified(f: T): Int {
     val a = 1
-    return 1
+    return f as Int
 }
 
 // STEP_OVER: 25

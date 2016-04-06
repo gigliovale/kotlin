@@ -20,8 +20,12 @@ import com.intellij.debugger.NoDataException
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.DebugProcessImpl
 import com.intellij.debugger.engine.SuspendContextImpl
+import com.intellij.debugger.engine.evaluation.EvaluateException
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.impl.JvmSteppingCommandProvider
+import com.intellij.debugger.ui.breakpoints.FilteredRequestorImpl
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiElement
 import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.sun.jdi.AbsentInformationException
@@ -36,6 +40,7 @@ import org.jetbrains.kotlin.idea.refactoring.getLineEndOffset
 import org.jetbrains.kotlin.idea.refactoring.getLineNumber
 import org.jetbrains.kotlin.idea.refactoring.getLineStartOffset
 import org.jetbrains.kotlin.idea.util.DebuggerUtils
+import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
@@ -78,7 +83,9 @@ class KotlinSteppingCommandProvider: JvmSteppingCommandProvider() {
 
         val linesRange = startLineNumber + 1..endLineNumber + 1
 
-        val inlineFunctionCalls = getInlineFunctionCallsIfAny(sourcePosition)
+        val inlineArguments = getElementsToSkip(containingFunction as KtNamedFunction, sourcePosition) ?: return null
+
+        /*val inlineFunctionCalls = getInlineFunctionCallsIfAny(sourcePosition)
         if (inlineFunctionCalls.isEmpty()) return null
 
         val inlineArguments = getInlineArgumentsIfAny(inlineFunctionCalls)
@@ -89,11 +96,31 @@ class KotlinSteppingCommandProvider: JvmSteppingCommandProvider() {
 
         if (inlineArguments.isEmpty() && inlineFunctionCalls.any { it.shouldNotUseStepOver(sourcePosition.elementAt) }) {
             return null
-        }
+        }*/
 
         val additionalElementsToSkip = sourcePosition.elementAt.getAdditionalElementsToSkip()
 
         return DebuggerSteppingHelper.createStepOverCommand(suspendContext, ignoreBreakpoints, file, linesRange, inlineArguments, additionalElementsToSkip)
+    }
+
+    private fun getElementsToSkip(containingFunction: KtNamedFunction, sourcePosition: SourcePosition): List<KtFunction>? {
+        val inlineFunctionCalls = getInlineFunctionCallsIfAny(sourcePosition)
+        if (!inlineFunctionCalls.isEmpty()) {
+            val inlineArguments = getInlineArgumentsIfAny(inlineFunctionCalls)
+            if (inlineArguments.isNotEmpty() && inlineArguments.all { !it.shouldNotUseStepOver(sourcePosition.elementAt) }) {
+                return inlineArguments
+            }
+
+            if (inlineArguments.isEmpty() && inlineFunctionCalls.all { !it.shouldNotUseStepOver(sourcePosition.elementAt) }) {
+                return emptyList()
+            }
+        }
+
+        if (InlineUtil.isInline(containingFunction.resolveToDescriptor())) {
+            return emptyList()
+        }
+
+        return null
     }
 
     private fun PsiElement.getAdditionalElementsToSkip(): List<PsiElement> {
@@ -287,14 +314,20 @@ class KotlinSteppingCommandProvider: JvmSteppingCommandProvider() {
     }
 }
 
+sealed class Action(val position: XSourcePositionImpl?) {
+    class STEP_OVER: Action(null)
+    class STEP_OUT: Action(null)
+    class RUN_TO_CURSOR(position: XSourcePositionImpl): Action(position)
+}
+
 fun getStepOverPosition(
+        debugProcess: DebugProcessImpl,
         location: Location,
         file: KtFile,
         range: IntRange,
-        inlinedArguments: List<KtElement>,
-        elementsToSkip: List<PsiElement>
-): XSourcePositionImpl? {
-    val computedReferenceType = location.declaringType() ?: return null
+        inlinedArguments: MutableList<out KtElement>, elementsToSkip: MutableList<out PsiElement>
+): Action {
+    val computedReferenceType = location.declaringType() ?: return Action.STEP_OVER()
 
     fun isLocationSuitable(nextLocation: Location): Boolean {
         if (nextLocation.method() != location.method() || nextLocation.lineNumber() !in range) {
@@ -316,17 +349,45 @@ fun getStepOverPosition(
             .dropWhile { it.lineNumber() == location.lineNumber() }
 
     for (locationAtLine in locations) {
-        val lineNumber = locationAtLine.lineNumber()
-        val lineStartOffset = file.getLineStartOffset(lineNumber - 1) ?: continue
-        if (inlinedArguments.any { it.textRange.contains(lineStartOffset) }) continue
-        if (elementsToSkip.any { it.textRange.contains(lineStartOffset) }) continue
+        val xPosition = runReadAction {
+            val lineNumber = locationAtLine.lineNumber()
+            val lineStartOffset = file.getLineStartOffset(lineNumber - 1) ?: return@runReadAction null
+            if (inlinedArguments.any { it.textRange.contains(lineStartOffset) }) return@runReadAction null
+            if (elementsToSkip.any { it.textRange.contains(lineStartOffset) }) return@runReadAction null
 
-        val elementAt = file.findElementAt(lineStartOffset) ?: continue
+            if (locationAtLine.lineNumber() == location.lineNumber()) return@runReadAction null
 
-        return XSourcePositionImpl.createByElement(elementAt) ?: return null
+            val elementAt = file.findElementAt(lineStartOffset) ?: return@runReadAction null
+            XSourcePositionImpl.createByElement(elementAt)
+        }
+
+        if (xPosition != null) {
+            return Action.RUN_TO_CURSOR(xPosition)
+        }
     }
 
-    return null
+    if (locations.isNotEmpty()) {
+        return Action.STEP_OUT()
+    }
+
+    return Action.STEP_OVER()
+}
+
+fun createCommand(
+        debugProcess: DebugProcessImpl,
+        suspendContext: SuspendContextImpl,
+        ignoreBreakpoints: Boolean,
+        action: Action
+): DebugProcessImpl.ResumeCommand? {
+    return when (action) {
+        is Action.RUN_TO_CURSOR -> {
+            runReadAction {
+                debugProcess.createRunToCursorCommand(suspendContext, action.position!!, ignoreBreakpoints)
+            }
+        }
+        is Action.STEP_OUT -> debugProcess.createStepOutCommand(suspendContext)
+        is Action.STEP_OVER -> debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints)
+    }
 }
 
 fun getStepOutPosition(
@@ -334,8 +395,8 @@ fun getStepOutPosition(
         suspendContext: SuspendContextImpl,
         inlineFunctions: List<KtNamedFunction>,
         inlinedArgument: KtFunctionLiteral?
-): XSourcePositionImpl? {
-    val computedReferenceType = location.declaringType() ?: return null
+): Action {
+    val computedReferenceType = location.declaringType() ?: return Action.STEP_OUT()
 
     val locations = computedReferenceType.allLineLocations()
     val nextLineLocations = locations
@@ -345,14 +406,16 @@ fun getStepOutPosition(
             .dropWhile { it.lineNumber() == location.lineNumber() }
 
     if (inlineFunctions.isNotEmpty()) {
-        return suspendContext.getXPositionForStepOutFromInlineFunction(nextLineLocations, inlineFunctions) ?: return null
+        val position = suspendContext.getXPositionForStepOutFromInlineFunction(nextLineLocations, inlineFunctions)
+        return position?.let { Action.RUN_TO_CURSOR(it) }  ?: Action.STEP_OVER()
     }
 
     if (inlinedArgument != null) {
-        return suspendContext.getXPositionForStepOutFromInlinedArgument(nextLineLocations, inlinedArgument) ?: return null
+        val position = suspendContext.getXPositionForStepOutFromInlinedArgument(nextLineLocations, inlinedArgument)
+        return position?.let { Action.RUN_TO_CURSOR(it) }  ?: Action.STEP_OVER()
     }
 
-    return null
+    return Action.STEP_OVER()
 }
 
 private fun SuspendContextImpl.getXPositionForStepOutFromInlineFunction(
@@ -384,20 +447,25 @@ private fun SuspendContextImpl.getNextPositionWithFilter(
         skip: (Int, PsiElement) -> Boolean
 ): XSourcePositionImpl? {
     for (location in locations) {
-        val sourcePosition = try {
-            this.debugProcess.positionManager.getSourcePosition(location)
+        val position = runReadAction {
+            val sourcePosition = try {
+                this.debugProcess.positionManager.getSourcePosition(location)
+            }
+                                 catch(e: NoDataException) {
+                                     null
+                                 } ?: return@runReadAction null
+
+            val file = sourcePosition.file as? KtFile ?: return@runReadAction null
+            val elementAt = sourcePosition.elementAt ?: return@runReadAction null
+            val currentLine = location.lineNumber() - 1
+            val lineStartOffset = file.getLineStartOffset(currentLine) ?: return@runReadAction null
+            if (skip(lineStartOffset, elementAt)) return@runReadAction null
+
+            XSourcePositionImpl.createByElement(elementAt)
         }
-        catch(e: NoDataException) {
-            null
-        } ?: continue
-
-        val file = sourcePosition.file as? KtFile ?: continue
-        val elementAt = sourcePosition.elementAt ?: continue
-        val currentLine = location.lineNumber() - 1
-        val lineStartOffset = file.getLineStartOffset(currentLine) ?: continue
-        if (skip(lineStartOffset, elementAt)) continue
-
-        return XSourcePositionImpl.createByElement(elementAt)
+        if (position != null) {
+            return position
+        }
     }
 
     return null

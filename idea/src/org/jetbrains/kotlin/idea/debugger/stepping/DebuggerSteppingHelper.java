@@ -19,18 +19,30 @@ package org.jetbrains.kotlin.idea.debugger.stepping;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
+import com.intellij.debugger.impl.DebuggerUtilsEx;
 import com.intellij.debugger.jdi.StackFrameProxyImpl;
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.Computable;
+import com.intellij.debugger.jdi.ThreadReferenceProxyImpl;
+import com.intellij.debugger.settings.DebuggerSettings;
+import com.intellij.openapi.extensions.Extensions;
 import com.intellij.psi.PsiElement;
-import com.intellij.xdebugger.impl.XSourcePositionImpl;
-import kotlin.*;
-import kotlin.ranges.*;
+import com.intellij.ui.classFilter.ClassFilter;
+import com.intellij.ui.classFilter.DebuggerClassFilterProvider;
+import com.sun.jdi.Location;
+import com.sun.jdi.ObjectCollectedException;
+import com.sun.jdi.ReferenceType;
+import com.sun.jdi.ThreadReference;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.EventRequestManager;
+import com.sun.jdi.request.StepRequest;
+import kotlin.ranges.IntRange;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtFunction;
 import org.jetbrains.kotlin.psi.KtFunctionLiteral;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DebuggerSteppingHelper {
@@ -47,36 +59,31 @@ public class DebuggerSteppingHelper {
         return debugProcess.new ResumeCommand(suspendContext) {
             @Override
             public void contextAction() {
-                final StackFrameProxyImpl frameProxy = suspendContext.getFrameProxy();
-                if (frameProxy != null) {
-                    DebugProcessImpl.ResumeCommand runToCursorCommand = ApplicationManager.getApplication().runReadAction(new Computable<DebugProcessImpl.ResumeCommand>() {
-                        @Override
-                        public DebugProcessImpl.ResumeCommand compute() {
-                            try {
-                                XSourcePositionImpl position = KotlinSteppingCommandProviderKt.getStepOverPosition(
-                                        frameProxy.location(),
-                                        file,
-                                        linesRange,
-                                        inlineArguments,
-                                        additionalElementsToSkip
-                                );
-                                if (position != null) {
-                                    return debugProcess.createRunToCursorCommand(suspendContext, position, ignoreBreakpoints);
-                                }
-                            }
-                            catch (EvaluateException ignored) {
-                            }
-                            return null;
+                try {
+                    StackFrameProxyImpl frameProxy = suspendContext.getFrameProxy();
+                    if (frameProxy != null) {
+                        Action action = KotlinSteppingCommandProviderKt.getStepOverPosition(
+                                debugProcess,
+                                frameProxy.location(),
+                                file,
+                                linesRange,
+                                inlineArguments,
+                                additionalElementsToSkip
+                        );
+
+                        DebugProcessImpl.ResumeCommand command =
+                                KotlinSteppingCommandProviderKt.createCommand(debugProcess, suspendContext, ignoreBreakpoints, action);
+
+                        if (command != null) {
+                            command.contextAction();
+                            return;
                         }
-                    });
-
-                    if (runToCursorCommand != null) {
-                        runToCursorCommand.contextAction();
-                        return;
                     }
-                }
 
-                debugProcess.createStepOutCommand(suspendContext).contextAction();
+                    debugProcess.createStepOutCommand(suspendContext).contextAction();
+                }
+                catch (EvaluateException ignored) {
+                }
             }
         };
     }
@@ -91,35 +98,30 @@ public class DebuggerSteppingHelper {
         return debugProcess.new ResumeCommand(suspendContext) {
             @Override
             public void contextAction() {
-                final StackFrameProxyImpl frameProxy = suspendContext.getFrameProxy();
-                if (frameProxy != null) {
-                    DebugProcessImpl.ResumeCommand runToCursorCommand = ApplicationManager.getApplication().runReadAction(new Computable<DebugProcessImpl.ResumeCommand>() {
-                        @Override
-                        public DebugProcessImpl.ResumeCommand compute() {
-                            try {
-                                XSourcePositionImpl position = KotlinSteppingCommandProviderKt.getStepOutPosition(
-                                        frameProxy.location(),
-                                        suspendContext,
-                                        inlineFunctions,
-                                        inlineArgument
-                                );
-                                if (position != null) {
-                                    return debugProcess.createRunToCursorCommand(suspendContext, position, ignoreBreakpoints);
-                                }
-                            }
-                            catch (EvaluateException ignored) {
-                            }
-                            return null;
+                try {
+                    StackFrameProxyImpl frameProxy = suspendContext.getFrameProxy();
+                    if (frameProxy != null) {
+                        Action action = KotlinSteppingCommandProviderKt.getStepOutPosition(
+                                frameProxy.location(),
+                                suspendContext,
+                                inlineFunctions,
+                                inlineArgument
+                        );
+
+                        DebugProcessImpl.ResumeCommand command =
+                                KotlinSteppingCommandProviderKt.createCommand(debugProcess, suspendContext, ignoreBreakpoints, action);
+
+                        if (command != null) {
+                            command.contextAction();
+                            return;
                         }
-                    });
-
-                    if (runToCursorCommand != null) {
-                        runToCursorCommand.contextAction();
-                        return;
                     }
-                }
 
-                debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints).contextAction();
+                    debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints).contextAction();
+                }
+                catch (EvaluateException ignored) {
+
+                }
             }
         };
     }

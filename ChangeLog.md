@@ -20,6 +20,7 @@
 - Fix breakpoints inside inline functions in libraries sources
 - Allow breakpoints at catch clause declaration
 - Do not step into inline function literal argument during step over inside inline function body
+- Fix step over for inline argument with non-local return
 
 ## 1.0.2
 

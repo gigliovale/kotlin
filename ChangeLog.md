@@ -166,6 +166,7 @@ Issues fixed:
 - [KT-11725](https://youtrack.jetbrains.com/issue/KT-11725) Fixed renaming of injected SpEL references
 - [KT-11720](https://youtrack.jetbrains.com/issue/KT-11720) Fixed renaming of Kotlin beans through SpEL references
 - [KT-11719](https://youtrack.jetbrains.com/issue/KT-11719) Fixed renaming of Kotlin parameters references in XML files
+- [KT-11868](https://youtrack.jetbrains.com/issue/KT-11868) Fixed exception on search of functions/constructors with default parameters
 
 #### Debugger
 

@@ -137,6 +137,7 @@ New features:
 - [KT-11404](https://youtrack.jetbrains.com/issue/KT-11404) Quick fix to let type implement missing interface
 - [KT-6785](https://youtrack.jetbrains.com/issue/KT-6785), [KT-10013](https://youtrack.jetbrains.com/issue/KT-10013), [KT-9996](https://youtrack.jetbrains.com/issue/KT-9996), [KT-11675](https://youtrack.jetbrains.com/issue/KT-11675) Support Smart Enter for trailing lambda argument, try/catch/finally, property setter, init block
 - Add `kotlinClassName()` and `kotlinFunctionName()` macros for use in live templates
+- Auto-configure EAP-repository during Kotlin Maven and Gradle project set up 
 
 Issues fixed:
 
@@ -172,6 +173,7 @@ Issues fixed:
 - [KT-11719](https://youtrack.jetbrains.com/issue/KT-11719) Fixed renaming of Kotlin parameters references in XML files
 - Fix several issues leading to exceptions: [KT-11579](https://youtrack.jetbrains.com/issue/KT-11579), [KT-11580](https://youtrack.jetbrains.com/issue/KT-11580), [KT-11777](https://youtrack.jetbrains.com/issue/KT-11777)
 - Fixed NoSuchFieldException in Kotlin module settings on IDEA Ultimate
+- [KT-11868](https://youtrack.jetbrains.com/issue/KT-11868) Fixed exception on search of functions/constructors with default parameters
 
 #### Debugger
 

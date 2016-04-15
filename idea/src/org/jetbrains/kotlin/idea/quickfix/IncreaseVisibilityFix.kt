@@ -24,31 +24,55 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithVisibility
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory3
+import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
 import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.ExposedVisibilityChecker
+import org.jetbrains.kotlin.resolve.descriptorUtil.module
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.idea.core.setVisibility
 
-class ChangePrivateTopLevelToInternalFix(element: KtModifierListOwner, private val elementName: String) : KotlinQuickFixAction<KtModifierListOwner>(element), CleanupFix {
-    override fun getText() = "Make $elementName internal"
-    override fun getFamilyName() = "Make top-level declaration internal"
+class IncreaseVisibilityFix(
+        element: KtModifierListOwner,
+        private val elementName: String,
+        private val visibilityModifier: KtModifierKeywordToken
+) : KotlinQuickFixAction<KtModifierListOwner>(element), CleanupFix {
+
+    override fun getText() = "Make $elementName $visibilityModifier"
+    override fun getFamilyName() = "Make $visibilityModifier"
 
     override fun invoke(project: Project, editor: Editor?, file: KtFile) {
-        element.addModifier(KtTokens.INTERNAL_KEYWORD)
+        element.setVisibility(visibilityModifier)
     }
 
     companion object : KotlinSingleIntentionActionFactory() {
         override fun createAction(diagnostic: Diagnostic): IntentionAction? {
+            val element = diagnostic.psiElement as? KtElement ?: return null
+            val context = element.analyze(BodyResolveMode.PARTIAL)
+            val usageModule = context.get(BindingContext.FILE_TO_PACKAGE_FRAGMENT, element.getContainingKtFile())?.module
+
             @Suppress("UNCHECKED_CAST")
             val factory = diagnostic.factory as DiagnosticFactory3<*, DeclarationDescriptor, *, DeclarationDescriptor>
-            val descriptor = factory.cast(diagnostic).c
-            if (!DescriptorUtils.isTopLevelDeclaration(descriptor) ||
-                descriptor !is DeclarationDescriptorWithVisibility ||
-                descriptor.visibility != Visibilities.PRIVATE) return null
-
+            val descriptor = factory.cast(diagnostic).c as? DeclarationDescriptorWithVisibility ?: return null
             val declaration = DescriptorToSourceUtils.getSourceFromDescriptor(descriptor) as? KtModifierListOwner ?: return null
-            return ChangePrivateTopLevelToInternalFix(declaration, descriptor.name.asString())
+
+            val module = DescriptorUtils.getContainingModule(descriptor)
+            val (modifier, visibility) = if (module != usageModule || descriptor.visibility != Visibilities.PRIVATE) {
+                Pair(KtTokens.PUBLIC_KEYWORD, Visibilities.PUBLIC)
+            }
+            else {
+                Pair(KtTokens.INTERNAL_KEYWORD, Visibilities.INTERNAL)
+            }
+
+            if (!ExposedVisibilityChecker().checkDeclarationWithVisibility(declaration, descriptor, visibility)) return null
+
+            return IncreaseVisibilityFix(declaration, descriptor.name.asString(), modifier)
         }
     }
 }

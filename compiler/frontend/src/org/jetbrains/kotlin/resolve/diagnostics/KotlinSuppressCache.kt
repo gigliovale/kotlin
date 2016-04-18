@@ -26,9 +26,7 @@ import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.psi.KtAnnotated
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtStubbedPsiUtil
-import org.jetbrains.kotlin.psi.doNotAnalyze
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.constants.ArrayValue
 import org.jetbrains.kotlin.resolve.constants.StringValue
@@ -71,11 +69,6 @@ abstract class KotlinSuppressCache {
         // there's no point to present such diagnostics to the user, because the user didn't write this code
         val element = request.element
         if (!element.isValid) return true
-
-        val file = element.containingFile
-        if (file is KtFile) {
-            if (file.doNotAnalyze != null) return true
-        }
 
         if (request is DiagnosticSuppressRequest) {
             for (suppressor in DIAGNOSTIC_SUPPRESSORS.get()) {

@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtPsiFactory
-import org.jetbrains.kotlin.psi.doNotAnalyze
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
@@ -49,7 +48,6 @@ class ReplaceWithOperatorAssignmentIntention : SelfTargetingOffsetIndependentInt
 
         // now check that the resulting operator assignment will be resolved
         val opAssign = buildOperatorAssignment(element)
-        opAssign.getContainingKtFile().doNotAnalyze = null //TODO: strange hack
         val resolutionScope = element.getResolutionScope(bindingContext, element.getResolutionFacade())
         val newBindingContext = opAssign.analyzeInContext(resolutionScope,
                                                           contextExpression = element,

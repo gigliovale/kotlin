@@ -311,8 +311,9 @@ public class DelegatedPropertyResolver {
         Name functionName = isGet ? OperatorNameConventions.GET_VALUE : OperatorNameConventions.SET_VALUE;
         ExpressionReceiver receiver = ExpressionReceiver.Companion.create(delegateExpression, delegateType, trace.getBindingContext());
 
+        ExpressionTypingContext temporaryContext = context.replaceBindingTrace(TemporaryBindingTrace.create(trace, "Temporary trace"));
         Pair<Call, OverloadResolutionResults<FunctionDescriptor>> resolutionResult =
-                fakeCallResolver.makeAndResolveFakeCallInContext(receiver, context, arguments, functionName, delegateExpression);
+                fakeCallResolver.makeAndResolveFakeCallInContext(receiver, temporaryContext, arguments, functionName, delegateExpression);
 
         trace.record(BindingContext.DELEGATED_PROPERTY_CALL, accessor, resolutionResult.getFirst());
         return resolutionResult.getSecond();

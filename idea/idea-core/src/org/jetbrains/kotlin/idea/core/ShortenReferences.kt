@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.util
+package org.jetbrains.kotlin.idea.core
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
@@ -26,9 +27,12 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.core.ShortenReferences.Options
 import org.jetbrains.kotlin.idea.imports.canBeReferencedViaImport
 import org.jetbrains.kotlin.idea.imports.getImportableTargets
-import org.jetbrains.kotlin.idea.util.ShortenReferences.Options
+import org.jetbrains.kotlin.idea.util.ImportDescriptorResult
+import org.jetbrains.kotlin.idea.util.ImportInsertHelper
+import org.jetbrains.kotlin.idea.util.getResolutionScope
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
@@ -235,10 +239,16 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
         fun shortenElements(elementSetToUpdate: MutableSet<KtElement>) {
             for (element in elementsToShorten) {
                 if (!element.isValid) continue
-                val newElement = shortenElement(element)
+
+                var newElement: KtElement? = null
+                // we never want any reformatting to happen because sometimes it causes strange effects (see KT-11633)
+                PostprocessReformattingAspect.getInstance(element.project).disablePostprocessFormattingInside {
+                    newElement = shortenElement(element)
+                }
+
                 if (element in elementSetToUpdate && newElement != element) {
                     elementSetToUpdate.remove(element)
-                    elementSetToUpdate.add(newElement)
+                    elementSetToUpdate.add(newElement!!)
                 }
             }
         }

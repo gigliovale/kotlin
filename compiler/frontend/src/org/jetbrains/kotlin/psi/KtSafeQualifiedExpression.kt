@@ -14,23 +14,12 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.psi;
+package org.jetbrains.kotlin.psi
 
-import com.intellij.lang.ASTNode;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.lexer.KtToken;
+import com.intellij.lang.ASTNode
 
-public interface KtQualifiedExpression extends KtExpression {
-    @NotNull
-    KtExpression getReceiverExpression();
-
-    @Nullable
-    KtExpression getSelectorExpression();
-
-    @NotNull
-    ASTNode getOperationTokenNode();
-
-    @NotNull
-    KtToken getOperationSign();
+class KtSafeQualifiedExpression(node: ASTNode) : KtExpressionImpl(node), KtQualifiedExpression {
+    override fun <R, D> accept(visitor: KtVisitor<R, D>, data: D): R {
+        return visitor.visitSafeQualifiedExpression(this, data)
+    }
 }

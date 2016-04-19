@@ -19,28 +19,24 @@ package org.jetbrains.kotlin.psi
 import com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.lexer.KtTokens
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
+import org.jetbrains.kotlin.psi.psiUtil.siblings
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
-object KtQualifiedExpressionImpl {
-    fun KtQualifiedExpression.getOperationTokenNode(): ASTNode {
-        val operationNode = this.node!!.findChildByType(KtTokens.OPERATIONS)
-        return operationNode!!
-    }
+interface KtQualifiedExpression : KtExpression {
+    val receiverExpression: KtExpression
+        get() = getExpression(false) ?: throw AssertionError("No receiver found: ${getElementTextWithContext()}")
 
-    fun KtQualifiedExpression.getOperationSign(): KtToken {
-        return this.operationTokenNode.elementType as KtToken
-    }
+    val selectorExpression: KtExpression?
+        get() = getExpression(true)
+
+    val operationTokenNode: ASTNode
+        get() = node.findChildByType(KtTokens.OPERATIONS)!!
+
+    val operationSign: KtToken
+        get() = operationTokenNode.elementType as KtToken
 
     private fun KtQualifiedExpression.getExpression(afterOperation: Boolean): KtExpression? {
-        return operationTokenNode.psi?.siblings(afterOperation, false)?.firstOrNull { it is KtExpression } as? KtExpression
-    }
-
-    fun KtQualifiedExpression.getReceiverExpression(): KtExpression {
-        return getExpression(false) ?: throw AssertionError("No receiver found: ${getElementTextWithContext()}")
-    }
-
-    fun KtQualifiedExpression.getSelectorExpression(): KtExpression? {
-        return getExpression(true)
+        return operationTokenNode.psi?.siblings(afterOperation, false)?.firstIsInstanceOrNull<KtExpression>()
     }
 }

@@ -11,6 +11,20 @@
 
 ### IDE
 
+New features:
+
+- [KT-11768](https://youtrack.jetbrains.com/issue/KT-11768) Implement "Introduce local variable" intention
+- [KT-11692](https://youtrack.jetbrains.com/issue/KT-11692) Support Spring model diagrams for Kotlin classes
+
+Issues fixed:
+
+- [KT-11145](https://youtrack.jetbrains.com/issue/KT-11145) Use progress indicator when searching usages in Introduce Parameter
+- [KT-11155](https://youtrack.jetbrains.com/issue/KT-11155) Allow running multiple Kotlin classes as well as running mixtures of Kotlin and Java classes
+- [KT-11495](https://youtrack.jetbrains.com/issue/KT-11495) Show recursion line markers for extension function calls with different receiver
+- [KT-11659](https://youtrack.jetbrains.com/issue/KT-11659) Generate abstract overrides for Any members inside of Kotlin interfaces
+- [KT-11866](https://youtrack.jetbrains.com/issue/KT-11866) Suggest "Create secondary constructor" when constructors exist but are not applicable
+- [KT-11908](https://youtrack.jetbrains.com/issue/KT-11866) Allow properties with custom setters to be used in generated equals/hashCode/toString
+
 #### Debugger
 
 - Do not step into inline lambda argument during step over inside inline function body
@@ -142,7 +156,7 @@ New features:
 - [KT-11404](https://youtrack.jetbrains.com/issue/KT-11404) Quick fix to let type implement missing interface
 - [KT-6785](https://youtrack.jetbrains.com/issue/KT-6785), [KT-10013](https://youtrack.jetbrains.com/issue/KT-10013), [KT-9996](https://youtrack.jetbrains.com/issue/KT-9996), [KT-11675](https://youtrack.jetbrains.com/issue/KT-11675) Support Smart Enter for trailing lambda argument, try/catch/finally, property setter, init block
 - Add `kotlinClassName()` and `kotlinFunctionName()` macros for use in live templates
-- Auto-configure EAP-repository during Kotlin Maven and Gradle project set up 
+- Auto-configure EAP-repository during Kotlin Maven and Gradle project set up
 
 Issues fixed:
 
@@ -178,6 +192,8 @@ Issues fixed:
 - [KT-11719](https://youtrack.jetbrains.com/issue/KT-11719) Fixed renaming of Kotlin parameters references in XML files
 - Fix several issues leading to exceptions: [KT-11579](https://youtrack.jetbrains.com/issue/KT-11579), [KT-11580](https://youtrack.jetbrains.com/issue/KT-11580), [KT-11777](https://youtrack.jetbrains.com/issue/KT-11777), [KT-11868](https://youtrack.jetbrains.com/issue/KT-11868)
 - Fixed NoSuchFieldException in Kotlin module settings on IDEA Ultimate
+- [KT-11895](https://youtrack.jetbrains.com/issue/KT-11895) Fixed exception on highlighting of injected references
+- [KT-11880](https://youtrack.jetbrains.com/issue/KT-11880) Fixed renaming of Kotlin properties through SpEL references in XML files
 
 #### Debugger
 

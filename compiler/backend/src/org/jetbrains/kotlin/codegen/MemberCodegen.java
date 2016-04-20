@@ -84,7 +84,8 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
     protected ExpressionCodegen clInit;
     private NameGenerator inlineNameGenerator;
 
-    private SourceMapper sourceMapper;
+    private DefaultSourceMapper sourceMapper;
+
     private final ConstantExpressionEvaluator constantExpressionEvaluator;
 
     public MemberCodegen(
@@ -555,9 +556,9 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
     }
 
     @NotNull
-    public SourceMapper getOrCreateSourceMapper() {
+    public DefaultSourceMapper getOrCreateSourceMapper() {
         if (sourceMapper == null) {
-            sourceMapper = new DefaultSourceMapper(SourceInfo.Companion.createInfo(element, getClassName()), null);
+            sourceMapper = new DefaultSourceMapper(SourceInfo.Companion.createInfo(element, getClassName()));
         }
         return sourceMapper;
     }

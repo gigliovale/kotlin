@@ -1319,6 +1319,7 @@
                      groupName="Kotlin"
                      enabledByDefault="true"
                      level="WARNING"
+                     runForWholeFile="true"
     />
 
     <localInspection implementationClass="org.jetbrains.kotlin.idea.inspections.UnusedReceiverParameterInspection"
@@ -1333,6 +1334,7 @@
                      groupName="Kotlin"
                      enabledByDefault="true"
                      level="WARNING"
+                     runForWholeFile="true"
     />
 
     <localInspection implementationClass="org.jetbrains.kotlin.idea.inspections.RedundantSamConstructorInspection"
@@ -1414,7 +1416,7 @@
                      level="WEAK WARNING"/>
 
     <localInspection implementationClass="org.jetbrains.kotlin.idea.inspections.CanBeValInspection"
-                     displayName="Local 'var' can be declared as 'val'"
+                     displayName="Local 'var' is never modified and can be declared as 'val'"
                      groupName="Kotlin"
                      enabledByDefault="true"
                      level="WARNING"

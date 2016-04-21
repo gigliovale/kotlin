@@ -16,6 +16,7 @@ New features:
 - [KT-11768](https://youtrack.jetbrains.com/issue/KT-11768) Implement "Introduce local variable" intention
 - [KT-11692](https://youtrack.jetbrains.com/issue/KT-11692) Support Spring model diagrams for Kotlin classes
 - [KT-11574](https://youtrack.jetbrains.com/issue/KT-11574) Support predefined Java positions for language injection
+- [KT-11807](https://youtrack.jetbrains.com/issue/KT-11807) Use function body template when generating overriding functions with default body
 
 Issues fixed:
 
@@ -25,6 +26,8 @@ Issues fixed:
 - [KT-11659](https://youtrack.jetbrains.com/issue/KT-11659) Generate abstract overrides for Any members inside of Kotlin interfaces
 - [KT-11866](https://youtrack.jetbrains.com/issue/KT-11866) Suggest "Create secondary constructor" when constructors exist but are not applicable
 - [KT-11908](https://youtrack.jetbrains.com/issue/KT-11866) Allow properties with custom setters to be used in generated equals/hashCode/toString
+- [KT-11845](https://youtrack.jetbrains.com/issue/KT-11845) Fixed exception on attempt to find derived classes
+- [KT-11736](https://youtrack.jetbrains.com/issue/KT-11736) Fixed searching of Java usages for @JvmStatic properties and @JvmStatic @JvmOverloads functions
 
 #### Debugger
 

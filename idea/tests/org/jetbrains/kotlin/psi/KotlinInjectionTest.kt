@@ -16,11 +16,8 @@
 
 package org.jetbrains.kotlin.psi
 
-import com.intellij.injected.editor.EditorWindow
 import com.intellij.lang.html.HTMLLanguage
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference
-import com.intellij.psi.injection.Injectable
-import com.intellij.testFramework.LightProjectDescriptor
 import junit.framework.TestCase
 import org.intellij.lang.regexp.RegExpLanguage
 import org.intellij.plugins.intelliLang.Configuration
@@ -29,10 +26,8 @@ import org.intellij.plugins.intelliLang.inject.UnInjectLanguageAction
 import org.intellij.plugins.intelliLang.inject.config.BaseInjection
 import org.intellij.plugins.intelliLang.inject.config.InjectionPlace
 import org.intellij.plugins.intelliLang.references.FileReferenceInjector
-import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
-import org.jetbrains.kotlin.idea.test.KotlinLightProjectDescriptor
 
-class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
+class KotlinInjectionTest : AbstractInjectionTest() {
     fun testInjectUnInjectOnSimpleString() {
         myFixture.configureByText("test.kt",
                                   """val test = "<caret>simple" """)
@@ -49,7 +44,7 @@ class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
         TestCase.assertNull(myFixture.getReferenceAtCaretPosition())
     }
 
-    fun testInjectionOnJavaPredefinedMethodWithAnnotation() = testInjectionPresent(
+    fun testInjectionOnJavaPredefinedMethodWithAnnotation() = assertInjectionPresent(
             """
             |val test1 = java.util.regex.Pattern.compile("<caret>pattern")
             """,
@@ -68,7 +63,7 @@ class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
         try {
             Configuration.getInstance().replaceInjections(listOf(customInjection), listOf(), true)
 
-            testInjectionPresent(
+            assertInjectionPresent(
                     """
                     |val stringBuilder = StringBuilder().replace(0, 0, "<caret><html></html>")
                     """,
@@ -81,13 +76,34 @@ class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
         }
     }
 
-    fun testInjectionWithCommentOnProperty() = testInjectionPresent(
+    fun testInjectionWithCommentOnProperty() = assertInjectionPresent(
             """
             |//language=file-reference
             |val test = "<caret>simple"
             """)
 
-    fun testInjectionWithMultipleCommentsOnFun() = testInjectionPresent(
+    fun testInjectionWithUsageOnReceiverWithRuntime() = assertInjectionPresent(
+            """
+            |val test = "<caret>some"
+            |fun foo() = test.toRegex()
+            """,
+            languageId = RegExpLanguage.INSTANCE.id, unInjectShouldBePresent = false)
+
+    fun testInjectionWithUsageInParameterWithRuntime() = assertInjectionPresent(
+            """
+            |val test = "<caret>some"
+            |fun foo() = Regex(test)
+            """,
+            languageId = RegExpLanguage.INSTANCE.id, unInjectShouldBePresent = false)
+
+    fun testNoInjectionThoughSeveralAssignmentsWithRuntime() = assertNoInjection(
+            """
+            |val first = "<caret>some"
+            |val test = first
+            |fun foo() = Regex(test)
+            """)
+
+    fun testInjectionWithMultipleCommentsOnFun() = assertInjectionPresent(
             """
             |// Some comment
             |// Other comment
@@ -95,7 +111,7 @@ class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
             |fun test() = "<caret>simple"
             """)
 
-    fun testInjectionWithAnnotationOnPropertyWithAnnotation() = testInjectionPresent(
+    fun testInjectionWithAnnotationOnPropertyWithAnnotation() = assertInjectionPresent(
             """
             |@org.intellij.lang.annotations.Language("file-reference")
             |val test = "<caret>simple"
@@ -283,59 +299,4 @@ class KotlinInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
             |}
             """
     )
-
-    override fun getProjectDescriptor(): LightProjectDescriptor {
-        if (getTestName(true).endsWith("WithAnnotation")) {
-            return KotlinLightProjectDescriptor.INSTANCE
-        }
-
-        return JAVA_LATEST
-    }
-
-    private fun testInjectionPresent(text: String, languageId: String? = null, unInjectShouldBePresent: Boolean = true) {
-        myFixture.configureByText("${getTestName(true)}.kt", text.trimMargin())
-
-        TestCase.assertFalse("Injection action is available. There's probably no injection at caret place",
-                             InjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
-
-        if (languageId != null) {
-            val injectedFile = (editor as? EditorWindow)?.injectedFile
-            assertEquals("Wrong injection language", languageId, injectedFile?.language?.id)
-        }
-
-        if (unInjectShouldBePresent) {
-            TestCase.assertTrue("UnInjection action is not available. There's no injection at caret place or some other troubles.",
-                                UnInjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
-        }
-    }
-
-    private fun doRemoveInjectionTest(before: String, after: String) {
-        myFixture.setCaresAboutInjection(false)
-
-        myFixture.configureByText("${getTestName(true)}.kt", before.trimMargin())
-
-        TestCase.assertTrue(UnInjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
-        UnInjectLanguageAction.invokeImpl(project, myFixture.editor, myFixture.file)
-
-        myFixture.checkResult(after.trimMargin())
-    }
-
-    private fun doFileReferenceInjectTest(before: String, after: String) {
-        doTest(FileReferenceInjector(), before, after)
-    }
-
-    private fun doTest(injectable: Injectable, before: String, after: String) {
-        val configuration = Configuration.getProjectInstance(project).advancedConfiguration
-        val allowed = configuration.isSourceModificationAllowed
-
-        configuration.isSourceModificationAllowed = true
-        try {
-            myFixture.configureByText("${getTestName(true)}.kt", before.trimMargin())
-            InjectLanguageAction.invokeImpl(project, myFixture.editor, myFixture.file, injectable)
-            myFixture.checkResult(after.trimMargin())
-        }
-        finally {
-            configuration.isSourceModificationAllowed = allowed
-        }
-    }
 }

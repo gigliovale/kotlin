@@ -166,6 +166,8 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         }
 
         private void writeFiles(List<KtFile> filesToCompile) {
+            if (filesToCompile.isEmpty()) return;
+
             System.out.println("Generating " + filesToCompile.size() + " files...");
             OutputFileCollection outputFiles;
             try {
@@ -212,6 +214,10 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             }
             else {
                 String text = FileUtil.loadFile(file, true);
+                //TODO: support multifile tests
+                if (text.contains("FILE:")) continue;
+                //TODO: support WITH_RUNTIME & WITH_REFLECT
+                if (text.contains("WITH_RUNTIME") || text.contains("WITH_REFLECT")) continue;
 
                 if (hasBoxMethod(text)) {
                     String generatedTestName = generateTestName(file.getName());

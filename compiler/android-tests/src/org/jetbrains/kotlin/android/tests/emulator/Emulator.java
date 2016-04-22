@@ -31,12 +31,17 @@ import java.util.regex.Pattern;
 
 public class Emulator {
 
+    public static final String ARM = "arm";
+    public static final String X86 = "x86";
+
     private final static Pattern EMULATOR_PATTERN = Pattern.compile("emulator-([0-9])*");
 
     private final PathManager pathManager;
+    private String platform;
 
-    public Emulator(PathManager pathManager) {
+    public Emulator(PathManager pathManager, String platform) {
         this.pathManager = pathManager;
+        this.platform = platform;
     }
 
     private GeneralCommandLine getCreateCommand() {
@@ -52,7 +57,14 @@ public class Emulator {
         commandLine.addParameter(pathManager.getAndroidEmulatorRoot());
         commandLine.addParameter("-t");
         commandLine.addParameter("1");
+
+        commandLine.addParameter("-b");
+        commandLine.addParameter(getEmulatorAbi());
         return commandLine;
+    }
+
+    private String getEmulatorAbi(){
+        return platform == X86 ? "x86" : "armeabi-v7a";
     }
 
     private GeneralCommandLine getStartCommand() {
@@ -83,13 +95,13 @@ public class Emulator {
     }
 
     @Nullable
-    private static GeneralCommandLine getStopCommand() {
+    private GeneralCommandLine getStopCommand() {
         if (SystemInfo.isWindows) {
             GeneralCommandLine commandLine = new GeneralCommandLine();
             commandLine.setExePath("taskkill");
             commandLine.addParameter("/F");
             commandLine.addParameter("/IM");
-            commandLine.addParameter("emulator-arm.exe");
+            commandLine.addParameter("emulator-" + platform + ".exe");
             return commandLine;
         }
         return null;
@@ -100,10 +112,15 @@ public class Emulator {
         OutputUtils.checkResult(RunUtils.execute(new RunUtils.RunSettings(getCreateCommand(), "no", true, null, false)));
     }
 
-    public void startServer() {
+    private GeneralCommandLine createAdbCommand() {
         GeneralCommandLine commandLine = new GeneralCommandLine();
         String adbCmdName = SystemInfo.isWindows ? "adb.exe" : "adb";
         commandLine.setExePath(pathManager.getPlatformToolsFolderInAndroidSdk() + "/" + adbCmdName);
+        return commandLine;
+    }
+
+    public void startServer() {
+        GeneralCommandLine commandLine = createAdbCommand();
         commandLine.addParameter("start-server");
         System.out.println("Start adb server...");
         OutputUtils.checkResult(RunUtils.execute(commandLine));
@@ -117,9 +134,7 @@ public class Emulator {
     }
 
     public void printLog() {
-        GeneralCommandLine commandLine = new GeneralCommandLine();
-        String adbCmdName = SystemInfo.isWindows ? "adb.exe" : "adb";
-        commandLine.setExePath(pathManager.getPlatformToolsFolderInAndroidSdk() + "/" + adbCmdName);
+        GeneralCommandLine commandLine = createAdbCommand();
         commandLine.addParameter("logcat");
         commandLine.addParameter("-v");
         commandLine.addParameter("time");
@@ -134,10 +149,21 @@ public class Emulator {
 
     public void stopEmulator() {
         System.out.println("Stopping emulator...");
+
+        GeneralCommandLine command = createAdbCommand();
+        command.addParameter("-s");
+        command.addParameter("emulator-5554");
+        command.addParameter("emu");
+        command.addParameter("kill");
+        RunUtils.execute(command);
+
         if (SystemInfo.isWindows) {
+            //TODO check that command above works on windows and remove this
             OutputUtils.checkResult(RunUtils.execute(getStopCommand()));
         }
-        finishProcess("emulator-arm");
+
+        finishProcess("emulator64-" + platform);
+        finishProcess("emulator-" + platform);
     }
 
     //Only for Unix
@@ -178,6 +204,8 @@ public class Emulator {
             for (String pid : processIds) {
                 GeneralCommandLine killCommand = new GeneralCommandLine();
                 killCommand.setExePath("kill");
+                killCommand.addParameter("-s");
+                killCommand.addParameter("9");
                 killCommand.addParameter(pid);
                 RunUtils.execute(killCommand);
             }
@@ -185,9 +213,7 @@ public class Emulator {
     }
 
     private void stopRedundantEmulators(PathManager pathManager) {
-        GeneralCommandLine commandLineForListOfDevices = new GeneralCommandLine();
-        String adbCmdName = SystemInfo.isWindows ? "adb.exe" : "adb";
-        commandLineForListOfDevices.setExePath(pathManager.getPlatformToolsFolderInAndroidSdk() + "/" + adbCmdName);
+        GeneralCommandLine commandLineForListOfDevices = createAdbCommand();
         commandLineForListOfDevices.addParameter("devices");
         RunResult runResult = RunUtils.execute(commandLineForListOfDevices);
         OutputUtils.checkResult(runResult);
@@ -207,7 +233,7 @@ public class Emulator {
             }
             else {
                 if (!isDdmsStopped && SystemInfo.isUnix) {
-                    finishProcess("emulator-arm");
+                    stopEmulator();
                     stopDdmsProcess();
                     isDdmsStopped = true;
                 }

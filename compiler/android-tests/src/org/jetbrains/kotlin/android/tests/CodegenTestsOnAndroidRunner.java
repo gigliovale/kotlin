@@ -55,6 +55,9 @@ public class CodegenTestsOnAndroidRunner {
         String resultOutput = runTests();
         if (resultOutput == null) return suite;
 
+        //Fix problem with exception parsing cause 'at' pattern
+        resultOutput = resultOutput.replaceAll("\\[checkenv\\] Installed at", "[checkenv] Installed_at");
+
         // Test name -> stackTrace
         Map<String, String> resultMap = parseOutputForFailedTests(resultOutput);
         final Statistics statistics;
@@ -175,7 +178,7 @@ public class CodegenTestsOnAndroidRunner {
         }
 
         SDKDownloader downloader = new SDKDownloader(pathManager);
-        Emulator emulator = new Emulator(pathManager);
+        Emulator emulator = new Emulator(pathManager, Emulator.ARM);
         AntRunner antRunner = new AntRunner(pathManager);
         downloader.downloadAll();
         downloader.unzipAll();

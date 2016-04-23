@@ -149,9 +149,14 @@ class QuickFixRegistrar : QuickFixContributor {
         CANNOT_CHANGE_ACCESS_PRIVILEGE.registerFactory(ChangeVisibilityModifierFix)
         CANNOT_WEAKEN_ACCESS_PRIVILEGE.registerFactory(ChangeVisibilityModifierFix)
 
-        INVISIBLE_REFERENCE.registerFactory(IncreaseVisibilityFix)
-        INVISIBLE_MEMBER.registerFactory(IncreaseVisibilityFix)
-        INVISIBLE_SETTER.registerFactory(IncreaseVisibilityFix)
+        INVISIBLE_REFERENCE.registerFactory(MakeVisibleFactory)
+        INVISIBLE_MEMBER.registerFactory(MakeVisibleFactory)
+        INVISIBLE_SETTER.registerFactory(MakeVisibleFactory)
+
+        for (exposed in listOf(EXPOSED_FUNCTION_RETURN_TYPE, EXPOSED_PARAMETER_TYPE, EXPOSED_PROPERTY_TYPE, EXPOSED_RECEIVER_TYPE,
+                               EXPOSED_SUPER_CLASS, EXPOSED_SUPER_INTERFACE, EXPOSED_TYPE_PARAMETER_BOUND)) {
+            exposed.registerFactory(ChangeVisibilityOnExposureFactory)
+        }
 
         REDUNDANT_NULLABLE.registerFactory(RemoveNullableFix.Factory(RemoveNullableFix.NullableKind.REDUNDANT))
         NULLABLE_SUPERTYPE.registerFactory(RemoveNullableFix.Factory(RemoveNullableFix.NullableKind.SUPERTYPE))

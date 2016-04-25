@@ -43,7 +43,7 @@ class DeserializationComponentsForJava(
                 storageManager, moduleDescriptor, classDataFinder, annotationAndConstantLoader, packageFragmentProvider, localClassResolver,
                 errorReporter, lookupTracker, FlexibleJavaClassifierTypeFactory, ClassDescriptorFactory.EMPTY,
                 notFoundClasses, JavaTypeCapabilitiesLoader,
-                additionalSupertypes = BuiltInClassesAreSerializableOnJvm(moduleDescriptor)
+                additionalClassPartsProvider = JvmBuiltInsAdditionalClassPartsProvider(moduleDescriptor, { moduleDescriptor })
         )
         localClassResolver.setDeserializationComponents(components)
     }

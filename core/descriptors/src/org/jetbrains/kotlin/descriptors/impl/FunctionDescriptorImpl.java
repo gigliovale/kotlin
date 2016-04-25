@@ -23,10 +23,7 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.DescriptorFactory;
-import org.jetbrains.kotlin.types.DescriptorSubstitutor;
-import org.jetbrains.kotlin.types.KotlinType;
-import org.jetbrains.kotlin.types.TypeSubstitutor;
-import org.jetbrains.kotlin.types.Variance;
+import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.utils.CollectionsKt;
 import org.jetbrains.kotlin.utils.SmartSet;
 
@@ -293,8 +290,8 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         return extensionReceiverParameter.getType();
     }
 
-    public class CopyConfiguration {
-        protected @NotNull TypeSubstitutor originalSubstitutor;
+    public class CopyConfiguration implements SimpleFunctionDescriptor.CopyBuilder<FunctionDescriptor> {
+        protected @NotNull TypeSubstitution substitution;
         protected @NotNull DeclarationDescriptor newOwner;
         protected @NotNull Modality newModality;
         protected @NotNull Visibility newVisibility;
@@ -302,6 +299,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         protected @NotNull Kind kind;
         protected @NotNull List<ValueParameterDescriptor> newValueParameterDescriptors;
         protected @Nullable KotlinType newExtensionReceiverParameterType;
+        protected @Nullable ReceiverParameterDescriptor dispatchReceiverParameter;
         protected @NotNull KotlinType newReturnType;
         protected @Nullable Name name;
         protected boolean copyOverrides = true;
@@ -312,7 +310,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         private List<TypeParameterDescriptor> newTypeParameters = null;
 
         public CopyConfiguration(
-                @NotNull TypeSubstitutor originalSubstitutor,
+                @NotNull TypeSubstitution substitution,
                 @NotNull DeclarationDescriptor newOwner,
                 @NotNull Modality newModality,
                 @NotNull Visibility newVisibility,
@@ -322,106 +320,139 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
                 @NotNull KotlinType newReturnType,
                 @Nullable Name name
         ) {
-            this.originalSubstitutor = originalSubstitutor;
+            this.substitution = substitution;
             this.newOwner = newOwner;
             this.newModality = newModality;
             this.newVisibility = newVisibility;
             this.kind = kind;
             this.newValueParameterDescriptors = newValueParameterDescriptors;
             this.newExtensionReceiverParameterType = newExtensionReceiverParameterType;
+            this.dispatchReceiverParameter = FunctionDescriptorImpl.this.dispatchReceiverParameter;
             this.newReturnType = newReturnType;
             this.name = name;
             this.isHiddenToOvercomeSignatureClash = isHiddenToOvercomeSignatureClash();
         }
 
+        @Override
         @NotNull
-        protected CopyConfiguration setOwner(@NotNull DeclarationDescriptor owner) {
+        public CopyConfiguration setOwner(@NotNull DeclarationDescriptor owner) {
             this.newOwner = owner;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setModality(@NotNull Modality modality) {
             this.newModality = modality;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setVisibility(@NotNull Visibility visibility) {
             this.newVisibility = visibility;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setKind(@NotNull Kind kind) {
             this.kind = kind;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setCopyOverrides(boolean copyOverrides) {
             this.copyOverrides = copyOverrides;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setName(@NotNull Name name) {
             this.name = name;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setValueParameters(@NotNull List<ValueParameterDescriptor> parameters) {
             this.newValueParameterDescriptors = parameters;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setTypeParameters(@NotNull List<TypeParameterDescriptor> parameters) {
             this.newTypeParameters = parameters;
             return this;
         }
 
+        @NotNull
+        @Override
         public CopyConfiguration setReturnType(@NotNull KotlinType type) {
             this.newReturnType = type;
             return this;
         }
 
+        @NotNull
+        @Override
         public CopyConfiguration setExtensionReceiverType(@Nullable KotlinType type) {
             this.newExtensionReceiverParameterType = type;
             return this;
         }
 
+        @Override
+        @NotNull
+        public CopyConfiguration setDispatchReceiverParameter(@Nullable ReceiverParameterDescriptor dispatchReceiverParameter) {
+            this.dispatchReceiverParameter = dispatchReceiverParameter;
+            return this;
+        }
+
+        @Override
         @NotNull
         public CopyConfiguration setOriginal(@NotNull FunctionDescriptor original) {
             this.original = original;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setSignatureChange() {
             this.signatureChange = true;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setPreserveSourceElement() {
             this.preserveSourceElement = true;
             return this;
         }
 
+        @Override
         @NotNull
         public CopyConfiguration setDropOriginalInContainingParts() {
             this.dropOriginalInContainingParts = true;
             return this;
         }
 
+        @Override
         @NotNull
-        public CopyConfiguration setHidden() {
+        public CopyConfiguration setHiddenToOvercomeSignatureClash() {
             isHiddenToOvercomeSignatureClash = true;
             return this;
         }
 
+        @NotNull
+        @Override
+        public CopyConfiguration setSubstitution(@NotNull TypeSubstitution substitution) {
+            this.substitution = substitution;
+            return this;
+        }
+
+        @Override
         @Nullable
         public FunctionDescriptor build() {
             return doSubstitute(this);
@@ -433,20 +464,21 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         }
 
         @NotNull
-        public TypeSubstitutor getOriginalSubstitutor() {
-            return originalSubstitutor;
+        public TypeSubstitution getSubstitution() {
+            return substitution;
         }
     }
 
+    @Override
     @NotNull
-    public CopyConfiguration newCopyBuilder() {
+    public CopyBuilder<? extends FunctionDescriptor> newCopyBuilder() {
         return newCopyBuilder(TypeSubstitutor.EMPTY);
     }
 
     @NotNull
     private CopyConfiguration newCopyBuilder(@NotNull TypeSubstitutor substitutor) {
         return new CopyConfiguration(
-                substitutor,
+                substitutor.getSubstitution(),
                 getContainingDeclaration(), getModality(), getVisibility(), getKind(), getValueParameters(),
                 getExtensionReceiverParameterType(), getReturnType(), null);
     }
@@ -464,13 +496,13 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             List<TypeParameterDescriptor> originalTypeParameters = getTypeParameters();
             substitutedTypeParameters = new ArrayList<TypeParameterDescriptor>(originalTypeParameters.size());
             substitutor = DescriptorSubstitutor.substituteTypeParameters(
-                    originalTypeParameters, configuration.originalSubstitutor.getSubstitution(), substitutedDescriptor, substitutedTypeParameters
+                    originalTypeParameters, configuration.substitution, substitutedDescriptor, substitutedTypeParameters
             );
         }
         else {
             // They should be already substituted
             substitutedTypeParameters = configuration.newTypeParameters;
-            substitutor = configuration.originalSubstitutor;
+            substitutor = configuration.substitution.buildSubstitutor();
         }
 
         KotlinType substitutedReceiverParameterType = null;
@@ -482,7 +514,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         }
 
         ReceiverParameterDescriptor substitutedExpectedThis = null;
-        if (dispatchReceiverParameter != null) {
+        if (configuration.dispatchReceiverParameter != null) {
             // When generating fake-overridden member it's dispatch receiver parameter has type of Base, and it's correct.
             // E.g.
             // class Base { fun foo() }
@@ -493,7 +525,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             //    // but it would if fake-overridden `foo` had `Derived` as it's dispatch receiver parameter type
             //    x.foo()
             // }
-            substitutedExpectedThis = dispatchReceiverParameter.substitute(substitutor);
+            substitutedExpectedThis = configuration.dispatchReceiverParameter.substitute(substitutor);
             if (substitutedExpectedThis == null) {
                 return null;
             }
@@ -536,7 +568,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         }
 
         if (configuration.copyOverrides && !getOriginal().getOverriddenDescriptors().isEmpty()) {
-            if (configuration.originalSubstitutor.isEmpty()) {
+            if (configuration.substitution.isEmpty()) {
                 Function0<Set<FunctionDescriptor>> overriddenFunctionsTask = lazyOverriddenFunctionsTask;
                 if (overriddenFunctionsTask != null) {
                     substitutedDescriptor.lazyOverriddenFunctionsTask = overriddenFunctionsTask;

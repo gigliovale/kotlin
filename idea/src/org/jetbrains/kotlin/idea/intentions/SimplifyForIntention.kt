@@ -20,16 +20,17 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiReference
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.util.Processor
 import com.intellij.util.Query
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
-import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
+import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import kotlin.collections.forEach as forEachStdLib
 
 class SimplifyForInspection : IntentionBasedInspection<KtForExpression>(SimplifyForIntention())
@@ -75,7 +76,7 @@ class SimplifyForIntention : SelfTargetingRangeIntention<KtForExpression>(
         var removeSelectorInLoopRange = false
         val propertiesToRemove: Array<KtProperty?>
 
-        if (DescriptorUtils.isSubclass(classDescriptor, JvmBuiltIns.Instance.mapEntry)) {
+        if (DescriptorUtils.isSubclass(classDescriptor, classDescriptor.builtIns.mapEntry)) {
             val loopRangeDescriptorName = element.loopRange.getResolvedCall(context)?.resultingDescriptor?.name
             if (loopRangeDescriptorName != null &&
                 (loopRangeDescriptorName.asString().equals("entries") || loopRangeDescriptorName.asString().equals("entrySet"))) {
@@ -122,7 +123,8 @@ class SimplifyForIntention : SelfTargetingRangeIntention<KtForExpression>(
             process: (Int, KtProperty) -> Unit,
             cancel: () -> Unit
     ) {
-        forEach {
+        // TODO: Remove SAM-constructor when KT-11265 will be fixed
+        forEach(Processor forEach@{
             val applicableUsage = getDataIfUsageIsApplicable(it, context)
             if (applicableUsage != null) {
                 val (property, descriptor) = applicableUsage
@@ -138,7 +140,7 @@ class SimplifyForIntention : SelfTargetingRangeIntention<KtForExpression>(
 
             cancel()
             return@forEach false
-        }
+        })
     }
 
     private fun Query<PsiReference>.iterateOverDataClassPropertiesUsagesWithIndex(
@@ -149,7 +151,7 @@ class SimplifyForIntention : SelfTargetingRangeIntention<KtForExpression>(
     ) {
         val valueParameters = dataClass.unsubstitutedPrimaryConstructor?.valueParameters ?: return
 
-        forEach {
+        forEach(Processor forEach@{
             val applicableUsage = getDataIfUsageIsApplicable(it, context)
             if (applicableUsage != null) {
                 val (property, descriptor) = applicableUsage
@@ -163,7 +165,7 @@ class SimplifyForIntention : SelfTargetingRangeIntention<KtForExpression>(
 
             cancel()
             return@forEach false
-        }
+        })
     }
 
     private fun getDataIfUsageIsApplicable(usage: PsiReference, context: BindingContext): UsageData? {

@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.analyzer
 
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.container.ComponentProvider
 import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.context.ProjectContext
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.TargetEnvironment
 import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.createModule
+import org.jetbrains.kotlin.utils.singletonOrEmptyList
 import java.util.*
 
 class ResolverForModule(
@@ -152,15 +154,18 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
             modulesContent: (M) -> ModuleContent,
             platformParameters: P,
             targetEnvironment: TargetEnvironment,
+            builtIns: KotlinBuiltIns,
             delegateResolver: ResolverForProject<M> = EmptyResolverForProject(),
-            packagePartProviderFactory: (M, ModuleContent) -> PackagePartProvider = { module, content -> PackagePartProvider.EMPTY }
+            packagePartProviderFactory: (M, ModuleContent) -> PackagePartProvider = { module, content -> PackagePartProvider.EMPTY },
+            firstDependency: M? = null
     ): ResolverForProject<M> {
         val storageManager = projectContext.storageManager
         fun createResolverForProject(): ResolverForProjectImpl<M> {
             val descriptorByModule = HashMap<M, ModuleDescriptorImpl>()
             modules.forEach {
                 module ->
-                descriptorByModule[module] = targetPlatform.createModule(module.name, storageManager, module.capabilities)
+                descriptorByModule[module] =
+                        targetPlatform.createModule(module.name, storageManager, builtIns, module.capabilities)
             }
             return ResolverForProjectImpl(debugName, descriptorByModule, delegateResolver)
         }
@@ -168,13 +173,13 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
         val resolverForProject = createResolverForProject()
 
         fun computeDependencyDescriptors(module: M): List<ModuleDescriptorImpl> {
-            val dependenciesDescriptors = module.dependencies().mapTo(ArrayList<ModuleDescriptorImpl>()) {
-                dependencyInfo ->
-                resolverForProject.descriptorForModule(dependencyInfo as M)
-            }
-
-            val builtinsModule = targetPlatform.builtIns.builtInsModule
-            module.dependencyOnBuiltIns().adjustDependencies(builtinsModule, dependenciesDescriptors)
+            val orderedDependencies = firstDependency.singletonOrEmptyList() + module.dependencies()
+            val dependenciesDescriptors = orderedDependencies.mapTo(ArrayList<ModuleDescriptorImpl>()) {
+                        dependencyInfo ->
+                        resolverForProject.descriptorForModule(dependencyInfo as M)
+                    }
+            module.dependencyOnBuiltIns().adjustDependencies(
+                    resolverForProject.descriptorForModule(module).builtIns.builtInsModule, dependenciesDescriptors)
             return dependenciesDescriptors
         }
 
@@ -201,11 +206,13 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
 
         addFriends()
 
+        val cache = WeakReferenceSLRUCache<M, ResolverForModule>(storageManager)
+
         fun initializeResolverForProject() {
             modules.forEach {
                 module ->
                 val descriptor = resolverForProject.descriptorForModule(module)
-                val computeResolverForModule = storageManager.createLazyValue {
+                val computeResolverForModule = cache.prepareValueComputation(module) {
                     val content = modulesContent(module)
                     createResolverForModule(
                             module, descriptor, projectContext.withModule(descriptor), modulesContent(module),

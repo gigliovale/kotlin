@@ -18,12 +18,14 @@ package org.jetbrains.kotlin.idea.caches.resolve
 
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.JdkOrderEntry
 import com.intellij.openapi.roots.LibraryOrderEntry
 import com.intellij.openapi.roots.ModuleRootManager
 import org.jetbrains.kotlin.analyzer.AnalyzerFacade
 import org.jetbrains.kotlin.analyzer.ModuleContent
 import org.jetbrains.kotlin.analyzer.ResolverForProject
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.context.GlobalContextImpl
 import org.jetbrains.kotlin.context.withProject
 import org.jetbrains.kotlin.idea.project.IdeaEnvironment
@@ -37,10 +39,12 @@ fun createModuleResolverProvider(
         debugName: String,
         project: Project,
         globalContext: GlobalContextImpl,
+        sdk: Sdk?,
         analyzerFacade: AnalyzerFacade<JvmPlatformParameters>,
         syntheticFiles: Collection<KtFile>,
         delegateResolver: ResolverForProject<IdeaModuleInfo>,
-        moduleFilter: (IdeaModuleInfo) -> Boolean
+        moduleFilter: (IdeaModuleInfo) -> Boolean,
+        builtIns: KotlinBuiltIns
 ): ModuleResolverProvider {
 
     val allModuleInfos = collectAllModuleInfosFromIdeaModel(project).toHashSet()
@@ -64,8 +68,9 @@ fun createModuleResolverProvider(
 
         val resolverForProject = analyzerFacade.setupResolverForProject(
                 debugName, globalContext.withProject(project), modulesToCreateResolversFor, modulesContent,
-                jvmPlatformParameters, IdeaEnvironment, delegateResolver,
-                { m, c -> IDEPackagePartProvider(c.moduleContentScope) }
+                jvmPlatformParameters, IdeaEnvironment, builtIns,
+                delegateResolver, { m, c -> IDEPackagePartProvider(c.moduleContentScope) },
+                sdk?.let { SdkInfo(project, it) }
         )
         return resolverForProject
     }

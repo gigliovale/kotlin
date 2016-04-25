@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.idea.decompiler.navigation
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.decompiler.KtDecompiledFile
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.DecompiledTextIndexer
@@ -26,14 +27,13 @@ import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope
 import org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelFunctionFqnNameIndex
 import org.jetbrains.kotlin.idea.stubindex.KotlinTopLevelPropertyFqnNameIndex
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
-import org.jetbrains.kotlin.load.kotlin.BuiltInClassesAreSerializableOnJvm
+import org.jetbrains.kotlin.load.kotlin.JvmBuiltInsAdditionalClassPartsProvider
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.DescriptorRendererModifier
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.resolveTopLevelClass
 import org.jetbrains.kotlin.types.ErrorUtils
@@ -125,8 +125,8 @@ object ByDescriptorIndexer : DecompiledTextIndexer<String> {
             if (descriptor !is ClassDescriptor) return null
 
             val classFqName = descriptor.fqNameSafe
-            if (BuiltInClassesAreSerializableOnJvm.isSerializableInJava(classFqName)) {
-                val builtInDescriptor = TargetPlatform.Default.builtIns.builtInsModule.resolveTopLevelClass(classFqName, NoLookupLocation.FROM_IDE)
+            if (JvmBuiltInsAdditionalClassPartsProvider.isSerializableInJava(classFqName)) {
+                val builtInDescriptor = DefaultBuiltIns.Instance.builtInsModule.resolveTopLevelClass(classFqName, NoLookupLocation.FROM_IDE)
                 return builtInDescriptor?.let { file.getDeclaration(this, it.toStringKey()) }
             }
             return null

@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.analyzer.AnalysisResult;
 import org.jetbrains.kotlin.context.ContextKt;
 import org.jetbrains.kotlin.context.ModuleContext;
 import org.jetbrains.kotlin.context.MutableModuleContext;
+import org.jetbrains.kotlin.context.ProjectContext;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.PackagePartProvider;
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.modules.Module;
 import org.jetbrains.kotlin.modules.TargetId;
 import org.jetbrains.kotlin.modules.TargetIdKt;
 import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.platform.JvmBuiltIns;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.BindingTrace;
@@ -160,10 +162,14 @@ public enum TopDownAnalyzerFacadeForJVM {
 
     @NotNull
     public static MutableModuleContext createContextWithSealedModule(@NotNull Project project, @NotNull String moduleName) {
+        ProjectContext projectContext = ContextKt.ProjectContext(project);
+        JvmBuiltIns builtIns = new JvmBuiltIns(projectContext.getStorageManager());
         MutableModuleContext context = ContextKt.ContextForNewModule(
-                project, Name.special("<" + moduleName + ">"), JvmPlatform.INSTANCE
+                projectContext, Name.special("<" + moduleName + ">"), JvmPlatform.INSTANCE,
+                builtIns
         );
-        context.setDependencies(context.getModule(), JvmPlatform.INSTANCE.getBuiltIns().getBuiltInsModule());
+        builtIns.setOwnerModuleDescriptor(context.getModule());
+        context.setDependencies(context.getModule(), context.getBuiltIns().getBuiltInsModule());
         return context;
     }
 }

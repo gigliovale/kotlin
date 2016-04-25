@@ -116,12 +116,12 @@ fun ContextForNewModule(
 }
 
 fun ContextForNewModule(
-        project: Project,
+        projectContext: ProjectContext,
         moduleName: Name,
-        targetPlatform: TargetPlatform
+        targetPlatform: TargetPlatform,
+        builtIns: KotlinBuiltIns
 ): MutableModuleContext {
-    val projectContext = ProjectContext(project)
-    val module = targetPlatform.createModule(moduleName, projectContext.storageManager)
+    val module = targetPlatform.createModule(moduleName, projectContext.storageManager, builtIns)
     return MutableModuleContextImpl(module, projectContext)
 }
 

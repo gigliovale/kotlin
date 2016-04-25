@@ -116,7 +116,8 @@ class DeserializedClassDescriptor(
     override fun getUnsubstitutedPrimaryConstructor(): ConstructorDescriptor? = primaryConstructor()
 
     private fun computeConstructors(): Collection<ConstructorDescriptor> =
-            computeSecondaryConstructors() + getUnsubstitutedPrimaryConstructor().singletonOrEmptyList()
+            computeSecondaryConstructors() + unsubstitutedPrimaryConstructor.singletonOrEmptyList() +
+            c.components.additionalClassPartsProvider.getConstructors(this)
 
     private fun computeSecondaryConstructors(): List<ConstructorDescriptor> =
             classProto.constructorList.filter { Flags.IS_SECONDARY.get(it.flags) }.map {
@@ -152,7 +153,7 @@ class DeserializedClassDescriptor(
         override fun computeSupertypes(): Collection<KotlinType> {
             val result = classProto.supertypes(c.typeTable).map { supertypeProto ->
                 c.typeDeserializer.type(supertypeProto)
-            } + c.components.additionalSupertypes.forClass(this@DeserializedClassDescriptor)
+            } + c.components.additionalClassPartsProvider.getSupertypes(this@DeserializedClassDescriptor)
 
             val unresolved = result.mapNotNull { supertype ->
                 supertype.constructor.declarationDescriptor as? NotFoundClasses.MockClassDescriptor
@@ -199,6 +200,8 @@ class DeserializedClassDescriptor(
             for (supertype in classDescriptor.getTypeConstructor().supertypes) {
                 fromSupertypes.addAll(supertype.memberScope.getContributedFunctions(name, NoLookupLocation.FOR_ALREADY_TRACKED))
             }
+
+            functions.addAll(c.components.additionalClassPartsProvider.getFunctions(name, this@DeserializedClassDescriptor))
             generateFakeOverrides(name, fromSupertypes, functions)
         }
 
@@ -226,17 +229,15 @@ class DeserializedClassDescriptor(
             })
         }
 
-        override fun addNonDeclaredDescriptors(result: MutableCollection<DeclarationDescriptor>, location: LookupLocation) {
-            for (supertype in classDescriptor.getTypeConstructor().supertypes) {
-                for (descriptor in supertype.memberScope.getContributedDescriptors()) {
-                    if (descriptor is FunctionDescriptor) {
-                        result.addAll(getContributedFunctions(descriptor.name, location))
-                    }
-                    else if (descriptor is PropertyDescriptor) {
-                        result.addAll(getContributedVariables(descriptor.name, location))
-                    }
-                    // Nothing else is inherited
-                }
+        override fun getNonDeclaredFunctionNames(location: LookupLocation): Set<Name> {
+            return classDescriptor.typeConstructor.supertypes.flatMapTo(LinkedHashSet()) {
+                it.memberScope.getContributedDescriptors().filterIsInstance<SimpleFunctionDescriptor>().map { it.name }
+            } + c.components.additionalClassPartsProvider.getFunctionsNames(this@DeserializedClassDescriptor)
+        }
+
+        override fun getNonDeclaredVariableNames(location: LookupLocation): Set<Name> {
+            return classDescriptor.typeConstructor.supertypes.flatMapTo(LinkedHashSet()) {
+                it.memberScope.getContributedDescriptors().filterIsInstance<PropertyDescriptor>().map { it.name }
             }
         }
 

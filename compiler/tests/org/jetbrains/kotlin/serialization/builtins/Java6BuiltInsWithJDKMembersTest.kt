@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.serialization.deserialization
+package org.jetbrains.kotlin.serialization.builtins
 
-import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedClassDescriptor
-import org.jetbrains.kotlin.types.KotlinType
-
-interface AdditionalSupertypes {
-    fun forClass(classDescriptor: DeserializedClassDescriptor): Collection<KotlinType>
-
-    object None : AdditionalSupertypes {
-        override fun forClass(classDescriptor: DeserializedClassDescriptor): Collection<KotlinType> = emptyList()
+class Java6BuiltInsWithJDKMembersTest : AbstractBuiltInsWithJDKMembersTest() {
+    fun testLoadBuiltIns() {
+        doTest("java6")
     }
 }

@@ -37,6 +37,7 @@ import junit.framework.ComparisonFailure
 import junit.framework.TestCase
 import org.jetbrains.kotlin.asJava.getRepresentativeLightMethod
 import org.jetbrains.kotlin.asJava.toLightMethods
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.ui.KotlinMethodNode
@@ -52,7 +53,6 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
-import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.KotlinTestUtils
@@ -63,7 +63,7 @@ import java.util.*
 
 class KotlinChangeSignatureTest : KotlinCodeInsightTestCase() {
     companion object {
-        private val BUILT_INS = JvmPlatform.builtIns
+        private val BUILT_INS = DefaultBuiltIns.Instance
         private val EXTENSIONS = arrayOf(".kt", ".java")
     }
 

@@ -31,8 +31,8 @@ import org.jetbrains.kotlin.name.FqNameUnsafe;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.scopes.MemberScope;
-import org.jetbrains.kotlin.serialization.deserialization.AdditionalSupertypes;
-import org.jetbrains.kotlin.storage.LockBasedStorageManager;
+import org.jetbrains.kotlin.serialization.deserialization.AdditionalClassPartsProvider;
+import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker;
 
@@ -61,22 +61,20 @@ public abstract class KotlinBuiltIns {
     );
 
     protected final ModuleDescriptorImpl builtInsModule;
-    private final BuiltInsPackageFragment builtInsPackageFragment;
-    private final BuiltInsPackageFragment collectionsPackageFragment;
-    private final BuiltInsPackageFragment rangesPackageFragment;
-    private final BuiltInsPackageFragment annotationPackageFragment;
+    private final PackageFragmentDescriptor builtInsPackageFragment;
+    private final PackageFragmentDescriptor collectionsPackageFragment;
+    private final PackageFragmentDescriptor rangesPackageFragment;
+    private final PackageFragmentDescriptor annotationPackageFragment;
 
-    private final Set<BuiltInsPackageFragment> builtInsPackageFragments;
+    private final Set<PackageFragmentDescriptor> builtInsPackageFragments;
 
     private final Map<PrimitiveType, KotlinType> primitiveTypeToArrayKotlinType;
     private final Map<KotlinType, KotlinType> primitiveKotlinTypeToKotlinArrayType;
     private final Map<KotlinType, KotlinType> kotlinArrayTypeToPrimitiveKotlinType;
-    private final Map<FqName, BuiltInsPackageFragment> packageNameToPackageFragment;
 
     public static final FqNames FQ_NAMES = new FqNames();
 
-    protected KotlinBuiltIns() {
-        LockBasedStorageManager storageManager = new LockBasedStorageManager();
+    protected KotlinBuiltIns(@NotNull StorageManager storageManager) {
         builtInsModule = new ModuleDescriptorImpl(
                 Name.special("<built-ins module>"), storageManager, ModuleParameters.Empty.INSTANCE, this
         );
@@ -84,7 +82,7 @@ public abstract class KotlinBuiltIns {
         PackageFragmentProvider packageFragmentProvider = BuiltInsPackageFragmentProviderKt.createBuiltInPackageFragmentProvider(
                 storageManager, builtInsModule, BUILT_INS_PACKAGE_FQ_NAMES,
                 new BuiltInFictitiousFunctionClassFactory(storageManager, builtInsModule),
-                getAdditionalSupertypesProvider(),
+                getAdditionalClassPartsProvider(),
                 new Function1<String, InputStream>() {
                     @Override
                     public InputStream invoke(String path) {
@@ -96,14 +94,14 @@ public abstract class KotlinBuiltIns {
         builtInsModule.initialize(packageFragmentProvider);
         builtInsModule.setDependencies(builtInsModule);
 
-        packageNameToPackageFragment = new LinkedHashMap<FqName, BuiltInsPackageFragment>();
+        Map<FqName, PackageFragmentDescriptor> packageNameToPackageFragment = new LinkedHashMap<FqName, PackageFragmentDescriptor>();
 
         builtInsPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, BUILT_INS_PACKAGE_FQ_NAME);
         collectionsPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, COLLECTIONS_PACKAGE_FQ_NAME);
         rangesPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, RANGES_PACKAGE_FQ_NAME);
         annotationPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, ANNOTATION_PACKAGE_FQ_NAME);
 
-        builtInsPackageFragments = new LinkedHashSet<BuiltInsPackageFragment>(packageNameToPackageFragment.values());
+        builtInsPackageFragments = new LinkedHashSet<PackageFragmentDescriptor>(packageNameToPackageFragment.values());
 
         primitiveTypeToArrayKotlinType = new EnumMap<PrimitiveType, KotlinType>(PrimitiveType.class);
         primitiveKotlinTypeToKotlinArrayType = new HashMap<KotlinType, KotlinType>();
@@ -114,8 +112,8 @@ public abstract class KotlinBuiltIns {
     }
 
     @NotNull
-    protected AdditionalSupertypes getAdditionalSupertypesProvider() {
-        return AdditionalSupertypes.None.INSTANCE;
+    protected AdditionalClassPartsProvider getAdditionalClassPartsProvider() {
+        return AdditionalClassPartsProvider.None.INSTANCE;
     }
 
     private void makePrimitive(@NotNull PrimitiveType primitiveType) {
@@ -129,12 +127,12 @@ public abstract class KotlinBuiltIns {
 
 
     @NotNull
-    private static BuiltInsPackageFragment createPackage(
+    private static PackageFragmentDescriptor createPackage(
             @NotNull PackageFragmentProvider fragmentProvider,
-            @NotNull Map<FqName, BuiltInsPackageFragment> packageNameToPackageFragment,
+            @NotNull Map<FqName, PackageFragmentDescriptor> packageNameToPackageFragment,
             @NotNull FqName packageFqName
     ) {
-        BuiltInsPackageFragment packageFragment = (BuiltInsPackageFragment) single(fragmentProvider.getPackageFragments(packageFqName));
+        PackageFragmentDescriptor packageFragment = single(fragmentProvider.getPackageFragments(packageFqName));
         packageNameToPackageFragment.put(packageFqName, packageFragment);
         return packageFragment;
     }
@@ -165,10 +163,12 @@ public abstract class KotlinBuiltIns {
 
 
         public final FqName throwable = fqName("Throwable");
+        public final FqName comparable = fqName("Comparable");
 
         public final FqName deprecated = fqName("Deprecated");
         public final FqName deprecationLevel = fqName("DeprecationLevel");
         public final FqName extensionFunctionType = fqName("ExtensionFunctionType");
+        public final FqName annotation = fqName("Annotation");
         public final FqName target = annotationName("Target");
         public final FqName annotationTarget = annotationName("AnnotationTarget");
         public final FqName annotationRetention = annotationName("AnnotationRetention");
@@ -246,7 +246,7 @@ public abstract class KotlinBuiltIns {
     }
 
     @NotNull
-    public Set<BuiltInsPackageFragment> getBuiltInsPackageFragments() {
+    public Set<PackageFragmentDescriptor> getBuiltInsPackageFragments() {
         return builtInsPackageFragments;
     }
 
@@ -288,14 +288,14 @@ public abstract class KotlinBuiltIns {
 
     @Nullable
     public ClassDescriptor getBuiltInClassByFqNameNullable(@NotNull FqName fqName) {
-        if (!fqName.isRoot()) {
-            FqName parent = fqName.parent();
-            BuiltInsPackageFragment packageFragment = packageNameToPackageFragment.get(parent);
-            if (packageFragment != null) {
-                return getBuiltInClassByNameNullable(fqName.shortName(), packageFragment);
-            }
-        }
-        return null;
+        return DescriptorUtilKt.resolveClassByFqName(builtInsModule, fqName, NoLookupLocation.FROM_BUILTINS);
+    }
+
+    @NotNull
+    public ClassDescriptor getBuiltInClassByFqName(@NotNull FqName fqName) {
+        ClassDescriptor descriptor = getBuiltInClassByFqNameNullable(fqName);
+        assert descriptor != null : "Can't find built-in class " + fqName;
+        return descriptor;
     }
 
     @Nullable
@@ -406,6 +406,11 @@ public abstract class KotlinBuiltIns {
     @NotNull
     public static String getFunctionName(int parameterCount) {
         return "Function" + parameterCount;
+    }
+
+    @NotNull
+    public static FqName getFunctionFqName(int parameterCount) {
+        return BUILT_INS_PACKAGE_FQ_NAME.child(Name.identifier(getFunctionName(parameterCount)));
     }
 
     @NotNull
@@ -913,6 +918,10 @@ public abstract class KotlinBuiltIns {
         }
 
         return false;
+    }
+
+    public static FqName getPrimitiveFqName(@NotNull PrimitiveType primitiveType) {
+        return BUILT_INS_PACKAGE_FQ_NAME.child(primitiveType.getTypeName());
     }
 
     public static boolean isSuppressAnnotation(@NotNull AnnotationDescriptor annotationDescriptor) {

@@ -25,6 +25,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.analyzer.AnalysisResult;
+import org.jetbrains.kotlin.builtins.DefaultBuiltIns;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
@@ -34,7 +35,6 @@ import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
-import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
 import org.jetbrains.kotlin.types.ErrorUtils;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -236,7 +236,8 @@ public abstract class ExpectedResolveData {
                 KtTypeReference typeReference = getAncestorOfType(KtTypeReference.class, element);
                 if (expectedDescriptor != null) {
                     DeclarationDescriptor actual = bindingContext.get(REFERENCE_TARGET, reference);
-                    assertSame("Expected: " + name, expectedDescriptor.getOriginal(), actual == null
+
+                    assertDescriptorsEqual("Expected: " + name, expectedDescriptor.getOriginal(), actual == null
                                                                                       ? null
                                                                                       : actual.getOriginal());
                     continue;
@@ -245,7 +246,7 @@ public abstract class ExpectedResolveData {
                 KotlinType actualType = bindingContext.get(BindingContext.TYPE, typeReference);
                 assertNotNull("Type " + name + " not resolved for reference " + name, actualType);
                 ClassifierDescriptor expectedClass = getBuiltinClass(name.substring(STANDARD_PREFIX.length()));
-                assertSame("Type resolution mismatch: ", expectedClass.getTypeConstructor(), actualType.getConstructor());
+                assertTypeConstructorEquals("Type resolution mismatch: ", expectedClass.getTypeConstructor(), actualType.getConstructor());
                 continue;
             }
             assert expected != null : "No declaration for " + name;
@@ -325,8 +326,25 @@ public abstract class ExpectedResolveData {
             }
 
             assertNotNull(expression.getText() + " type is null", expressionType);
-            assertSame("At " + position + ": ", expectedTypeConstructor, expressionType.getConstructor());
+            assertTypeConstructorEquals("At " + position + ": ", expectedTypeConstructor, expressionType.getConstructor());
         }
+    }
+
+    private static void assertTypeConstructorEquals(String message, TypeConstructor expected, TypeConstructor actual) {
+        assertDescriptorsEqual(message, expected.getDeclarationDescriptor(), actual.getDeclarationDescriptor());
+    }
+
+    private static void assertDescriptorsEqual(String message, DeclarationDescriptor expected, DeclarationDescriptor actual) {
+        if (DescriptorEquivalenceForOverrides.INSTANCE.areEquivalent(expected, actual)) {
+            return;
+        }
+        String formatted = "";
+        if (message != null) {
+            formatted = message + " ";
+        }
+
+        fail(formatted + "expected same:<" + expected + "> was not:<" + actual
+             + ">");
     }
 
     @NotNull
@@ -334,10 +352,10 @@ public abstract class ExpectedResolveData {
         ClassifierDescriptor expectedClass;
 
         if (nameOrFqName.indexOf('.') >= 0) {
-            expectedClass = JvmPlatform.INSTANCE.getBuiltIns().getBuiltInClassByFqNameNullable(FqName.fromSegments(Arrays.asList(nameOrFqName.split("\\."))));
+            expectedClass = DefaultBuiltIns.getInstance().getBuiltInClassByFqNameNullable(FqName.fromSegments(Arrays.asList(nameOrFqName.split("\\."))));
         }
         else {
-            expectedClass = JvmPlatform.INSTANCE.getBuiltIns().getBuiltInClassByNameNullable(Name.identifier(nameOrFqName));
+            expectedClass = DefaultBuiltIns.getInstance().getBuiltInClassByNameNullable(Name.identifier(nameOrFqName));
         }
         assertNotNull("Expected class not found: " + nameOrFqName, expectedClass);
 

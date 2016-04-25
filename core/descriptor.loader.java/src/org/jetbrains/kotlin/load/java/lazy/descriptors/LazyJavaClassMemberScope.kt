@@ -82,7 +82,7 @@ class LazyJavaClassMemberScope(
             result.add(descriptor)
             result.addIfNotNull(c.components.samConversionResolver.resolveSamAdapter(descriptor))
         }
-        
+
         enhanceSignatures(
                 result.ifEmpty { emptyOrSingletonList(createDefaultConstructor()) }
         ).toReadOnlyList()
@@ -143,6 +143,13 @@ class LazyJavaClassMemberScope(
             builtinSpecialFromSuperTypes.any { isOverridableRenamedDescriptor(it, methodDescriptor) }
         }
     }
+
+    private fun SimpleFunctionDescriptor.createRenamedCopy(builtinName: Name): SimpleFunctionDescriptor =
+            this.newCopyBuilder().apply {
+                setName(builtinName)
+                setSignatureChange()
+                setPreserveSourceElement()
+            }.build()!!
 
     private fun isOverridableRenamedDescriptor(superDescriptor: FunctionDescriptor, subDescriptor: FunctionDescriptor): Boolean {
         // if we check 'removeAt', get original sub-descriptor to distinct `remove(int)` and `remove(E)` in Java
@@ -222,7 +229,7 @@ class LazyJavaClassMemberScope(
             return
         }
 
-        var specialBuiltinsFromSuperTypes = SmartSet.create<SimpleFunctionDescriptor>()
+        val specialBuiltinsFromSuperTypes = SmartSet.create<SimpleFunctionDescriptor>()
 
         // Merge functions with same signatures
         val mergedFunctionFromSuperTypes = resolveOverridesForNonStaticMembers(
@@ -316,10 +323,11 @@ class LazyJavaClassMemberScope(
     private fun SimpleFunctionDescriptor.createHiddenCopyIfBuiltinAlreadyAccidentallyOverridden(
             specialBuiltin: CallableDescriptor,
             alreadyDeclaredFunctions: Collection<SimpleFunctionDescriptor>
-    ) = if (alreadyDeclaredFunctions.none { this != it && it.doesOverride(specialBuiltin) })
+    ): SimpleFunctionDescriptor =
+        if (alreadyDeclaredFunctions.none { this != it && it.doesOverride(specialBuiltin) })
             this
         else
-            createHiddenCopyToOvercomeSignatureClash()
+            newCopyBuilder().setHiddenToOvercomeSignatureClash().build()!!
 
     private fun createOverrideForBuiltinFunctionWithErasedParameterIfNeeded(
             overridden: FunctionDescriptor,
@@ -329,17 +337,19 @@ class LazyJavaClassMemberScope(
             it.doesOverrideBuiltinFunctionWithErasedValueParameters(overridden)
         }?.let {
             override ->
-            override.createCopyWithNewValueParameters(
-                    copyValueParameters(overridden.valueParameters.map { it.type }, override.valueParameters, overridden))
-
+            override.newCopyBuilder().apply {
+                setValueParameters(copyValueParameters(overridden.valueParameters.map { it.type }, override.valueParameters, overridden))
+                setSignatureChange()
+                setPreserveSourceElement()
+            }.build()
         }
     }
 
     private fun getFunctionsFromSupertypes(name: Name): Set<SimpleFunctionDescriptor> {
-          return ownerDescriptor.typeConstructor.supertypes.flatMapTo(LinkedHashSet()) {
-              it.memberScope.getContributedFunctions(name, NoLookupLocation.WHEN_GET_SUPER_MEMBERS)
-          }
-      }
+        return ownerDescriptor.typeConstructor.supertypes.flatMapTo(LinkedHashSet()) {
+            it.memberScope.getContributedFunctions(name, NoLookupLocation.WHEN_GET_SUPER_MEMBERS)
+        }
+    }
 
     override fun computeNonDeclaredProperties(name: Name, result: MutableCollection<PropertyDescriptor>) {
         if (jClass.isAnnotationType) {

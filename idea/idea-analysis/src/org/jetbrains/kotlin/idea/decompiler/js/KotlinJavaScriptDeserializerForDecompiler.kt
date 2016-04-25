@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.serialization.deserialization.descriptors.Deserializ
 import org.jetbrains.kotlin.serialization.js.JsSerializerProtocol
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptClassDataFinder
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializedResourcePaths
+import org.jetbrains.kotlin.types.DynamicTypeFactory
 import java.io.ByteArrayInputStream
 
 class KotlinJavaScriptDeserializerForDecompiler(
@@ -61,7 +62,7 @@ class KotlinJavaScriptDeserializerForDecompiler(
         deserializationComponents = DeserializationComponents(
                 storageManager, moduleDescriptor, classDataFinder, annotationAndConstantLoader, packageFragmentProvider,
                 ResolveEverythingToKotlinAnyLocalClassResolver(targetPlatform.builtIns), LoggingErrorReporter(LOG),
-                LookupTracker.DO_NOTHING, FlexibleTypeCapabilitiesDeserializer.Dynamic, ClassDescriptorFactory.EMPTY,
+                LookupTracker.DO_NOTHING, DynamicTypeFactory, ClassDescriptorFactory.EMPTY,
                 notFoundClasses
         )
     }

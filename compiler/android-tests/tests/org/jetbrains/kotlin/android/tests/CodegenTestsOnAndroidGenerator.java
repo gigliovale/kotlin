@@ -24,14 +24,16 @@ import com.intellij.testFramework.UsefulTestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
+import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.codegen.CodegenTestFiles;
 import org.jetbrains.kotlin.codegen.GenerationUtils;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
-import org.jetbrains.kotlin.generators.tests.generator.TestGeneratorUtil;
 import org.jetbrains.kotlin.idea.KotlinFileType;
+import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.test.ConfigurationKind;
+import org.jetbrains.kotlin.test.InTextDirectivesUtils;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
 import org.jetbrains.kotlin.test.TestJdkKind;
 import org.jetbrains.kotlin.utils.Printer;
@@ -131,22 +133,22 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     }
 
     private class FilesWriter {
-        private final boolean isFullJdk;
+        private final boolean isFullJdkAndRuntime;
 
         public List<KtFile> files = new ArrayList<KtFile>();
         private KotlinCoreEnvironment environment;
 
-        private FilesWriter(boolean isFullJdk) {
-            this.isFullJdk = isFullJdk;
-            environment = createEnvironment(isFullJdk);
+        private FilesWriter(boolean isFullJdkAndRuntime) {
+            this.isFullJdkAndRuntime = isFullJdkAndRuntime;
+            environment = createEnvironment(isFullJdkAndRuntime);
         }
 
-        private KotlinCoreEnvironment createEnvironment(boolean isFullJdk) {
-            return isFullJdk ?
+        private KotlinCoreEnvironment createEnvironment(boolean isFullJdkAndRuntime) {
+            return isFullJdkAndRuntime ?
                    KotlinTestUtils.createEnvironmentWithJdkAndNullabilityAnnotationsFromIdea(
                            myTestRootDisposable, ConfigurationKind.ALL, TestJdkKind.FULL_JDK
                    ) :
-                   KotlinTestUtils.createEnvironmentWithMockJdkAndIdeaAnnotations(myTestRootDisposable);
+                   KotlinTestUtils.createEnvironmentWithMockJdkAndIdeaAnnotations(myTestRootDisposable, ConfigurationKind.JDK_ONLY);
         }
 
         public boolean shouldWriteFilesOnDisk() {
@@ -162,17 +164,22 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         public void writeFilesOnDisk() {
             writeFiles(files);
             files = new ArrayList<KtFile>();
-            environment = createEnvironment(isFullJdk);
+            environment = createEnvironment(isFullJdkAndRuntime);
         }
 
         private void writeFiles(List<KtFile> filesToCompile) {
             if (filesToCompile.isEmpty()) return;
 
-            System.out.println("Generating " + filesToCompile.size() + " files...");
+            System.out.println("Generating " + filesToCompile.size() + " files" + (isFullJdkAndRuntime
+                                                                                   ? " (full jdk and runtime)" : "") + "...");
             OutputFileCollection outputFiles;
             try {
-                outputFiles = GenerationUtils
-                        .compileManyFilesGetGenerationStateForTest(filesToCompile.iterator().next().getProject(), filesToCompile).getFactory();
+                outputFiles = GenerationUtils.compileManyFilesGetGenerationStateForTest(
+                        filesToCompile.iterator().next().getProject(),
+                        filesToCompile,
+                        new JvmPackagePartProvider(environment),
+                        null
+                ).getFactory();
             }
             catch (Throwable e) {
                 throw new RuntimeException(e);
@@ -188,6 +195,8 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         }
     }
 
+    private int counter;
+
     private void processFiles(
             @NotNull Printer printer,
             @NotNull File[] files,
@@ -195,7 +204,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             @NotNull FilesWriter holderMock)
             throws IOException
     {
-
+        if (counter > 10) return;
         holderFull.writeFilesOnDiskIfNeeded();
         holderMock.writeFilesOnDiskIfNeeded();
 
@@ -216,17 +225,19 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
                 String text = FileUtil.loadFile(file, true);
                 //TODO: support multifile tests
                 if (text.contains("FILE:")) continue;
-                //TODO: support WITH_RUNTIME & WITH_REFLECT
-                if (text.contains("WITH_RUNTIME") || text.contains("WITH_REFLECT")) continue;
+                //TODO: support JvmFileName annotation & WITH_REFLECT directive
+                if (InTextDirectivesUtils.isDirectiveDefined(text, "WITH_REFLECT") || text.contains("JvmFileName")) continue;
 
                 if (hasBoxMethod(text)) {
+                    counter++;
                     String generatedTestName = generateTestName(file.getName());
                     String packageName = file.getPath().replaceAll("\\\\|-|\\.|/", "_");
                     text = changePackage(packageName, text);
 
-                    // TODO: use holderMock when there's no WITH_RUNTIME or WITH_REFLECT in the test
-                    CodegenTestFiles codegenFile = CodegenTestFiles.create(file.getName(), text, holderFull.environment.getProject());
-                    holderFull.files.add(codegenFile.getPsiFile());
+                    FilesWriter filesHolder = InTextDirectivesUtils.isDirectiveDefined(text, "FULL_JDK") ||
+                                              InTextDirectivesUtils.isDirectiveDefined(text, "WITH_RUNTIME") ? holderFull : holderMock;
+                    CodegenTestFiles codegenFile = CodegenTestFiles.create(file.getName(), text, filesHolder.environment.getProject());
+                    filesHolder.files.add(codegenFile.getPsiFile());
 
                     generateTestMethod(printer, generatedTestName, StringUtil.escapeStringCharacters(file.getPath()));
                 }
@@ -244,7 +255,14 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             return matcher.replaceAll("package " + testName);
         }
         else {
-            return "package " + testName + ";\n" + text;
+            String packageDirective = "package " + testName + ";\n";
+            if (text.contains("@file:")) {
+                int index = text.lastIndexOf("@file:");
+                int packageDirectiveIndex = text.indexOf("\n", index);
+                return text.substring(0, packageDirectiveIndex + 1) + packageDirective + text.substring(packageDirectiveIndex + 1);
+            } else {
+                return packageDirective + text;
+            }
         }
     }
 
@@ -258,7 +276,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     }
 
     private String generateTestName(String fileName) {
-        String result = TestGeneratorUtil.escapeForJavaIdentifier(FileUtil.getNameWithoutExtension(StringUtil.capitalize(fileName)));
+        String result = JvmAbi.sanitizeAsJavaIdentifier(FileUtil.getNameWithoutExtension(StringUtil.capitalize(fileName)));
 
         int i = 0;
         while (generatedTestNames.contains(result)) {

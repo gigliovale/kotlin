@@ -17,8 +17,9 @@ New features:
 - [KT-11692](https://youtrack.jetbrains.com/issue/KT-11692) Support Spring model diagrams for Kotlin classes
 - [KT-11574](https://youtrack.jetbrains.com/issue/KT-11574) Support predefined Java positions for language injection
 - [KT-2428](https://youtrack.jetbrains.com/issue/KT-11574) Support basic use-cases of language injection for expressions marked with @Language annotation
-- Add comment or @Language annotation after "Inject language or reference" intention automatically
+- [KT-11472](https://youtrack.jetbrains.com/issue/KT-11472) Add comment or @Language annotation after "Inject language or reference" intention automatically
 - Apply injection for the literals in property initializer through property usages
+- Enable injection from Java or Kotlin function declaration by annotating parameter with @Language annotation
 - [KT-11807](https://youtrack.jetbrains.com/issue/KT-11807) Use function body template when generating overriding functions with default body
 
 Issues fixed:
@@ -44,6 +45,7 @@ Issues fixed:
 - [KT-10174](https://youtrack.jetbrains.com/issue/KT-10174) Optimize imports after applying "Move declaration to separate file" intention
 - [KT-12035](https://youtrack.jetbrains.com/issue/KT-12035) Auto-format cast expressions
 - [KT-12018](https://youtrack.jetbrains.com/issue/KT-12018) Auto-format spaces between function name and arguments in infix calls
+- [KT-12067](https://youtrack.jetbrains.com/issue/KT-12067) Deadlock in Kotlin debugger fixed
 
 #### Debugger
 
@@ -215,6 +217,7 @@ Issues fixed:
 - [KT-11720](https://youtrack.jetbrains.com/issue/KT-11720) Fixed renaming of Kotlin beans through SpEL references
 - [KT-11719](https://youtrack.jetbrains.com/issue/KT-11719) Fixed renaming of Kotlin parameters references in XML files
 - [KT-11736](https://youtrack.jetbrains.com/issue/KT-11736) Fixed searching of Java usages for @JvmStatic properties and @JvmStatic @JvmOverloads functions
+- [KT-11862](https://youtrack.jetbrains.com/issue/KT-11862) Fixed bogus warnings about unresolved types in the Change Signature dialog
 - Fix several issues leading to exceptions: [KT-11579](https://youtrack.jetbrains.com/issue/KT-11579), [KT-11580](https://youtrack.jetbrains.com/issue/KT-11580), [KT-11777](https://youtrack.jetbrains.com/issue/KT-11777), [KT-11868](https://youtrack.jetbrains.com/issue/KT-11868), [KT-11845](https://youtrack.jetbrains.com/issue/KT-11845)
 - Fixed NoSuchFieldException in Kotlin module settings on IDEA Ultimate
 

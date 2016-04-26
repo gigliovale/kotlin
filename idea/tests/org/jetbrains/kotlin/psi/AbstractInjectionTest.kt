@@ -20,6 +20,7 @@ import com.intellij.injected.editor.EditorWindow
 import com.intellij.psi.injection.Injectable
 import com.intellij.testFramework.LightProjectDescriptor
 import junit.framework.TestCase
+import org.intellij.lang.annotations.Language
 import org.intellij.plugins.intelliLang.Configuration
 import org.intellij.plugins.intelliLang.inject.InjectLanguageAction
 import org.intellij.plugins.intelliLang.inject.UnInjectLanguageAction
@@ -39,15 +40,19 @@ abstract class AbstractInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
         }
     }
 
-    protected fun assertInjectionPresent(text: String, languageId: String? = null, unInjectShouldBePresent: Boolean = true) {
-        myFixture.configureByText("${getTestName(true)}.kt", text.trimMargin())
+    protected fun doInjectionPresentTest(@Language("kotlin") text: String, languageId: String? = null, unInjectShouldBePresent: Boolean = true) {
+        myFixture.configureByText("${getTestName(true)}.kt", text.trimIndent())
+        assertInjectionPresent(languageId, unInjectShouldBePresent)
+    }
 
+
+    protected fun assertInjectionPresent(languageId: String?, unInjectShouldBePresent: Boolean) {
         TestCase.assertFalse("Injection action is available. There's probably no injection at caret place",
                              InjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
 
         if (languageId != null) {
             val injectedFile = (editor as? EditorWindow)?.injectedFile
-            KotlinLightCodeInsightFixtureTestCaseBase.assertEquals("Wrong injection language", languageId, injectedFile?.language?.id)
+            assertEquals("Wrong injection language", languageId, injectedFile?.language?.id)
         }
 
         if (unInjectShouldBePresent) {
@@ -56,37 +61,37 @@ abstract class AbstractInjectionTest : KotlinLightCodeInsightFixtureTestCase() {
         }
     }
 
-    protected fun assertNoInjection(text: String) {
-        myFixture.configureByText("${getTestName(true)}.kt", text.trimMargin())
+    protected fun assertNoInjection(@Language("kotlin") text: String) {
+        myFixture.configureByText("${getTestName(true)}.kt", text.trimIndent())
 
         TestCase.assertTrue("Injection action is not available. There's probably some injection but nothing was expected.",
                             InjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
     }
 
-    protected fun doRemoveInjectionTest(before: String, after: String) {
+    protected fun doRemoveInjectionTest(@Language("kotlin") before: String, @Language("kotlin") after: String) {
         myFixture.setCaresAboutInjection(false)
 
-        myFixture.configureByText("${getTestName(true)}.kt", before.trimMargin())
+        myFixture.configureByText("${getTestName(true)}.kt", before.trimIndent())
 
         TestCase.assertTrue(UnInjectLanguageAction().isAvailable(project, myFixture.editor, myFixture.file))
         UnInjectLanguageAction.invokeImpl(project, myFixture.editor, myFixture.file)
 
-        myFixture.checkResult(after.trimMargin())
+        myFixture.checkResult(after.trimIndent())
     }
 
-    protected fun doFileReferenceInjectTest(before: String, after: String) {
+    protected fun doFileReferenceInjectTest(@Language("kotlin") before: String, @Language("kotlin") after: String) {
         doTest(FileReferenceInjector(), before, after)
     }
 
-    protected fun doTest(injectable: Injectable, before: String, after: String) {
+    protected fun doTest(injectable: Injectable, @Language("kotlin") before: String, @Language("kotlin") after: String) {
         val configuration = Configuration.getProjectInstance(project).advancedConfiguration
         val allowed = configuration.isSourceModificationAllowed
 
         configuration.isSourceModificationAllowed = true
         try {
-            myFixture.configureByText("${getTestName(true)}.kt", before.trimMargin())
+            myFixture.configureByText("${getTestName(true)}.kt", before.trimIndent())
             InjectLanguageAction.invokeImpl(project, myFixture.editor, myFixture.file, injectable)
-            myFixture.checkResult(after.trimMargin())
+            myFixture.checkResult(after.trimIndent())
         }
         finally {
             configuration.isSourceModificationAllowed = allowed

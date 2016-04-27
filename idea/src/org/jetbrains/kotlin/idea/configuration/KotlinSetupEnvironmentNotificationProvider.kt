@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.configuration
 
 import com.intellij.ProjectTopics
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleUtilCore
@@ -39,6 +40,7 @@ import com.intellij.ui.EditorNotificationPanel
 import com.intellij.ui.EditorNotifications
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.idea.project.ProjectStructureUtil
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.idea.versions.UnsupportedAbiVersionNotificationPanelProvider
 import org.jetbrains.kotlin.idea.versions.createComponentActionLabel
@@ -125,7 +127,9 @@ class KotlinSetupEnvironmentNotificationProvider(
 
                 override fun onChosen(selectedValue: KotlinProjectConfigurator?, finalChoice: Boolean): PopupStep<*>? {
                     selectedValue?.let {
-                        it.configure(project, emptyList())
+                        ApplicationManager.getApplication().invokeLater {
+                            it.configure(project, emptyList())
+                        }
                     }
                     return null
                 }

@@ -57,7 +57,7 @@ import org.jetbrains.kotlin.idea.completion.test.handlers.AbstractKeywordComplet
 import org.jetbrains.kotlin.idea.completion.test.handlers.AbstractSmartCompletionHandlerTest
 import org.jetbrains.kotlin.idea.completion.test.weighers.AbstractBasicCompletionWeigherTest
 import org.jetbrains.kotlin.idea.completion.test.weighers.AbstractSmartCompletionWeigherTest
-import org.jetbrains.kotlin.idea.configuration.AbstractConfigureProjectByChangingFileTest
+import org.jetbrains.kotlin.idea.maven.configuration.AbstractMavenConfigureProjectByChangingFileTest
 import org.jetbrains.kotlin.idea.conversion.copy.AbstractJavaToKotlinCopyPasteConversionTest
 import org.jetbrains.kotlin.idea.coverage.AbstractKotlinCoverageOutputFilesTest
 import org.jetbrains.kotlin.idea.debugger.AbstractBeforeExtractFunctionInsertionTest
@@ -85,6 +85,7 @@ import org.jetbrains.kotlin.idea.intentions.declarations.AbstractJoinLinesTest
 import org.jetbrains.kotlin.idea.internal.AbstractBytecodeToolWindowTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocHighlightingTest
 import org.jetbrains.kotlin.idea.kdoc.AbstractKDocTypingTest
+import org.jetbrains.kotlin.idea.maven.AbstractKotlinMavenInspectionTest
 import org.jetbrains.kotlin.idea.navigation.AbstractGotoSuperTest
 import org.jetbrains.kotlin.idea.navigation.AbstractKotlinGotoImplementationTest
 import org.jetbrains.kotlin.idea.navigation.AbstractKotlinGotoTest
@@ -595,10 +596,8 @@ fun main(args: Array<String>) {
             model("multiFileInspections", extension = "test", singleClass = true)
         }
 
-        testClass<AbstractConfigureProjectByChangingFileTest>() {
+        testClass<org.jetbrains.kotlin.idea.configuration.AbstractGradleConfigureProjectByChangingFileTest>() {
             model("configuration/gradle", pattern = """(\w+)_before\.gradle$""", testMethod = "doTestGradle")
-            model("configuration/maven", extension = null, recursive = false, testMethod = "doTestWithMaven")
-            model("configuration/js-maven", extension = null, recursive = false, testMethod = "doTestWithJSMaven")
         }
 
         testClass<AbstractFormatterTest>() {
@@ -792,6 +791,17 @@ fun main(args: Array<String>) {
 
         testClass<AbstractGenerateToStringActionTest>() {
             model("codeInsight/generate/toString")
+        }
+    }
+
+    testGroup("idea/idea-maven/test", "idea/idea-maven/testData") {
+        testClass<AbstractMavenConfigureProjectByChangingFileTest>() {
+            model("configurator/jvm", extension = null, recursive = false, testMethod = "doTestWithMaven")
+            model("configurator/js", extension = null, recursive = false, testMethod = "doTestWithJSMaven")
+        }
+
+        testClass<AbstractKotlinMavenInspectionTest> {
+            model("maven-inspections", pattern = "^([\\w\\-]+).xml$", singleClass = true)
         }
     }
 

@@ -21,6 +21,7 @@ import org.jetbrains.jps.model.java.JpsJavaClasspathKind
 import org.jetbrains.jps.model.java.JpsJavaDependenciesEnumerator
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.library.JpsOrderRootType
+import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.util.JpsPathUtil
 import org.jetbrains.kotlin.utils.LibraryUtils
 import java.util.*
@@ -30,6 +31,9 @@ internal object JpsUtils {
 
     private val IS_KOTLIN_JS_MODULE_CACHE = createMapForCaching<ModuleBuildTarget, Boolean>()
     private val IS_KOTLIN_JS_STDLIB_JAR_CACHE = createMapForCaching<String, Boolean>()
+
+    fun getRelatedProductionModule(module: JpsModule) =
+            JpsJavaExtensionService.getInstance().getTestModuleProperties(module)?.productionModule
 
     fun getAllDependencies(target: ModuleBuildTarget): JpsJavaDependenciesEnumerator {
         return JpsJavaExtensionService.dependencies(target.module).recursively().exportedOnly().includedIn(JpsJavaClasspathKind.compile(target.isTests))

@@ -17,7 +17,7 @@
 package org.jetbrains.kotlin.modules
 
 import org.jetbrains.jps.incremental.ModuleBuildTarget
-import org.jetbrains.kotlin.jps.build.KotlinBuilderModuleScriptGenerator.getRelatedProductionModule
+import org.jetbrains.kotlin.jps.build.JpsUtils
 
 fun TargetId(moduleBuildTarget: ModuleBuildTarget): TargetId {
     // Since IDEA 2016 each gradle source root is imported as a separate module.
@@ -28,6 +28,6 @@ fun TargetId(moduleBuildTarget: ModuleBuildTarget): TargetId {
     // For example, a declaration of a function 'f' in 'X-production' becomes 'fXProduction', but a call 'f' in 'X-test' becomes 'fXTest()'.
     // The workaround is to replace a name of such test target with the name of corresponding production module.
     // See KT-11993.
-    val name = getRelatedProductionModule(moduleBuildTarget.module)?.name ?: moduleBuildTarget.id
+    val name = JpsUtils.getRelatedProductionModule(moduleBuildTarget.module)?.name ?: moduleBuildTarget.id
     return TargetId(name, moduleBuildTarget.targetType.typeId)
 }

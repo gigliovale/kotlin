@@ -14,85 +14,62 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.jps.build;
+package org.jetbrains.kotlin.jps.build
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.jps.incremental.ModuleBuildTarget;
-import org.jetbrains.jps.model.java.JpsJavaClasspathKind;
-import org.jetbrains.jps.model.java.JpsJavaDependenciesEnumerator;
-import org.jetbrains.jps.model.java.JpsJavaExtensionService;
-import org.jetbrains.jps.model.library.JpsLibrary;
-import org.jetbrains.jps.model.library.JpsLibraryRoot;
-import org.jetbrains.jps.model.library.JpsOrderRootType;
-import org.jetbrains.jps.util.JpsPathUtil;
-import org.jetbrains.kotlin.utils.LibraryUtils;
+import org.jetbrains.jps.incremental.ModuleBuildTarget
+import org.jetbrains.jps.model.java.JpsJavaClasspathKind
+import org.jetbrains.jps.model.java.JpsJavaDependenciesEnumerator
+import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.model.library.JpsOrderRootType
+import org.jetbrains.jps.util.JpsPathUtil
+import org.jetbrains.kotlin.utils.LibraryUtils
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+internal object JpsUtils {
 
-class JpsUtils {
-    private JpsUtils() {}
+    private val IS_KOTLIN_JS_MODULE_CACHE = createMapForCaching<ModuleBuildTarget, Boolean>()
+    private val IS_KOTLIN_JS_STDLIB_JAR_CACHE = createMapForCaching<String, Boolean>()
 
-    private static final Map<ModuleBuildTarget, Boolean> IS_KOTLIN_JS_MODULE_CACHE = createMapForCaching();
-    private static final Map<String, Boolean> IS_KOTLIN_JS_STDLIB_JAR_CACHE = createMapForCaching();
-
-    @NotNull
-    static JpsJavaDependenciesEnumerator getAllDependencies(@NotNull ModuleBuildTarget target) {
-        return JpsJavaExtensionService.dependencies(target.getModule()).recursively().exportedOnly()
-                .includedIn(JpsJavaClasspathKind.compile(target.isTests()));
+    fun getAllDependencies(target: ModuleBuildTarget): JpsJavaDependenciesEnumerator {
+        return JpsJavaExtensionService.dependencies(target.module).recursively().exportedOnly().includedIn(JpsJavaClasspathKind.compile(target.isTests))
     }
 
-    static boolean isJsKotlinModule(@NotNull ModuleBuildTarget target) {
-        Boolean cachedValue = IS_KOTLIN_JS_MODULE_CACHE.get(target);
-        if (cachedValue != null) return cachedValue;
+    fun isJsKotlinModule(target: ModuleBuildTarget): Boolean {
+        val cachedValue = IS_KOTLIN_JS_MODULE_CACHE[target]
+        if (cachedValue != null) return cachedValue
 
-        boolean isKotlinJsModule = isJsKotlinModuleImpl(target);
-        IS_KOTLIN_JS_MODULE_CACHE.put(target, isKotlinJsModule);
+        val isKotlinJsModule = isJsKotlinModuleImpl(target)
+        IS_KOTLIN_JS_MODULE_CACHE.put(target, isKotlinJsModule)
 
-        return isKotlinJsModule;
+        return isKotlinJsModule
     }
 
-    private static boolean isJsKotlinModuleImpl(@NotNull ModuleBuildTarget target) {
-        Set<JpsLibrary> libraries = getAllDependencies(target).getLibraries();
-        for (JpsLibrary library : libraries) {
-            for (JpsLibraryRoot root : library.getRoots(JpsOrderRootType.COMPILED)) {
-                String url = root.getUrl();
+    private fun isJsKotlinModuleImpl(target: ModuleBuildTarget): Boolean {
+        val libraries = getAllDependencies(target).libraries
+        for (library in libraries) {
+            for (root in library.getRoots(JpsOrderRootType.COMPILED)) {
+                val url = root.url
 
-                Boolean cachedValue = IS_KOTLIN_JS_STDLIB_JAR_CACHE.get(url);
-                if (cachedValue != null) return cachedValue;
+                val cachedValue = IS_KOTLIN_JS_STDLIB_JAR_CACHE[url]
+                if (cachedValue != null) return cachedValue
 
-                boolean isKotlinJavascriptStdLibrary = LibraryUtils.isKotlinJavascriptStdLibrary(JpsPathUtil.urlToFile(url));
-                IS_KOTLIN_JS_STDLIB_JAR_CACHE.put(url, isKotlinJavascriptStdLibrary);
-                if (isKotlinJavascriptStdLibrary) return true;
+                val isKotlinJavascriptStdLibrary = LibraryUtils.isKotlinJavascriptStdLibrary(JpsPathUtil.urlToFile(url))
+                IS_KOTLIN_JS_STDLIB_JAR_CACHE.put(url, isKotlinJavascriptStdLibrary)
+                if (isKotlinJavascriptStdLibrary) return true
             }
         }
-        return false;
+        return false
     }
 
-    private static <K, V> Map<K,V> createMapForCaching() {
-        if ("true".equalsIgnoreCase(System.getProperty("kotlin.jps.tests"))) {
-            return new AbstractMap<K, V>() {
-                @Override
-                public V put(K key, V value) {
-                    return null;
-                }
-
-                @Override
-                public V get(Object key) {
-                    return null;
-                }
-
-                @NotNull
-                @Override
-                public Set<Entry<K, V>> entrySet() {
-                    return Collections.emptySet();
-                }
-            };
+    private fun <K, V> createMapForCaching(): MutableMap<K, V> {
+        if ("true".equals(System.getProperty("kotlin.jps.tests"), ignoreCase = true)) {
+            return object : AbstractMap<K, V>() {
+                override val entries = hashSetOf<MutableMap.MutableEntry<K, V>>()
+                override fun put(key: K?, value: V?): V? = null
+            }
         }
 
-        return new ConcurrentHashMap<K, V>();
+        return ConcurrentHashMap()
     }
 }

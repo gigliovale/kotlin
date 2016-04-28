@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.android.tests.OutputUtils;
 import org.jetbrains.kotlin.android.tests.PathManager;
 import org.jetbrains.kotlin.android.tests.run.RunResult;
 import org.jetbrains.kotlin.android.tests.run.RunUtils;
+import org.junit.Assert;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -123,14 +124,15 @@ public class Emulator {
         GeneralCommandLine commandLine = createAdbCommand();
         commandLine.addParameter("start-server");
         System.out.println("Start adb server...");
-        OutputUtils.checkResult(RunUtils.execute(commandLine));
+        OutputUtils.checkResult(RunUtils.execute(new RunUtils.RunSettings(commandLine, null, true, "ADB START:", true)));
     }
 
     public void startEmulator() {
         startServer();
         System.out.println("Starting emulator...");
         RunUtils.executeOnSeparateThread(new RunUtils.RunSettings(getStartCommand(), null, false, "START: ", true));
-        printLog();
+        //disabled cause of missed test results
+        //printLog();
     }
 
     public void printLog() {
@@ -145,10 +147,40 @@ public class Emulator {
     public void waitEmulatorStart() {
         System.out.println("Waiting for emulator start...");
         OutputUtils.checkResult(RunUtils.execute(getWaitCommand()));
+        GeneralCommandLine bootCheckCommand = createAdbCommand();
+        bootCheckCommand.addParameter("shell");
+        bootCheckCommand.addParameter("getprop");
+        bootCheckCommand.addParameter("sys.boot_completed");
+        int counter = 0;
+        RunResult execute = RunUtils.execute(bootCheckCommand);
+        while (counter < 12) {
+            String output = execute.getOutput();
+            if (output.trim().endsWith("1")) {
+                System.out.println("Emulator fully booted!");
+                return;
+            }
+            System.out.println("Waiting for emulator boot (" + counter + ")...");
+            try {
+                Thread.sleep(10000);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            counter++;
+            execute = RunUtils.execute(bootCheckCommand);
+        }
+        Assert.fail("Can't find booted emulator: " + execute.getOutput());
     }
 
     public void stopEmulator() {
         System.out.println("Stopping emulator...");
+        try {
+            //added cause of missed test results
+            Thread.sleep(20000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         GeneralCommandLine command = createAdbCommand();
         command.addParameter("-s");
@@ -210,6 +242,15 @@ public class Emulator {
                 RunUtils.execute(killCommand);
             }
         }
+    }
+
+    public String runTestsViaAdb() {
+        System.out.println("Running tests via adb...");
+        GeneralCommandLine adbCommand = createAdbCommand();
+        //adb shell am instrument -w -r org.jetbrains.kotlin.android.tests/android.test.InstrumentationTestRunner
+        adbCommand.addParameters("shell", "am", "instrument", "-w", "-r", "org.jetbrains.kotlin.android.tests/android.test.InstrumentationTestRunner");
+        RunResult execute = RunUtils.execute(adbCommand);
+        return execute.getOutput();
     }
 
     private void stopRedundantEmulators(PathManager pathManager) {

@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.android.tests;
 
 import com.google.common.collect.Lists;
+import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.io.FileUtilRt;
 import com.intellij.openapi.util.text.StringUtil;
@@ -31,6 +32,9 @@ import org.jetbrains.kotlin.codegen.GenerationUtils;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.load.java.JvmAbi;
+import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.test.ConfigurationKind;
 import org.jetbrains.kotlin.test.InTextDirectivesUtils;
@@ -42,6 +46,7 @@ import org.junit.Assert;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,6 +59,8 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     private static final String baseTestClassPackage = "org.jetbrains.kotlin.android.tests";
     private static final String baseTestClassName = "AbstractCodegenTestCaseOnAndroid";
     private static final String generatorName = "CodegenTestsOnAndroidGenerator";
+
+    private static final String [] FILE_NAME_ANNOTATIONS = new String [] {"@file:JvmName", "@file:kotlin.jvm.JvmName"};
 
     private final Pattern packagePattern = Pattern.compile("package (.*)");
 
@@ -227,36 +234,56 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
                 String text = FileUtil.loadFile(file, true);
                 //TODO: support multifile tests
                 if (text.contains("FILE:")) continue;
-                //TODO: support JvmFileName annotation & WITH_REFLECT directive
-                if (InTextDirectivesUtils.isDirectiveDefined(text, "WITH_REFLECT") || text.contains("JvmFileName")) continue;
 
                 if (hasBoxMethod(text)) {
                     String generatedTestName = generateTestName(file.getName());
                     String packageName = file.getPath().replaceAll("\\\\|-|\\.|/", "_");
-                    text = changePackage(packageName, text);
+                    Ref<FqName> oldPackage = new Ref();
+                    text = changePackage(packageName, text, oldPackage);
+                    FqName className = getGeneratedClassName(file, text, packageName);
+                    text = patchClassForName(className, oldPackage.get(), text);
 
                     FilesWriter filesHolder = InTextDirectivesUtils.isDirectiveDefined(text, "FULL_JDK") ||
-                                              InTextDirectivesUtils.isDirectiveDefined(text, "WITH_RUNTIME") ? holderFull : holderMock;
+                                              InTextDirectivesUtils.isDirectiveDefined(text, "WITH_RUNTIME") ||
+                                              InTextDirectivesUtils.isDirectiveDefined(text, "WITH_REFLECT") ? holderFull : holderMock;
                     CodegenTestFiles codegenFile = CodegenTestFiles.create(file.getName(), text, filesHolder.environment.getProject());
                     filesHolder.files.add(codegenFile.getPsiFile());
 
-                    generateTestMethod(printer, generatedTestName, StringUtil.escapeStringCharacters(file.getPath()));
+
+                    generateTestMethod(printer, generatedTestName, className.asString(), StringUtil.escapeStringCharacters(file.getPath()));
                 }
             }
         }
+    }
+
+    private static FqName getGeneratedClassName(File file, String text, String packageName) {
+        FqName packageFqName = new FqName(packageName);
+        for (String annotation : FILE_NAME_ANNOTATIONS) {
+            if (text.contains(annotation)) {
+                int indexOf = text.indexOf(annotation);
+                String annotationParameter = text.substring(text.indexOf("(\"", indexOf) + 2, text.indexOf("\")", indexOf));
+                return packageFqName.child(Name.identifier(annotationParameter));
+            }
+        }
+
+        return PackagePartClassUtils.getPackagePartFqName(packageFqName, file.getName());
     }
 
     private static boolean hasBoxMethod(String text) {
         return text.contains("fun box()");
     }
 
-    private String changePackage(String testName, String text) {
+    private String changePackage(String newPackageName, String text, Ref<FqName> oldPackage) {
         if (text.contains("package ")) {
             Matcher matcher = packagePattern.matcher(text);
-            return matcher.replaceAll("package " + testName);
+            assert matcher.find();
+            String oldPackageName = matcher.toMatchResult().group(1);
+            oldPackage.set(new FqName(oldPackageName));
+            return matcher.replaceAll("package " + newPackageName);
         }
         else {
-            String packageDirective = "package " + testName + ";\n";
+            oldPackage.set(FqName.ROOT);
+            String packageDirective = "package " + newPackageName + ";\n";
             if (text.contains("@file:")) {
                 int index = text.lastIndexOf("@file:");
                 int packageDirectiveIndex = text.indexOf("\n", index);
@@ -267,10 +294,14 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         }
     }
 
-    private static void generateTestMethod(Printer p, String testName, String packageName) {
+    private static String patchClassForName(FqName className, FqName oldPackage, String text) {
+        return text.replaceAll("Class\\.forName\\(\"" + oldPackage.child(className.shortName()).asString() + "\"\\)", "Class.forName(\"" + className.asString() + "\")");
+    }
+
+    private static void generateTestMethod(Printer p, String testName, String className, String filePath) {
         p.println("public void test" + testName + "() throws Exception {");
         p.pushIndent();
-        p.println("invokeBoxMethod(\"" + packageName + "\", \"OK\");");
+        p.println("invokeBoxMethod(" + className + ".class, \"" + filePath + "\", \"OK\");");
         p.popIndent();
         p.println("}");
         p.println();

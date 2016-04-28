@@ -31,6 +31,12 @@ import java.util.regex.Pattern;
 @TestDataPath("$PROJECT_ROOT")
 @RunWith(JUnit3RunnerWithInners.class)
 public class BasicCompletionHandlerTestGenerated extends AbstractBasicCompletionHandlerTest {
+    @TestMetadata("AddLabelToReturn.kt")
+    public void testAddLabelToReturn() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/handlers/basic/AddLabelToReturn.kt");
+        doTest(fileName);
+    }
+
     public void testAllFilesPresentInBasic() throws Exception {
         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/idea-completion/testData/handlers/basic"), Pattern.compile("^(.+)\\.kt$"), true);
     }
@@ -50,6 +56,12 @@ public class BasicCompletionHandlerTestGenerated extends AbstractBasicCompletion
     @TestMetadata("AnnotationInCompanionObjectAddImport.kt")
     public void testAnnotationInCompanionObjectAddImport() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/handlers/basic/AnnotationInCompanionObjectAddImport.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("ClassKeywordBeforeName.kt")
+    public void testClassKeywordBeforeName() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/handlers/basic/ClassKeywordBeforeName.kt");
         doTest(fileName);
     }
 
@@ -104,6 +116,12 @@ public class BasicCompletionHandlerTestGenerated extends AbstractBasicCompletion
     @TestMetadata("GenericFunctionWithTab2.kt")
     public void testGenericFunctionWithTab2() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/handlers/basic/GenericFunctionWithTab2.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("GetOperator.kt")
+    public void testGetOperator() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/handlers/basic/GetOperator.kt");
         doTest(fileName);
     }
 

@@ -16,15 +16,11 @@
 
 package org.jetbrains.kotlin.serialization.deserialization.descriptors
 
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
-import org.jetbrains.kotlin.descriptors.SourceElement
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.name.SpecialNames
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.DeserializationComponents
@@ -51,9 +47,15 @@ open class DeserializedPackageMemberScope(
     override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean)
             = computeDescriptors(kindFilter, nameFilter, NoLookupLocation.WHEN_GET_ALL_DESCRIPTORS)
 
-    override fun getClassDescriptor(name: Name): ClassDescriptor? =
-            if (SpecialNames.isSafeIdentifier(name)) c.components.deserializeClass(ClassId(packageFqName, name))
-            else null
+    override fun getContributedClassifier(name: Name, location: LookupLocation): ClassifierDescriptor? {
+        if (name in classNames || c.components.fictitiousClassDescriptorFactory.shouldCreateClass(packageFqName, name)) {
+            return getClassDescriptor(name)
+        }
+        return null
+    }
+
+    private fun getClassDescriptor(name: Name): ClassDescriptor? =
+            c.components.deserializeClass(ClassId(packageFqName, name))
 
     override fun addClassDescriptors(result: MutableCollection<DeclarationDescriptor>, nameFilter: (Name) -> Boolean) {
         for (className in classNames) {

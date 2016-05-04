@@ -26,12 +26,13 @@ if "%_JAVACMD%"=="" set _JAVACMD=java
 
 rem We use the value of the JAVA_OPTS environment variable if defined
 if "%JAVA_OPTS%"=="" set JAVA_OPTS=-Xmx256M -Xms32M
+set _UTF8_AS_DEFAULT_ENCODING=-Dfile.encoding=UTF-8
 
 if not "%_KOTLIN_RUNNER%"=="" (
-  "%_JAVACMD%" %JAVA_OPTS% "-Dkotlin.home=%_KOTLIN_HOME%" -cp "%_KOTLIN_HOME%\lib\kotlin-runner.jar" ^
+  "%_JAVACMD%" %_UTF8_AS_DEFAULT_ENCODING% %JAVA_OPTS% "-Dkotlin.home=%_KOTLIN_HOME%" -cp "%_KOTLIN_HOME%\lib\kotlin-runner.jar" ^
     org.jetbrains.kotlin.runner.Main %*
 ) else (
-  "%_JAVACMD%" %JAVA_OPTS% -noverify -cp "%_KOTLIN_HOME%\lib\kotlin-preloader.jar" ^
+  "%_JAVACMD%" %_UTF8_AS_DEFAULT_ENCODING% %JAVA_OPTS% -noverify -cp "%_KOTLIN_HOME%\lib\kotlin-preloader.jar" ^
     org.jetbrains.kotlin.preloading.Preloader -cp "%_KOTLIN_HOME%\lib\kotlin-compiler.jar" ^
     %_KOTLIN_COMPILER% %*
 )

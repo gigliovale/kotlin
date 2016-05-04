@@ -34,6 +34,8 @@ fi
 
 [ -n "$JAVA_OPTS" ] || JAVA_OPTS="-Xmx256M -Xms32M"
 
+UTF8_AS_DEFAULT_ENCODING=-Dfile.encoding=UTF-8
+
 declare -a java_args
 declare -a kotlin_args
 
@@ -79,4 +81,4 @@ else
     kotlin_app=("${KOTLIN_HOME}/lib/kotlin-preloader.jar" "org.jetbrains.kotlin.preloading.Preloader" "-cp" "${KOTLIN_HOME}/lib/kotlin-compiler.jar" $KOTLIN_COMPILER)
 fi
 
-"${JAVACMD:=java}" $JAVA_OPTS "${java_args[@]}" -cp "${kotlin_app[@]}" "${kotlin_args[@]}"
+"${JAVACMD:=java}" $UTF8_AS_DEFAULT_ENCODING $JAVA_OPTS "${java_args[@]}" -cp "${kotlin_app[@]}" "${kotlin_args[@]}"

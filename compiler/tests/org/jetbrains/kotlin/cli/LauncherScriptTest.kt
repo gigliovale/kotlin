@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,6 +77,18 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
                 "kotlinc-jvm",
                 "$testDataDirectory/helloWorld.kt",
                 "-d", tmpdir.path
+        )
+    }
+
+    fun testWithNonAsciiSymbols() {
+        fun pathToTestFile(extension: String) = "$testDataDirectory/withNonAsciiSymbols.$extension"
+
+        runProcess(
+                "kotlinc",
+                pathToTestFile("kt"),
+                "-d", tmpdir.path,
+                expectedStderr = File(pathToTestFile("out")).readText(),
+                expectedExitCode = ExitCode.COMPILATION_ERROR
         )
     }
 

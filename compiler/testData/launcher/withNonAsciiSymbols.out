@@ -1,0 +1,9 @@
+compiler/testData/launcher/withNonAsciiSymbols.kt:5:25: error: null can not be a value of a non-null type `My⋅Class`
+val `a⋅b`: `My⋅Class` = null
+                        ^
+compiler/testData/launcher/withNonAsciiSymbols.kt:6:18: error: null can not be a value of a non-null type Símbolo
+val í: Símbolo = null
+                 ^
+compiler/testData/launcher/withNonAsciiSymbols.kt:7:1: error: function 'føø' must have a body
+fun føø()
+^

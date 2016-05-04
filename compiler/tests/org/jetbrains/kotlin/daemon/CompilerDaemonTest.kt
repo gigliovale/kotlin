@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.daemon.client.*
 import org.jetbrains.kotlin.daemon.common.*
 import org.jetbrains.kotlin.integration.KotlinIntegrationTestBase
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
-import org.jetbrains.kotlin.test.KotlinTestUtils
+import org.jetbrains.kotlin.test.KotlinTestUtils.getTestDataPathBase
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URL
@@ -38,6 +38,7 @@ import kotlin.script.dependencies.ScriptContents
 import kotlin.script.dependencies.ScriptDependenciesResolver
 import kotlin.script.dependencies.asFuture
 import kotlin.script.templates.ScriptTemplateDefinition
+import kotlin.test.assertNotEquals
 import kotlin.test.fail
 
 
@@ -70,8 +71,8 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
             assertEquals("build results differ", AbstractCliTest.removePerfOutput(res1.out), AbstractCliTest.removePerfOutput(res2.out))
     }
 
-    private fun getTestBaseDir(): String = KotlinTestUtils.getTestDataPathBase() + "/integration/smoke/" + getTestName(true)
-    private fun getHelloAppBaseDir(): String = KotlinTestUtils.getTestDataPathBase() + "/integration/smoke/helloApp"
+    private fun getTestBaseDir(): String = getTestDataPathBase() + "/integration/smoke/" + getTestName(true)
+    private fun getHelloAppBaseDir(): String = getTestDataPathBase() + "/integration/smoke/helloApp"
 
     private fun run(logName: String, vararg args: String): Int = runJava(getTestBaseDir(), logName, *args)
 
@@ -115,6 +116,43 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
             finally {
                 if (!daemonShotDown)
                     KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
+            }
+        }
+    }
+
+    fun testCodeWithNonAsciiSymbols() {
+        fun pathToTestFile(extension: String) = getTestDataPathBase() + "/launcher/withNonAsciiSymbols.$extension"
+
+        withFlagFile(getTestName(true), ".alive") { flagFile ->
+            val daemonOptions = DaemonOptions(runFilesPath = File(tmpdir, getTestName(true)).absolutePath, verbose = true)
+
+            KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
+
+            val logFile = createTempFile("kotlin-daemon-test.", ".log")
+
+            val daemonJVMOptions = configureDaemonJVMOptions("D$COMPILE_DAEMON_LOG_PATH_PROPERTY=\"${logFile.loggerCompatiblePath}\"",
+                                                             // Specify default encoding explicitly to be sure that we don't get UTF-8
+                                                             // from somewhere else (e.g. inherited from parent process)
+                                                             "Dfile.encoding=MacRoman",
+                                                             inheritMemoryLimits = false, inheritAdditionalProperties = false)
+
+            var daemonShotDown = false
+            try {
+                val jar = tmpdir.absolutePath + File.separator + "out.jar"
+                val result = compileOnDaemon(flagFile, compilerId, daemonJVMOptions, daemonOptions,
+                                             "-include-runtime", "-d", jar, pathToTestFile("kt"))
+
+                assertNotEquals(0, result.resultCode)
+
+                KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
+                daemonShotDown = true
+
+                assertEquals(File(pathToTestFile("out")).readText(), result.out)
+            }
+            finally {
+                if (!daemonShotDown) {
+                    KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
+                }
             }
         }
     }
@@ -767,4 +805,3 @@ internal fun URL.toFile() =
             if (protocol != "file") null
             else File(file)
         }
-

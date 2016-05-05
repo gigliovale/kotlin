@@ -172,9 +172,6 @@ JetFile: semicolonBetweenDeclarations.kt
         PsiElement(constructor)('constructor')
         PsiErrorElement:Expecting '('
           <empty list>
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
       PsiElement(SEMICOLON)(';')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

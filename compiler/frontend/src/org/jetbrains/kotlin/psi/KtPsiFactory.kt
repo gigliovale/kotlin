@@ -428,9 +428,10 @@ class KtPsiFactory(private val project: Project) {
         return createClass("class A: $text").getSuperTypeListEntries().first() as KtSuperTypeEntry
     }
 
-    fun creareDelegatedSuperTypeEntry(text: String): KtConstructorDelegationCall {
-        val colonOrEmpty = if (text.isEmpty()) "" else ": "
-        return createClass("class A { constructor()$colonOrEmpty$text {}").getSecondaryConstructors().first().getDelegationCall()
+    fun createDelegatedSuperTypeEntry(text: String): KtConstructorDelegationCall {
+        if (text.isEmpty()) throw IllegalArgumentException("Non-empty delegation call is expected")
+
+        return createClass("class A { constructor():$text {}").getSecondaryConstructors().first().getDelegationCall()!!
     }
 
     class ClassHeaderBuilder {

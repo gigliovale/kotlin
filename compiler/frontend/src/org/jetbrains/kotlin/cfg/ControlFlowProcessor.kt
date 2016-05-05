@@ -1296,10 +1296,14 @@ class ControlFlowProcessor(private val trace: BindingTrace) {
             val classOrObject = PsiTreeUtil.getParentOfType(constructor, KtClassOrObject::class.java) ?: error("Guaranteed by parsing contract")
 
             processParameters(constructor.valueParameters)
-            generateCallOrMarkUnresolved(constructor.getDelegationCall())
+            val constructorDelegationCall = constructor.getDelegationCall()
 
-            if (!constructor.getDelegationCall().isCallToThis) {
-                generateInitializersForScriptClassOrObject(classOrObject)
+            if (constructorDelegationCall != null) {
+                generateCallOrMarkUnresolved(constructorDelegationCall)
+
+                if (!constructorDelegationCall.isCallToThis) {
+                    generateInitializersForScriptClassOrObject(classOrObject)
+                }
             }
 
             generateInstructions(constructor.bodyExpression)

@@ -15,10 +15,7 @@ JetFile: recoveryJustConstructorKeywordSameLineBrace.kt
         PsiElement(constructor)('constructor')
         PsiErrorElement:Expecting '('
           <empty list>
-        PsiWhiteSpace('\n    ')
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
+      PsiWhiteSpace('\n    ')
       PROPERTY
         PsiElement(val)('val')
         PsiWhiteSpace(' ')
@@ -34,19 +31,13 @@ JetFile: recoveryJustConstructorKeywordSameLineBrace.kt
         PsiElement(constructor)('constructor')
         PsiErrorElement:Expecting '('
           <empty list>
-        PsiWhiteSpace('\n    ')
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
+      PsiWhiteSpace('\n    ')
       SECONDARY_CONSTRUCTOR
         PsiElement(constructor)('constructor')
         VALUE_PARAMETER_LIST
           PsiElement(LPAR)('(')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
         BLOCK
           PsiElement(LBRACE)('{')
           PsiElement(RBRACE)('}')
@@ -56,9 +47,6 @@ JetFile: recoveryJustConstructorKeywordSameLineBrace.kt
         PsiErrorElement:Expecting '('
           <empty list>
         PsiWhiteSpace(' ')
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
         BLOCK
           PsiElement(LBRACE)('{')
           PsiElement(RBRACE)('}')
@@ -75,9 +63,6 @@ JetFile: recoveryJustConstructorKeywordSameLineBrace.kt
         PsiElement(constructor)('constructor')
         PsiErrorElement:Expecting '('
           <empty list>
-        CONSTRUCTOR_DELEGATION_CALL
-          CONSTRUCTOR_DELEGATION_REFERENCE
-            <empty list>
       PsiElement(RBRACE)('}')
   PsiWhiteSpace(' ')
   CLASS

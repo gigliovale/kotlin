@@ -99,11 +99,17 @@ class CodeFragmentAnalyzer(
                 dataFlowInfo = DataFlowInfo.EMPTY
             }
             is KtSecondaryConstructor -> {
-                val correctedContext = context.getDelegationCall().calleeExpression!!
+                val correctedContext = context.getDelegationCall()?.calleeExpression
 
-                val contextForElement = resolveToElement(correctedContext)
+                if (correctedContext != null) {
+                    val contextForElement = resolveToElement(correctedContext)
+                    scopeForContextElement = contextForElement[BindingContext.LEXICAL_SCOPE, correctedContext]
+                }
+                else {
+                    val contextForElement = resolveToElement(context)
+                    scopeForContextElement = contextForElement[BindingContext.LEXICAL_SCOPE, correctedContext]
+                }
 
-                scopeForContextElement = contextForElement[BindingContext.LEXICAL_SCOPE, correctedContext]
                 dataFlowInfo = DataFlowInfo.EMPTY
             }
             is KtClassOrObject -> {

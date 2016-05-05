@@ -161,9 +161,12 @@ private fun processClassDelegationCallsToSpecifiedConstructor(
         klass: KtClass, constructor: DeclarationDescriptor, process: (KtCallElement) -> Boolean
 ): Boolean {
     for (secondaryConstructor in klass.getSecondaryConstructors()) {
-        val delegationCallDescriptor = secondaryConstructor.getDelegationCall().getConstructorCallDescriptor()
-        if (constructor == delegationCallDescriptor) {
-            if (!process(secondaryConstructor.getDelegationCall())) return false
+        val delegationCall = secondaryConstructor.getDelegationCall()
+        if (delegationCall != null) {
+            val delegationCallDescriptor = delegationCall.getConstructorCallDescriptor()
+            if (constructor == delegationCallDescriptor) {
+                if (!process(delegationCall)) return false
+            }
         }
     }
     if (!klass.isEnum()) return true

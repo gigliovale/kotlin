@@ -249,8 +249,7 @@ fun KtDeclaration.implicitModality(): KtModifierKeywordToken {
 fun KtSecondaryConstructor.getOrCreateBody(): KtBlockExpression {
     bodyExpression?.let { return it }
 
-    val delegationCall = getDelegationCall()
-    val anchor = if (delegationCall.isImplicit) valueParameterList else delegationCall
+    val anchor = if (hasImplicitDelegationCall()) valueParameterList else getDelegationCall()!!
     val newBody = KtPsiFactory(this).createEmptyBody()
     return addAfter(newBody, anchor) as KtBlockExpression
 }

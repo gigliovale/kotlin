@@ -911,7 +911,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 return
             }
             if (declaration is KtSecondaryConstructor && !declaration.hasImplicitDelegationCall()) {
-                containingFileEditor.caretModel.moveToOffset(declaration.getDelegationCall().valueArgumentList!!.startOffset + 1)
+                containingFileEditor.caretModel.moveToOffset(declaration.getDelegationCall()!!.valueArgumentList!!.startOffset + 1)
                 return
             }
             setupEditorSelection(containingFileEditor, declaration)

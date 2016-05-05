@@ -36,8 +36,8 @@ import org.jetbrains.kotlin.idea.core.CollectingNameValidator
 import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
 import org.jetbrains.kotlin.idea.core.appendElement
 import org.jetbrains.kotlin.idea.core.getOrCreateBody
-import org.jetbrains.kotlin.idea.refactoring.runRefactoringWithPostprocessing
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.*
+import org.jetbrains.kotlin.idea.refactoring.runRefactoringWithPostprocessing
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
@@ -188,7 +188,7 @@ object InitializePropertyQuickFixFactory : KotlinIntentionActionsFactory() {
             else {
                 classDescriptor.secondaryConstructors.filter {
                     val constructor = it.source.getPsi() as? KtSecondaryConstructor
-                    constructor != null && !constructor.getDelegationCall().isCallToThis
+                    constructor != null && !(constructor.getDelegationCall()?.isCallToThis ?: false)
                 }
             }
 
@@ -213,7 +213,7 @@ object InitializePropertyQuickFixFactory : KotlinIntentionActionsFactory() {
         (property.containingClassOrObject as? KtClass)?.let { klass ->
             if (klass.isAnnotation() || klass.isInterface()) return@let
 
-            if (property.accessors.isNotEmpty() || klass.getSecondaryConstructors().any { !it.getDelegationCall().isCallToThis }) {
+            if (property.accessors.isNotEmpty() || klass.getSecondaryConstructors().any { !(it.getDelegationCall()?.isCallToThis ?: false) }) {
                 actions.add(InitializeWithConstructorParameter(property))
             }
             else {

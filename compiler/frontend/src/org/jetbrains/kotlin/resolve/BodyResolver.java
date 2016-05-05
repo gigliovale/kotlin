@@ -160,9 +160,12 @@ public class BodyResolver {
             @NotNull KtSecondaryConstructor constructor,
             @NotNull ConstructorDescriptor descriptor
     ) {
+        KtConstructorDelegationCall delegationCall = constructor.getDelegationCall();
+        if (delegationCall == null) return null;
+
         OverloadResolutionResults<?> results = callResolver.resolveConstructorDelegationCall(
                 trace, scope, outerDataFlowInfo,
-                descriptor, constructor.getDelegationCall());
+                descriptor, delegationCall);
 
         if (results != null && results.isSingleResult()) {
             ResolvedCall<? extends CallableDescriptor> resolvedCall = results.getResultingCall();

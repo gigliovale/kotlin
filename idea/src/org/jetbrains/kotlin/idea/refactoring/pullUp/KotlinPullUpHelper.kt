@@ -204,7 +204,7 @@ class KotlinPullUpHelper(
                         }
 
                         override fun visitSecondaryConstructor(constructor: KtSecondaryConstructor) {
-                            val constructorRef = constructor.getDelegationCall().calleeExpression ?: return
+                            val constructorRef = constructor.getDelegationCall()?.calleeExpression ?: return
                             processConstructorReference(constructorRef, constructor)
                         }
                     }

@@ -41,6 +41,11 @@ class TracingStrategyForImplicitConstructorDelegationCall(val reportOnElement: K
         // Do nothing for null callee expression
     }
 
+    override fun <D : CallableDescriptor?> recordAmbiguity(trace: BindingTrace, candidates: MutableCollection<out ResolvedCall<D>>) {
+        assert(call.calleeExpression == null)
+        // Do nothing for null callee expression
+    }
+
     override fun <D : CallableDescriptor> bindResolvedCall(trace: BindingTrace, resolvedCall: ResolvedCall<D>) {
         trace.record(RESOLVED_CALL, call, resolvedCall)
     }
@@ -69,9 +74,6 @@ class TracingStrategyForImplicitConstructorDelegationCall(val reportOnElement: K
 
     // Underlying methods should not be called because such errors are impossible
     // when resolving delegation call
-    override fun <D : CallableDescriptor?> recordAmbiguity(trace: BindingTrace, candidates: MutableCollection<out ResolvedCall<D>>) =
-            unexpectedError("recordAmbiguity")
-
     override fun unresolvedReference(trace: BindingTrace) = unexpectedError("unresolvedReference")
 
     override fun <D : CallableDescriptor> unresolvedReferenceWrongReceiver(trace: BindingTrace, candidates: Collection<ResolvedCall<D>>) =

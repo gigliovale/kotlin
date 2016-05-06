@@ -82,12 +82,13 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
 
     fun testWithNonAsciiSymbols() {
         fun pathToTestFile(extension: String) = "$testDataDirectory/withNonAsciiSymbols.$extension"
+        fun String.normalize() = replace('/', File.separatorChar).replace("\r\n", "\n")
 
         runProcess(
                 "kotlinc",
                 pathToTestFile("kt"),
                 "-d", tmpdir.path,
-                expectedStderr = File(pathToTestFile("out")).readText(),
+                expectedStderr = File(pathToTestFile("out")).readText().normalize(),
                 expectedExitCode = ExitCode.COMPILATION_ERROR
         )
     }

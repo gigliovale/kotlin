@@ -85,7 +85,10 @@ class CallCompleter(
                 resolvedCall.variableCall.call.calleeExpression
             else
                 resolvedCall.call.calleeExpression
-            symbolUsageValidator.validateCall(resolvedCall, resolvedCall.resultingDescriptor, context.trace, element!!)
+
+            if (element != null) {
+                symbolUsageValidator.validateCall(resolvedCall, resolvedCall.resultingDescriptor, context.trace, element)
+            }
         }
 
         if (results.isSingleResult && results.resultingCall.status.isSuccess) {

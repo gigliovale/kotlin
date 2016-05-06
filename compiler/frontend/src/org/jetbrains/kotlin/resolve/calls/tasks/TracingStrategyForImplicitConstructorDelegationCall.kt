@@ -18,48 +18,31 @@ package org.jetbrains.kotlin.resolve.calls.tasks
 
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors
-import org.jetbrains.kotlin.diagnostics.Errors.UNRESOLVED_REFERENCE
-import org.jetbrains.kotlin.diagnostics.Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER
 import org.jetbrains.kotlin.psi.Call
-import org.jetbrains.kotlin.psi.KtConstructorDelegationCall
-import org.jetbrains.kotlin.resolve.BindingContext.*
+import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.resolve.BindingContext.RESOLVED_CALL
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.inference.InferenceErrorData
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
-import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 
 
-class TracingStrategyForImplicitConstructorDelegationCall(
-        val delegationCall: KtConstructorDelegationCall, call: Call
-) : AbstractTracingStrategy(delegationCall.calleeExpression!!, call) {
-
-    val calleeExpression = delegationCall.calleeExpression
+class TracingStrategyForImplicitConstructorDelegationCall(val reportOnElement: KtElement, val call: Call) : TracingStrategy {
 
     override fun bindCall(trace: BindingTrace, call: Call) {
-        trace.record(CALL, call.calleeExpression, call)
+        assert(call.calleeExpression == null)
+        // Do nothing for null callee expression
     }
 
     override fun <D : CallableDescriptor> bindReference(trace: BindingTrace, resolvedCall: ResolvedCall<D>) {
-        val descriptor = resolvedCall.candidateDescriptor
-        val storedReference = trace.get(REFERENCE_TARGET, calleeExpression)
-        if (storedReference == null || !ErrorUtils.isError(descriptor)) {
-            trace.record(REFERENCE_TARGET, calleeExpression, descriptor)
-        }
+        assert(call.calleeExpression == null)
+        // Do nothing for null callee expression
     }
 
     override fun <D : CallableDescriptor> bindResolvedCall(trace: BindingTrace, resolvedCall: ResolvedCall<D>) {
         trace.record(RESOLVED_CALL, call, resolvedCall)
-    }
-
-    override fun unresolvedReference(trace: BindingTrace) {
-        trace.report(UNRESOLVED_REFERENCE.on(calleeExpression!!, calleeExpression))
-    }
-
-    override fun <D : CallableDescriptor> unresolvedReferenceWrongReceiver(trace: BindingTrace, candidates: Collection<ResolvedCall<D>>) {
-        trace.report(UNRESOLVED_REFERENCE_WRONG_RECEIVER.on(reference, candidates))
     }
 
     override fun noValueForParameter(trace: BindingTrace, valueParameter: ValueParameterDescriptor) {
@@ -79,56 +62,47 @@ class TracingStrategyForImplicitConstructorDelegationCall(
     }
 
     private fun reportError(trace: BindingTrace) {
-        if (!trace.bindingContext.diagnostics.forElement(delegationCall).any { it.factory == Errors.EXPLICIT_DELEGATION_CALL_REQUIRED }) {
-            trace.report(Errors.EXPLICIT_DELEGATION_CALL_REQUIRED.on(delegationCall))
+        if (!trace.bindingContext.diagnostics.forElement(reportOnElement).any { it.factory == Errors.EXPLICIT_DELEGATION_CALL_REQUIRED }) {
+            trace.report(Errors.EXPLICIT_DELEGATION_CALL_REQUIRED.on(reportOnElement))
         }
     }
 
     // Underlying methods should not be called because such errors are impossible
     // when resolving delegation call
-    override fun <D : CallableDescriptor?> cannotCompleteResolve(trace: BindingTrace, descriptors: MutableCollection<out ResolvedCall<D>>) {
-        unexpectedError("cannotCompleteResolve")
-    }
+    override fun <D : CallableDescriptor?> recordAmbiguity(trace: BindingTrace, candidates: MutableCollection<out ResolvedCall<D>>) =
+            unexpectedError("recordAmbiguity")
 
-    override fun instantiationOfAbstractClass(trace: BindingTrace) {
-        unexpectedError("instantiationOfAbstractClass")
-    }
+    override fun unresolvedReference(trace: BindingTrace) = unexpectedError("unresolvedReference")
 
-    override fun abstractSuperCall(trace: BindingTrace) {
-        unexpectedError("abstractSuperCall")
-    }
+    override fun <D : CallableDescriptor> unresolvedReferenceWrongReceiver(trace: BindingTrace, candidates: Collection<ResolvedCall<D>>) =
+            unexpectedError("unresolvedReferenceWrongReceiver")
+
+    override fun nonExtensionFunctionCalledAsExtension(trace: BindingTrace) = unexpectedError("nonExtensionFunctionCalledAsExtension")
+
+    override fun <D : CallableDescriptor?> cannotCompleteResolve(trace: BindingTrace, descriptors: MutableCollection<out ResolvedCall<D>>)
+            = unexpectedError("cannotCompleteResolve")
+
+    override fun instantiationOfAbstractClass(trace: BindingTrace) = unexpectedError("instantiationOfAbstractClass")
+
+    override fun abstractSuperCall(trace: BindingTrace) = unexpectedError("abstractSuperCall")
 
     override fun nestedClassAccessViaInstanceReference(
-            trace: BindingTrace, classDescriptor: ClassDescriptor, explicitReceiverKind: ExplicitReceiverKind
-    ) {
-        unexpectedError("nestedClassAccessViaInstanceReference")
-    }
+            trace: BindingTrace, classDescriptor: ClassDescriptor,
+            explicitReceiverKind: ExplicitReceiverKind) = unexpectedError("nestedClassAccessViaInstanceReference")
 
-    override fun unsafeCall(trace: BindingTrace, type: KotlinType, isCallForImplicitInvoke: Boolean) {
-        unexpectedError("unsafeCall")
-    }
+    override fun unsafeCall(trace: BindingTrace, type: KotlinType, isCallForImplicitInvoke: Boolean) = unexpectedError("unsafeCall")
 
-    override fun missingReceiver(trace: BindingTrace, expectedReceiver: ReceiverParameterDescriptor) {
-        unexpectedError("missingReceiver")
-    }
+    override fun missingReceiver(trace: BindingTrace, expectedReceiver: ReceiverParameterDescriptor) = unexpectedError("missingReceiver")
 
-    override fun wrongReceiverType(trace: BindingTrace, receiverParameter: ReceiverParameterDescriptor, receiverArgument: ReceiverValue, c: ResolutionContext<*>) {
-        unexpectedError("wrongReceiverType")
-    }
+    override fun wrongReceiverType(trace: BindingTrace, receiverParameter: ReceiverParameterDescriptor,
+                                   receiverArgument: ReceiverValue, c: ResolutionContext<*>) = unexpectedError("wrongReceiverType")
 
-    override fun noReceiverAllowed(trace: BindingTrace) {
-        unexpectedError("noReceiverAllowed")
-    }
+    override fun noReceiverAllowed(trace: BindingTrace) = unexpectedError("noReceiverAllowed")
 
-    override fun wrongNumberOfTypeArguments(trace: BindingTrace, expectedTypeArgumentCount: Int, descriptor: CallableDescriptor) {
-        unexpectedError("wrongNumberOfTypeArguments")
-    }
+    override fun wrongNumberOfTypeArguments(trace: BindingTrace, expectedTypeArgumentCount: Int,
+                                            descriptor: CallableDescriptor) = unexpectedError("wrongNumberOfTypeArguments")
 
-    override fun typeInferenceFailed(context: ResolutionContext<*>, data: InferenceErrorData) {
-        unexpectedError("typeInferenceFailed")
-    }
+    override fun typeInferenceFailed(context: ResolutionContext<*>, data: InferenceErrorData) = unexpectedError("typeInferenceFailed")
 
-    private fun unexpectedError(type: String) {
-        throw AssertionError("Unexpected error type: $type")
-    }
+    private fun unexpectedError(type: String): Nothing = throw IllegalStateException("Unexpected error type: $type")
 }

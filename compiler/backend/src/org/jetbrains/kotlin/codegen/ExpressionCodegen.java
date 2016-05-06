@@ -4028,7 +4028,7 @@ The "returned" value of try expression with no finally is either the last expres
         return false;
     }
 
-    private Call makeFakeCall(ReceiverValue initializerAsReceiver) {
+    private Call makeFakeCall(@NotNull ReceiverValue initializerAsReceiver) {
         KtSimpleNameExpression fake = KtPsiFactoryKt.KtPsiFactory(state.getProject()).createSimpleName("fake");
         return CallMaker.makeCall(fake, initializerAsReceiver);
     }

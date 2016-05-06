@@ -271,11 +271,20 @@ public class CallResolver {
             return (OverloadResolutionResults) resolveCallForConstructor(context, (KtConstructorCalleeExpression) calleeExpression);
         }
         else if (calleeExpression instanceof KtConstructorDelegationReferenceExpression) {
+            KtConstructorDelegationReferenceExpression delegationReferenceExpression = (KtConstructorDelegationReferenceExpression) calleeExpression;
             KtConstructorDelegationCall delegationCall = (KtConstructorDelegationCall) context.call.getCallElement();
+
             DeclarationDescriptor container = context.scope.getOwnerDescriptor();
             assert container instanceof ConstructorDescriptor : "Trying to resolve JetConstructorDelegationCall not in constructor. scope.ownerDescriptor = " + container;
-            return (OverloadResolutionResults) resolveConstructorDelegationCall(context, delegationCall, (KtConstructorDelegationReferenceExpression) calleeExpression,
-                                                    (ConstructorDescriptor) container);
+            ConstructorDescriptor constructorDescriptor = (ConstructorDescriptor) container;
+
+            KtElement parent = (KtElement) delegationCall.getParent();
+
+            OverloadResolutionResults<ConstructorDescriptor> results = resolveConstructorDelegationCall(
+                    context, delegationCall, delegationReferenceExpression, parent, constructorDescriptor);
+
+            //noinspection unchecked
+            return (OverloadResolutionResults) results;
         }
         else if (calleeExpression == null) {
             return checkArgumentTypesAndFail(context);
@@ -348,28 +357,32 @@ public class CallResolver {
     public OverloadResolutionResults<ConstructorDescriptor> resolveConstructorDelegationCall(
             @NotNull BindingTrace trace, @NotNull LexicalScope scope, @NotNull DataFlowInfo dataFlowInfo,
             @NotNull ConstructorDescriptor constructorDescriptor,
-            @NotNull KtConstructorDelegationCall call
+            @NotNull KtSecondaryConstructor secondaryConstructor
     ) {
         // Method returns `null` when there is nothing to resolve in trivial cases like `null` call expression or
         // when super call should be conventional enum constructor and super call should be empty
 
+        KtConstructorDelegationCall delegationCall = secondaryConstructor.getDelegationCall();
+        Call call = delegationCall != null ? CallMaker.makeCall(null, null, delegationCall) : CallMaker.makeFakeEmptyCall(secondaryConstructor);
+
         BasicCallResolutionContext context = BasicCallResolutionContext.create(
                 trace, scope,
-                CallMaker.makeCall(null, null, call),
+                call,
                 NO_EXPECTED_TYPE,
                 dataFlowInfo, ContextDependency.INDEPENDENT, CheckArgumentTypesMode.CHECK_VALUE_ARGUMENTS,
                 false);
 
-        if (call.getCalleeExpression() == null) return checkArgumentTypesAndFail(context);
+        if (delegationCall != null && delegationCall.getCalleeExpression() == null) return checkArgumentTypesAndFail(context);
 
-        if (constructorDescriptor.getContainingDeclaration().getKind() == ClassKind.ENUM_CLASS && call.isImplicit()) {
+        if (constructorDescriptor.getContainingDeclaration().getKind() == ClassKind.ENUM_CLASS && secondaryConstructor.hasImplicitDelegationCall()) {
             return null;
         }
 
         return resolveConstructorDelegationCall(
                 context,
-                call,
-                call.getCalleeExpression(),
+                delegationCall,
+                delegationCall != null ? delegationCall.getCalleeExpression() : null,
+                secondaryConstructor,
                 constructorDescriptor
         );
     }
@@ -377,16 +390,19 @@ public class CallResolver {
     @NotNull
     private OverloadResolutionResults<ConstructorDescriptor> resolveConstructorDelegationCall(
             @NotNull BasicCallResolutionContext context,
-            @NotNull KtConstructorDelegationCall call,
-            @NotNull KtConstructorDelegationReferenceExpression calleeExpression,
+            @Nullable KtConstructorDelegationCall delegationCall,
+            @Nullable KtConstructorDelegationReferenceExpression calleeExpression,
+            @NotNull KtElement reportErrorOn,
             @NotNull ConstructorDescriptor calleeConstructor
     ) {
-        context.trace.record(BindingContext.LEXICAL_SCOPE, call, context.scope);
+        if (delegationCall != null) {
+            context.trace.record(BindingContext.LEXICAL_SCOPE, delegationCall, context.scope);
+        }
 
         ClassDescriptor currentClassDescriptor = calleeConstructor.getContainingDeclaration();
 
-        boolean isThisCall = calleeExpression.isThis();
-        if (currentClassDescriptor.getKind() == ClassKind.ENUM_CLASS && !isThisCall) {
+        boolean isThisCall = calleeExpression != null && calleeExpression.isThis();
+        if (currentClassDescriptor.getKind() == ClassKind.ENUM_CLASS && !isThisCall && calleeExpression != null) {
             context.trace.report(DELEGATION_SUPER_CALL_IN_ENUM_CONSTRUCTOR.on(calleeExpression));
             return checkArgumentTypesAndFail(context);
         }
@@ -395,14 +411,15 @@ public class CallResolver {
                                                   DescriptorUtilsKt.getSuperClassOrAny(currentClassDescriptor);
         Collection<ConstructorDescriptor> constructors = delegateClassDescriptor.getConstructors();
 
+        boolean isImplicitCall = delegationCall == null || delegationCall.isImplicit();
+
         if (!isThisCall && currentClassDescriptor.getUnsubstitutedPrimaryConstructor() != null) {
             if (DescriptorUtils.canHaveDeclaredConstructors(currentClassDescriptor)) {
                 // Diagnostic is meaningless when reporting on interfaces and object
-                context.trace.report(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED.on(
-                        (KtConstructorDelegationCall) calleeExpression.getParent()
-                ));
+                KtElement elementForErrorReport = calleeExpression != null ? (KtConstructorDelegationCall) calleeExpression.getParent() : reportErrorOn;
+                context.trace.report(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED.on(elementForErrorReport));
             }
-            if (call.isImplicit()) return OverloadResolutionResultsImpl.nameNotFound();
+            if (isImplicitCall) return OverloadResolutionResultsImpl.nameNotFound();
         }
 
         if (constructors.isEmpty()) {
@@ -420,11 +437,11 @@ public class CallResolver {
         Collection<ResolutionCandidate<ConstructorDescriptor>> candidates = candidatesAndContext.getFirst();
         context = candidatesAndContext.getSecond();
 
-        TracingStrategy tracing = call.isImplicit() ?
-                                  new TracingStrategyForImplicitConstructorDelegationCall(call, context.call) :
+        TracingStrategy tracing = calleeExpression == null ?
+                                  new TracingStrategyForImplicitConstructorDelegationCall(reportErrorOn, context.call) :
                                   TracingStrategyImpl.create(calleeExpression, context.call);
 
-        PsiElement reportOn = call.isImplicit() ? call : calleeExpression;
+        PsiElement reportOn = calleeExpression == null ? reportErrorOn : calleeExpression;
 
         if (delegateClassDescriptor.isInner()
             && !DescriptorResolver.checkHasOuterClassInstance(context.scope, context.trace, reportOn,
@@ -434,110 +451,6 @@ public class CallResolver {
 
         return computeTasksFromCandidatesAndResolvedCall(context, candidates, tracing);
     }
-
-
-    //@Nullable
-    //public OverloadResolutionResults<ConstructorDescriptor> resolveConstructorDelegationCall(
-    //        @NotNull BindingTrace trace, @NotNull LexicalScope scope, @NotNull DataFlowInfo dataFlowInfo,
-    //        @NotNull ConstructorDescriptor constructorDescriptor,
-    //        @Nullable KtConstructorDelegationCall call
-    //) {
-    //    // Method returns `null` when there is nothing to resolve in trivial cases like `null` call expression or
-    //    // when super call should be conventional enum constructor and super call should be empty
-    //
-    //    BasicCallResolutionContext context = call != null ? BasicCallResolutionContext.create(
-    //            trace, scope,
-    //            CallMaker.makeCall(null, null, call),
-    //            NO_EXPECTED_TYPE,
-    //            dataFlowInfo, ContextDependency.INDEPENDENT, CheckArgumentTypesMode.CHECK_VALUE_ARGUMENTS,
-    //            false) : null;
-    //
-    //    if (call != null && call.getCalleeExpression() == null) return checkArgumentTypesAndFail(context);
-    //
-    //    if (constructorDescriptor.getContainingDeclaration().getKind() == ClassKind.ENUM_CLASS && (call == null || call.isImplicit())) {
-    //        return null;
-    //    }
-    //
-    //    return resolveConstructorDelegationCall(
-    //            context,
-    //            context != null ? context.trace : trace,
-    //            call,
-    //            call != null ? call.getCalleeExpression() : null,
-    //            constructorDescriptor
-    //    );
-    //}
-    //
-    //@NotNull
-    //private OverloadResolutionResults<ConstructorDescriptor> resolveConstructorDelegationCall(
-    //        @Nullable BasicCallResolutionContext context,
-    //        @NotNull BindingTrace trace,
-    //        @Nullable KtConstructorDelegationCall call,
-    //        @Nullable KtConstructorDelegationReferenceExpression calleeExpression,
-    //        @NotNull ConstructorDescriptor calleeConstructor
-    //) {
-    //    if (context != null) {
-    //        context.trace.record(BindingContext.LEXICAL_SCOPE, call, context.scope);
-    //    }
-    //
-    //    ClassDescriptor currentClassDescriptor = calleeConstructor.getContainingDeclaration();
-    //
-    //    boolean isThisCall = calleeExpression != null && calleeExpression.isThis();
-    //    if (currentClassDescriptor.getKind() == ClassKind.ENUM_CLASS && !isThisCall) {
-    //        context.trace.report(DELEGATION_SUPER_CALL_IN_ENUM_CONSTRUCTOR.on(calleeExpression));
-    //        return checkArgumentTypesAndFail(context);
-    //    }
-    //
-    //    boolean isImplicit = call == null || call.isImplicit();
-    //
-    //    ClassDescriptor delegateClassDescriptor = isThisCall ? currentClassDescriptor :
-    //                                              DescriptorUtilsKt.getSuperClassOrAny(currentClassDescriptor);
-    //    Collection<ConstructorDescriptor> constructors = delegateClassDescriptor.getConstructors();
-    //
-    //    if (!isThisCall && currentClassDescriptor.getUnsubstitutedPrimaryConstructor() != null) {
-    //        if (DescriptorUtils.canHaveDeclaredConstructors(currentClassDescriptor)) {
-    //            // Diagnostic is meaningless when reporting on interfaces and object
-    //            if (context != null && calleeExpression != null) {
-    //                context.trace.report(PRIMARY_CONSTRUCTOR_DELEGATION_CALL_EXPECTED.on(
-    //                        (KtConstructorDelegationCall) calleeExpression.getParent()
-    //                ));
-    //            }
-    //        }
-    //        if (isImplicit) return OverloadResolutionResultsImpl.nameNotFound();
-    //    }
-    //
-    //    if (constructors.isEmpty()) {
-    //        trace.report(NO_CONSTRUCTOR.on(CallUtilKt.getValueArgumentListOrElement(context.call)));
-    //        return checkArgumentTypesAndFail(context);
-    //    }
-    //
-    //
-    //    KotlinType superType = isThisCall ?
-    //                              calleeConstructor.getContainingDeclaration().getDefaultType() :
-    //                              DescriptorUtils.getSuperClassType(currentClassDescriptor);
-    //
-    //    if (context == null || call == null) {
-    //        return null;
-    //    }
-    //
-    //    Pair<Collection<ResolutionCandidate<ConstructorDescriptor>>, BasicCallResolutionContext> candidatesAndContext =
-    //            prepareCandidatesAndContextForConstructorCall(superType, context);
-    //    Collection<ResolutionCandidate<ConstructorDescriptor>> candidates = candidatesAndContext.getFirst();
-    //    context = candidatesAndContext.getSecond();
-    //
-    //    TracingStrategy tracing = isImplicit ?
-    //                              new TracingStrategyForImplicitConstructorDelegationCall(call, context.call) :
-    //                              TracingStrategyImpl.create(calleeExpression, context.call);
-    //
-    //    PsiElement reportOn = call.isImplicit() ? call : calleeExpression;
-    //
-    //    if (delegateClassDescriptor.isInner()
-    //            && !DescriptorResolver.checkHasOuterClassInstance(context.scope, context.trace, reportOn,
-    //                                                              (ClassDescriptor) delegateClassDescriptor.getContainingDeclaration())) {
-    //        return checkArgumentTypesAndFail(context);
-    //    }
-    //
-    //    return computeTasksFromCandidatesAndResolvedCall(context, candidates, tracing);
-    //}
 
     @NotNull
     private static Pair<Collection<ResolutionCandidate<ConstructorDescriptor>>, BasicCallResolutionContext> prepareCandidatesAndContextForConstructorCall(

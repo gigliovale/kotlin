@@ -361,4 +361,9 @@ public class CallMaker {
     public static Call makeCall(@NotNull KtElement callElement, @NotNull ReceiverValue explicitReceiver) {
         return new CallImpl(callElement, explicitReceiver, null, null, Collections.<ValueArgument>emptyList());
     }
+
+    @NotNull
+    public static Call makeFakeEmptyCall(@NotNull KtElement callElement) {
+        return new CallImpl(callElement, null, null, null, Collections.<ValueArgument>emptyList(), CallType.DEFAULT);
+    }
 }

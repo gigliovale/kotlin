@@ -431,15 +431,19 @@ object PositioningStrategies {
         }
     }
 
-    @JvmField val SECONDARY_CONSTRUCTOR_DELEGATION_CALL: PositioningStrategy<KtConstructorDelegationCall> =
-            object : PositioningStrategy<KtConstructorDelegationCall>() {
-                override fun mark(element: KtConstructorDelegationCall): List<TextRange> {
-                    if (element.isImplicit) {
-                        val constructor = element.getStrictParentOfType<KtSecondaryConstructor>()!!
-                        val valueParameterList = constructor.getValueParameterList() ?: return markElement(constructor)
-                        return markRange(constructor.getConstructorKeyword(), valueParameterList.getLastChild())
+    @JvmField val SECONDARY_CONSTRUCTOR_DELEGATION_CALL: PositioningStrategy<KtElement> =
+            object : PositioningStrategy<KtElement>() {
+                override fun mark(element: KtElement): List<TextRange> {
+                    if (element is KtConstructorDelegationCall) {
+                        if (element.isImplicit) {
+                            val constructor = element.getStrictParentOfType<KtSecondaryConstructor>()!!
+                            val valueParameterList = constructor.getValueParameterList() ?: return markElement(constructor)
+                            return markRange(constructor.getConstructorKeyword(), valueParameterList.getLastChild())
+                        }
+                        return markElement(element.calleeExpression ?: element)
                     }
-                    return markElement(element.calleeExpression ?: element)
+
+                    return markElement(element)
                 }
             }
 

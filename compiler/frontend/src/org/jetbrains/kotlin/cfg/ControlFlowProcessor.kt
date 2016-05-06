@@ -1305,6 +1305,12 @@ class ControlFlowProcessor(private val trace: BindingTrace) {
                     generateInitializersForScriptClassOrObject(classOrObject)
                 }
             }
+            else {
+                val resolvedCall = constructor.getResolvedCall(trace.bindingContext)
+                checkAndGenerateCall(resolvedCall)
+
+                generateInitializersForScriptClassOrObject(classOrObject)
+            }
 
             generateInstructions(constructor.bodyExpression)
         }

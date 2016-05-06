@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.resolve.BindingContext.CALL
 import org.jetbrains.kotlin.resolve.BindingContext.RESOLVED_CALL
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
@@ -33,7 +34,7 @@ class TracingStrategyForImplicitConstructorDelegationCall(val reportOnElement: K
 
     override fun bindCall(trace: BindingTrace, call: Call) {
         assert(call.calleeExpression == null)
-        // Do nothing for null callee expression
+        trace.record(CALL, reportOnElement, call)
     }
 
     override fun <D : CallableDescriptor> bindReference(trace: BindingTrace, resolvedCall: ResolvedCall<D>) {

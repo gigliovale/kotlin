@@ -81,6 +81,10 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
     }
 
     fun testWithNonAsciiSymbols() {
+        val ENCODING_PROPERTY_NAME = "file.encoding"
+        val encoding = System.getProperty(ENCODING_PROPERTY_NAME)
+        System.setProperty(ENCODING_PROPERTY_NAME, Charsets.UTF_8.name())
+
         fun pathToTestFile(extension: String) = "$testDataDirectory/withNonAsciiSymbols.$extension"
         fun String.normalize() = replace('/', File.separatorChar).replace("\r\n", "\n")
 
@@ -91,6 +95,8 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
                 expectedStderr = File(pathToTestFile("out")).readText().normalize(),
                 expectedExitCode = ExitCode.COMPILATION_ERROR
         )
+
+        System.setProperty(ENCODING_PROPERTY_NAME, encoding)
     }
 
     fun testKotlincJsSimple() {

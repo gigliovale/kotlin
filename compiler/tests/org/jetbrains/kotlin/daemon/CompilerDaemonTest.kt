@@ -121,6 +121,10 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
     }
 
     fun testCodeWithNonAsciiSymbols() {
+        val ENCODING_PROPERTY_NAME = "file.encoding"
+        val encoding = System.getProperty(ENCODING_PROPERTY_NAME)
+        System.setProperty(ENCODING_PROPERTY_NAME, Charsets.UTF_8.name())
+
         fun pathToTestFile(extension: String) = getTestDataPathBase() + "/launcher/withNonAsciiSymbols.$extension"
         fun String.normalize() = replace('/', File.separatorChar)
 
@@ -154,6 +158,8 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
                 if (!daemonShotDown) {
                     KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
                 }
+
+                System.setProperty(ENCODING_PROPERTY_NAME, encoding)
             }
         }
     }

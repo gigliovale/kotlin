@@ -82,7 +82,7 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
     }
 
     fun testWithNonAsciiSymbols() {
-        val old = resetDefaultCharset(Charsets.UTF_8.name())
+        val old = resetDefaultCharset(Charsets.UTF_8)
 
         fun pathToTestFile(extension: String) = "$testDataDirectory/withNonAsciiSymbols.$extension"
         fun String.normalize() = replace('/', File.separatorChar).replace("\r\n", "\n")
@@ -144,17 +144,13 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
     }
 }
 
-fun resetDefaultCharset(newDefault: String?): String? {
-    if (newDefault == null) return null
-
-    System.setProperty("file.encoding", newDefault)
-
+fun resetDefaultCharset(newDefault: Charset?): Charset? {
     val charset = Charset::class.java.getDeclaredField("defaultCharset")
     charset.isAccessible = true
 
-    val prev = charset.get(null) as String?
+    val prev = charset.get(null) as Charset?
 
-    charset.set(null, null)
+    charset.set(null, newDefault)
 
     return prev
 }

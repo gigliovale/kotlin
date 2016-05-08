@@ -122,7 +122,7 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
     }
 
     fun testCodeWithNonAsciiSymbols() {
-        val old = resetDefaultCharset(Charsets.UTF_8.name())
+        val old = resetDefaultCharset(Charsets.UTF_8)
 
         fun pathToTestFile(extension: String) = getTestDataPathBase() + "/launcher/withNonAsciiSymbols.$extension"
         fun String.normalize() = replace('/', File.separatorChar)

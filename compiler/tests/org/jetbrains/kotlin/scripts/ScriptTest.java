@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns;
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys;
 import org.jetbrains.kotlin.cli.common.messages.*;
+import org.jetbrains.kotlin.cli.jvm.compiler.DirectPluginsLoadingMode;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinToJVMBytecodeCompiler;
@@ -83,7 +84,7 @@ public class ScriptTest {
             configuration.add(CommonConfigurationKeys.SCRIPT_DEFINITIONS_KEY, scriptDefinition);
 
             KotlinCoreEnvironment environment =
-                    KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
+                    KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, DirectPluginsLoadingMode.NONE, EnvironmentConfigFiles.JVM_CONFIG_FILES);
 
             try {
                 return KotlinToJVMBytecodeCompiler.INSTANCE.compileScript(configuration, paths, environment);

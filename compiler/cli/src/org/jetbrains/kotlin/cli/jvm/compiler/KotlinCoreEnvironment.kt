@@ -28,6 +28,7 @@ import com.intellij.mock.MockApplication
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.extensions.ExtensionsArea
 import com.intellij.openapi.fileTypes.FileTypeExtensionPoint
@@ -74,6 +75,7 @@ import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.kotlinSourceRoots
+import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages
 import org.jetbrains.kotlin.extensions.ExternalDeclarationsProvider
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -95,12 +97,16 @@ import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import java.util.*
 
+enum class DirectPluginsLoadingMode {
+    NONE, JVM, JS
+}
+
 class KotlinCoreEnvironment private constructor(
         parentDisposable: Disposable, 
         applicationEnvironment: JavaCoreApplicationEnvironment, 
-        configuration: CompilerConfiguration
+        configuration: CompilerConfiguration,
+        directPluginsLoadingMode: DirectPluginsLoadingMode
 ) {
-
     private val projectEnvironment: JavaCoreProjectEnvironment = object : KotlinCoreProjectEnvironment(parentDisposable, applicationEnvironment) {
         override fun preregisterServices() {
             registerProjectExtensionPoints(Extensions.getArea(getProject()))
@@ -120,7 +126,7 @@ class KotlinCoreEnvironment private constructor(
         project.registerService(DeclarationProviderFactoryService::class.java, CliDeclarationProviderFactoryService(sourceFiles))
         project.registerService(ModuleVisibilityManager::class.java, CliModuleVisibilityManagerImpl())
 
-        registerProjectServicesForCLI(projectEnvironment)
+        registerProjectServicesForCLI(projectEnvironment, directPluginsLoadingMode)
         registerProjectServices(projectEnvironment)
 
         fillClasspath(configuration)
@@ -142,12 +148,14 @@ class KotlinCoreEnvironment private constructor(
 
         project.registerService(JvmVirtualFileFinderFactory::class.java, JvmCliVirtualFileFinderFactory(index))
 
-        ExternalDeclarationsProvider.registerExtensionPoint(project)
-        ExpressionCodegenExtension.registerExtensionPoint(project)
-        ClassBuilderInterceptorExtension.registerExtensionPoint(project)
-        AnalysisCompletedHandlerExtension.registerExtensionPoint(project)
-        PackageFragmentProviderExtension.registerExtensionPoint(project)
-        StorageComponentContainerContributor.registerExtensionPoint(project)
+//        if (directPluginsLoadingMode == DirectPluginsLoadingMode.NONE) {
+//            ExternalDeclarationsProvider.registerExtensionPoint(project)
+//            ExpressionCodegenExtension.registerExtensionPoint(project)
+//            ClassBuilderInterceptorExtension.registerExtensionPoint(project)
+//            AnalysisCompletedHandlerExtension.registerExtensionPoint(project)
+//            PackageFragmentProviderExtension.registerExtensionPoint(project)
+//            StorageComponentContainerContributor.registerExtensionPoint(project)
+//        }
 
         for (registrar in configuration.getList(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS)) {
             registrar.registerProjectComponents(project, configuration)
@@ -257,9 +265,9 @@ class KotlinCoreEnvironment private constructor(
         private var ourProjectCount = 0
 
         @JvmStatic fun createForProduction(
-                parentDisposable: Disposable, configuration: CompilerConfiguration, configFilePaths: List<String>
+                parentDisposable: Disposable, configuration: CompilerConfiguration, directPluginsLoadingMode: DirectPluginsLoadingMode, configFilePaths: List<String>
         ): KotlinCoreEnvironment {
-            val appEnv = getOrCreateApplicationEnvironmentForProduction(configuration, configFilePaths)
+            val appEnv = getOrCreateApplicationEnvironmentForProduction(configuration, directPluginsLoadingMode, configFilePaths)
             // Disposing of the environment is unsafe in production then parallel builds are enabled, but turning it off universally
             // breaks a lot of tests, therefore it is disabled for production and enabled for tests
             if (!(System.getProperty(KOTLIN_COMPILER_ENVIRONMENT_KEEPALIVE_PROPERTY).toBooleanLenient() ?: false)) {
@@ -275,7 +283,7 @@ class KotlinCoreEnvironment private constructor(
                     }
                 })
             }
-            val environment = KotlinCoreEnvironment(parentDisposable, appEnv, configuration)
+            val environment = KotlinCoreEnvironment(parentDisposable, appEnv, configuration, directPluginsLoadingMode)
 
             synchronized (APPLICATION_LOCK) {
                 ourProjectCount++
@@ -288,19 +296,19 @@ class KotlinCoreEnvironment private constructor(
                 parentDisposable: Disposable, configuration: CompilerConfiguration, extensionConfigs: List<String>
         ): KotlinCoreEnvironment {
             // Tests are supposed to create a single project and dispose it right after use
-            return KotlinCoreEnvironment(parentDisposable, createApplicationEnvironment(parentDisposable, configuration, extensionConfigs), configuration)
+            return KotlinCoreEnvironment(parentDisposable, createApplicationEnvironment(parentDisposable, configuration, extensionConfigs, DirectPluginsLoadingMode.NONE), configuration, DirectPluginsLoadingMode.NONE)
         }
 
         // used in the daemon for jar cache cleanup
         val applicationEnvironment: JavaCoreApplicationEnvironment? get() = ourApplicationEnvironment
 
-        private fun getOrCreateApplicationEnvironmentForProduction(configuration: CompilerConfiguration, configFilePaths: List<String>): JavaCoreApplicationEnvironment {
+        private fun getOrCreateApplicationEnvironmentForProduction(configuration: CompilerConfiguration, directPluginsLoadingMode: DirectPluginsLoadingMode, configFilePaths: List<String>): JavaCoreApplicationEnvironment {
             synchronized (APPLICATION_LOCK) {
                 if (ourApplicationEnvironment != null)
                     return ourApplicationEnvironment!!
 
                 val parentDisposable = Disposer.newDisposable()
-                ourApplicationEnvironment = createApplicationEnvironment(parentDisposable, configuration, configFilePaths)
+                ourApplicationEnvironment = createApplicationEnvironment(parentDisposable, configuration, configFilePaths, directPluginsLoadingMode)
                 ourProjectCount = 0
                 Disposer.register(parentDisposable, object : Disposable {
                     override fun dispose() {
@@ -322,13 +330,23 @@ class KotlinCoreEnvironment private constructor(
             }
         }
 
-        private fun createApplicationEnvironment(parentDisposable: Disposable, configuration: CompilerConfiguration, configFilePaths: List<String>): JavaCoreApplicationEnvironment {
+        private fun createApplicationEnvironment(parentDisposable: Disposable, configuration: CompilerConfiguration, configFilePaths: List<String>, pluginsLoadingMode: DirectPluginsLoadingMode): JavaCoreApplicationEnvironment {
             Extensions.cleanRootArea(parentDisposable)
             registerAppExtensionPoints()
             val applicationEnvironment = JavaCoreApplicationEnvironment(parentDisposable)
 
-            for (configPath in configFilePaths) {
-                registerApplicationExtensionPointsAndExtensionsFrom(configuration, configPath)
+            if (pluginsLoadingMode == DirectPluginsLoadingMode.NONE) {
+                for (configPath in configFilePaths) {
+                    registerApplicationExtensionPointsAndExtensionsFrom(configuration, configPath)
+                }
+            }
+            else {
+                registerCommonExtensionPoints()
+                @Suppress("NON_EXHAUSTIVE_WHEN")
+                when (pluginsLoadingMode) {
+                    DirectPluginsLoadingMode.JVM -> registerJvmExtensionPoints()
+                    DirectPluginsLoadingMode.JS -> registerJsExtensionPoints()
+                }
             }
 
             registerApplicationServicesForCLI(applicationEnvironment)
@@ -348,6 +366,59 @@ class KotlinCoreEnvironment private constructor(
             CoreApplicationEnvironment.registerExtensionPoint(Extensions.getRootArea(), ContainerProvider.EP_NAME, ContainerProvider::class.java)
             CoreApplicationEnvironment.registerExtensionPoint(Extensions.getRootArea(), ClsCustomNavigationPolicy.EP_NAME, ClsCustomNavigationPolicy::class.java)
             CoreApplicationEnvironment.registerExtensionPoint(Extensions.getRootArea(), ClassFileDecompilers.EP_NAME, ClassFileDecompilers.Decompiler::class.java)
+        }
+
+        private fun registerCommonExtensionPoints() {
+            val area = Extensions.getRootArea()
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages.Extension.EP_NAME, org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages.Extension::class.java)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.resolve.diagnostics.SuppressStringProvider.EP_NAME, org.jetbrains.kotlin.resolve.diagnostics.SuppressStringProvider::class.java)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor.EP_NAME, org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor::class.java)
+//            org.jetbrains.kotlin.idea.quickfix.QuickFixContributor
+        }
+
+        private fun registerCommonProjectExtensionPoints(project: Project) {
+            val area = Extensions.getArea(project)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.extensions.ExternalDeclarationsProvider.extensionPointName, org.jetbrains.kotlin.extensions.ExternalDeclarationsProvider::class.java)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension.extensionPointName, org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension::class.java)
+//            org.jetbrains.kotlin.plugin.findUsages.handlers.KotlinFindUsagesHandlerDecorator
+//            org.jetbrains.kotlin.plugin.references.SimpleNameReferenceExtension
+//            org.jetbrains.kotlin.idea.core.extension.KotlinIndicesHelperExtension
+            CoreApplicationEnvironment.registerExtensionPoint(area, ClassBuilderInterceptorExtension.extensionPointName, org.jetbrains.kotlin.codegen.extensions.ClassBuilderInterceptorExtension::class.java)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.resolve.jvm.extensions.PackageFragmentProviderExtension.extensionPointName, org.jetbrains.kotlin.resolve.jvm.extensions.PackageFragmentProviderExtension::class.java)
+            CoreApplicationEnvironment.registerExtensionPoint(area, org.jetbrains.kotlin.extensions.StorageComponentContainerContributor.extensionPointName, org.jetbrains.kotlin.extensions.StorageComponentContainerContributor::class.java)
+        }
+
+        private fun registerJvmExtensionPoints() {
+            with (Extensions.getRootArea().getExtensionPoint(DefaultErrorMessages.Extension.EP_NAME)) {
+                registerExtension(org.jetbrains.kotlin.resolve.jvm.diagnostics.DefaultErrorMessagesJvm())
+                registerExtension(org.jetbrains.kotlin.js.resolve.diagnostics.DefaultErrorMessagesJs())
+            }
+//            org.jetbrains.kotlin.resolve.jvm.AnalyzeCompleteHandlerExtension
+        }
+
+        private fun registerJvmProjectExtensionPoints(project: Project) {
+            // this is in fact loaded elsewhere
+//            Extensions.getArea(project).registerExtensionPoint(ClassBuilderInterceptorExtension.extensionPointName.name,
+//                                                               org.jetbrains.kotlin.annotation.AnnotationCollectorExtension::class.java.name,
+//                                                               )
+//            Extensions.getArea(project).getExtensionPoint(ClassBuilderInterceptorExtension.extensionPointName)
+//                    // TODO: find out why it is not possible to register extension point and whethr the workaround is valid
+//                    .registerExtension(org.jetbrains.kotlin.annotation.AnnotationCollectorExtension(null, null, true))
+        }
+
+        private fun registerJsExtensionPoints() {
+            with (Extensions.getRootArea().getExtensionPoint(DefaultErrorMessages.Extension.EP_NAME)) {
+                registerExtension(org.jetbrains.kotlin.resolve.jvm.diagnostics.DefaultErrorMessagesJvm())
+                registerExtension(org.jetbrains.kotlin.js.resolve.diagnostics.DefaultErrorMessagesJs())
+            }
+            with (Extensions.getRootArea().getExtensionPoint(org.jetbrains.kotlin.resolve.diagnostics.SuppressStringProvider.EP_NAME)) {
+                registerExtension(org.jetbrains.kotlin.js.analyze.SuppressUnusedParameterForJsNative())
+                registerExtension(org.jetbrains.kotlin.js.analyze.SuppressNoBodyErrorsForNativeDeclarations())
+            }
+            with (Extensions.getRootArea().getExtensionPoint(org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor.EP_NAME)) {
+                registerExtension(org.jetbrains.kotlin.js.analyze.SuppressUninitializedErrorsForNativeDeclarations())
+                registerExtension(org.jetbrains.kotlin.js.analyze.SuppressWarningsFromExternalModules())
+            }
         }
 
         private fun registerApplicationExtensionPointsAndExtensionsFrom(configuration: CompilerConfiguration, configFilePath: String) {
@@ -398,7 +469,7 @@ class KotlinCoreEnvironment private constructor(
             }
         }
 
-        private fun registerProjectServicesForCLI(projectEnvironment: JavaCoreProjectEnvironment) {
+        private fun registerProjectServicesForCLI(projectEnvironment: JavaCoreProjectEnvironment, pluginsLoadingMode: DirectPluginsLoadingMode) {
             with (projectEnvironment.project) {
                 registerService(CoreJavaFileManager::class.java, ServiceManager.getService(this, JavaFileManager::class.java) as CoreJavaFileManager)
 
@@ -412,6 +483,10 @@ class KotlinCoreEnvironment private constructor(
                 area.getExtensionPoint(PsiElementFinder.EP_NAME).registerExtension(JavaElementFinder(this, cliLightClassGenerationSupport))
                 area.getExtensionPoint(PsiElementFinder.EP_NAME).registerExtension(
                         PsiElementFinderImpl(this, ServiceManager.getService(this, JavaFileManager::class.java)))
+
+                if (pluginsLoadingMode != DirectPluginsLoadingMode.NONE) {
+                    registerCommonProjectExtensionPoints(this)
+                }
             }
         }
     }

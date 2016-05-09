@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.cli.common.arguments.K2JsArgumentConstants;
 import org.jetbrains.kotlin.cli.common.messages.*;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.CompilerJarLocator;
+import org.jetbrains.kotlin.cli.jvm.compiler.DirectPluginsLoadingMode;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.cli.jvm.config.JVMConfigurationKeys;
@@ -104,7 +105,9 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
 
         ContentRootsKt.addKotlinSourceRoots(configuration, arguments.freeArgs);
         KotlinCoreEnvironment environmentForJS =
-                KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JS_CONFIG_FILES);
+                KotlinCoreEnvironment.createForProduction(rootDisposable, configuration,
+                                                          arguments.noCoreEnvConfigs ? DirectPluginsLoadingMode.JS : DirectPluginsLoadingMode.NONE,
+                                                          EnvironmentConfigFiles.JS_CONFIG_FILES);
 
         Project project = environmentForJS.getProject();
         List<KtFile> sourcesFiles = environmentForJS.getSourceFiles();

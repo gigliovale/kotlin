@@ -166,7 +166,7 @@ open class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
                 val compilerConfiguration = KotlinToJVMBytecodeCompiler.createCompilerConfiguration(configuration, moduleScript.modules, directory)
                 compilerConfiguration.put(JVMConfigurationKeys.MODULE_XML_FILE_PATH, arguments.module)
 
-                environment = createCoreEnvironment(rootDisposable, compilerConfiguration)
+                environment = createCoreEnvironment(rootDisposable, compilerConfiguration, arguments)
 
                 if (messageSeverityCollector.anyReported(CompilerMessageSeverity.ERROR)) return COMPILATION_ERROR
 
@@ -174,14 +174,14 @@ open class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
             }
             else if (arguments.script) {
                 val scriptArgs = arguments.freeArgs.subList(1, arguments.freeArgs.size)
-                environment = createCoreEnvironment(rootDisposable, configuration)
+                environment = createCoreEnvironment(rootDisposable, configuration, arguments)
 
                 if (messageSeverityCollector.anyReported(CompilerMessageSeverity.ERROR)) return COMPILATION_ERROR
 
                 return KotlinToJVMBytecodeCompiler.compileAndExecuteScript(configuration, paths, environment, scriptArgs)
             }
             else {
-                environment = createCoreEnvironment(rootDisposable, configuration)
+                environment = createCoreEnvironment(rootDisposable, configuration, arguments)
 
                 if (messageSeverityCollector.anyReported(CompilerMessageSeverity.ERROR)) return COMPILATION_ERROR
 
@@ -210,8 +210,10 @@ open class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
 
     }
 
-    private fun createCoreEnvironment(rootDisposable: Disposable, configuration: CompilerConfiguration): KotlinCoreEnvironment {
-        val result = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
+    private fun createCoreEnvironment(rootDisposable: Disposable, configuration: CompilerConfiguration, arguments: K2JVMCompilerArguments): KotlinCoreEnvironment {
+        val result = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration,
+                                                               if (arguments.noCoreEnvConfigs) DirectPluginsLoadingMode.JVM else DirectPluginsLoadingMode.NONE,
+                                                               EnvironmentConfigFiles.JVM_CONFIG_FILES)
 
         if (initStartNanos != 0L) {
             val initNanos = System.nanoTime() - initStartNanos

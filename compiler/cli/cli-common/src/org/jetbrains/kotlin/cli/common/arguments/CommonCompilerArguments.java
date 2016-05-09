@@ -52,6 +52,9 @@ public abstract class CommonCompilerArguments {
     @ValueDescription("<path>")
     public String[] pluginClasspaths;
 
+    @Argument(value = "Xno-coreenv-configs", description = "Skip loading core environment configuration files (direct extensions loading)")
+    public boolean noCoreEnvConfigs;
+
     @Argument(value = "P", description = "\n                             Pass an option to a plugin")
     @ValueDescription(PLUGIN_OPTION_FORMAT)
     public String[] pluginOptions;

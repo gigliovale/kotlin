@@ -26,10 +26,7 @@ import com.intellij.psi.search.ProjectScope
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.kotlin.cli.common.messages.AnalyzerWithCompilerReport
 import org.jetbrains.kotlin.cli.common.messages.DiagnosticMessageReporter
-import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport
-import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
-import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
-import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
+import org.jetbrains.kotlin.cli.jvm.compiler.*
 import org.jetbrains.kotlin.cli.jvm.config.getModuleName
 import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
 import org.jetbrains.kotlin.cli.jvm.repl.di.ReplLastLineScopeProvider
@@ -93,7 +90,7 @@ class ReplInterpreter(
     init {
         configuration.add(CommonConfigurationKeys.SCRIPT_DEFINITIONS_KEY, REPL_LINE_AS_SCRIPT_DEFINITION)
 
-        val environment = KotlinCoreEnvironment.createForProduction(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
+        val environment = KotlinCoreEnvironment.createForProduction(disposable, configuration, DirectPluginsLoadingMode.NONE, EnvironmentConfigFiles.JVM_CONFIG_FILES)
         val project = environment.project
 
         this.psiFileFactory = PsiFileFactory.getInstance(project) as PsiFileFactoryImpl

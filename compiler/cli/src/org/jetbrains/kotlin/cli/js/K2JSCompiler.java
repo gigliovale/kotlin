@@ -106,7 +106,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         ContentRootsKt.addKotlinSourceRoots(configuration, arguments.freeArgs);
         KotlinCoreEnvironment environmentForJS =
                 KotlinCoreEnvironment.createForProduction(rootDisposable, configuration,
-                                                          arguments.noCoreEnvConfigs ? DirectPluginsLoadingMode.JS : DirectPluginsLoadingMode.NONE,
+                                                          !arguments.noCoreEnvConfigs ? DirectPluginsLoadingMode.JS : DirectPluginsLoadingMode.NONE,
                                                           EnvironmentConfigFiles.JS_CONFIG_FILES);
 
         Project project = environmentForJS.getProject();

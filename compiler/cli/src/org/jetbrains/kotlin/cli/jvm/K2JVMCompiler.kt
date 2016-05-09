@@ -212,7 +212,7 @@ open class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
 
     private fun createCoreEnvironment(rootDisposable: Disposable, configuration: CompilerConfiguration, arguments: K2JVMCompilerArguments): KotlinCoreEnvironment {
         val result = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration,
-                                                               if (arguments.noCoreEnvConfigs) DirectPluginsLoadingMode.JVM else DirectPluginsLoadingMode.NONE,
+                                                               if (!arguments.noCoreEnvConfigs) DirectPluginsLoadingMode.JVM else DirectPluginsLoadingMode.NONE,
                                                                EnvironmentConfigFiles.JVM_CONFIG_FILES)
 
         if (initStartNanos != 0L) {

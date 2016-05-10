@@ -148,14 +148,14 @@ class KotlinCoreEnvironment private constructor(
 
         project.registerService(JvmVirtualFileFinderFactory::class.java, JvmCliVirtualFileFinderFactory(index))
 
-//        if (directPluginsLoadingMode == DirectPluginsLoadingMode.NONE) {
-//            ExternalDeclarationsProvider.registerExtensionPoint(project)
-//            ExpressionCodegenExtension.registerExtensionPoint(project)
-//            ClassBuilderInterceptorExtension.registerExtensionPoint(project)
-//            AnalysisCompletedHandlerExtension.registerExtensionPoint(project)
-//            PackageFragmentProviderExtension.registerExtensionPoint(project)
-//            StorageComponentContainerContributor.registerExtensionPoint(project)
-//        }
+        if (directPluginsLoadingMode == DirectPluginsLoadingMode.NONE) {
+            ExternalDeclarationsProvider.registerExtensionPoint(project)
+            ExpressionCodegenExtension.registerExtensionPoint(project)
+            ClassBuilderInterceptorExtension.registerExtensionPoint(project)
+            AnalysisCompletedHandlerExtension.registerExtensionPoint(project)
+            PackageFragmentProviderExtension.registerExtensionPoint(project)
+            StorageComponentContainerContributor.registerExtensionPoint(project)
+        }
 
         for (registrar in configuration.getList(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS)) {
             registrar.registerProjectComponents(project, configuration)

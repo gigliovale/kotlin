@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,15 @@ package org.jetbrains.kotlin.idea.conversion.copy
 
 import com.intellij.openapi.actionSystem.IdeActions
 import org.jetbrains.kotlin.idea.AbstractCopyPasteTest
+import org.jetbrains.kotlin.idea.editor.KotlinEditorOptions
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
-import org.jetbrains.kotlin.idea.editor.KotlinEditorOptions
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import java.io.File
-import kotlin.test.assertEquals
 
-abstract class AbstractJavaToKotlinCopyPasteConversionTest : AbstractCopyPasteTest() {
-    private val BASE_PATH = PluginTestCaseBase.getTestDataPathBase() + "/copyPaste/conversion"
+abstract class AbstractTextJavaToKotlinCopyPasteConversionTest : AbstractCopyPasteTest() {
+    private val BASE_PATH = PluginTestCaseBase.getTestDataPathBase() + "/copyPaste/plainTextConversion"
 
     private var oldEditorOptions: KotlinEditorOptions? = null
 
@@ -50,25 +49,29 @@ abstract class AbstractJavaToKotlinCopyPasteConversionTest : AbstractCopyPasteTe
     fun doTest(path: String) {
         myFixture.testDataPath = BASE_PATH
         val testName = getTestName(false)
-        myFixture.configureByFiles(testName + ".java")
+        myFixture.configureByFiles(testName + ".txt")
 
         val fileText = myFixture.editor.document.text
         val noConversionExpected = InTextDirectivesUtils.findListWithPrefixes(fileText, "// NO_CONVERSION_EXPECTED").isNotEmpty()
 
+        myFixture.editor.selectionModel.setSelection(0, fileText.length)
         myFixture.performEditorAction(IdeActions.ACTION_COPY)
-
-        configureByDependencyIfExists(testName + ".dependency.kt")
-        configureByDependencyIfExists(testName + ".dependency.java")
 
         configureTargetFile(testName + ".to.kt")
 
-        ConvertJavaCopyPasteProcessor.conversionPerformed = false
+        ConvertTextJavaCopyPasteProcessor.conversionPerformed = false
+        ConvertTextJavaCopyPasteProcessor.convertOnCopyInsideIDE = true
 
-        myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+        try {
+            myFixture.performEditorAction(IdeActions.ACTION_PASTE)
+        }
+        finally {
+            ConvertTextJavaCopyPasteProcessor.convertOnCopyInsideIDE = false
+        }
 
-        assertEquals(noConversionExpected, !ConvertJavaCopyPasteProcessor.conversionPerformed,
-                     if (noConversionExpected) "Conversion to Kotlin should not be suggested" else "No conversion to Kotlin suggested")
+        kotlin.test.assertEquals(noConversionExpected, !ConvertTextJavaCopyPasteProcessor.conversionPerformed,
+                                 if (noConversionExpected) "Conversion to Kotlin should not be suggested" else "No conversion to Kotlin suggested")
 
-        KotlinTestUtils.assertEqualsToFile(File(path.replace(".java", ".expected.kt")), myFixture.file.text)
+        KotlinTestUtils.assertEqualsToFile(File(path.replace(".txt", ".expected.kt")), myFixture.file.text)
     }
 }

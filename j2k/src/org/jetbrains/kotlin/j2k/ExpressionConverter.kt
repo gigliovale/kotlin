@@ -532,18 +532,6 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
         val referenceName = expression.referenceName!!
         val target = expression.resolve()
 
-        fun isNullable(target: PsiVariable): Boolean {
-            if (typeConverter.variableNullability(target).isNullable(codeConverter.settings)) return true
-
-            val canChangeType = when (target) {
-                is PsiLocalVariable -> codeConverter.canChangeType(target)
-                is PsiField -> target.hasModifierProperty(PsiModifier.PRIVATE)
-                else -> return false
-            }
-            val shouldDeclareVariableType = converter.shouldDeclareVariableType(target, converter.typeConverter.convertVariableType(target), canChangeType)
-            return !shouldDeclareVariableType && !converter.settings.specifyFieldTypeByDefault && codeConverter.convertExpression(target.initializer).isNullable
-        }
-
         val isNullable = target is PsiVariable && isNullable(target)
 
         val qualifier = expression.qualifierExpression
@@ -586,6 +574,32 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
         }
 
         result = if (qualifier != null) QualifiedExpression(codeConverter.convertExpression(qualifier), identifier) else identifier
+    }
+
+    private fun isNullable(target: PsiVariable): Boolean {
+        if (typeConverter.variableNullability(target).isNullable(codeConverter.settings)) return true
+
+        if (!converter.inConversionScope(target)) return false
+
+        val canChangeType: Boolean
+        when (target) {
+            is PsiLocalVariable -> {
+                if (converter.settings.specifyLocalVariableTypeByDefault) return false
+                canChangeType = codeConverter.canChangeType(target)
+            }
+
+            is PsiField -> {
+                if (converter.settings.specifyFieldTypeByDefault) return false
+                canChangeType = target.hasModifierProperty(PsiModifier.PRIVATE)
+            }
+
+            else -> return false
+        }
+
+        if (converter.shouldDeclareVariableType(target, converter.typeConverter.convertVariableType(target), canChangeType)) return false
+
+        // if variable type won't be specified then check nullability of the initializer
+        return codeConverter.convertExpression(target.initializer).isNullable
     }
 
     override fun visitSuperExpression(expression: PsiSuperExpression) {

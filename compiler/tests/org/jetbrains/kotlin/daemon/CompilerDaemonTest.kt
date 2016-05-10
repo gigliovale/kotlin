@@ -137,7 +137,7 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
             val daemonJVMOptions = configureDaemonJVMOptions("D$COMPILE_DAEMON_LOG_PATH_PROPERTY=\"${logFile.loggerCompatiblePath}\"",
                                                              // Specify default encoding explicitly to be sure that we don't get UTF-8
                                                              // from somewhere else (e.g. inherited from parent process)
-                                                             "Dfile.encoding=" + Charsets.UTF_8.name(),
+//                                                             "Dfile.encoding=" + Charsets.UTF_8.name(),
                                                              inheritMemoryLimits = false, inheritAdditionalProperties = false)
 
             var daemonShotDown = false

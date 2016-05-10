@@ -62,7 +62,7 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
         daemon?.registerClient(clientAliveFile.absolutePath)
         val strm = ByteArrayOutputStream()
         val code = KotlinCompilerClient.compile(daemon!!, CompileService.NO_SESSION, CompileService.TargetPlatform.JVM, args, strm)
-        return CompilerResults(code, strm.toString())
+        return CompilerResults(code, strm.toString(Charsets.UTF_8.name()))
     }
 
     private fun runDaemonCompilerTwice(clientAliveFile: File, compilerId: CompilerId, daemonJVMOptions: DaemonJVMOptions, daemonOptions: DaemonOptions, vararg args: String): Unit {

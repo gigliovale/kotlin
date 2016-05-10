@@ -30,6 +30,7 @@ import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
 import java.rmi.server.UnicastRemoteObject
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
@@ -151,7 +152,8 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
                 KotlinCompilerClient.shutdownCompileService(compilerId, daemonOptions)
                 daemonShotDown = true
 
-                assertEquals(File(pathToTestFile("out")).readText().normalize(), result.out)
+                val b = Arrays.equals(File(pathToTestFile("out")).readText().normalize().toByteArray(), result.out.toByteArray())
+                assertTrue(b)
             }
             finally {
                 if (!daemonShotDown) {

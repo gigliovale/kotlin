@@ -26,9 +26,11 @@ import org.jetbrains.kotlin.backend.common.output.OutputFileCollection;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
+import org.jetbrains.kotlin.cli.jvm.config.JVMConfigurationKeys;
 import org.jetbrains.kotlin.codegen.CodegenTestFiles;
 import org.jetbrains.kotlin.codegen.GenerationUtils;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
+import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.name.FqName;
@@ -53,6 +55,8 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     private static final String baseTestClassPackage = "org.jetbrains.kotlin.android.tests";
     private static final String baseTestClassName = "AbstractCodegenTestCaseOnAndroid";
     private static final String generatorName = "CodegenTestsOnAndroidGenerator";
+
+    private static int MODULE_INDEX = 1;
 
     private final List<String> generatedTestNames = Lists.newArrayList();
 
@@ -121,27 +125,31 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
     }
 
     private void generateTestMethodsForDirectories(Printer p, File... dirs) throws IOException {
-        FilesWriter holderMock = new FilesWriter(false);
-        FilesWriter holderFull = new FilesWriter(true);
+        FilesWriter holderMock = new FilesWriter(false, false);
+        FilesWriter holderFull = new FilesWriter(true, false);
+        FilesWriter holderInheritMFP = new FilesWriter(true, true);
 
         for (File dir : dirs) {
             File[] files = dir.listFiles();
             Assert.assertNotNull("Folder with testData is empty: " + dir.getAbsolutePath(), files);
-            processFiles(p, files, holderFull, holderMock);
+            processFiles(p, files, holderFull, holderMock, holderInheritMFP);
         }
 
         holderFull.writeFilesOnDisk();
         holderMock.writeFilesOnDisk();
+        holderInheritMFP.writeFilesOnDisk();
     }
 
     class FilesWriter {
         private final boolean isFullJdkAndRuntime;
+        private boolean inheritMultifileParts;
 
         public List<KtFile> files = new ArrayList<KtFile>();
         private KotlinCoreEnvironment environment;
 
-        private FilesWriter(boolean isFullJdkAndRuntime) {
+        private FilesWriter(boolean isFullJdkAndRuntime, boolean inheritMultifileParts) {
             this.isFullJdkAndRuntime = isFullJdkAndRuntime;
+            this.inheritMultifileParts = inheritMultifileParts;
             environment = createEnvironment(isFullJdkAndRuntime);
         }
 
@@ -149,7 +157,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             return isFullJdkAndRuntime ?
                    KotlinTestUtils.createEnvironmentWithJdkAndNullabilityAnnotationsFromIdea(
                            myTestRootDisposable, ConfigurationKind.ALL, TestJdkKind.FULL_JDK
-                   ) :
+                                                ) :
                    KotlinTestUtils.createEnvironmentWithMockJdkAndIdeaAnnotations(myTestRootDisposable, ConfigurationKind.JDK_ONLY);
         }
 
@@ -180,15 +188,24 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
         private void writeFiles(List<KtFile> filesToCompile) {
             if (filesToCompile.isEmpty()) return;
 
-            System.out.println("Generating " + filesToCompile.size() + " files" + (isFullJdkAndRuntime
-                                                                                   ? " (full jdk and runtime)" : "") + "...");
+            System.out.println("Generating " + filesToCompile.size() + " files" +
+                               (inheritMultifileParts
+                                ? " (JVM.INHERIT_MULTIFILE_PARTS)"
+                                : isFullJdkAndRuntime ? " (full jdk and runtime)" : "") + "...");
             OutputFileCollection outputFiles;
             try {
+                //hack to pass module name
+                CompilerConfiguration configuration = environment.getConfiguration().copy();
+                configuration.put(JVMConfigurationKeys.MODULE_NAME, "android-module-" + MODULE_INDEX++);
+                if (inheritMultifileParts) {
+                    configuration.put(JVMConfigurationKeys.INHERIT_MULTIFILE_PARTS, true);
+                }
+                configuration.setReadOnly(true);
                 outputFiles = GenerationUtils.compileManyFilesGetGenerationStateForTest(
                         filesToCompile.iterator().next().getProject(),
                         filesToCompile,
                         new JvmPackagePartProvider(environment),
-                        null
+                        configuration
                 ).getFactory();
             }
             catch (Throwable e) {
@@ -209,11 +226,12 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             @NotNull Printer printer,
             @NotNull File[] files,
             @NotNull FilesWriter holderFull,
-            @NotNull FilesWriter holderMock)
-            throws IOException
-    {
+            @NotNull FilesWriter holderMock,
+            @NotNull FilesWriter holderInheritMFP
+    ) throws IOException {
         holderFull.writeFilesOnDiskIfNeeded();
         holderMock.writeFilesOnDiskIfNeeded();
+        holderInheritMFP.writeFilesOnDiskIfNeeded();
 
         for (File file : files) {
             if (SpecialFiles.getExcludedFiles().contains(file.getName())) {
@@ -222,7 +240,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
             if (file.isDirectory()) {
                 File[] listFiles = file.listFiles();
                 if (listFiles != null) {
-                    processFiles(printer, listFiles, holderFull, holderMock);
+                    processFiles(printer, listFiles, holderFull, holderMock, holderInheritMFP);
                 }
             }
             else if (!FileUtilRt.getExtension(file.getName()).equals(KotlinFileType.INSTANCE.getDefaultExtension())) {
@@ -237,6 +255,7 @@ public class CodegenTestsOnAndroidGenerator extends UsefulTestCase {
                     FilesWriter filesHolder = InTextDirectivesUtils.isDirectiveDefined(fullFileText, "FULL_JDK") ||
                                               InTextDirectivesUtils.isDirectiveDefined(fullFileText, "WITH_RUNTIME") ||
                                               InTextDirectivesUtils.isDirectiveDefined(fullFileText, "WITH_REFLECT") ? holderFull : holderMock;
+                    filesHolder = fullFileText.contains("+JVM.INHERIT_MULTIFILE_PARTS") ? holderInheritMFP : filesHolder;
 
                     FqName classWithBoxMethod = AndroidTestGeneratorKt.genFiles(file, fullFileText, filesHolder);
                     if (classWithBoxMethod == null)

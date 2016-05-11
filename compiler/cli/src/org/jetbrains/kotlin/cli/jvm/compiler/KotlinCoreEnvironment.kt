@@ -28,7 +28,6 @@ import com.intellij.mock.MockApplication
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.extensions.ExtensionsArea
 import com.intellij.openapi.fileTypes.FileTypeExtensionPoint
@@ -102,8 +101,8 @@ enum class DirectPluginsLoadingMode {
 }
 
 class KotlinCoreEnvironment private constructor(
-        parentDisposable: Disposable, 
-        applicationEnvironment: JavaCoreApplicationEnvironment, 
+        parentDisposable: Disposable,
+        applicationEnvironment: JavaCoreApplicationEnvironment,
         configuration: CompilerConfiguration,
         directPluginsLoadingMode: DirectPluginsLoadingMode
 ) {
@@ -138,11 +137,7 @@ class KotlinCoreEnvironment private constructor(
             message ->
             report(ERROR, message)
         }))
-        sourceFiles.sortedWith(object : Comparator<KtFile> {
-            override fun compare(o1: KtFile, o2: KtFile): Int {
-                return o1.virtualFile.path.compareTo(o2.virtualFile.path, ignoreCase = true)
-            }
-        })
+        sourceFiles.sortedWith(Comparator<org.jetbrains.kotlin.psi.KtFile> { o1, o2 -> o1.virtualFile.path.compareTo(o2.virtualFile.path, ignoreCase = true) })
 
         KotlinScriptDefinitionProvider.getInstance(project).setScriptDefinitions(configuration.getList(CommonConfigurationKeys.SCRIPT_DEFINITIONS_KEY))
 
@@ -180,43 +175,40 @@ class KotlinCoreEnvironment private constructor(
             }
 
     private fun fillClasspath(configuration: CompilerConfiguration) {
-        for (root in configuration.getList(CommonConfigurationKeys.CONTENT_ROOTS)) {
-            val javaRoot = root as? JvmContentRoot ?: continue
-            val virtualFile = contentRootToVirtualFile(javaRoot) ?: continue
+        configuration.getList(CommonConfigurationKeys.CONTENT_ROOTS)
+                .mapNotNull { it as? JvmContentRoot }
+                .distinctBy { it.file.absolutePath }
+                .forEach { javaRoot ->
+                    val virtualFile = contentRootToVirtualFile(javaRoot) ?: return@forEach
 
-            projectEnvironment.addSourcesToClasspath(virtualFile)
+                    projectEnvironment.addSourcesToClasspath(virtualFile)
 
-            val prefixPackageFqName = (javaRoot as? JavaSourceRoot)?.packagePrefix?.let {
-                if (isValidJavaFqName(it)) {
-                    FqName(it)
+                    val prefixPackageFqName = (javaRoot as? JavaSourceRoot)?.packagePrefix?.let {
+                        if (isValidJavaFqName(it)) {
+                            FqName(it)
+                        }
+                        else {
+                            report(WARNING, "Invalid package prefix name is ignored: $it")
+                            null
+                        }
+                    }
+
+                    val rootType = when (javaRoot) {
+                        is JavaSourceRoot -> JavaRoot.RootType.SOURCE
+                        is JvmClasspathRoot -> JavaRoot.RootType.BINARY
+                        else -> throw IllegalStateException()
+                    }
+
+                    javaRoots.add(JavaRoot(virtualFile, rootType, prefixPackageFqName))
                 }
-                else {
-                    report(WARNING, "Invalid package prefix name is ignored: $it")
-                    null
-                }
-            }
-
-            val rootType = when (javaRoot) {
-                is JavaSourceRoot -> JavaRoot.RootType.SOURCE
-                is JvmClasspathRoot -> JavaRoot.RootType.BINARY
-                else -> throw IllegalStateException()
-            }
-
-            javaRoots.add(JavaRoot(virtualFile, rootType, prefixPackageFqName))
-        }
     }
 
-    fun contentRootToVirtualFile(root: JvmContentRoot): VirtualFile? {
+    fun contentRootToVirtualFile(root: JvmContentRoot): VirtualFile? =
         when (root) {
-            is JvmClasspathRoot -> {
-                return if (root.file.isFile) findJarRoot(root) else findLocalDirectory(root)
-            }
-            is JavaSourceRoot -> {
-                return if (root.file.isDirectory) findLocalDirectory(root) else null
-            }
+            is JvmClasspathRoot -> if (root.file.isFile) findJarRoot(root) else findLocalDirectory(root)
+            is JavaSourceRoot -> if (root.file.isDirectory) findLocalDirectory(root) else null
             else -> throw IllegalStateException("Unexpected root: $root")
         }
-    }
 
     private fun findLocalDirectory(root: JvmContentRoot): VirtualFile? {
         val path = root.file

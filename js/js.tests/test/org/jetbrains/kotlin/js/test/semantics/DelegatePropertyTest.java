@@ -27,6 +27,38 @@ public class DelegatePropertyTest extends SingleFileTranslationTest {
         checkFooBoxIsOk();
     }
 
+    public void testLocalVal() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testLocalVar() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testLocalVarInc() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testLocalVarPlusAssign() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testCapturedLocalVal() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testCapturedLocalVar() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testCapturedLocalValNoInline() throws Exception {
+        checkFooBoxIsOk();
+    }
+
+    public void testCapturedLocalVarNoInline() throws Exception {
+        checkFooBoxIsOk();
+    }
+
     public void testPropertyMetadata() throws Exception {
         checkFooBoxIsOk();
     }

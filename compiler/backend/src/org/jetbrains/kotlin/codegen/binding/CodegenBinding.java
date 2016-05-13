@@ -60,6 +60,12 @@ public class CodegenBinding {
     public static final WritableSlice<String, List<WhenByEnumsMapping>> MAPPINGS_FOR_WHENS_BY_ENUM_IN_CLASS_FILE =
             Slices.createSimpleSlice();
 
+    public static final WritableSlice<VariableDescriptor, VariableDescriptor> LOCAL_VARIABLE_DELEGATE =
+            Slices.createSimpleSlice();
+
+    public static final WritableSlice<VariableDescriptor, VariableDescriptor> LOCAL_VARIABLE_PROPERTY_METADATA =
+            Slices.createSimpleSlice();
+
     static {
         BasicWritableSlice.initSliceDebugNames(CodegenBinding.class);
     }
@@ -243,5 +249,15 @@ public class CodegenBinding {
         } while (!stack.isEmpty());
 
         return allInnerClasses;
+    }
+
+    @NotNull
+    public static VariableDescriptor getDelegatedLocalVariableMetadata(
+            @NotNull VariableDescriptor variableDescriptor,
+            @NotNull BindingContext bindingContext
+    ) {
+        VariableDescriptor metadataVariableDescriptor = bindingContext.get(LOCAL_VARIABLE_PROPERTY_METADATA, variableDescriptor);
+        assert metadataVariableDescriptor != null : "Metadata for local delegated property should be not null: " + variableDescriptor;
+        return metadataVariableDescriptor;
     }
 }

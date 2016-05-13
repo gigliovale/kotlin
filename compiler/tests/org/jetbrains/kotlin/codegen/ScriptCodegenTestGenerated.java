@@ -65,6 +65,12 @@ public class ScriptCodegenTestGenerated extends AbstractScriptCodegenTest {
         doTest(fileName);
     }
 
+    @TestMetadata("localDelegatedProperty.kts")
+    public void testLocalDelegatedProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/script/localDelegatedProperty.kts");
+        doTest(fileName);
+    }
+
     @TestMetadata("localFunction.kts")
     public void testLocalFunction() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/script/localFunction.kts");
@@ -140,6 +146,12 @@ public class ScriptCodegenTestGenerated extends AbstractScriptCodegenTest {
     @TestMetadata("topLevelFunctionClosure.kts")
     public void testTopLevelFunctionClosure() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/script/topLevelFunctionClosure.kts");
+        doTest(fileName);
+    }
+
+    @TestMetadata("topLevelLocalDelegatedProperty.kts")
+    public void testTopLevelLocalDelegatedProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/script/topLevelLocalDelegatedProperty.kts");
         doTest(fileName);
     }
 

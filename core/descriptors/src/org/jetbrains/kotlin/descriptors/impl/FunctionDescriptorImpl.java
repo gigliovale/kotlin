@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationsKt;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.DescriptorFactory;
 import org.jetbrains.kotlin.types.*;
@@ -42,7 +43,11 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
     private boolean isExternal = false;
     private boolean isInline = false;
     private boolean isTailrec = false;
-    private boolean isHidden = false;
+    // Difference between these hidden kinds:
+    // 1. isHiddenToOvercomeSignatureClash prohibit calling such functions even in super-call context
+    // 2. isHiddenForResolutionEverywhereBesideSupercalls propagates to it's overrides descriptors while isHiddenToOvercomeSignatureClash does not
+    private boolean isHiddenToOvercomeSignatureClash = false;
+    private boolean isHiddenForResolutionEverywhereBesideSupercalls = false;
     private boolean hasStableParameterNames = true;
     private boolean hasSynthesizedParameterNames = false;
     private Collection<? extends FunctionDescriptor> overriddenFunctions = null;
@@ -126,8 +131,12 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         this.isTailrec = isTailrec;
     }
 
-    public void setHidden(boolean hidden) {
-        isHidden = hidden;
+    public void setHiddenToOvercomeSignatureClash(boolean hiddenToOvercomeSignatureClash) {
+        isHiddenToOvercomeSignatureClash = hiddenToOvercomeSignatureClash;
+    }
+
+    private void setHiddenForResolutionEverywhereBesideSupercalls(boolean hiddenForResolutionEverywhereBesideSupercalls) {
+        isHiddenForResolutionEverywhereBesideSupercalls = hiddenForResolutionEverywhereBesideSupercalls;
     }
 
     public void setReturnType(@NotNull KotlinType unsubstitutedReturnType) {
@@ -228,13 +237,19 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
 
     @Override
     public boolean isHiddenToOvercomeSignatureClash() {
-        return isHidden;
+        return isHiddenToOvercomeSignatureClash;
     }
 
     @Override
     public void setOverriddenDescriptors(@NotNull Collection<? extends CallableMemberDescriptor> overriddenDescriptors) {
         //noinspection unchecked
         overriddenFunctions = (Collection<? extends FunctionDescriptor>) overriddenDescriptors;
+        for (FunctionDescriptor function : overriddenFunctions) {
+            if (function.isHiddenForResolutionEverywhereBesideSupercalls()) {
+                isHiddenForResolutionEverywhereBesideSupercalls = true;
+                break;
+            }
+        }
     }
 
     @Override
@@ -290,6 +305,11 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         return extensionReceiverParameter.getType();
     }
 
+    @Override
+    public boolean isHiddenForResolutionEverywhereBesideSupercalls() {
+        return isHiddenForResolutionEverywhereBesideSupercalls;
+    }
+
     public class CopyConfiguration implements SimpleFunctionDescriptor.CopyBuilder<FunctionDescriptor> {
         protected @NotNull TypeSubstitution substitution;
         protected @NotNull DeclarationDescriptor newOwner;
@@ -308,6 +328,8 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         protected boolean dropOriginalInContainingParts = false;
         private boolean isHiddenToOvercomeSignatureClash;
         private List<TypeParameterDescriptor> newTypeParameters = null;
+        private Annotations additionalAnnotations = null;
+        private boolean isHiddenForResolutionEverywhereBesideSupercalls;
 
         public CopyConfiguration(
                 @NotNull TypeSubstitution substitution,
@@ -331,6 +353,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             this.newReturnType = newReturnType;
             this.name = name;
             this.isHiddenToOvercomeSignatureClash = isHiddenToOvercomeSignatureClash();
+            this.isHiddenForResolutionEverywhereBesideSupercalls = isHiddenForResolutionEverywhereBesideSupercalls();
         }
 
         @Override
@@ -445,6 +468,20 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             return this;
         }
 
+        @Override
+        @NotNull
+        public CopyConfiguration setHiddenForResolutionEverywhereBesideSupercalls() {
+            isHiddenForResolutionEverywhereBesideSupercalls = true;
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public CopyConfiguration setAdditionalAnnotations(@NotNull Annotations additionalAnnotations) {
+            this.additionalAnnotations = additionalAnnotations;
+            return this;
+        }
+
         @NotNull
         @Override
         public CopyConfiguration setSubstitution(@NotNull TypeSubstitution substitution) {
@@ -485,8 +522,13 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
 
     @Nullable
     protected FunctionDescriptor doSubstitute(@NotNull CopyConfiguration configuration) {
+        Annotations resultAnnotations =
+                configuration.additionalAnnotations != null
+                ? AnnotationsKt.composeAnnotations(getAnnotations(), configuration.additionalAnnotations)
+                : getAnnotations();
+
         FunctionDescriptorImpl substitutedDescriptor = createSubstitutedCopy(
-                configuration.newOwner, configuration.original, configuration.kind, configuration.name,
+                configuration.newOwner, configuration.original, configuration.kind, configuration.name, resultAnnotations,
                 configuration.preserveSourceElement);
 
         List<TypeParameterDescriptor> substitutedTypeParameters;
@@ -559,7 +601,8 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         substitutedDescriptor.setTailrec(isTailrec);
         substitutedDescriptor.setHasStableParameterNames(hasStableParameterNames);
         substitutedDescriptor.setHasSynthesizedParameterNames(hasSynthesizedParameterNames);
-        substitutedDescriptor.setHidden(configuration.isHiddenToOvercomeSignatureClash);
+        substitutedDescriptor.setHiddenToOvercomeSignatureClash(configuration.isHiddenToOvercomeSignatureClash);
+        substitutedDescriptor.setHiddenForResolutionEverywhereBesideSupercalls(configuration.isHiddenForResolutionEverywhereBesideSupercalls);
 
         if (configuration.signatureChange || getInitialSignatureDescriptor() != null) {
             FunctionDescriptor initialSignature = (getInitialSignatureDescriptor() != null ? getInitialSignatureDescriptor() : this);
@@ -600,6 +643,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             @Nullable FunctionDescriptor original,
             @NotNull Kind kind,
             @Nullable Name newName,
+            @NotNull Annotations annotations,
             boolean preserveSource
     );
 

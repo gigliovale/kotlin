@@ -18,6 +18,8 @@ package org.jetbrains.kotlin.descriptors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.descriptors.annotations.Annotations;
+import org.jetbrains.kotlin.descriptors.impl.FunctionDescriptorImpl;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.kotlin.types.TypeSubstitution;
@@ -76,6 +78,8 @@ public interface FunctionDescriptor extends CallableMemberDescriptor {
 
     boolean isExternal();
 
+    boolean isHiddenForResolutionEverywhereBesideSupercalls();
+
     @NotNull
     CopyBuilder<? extends FunctionDescriptor> newCopyBuilder();
 
@@ -127,6 +131,12 @@ public interface FunctionDescriptor extends CallableMemberDescriptor {
 
         @NotNull
         CopyBuilder<D> setHiddenToOvercomeSignatureClash();
+
+        @NotNull
+        CopyBuilder<D> setHiddenForResolutionEverywhereBesideSupercalls();
+
+        @NotNull
+        CopyBuilder<D> setAdditionalAnnotations(@NotNull Annotations additionalAnnotations);
 
         @NotNull
         CopyBuilder<D> setSubstitution(@NotNull TypeSubstitution substitution);

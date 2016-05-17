@@ -30,11 +30,11 @@ JetFile: BareVal.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')

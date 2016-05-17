@@ -154,7 +154,7 @@ class KotlinChangeSignatureHandler : ChangeSignatureHandler {
 
         private fun getDescriptor(bindingContext: BindingContext, element: PsiElement): DeclarationDescriptor? {
             val descriptor = when (element) {
-                is KtReferenceExpression -> bindingContext[BindingContext.REFERENCE_TARGET, element]
+                is KtReferenceElement -> bindingContext[BindingContext.REFERENCE_TARGET, element]
                 else -> bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, element]
             }
             return if (descriptor is ClassDescriptor) descriptor.unsubstitutedPrimaryConstructor else descriptor

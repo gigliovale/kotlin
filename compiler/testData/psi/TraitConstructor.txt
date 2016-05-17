@@ -18,7 +18,7 @@ JetFile: TraitConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -30,7 +30,7 @@ JetFile: TraitConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('String')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -40,7 +40,7 @@ JetFile: TraitConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Double')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n')

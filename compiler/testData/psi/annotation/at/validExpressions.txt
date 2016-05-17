@@ -38,7 +38,7 @@ JetFile: validExpressions.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
             PsiWhiteSpace(' ')
             INTEGER_CONSTANT
@@ -51,11 +51,11 @@ JetFile: validExpressions.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ann')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -73,7 +73,7 @@ JetFile: validExpressions.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
             PsiWhiteSpace(' ')
             INTEGER_CONSTANT
@@ -89,7 +89,7 @@ JetFile: validExpressions.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiWhiteSpace(' ')
               INTEGER_CONSTANT
@@ -104,7 +104,7 @@ JetFile: validExpressions.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -126,18 +126,18 @@ JetFile: validExpressions.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           INTEGER_CONSTANT
             PsiElement(INTEGER_LITERAL)('6')
       PsiWhiteSpace('\n\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -149,7 +149,7 @@ JetFile: validExpressions.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('ann')
                 PsiWhiteSpace(' ')
                 PsiElement(fun)('fun')
@@ -161,7 +161,7 @@ JetFile: validExpressions.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -177,7 +177,7 @@ JetFile: validExpressions.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ann')
         PsiWhiteSpace(' ')
         IF
@@ -192,7 +192,7 @@ JetFile: validExpressions.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('ann')
                 PsiWhiteSpace(' ')
                 BOOLEAN_CONSTANT
@@ -234,10 +234,10 @@ JetFile: validExpressions.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -258,7 +258,7 @@ JetFile: validExpressions.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           WHILE
@@ -280,7 +280,7 @@ JetFile: validExpressions.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('ann')
                   PsiWhiteSpace(' ')
                   BREAK
@@ -305,7 +305,7 @@ JetFile: validExpressions.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           INTEGER_CONSTANT
@@ -316,7 +316,7 @@ JetFile: validExpressions.kt
           LABEL
             PsiElement(IDENTIFIER)('label')
             PsiElement(AT)('@')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('simpleName')
       PsiWhiteSpace('\n\n    ')
       PROPERTY
@@ -332,7 +332,7 @@ JetFile: validExpressions.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           ANNOTATION
@@ -342,7 +342,7 @@ JetFile: validExpressions.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
             PsiElement(RBRACKET)(']')
           PsiWhiteSpace(' ')
@@ -370,7 +370,7 @@ JetFile: validExpressions.kt
                 PsiElement(ARROW)('->')
                 PsiWhiteSpace(' ')
                 BLOCK
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
                 PsiWhiteSpace('\n    ')
                 PsiElement(RBRACE)('}')

@@ -72,11 +72,11 @@ public class DebugInfoUtil {
             @NotNull final BindingContext bindingContext,
             @NotNull final DebugInfoReporter debugInfoReporter
     ) {
-        final Map<KtReferenceExpression, DiagnosticFactory<?>> markedWithErrorElements = Maps.newHashMap();
+        final Map<KtReferenceElement, DiagnosticFactory<?>> markedWithErrorElements = Maps.newHashMap();
         for (Diagnostic diagnostic : bindingContext.getDiagnostics()) {
             DiagnosticFactory<?> factory = diagnostic.getFactory();
             if (Errors.UNRESOLVED_REFERENCE_DIAGNOSTICS.contains(diagnostic.getFactory())) {
-                markedWithErrorElements.put((KtReferenceExpression) diagnostic.getPsiElement(), factory);
+                markedWithErrorElements.put((KtReferenceElement) diagnostic.getPsiElement(), factory);
             }
             else if (factory == Errors.SUPER_IS_NOT_AN_EXPRESSION
                     || factory == Errors.SUPER_NOT_AVAILABLE) {
@@ -87,8 +87,8 @@ public class DebugInfoUtil {
                 markedWithErrorElements.put((KtSimpleNameExpression) diagnostic.getPsiElement(), factory);
             }
             else if (factory == Errors.UNSUPPORTED) {
-                for (KtReferenceExpression reference : PsiTreeUtil.findChildrenOfType(diagnostic.getPsiElement(),
-                                                                                      KtReferenceExpression.class)) {
+                for (KtReferenceElement reference : PsiTreeUtil.findChildrenOfType(diagnostic.getPsiElement(),
+                                                                                   KtReferenceElement.class)) {
                     markedWithErrorElements.put(reference, factory);
                 }
             }
@@ -165,8 +165,8 @@ public class DebugInfoUtil {
 
                     reportIfDynamic(expression, declarationDescriptor, debugInfoReporter);
                 }
-                if (target == null) {
-                    PsiElement labelTarget = bindingContext.get(LABEL_TARGET, expression);
+                if (target == null && expression instanceof KtLabelReferenceExpression) {
+                    PsiElement labelTarget = bindingContext.get(LABEL_TARGET, (KtLabelReferenceExpression) expression);
                     if (labelTarget != null) {
                         target = labelTarget.getText();
                     }
@@ -178,8 +178,8 @@ public class DebugInfoUtil {
                         target = "[" + declarationDescriptors.size() + " descriptors]";
                     }
                 }
-                if (target == null) {
-                    Collection<? extends PsiElement> labelTargets = bindingContext.get(AMBIGUOUS_LABEL_TARGET, expression);
+                if (target == null && expression instanceof KtLabelReferenceExpression) {
+                    Collection<? extends PsiElement> labelTargets = bindingContext.get(AMBIGUOUS_LABEL_TARGET, (KtLabelReferenceExpression) expression);
                     if (labelTargets != null) {
                         target = "[" + labelTargets.size() + " elements]";
                     }

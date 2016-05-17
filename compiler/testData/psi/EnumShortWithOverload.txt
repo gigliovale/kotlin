@@ -22,7 +22,7 @@ JetFile: EnumShortWithOverload.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -62,7 +62,7 @@ JetFile: EnumShortWithOverload.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
             PsiWhiteSpace(' ')
             BLOCK
@@ -112,7 +112,7 @@ JetFile: EnumShortWithOverload.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
             PsiWhiteSpace(' ')
             BLOCK
@@ -162,7 +162,7 @@ JetFile: EnumShortWithOverload.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
             PsiWhiteSpace(' ')
             BLOCK
@@ -193,7 +193,7 @@ JetFile: EnumShortWithOverload.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

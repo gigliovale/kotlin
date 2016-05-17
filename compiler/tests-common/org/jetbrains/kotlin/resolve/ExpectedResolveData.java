@@ -182,18 +182,18 @@ public abstract class ExpectedResolveData {
             String name = entry.getValue();
             PsiElement element = position.getElement();
 
-            KtReferenceExpression referenceExpression = PsiTreeUtil.getParentOfType(element, KtReferenceExpression.class);
-            DeclarationDescriptor referenceTarget = bindingContext.get(REFERENCE_TARGET, referenceExpression);
+            KtReferenceElement referenceElement = PsiTreeUtil.getParentOfType(element, KtReferenceElement.class);
+            DeclarationDescriptor referenceTarget = bindingContext.get(REFERENCE_TARGET, referenceElement);
             if ("!".equals(name)) {
                 assertTrue(
                         "Must have been unresolved: " +
-                        renderReferenceInContext(referenceExpression) +
+                        renderReferenceInContext(referenceElement) +
                         " but was resolved to " + renderNullableDescriptor(referenceTarget),
-                        unresolvedReferences.contains(referenceExpression));
+                        unresolvedReferences.contains(referenceElement));
 
                 assertTrue(
                         String.format("Reference =%s= has a reference target =%s= but expected to be unresolved",
-                                      renderReferenceInContext(referenceExpression), renderNullableDescriptor(referenceTarget)),
+                                      renderReferenceInContext(referenceElement), renderNullableDescriptor(referenceTarget)),
                         referenceTarget == null);
 
                 continue;
@@ -201,15 +201,15 @@ public abstract class ExpectedResolveData {
             if ("!!".equals(name)) {
                 assertTrue(
                         "Must have been resolved to multiple descriptors: " +
-                        renderReferenceInContext(referenceExpression) +
+                        renderReferenceInContext(referenceElement) +
                         " but was resolved to " + renderNullableDescriptor(referenceTarget),
-                        bindingContext.get(AMBIGUOUS_REFERENCE_TARGET, referenceExpression) != null);
+                        bindingContext.get(AMBIGUOUS_REFERENCE_TARGET, referenceElement) != null);
                 continue;
             }
             else if ("!null".equals(name)) {
                 assertTrue(
                        "Must have been resolved to null: " +
-                        renderReferenceInContext(referenceExpression) +
+                        renderReferenceInContext(referenceElement) +
                         " but was resolved to " + renderNullableDescriptor(referenceTarget),
                         referenceTarget == null
                 );
@@ -218,7 +218,7 @@ public abstract class ExpectedResolveData {
             else if ("!error".equals(name)) {
                 assertTrue(
                        "Must have been resolved to error: " +
-                        renderReferenceInContext(referenceExpression) +
+                        renderReferenceInContext(referenceElement) +
                         " but was resolved to " + renderNullableDescriptor(referenceTarget),
                        ErrorUtils.isError(referenceTarget)
                 );
@@ -230,7 +230,7 @@ public abstract class ExpectedResolveData {
                 expected = nameToPsiElement.get(name);
             }
 
-            KtReferenceExpression reference = getAncestorOfType(KtReferenceExpression.class, element);
+            KtReferenceElement reference = getAncestorOfType(KtReferenceElement.class, element);
             if (expected == null && name.startsWith(STANDARD_PREFIX)) {
                 DeclarationDescriptor expectedDescriptor = nameToDescriptor.get(name);
                 KtTypeReference typeReference = getAncestorOfType(KtTypeReference.class, element);
@@ -270,7 +270,7 @@ public abstract class ExpectedResolveData {
             }
 
             PsiElement actual = referenceTarget == null
-                                ? bindingContext.get(BindingContext.LABEL_TARGET, referenceExpression)
+                                ? (referenceElement instanceof KtLabelReferenceExpression ? bindingContext.get(BindingContext.LABEL_TARGET, (KtLabelReferenceExpression) referenceElement) : null)
                                 : DescriptorToSourceUtils.descriptorToDeclaration(referenceTarget);
             if (actual instanceof KtSimpleNameExpression) {
                 actual = ((KtSimpleNameExpression)actual).getIdentifier();
@@ -362,19 +362,19 @@ public abstract class ExpectedResolveData {
         return expectedClass;
     }
 
-    private static String renderReferenceInContext(KtReferenceExpression referenceExpression) {
-        KtExpression statement = referenceExpression;
+    private static String renderReferenceInContext(KtReferenceElement referenceElement) {
+        KtElement statement = referenceElement;
         while (true) {
             PsiElement parent = statement.getParent();
             if (!(parent instanceof KtExpression)) break;
             if (parent instanceof KtBlockExpression) break;
             statement = (KtExpression) parent;
         }
-        KtDeclaration declaration = PsiTreeUtil.getParentOfType(referenceExpression, KtDeclaration.class);
+        KtDeclaration declaration = PsiTreeUtil.getParentOfType(referenceElement, KtDeclaration.class);
 
 
 
-        return referenceExpression.getText() + " at " + DiagnosticUtils.atLocation(referenceExpression) +
+        return referenceElement.getText() + " at " + DiagnosticUtils.atLocation(referenceElement) +
                                     " in " + statement.getText() + (declaration == null ? "" : " in " + declaration.getText());
     }
 

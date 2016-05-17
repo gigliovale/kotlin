@@ -131,7 +131,7 @@ fun AbstractKtReference<out KtExpression>.renameImplicitConventionalCall(newName
 val KtSimpleNameExpression.mainReference: KtSimpleNameReference
     get() = references.firstIsInstance()
 
-val KtReferenceExpression.mainReference: KtReference
+val KtReferenceElement.mainReference: KtReference
     get() = if (this is KtSimpleNameExpression) mainReference else references.firstIsInstance<KtReference>()
 
 val KDocName.mainReference: KDocReference
@@ -140,7 +140,7 @@ val KDocName.mainReference: KDocReference
 val KtElement.mainReference: KtReference?
     get() {
         return when {
-            this is KtReferenceExpression -> mainReference
+            this is KtReferenceElement -> mainReference
             this is KDocName -> mainReference
             else -> references.firstIsInstanceOrNull<KtReference>()
         }

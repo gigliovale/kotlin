@@ -29,7 +29,7 @@ public class KotlinNameReferenceExpressionStubImpl extends KotlinStubBaseImpl<Kt
     private final StringRef referencedName;
 
     public KotlinNameReferenceExpressionStubImpl(StubElement parent, @NotNull StringRef referencedName) {
-        super(parent, KtStubElementTypes.REFERENCE_EXPRESSION);
+        super(parent, KtStubElementTypes.NAME_REFERENCE_EXPRESSION);
         this.referencedName = referencedName;
     }
 

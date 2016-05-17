@@ -40,7 +40,7 @@ JetFile: EmptyParentheses.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Bar')
     PsiWhiteSpace(' ')
     CLASS_BODY

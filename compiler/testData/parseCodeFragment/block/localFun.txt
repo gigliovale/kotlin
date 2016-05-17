@@ -14,7 +14,7 @@ JetFile: fragment.kt
         PsiElement(INTEGER_LITERAL)('1')
     PsiWhiteSpace('\n')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('foo')
       VALUE_ARGUMENT_LIST
         PsiElement(LPAR)('(')

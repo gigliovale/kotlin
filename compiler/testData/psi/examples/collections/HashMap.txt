@@ -27,7 +27,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Any')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -35,7 +35,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace('\n    ')
         PsiElement(EQ)('=')
@@ -45,7 +45,7 @@ JetFile: HashMap.kt
             PsiElement(LPAR)('(')
             BINARY_WITH_TYPE
               THIS_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(this)('this')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -55,24 +55,24 @@ JetFile: HashMap.kt
                 USER_TYPE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('java')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('lang')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Object')
             PsiElement(RPAR)(')')
           PsiElement(DOT)('.')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('equals')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
                 BINARY_WITH_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('other')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -82,13 +82,13 @@ JetFile: HashMap.kt
                     USER_TYPE
                       USER_TYPE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('java')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lang')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Object')
               PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')
@@ -108,7 +108,7 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IEquality')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -123,7 +123,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Integer')
         PsiWhiteSpace('\n    ')
         PROPERTY_ACCESSOR
@@ -138,7 +138,7 @@ JetFile: HashMap.kt
               PsiElement(LPAR)('(')
               BINARY_WITH_TYPE
                 THIS_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(this)('this')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -148,18 +148,18 @@ JetFile: HashMap.kt
                   USER_TYPE
                     USER_TYPE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('java')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('lang')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Object')
               PsiElement(RPAR)(')')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('hashCode')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -200,7 +200,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -208,7 +208,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('V')
       PsiWhiteSpace('\n  ')
       FUN
@@ -224,7 +224,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -235,7 +235,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -243,7 +243,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('V')
       PsiWhiteSpace('\n  ')
       FUN
@@ -259,7 +259,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -267,7 +267,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('V')
       PsiWhiteSpace('\n  ')
       FUN
@@ -283,7 +283,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -291,7 +291,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -312,7 +312,7 @@ JetFile: HashMap.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Any')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -322,7 +322,7 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IHashable')
   PsiWhiteSpace('\n  ')
   PsiComment(EOL_COMMENT)('// equals and hashCode implementations are inherited')
@@ -336,7 +336,7 @@ JetFile: HashMap.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('inline')
         PsiElement(RBRACKET)(']')
     PsiWhiteSpace(' ')
@@ -344,7 +344,7 @@ JetFile: HashMap.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Any')
     PsiElement(DOT)('.')
     PsiElement(IDENTIFIER)('hashable')
@@ -356,19 +356,19 @@ JetFile: HashMap.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('HashableWrapper')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('HashableWrapper')
       VALUE_ARGUMENT_LIST
         PsiElement(LPAR)('(')
         VALUE_ARGUMENT
           THIS_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(this)('this')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -401,7 +401,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -412,7 +412,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -420,7 +420,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
       PsiWhiteSpace('\n  ')
       FUN
@@ -436,7 +436,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -444,7 +444,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Integer')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -465,7 +465,7 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IHashable')
       PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -475,14 +475,14 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IHashingStrategy')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('K')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -505,7 +505,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -516,7 +516,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -524,22 +524,22 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiElement(DOT)('.')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('equals')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
               PsiElement(RPAR)(')')
       PsiWhiteSpace('\n  ')
@@ -559,7 +559,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -567,16 +567,16 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Integer')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('hashCode')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -597,14 +597,14 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IHashingStrategy')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('K')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -627,7 +627,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -638,7 +638,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -646,30 +646,30 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace('\n    ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('hashable')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 PsiElement(RPAR)(')')
           PsiElement(DOT)('.')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('equals')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
               PsiElement(RPAR)(')')
       PsiWhiteSpace('\n  ')
@@ -689,7 +689,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -697,24 +697,24 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Integer')
         PsiWhiteSpace('\n    ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('hashable')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 PsiElement(RPAR)(')')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('hashCode')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -739,21 +739,21 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMap')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('K')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('V')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -771,7 +771,7 @@ JetFile: HashMap.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('inline')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -787,7 +787,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -795,17 +795,17 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('hashable')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 PsiElement(RPAR)(')')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('hashCode')
       PsiWhiteSpace('\n  ')
       FUN
@@ -819,7 +819,7 @@ JetFile: HashMap.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('inline')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -835,7 +835,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -846,7 +846,7 @@ JetFile: HashMap.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('K')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -854,11 +854,11 @@ JetFile: HashMap.kt
         PsiWhiteSpace(' ')
         BINARY_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('hashable')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -867,7 +867,7 @@ JetFile: HashMap.kt
           OPERATION_REFERENCE
             PsiElement(EQEQ)('==')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n\n  ')
       PsiComment(EOL_COMMENT)('// everything else uses these equals() and hashCode()... ')
@@ -897,14 +897,14 @@ JetFile: HashMap.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('IHashingStrategy')
               TYPE_ARGUMENT_LIST
                 PsiElement(LT)('<')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('K')
                 PsiElement(GT)('>')
         PsiElement(RPAR)(')')
@@ -915,21 +915,21 @@ JetFile: HashMap.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMap')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('K')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('V')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')

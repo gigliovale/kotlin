@@ -1,6 +1,6 @@
 PsiJetFileStubImpl[package=test]
   PACKAGE_DIRECTIVE:
-    REFERENCE_EXPRESSION:[referencedName=test]
+    NAME_REFERENCE_EXPRESSION:[referencedName=test]
   IMPORT_LIST:
   CLASS:[fqName=test.Sealed, isEnumEntry=false, isInterface=false, isLocal=false, isTopLevel=true, name=Sealed, superNames=[]]
     MODIFIER_LIST:[public sealed]
@@ -18,8 +18,8 @@ PsiJetFileStubImpl[package=test]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=test]
-                REFERENCE_EXPRESSION:[referencedName=Sealed]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=test]
+                NAME_REFERENCE_EXPRESSION:[referencedName=Sealed]
         CLASS_BODY:
       OBJECT_DECLARATION:[fqName=test.Sealed.Top, isCompanion=false, isLocal=false, isObjectLiteral=false, isTopLevel=false, name=Top, superNames=[Sealed]]
         MODIFIER_LIST:[public]
@@ -28,6 +28,6 @@ PsiJetFileStubImpl[package=test]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=test]
-                REFERENCE_EXPRESSION:[referencedName=Sealed]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=test]
+                NAME_REFERENCE_EXPRESSION:[referencedName=Sealed]
         CLASS_BODY:

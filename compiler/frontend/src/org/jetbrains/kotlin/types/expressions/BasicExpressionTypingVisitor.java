@@ -842,7 +842,7 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
             @NotNull ExpressionTypingContext context,
             boolean isStatement
     ) {
-        KtSimpleNameExpression labelExpression = expression.getTargetLabel();
+        KtLabelReferenceExpression labelExpression = expression.getTargetLabel();
         if (labelExpression != null) {
             PsiElement labelIdentifier = labelExpression.getIdentifier();
             UnderscoreChecker.INSTANCE.checkIdentifier(labelIdentifier, context.trace);

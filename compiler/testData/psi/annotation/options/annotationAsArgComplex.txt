@@ -50,7 +50,7 @@ JetFile: annotationAsArgComplex.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Annotation')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -58,11 +58,11 @@ JetFile: annotationAsArgComplex.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('annotation')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('setProblemGroup')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -76,11 +76,11 @@ JetFile: annotationAsArgComplex.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('annotation')
           PsiElement(DOT)('.')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('getQuickFixes')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

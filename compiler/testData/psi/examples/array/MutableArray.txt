@@ -33,7 +33,7 @@ JetFile: MutableArray.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ISized')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -48,7 +48,7 @@ JetFile: MutableArray.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('operator')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -64,7 +64,7 @@ JetFile: MutableArray.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -72,7 +72,7 @@ JetFile: MutableArray.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -99,7 +99,7 @@ JetFile: MutableArray.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ISized')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -116,7 +116,7 @@ JetFile: MutableArray.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('operator')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -132,7 +132,7 @@ JetFile: MutableArray.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -143,7 +143,7 @@ JetFile: MutableArray.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')
@@ -165,14 +165,14 @@ JetFile: MutableArray.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ReadOnlyArray')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -180,14 +180,14 @@ JetFile: MutableArray.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('WriteOnlyArray')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')

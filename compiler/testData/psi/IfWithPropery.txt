@@ -28,10 +28,10 @@ JetFile: IfWithPropery.kt
             PsiWhiteSpace(' ')
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           PsiElement(SEMICOLON)(';')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace(' ')
@@ -70,11 +70,11 @@ JetFile: IfWithPropery.kt
             PsiWhiteSpace(' ')
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           PsiElement(SEMICOLON)(';')
           PsiWhiteSpace('\n  ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace('\n')
           PsiElement(RBRACE)('}')

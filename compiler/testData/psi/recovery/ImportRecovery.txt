@@ -6,10 +6,10 @@ JetFile: ImportRecovery.kt
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('some')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('test')
       PsiElement(DOT)('.')
       PsiErrorElement:Import must be placed on a single line

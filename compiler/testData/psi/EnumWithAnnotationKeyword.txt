@@ -37,7 +37,7 @@ JetFile: EnumWithAnnotationKeyword.kt
     BLOCK
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('D')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

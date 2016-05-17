@@ -19,7 +19,7 @@ JetFile: IncompleteAccessor2.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR

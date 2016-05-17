@@ -7,13 +7,13 @@ JetFile: java.kt
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('java')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('lang')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('annotation')
       PsiElement(DOT)('.')
       PsiElement(MUL)('*')
@@ -30,25 +30,25 @@ JetFile: java.kt
               USER_TYPE
                 USER_TYPE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('java')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('lang')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('annotation')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Retention')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('RetentionPolicy')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('CLASS')
           PsiElement(RPAR)(')')
     PsiWhiteSpace(' \n')
@@ -65,16 +65,16 @@ JetFile: java.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Retention')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('RetentionPolicy')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('RUNTIME')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')
@@ -83,25 +83,25 @@ JetFile: java.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Target')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ElementType')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ANNOTATION_TYPE')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ElementType')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('CONSTRUCTOR')
           PsiElement(RPAR)(')')
     PsiWhiteSpace('\n')

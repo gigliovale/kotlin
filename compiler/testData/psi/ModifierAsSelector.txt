@@ -13,10 +13,10 @@ JetFile: ModifierAsSelector.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('System')
       PsiElement(DOT)('.')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('out')
   PsiWhiteSpace('\n\n')
   FUN
@@ -34,7 +34,7 @@ JetFile: ModifierAsSelector.kt
         PsiElement(throw)('throw')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Exception')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')

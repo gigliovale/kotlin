@@ -25,7 +25,7 @@ JetFile: modifiers.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
             PsiWhiteSpace(' ')
             PsiElement(private)('private')
@@ -40,7 +40,7 @@ JetFile: modifiers.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Ann')
               PsiElement(RBRACKET)(']')
           PsiWhiteSpace(' ')
@@ -51,6 +51,6 @@ JetFile: modifiers.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('String')
         PsiElement(RPAR)(')')

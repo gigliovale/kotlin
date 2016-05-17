@@ -359,10 +359,10 @@ class ImportInsertHelperImpl(private val project: Project) : ImportInsertHelper(
             return result
         }
 
-        private fun targetFqName(ref: KtReferenceExpression): FqName?
+        private fun targetFqName(ref: KtReferenceElement): FqName?
                 = ref.resolveTargets().map { it.importableFqName }.toSet().singleOrNull()
 
-        private fun KtReferenceExpression.resolveTargets(): Collection<DeclarationDescriptor>
+        private fun KtReferenceElement.resolveTargets(): Collection<DeclarationDescriptor>
                 = this.getImportableTargets(resolutionFacade.analyze(this, BodyResolveMode.PARTIAL))
 
         private fun addImport(fqName: FqName, allUnder: Boolean): KtImportDirective {

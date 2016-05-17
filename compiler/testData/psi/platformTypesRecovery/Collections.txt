@@ -16,7 +16,7 @@ JetFile: Collections.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -27,7 +27,7 @@ JetFile: Collections.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -40,7 +40,7 @@ JetFile: Collections.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -51,7 +51,7 @@ JetFile: Collections.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -64,14 +64,14 @@ JetFile: Collections.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiErrorElement:Unexpected tokens
                         PsiElement(LPAR)('(')
                         PsiElement(IDENTIFIER)('Mutable')
@@ -82,7 +82,7 @@ JetFile: Collections.kt
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Foo')
                             PsiErrorElement:Unexpected token
                               PsiElement(EXCL)('!')
@@ -98,7 +98,7 @@ JetFile: Collections.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -109,7 +109,7 @@ JetFile: Collections.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiErrorElement:Unexpected tokens
                         PsiElement(LPAR)('(')
                         PsiElement(IDENTIFIER)('Mutable')
@@ -120,7 +120,7 @@ JetFile: Collections.kt
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Foo')
                             PsiErrorElement:Unexpected token
                               PsiElement(EXCL)('!')

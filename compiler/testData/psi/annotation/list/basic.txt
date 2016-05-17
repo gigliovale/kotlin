@@ -12,7 +12,7 @@ JetFile: basic.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('abc')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -26,7 +26,7 @@ JetFile: basic.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('cde')
         PsiElement(RBRACKET)(']')
     PsiWhiteSpace('\n')
@@ -47,14 +47,14 @@ JetFile: basic.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('abc')
             PsiWhiteSpace('\n    ')
             ANNOTATION_ENTRY
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('cde')
             PsiElement(RBRACKET)(']')
           PsiWhiteSpace('\n    ')
@@ -65,7 +65,7 @@ JetFile: basic.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('private')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace('\n    ')
@@ -88,14 +88,14 @@ JetFile: basic.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('data')
                 PsiWhiteSpace(' ')
                 ANNOTATION_ENTRY
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('inline')
                 PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -115,7 +115,7 @@ JetFile: basic.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('suppress')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -145,7 +145,7 @@ JetFile: basic.kt
                       CONSTRUCTOR_CALLEE
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('abc')
                     PsiElement(RBRACKET)(']')
                   PsiWhiteSpace(' ')

@@ -26,7 +26,7 @@ JetFile: ForWithoutRange.kt
         PsiWhiteSpace('\n\n    ')
         BODY
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

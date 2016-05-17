@@ -18,7 +18,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiErrorElement:Expecting comma or ')'
           <empty list>
@@ -31,7 +31,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiErrorElement:Expecting comma or ')'
           <empty list>
@@ -44,7 +44,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -68,19 +68,19 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
           PsiElement(OPEN_QUOTE)('"')
           SHORT_STRING_TEMPLATE_ENTRY
             PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           LITERAL_STRING_TEMPLATE_ENTRY
             PsiElement(REGULAR_STRING_PART)(' ')
           SHORT_STRING_TEMPLATE_ENTRY
             PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
           LITERAL_STRING_TEMPLATE_ENTRY
             PsiElement(REGULAR_STRING_PART)(' ')
           SHORT_STRING_TEMPLATE_ENTRY
             PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('c')
           PsiElement(CLOSING_QUOTE)('"')
       PsiWhiteSpace('\n')
@@ -100,7 +100,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiErrorElement:Expecting comma or ')'
         <empty list>
@@ -113,7 +113,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiErrorElement:Expecting comma or ')'
         <empty list>
@@ -126,7 +126,7 @@ JetFile: MissingCommaInValueParameterListWithValOrVar.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')

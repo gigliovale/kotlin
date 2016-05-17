@@ -19,14 +19,14 @@ JetFile: Queue.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IPushPop')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -57,7 +57,7 @@ JetFile: Queue.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -70,14 +70,14 @@ JetFile: Queue.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Item')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('T')
                     PsiElement(GT)('>')
             PsiElement(RPAR)(')')
@@ -94,14 +94,14 @@ JetFile: Queue.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Item')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
@@ -122,14 +122,14 @@ JetFile: Queue.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Item')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
@@ -154,7 +154,7 @@ JetFile: Queue.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -169,12 +169,12 @@ JetFile: Queue.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Item')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('item')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
@@ -184,7 +184,7 @@ JetFile: Queue.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('tail')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -199,23 +199,23 @@ JetFile: Queue.kt
                 PsiElement(LBRACE)('{')
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('head')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('i')
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('tail')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('head')
                 PsiWhiteSpace('\n    ')
                 PsiElement(RBRACE)('}')
@@ -228,26 +228,26 @@ JetFile: Queue.kt
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
                   DOT_QUALIFIED_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('tail')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('next')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('i')
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('tail')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('i')
                 PsiWhiteSpace('\n    ')
                 PsiElement(RBRACE)('}')
@@ -273,7 +273,7 @@ JetFile: Queue.kt
           PsiElement(LPAR)('(')
           CONDITION
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('head')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -288,7 +288,7 @@ JetFile: Queue.kt
               PsiElement(throw)('throw')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('UnderflowException')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -308,24 +308,24 @@ JetFile: Queue.kt
                 PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('head')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('data')
               PsiWhiteSpace('\n      ')
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('head')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('head')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('next')
               PsiWhiteSpace('\n      ')
               IF
@@ -334,7 +334,7 @@ JetFile: Queue.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('head')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -346,7 +346,7 @@ JetFile: Queue.kt
                 PsiWhiteSpace('\n        ')
                 THEN
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('tail')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -355,7 +355,7 @@ JetFile: Queue.kt
                     NULL
                       PsiElement(null)('null')
               PsiWhiteSpace('\n      ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('result')
               PsiWhiteSpace('\n    ')
               PsiElement(RBRACE)('}')
@@ -376,7 +376,7 @@ JetFile: Queue.kt
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('head')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE

@@ -48,16 +48,16 @@ interface ExpressionReceiver :  ReceiverValue {
                 type: KotlinType,
                 bindingContext: BindingContext
         ): ExpressionReceiver {
-            var referenceExpression: KtReferenceExpression? = null
+            var referenceElement: KtReferenceElement? = null
             if (expression is KtThisExpression) {
-                referenceExpression = expression.instanceReference
+                referenceElement = expression.instanceReference
             }
             else if (expression is KtConstructorDelegationReferenceExpression) { // todo check this
-                referenceExpression = expression
+                referenceElement = expression
             }
 
-            if (referenceExpression != null) {
-                val descriptor = bindingContext.get(BindingContext.REFERENCE_TARGET, referenceExpression)
+            if (referenceElement != null) {
+                val descriptor = bindingContext.get(BindingContext.REFERENCE_TARGET, referenceElement)
                 if (descriptor is ClassDescriptor) {
                     return ThisExpressionClassReceiver(descriptor.original, expression, type)
                 }

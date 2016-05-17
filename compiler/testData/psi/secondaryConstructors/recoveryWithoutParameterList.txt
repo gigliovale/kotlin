@@ -37,7 +37,7 @@ JetFile: recoveryWithoutParameterList.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -105,5 +105,5 @@ JetFile: recoveryWithoutParameterList.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')

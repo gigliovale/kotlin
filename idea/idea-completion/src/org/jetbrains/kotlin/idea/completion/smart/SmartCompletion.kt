@@ -114,7 +114,7 @@ class SmartCompletion(
                     val operationToken = parent.operationToken
                     if (operationToken == KtTokens.EQ || operationToken in COMPARISON_TOKENS) {
                         val left = parent.left
-                        if (left is KtReferenceExpression) {
+                        if (left is KtNameReferenceExpression) {
                             return@lazy bindingContext[BindingContext.REFERENCE_TARGET, left].singletonOrEmptySet()
                         }
                     }
@@ -143,7 +143,7 @@ class SmartCompletion(
                             .filterIsInstance<KtWhenConditionWithExpression>()
                     for (condition in conditions) {
                         val selectorExpr = (condition.expression as? KtDotQualifiedExpression)
-                                                   ?.selectorExpression as? KtReferenceExpression ?: continue
+                                                   ?.selectorExpression as? KtNameReferenceExpression ?: continue
                         val target = bindingContext[BindingContext.REFERENCE_TARGET, selectorExpr] as? ClassDescriptor ?: continue
                         if (DescriptorUtils.isEnumEntry(target)) {
                             descriptorsToSkip.add(target)

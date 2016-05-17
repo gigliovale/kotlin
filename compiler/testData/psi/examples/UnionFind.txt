@@ -22,14 +22,14 @@ JetFile: UnionFind.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('IMutableList')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Int')
             PsiElement(GT)('>')
           VALUE_ARGUMENT_LIST
@@ -48,7 +48,7 @@ JetFile: UnionFind.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         BLOCK
@@ -62,27 +62,27 @@ JetFile: UnionFind.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('data')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('size')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('data')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('add')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('size')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('size')
           PsiWhiteSpace('\n  ')
           PsiElement(RBRACE)('}')
@@ -103,7 +103,7 @@ JetFile: UnionFind.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -111,7 +111,7 @@ JetFile: UnionFind.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         BLOCK
@@ -125,11 +125,11 @@ JetFile: UnionFind.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             ARRAY_ACCESS_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('data')
               INDICES
                 PsiElement(LBRACKET)('[')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('x')
                 PsiElement(RBRACKET)(']')
           PsiElement(SEMICOLON)(';')
@@ -140,13 +140,13 @@ JetFile: UnionFind.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('p')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(EQEQ)('==')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('x')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -157,7 +157,7 @@ JetFile: UnionFind.kt
                 RETURN
                   PsiElement(return)('return')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('x')
                 PsiElement(SEMICOLON)(';')
                 PsiWhiteSpace('\n    ')
@@ -171,30 +171,30 @@ JetFile: UnionFind.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('parent')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('p')
                 PsiElement(RPAR)(')')
           PsiElement(SEMICOLON)(';')
           PsiWhiteSpace('\n    ')
           BINARY_EXPRESSION
             ARRAY_ACCESS_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('data')
               INDICES
                 PsiElement(LBRACKET)('[')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('x')
                 PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('result')
           PsiElement(SEMICOLON)(';')
           PsiWhiteSpace('\n  ')
@@ -213,7 +213,7 @@ JetFile: UnionFind.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -224,7 +224,7 @@ JetFile: UnionFind.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -239,12 +239,12 @@ JetFile: UnionFind.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('parent')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
@@ -256,12 +256,12 @@ JetFile: UnionFind.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('parent')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
@@ -271,13 +271,13 @@ JetFile: UnionFind.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('pa')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(EXCLEQ)('!=')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('pb')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -292,17 +292,17 @@ JetFile: UnionFind.kt
                   CONDITION
                     DOT_QUALIFIED_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Random')
                         PsiElement(DOT)('.')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('nextInt')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             PsiElement(RPAR)(')')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('isOdd')
                   PsiElement(RPAR)(')')
                   PsiWhiteSpace(' ')
@@ -312,18 +312,18 @@ JetFile: UnionFind.kt
                       PsiWhiteSpace('\n        ')
                       BINARY_EXPRESSION
                         ARRAY_ACCESS_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('data')
                           INDICES
                             PsiElement(LBRACKET)('[')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('pb')
                             PsiElement(RBRACKET)(']')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
                           PsiElement(EQ)('=')
                         PsiWhiteSpace(' ')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('pa')
                       PsiWhiteSpace('\n      ')
                       PsiElement(RBRACE)('}')
@@ -336,18 +336,18 @@ JetFile: UnionFind.kt
                       PsiWhiteSpace('\n        ')
                       BINARY_EXPRESSION
                         ARRAY_ACCESS_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('data')
                           INDICES
                             PsiElement(LBRACKET)('[')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('pa')
                             PsiElement(RBRACKET)(']')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
                           PsiElement(EQ)('=')
                         PsiWhiteSpace(' ')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('pb')
                       PsiWhiteSpace('\n      ')
                       PsiElement(RBRACE)('}')
@@ -363,7 +363,7 @@ JetFile: UnionFind.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiElement(DOT)('.')
     PsiElement(IDENTIFIER)('isOdd')
@@ -372,7 +372,7 @@ JetFile: UnionFind.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Boolean')
     PsiWhiteSpace('\n  ')
     PROPERTY_ACCESSOR
@@ -385,7 +385,7 @@ JetFile: UnionFind.kt
       BINARY_EXPRESSION
         BINARY_EXPRESSION
           THIS_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(this)('this')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE

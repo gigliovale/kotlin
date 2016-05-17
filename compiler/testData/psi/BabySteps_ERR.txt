@@ -2,7 +2,7 @@ JetFile: BabySteps_ERR.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('foo')
   IMPORT_LIST
     <empty list>
@@ -29,7 +29,7 @@ JetFile: BabySteps_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('doo')
           PsiWhiteSpace(' ')
           PsiElement(EQ)('=')
@@ -45,13 +45,13 @@ JetFile: BabySteps_ERR.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             VALUE_ARGUMENT_NAME
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('d')
             PsiElement(EQ)('=')
             INTEGER_CONSTANT
@@ -64,19 +64,19 @@ JetFile: BabySteps_ERR.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiElement(COMMA)(',')
       PsiWhiteSpace(' ')
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
     PsiWhiteSpace(' ')
     CLASS_BODY

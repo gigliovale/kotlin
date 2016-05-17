@@ -2,7 +2,7 @@ JetFile: semicolonBetweenDeclarations.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('foo')
     PsiElement(SEMICOLON)(';')
   IMPORT_LIST

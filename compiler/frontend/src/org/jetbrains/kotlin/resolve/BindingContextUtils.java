@@ -141,7 +141,7 @@ public class BindingContextUtils {
 
     public static void reportAmbiguousLabel(
             @NotNull BindingTrace trace,
-            @NotNull KtSimpleNameExpression targetLabel,
+            @NotNull KtLabelReferenceExpression targetLabel,
             @NotNull Collection<DeclarationDescriptor> declarationsByLabel
     ) {
         Collection<PsiElement> targets = Lists.newArrayList();

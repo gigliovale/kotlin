@@ -46,7 +46,7 @@ JetFile: DefaultKeyword.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -291,7 +291,7 @@ JetFile: DefaultKeyword.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('companion')
     PsiWhiteSpace(' ')
     PsiErrorElement:Property getter or setter expected

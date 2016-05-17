@@ -27,7 +27,7 @@ public abstract class KtInstanceExpressionWithLabel extends KtExpressionWithLabe
     }
 
     @NotNull
-    public KtReferenceExpression getInstanceReference() {
-        return (KtReferenceExpression) findChildByType(KtNodeTypes.REFERENCE_EXPRESSION);
+    public KtNameReferenceExpression getInstanceReference() {
+        return (KtNameReferenceExpression) findChildByType(KtNodeTypes.NAME_REFERENCE_EXPRESSION);
     }
 }

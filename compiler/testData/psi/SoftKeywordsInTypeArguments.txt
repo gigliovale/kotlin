@@ -41,7 +41,7 @@ JetFile: SoftKeywordsInTypeArguments.kt
       PsiComment(EOL_COMMENT)('//  Foo<out out>')
       PsiWhiteSpace('\n  ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Foo')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
@@ -51,7 +51,7 @@ JetFile: SoftKeywordsInTypeArguments.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(GT)('>')
       PsiWhiteSpace('\n\n')

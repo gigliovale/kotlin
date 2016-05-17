@@ -13,7 +13,7 @@ JetFile: EmptyName.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
@@ -81,7 +81,7 @@ JetFile: EmptyName.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -93,7 +93,7 @@ JetFile: EmptyName.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n')
@@ -150,7 +150,7 @@ JetFile: EmptyName.kt
               PsiElement(EQ)('=')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Data')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')

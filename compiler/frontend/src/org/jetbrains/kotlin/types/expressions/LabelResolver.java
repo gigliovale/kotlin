@@ -137,7 +137,7 @@ public class LabelResolver {
             @NotNull KtExpressionWithLabel expression,
             @NotNull ResolutionContext context
     ) {
-        KtSimpleNameExpression labelElement = expression.getTargetLabel();
+        KtLabelReferenceExpression labelElement = expression.getTargetLabel();
         Name labelName = expression.getLabelNameAsName();
         if (labelElement == null || labelName == null) return null;
 
@@ -169,7 +169,7 @@ public class LabelResolver {
 
     private KtElement resolveNamedLabel(
             @NotNull Name labelName, 
-            @NotNull KtSimpleNameExpression labelExpression,
+            @NotNull KtLabelReferenceExpression labelExpression,
             @NotNull BindingTrace trace
     ) {
         Set<KtElement> list = getElementsByLabelName(labelName, labelExpression);
@@ -190,8 +190,8 @@ public class LabelResolver {
             @NotNull ResolutionContext context,
             @NotNull Name labelName
     ) {
-        KtReferenceExpression referenceExpression = expression.getInstanceReference();
-        KtSimpleNameExpression targetLabel = expression.getTargetLabel();
+        KtReferenceElement referenceElement = expression.getInstanceReference();
+        KtLabelReferenceExpression targetLabel = expression.getTargetLabel();
         assert targetLabel != null : expression;
 
         Collection<DeclarationDescriptor> declarationsByLabel = ScopeUtilsKt.getDeclarationsByLabel(context.scope, labelName);
@@ -217,7 +217,7 @@ public class LabelResolver {
             PsiElement element = DescriptorToSourceUtils.descriptorToDeclaration(declarationDescriptor);
             assert element != null : "No PSI element for descriptor: " + declarationDescriptor;
             context.trace.record(LABEL_TARGET, targetLabel, element);
-            context.trace.record(REFERENCE_TARGET, referenceExpression, declarationDescriptor);
+            context.trace.record(REFERENCE_TARGET, referenceElement, declarationDescriptor);
 
             if (declarationDescriptor instanceof ClassDescriptor) {
                 ClassDescriptor classDescriptor = (ClassDescriptor) declarationDescriptor;
@@ -237,7 +237,7 @@ public class LabelResolver {
                     ReceiverParameterDescriptor thisReceiver = ((FunctionDescriptor) declarationDescriptor).getExtensionReceiverParameter();
                     if (thisReceiver != null) {
                         context.trace.record(LABEL_TARGET, targetLabel, element);
-                        context.trace.record(REFERENCE_TARGET, referenceExpression, declarationDescriptor);
+                        context.trace.record(REFERENCE_TARGET, referenceElement, declarationDescriptor);
                     }
                     return LabeledReceiverResolutionResult.labelResolutionSuccess(thisReceiver);
                 }

@@ -29,7 +29,7 @@ JetFile: DynamicTypes.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           DYNAMIC_TYPE
@@ -43,10 +43,10 @@ JetFile: DynamicTypes.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('dynamic')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n        ')
@@ -57,10 +57,10 @@ JetFile: DynamicTypes.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('dynamic')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n        ')
@@ -70,14 +70,14 @@ JetFile: DynamicTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('dynamic')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -88,7 +88,7 @@ JetFile: DynamicTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')

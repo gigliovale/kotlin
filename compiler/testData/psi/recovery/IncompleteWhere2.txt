@@ -25,7 +25,7 @@ JetFile: IncompleteWhere2.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiErrorElement:Expecting ':' before the upper bound
               <empty list>

@@ -28,8 +28,8 @@ public class KtValueArgumentName extends KtElementImpl implements ValueArgumentN
 
     @Override
     @NotNull
-    public KtSimpleNameExpression getReferenceExpression() {
-        return (KtSimpleNameExpression) findChildByType(KtNodeTypes.REFERENCE_EXPRESSION);
+    public KtNameReferenceExpression getReferenceExpression() {
+        return (KtNameReferenceExpression) findChildByType(KtNodeTypes.NAME_REFERENCE_EXPRESSION);
     }
 
     @NotNull

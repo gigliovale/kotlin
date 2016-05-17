@@ -15,7 +15,7 @@ JetFile: NotIsAndNotIn.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n  ')
       IS_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -23,29 +23,29 @@ JetFile: NotIsAndNotIn.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('B')
       PsiWhiteSpace('\n  ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
           PsiElement(NOT_IN)('!in')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('B')
       PsiWhiteSpace('\n  ')
       PREFIX_EXPRESSION
         OPERATION_REFERENCE
           PsiElement(EXCL)('!')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('isBoolean')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
             PsiElement(RPAR)(')')
       PsiWhiteSpace('\n  ')
@@ -53,12 +53,12 @@ JetFile: NotIsAndNotIn.kt
         OPERATION_REFERENCE
           PsiElement(EXCL)('!')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('inRange')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
             PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')

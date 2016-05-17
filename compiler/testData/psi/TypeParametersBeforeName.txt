@@ -42,7 +42,7 @@ JetFile: TypeParametersBeforeName.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiElement(RBRACKET)(']')
     PsiWhiteSpace(' ')
@@ -72,12 +72,12 @@ JetFile: TypeParametersBeforeName.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiElement(RBRACKET)(']')
       PsiWhiteSpace(' ')
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('T')
     PsiElement(DOT)('.')
     PsiElement(IDENTIFIER)('foo')
@@ -96,14 +96,14 @@ JetFile: TypeParametersBeforeName.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('List')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('A')
           PsiElement(GT)('>')
     PsiElement(DOT)('.')
@@ -120,14 +120,14 @@ JetFile: TypeParametersBeforeName.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('List')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('A')
           PsiElement(GT)('>')
     PsiElement(DOT)('.')

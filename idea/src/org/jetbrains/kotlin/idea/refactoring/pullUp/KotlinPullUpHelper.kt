@@ -187,8 +187,8 @@ class KotlinPullUpHelper(
             result[data.targetClass.getPrimaryConstructor() ?: data.targetClass] = ArrayList<KtElement>()
             data.sourceClass.accept(
                     object : KtTreeVisitorVoid() {
-                        private fun processConstructorReference(expression: KtReferenceExpression, callingConstructorElement: KtElement) {
-                            val descriptor = data.resolutionFacade.analyze(expression)[BindingContext.REFERENCE_TARGET, expression]
+                        private fun processConstructorReference(element: KtReferenceElement, callingConstructorElement: KtElement) {
+                            val descriptor = data.resolutionFacade.analyze(element)[BindingContext.REFERENCE_TARGET, element]
                             val constructorElement = (descriptor as? DeclarationDescriptorWithSource)?.source?.getPsi() ?: return
                             if (constructorElement == data.targetClass
                                 || (constructorElement as? KtConstructor<*>)?.getContainingClassOrObject() == data.targetClass) {

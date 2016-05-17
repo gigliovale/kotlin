@@ -17,7 +17,7 @@ JetFile: LINQ.kt
       BINARY_EXPRESSION
         BINARY_EXPRESSION
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('l')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -28,10 +28,10 @@ JetFile: LINQ.kt
                 PsiElement(LBRACE)('{')
                 BLOCK
                   DOT_QUALIFIED_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('it')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('x')
                 PsiElement(RBRACE)('}')
           PsiWhiteSpace(' ')
@@ -43,10 +43,10 @@ JetFile: LINQ.kt
               PsiElement(LBRACE)('{')
               BLOCK
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('it')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('foo')
               PsiElement(RBRACE)('}')
         PsiWhiteSpace(' ')
@@ -68,13 +68,13 @@ JetFile: LINQ.kt
             PsiWhiteSpace(' ')
             BLOCK
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(PLUS)('+')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
             PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n')

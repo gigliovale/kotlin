@@ -29,20 +29,20 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.core.overrideImplement.ImplementMembersHandler
-import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.KtReferenceElement
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
 internal class AnonymousTemplateEditingListener(private val psiFile: PsiFile, private val editor: Editor) : TemplateEditingAdapter() {
-    private var classRef: KtReferenceExpression? = null
+    private var classRef: KtReferenceElement? = null
     private var classDescriptor: ClassDescriptor? = null
 
     override fun currentVariableChanged(templateState: TemplateState?, template: Template?, oldIndex: Int, newIndex: Int) {
         assert(templateState!!.template != null)
         val variableRange = templateState.getVariableRange("SUPERTYPE") ?: return
         val name = psiFile.findElementAt(variableRange.startOffset)
-        if (name != null && name.parent is KtReferenceExpression) {
-            val ref = name.parent as KtReferenceExpression
+        if (name != null && name.parent is KtReferenceElement) {
+            val ref = name.parent as KtReferenceElement
             val descriptor = ref.analyze(BodyResolveMode.FULL).get(BindingContext.REFERENCE_TARGET, ref)
             if (descriptor is ClassDescriptor) {
                 classRef = ref

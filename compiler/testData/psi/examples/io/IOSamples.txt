@@ -35,7 +35,7 @@ JetFile: IOSamples.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -43,7 +43,7 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -88,13 +88,13 @@ JetFile: IOSamples.kt
             USER_TYPE
               USER_TYPE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('java')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('io')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Closeable')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -105,12 +105,12 @@ JetFile: IOSamples.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ICloseable')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('closeable')
           PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -133,14 +133,14 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IIterable')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -152,14 +152,14 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IAdder')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
@@ -177,22 +177,22 @@ JetFile: IOSamples.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('from')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         BODY
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('t')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('add')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('item')
                 PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')
@@ -209,14 +209,14 @@ JetFile: IOSamples.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Byte')
               PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -224,7 +224,7 @@ JetFile: IOSamples.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('JavaCloseableWrapper')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -242,7 +242,7 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('InputStream')
       PsiWhiteSpace('\n  ')
       PROPERTY
@@ -257,7 +257,7 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n  ')
       PROPERTY
@@ -301,7 +301,7 @@ JetFile: IOSamples.kt
               PREFIX_EXPRESSION
                 OPERATION_REFERENCE
                   PsiElement(EXCL)('!')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('nextUsed')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -310,7 +310,7 @@ JetFile: IOSamples.kt
                 PsiElement(LBRACE)('{')
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('nextUsed')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -323,7 +323,7 @@ JetFile: IOSamples.kt
                   PsiElement(return)('return')
                   PsiWhiteSpace(' ')
                   BINARY_WITH_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('next')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -331,7 +331,7 @@ JetFile: IOSamples.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Byte')
                 PsiWhiteSpace('\n    ')
                 PsiElement(RBRACE)('}')
@@ -365,14 +365,14 @@ JetFile: IOSamples.kt
               PsiElement(LPAR)('(')
               CONDITION
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('nextUsed')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(ANDAND)('&&')
                   PsiWhiteSpace(' ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('next')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -390,7 +390,7 @@ JetFile: IOSamples.kt
                   PsiElement(LBRACE)('{')
                   PsiWhiteSpace('\n        ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('nextUsed')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -400,18 +400,18 @@ JetFile: IOSamples.kt
                       PsiElement(false)('false')
                   PsiWhiteSpace('\n        ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('next')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQ)('=')
                     PsiWhiteSpace(' ')
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('stream')
                       PsiElement(DOT)('.')
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('read')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
@@ -425,7 +425,7 @@ JetFile: IOSamples.kt
               PsiElement(return)('return')
               PsiWhiteSpace(' ')
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('next')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -452,14 +452,14 @@ JetFile: IOSamples.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IAdder')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Byte')
               PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -467,7 +467,7 @@ JetFile: IOSamples.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('JavaCloseableWrapper')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -485,7 +485,7 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('OutputStream')
       PsiWhiteSpace('\n\n  ')
       PsiComment(EOL_COMMENT)('//this(file : File) : JavaCloseableWrapper(stream) {')
@@ -510,7 +510,7 @@ JetFile: IOSamples.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Byte')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -518,16 +518,16 @@ JetFile: IOSamples.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('stream')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('write')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('item')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -557,7 +557,7 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('File')
         PsiWhiteSpace(' ')
         PsiComment(EOL_COMMENT)('//= ...')
@@ -571,30 +571,30 @@ JetFile: IOSamples.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('File')
         PsiWhiteSpace(' ')
         PsiComment(EOL_COMMENT)('//= ...')
       PsiWhiteSpace('\n\n  ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('streamCopy')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('FileInput')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('f1')
                 PsiElement(RPAR)(')')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f2')
           PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')

@@ -43,5 +43,5 @@ interface LambdaArgument : ValueArgument {
 
 interface ValueArgumentName {
     val asName: Name
-    val referenceExpression: KtSimpleNameExpression?
+    val referenceExpression: KtNameReferenceExpression?
 }

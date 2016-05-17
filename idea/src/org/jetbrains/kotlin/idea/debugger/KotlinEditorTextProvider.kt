@@ -77,7 +77,7 @@ class KotlinEditorTextProvider : EditorTextProvider {
             val newExpression = when (parent) {
                 is KtThisExpression,
                 is KtSuperExpression,
-                is KtReferenceExpression -> {
+                is KtReferenceElement -> {
                     val pparent = parent.parent
                     when (pparent) {
                         is KtQualifiedExpression -> pparent

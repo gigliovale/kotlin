@@ -25,7 +25,7 @@ JetFile: With.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiElement(COMMA)(',')
       PsiWhiteSpace(' ')
@@ -39,7 +39,7 @@ JetFile: With.kt
             FUNCTION_TYPE_RECEIVER
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
             PsiElement(DOT)('.')
             VALUE_PARAMETER_LIST
@@ -50,18 +50,18 @@ JetFile: With.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('receiver')
       PsiElement(DOT)('.')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('body')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -79,7 +79,7 @@ JetFile: With.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n\n  ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('with')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -87,16 +87,16 @@ JetFile: With.kt
             DOT_QUALIFIED_EXPRESSION
               DOT_QUALIFIED_EXPRESSION
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('java')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('lang')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('System')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('out')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -107,7 +107,7 @@ JetFile: With.kt
               PsiWhiteSpace('\n    ')
               BLOCK
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('println')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
@@ -121,7 +121,7 @@ JetFile: With.kt
                 PsiElement(SEMICOLON)(';')
                 PsiWhiteSpace('\n    ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('print')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
@@ -138,10 +138,10 @@ JetFile: With.kt
       PsiWhiteSpace('\n\n  ')
       DOT_QUALIFIED_EXPRESSION
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('System')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('out')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
@@ -151,7 +151,7 @@ JetFile: With.kt
               PsiWhiteSpace('\n    ')
               BLOCK
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('println')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
@@ -165,7 +165,7 @@ JetFile: With.kt
                 PsiElement(SEMICOLON)(';')
                 PsiWhiteSpace('\n    ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('print')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')

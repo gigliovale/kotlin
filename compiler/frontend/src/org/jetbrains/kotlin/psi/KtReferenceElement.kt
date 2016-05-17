@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.psi;
+package org.jetbrains.kotlin.psi
 
-public interface KtReferenceExpression extends KtExpression {
-}
+interface KtReferenceElement : KtElement
+
+interface KtReferenceExpression : KtReferenceElement, KtExpression

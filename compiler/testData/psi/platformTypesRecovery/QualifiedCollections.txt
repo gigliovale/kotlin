@@ -17,10 +17,10 @@ JetFile: QualifiedCollections.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('kotlin')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -31,7 +31,7 @@ JetFile: QualifiedCollections.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -45,10 +45,10 @@ JetFile: QualifiedCollections.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('kotlin')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -59,7 +59,7 @@ JetFile: QualifiedCollections.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -72,7 +72,7 @@ JetFile: QualifiedCollections.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -80,10 +80,10 @@ JetFile: QualifiedCollections.kt
                 TYPE_REFERENCE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('kotlin')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiErrorElement:Unexpected tokens
                         PsiElement(LPAR)('(')
                         PsiElement(IDENTIFIER)('Mutable')
@@ -94,7 +94,7 @@ JetFile: QualifiedCollections.kt
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Foo')
                             PsiErrorElement:Unexpected token
                               PsiElement(EXCL)('!')
@@ -111,10 +111,10 @@ JetFile: QualifiedCollections.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('kotlin')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -126,10 +126,10 @@ JetFile: QualifiedCollections.kt
                 TYPE_REFERENCE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('kotlin')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiErrorElement:Unexpected tokens
                         PsiElement(LPAR)('(')
                         PsiElement(IDENTIFIER)('Mutable')
@@ -140,7 +140,7 @@ JetFile: QualifiedCollections.kt
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Foo')
                             PsiErrorElement:Unexpected token
                               PsiElement(EXCL)('!')

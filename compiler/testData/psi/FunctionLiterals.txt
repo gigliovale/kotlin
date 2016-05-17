@@ -25,7 +25,7 @@ JetFile: FunctionLiterals.kt
         FUNCTION_LITERAL
           PsiElement(LBRACE)('{')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
@@ -39,7 +39,7 @@ JetFile: FunctionLiterals.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
@@ -71,13 +71,13 @@ JetFile: FunctionLiterals.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -91,7 +91,7 @@ JetFile: FunctionLiterals.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -101,7 +101,7 @@ JetFile: FunctionLiterals.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -115,7 +115,7 @@ JetFile: FunctionLiterals.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -125,13 +125,13 @@ JetFile: FunctionLiterals.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('d')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -150,7 +150,7 @@ JetFile: FunctionLiterals.kt
                     VALUE_PARAMETER
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('Int')
                     PsiElement(RPAR)(')')
                   PsiWhiteSpace(' ')
@@ -158,7 +158,7 @@ JetFile: FunctionLiterals.kt
                   PsiWhiteSpace(' ')
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Unit')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -173,7 +173,7 @@ JetFile: FunctionLiterals.kt
                     VALUE_PARAMETER
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('Int')
                     PsiElement(RPAR)(')')
                   PsiWhiteSpace(' ')
@@ -181,13 +181,13 @@ JetFile: FunctionLiterals.kt
                   PsiWhiteSpace(' ')
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Unit')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')

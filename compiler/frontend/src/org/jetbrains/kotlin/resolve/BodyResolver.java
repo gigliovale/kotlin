@@ -673,14 +673,14 @@ public class BodyResolver {
     private ObservableBindingTrace createFieldTrackingTrace(final PropertyDescriptor propertyDescriptor) {
         return new ObservableBindingTrace(trace).addHandler(
                 BindingContext.REFERENCE_TARGET,
-                new ObservableBindingTrace.RecordHandler<KtReferenceExpression, DeclarationDescriptor>() {
+                new ObservableBindingTrace.RecordHandler<KtReferenceElement, DeclarationDescriptor>() {
             @Override
             public void handleRecord(
-                    WritableSlice<KtReferenceExpression, DeclarationDescriptor> slice,
-                    KtReferenceExpression expression,
+                    WritableSlice<KtReferenceElement, DeclarationDescriptor> slice,
+                    KtReferenceElement element,
                     DeclarationDescriptor descriptor
             ) {
-                if (expression instanceof KtSimpleNameExpression &&
+                if (element instanceof KtSimpleNameExpression &&
                     descriptor instanceof SyntheticFieldDescriptor) {
                     trace.record(BindingContext.BACKING_FIELD_REQUIRED,
                                  propertyDescriptor);

@@ -15,7 +15,7 @@ JetFile: AbsentLeftHandSide.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('import')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -78,7 +78,7 @@ JetFile: AbsentLeftHandSide.kt
         PsiElement(LT)('<')
       BINARY_EXPRESSION
         BINARY_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('html')
           OPERATION_REFERENCE
             PsiElement(GT)('>')
@@ -87,7 +87,7 @@ JetFile: AbsentLeftHandSide.kt
               PsiElement(LT)('<')
             OPERATION_REFERENCE
               PsiElement(DIV)('/')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('html')
         OPERATION_REFERENCE
           PsiElement(GT)('>')
@@ -111,7 +111,7 @@ JetFile: AbsentLeftHandSide.kt
         PsiElement(LT)('<')
       BINARY_EXPRESSION
         BINARY_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('html')
           OPERATION_REFERENCE
             PsiElement(GT)('>')
@@ -120,11 +120,11 @@ JetFile: AbsentLeftHandSide.kt
               PsiElement(LT)('<')
             OPERATION_REFERENCE
               PsiElement(DIV)('/')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('html')
         OPERATION_REFERENCE
           PsiElement(GT)('>')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('html')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

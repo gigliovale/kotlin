@@ -17,7 +17,7 @@ JetFile: ComplexScript.kts
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('String')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -26,28 +26,28 @@ JetFile: ComplexScript.kts
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('System')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('err')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('println')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('message')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('System')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('exit')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -66,10 +66,10 @@ JetFile: ComplexScript.kts
           CONDITION
             BINARY_EXPRESSION
               DOT_QUALIFIED_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('args')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('length')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -84,7 +84,7 @@ JetFile: ComplexScript.kts
               PsiElement(LBRACE)('{')
               PsiWhiteSpace('\n    ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('die')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -109,7 +109,7 @@ JetFile: ComplexScript.kts
           PsiElement(in)('in')
           PsiWhiteSpace(' ')
           LOOP_RANGE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('args')
           PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
@@ -118,12 +118,12 @@ JetFile: ComplexScript.kts
               PsiElement(LBRACE)('{')
               PsiWhiteSpace('\n    ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('println')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('arg')
                   PsiElement(RPAR)(')')
               PsiWhiteSpace('\n')

@@ -10,7 +10,7 @@ JetFile: QuotedIdentifiers.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('`return`')
     PsiWhiteSpace(' ')
     PsiElement(fun)('fun')
@@ -24,7 +24,7 @@ JetFile: QuotedIdentifiers.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n  ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('`class`')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')

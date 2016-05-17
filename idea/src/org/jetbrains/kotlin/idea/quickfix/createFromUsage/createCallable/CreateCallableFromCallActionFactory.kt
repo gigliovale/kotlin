@@ -183,8 +183,7 @@ sealed class CreateCallableFromCallActionFactory<E : KtExpression>(
         ): CallableInfo? {
             if (expression.typeArguments.isNotEmpty()) return null
 
-            val classDescriptor = expression
-                    .calleeExpression
+            val classDescriptor = (expression.calleeExpression as? KtReferenceExpression)
                     ?.getReferenceTargets(context)
                     ?.mapNotNull { (it as? ConstructorDescriptor)?.containingDeclaration }
                     ?.distinct()

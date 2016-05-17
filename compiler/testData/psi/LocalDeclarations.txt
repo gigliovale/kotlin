@@ -14,7 +14,7 @@ JetFile: LocalDeclarations.kt
     BLOCK
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('out')
       PsiWhiteSpace('\n    ')
       INTEGER_CONSTANT
@@ -27,7 +27,7 @@ JetFile: LocalDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           PsiElement(abstract)('abstract')
@@ -49,7 +49,7 @@ JetFile: LocalDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         PsiElement(class)('class')
@@ -80,7 +80,7 @@ JetFile: LocalDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         PsiElement(var)('var')

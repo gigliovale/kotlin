@@ -2,7 +2,7 @@ JetFile: PackageBlockFirst.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('foobar')
   IMPORT_LIST
     <empty list>
@@ -31,10 +31,10 @@ JetFile: PackageBlockFirst.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foobar')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

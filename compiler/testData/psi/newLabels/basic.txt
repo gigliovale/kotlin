@@ -15,11 +15,11 @@ JetFile: basic.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x1')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
           PsiWhiteSpace(' ')
           LAMBDA_ARGUMENT
@@ -196,7 +196,7 @@ JetFile: basic.kt
               PsiElement(IDENTIFIER)('l1')
               PsiElement(AT)('@')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -208,7 +208,7 @@ JetFile: basic.kt
               PsiElement(IDENTIFIER)('l2')
               PsiElement(AT)('@')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('baz')
       PsiWhiteSpace(' ')
       PsiComment(EOL_COMMENT)('// binary expression')

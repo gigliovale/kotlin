@@ -14,12 +14,12 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -48,13 +48,13 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
         BINARY_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE
@@ -62,7 +62,7 @@ JetFile: ByClauses.kt
           PsiWhiteSpace(' ')
           BINARY_EXPRESSION
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -100,14 +100,14 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
         PARENTHESIZED
           PsiElement(LPAR)('(')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -137,7 +137,7 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
@@ -145,7 +145,7 @@ JetFile: ByClauses.kt
         PARENTHESIZED
           PsiElement(LPAR)('(')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
             PsiWhiteSpace(' ')
             LAMBDA_ARGUMENT
@@ -183,18 +183,18 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
         ARRAY_ACCESS_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           INDICES
             PsiElement(LBRACKET)('[')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT
@@ -232,19 +232,19 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiWhiteSpace(' ')
                 LAMBDA_ARGUMENT
@@ -282,7 +282,7 @@ JetFile: ByClauses.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
@@ -305,7 +305,7 @@ JetFile: ByClauses.kt
                 PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
                   PsiWhiteSpace(' ')
                   LAMBDA_ARGUMENT

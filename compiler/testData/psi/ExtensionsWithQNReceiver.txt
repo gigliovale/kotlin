@@ -10,13 +10,13 @@ JetFile: ExtensionsWithQNReceiver.kt
       USER_TYPE
         USER_TYPE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('java')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('util')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Map')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
@@ -33,7 +33,7 @@ JetFile: ExtensionsWithQNReceiver.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
   PsiWhiteSpace('\n\n')
   FUN
@@ -43,13 +43,13 @@ JetFile: ExtensionsWithQNReceiver.kt
       USER_TYPE
         USER_TYPE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('java')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('util')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Map')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
@@ -69,7 +69,7 @@ JetFile: ExtensionsWithQNReceiver.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')

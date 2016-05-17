@@ -29,7 +29,7 @@ JetFile: Expressions_ERR.kt
         BLOCK
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n  ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('dfsd')
           PsiWhiteSpace('\n  ')
           PsiErrorElement:Expecting an element
@@ -49,7 +49,7 @@ JetFile: Expressions_ERR.kt
           PsiErrorElement:Expecting an element
             PsiElement(SEMICOLON)(';')
           PsiWhiteSpace('\n  ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('srgsdfg')
           PsiWhiteSpace('\n\n  ')
           PsiErrorElement:Expecting an element

@@ -17,10 +17,10 @@ JetFile: DoubleColon_ERR.kt
       CALLABLE_REFERENCE_EXPRESSION
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
         PsiElement(LPAR)('(')
@@ -43,13 +43,13 @@ JetFile: DoubleColon_ERR.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('b')
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('c')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
         PsiElement(LPAR)('(')
@@ -71,11 +71,11 @@ JetFile: DoubleColon_ERR.kt
       CALLABLE_REFERENCE_EXPRESSION
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace('\n')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiErrorElement:Expecting an identifier
             <empty list>
       PsiElement(RBRACE)('}')
@@ -94,7 +94,7 @@ JetFile: DoubleColon_ERR.kt
       CALLABLE_REFERENCE_EXPRESSION
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace('\n')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiErrorElement:Expecting an identifier
             <empty list>
       PsiElement(RBRACE)('}')
@@ -112,33 +112,33 @@ JetFile: DoubleColon_ERR.kt
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiErrorElement:Type arguments are not allowed
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
           PsiElement(GT)('>')
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiErrorElement:Type arguments are not allowed
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
           PsiElement(COMMA)(',')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('c')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
@@ -150,30 +150,30 @@ JetFile: DoubleColon_ERR.kt
       CALLABLE_REFERENCE_EXPRESSION
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
         PsiErrorElement:Type arguments are not allowed
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('c')
           PsiElement(GT)('>')
       PsiWhiteSpace('\n\n    ')
       CALLABLE_REFERENCE_EXPRESSION
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiErrorElement:Type arguments are not allowed
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
           PsiElement(GT)('>')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -197,13 +197,13 @@ JetFile: DoubleColon_ERR.kt
         CALLABLE_REFERENCE_EXPRESSION
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
           PsiElement(COLONCOLON)('::')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('c')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
         PsiElement(COLONCOLON)('::')
@@ -212,10 +212,10 @@ JetFile: DoubleColon_ERR.kt
       CALLABLE_REFERENCE_EXPRESSION
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
         PsiElement(COLONCOLON)('::')

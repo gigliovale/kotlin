@@ -28,8 +28,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getQualifiedElementSelector
 import org.jetbrains.kotlin.psi.psiUtil.isDotReceiver
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getCall
-import java.util.Arrays
-import java.util.Collections
+import java.util.*
 
 object CreateClassFromReferenceExpressionActionFactory : CreateClassFromUsageFactory<KtSimpleNameExpression>() {
     override fun getElementOfInterest(diagnostic: Diagnostic): KtSimpleNameExpression? {
@@ -71,7 +70,7 @@ object CreateClassFromReferenceExpressionActionFactory : CreateClassFromUsageFac
 
         val inImport = element.getNonStrictParentOfType<KtImportDirective>() != null
         if (inImport || isQualifierExpected(element)) {
-            val receiverSelector = (fullCallExpr as? KtQualifiedExpression)?.receiverExpression?.getQualifiedElementSelector() as? KtReferenceExpression
+            val receiverSelector = (fullCallExpr as? KtQualifiedExpression)?.receiverExpression?.getQualifiedElementSelector() as? KtReferenceElement
             val qualifierDescriptor = receiverSelector?.let { context[BindingContext.REFERENCE_TARGET, it] }
 
             val targetParent =
@@ -121,7 +120,7 @@ object CreateClassFromReferenceExpressionActionFactory : CreateClassFromUsageFac
         val fullCallExpr = getFullCallExpression(element) ?: return null
 
         if (isInsideOfImport(element) || isQualifierExpected(element)) {
-            val receiverSelector = (fullCallExpr as? KtQualifiedExpression)?.receiverExpression?.getQualifiedElementSelector() as? KtReferenceExpression
+            val receiverSelector = (fullCallExpr as? KtQualifiedExpression)?.receiverExpression?.getQualifiedElementSelector() as? KtReferenceElement
             val qualifierDescriptor = receiverSelector?.let { context[BindingContext.REFERENCE_TARGET, it] }
 
             val targetParent =

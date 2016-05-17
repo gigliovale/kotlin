@@ -15,7 +15,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
@@ -23,7 +23,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
             TYPE_REFERENCE
               NULLABLE_TYPE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Int')
                 PsiElement(QUEST)('?')
           PsiElement(GT)('>')
@@ -32,11 +32,11 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('fooo')
         OPERATION_REFERENCE
           PsiElement(LT)('<')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Double')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
         PsiElement(QUEST)('?')
@@ -46,35 +46,35 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
         PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('dd')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Triple')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(GT)('>')
           PsiElement(GT)('>')
@@ -92,7 +92,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
               PsiWhiteSpace(' ')
               THEN
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Triple')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
@@ -115,7 +115,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
               PsiWhiteSpace(' ')
               ELSE
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Triple')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
@@ -136,62 +136,62 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
               TYPE_ARGUMENT_LIST
                 PsiElement(LT)('<')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('a')
                 PsiElement(COMMA)(',')
                 PsiWhiteSpace(' ')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('b')
                 PsiElement(COMMA)(',')
                 PsiWhiteSpace(' ')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('c')
                 PsiElement(GT)('>')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('d')
                 PsiElement(RPAR)(')')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
               OPERATION_REFERENCE
                 PsiElement(LT)('<')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
               OPERATION_REFERENCE
                 PsiElement(PLUS)('+')
@@ -201,35 +201,35 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('c')
               OPERATION_REFERENCE
                 PsiElement(GT)('>')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('d')
                 PsiElement(RPAR)(')')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
               OPERATION_REFERENCE
                 PsiElement(LT)('<')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('f')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -238,34 +238,34 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('c')
               OPERATION_REFERENCE
                 PsiElement(GT)('>')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('d')
                 PsiElement(RPAR)(')')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
               OPERATION_REFERENCE
                 PsiElement(LT)('<')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           PsiErrorElement:Unexpected type specification
@@ -276,18 +276,18 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('c')
               OPERATION_REFERENCE
                 PsiElement(GT)('>')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('d')
                 PsiElement(RPAR)(')')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace(' ')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -300,7 +300,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
         PsiElement(IDENTIFIER)('c')
       PsiWhiteSpace('\n    ')
       BINARY_WITH_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('d')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -308,7 +308,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             PsiWhiteSpace(' ')
             TYPE_ARGUMENT_LIST
@@ -317,13 +317,13 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('bar')
               PsiErrorElement:Expecting a '>'
                 <empty list>
       PsiWhiteSpace('\n    ')
       IS_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -331,7 +331,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             PsiWhiteSpace(' ')
             TYPE_ARGUMENT_LIST
@@ -340,7 +340,7 @@ JetFile: TypeExpressionAmbiguities_ERR.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('bar')
               PsiErrorElement:Expecting a '>'
                 <empty list>

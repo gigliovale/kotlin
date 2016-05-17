@@ -35,7 +35,7 @@ JetFile: IncompleteWhenElse.kt
               PsiElement(ARROW)('->')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('foo')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -50,7 +50,7 @@ JetFile: IncompleteWhenElse.kt
                 PsiElement(LBRACE)('{')
                 PsiWhiteSpace(' ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('doIt')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')

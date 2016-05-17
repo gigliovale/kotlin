@@ -22,7 +22,7 @@ JetFile: Builder.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('AntBuilder')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -38,7 +38,7 @@ JetFile: Builder.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lazy')
               PsiWhiteSpace(' ')
               PsiElement(val)('val')
@@ -48,7 +48,7 @@ JetFile: Builder.kt
               PsiElement(EQ)('=')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('library')
                 PsiWhiteSpace(' ')
                 LAMBDA_ARGUMENT
@@ -58,7 +58,7 @@ JetFile: Builder.kt
                       PsiWhiteSpace('\n    ')
                       BLOCK
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('classpath')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
@@ -67,7 +67,7 @@ JetFile: Builder.kt
                                 PsiElement(OPEN_QUOTE)('"')
                                 SHORT_STRING_TEMPLATE_ENTRY
                                   PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('libs')
                                 LITERAL_STRING_TEMPLATE_ENTRY
                                   PsiElement(REGULAR_STRING_PART)('/groovy-...')
@@ -83,7 +83,7 @@ JetFile: Builder.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lazy')
               PsiWhiteSpace(' ')
               PsiElement(val)('val')
@@ -93,7 +93,7 @@ JetFile: Builder.kt
               PsiElement(EQ)('=')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('library')
                 PsiWhiteSpace(' ')
                 LAMBDA_ARGUMENT
@@ -105,7 +105,7 @@ JetFile: Builder.kt
                         DOT_QUALIFIED_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
                             CALL_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('File')
                               VALUE_ARGUMENT_LIST
                                 PsiElement(LPAR)('(')
@@ -114,18 +114,18 @@ JetFile: Builder.kt
                                     PsiElement(OPEN_QUOTE)('"')
                                     SHORT_STRING_TEMPLATE_ENTRY
                                       PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('gantHome')
                                     LITERAL_STRING_TEMPLATE_ENTRY
                                       PsiElement(REGULAR_STRING_PART)('/lib')
                                     PsiElement(CLOSING_QUOTE)('"')
                                 PsiElement(RPAR)(')')
                             PsiElement(DOT)('.')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('files')
                           PsiElement(DOT)('.')
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('each')
                             PsiWhiteSpace(' ')
                             LAMBDA_ARGUMENT
@@ -135,12 +135,12 @@ JetFile: Builder.kt
                                   PsiWhiteSpace('\n      ')
                                   BLOCK
                                     CALL_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('classpath')
                                       VALUE_ARGUMENT_LIST
                                         PsiElement(LPAR)('(')
                                         VALUE_ARGUMENT
-                                          REFERENCE_EXPRESSION
+                                          NAME_REFERENCE_EXPRESSION
                                             PsiElement(IDENTIFIER)('it')
                                         PsiElement(RPAR)(')')
                                   PsiWhiteSpace('\n    ')
@@ -155,7 +155,7 @@ JetFile: Builder.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lazy')
               PsiWhiteSpace(' ')
               PsiElement(val)('val')
@@ -165,7 +165,7 @@ JetFile: Builder.kt
               PsiElement(EQ)('=')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('module')
                 PsiWhiteSpace(' ')
                 LAMBDA_ARGUMENT
@@ -175,7 +175,7 @@ JetFile: Builder.kt
                       PsiWhiteSpace('\n    ')
                       BLOCK
                         BINARY_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('targetLevel')
                           PsiWhiteSpace(' ')
                           OPERATION_REFERENCE
@@ -188,27 +188,27 @@ JetFile: Builder.kt
                             PsiElement(CLOSING_QUOTE)('"')
                         PsiWhiteSpace('\n    ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('classpath')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             VALUE_ARGUMENT
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('antLayout')
                             PsiElement(COMMA)(',')
                             PsiWhiteSpace(' ')
                             VALUE_ARGUMENT
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('gant')
                             PsiElement(COMMA)(',')
                             PsiWhiteSpace(' ')
                             VALUE_ARGUMENT
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('groovy')
                             PsiElement(RPAR)(')')
                         PsiWhiteSpace('\n    ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('src')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
@@ -217,7 +217,7 @@ JetFile: Builder.kt
                                 PsiElement(OPEN_QUOTE)('"')
                                 SHORT_STRING_TEMPLATE_ENTRY
                                   PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('projectHome')
                                 LITERAL_STRING_TEMPLATE_ENTRY
                                   PsiElement(REGULAR_STRING_PART)('/antLayout/src')
@@ -229,7 +229,7 @@ JetFile: Builder.kt
             PsiElement(RBRACE)('}')
       PsiElement(DOT)('.')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('build')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -266,7 +266,7 @@ JetFile: Builder.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ClassPathEntry')
         PsiWhiteSpace(' ')
         CLASS_BODY
@@ -285,7 +285,7 @@ JetFile: Builder.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ClassPathEntry')
                 PsiComment(BLOCK_COMMENT)('/*...*/')
               PsiElement(RPAR)(')')
@@ -306,7 +306,7 @@ JetFile: Builder.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('String')
           PsiWhiteSpace('\n    ')
           FUN
@@ -322,7 +322,7 @@ JetFile: Builder.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('String')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -346,7 +346,7 @@ JetFile: Builder.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ClassPathEntry')
         PsiWhiteSpace(' ')
         CLASS_BODY
@@ -365,7 +365,7 @@ JetFile: Builder.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ClassPathEntry')
                 PsiComment(BLOCK_COMMENT)('/*...*/')
               PsiElement(RPAR)(')')
@@ -395,7 +395,7 @@ JetFile: Builder.kt
                 FUNCTION_TYPE_RECEIVER
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Library')
                 PsiElement(DOT)('.')
                 VALUE_PARAMETER_LIST
@@ -406,7 +406,7 @@ JetFile: Builder.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Library')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -421,18 +421,18 @@ JetFile: Builder.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Library')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('lib')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('initializer')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -441,7 +441,7 @@ JetFile: Builder.kt
           RETURN
             PsiElement(return)('return')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('lib')
           PsiWhiteSpace('\n  ')
           PsiElement(RBRACE)('}')

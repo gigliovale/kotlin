@@ -97,7 +97,7 @@ JetFile: TryRecovery.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Exception')
             PsiErrorElement:Expecting ')'
               <empty list>
@@ -212,7 +212,7 @@ JetFile: TryRecovery.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Exception')
             PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
@@ -241,7 +241,7 @@ JetFile: TryRecovery.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Exception')
             PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
@@ -359,7 +359,7 @@ JetFile: TryRecovery.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Exception')
             PsiElement(RPAR)(')')
           PsiErrorElement:Expecting a block: { ... }

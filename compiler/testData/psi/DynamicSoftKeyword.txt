@@ -45,7 +45,7 @@ JetFile: DynamicSoftKeyword.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('dynamic')
         PsiWhiteSpace(' ')
         PsiElement(fun)('fun')
@@ -71,10 +71,10 @@ JetFile: DynamicSoftKeyword.kt
           CALLABLE_REFERENCE_EXPRESSION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('dynamic')
             PsiElement(COLONCOLON)('::')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
           PsiWhiteSpace('\n    ')
           PsiElement(RBRACE)('}')

@@ -23,7 +23,7 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('a')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
@@ -33,7 +33,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -50,7 +50,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -71,7 +71,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -95,7 +95,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -114,7 +114,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -134,7 +134,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -165,7 +165,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -197,16 +197,16 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('a')
                   PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -222,17 +222,17 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             BINARY_EXPRESSION
               DOT_QUALIFIED_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
                 PsiElement(MINUS)('-')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -259,7 +259,7 @@ JetFile: FunctionLiterals_ERR.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -269,7 +269,7 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -293,7 +293,7 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -312,7 +312,7 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n    ')
@@ -330,7 +330,7 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
           BLOCK
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('f')
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
@@ -345,7 +345,7 @@ JetFile: FunctionLiterals_ERR.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -382,10 +382,10 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
             PsiWhiteSpace(' ')
             PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -404,7 +404,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -421,12 +421,12 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -444,7 +444,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -478,7 +478,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -494,7 +494,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -516,7 +516,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -542,7 +542,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -562,7 +562,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -583,7 +583,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -612,7 +612,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -641,7 +641,7 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiErrorElement:Expecting ')'
                 <empty list>
@@ -741,12 +741,12 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -761,12 +761,12 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -787,12 +787,12 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -817,12 +817,12 @@ JetFile: FunctionLiterals_ERR.kt
           PsiElement(LBRACE)('{')
           BLOCK
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -848,11 +848,11 @@ JetFile: FunctionLiterals_ERR.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                 PsiElement(RBRACKET)(']')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('x')
             PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
               PsiElement(COMMA)(',')
@@ -885,7 +885,7 @@ JetFile: FunctionLiterals_ERR.kt
               PsiElement(LPAR)('(')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -949,24 +949,24 @@ JetFile: FunctionLiterals_ERR.kt
           BLOCK
             DOT_QUALIFIED_EXPRESSION
               DOT_QUALIFIED_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('A')
                 PsiElement(DOT)('.')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('B')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('String')
                     PsiElement(GT)('>')
               PsiElement(DOT)('.')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('x')
                 PsiErrorElement:Expecting ')'
                   <empty list>
@@ -988,7 +988,7 @@ JetFile: FunctionLiterals_ERR.kt
               PsiElement(LPAR)('(')
               PARENTHESIZED
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 PsiErrorElement:Expecting ')'
                   <empty list>

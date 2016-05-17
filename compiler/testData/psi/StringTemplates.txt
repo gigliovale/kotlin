@@ -77,7 +77,7 @@ JetFile: StringTemplates.kt
                 TYPE_REFERENCE
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Any')
                     PsiElement(QUEST)('?')
           PsiElement(RPAR)(')')
@@ -86,7 +86,7 @@ JetFile: StringTemplates.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace('  ')
         PsiElement(EQ)('=')
@@ -116,7 +116,7 @@ JetFile: StringTemplates.kt
                 TYPE_REFERENCE
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Any')
                     PsiElement(QUEST)('?')
           PsiElement(RPAR)(')')
@@ -125,7 +125,7 @@ JetFile: StringTemplates.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace('  ')
         PsiElement(EQ)('=')
@@ -159,7 +159,7 @@ JetFile: StringTemplates.kt
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
           THIS_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(this)('this')
         LITERAL_STRING_TEMPLATE_ENTRY
           PsiElement(REGULAR_STRING_PART)(' must be')
@@ -169,7 +169,7 @@ JetFile: StringTemplates.kt
             PsiElement(as)('as')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('t')
         PsiElement(CLOSING_QUOTE)('"')
       PsiWhiteSpace('\n    ')
@@ -177,7 +177,7 @@ JetFile: StringTemplates.kt
         PsiElement(OPEN_QUOTE)('"')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('abc')
         PsiElement(CLOSING_QUOTE)('"')
       PsiWhiteSpace('\n    ')
@@ -185,7 +185,7 @@ JetFile: StringTemplates.kt
         PsiElement(OPEN_QUOTE)('"')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('abc')
         ESCAPE_STRING_TEMPLATE_ENTRY
           PsiElement(ESCAPE_SEQUENCE)('\"')
@@ -228,7 +228,7 @@ JetFile: StringTemplates.kt
           PsiElement(REGULAR_STRING_PART)('asd')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
         PsiElement(CLOSING_QUOTE)('"')
       PsiWhiteSpace('\n    ')
@@ -238,11 +238,11 @@ JetFile: StringTemplates.kt
           PsiElement(REGULAR_STRING_PART)('asd')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('asd')
         LITERAL_STRING_TEMPLATE_ENTRY
           PsiElement(REGULAR_STRING_PART)('$')
@@ -262,7 +262,7 @@ JetFile: StringTemplates.kt
               OPERATION_REFERENCE
                 PsiElement(PLUS)('+')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -282,14 +282,14 @@ JetFile: StringTemplates.kt
         LONG_STRING_TEMPLATE_ENTRY
           PsiElement(LONG_TEMPLATE_ENTRY_START)('${')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(PLUS)('+')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('map')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT
@@ -297,7 +297,7 @@ JetFile: StringTemplates.kt
                   FUNCTION_LITERAL
                     PsiElement(LBRACE)('{')
                     BLOCK
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('foo')
                     PsiElement(RBRACE)('}')
           PsiElement(LONG_TEMPLATE_ENTRY_END)('}')
@@ -312,14 +312,14 @@ JetFile: StringTemplates.kt
         LONG_STRING_TEMPLATE_ENTRY
           PsiElement(LONG_TEMPLATE_ENTRY_START)('${')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(PLUS)('+')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('map')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT
@@ -347,14 +347,14 @@ JetFile: StringTemplates.kt
         LONG_STRING_TEMPLATE_ENTRY
           PsiElement(LONG_TEMPLATE_ENTRY_START)('${')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(PLUS)('+')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('map')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT
@@ -369,13 +369,13 @@ JetFile: StringTemplates.kt
                           PsiElement(REGULAR_STRING_PART)('foo')
                         SHORT_STRING_TEMPLATE_ENTRY
                           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('sdf')
                         LONG_STRING_TEMPLATE_ENTRY
                           PsiElement(LONG_TEMPLATE_ENTRY_START)('${')
                           PsiWhiteSpace(' ')
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('buzz')
                             LAMBDA_ARGUMENT
                               LAMBDA_EXPRESSION

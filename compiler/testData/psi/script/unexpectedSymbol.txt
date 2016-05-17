@@ -7,7 +7,7 @@ JetFile: unexpectedSymbol.kts
     BLOCK
       SCRIPT_INITIALIZER
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('println')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')

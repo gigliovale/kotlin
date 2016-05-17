@@ -7,7 +7,7 @@ JetFile: fragment.kt
         IMPORT_DIRECTIVE
           PsiElement(import)('import')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
     PsiWhiteSpace('\n')
     PROPERTY

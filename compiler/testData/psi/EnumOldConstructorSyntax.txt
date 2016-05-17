@@ -19,7 +19,7 @@ JetFile: EnumOldConstructorSyntax.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -50,7 +50,7 @@ JetFile: EnumOldConstructorSyntax.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         BINARY_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE

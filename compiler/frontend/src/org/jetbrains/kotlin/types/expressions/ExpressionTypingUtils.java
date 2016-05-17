@@ -85,13 +85,13 @@ public class ExpressionTypingUtils {
                                         new TraceBasedLocalRedeclarationChecker(context.trace), scopeKind);
     }
 
-    public static KtExpression createFakeExpressionOfType(
+    public static KtNameReferenceExpression createFakeExpressionOfType(
             @NotNull Project project,
             @NotNull BindingTrace trace,
             @NotNull String argumentName,
             @NotNull KotlinType argumentType
     ) {
-        KtExpression fakeExpression = KtPsiFactoryKt.KtPsiFactory(project).createExpression(argumentName);
+        KtNameReferenceExpression fakeExpression = KtPsiFactoryKt.KtPsiFactory(project).createSimpleName(argumentName);
         trace.recordType(fakeExpression, argumentType);
         trace.record(PROCESSED, fakeExpression);
         return fakeExpression;

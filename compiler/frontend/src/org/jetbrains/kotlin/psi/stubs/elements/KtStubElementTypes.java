@@ -93,7 +93,7 @@ public interface KtStubElementTypes {
     KtPlaceHolderStubElementType<KtFunctionTypeReceiver> FUNCTION_TYPE_RECEIVER =
             new KtPlaceHolderStubElementType<KtFunctionTypeReceiver>("FUNCTION_TYPE_RECEIVER", KtFunctionTypeReceiver.class);
 
-    KtNameReferenceExpressionElementType REFERENCE_EXPRESSION = new KtNameReferenceExpressionElementType("REFERENCE_EXPRESSION");
+    KtNameReferenceExpressionElementType NAME_REFERENCE_EXPRESSION = new KtNameReferenceExpressionElementType("NAME_REFERENCE_EXPRESSION");
     KtDotQualifiedExpressionElementType DOT_QUALIFIED_EXPRESSION = new KtDotQualifiedExpressionElementType("DOT_QUALIFIED_EXPRESSION");
     KtEnumEntrySuperClassReferenceExpressionElementType
             ENUM_ENTRY_SUPERCLASS_REFERENCE_EXPRESSION = new KtEnumEntrySuperClassReferenceExpressionElementType("ENUM_ENTRY_SUPERCLASS_REFERENCE_EXPRESSION");
@@ -125,5 +125,5 @@ public interface KtStubElementTypes {
 
     TokenSet TYPE_ELEMENT_TYPES = TokenSet.create(USER_TYPE, NULLABLE_TYPE, FUNCTION_TYPE, DYNAMIC_TYPE, SELF_TYPE);
 
-    TokenSet INSIDE_DIRECTIVE_EXPRESSIONS = TokenSet.create(REFERENCE_EXPRESSION, DOT_QUALIFIED_EXPRESSION);
+    TokenSet INSIDE_DIRECTIVE_EXPRESSIONS = TokenSet.create(NAME_REFERENCE_EXPRESSION, DOT_QUALIFIED_EXPRESSION);
 }

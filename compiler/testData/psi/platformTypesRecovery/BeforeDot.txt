@@ -17,12 +17,12 @@ JetFile: BeforeDot.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Foo')
               PsiErrorElement:Unexpected token
                 PsiElement(EXCL)('!')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Bar')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n   ')
@@ -33,20 +33,20 @@ JetFile: BeforeDot.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Foo')
               TYPE_ARGUMENT_LIST
                 PsiElement(LT)('<')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Bar')
                 PsiElement(GT)('>')
               PsiErrorElement:Unexpected token
                 PsiElement(EXCL)('!')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Baz')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n   ')
@@ -59,7 +59,7 @@ JetFile: BeforeDot.kt
             FUNCTION_TYPE_RECEIVER
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Foo')
                   PsiErrorElement:Unexpected token
                     PsiElement(EXCL)('!')
@@ -72,7 +72,7 @@ JetFile: BeforeDot.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n')
       PsiElement(RPAR)(')')

@@ -21,7 +21,7 @@ JetFile: simple.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('An')
           PsiWhiteSpace('\n    ')
           ANNOTATION_ENTRY
@@ -32,7 +32,7 @@ JetFile: simple.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('An')
           PsiWhiteSpace('\n    ')
           ANNOTATION_ENTRY
@@ -43,7 +43,7 @@ JetFile: simple.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('An')
         PsiWhiteSpace('\n    ')
         PsiElement(var)('var')
@@ -53,7 +53,7 @@ JetFile: simple.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('String')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')

@@ -43,7 +43,7 @@ JetFile: expressionJustAtTyped.kt
           PsiElement(AT)('@')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -94,11 +94,11 @@ JetFile: expressionJustAtTyped.kt
             PsiElement(INTEGER_LITERAL)('6')
       PsiWhiteSpace('\n\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -117,7 +117,7 @@ JetFile: expressionJustAtTyped.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -216,7 +216,7 @@ JetFile: expressionJustAtTyped.kt
         PsiErrorElement:Expected annotation identifier after '@'
           PsiElement(AT)('@')
         PsiWhiteSpace('\n    ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('ann')
       PsiWhiteSpace('\n    ')
       INTEGER_CONSTANT

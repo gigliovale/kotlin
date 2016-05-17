@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.idea.kdoc.findKDoc
 import org.jetbrains.kotlin.idea.kdoc.resolveKDocLink
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.KtReferenceElement
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
 import org.jetbrains.kotlin.renderer.ClassifierNamePolicy
@@ -98,10 +98,10 @@ class KotlinQuickDocumentationProvider : AbstractDocumentationProvider() {
             }
 
             if (quickNavigation) {
-                val referenceExpression = originalElement?.getNonStrictParentOfType<KtReferenceExpression>()
-                if (referenceExpression != null) {
-                    val context = referenceExpression.analyze(BodyResolveMode.PARTIAL)
-                    val declarationDescriptor = context[BindingContext.REFERENCE_TARGET, referenceExpression]
+                val referenceElement = originalElement?.getNonStrictParentOfType<KtReferenceElement>()
+                if (referenceElement != null) {
+                    val context = referenceElement.analyze(BodyResolveMode.PARTIAL)
+                    val declarationDescriptor = context[BindingContext.REFERENCE_TARGET, referenceElement]
                     if (declarationDescriptor != null) {
                         return mixKotlinToJava(declarationDescriptor, element, originalElement)
                     }

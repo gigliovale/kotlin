@@ -16,7 +16,7 @@ JetFile: ParenthesizedNotPlatform.kt
         TYPE_REFERENCE
           PsiElement(LPAR)('(')
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Mutable')
           PsiElement(RPAR)(')')
       PsiElement(RPAR)(')')
@@ -37,7 +37,7 @@ JetFile: ParenthesizedNotPlatform.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -45,7 +45,7 @@ JetFile: ParenthesizedNotPlatform.kt
                 TYPE_REFERENCE
                   PsiElement(LPAR)('(')
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('out')
                   PsiElement(RPAR)(')')
               PsiElement(GT)('>')

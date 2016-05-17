@@ -67,7 +67,7 @@ class AccessorToPropertyProcessing(val accessorMethod: PsiMethod, val accessorKi
             var propertyNameExpr = factory.createSimpleName(propertyName)
             if (accessorKind == AccessorKind.GETTER) {
                 if (arguments.size != 0) return null // incorrect call
-                propertyNameExpr = callExpr.replace(propertyNameExpr) as KtSimpleNameExpression
+                propertyNameExpr = callExpr.replace(propertyNameExpr) as KtNameReferenceExpression
                 return propertyNameExpr.references
             }
             else {

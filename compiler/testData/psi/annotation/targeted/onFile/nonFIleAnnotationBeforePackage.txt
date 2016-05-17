@@ -7,7 +7,7 @@ JetFile: nonFIleAnnotationBeforePackage.kt
       CONSTRUCTOR_CALLEE
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
     PsiWhiteSpace('\n')
     ANNOTATION_ENTRY
@@ -20,7 +20,7 @@ JetFile: nonFIleAnnotationBeforePackage.kt
       CONSTRUCTOR_CALLEE
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
     PsiWhiteSpace('\n')
     PsiErrorElement:Expected annotation identifier after ':'
@@ -35,7 +35,7 @@ JetFile: nonFIleAnnotationBeforePackage.kt
       CONSTRUCTOR_CALLEE
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('baz')
     PsiWhiteSpace('\n')
     ANNOTATION_ENTRY
@@ -46,7 +46,7 @@ JetFile: nonFIleAnnotationBeforePackage.kt
       CONSTRUCTOR_CALLEE
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ann')
     PsiWhiteSpace('\n')
     PsiErrorElement:Expected annotation identifier after ':'
@@ -57,7 +57,7 @@ JetFile: nonFIleAnnotationBeforePackage.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('boo')
   IMPORT_LIST
     <empty list>

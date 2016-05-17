@@ -53,7 +53,7 @@ JetFile: local.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -80,7 +80,7 @@ JetFile: local.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -100,11 +100,11 @@ JetFile: local.kt
         PsiWhiteSpace(' ')
         PsiElement(IDENTIFIER)('A5')
       PsiWhiteSpace('\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('Ann')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('constructor')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -116,7 +116,7 @@ JetFile: local.kt
         PsiElement(IDENTIFIER)('A6')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Ann')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -127,7 +127,7 @@ JetFile: local.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('constructor')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')

@@ -20,7 +20,7 @@ inline fun inlineFunWithInvoke(s: (p: Int) -> Unit, ext: Int.(p: Int) -> Unit) {
         s <!INFIX_MODIFIER_REQUIRED!>invoke<!> 11
 
         11.ext(11)
-        11 <!INFIX_MODIFIER_REQUIRED!>ext<!> 11
+        11 <!UNRESOLVED_REFERENCE!>ext<!> 11
 
         <!USAGE_IS_NOT_INLINABLE, UNUSED_EXPRESSION!>s<!>
         <!USAGE_IS_NOT_INLINABLE, UNUSED_EXPRESSION!>ext<!>
@@ -35,7 +35,7 @@ inline fun inlineFunWithInvokeNonInline(noinline s: (p: Int) -> Unit, ext: Int.(
         s <!INFIX_MODIFIER_REQUIRED!>invoke<!> 11
 
         11.ext(11)
-        11 <!INFIX_MODIFIER_REQUIRED!>ext<!> 11
+        11 <!UNRESOLVED_REFERENCE!>ext<!> 11
 
         <!UNUSED_EXPRESSION!>s<!>
         <!USAGE_IS_NOT_INLINABLE, UNUSED_EXPRESSION!>ext<!>

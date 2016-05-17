@@ -19,14 +19,14 @@ JetFile: BinaryTree.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMutableSet')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -53,7 +53,7 @@ JetFile: BinaryTree.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -66,7 +66,7 @@ JetFile: BinaryTree.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('TreeNode')
             PsiWhiteSpace('\n  ')
             PsiElement(RPAR)(')')
@@ -83,7 +83,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('TreeNode')
           PsiWhiteSpace('\n    ')
           PROPERTY
@@ -95,7 +95,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('TreeNode')
           PsiWhiteSpace('\n\n  ')
           PsiElement(RBRACE)('}')
@@ -112,14 +112,14 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('MatchableComparison')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
       PsiWhiteSpace('\n  ')
@@ -135,7 +135,7 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('TreeNode')
       PsiWhiteSpace('\n  ')
       PROPERTY
@@ -164,14 +164,14 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Comparison')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('T')
                   PsiElement(GT)('>')
           PsiElement(RPAR)(')')
@@ -185,22 +185,22 @@ JetFile: BinaryTree.kt
           BINARY_EXPRESSION
             DOT_QUALIFIED_EXPRESSION
               THIS_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(this)('this')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('compare')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('asMatchableComparison')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('comparison')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -221,14 +221,14 @@ JetFile: BinaryTree.kt
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('naturalOrder')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('T')
                   PsiElement(GT)('>')
                 VALUE_ARGUMENT_LIST
@@ -252,7 +252,7 @@ JetFile: BinaryTree.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('operator')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -260,7 +260,7 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
         PsiElement(DOT)('.')
         PsiElement(IDENTIFIER)('compareTo')
@@ -273,7 +273,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -281,24 +281,24 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('compare')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
               THIS_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(this)('this')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('other')
             PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n  ')
@@ -318,7 +318,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -326,7 +326,7 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace(' ')
         BLOCK
@@ -336,17 +336,17 @@ JetFile: BinaryTree.kt
             PsiElement(return)('return')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('contains')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('root')
                 PsiElement(COMMA)(',')
                 PsiWhiteSpace(' ')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('item')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n\n    ')
@@ -363,7 +363,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
@@ -374,7 +374,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -382,7 +382,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Boolean')
             PsiWhiteSpace(' ')
             BLOCK
@@ -394,7 +394,7 @@ JetFile: BinaryTree.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('node')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -415,21 +415,21 @@ JetFile: BinaryTree.kt
                 PsiElement(when)('when')
                 PsiElement(LPAR)('(')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('compare')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('item')
                     PsiElement(COMMA)(',')
                     PsiWhiteSpace(' ')
                     VALUE_ARGUMENT
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('value')
                     PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -438,7 +438,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('EQ')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
@@ -448,53 +448,53 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('LS')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('contains')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('left')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('item')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('GT')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('contains')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('right')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('item')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n      ')
@@ -520,7 +520,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -528,7 +528,7 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace(' ')
         BLOCK
@@ -540,18 +540,18 @@ JetFile: BinaryTree.kt
             PsiElement(LPAR)('(')
             CONDITION
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('add')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
                     CALL_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Ref')
                       VALUE_ARGUMENT_LIST
                         PsiElement(LPAR)('(')
                         VALUE_ARGUMENT
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('root')
                         PsiElement(RPAR)(')')
                   PsiElement(COMMA)(',')
@@ -567,13 +567,13 @@ JetFile: BinaryTree.kt
                 PsiElement(LBRACE)('{')
                 PsiWhiteSpace('\n      ')
                 POSTFIX_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('size')
                   OPERATION_REFERENCE
                     PsiElement(PLUSPLUS)('++')
                 PsiWhiteSpace('\n      ')
                 POSTFIX_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('version')
                   OPERATION_REFERENCE
                     PsiElement(PLUSPLUS)('++')
@@ -609,7 +609,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ref')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
@@ -617,7 +617,7 @@ JetFile: BinaryTree.kt
                         TYPE_REFERENCE
                           NULLABLE_TYPE
                             USER_TYPE
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('TreeNode')
                             PsiElement(QUEST)('?')
                       PsiElement(GT)('>')
@@ -630,7 +630,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -638,7 +638,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Boolean')
             PsiWhiteSpace(' ')
             BLOCK
@@ -651,10 +651,10 @@ JetFile: BinaryTree.kt
                 CONDITION
                   BINARY_EXPRESSION
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('node')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('value')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -670,27 +670,27 @@ JetFile: BinaryTree.kt
                     PsiWhiteSpace('\n        ')
                     BINARY_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('value')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(EQ)('=')
                       PsiWhiteSpace(' ')
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('TreeNode')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('item')
                           PsiElement(COMMA)(',')
                           PsiWhiteSpace(' ')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('parent')
                           PsiElement(RPAR)(')')
                     PsiWhiteSpace('\n        ')
@@ -707,25 +707,25 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 PsiElement(LPAR)('(')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('compare')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('item')
                     PsiElement(COMMA)(',')
                     PsiWhiteSpace(' ')
                     VALUE_ARGUMENT
                       DOT_QUALIFIED_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('value')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('value')
                     PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -734,7 +734,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('EQ')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
@@ -744,13 +744,13 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('LS')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('add')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -758,7 +758,7 @@ JetFile: BinaryTree.kt
                         BINARY_EXPRESSION
                           BINARY_EXPRESSION
                             BINARY_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('ref')
                               PsiWhiteSpace(' ')
                               OPERATION_REFERENCE
@@ -776,19 +776,19 @@ JetFile: BinaryTree.kt
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('GT')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('add')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -796,7 +796,7 @@ JetFile: BinaryTree.kt
                         BINARY_EXPRESSION
                           BINARY_EXPRESSION
                             BINARY_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('ref')
                               PsiWhiteSpace(' ')
                               OPERATION_REFERENCE
@@ -814,7 +814,7 @@ JetFile: BinaryTree.kt
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n      ')
@@ -837,7 +837,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -845,7 +845,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Boolean')
             PsiWhiteSpace(' ')
             BLOCK
@@ -857,7 +857,7 @@ JetFile: BinaryTree.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('node')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -872,19 +872,19 @@ JetFile: BinaryTree.kt
                     PsiElement(LBRACE)('{')
                     PsiWhiteSpace('\n        ')
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('root')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(EQ)('=')
                       PsiWhiteSpace(' ')
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('TreeNode')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('item')
                           PsiElement(COMMA)(',')
                           PsiWhiteSpace(' ')
@@ -906,21 +906,21 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 PsiElement(LPAR)('(')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('compare')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('item')
                     PsiElement(COMMA)(',')
                     PsiWhiteSpace(' ')
                     VALUE_ARGUMENT
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('value')
                     PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -929,7 +929,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('EQ')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
@@ -942,7 +942,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('LS')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
@@ -954,10 +954,10 @@ JetFile: BinaryTree.kt
                     CONDITION
                       BINARY_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('left')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
@@ -973,27 +973,27 @@ JetFile: BinaryTree.kt
                         PsiWhiteSpace('\n            ')
                         BINARY_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('node')
                             PsiElement(DOT)('.')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('left')
                           PsiWhiteSpace(' ')
                           OPERATION_REFERENCE
                             PsiElement(EQ)('=')
                           PsiWhiteSpace(' ')
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('TreeNode')
                             VALUE_ARGUMENT_LIST
                               PsiElement(LPAR)('(')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('item')
                               PsiElement(COMMA)(',')
                               PsiWhiteSpace(' ')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('node')
                               PsiElement(RPAR)(')')
                         PsiWhiteSpace('\n            ')
@@ -1012,22 +1012,22 @@ JetFile: BinaryTree.kt
                         PsiElement(return)('return')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('add')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             VALUE_ARGUMENT
                               DOT_QUALIFIED_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('node')
                                 PsiElement(DOT)('.')
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('left')
                             PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('GT')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
@@ -1039,10 +1039,10 @@ JetFile: BinaryTree.kt
                     CONDITION
                       BINARY_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('right')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
@@ -1058,27 +1058,27 @@ JetFile: BinaryTree.kt
                         PsiWhiteSpace('\n            ')
                         BINARY_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('node')
                             PsiElement(DOT)('.')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('right')
                           PsiWhiteSpace(' ')
                           OPERATION_REFERENCE
                             PsiElement(EQ)('=')
                           PsiWhiteSpace(' ')
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('TreeNode')
                             VALUE_ARGUMENT_LIST
                               PsiElement(LPAR)('(')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('item')
                               PsiElement(COMMA)(',')
                               PsiWhiteSpace(' ')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('node')
                               PsiElement(RPAR)(')')
                         PsiWhiteSpace('\n            ')
@@ -1097,16 +1097,16 @@ JetFile: BinaryTree.kt
                         PsiElement(return)('return')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('add')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             VALUE_ARGUMENT
                               DOT_QUALIFIED_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('node')
                                 PsiElement(DOT)('.')
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('right')
                             PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n      ')
@@ -1132,7 +1132,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -1140,7 +1140,7 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
         PsiWhiteSpace(' ')
         BLOCK
@@ -1154,17 +1154,17 @@ JetFile: BinaryTree.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('find')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('root')
                 PsiElement(COMMA)(',')
                 PsiWhiteSpace(' ')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('item')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
@@ -1174,7 +1174,7 @@ JetFile: BinaryTree.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('toRemove')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -1192,23 +1192,23 @@ JetFile: BinaryTree.kt
                   PsiElement(false)('false')
           PsiWhiteSpace('\n    ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('remove')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('toRemove')
               PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
           POSTFIX_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('size')
             OPERATION_REFERENCE
               PsiElement(MINUSMINUS)('--')
           PsiWhiteSpace('\n    ')
           POSTFIX_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('version')
             OPERATION_REFERENCE
               PsiElement(PLUSPLUS)('++')
@@ -1232,7 +1232,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -1240,7 +1240,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('TreeNode')
             PsiWhiteSpace(' ')
             BLOCK
@@ -1252,7 +1252,7 @@ JetFile: BinaryTree.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('node')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -1274,21 +1274,21 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 PsiElement(LPAR)('(')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('compare')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('item')
                     PsiElement(COMMA)(',')
                     PsiWhiteSpace(' ')
                     VALUE_ARGUMENT
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('value')
                     PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -1297,53 +1297,53 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('EQ')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('node')
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('LS')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('find')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('left')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n        ')
                 WHEN_ENTRY
                   WHEN_CONDITION_WITH_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('GT')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('find')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('right')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n      ')
@@ -1369,7 +1369,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('TreeNode')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -1380,7 +1380,7 @@ JetFile: BinaryTree.kt
             PsiElement(when)('when')
             PsiWhiteSpace(' ')
             PsiElement(LPAR)('(')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('node')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -1417,7 +1417,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
@@ -1428,7 +1428,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -1441,13 +1441,13 @@ JetFile: BinaryTree.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('node')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQEQ)('==')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('root')
                 PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -1456,13 +1456,13 @@ JetFile: BinaryTree.kt
                     PsiElement(LBRACE)('{')
                     PsiWhiteSpace('\n        ')
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('root')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(EQ)('=')
                       PsiWhiteSpace(' ')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('replace')
                     PsiWhiteSpace('\n        ')
                     RETURN
@@ -1478,19 +1478,19 @@ JetFile: BinaryTree.kt
                   BINARY_EXPRESSION
                     DOT_QUALIFIED_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('parent')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('left')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQEQ)('==')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('node')
                 PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -1501,19 +1501,19 @@ JetFile: BinaryTree.kt
                     BINARY_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('node')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('parent')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('left')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(EQ)('=')
                       PsiWhiteSpace(' ')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('replace')
                     PsiWhiteSpace('\n      ')
                     PsiElement(RBRACE)('}')
@@ -1529,19 +1529,19 @@ JetFile: BinaryTree.kt
                       BINARY_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('node')
                             PsiElement(DOT)('.')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('parent')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('right')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
                           PsiElement(EQEQ)('==')
                         PsiWhiteSpace(' ')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('node')
                     PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -1552,19 +1552,19 @@ JetFile: BinaryTree.kt
                         BINARY_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
                             DOT_QUALIFIED_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('node')
                               PsiElement(DOT)('.')
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('parent')
                             PsiElement(DOT)('.')
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('right')
                           PsiWhiteSpace(' ')
                           OPERATION_REFERENCE
                             PsiElement(EQ)('=')
                           PsiWhiteSpace(' ')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('replace')
                         PsiWhiteSpace('\n      ')
                         PsiElement(RBRACE)('}')
@@ -1573,7 +1573,7 @@ JetFile: BinaryTree.kt
                     PsiWhiteSpace(' ')
                     ELSE
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Assert')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
@@ -1604,7 +1604,7 @@ JetFile: BinaryTree.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('TreeNode')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -1618,10 +1618,10 @@ JetFile: BinaryTree.kt
             CONDITION
               BINARY_EXPRESSION
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('node')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('left')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -1632,23 +1632,23 @@ JetFile: BinaryTree.kt
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
             THEN
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('node')
             PsiWhiteSpace(' ')
             PsiElement(else)('else')
             PsiWhiteSpace(' ')
             ELSE
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('min')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('node')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('left')
                   PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -1669,21 +1669,21 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('mutableIterator')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -1704,14 +1704,14 @@ JetFile: BinaryTree.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMutableIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
@@ -1727,7 +1727,7 @@ JetFile: BinaryTree.kt
               SUPER_TYPE_ENTRY
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('IMutableIterator')
             PsiWhiteSpace(' ')
             CLASS_BODY
@@ -1742,14 +1742,14 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 DOT_QUALIFIED_EXPRESSION
                   DOT_QUALIFIED_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('BinaryTree')
                     PsiElement(DOT)('.')
                     THIS_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(this)('this')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('version')
               PsiWhiteSpace('\n    ')
               PROPERTY
@@ -1760,14 +1760,14 @@ JetFile: BinaryTree.kt
                 PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Stack')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('TreeNode')
                     PsiElement(GT)('>')
                   VALUE_ARGUMENT_LIST
@@ -1782,14 +1782,14 @@ JetFile: BinaryTree.kt
                 PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Stack')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('TreeNode')
                     PsiElement(GT)('>')
                   VALUE_ARGUMENT_LIST
@@ -1805,7 +1805,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
               PsiWhiteSpace('\n\n    ')
               CLASS_INITIALIZER
@@ -1820,7 +1820,7 @@ JetFile: BinaryTree.kt
                     PsiElement(LPAR)('(')
                     CONDITION
                       BINARY_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('root')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
@@ -1832,16 +1832,16 @@ JetFile: BinaryTree.kt
                     PsiWhiteSpace('\n        ')
                     THEN
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('down')
                         PsiElement(DOT)('.')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('push')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             VALUE_ARGUMENT
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('root')
                             PsiElement(RPAR)(')')
                   PsiWhiteSpace('    \n    ')
@@ -1862,7 +1862,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
                 PsiWhiteSpace(' ')
                 BLOCK
@@ -1876,7 +1876,7 @@ JetFile: BinaryTree.kt
                       PREFIX_EXPRESSION
                         OPERATION_REFERENCE
                           PsiElement(EXCL)('!')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('hasNext')
                     PsiElement(RPAR)(')')
                     PsiWhiteSpace('\n        ')
@@ -1885,28 +1885,28 @@ JetFile: BinaryTree.kt
                         PsiElement(throw)('throw')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('NoMoreElementsException')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n      ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('checkVersion')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n\n      ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('lastNode')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQ)('=')
                     PsiWhiteSpace(' ')
                     CALL_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('nextNode')
                       VALUE_ARGUMENT_LIST
                         PsiElement(LPAR)('(')
@@ -1916,10 +1916,10 @@ JetFile: BinaryTree.kt
                     PsiElement(return)('return')
                     PsiWhiteSpace(' ')
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('lastNode')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('value')
                   PsiWhiteSpace('\n    ')
                   PsiElement(RBRACE)('}')
@@ -1939,7 +1939,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('TreeNode')
                 PsiWhiteSpace(' ')
                 BLOCK
@@ -1967,10 +1967,10 @@ JetFile: BinaryTree.kt
                               OPERATION_REFERENCE
                                 PsiElement(EXCL)('!')
                               DOT_QUALIFIED_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('down')
                                 PsiElement(DOT)('.')
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('isEmpty')
                           PsiElement(RPAR)(')')
                           PsiWhiteSpace(' ')
@@ -1986,11 +1986,11 @@ JetFile: BinaryTree.kt
                                 PsiElement(EQ)('=')
                                 PsiWhiteSpace(' ')
                                 DOT_QUALIFIED_EXPRESSION
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('down')
                                   PsiElement(DOT)('.')
                                   CALL_EXPRESSION
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('pop')
                                     VALUE_ARGUMENT_LIST
                                       PsiElement(LPAR)('(')
@@ -2003,10 +2003,10 @@ JetFile: BinaryTree.kt
                                 CONDITION
                                   BINARY_EXPRESSION
                                     DOT_QUALIFIED_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('curNode')
                                       PsiElement(DOT)('.')
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('left')
                                     PsiWhiteSpace(' ')
                                     OPERATION_REFERENCE
@@ -2021,34 +2021,34 @@ JetFile: BinaryTree.kt
                                     PsiElement(LBRACE)('{')
                                     PsiWhiteSpace('\n            ')
                                     DOT_QUALIFIED_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('up')
                                       PsiElement(DOT)('.')
                                       CALL_EXPRESSION
-                                        REFERENCE_EXPRESSION
+                                        NAME_REFERENCE_EXPRESSION
                                           PsiElement(IDENTIFIER)('push')
                                         VALUE_ARGUMENT_LIST
                                           PsiElement(LPAR)('(')
                                           VALUE_ARGUMENT
-                                            REFERENCE_EXPRESSION
+                                            NAME_REFERENCE_EXPRESSION
                                               PsiElement(IDENTIFIER)('curNode')
                                           PsiElement(RPAR)(')')
                                     PsiWhiteSpace('\n            ')
                                     DOT_QUALIFIED_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('down')
                                       PsiElement(DOT)('.')
                                       CALL_EXPRESSION
-                                        REFERENCE_EXPRESSION
+                                        NAME_REFERENCE_EXPRESSION
                                           PsiElement(IDENTIFIER)('push')
                                         VALUE_ARGUMENT_LIST
                                           PsiElement(LPAR)('(')
                                           VALUE_ARGUMENT
                                             DOT_QUALIFIED_EXPRESSION
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('curNode')
                                               PsiElement(DOT)('.')
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('left')
                                           PsiElement(RPAR)(')')
                                     PsiWhiteSpace('\n          ')
@@ -2067,10 +2067,10 @@ JetFile: BinaryTree.kt
                                       CONDITION
                                         BINARY_EXPRESSION
                                           DOT_QUALIFIED_EXPRESSION
-                                            REFERENCE_EXPRESSION
+                                            NAME_REFERENCE_EXPRESSION
                                               PsiElement(IDENTIFIER)('curNode')
                                             PsiElement(DOT)('.')
-                                            REFERENCE_EXPRESSION
+                                            NAME_REFERENCE_EXPRESSION
                                               PsiElement(IDENTIFIER)('right')
                                           PsiWhiteSpace(' ')
                                           OPERATION_REFERENCE
@@ -2085,20 +2085,20 @@ JetFile: BinaryTree.kt
                                           PsiElement(LBRACE)('{')
                                           PsiWhiteSpace('\n              ')
                                           DOT_QUALIFIED_EXPRESSION
-                                            REFERENCE_EXPRESSION
+                                            NAME_REFERENCE_EXPRESSION
                                               PsiElement(IDENTIFIER)('down')
                                             PsiElement(DOT)('.')
                                             CALL_EXPRESSION
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('push')
                                               VALUE_ARGUMENT_LIST
                                                 PsiElement(LPAR)('(')
                                                 VALUE_ARGUMENT
                                                   DOT_QUALIFIED_EXPRESSION
-                                                    REFERENCE_EXPRESSION
+                                                    NAME_REFERENCE_EXPRESSION
                                                       PsiElement(IDENTIFIER)('curNode')
                                                     PsiElement(DOT)('.')
-                                                    REFERENCE_EXPRESSION
+                                                    NAME_REFERENCE_EXPRESSION
                                                       PsiElement(IDENTIFIER)('right')
                                                 PsiElement(RPAR)(')')
                                           PsiWhiteSpace('\n            ')
@@ -2107,7 +2107,7 @@ JetFile: BinaryTree.kt
                                     RETURN
                                       PsiElement(return)('return')
                                       PsiWhiteSpace(' ')
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('curNode')
                                     PsiElement(SEMICOLON)(';')
                                     PsiWhiteSpace('\n          ')
@@ -2129,11 +2129,11 @@ JetFile: BinaryTree.kt
                                 PsiElement(EQ)('=')
                                 PsiWhiteSpace(' ')
                                 DOT_QUALIFIED_EXPRESSION
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('up')
                                   PsiElement(DOT)('.')
                                   CALL_EXPRESSION
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('pop')
                                     VALUE_ARGUMENT_LIST
                                       PsiElement(LPAR)('(')
@@ -2146,10 +2146,10 @@ JetFile: BinaryTree.kt
                                 CONDITION
                                   BINARY_EXPRESSION
                                     DOT_QUALIFIED_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('curNode')
                                       PsiElement(DOT)('.')
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('right')
                                     PsiWhiteSpace(' ')
                                     OPERATION_REFERENCE
@@ -2164,20 +2164,20 @@ JetFile: BinaryTree.kt
                                     PsiElement(LBRACE)('{')
                                     PsiWhiteSpace('\n            ')
                                     DOT_QUALIFIED_EXPRESSION
-                                      REFERENCE_EXPRESSION
+                                      NAME_REFERENCE_EXPRESSION
                                         PsiElement(IDENTIFIER)('down')
                                       PsiElement(DOT)('.')
                                       CALL_EXPRESSION
-                                        REFERENCE_EXPRESSION
+                                        NAME_REFERENCE_EXPRESSION
                                           PsiElement(IDENTIFIER)('push')
                                         VALUE_ARGUMENT_LIST
                                           PsiElement(LPAR)('(')
                                           VALUE_ARGUMENT
                                             DOT_QUALIFIED_EXPRESSION
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('curNode')
                                               PsiElement(DOT)('.')
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('right')
                                           PsiElement(RPAR)(')')
                                     PsiWhiteSpace('\n          ')
@@ -2186,7 +2186,7 @@ JetFile: BinaryTree.kt
                               RETURN
                                 PsiElement(return)('return')
                                 PsiWhiteSpace(' ')
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('curNode')
                               PsiWhiteSpace('\n        ')
                               PsiElement(RBRACE)('}')
@@ -2207,7 +2207,7 @@ JetFile: BinaryTree.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Boolean')
                 PsiWhiteSpace('\n      ')
                 PROPERTY_ACCESSOR
@@ -2222,10 +2222,10 @@ JetFile: BinaryTree.kt
                       OPERATION_REFERENCE
                         PsiElement(EXCL)('!')
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('down')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('isEmpty')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -2235,10 +2235,10 @@ JetFile: BinaryTree.kt
                       OPERATION_REFERENCE
                         PsiElement(EXCL)('!')
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('up')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('isEmpty')
               PsiWhiteSpace('\n\n\n    ')
               FUN
@@ -2256,7 +2256,7 @@ JetFile: BinaryTree.kt
                   PsiElement(LBRACE)('{')
                   PsiWhiteSpace('\n      ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('checkVersion')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -2268,7 +2268,7 @@ JetFile: BinaryTree.kt
                     PsiElement(LPAR)('(')
                     CONDITION
                       BINARY_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lastNode')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
@@ -2283,7 +2283,7 @@ JetFile: BinaryTree.kt
                         PsiElement(throw)('throw')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('IterationException')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
@@ -2296,17 +2296,17 @@ JetFile: BinaryTree.kt
                             PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n      ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('remove')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lastNode')
                       PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n      ')
                   POSTFIX_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('version')
                     OPERATION_REFERENCE
                       PsiElement(PLUSPLUS)('++')
@@ -2314,20 +2314,20 @@ JetFile: BinaryTree.kt
                   BINARY_EXPRESSION
                     DOT_QUALIFIED_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('BinaryTree')
                         PsiElement(DOT)('.')
                         THIS_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(this)('this')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('version')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQ)('=')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('version')
                   PsiWhiteSpace('\n    ')
                   PsiElement(RBRACE)('}')
@@ -2352,7 +2352,7 @@ JetFile: BinaryTree.kt
                     PsiElement(LPAR)('(')
                     CONDITION
                       BINARY_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('version')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
@@ -2360,14 +2360,14 @@ JetFile: BinaryTree.kt
                         PsiWhiteSpace(' ')
                         DOT_QUALIFIED_EXPRESSION
                           DOT_QUALIFIED_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('BinaryTree')
                             PsiElement(DOT)('.')
                             THIS_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(this)('this')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('version')
                     PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -2379,7 +2379,7 @@ JetFile: BinaryTree.kt
                           PsiElement(throw)('throw')
                           PsiWhiteSpace(' ')
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('ConcurrentModificationException')
                             VALUE_ARGUMENT_LIST
                               PsiElement(LPAR)('(')

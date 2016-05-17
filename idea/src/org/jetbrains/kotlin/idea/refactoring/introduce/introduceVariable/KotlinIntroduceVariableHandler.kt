@@ -48,7 +48,6 @@ import org.jetbrains.kotlin.idea.refactoring.*
 import org.jetbrains.kotlin.idea.refactoring.introduce.*
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
-import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeCommand
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
@@ -630,7 +629,7 @@ object KotlinIntroduceVariableHandler : RefactoringActionHandler {
         val file = physicalExpression.getContainingKtFile()
 
         val references = physicalExpression
-                .collectDescendantsOfType<KtReferenceExpression> { contentRange == null || contentRange.contains(it.textRange) }
+                .collectDescendantsOfType<KtReferenceElement> { contentRange == null || contentRange.contains(it.textRange) }
 
         fun isResolvableNextTo(neighbour: KtExpression): Boolean {
             val scope = neighbour.getResolutionScope(originalContext, resolutionFacade)

@@ -14,14 +14,14 @@ JetFile: Where.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiWhiteSpace(' ')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
   PsiWhiteSpace('\n')
   OBJECT_DECLARATION
@@ -35,7 +35,7 @@ JetFile: Where.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Bar')
     PsiWhiteSpace(' ')
     PsiErrorElement:Where clause is not allowed for objects
@@ -44,14 +44,14 @@ JetFile: Where.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiWhiteSpace(' ')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
   PsiWhiteSpace('\n\n')
   OBJECT_DECLARATION
@@ -69,14 +69,14 @@ JetFile: Where.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiWhiteSpace(' ')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
   PsiWhiteSpace('\n')
   OBJECT_DECLARATION
@@ -94,7 +94,7 @@ JetFile: Where.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Bar')
     PsiWhiteSpace(' ')
     PsiErrorElement:Where clause is not allowed for objects
@@ -103,14 +103,14 @@ JetFile: Where.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiWhiteSpace(' ')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
   PsiWhiteSpace('\n\n')
   OBJECT_DECLARATION
@@ -128,7 +128,7 @@ JetFile: Where.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Bar')
     PsiWhiteSpace(' ')
     PsiErrorElement:Where clause is not allowed for objects
@@ -137,14 +137,14 @@ JetFile: Where.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiWhiteSpace(' ')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
     PsiWhiteSpace(' ')
     CLASS_BODY

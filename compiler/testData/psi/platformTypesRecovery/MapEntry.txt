@@ -17,14 +17,14 @@ JetFile: MapEntry.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiErrorElement:Unexpected tokens
                   PsiElement(LPAR)('(')
                   PsiElement(IDENTIFIER)('Mutable')
                   PsiElement(RPAR)(')')
                 PsiElement(IDENTIFIER)('Map')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -35,14 +35,14 @@ JetFile: MapEntry.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Bar')
                     PsiErrorElement:Unexpected token
                       PsiElement(EXCL)('!')
@@ -59,17 +59,17 @@ JetFile: MapEntry.kt
           USER_TYPE
             USER_TYPE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('kotlin')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiErrorElement:Unexpected tokens
                   PsiElement(LPAR)('(')
                   PsiElement(IDENTIFIER)('Mutable')
                   PsiElement(RPAR)(')')
                 PsiElement(IDENTIFIER)('Map')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiErrorElement:Unexpected tokens
                 PsiElement(LPAR)('(')
                 PsiElement(IDENTIFIER)('Mutable')
@@ -80,14 +80,14 @@ JetFile: MapEntry.kt
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(COMMA)(',')
               PsiWhiteSpace(' ')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Bar')
                     PsiErrorElement:Unexpected token
                       PsiElement(EXCL)('!')

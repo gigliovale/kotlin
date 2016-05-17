@@ -4,14 +4,14 @@ JetFile: fragment.kt
       PACKAGE_DIRECTIVE
         PsiElement(package)('package')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n\n')
       IMPORT_LIST
         IMPORT_DIRECTIVE
           PsiElement(import)('import')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           PsiElement(DOT)('.')
           PsiElement(MUL)('*')

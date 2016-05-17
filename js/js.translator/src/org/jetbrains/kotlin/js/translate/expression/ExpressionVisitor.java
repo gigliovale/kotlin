@@ -180,7 +180,7 @@ public final class ExpressionVisitor extends TranslatorVisitor<JsNode> {
         DeclarationDescriptor descriptor = context.getDeclarationDescriptor();
         assert descriptor instanceof CallableMemberDescriptor : "Return expression can only be inside callable declaration: " +
                                                                 PsiUtilsKt.getTextWithLocation(expression);
-        KtSimpleNameExpression target = expression.getTargetLabel();
+        KtLabelReferenceExpression target = expression.getTargetLabel();
 
         //call inside lambda
         if (isFunctionLiteral(descriptor) || isFunctionExpression(descriptor)) {
@@ -434,7 +434,7 @@ public final class ExpressionVisitor extends TranslatorVisitor<JsNode> {
     }
 
     private static JsNameRef getTargetLabel(KtExpressionWithLabel expression, TranslationContext context) {
-        KtSimpleNameExpression labelElement = expression.getTargetLabel();
+        KtLabelReferenceExpression labelElement = expression.getTargetLabel();
         if (labelElement == null) {
             return null;
         }

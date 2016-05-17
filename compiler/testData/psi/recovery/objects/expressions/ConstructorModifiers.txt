@@ -51,7 +51,7 @@ JetFile: ConstructorModifiers.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Bar')
         PsiWhiteSpace(' ')
         CLASS_BODY
@@ -79,7 +79,7 @@ JetFile: ConstructorModifiers.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('foo')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -92,7 +92,7 @@ JetFile: ConstructorModifiers.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('bar')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')

@@ -8,7 +8,7 @@ JetFile: withoutPackageWithSimpleAnnotation.kt
       CONSTRUCTOR_CALLEE
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
   PACKAGE_DIRECTIVE
     <empty list>
@@ -22,7 +22,7 @@ JetFile: withoutPackageWithSimpleAnnotation.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
       PsiWhiteSpace(' ')
       ANNOTATION_ENTRY
@@ -30,7 +30,7 @@ JetFile: withoutPackageWithSimpleAnnotation.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
       PsiWhiteSpace('\n')
       ANNOTATION_ENTRY
@@ -42,7 +42,7 @@ JetFile: withoutPackageWithSimpleAnnotation.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('baz')
     PsiWhiteSpace('\n')
     PsiElement(fun)('fun')

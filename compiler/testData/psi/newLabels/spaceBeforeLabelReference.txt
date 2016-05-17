@@ -151,7 +151,7 @@ JetFile: spaceBeforeLabelReference.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('l7')
         PsiWhiteSpace(' ')
         INTEGER_CONSTANT

@@ -15,7 +15,7 @@ JetFile: primaryConstructor.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann1')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -41,7 +41,7 @@ JetFile: primaryConstructor.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann2')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -58,7 +58,7 @@ JetFile: primaryConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -68,7 +68,7 @@ JetFile: primaryConstructor.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('B')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -90,7 +90,7 @@ JetFile: primaryConstructor.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann3')
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -106,7 +106,7 @@ JetFile: primaryConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n')
@@ -124,7 +124,7 @@ JetFile: primaryConstructor.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann4')
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -133,7 +133,7 @@ JetFile: primaryConstructor.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('private')
         PsiWhiteSpace(' ')
         PsiErrorElement:Expected annotation identifier after '@'
@@ -146,7 +146,7 @@ JetFile: primaryConstructor.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n')
@@ -164,7 +164,7 @@ JetFile: primaryConstructor.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann5')
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
@@ -173,7 +173,7 @@ JetFile: primaryConstructor.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('private')
         PsiWhiteSpace(' ')
         PsiErrorElement:Expected annotation identifier after '@'
@@ -186,7 +186,7 @@ JetFile: primaryConstructor.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann6')
           PsiElement(RBRACKET)(']')
       VALUE_PARAMETER_LIST

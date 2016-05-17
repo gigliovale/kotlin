@@ -18,7 +18,7 @@ JetFile: When_ERR.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -30,7 +30,7 @@ JetFile: When_ERR.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -44,7 +44,7 @@ JetFile: When_ERR.kt
           PsiWhiteSpace('  ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -55,7 +55,7 @@ JetFile: When_ERR.kt
           PsiWhiteSpace('  ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -67,7 +67,7 @@ JetFile: When_ERR.kt
           PsiWhiteSpace('  ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -79,7 +79,7 @@ JetFile: When_ERR.kt
           PsiWhiteSpace('  ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -88,7 +88,7 @@ JetFile: When_ERR.kt
               <empty list>
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -102,7 +102,7 @@ JetFile: When_ERR.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -189,7 +189,7 @@ JetFile: When_ERR.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -205,7 +205,7 @@ JetFile: When_ERR.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n  ')
         PsiElement(RBRACE)('}')

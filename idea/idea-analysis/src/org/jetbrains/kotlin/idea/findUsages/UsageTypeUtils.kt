@@ -39,77 +39,76 @@ object UsageTypeUtils {
             is KtStringTemplateExpression -> return USAGE_IN_STRING_LITERAL
         }
 
-        val refExpr = element?.getNonStrictParentOfType<KtReferenceExpression>()
-        if (refExpr == null) return null
+        val refElement = element?.getNonStrictParentOfType<KtReferenceElement>() ?: return null
 
-        val context = refExpr.analyze()
+        val context = refElement.analyze()
 
         fun getCommonUsageType(): UsageTypeEnum? {
             return when {
-                refExpr.getNonStrictParentOfType<KtImportDirective>() != null ->
+                refElement.getNonStrictParentOfType<KtImportDirective>() != null ->
                     CLASS_IMPORT
-                refExpr.getParentOfTypeAndBranch<KtCallableReferenceExpression>(){ callableReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtCallableReferenceExpression>(){ callableReference } != null ->
                     CALLABLE_REFERENCE
                 else -> null
             }
         }
 
         fun getClassUsageType(): UsageTypeEnum? {
-            if (refExpr.getNonStrictParentOfType<KtTypeProjection>() != null) return TYPE_PARAMETER
+            if (refElement.getNonStrictParentOfType<KtTypeProjection>() != null) return TYPE_PARAMETER
 
-            val property = refExpr.getNonStrictParentOfType<KtProperty>()
+            val property = refElement.getNonStrictParentOfType<KtProperty>()
             if (property != null) {
                 when {
-                    property.typeReference.isAncestor(refExpr) ->
+                    property.typeReference.isAncestor(refElement) ->
                         return if (property.isLocal) CLASS_LOCAL_VAR_DECLARATION else NON_LOCAL_PROPERTY_TYPE
 
-                    property.receiverTypeReference.isAncestor(refExpr) ->
+                    property.receiverTypeReference.isAncestor(refElement) ->
                         return EXTENSION_RECEIVER_TYPE
                 }
             }
 
-            val function = refExpr.getNonStrictParentOfType<KtFunction>()
+            val function = refElement.getNonStrictParentOfType<KtFunction>()
             if (function != null) {
                 when {
-                    function.typeReference.isAncestor(refExpr) ->
+                    function.typeReference.isAncestor(refElement) ->
                         return FUNCTION_RETURN_TYPE
-                    function.receiverTypeReference.isAncestor(refExpr) ->
+                    function.receiverTypeReference.isAncestor(refElement) ->
                         return EXTENSION_RECEIVER_TYPE
                 }
             }
 
             return when {
-                refExpr.getParentOfTypeAndBranch<KtTypeParameter>(){ extendsBound } != null
-                || refExpr.getParentOfTypeAndBranch<KtTypeConstraint>(){ boundTypeReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtTypeParameter>(){ extendsBound } != null
+                || refElement.getParentOfTypeAndBranch<KtTypeConstraint>(){ boundTypeReference } != null ->
                     TYPE_CONSTRAINT
 
-                refExpr is KtSuperTypeListEntry
-                || refExpr.getParentOfTypeAndBranch<KtSuperTypeListEntry>(){ typeReference } != null ->
+                refElement is KtSuperTypeListEntry
+                || refElement.getParentOfTypeAndBranch<KtSuperTypeListEntry>(){ typeReference } != null ->
                     SUPER_TYPE
 
-                refExpr.getParentOfTypeAndBranch<KtParameter>(){ typeReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtParameter>(){ typeReference } != null ->
                     VALUE_PARAMETER_TYPE
 
-                refExpr.getParentOfTypeAndBranch<KtIsExpression>(){ typeReference } != null
-                || refExpr.getParentOfTypeAndBranch<KtWhenConditionIsPattern>(){ typeReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtIsExpression>(){ typeReference } != null
+                || refElement.getParentOfTypeAndBranch<KtWhenConditionIsPattern>(){ typeReference } != null ->
                     IS
 
-                with(refExpr.getParentOfTypeAndBranch<KtBinaryExpressionWithTypeRHS>(){ right }) {
+                with(refElement.getParentOfTypeAndBranch<KtBinaryExpressionWithTypeRHS>(){ right }) {
                     val opType = this?.operationReference?.getReferencedNameElementType()
                     opType == KtTokens.AS_KEYWORD || opType == KtTokens.AS_SAFE
                 } ->
                     CLASS_CAST_TO
 
-                with(refExpr.getNonStrictParentOfType<KtDotQualifiedExpression>()) {
+                with(refElement.getNonStrictParentOfType<KtDotQualifiedExpression>()) {
                     if (this == null) false
-                    else if (receiverExpression == refExpr) true
+                    else if (receiverExpression == refElement) true
                     else
-                        selectorExpression == refExpr
+                        selectorExpression == refElement
                         && getParentOfTypeAndBranch<KtDotQualifiedExpression>(strict = true) { receiverExpression } != null
                 } ->
                     CLASS_OBJECT_ACCESS
 
-                refExpr.getParentOfTypeAndBranch<KtSuperExpression>(){ superTypeQualifier } != null ->
+                refElement.getParentOfTypeAndBranch<KtSuperExpression>(){ superTypeQualifier } != null ->
                     SUPER_TYPE_QUALIFIER
 
                 else -> null
@@ -117,37 +116,38 @@ object UsageTypeUtils {
         }
 
         fun getVariableUsageType(): UsageTypeEnum? {
-            if (refExpr.getParentOfTypeAndBranch<KtDelegatedSuperTypeEntry>(){ delegateExpression } != null) {
+            if (refElement.getParentOfTypeAndBranch<KtDelegatedSuperTypeEntry>(){ delegateExpression } != null) {
                 return DELEGATE
             }
 
-            if (refExpr.parent is KtValueArgumentName) return NAMED_ARGUMENT
+            if (refElement.parent is KtValueArgumentName) return NAMED_ARGUMENT
 
-            val dotQualifiedExpression = refExpr.getNonStrictParentOfType<KtDotQualifiedExpression>()
+            val dotQualifiedExpression = refElement.getNonStrictParentOfType<KtDotQualifiedExpression>()
 
             if (dotQualifiedExpression != null) {
                 val parent = dotQualifiedExpression.parent
                 when {
-                    dotQualifiedExpression.receiverExpression.isAncestor(refExpr) ->
+                    dotQualifiedExpression.receiverExpression.isAncestor(refElement) ->
                         return RECEIVER
 
-                    parent is KtDotQualifiedExpression && parent.receiverExpression.isAncestor(refExpr) ->
+                    parent is KtDotQualifiedExpression && parent.receiverExpression.isAncestor(refElement) ->
                         return RECEIVER
                 }
             }
 
-            return when (refExpr.readWriteAccess(useResolveForReadWrite = true)) {
+            if (refElement !is KtReferenceExpression) return null
+            return when (refElement.readWriteAccess(useResolveForReadWrite = true)) {
                 ReferenceAccess.READ -> READ
                 ReferenceAccess.WRITE, ReferenceAccess.READ_WRITE -> WRITE
             }
         }
 
         fun getFunctionUsageType(descriptor: FunctionDescriptor): UsageTypeEnum? {
-            when (refExpr.mainReference) {
+            when (refElement.mainReference) {
                 is KtArrayAccessReference -> {
                     return when {
-                        context[BindingContext.INDEXED_LVALUE_GET, refExpr] != null -> IMPLICIT_GET
-                        context[BindingContext.INDEXED_LVALUE_SET, refExpr] != null -> IMPLICIT_SET
+                        context[BindingContext.INDEXED_LVALUE_GET, refElement as? KtReferenceExpression] != null -> IMPLICIT_GET
+                        context[BindingContext.INDEXED_LVALUE_SET, refElement as? KtReferenceExpression] != null -> IMPLICIT_SET
                         else -> null
                     }
                 }
@@ -155,21 +155,21 @@ object UsageTypeUtils {
             }
 
             return when {
-                refExpr.getParentOfTypeAndBranch<KtSuperTypeListEntry>(){ typeReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtSuperTypeListEntry>(){ typeReference } != null ->
                     SUPER_TYPE
 
                 descriptor is ConstructorDescriptor
-                && refExpr.getParentOfTypeAndBranch<KtAnnotationEntry>(){ typeReference } != null ->
+                && refElement.getParentOfTypeAndBranch<KtAnnotationEntry>(){ typeReference } != null ->
                     ANNOTATION
 
-                with(refExpr.getParentOfTypeAndBranch<KtCallExpression>(){ calleeExpression }) {
+                with(refElement.getParentOfTypeAndBranch<KtCallExpression>(){ calleeExpression }) {
                     this?.calleeExpression is KtSimpleNameExpression
                 } ->
                     if (descriptor is ConstructorDescriptor) CLASS_NEW_OPERATOR else FUNCTION_CALL
 
-                refExpr.getParentOfTypeAndBranch<KtBinaryExpression>(){ operationReference } != null ||
-                refExpr.getParentOfTypeAndBranch<KtUnaryExpression>(){ operationReference } != null ||
-                refExpr.getParentOfTypeAndBranch<KtWhenConditionInRange>(){ operationReference } != null ->
+                refElement.getParentOfTypeAndBranch<KtBinaryExpression>(){ operationReference } != null ||
+                refElement.getParentOfTypeAndBranch<KtUnaryExpression>(){ operationReference } != null ||
+                refElement.getParentOfTypeAndBranch<KtWhenConditionInRange>(){ operationReference } != null ->
                     FUNCTION_CALL
 
                 else -> null
@@ -178,8 +178,8 @@ object UsageTypeUtils {
 
         fun getPackageUsageType(): UsageTypeEnum? {
             return when {
-                refExpr.getNonStrictParentOfType<KtPackageDirective>() != null -> PACKAGE_DIRECTIVE
-                refExpr.getNonStrictParentOfType<KtQualifiedExpression>() != null -> PACKAGE_MEMBER_ACCESS
+                refElement.getNonStrictParentOfType<KtPackageDirective>() != null -> PACKAGE_DIRECTIVE
+                refElement.getNonStrictParentOfType<KtQualifiedExpression>() != null -> PACKAGE_MEMBER_ACCESS
                 else -> getClassUsageType()
             }
         }
@@ -187,7 +187,7 @@ object UsageTypeUtils {
         val usageType = getCommonUsageType()
         if (usageType != null) return usageType
 
-        val descriptor = context[BindingContext.REFERENCE_TARGET, refExpr]
+        val descriptor = context[BindingContext.REFERENCE_TARGET, refElement]
 
         return when (descriptor) {
             is ClassifierDescriptor -> when {
@@ -197,7 +197,7 @@ object UsageTypeUtils {
                 else -> getClassUsageType()
             }
             is PackageViewDescriptor -> {
-                if (refExpr.mainReference.resolve() is PsiPackage) getPackageUsageType() else getClassUsageType()
+                if (refElement.mainReference.resolve() is PsiPackage) getPackageUsageType() else getClassUsageType()
             }
             is VariableDescriptor -> getVariableUsageType()
             is FunctionDescriptor -> getFunctionUsageType(descriptor)

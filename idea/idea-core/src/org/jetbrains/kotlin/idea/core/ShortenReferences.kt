@@ -67,7 +67,7 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
         private fun DeclarationDescriptor.asString()
                 = DescriptorRenderer.FQ_NAMES_IN_TYPES.render(this)
 
-        private fun KtReferenceExpression.targets(context: BindingContext) = getImportableTargets(context)
+        private fun KtReferenceElement.targets(context: BindingContext) = getImportableTargets(context)
 
         private fun mayImport(descriptor: DeclarationDescriptor, file: KtFile): Boolean {
             return descriptor.canBeReferencedViaImport()
@@ -350,14 +350,14 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
                     KtImportDirective::class.java, KtPackageDirective::class.java) != null) return true
 
             val selector = qualifiedExpression.selectorExpression ?: return false
-            val callee = selector.getCalleeExpressionIfAny() as? KtReferenceExpression ?: return false
+            val callee = selector.getCalleeExpressionIfAny() as? KtNameReferenceExpression ?: return false
             val targets = callee.targets(bindingContext)
             if (targets.isEmpty()) return false
 
             val scope = qualifiedExpression.getResolutionScope(bindingContext, resolutionFacade)
             val selectorCopy = selector.copy() as KtReferenceExpression
             val newContext = selectorCopy.analyzeInContext(scope, selector)
-            val targetsWhenShort = (selectorCopy.getCalleeExpressionIfAny() as KtReferenceExpression).targets(newContext)
+            val targetsWhenShort = (selectorCopy.getCalleeExpressionIfAny() as KtNameReferenceExpression).targets(newContext)
             val targetsMatch = targetsMatch(targets, targetsWhenShort)
 
             if (receiver is KtThisExpression) {

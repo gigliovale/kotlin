@@ -28,7 +28,7 @@ JetFile: IPushPop.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
       PsiWhiteSpace('\n  ')
       FUN
@@ -44,7 +44,7 @@ JetFile: IPushPop.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n  ')
@@ -60,7 +60,7 @@ JetFile: IPushPop.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

@@ -14,7 +14,7 @@ JetFile: local.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     BLOCK
@@ -27,7 +27,7 @@ JetFile: local.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('annotation')
         PsiWhiteSpace(' ')
         PsiElement(class)('class')
@@ -41,7 +41,7 @@ JetFile: local.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann')
         PsiWhiteSpace(' ')
         PsiElement(val)('val')
@@ -56,7 +56,7 @@ JetFile: local.kt
       RETURN
         PsiElement(return)('return')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

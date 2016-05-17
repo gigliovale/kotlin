@@ -19,7 +19,7 @@ JetFile: InvalidCharAfterPropertyName.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('XX')
         PsiErrorElement:Property getter or setter expected
           PsiElement(BAD_CHARACTER)('$')

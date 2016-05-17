@@ -15,7 +15,7 @@ JetFile: AnonymousObjects.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n\n')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('addMouseListener')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -31,7 +31,7 @@ JetFile: AnonymousObjects.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('MouseAdapter')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -70,7 +70,7 @@ JetFile: AnonymousObjects.kt
                         PsiWhiteSpace(' ')
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('MouseEvent')
                       PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -78,7 +78,7 @@ JetFile: AnonymousObjects.kt
                       PsiElement(LBRACE)('{')
                       PsiWhiteSpace('\n    ')
                       POSTFIX_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('clickCount')
                         OPERATION_REFERENCE
                           PsiElement(PLUSPLUS)('++')
@@ -90,7 +90,7 @@ JetFile: AnonymousObjects.kt
                         PsiElement(LPAR)('(')
                         CONDITION
                           BINARY_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('clickCount')
                             PsiWhiteSpace(' ')
                             OPERATION_REFERENCE
@@ -102,20 +102,20 @@ JetFile: AnonymousObjects.kt
                         PsiWhiteSpace(' ')
                         THEN
                           DOT_QUALIFIED_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('GOD')
                             PsiElement(DOT)('.')
                             CALL_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('sendMessage')
                               VALUE_ARGUMENT_LIST
                                 PsiElement(LPAR)('(')
                                 VALUE_ARGUMENT
                                   DOT_QUALIFIED_EXPRESSION
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('GodMEssages')
                                     PsiElement(DOT)('.')
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('TOO_MANY_CLICKS')
                                 PsiElement(RPAR)(')')
                       PsiElement(SEMICOLON)(';')
@@ -174,7 +174,7 @@ JetFile: AnonymousObjects.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('GodMEssage')
                   PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -184,16 +184,16 @@ JetFile: AnonymousObjects.kt
                   PsiElement(throw)('throw')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('RuntimeException')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('message')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('name')
                       PsiElement(RPAR)(')')
               PsiWhiteSpace('\n')

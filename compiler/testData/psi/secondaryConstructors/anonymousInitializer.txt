@@ -36,7 +36,7 @@ JetFile: anonymousInitializer.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('f')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -49,7 +49,7 @@ JetFile: anonymousInitializer.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n        ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE

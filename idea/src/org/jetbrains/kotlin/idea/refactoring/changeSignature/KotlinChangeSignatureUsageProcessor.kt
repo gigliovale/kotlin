@@ -231,7 +231,7 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
 
             if (functionPsi is KtClass && reference.resolve() !== functionPsi) continue
 
-            if (element is KtReferenceExpression) {
+            if (element is KtReferenceElement) {
                 var parent = element.parent
 
                 when {
@@ -715,7 +715,7 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
             for ((originalRef, originalContext) in noReceiverRefToContext.entries) {
                 val newRef = newBody
                         .findElementAt(originalRef.textOffset - originalOffset)
-                        ?.getNonStrictParentOfType<KtReferenceExpression>()
+                        ?.getNonStrictParentOfType<KtReferenceElement>()
                 val newResolvedCall = newRef.getResolvedCall(newContext)
                 if (newResolvedCall == null || newResolvedCall.extensionReceiver != null || newResolvedCall.dispatchReceiver != null) {
                     val descriptor = originalRef.getResolvedCall(originalContext)!!.candidateDescriptor

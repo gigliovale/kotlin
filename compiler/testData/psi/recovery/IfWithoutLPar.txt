@@ -25,7 +25,7 @@ JetFile: IfWithoutLPar.kt
             PsiWhiteSpace(' ')
             PsiElement(LPAR)('(')
             CONDITION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('other')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')

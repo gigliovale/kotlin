@@ -33,7 +33,7 @@ JetFile: multiDeclaration.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
             PsiWhiteSpace(' ')
             ANNOTATION
@@ -43,7 +43,7 @@ JetFile: multiDeclaration.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiElement(RBRACKET)(']')
           PsiWhiteSpace(' ')
@@ -52,7 +52,7 @@ JetFile: multiDeclaration.kt
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('pair')
       PsiWhiteSpace('\n    ')
       DESTRUCTURING_DECLARATION
@@ -68,7 +68,7 @@ JetFile: multiDeclaration.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiElement(RBRACKET)(']')
           PsiErrorElement:Expecting a name
@@ -81,7 +81,7 @@ JetFile: multiDeclaration.kt
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('pair')
       PsiWhiteSpace('\n\n    ')
       DESTRUCTURING_DECLARATION
@@ -91,7 +91,7 @@ JetFile: multiDeclaration.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Volatile')
         PsiWhiteSpace(' ')
         PsiElement(val)('val')
@@ -104,7 +104,7 @@ JetFile: multiDeclaration.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           PsiElement(IDENTIFIER)('x')
@@ -126,7 +126,7 @@ JetFile: multiDeclaration.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Volatile')
         PsiWhiteSpace(' ')
         PsiElement(val)('val')
@@ -139,7 +139,7 @@ JetFile: multiDeclaration.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           PsiElement(IDENTIFIER)('x')

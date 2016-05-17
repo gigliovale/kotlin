@@ -7,4 +7,4 @@ PsiJetFileStubImpl[package=]
         MODIFIER_LIST:[private]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]

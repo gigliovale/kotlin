@@ -14,17 +14,17 @@ JetFile: EOLsInComments.kt
     BLOCK
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n  ')
       PREFIX_EXPRESSION
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n  ')
       KDoc
@@ -36,10 +36,10 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n  ')
       PsiComment(BLOCK_COMMENT)('/* */')
@@ -47,11 +47,11 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         PsiComment(BLOCK_COMMENT)('/*\n  */')
@@ -59,10 +59,10 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n  ')
       PsiComment(BLOCK_COMMENT)('/*\n  */')
@@ -71,11 +71,11 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         KDoc
@@ -88,10 +88,10 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace(' ')
       PsiComment(EOL_COMMENT)('//')
@@ -100,10 +100,10 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n  ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace(' ')
       PsiComment(EOL_COMMENT)('//')
@@ -112,7 +112,7 @@ JetFile: EOLsInComments.kt
         OPERATION_REFERENCE
           PsiElement(PLUS)('+')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

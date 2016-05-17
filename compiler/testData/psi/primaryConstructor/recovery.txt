@@ -15,13 +15,13 @@ JetFile: recovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('x')
             PsiErrorElement:Unexpected type specification
               PsiElement(COLON)(':')
@@ -126,7 +126,7 @@ JetFile: recovery.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Base')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -145,7 +145,7 @@ JetFile: recovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -162,7 +162,7 @@ JetFile: recovery.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n')
@@ -178,7 +178,7 @@ JetFile: recovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -202,7 +202,7 @@ JetFile: recovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -217,7 +217,7 @@ JetFile: recovery.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Base')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')

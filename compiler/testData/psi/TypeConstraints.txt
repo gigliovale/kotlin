@@ -17,14 +17,14 @@ JetFile: TypeConstraints.kt
     PsiWhiteSpace(' ')
     TYPE_CONSTRAINT_LIST
       TYPE_CONSTRAINT
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('T')
         PsiWhiteSpace(' ')
         PsiElement(COLON)(':')
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
     PsiWhiteSpace(' ')
     CLASS_BODY

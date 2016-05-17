@@ -2,7 +2,7 @@ JetFile: PackageRecovery.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('some')
     PsiElement(DOT)('.')
     PsiErrorElement:Package name must be a '.'-separated identifier list placed on a single line

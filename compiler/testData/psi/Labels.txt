@@ -180,11 +180,11 @@ JetFile: Labels.kt
             PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n\n  ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
           PsiWhiteSpace(' ')
           LAMBDA_ARGUMENT
@@ -224,11 +224,11 @@ JetFile: Labels.kt
                   PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n  ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
           PsiWhiteSpace(' ')
           LAMBDA_ARGUMENT
@@ -264,17 +264,17 @@ JetFile: Labels.kt
                   PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n  ')
       THIS_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(this)('this')
       PsiWhiteSpace('\n  ')
       THIS_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(this)('this')
         PsiErrorElement:Label must be named
           PsiElement(AT)('@')
       PsiWhiteSpace('\n  ')
       THIS_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(this)('this')
         LABEL_QUALIFIER
           LABEL
@@ -282,34 +282,34 @@ JetFile: Labels.kt
             PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace('\n\n  ')
       SUPER_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(super)('super')
         PsiElement(LT)('<')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiElement(GT)('>')
       PsiWhiteSpace('\n  ')
       SUPER_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(super)('super')
         PsiElement(LT)('<')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiElement(GT)('>')
         PsiErrorElement:Label must be named
           PsiElement(AT)('@')
       PsiWhiteSpace('\n  ')
       SUPER_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(super)('super')
         PsiElement(LT)('<')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiElement(GT)('>')
         LABEL_QUALIFIER

@@ -16,7 +16,7 @@ JetFile: nullableTypes.kt
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
         BINARY_WITH_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE
@@ -24,7 +24,7 @@ JetFile: nullableTypes.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('X')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -35,7 +35,7 @@ JetFile: nullableTypes.kt
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
         BINARY_WITH_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE
@@ -44,7 +44,7 @@ JetFile: nullableTypes.kt
           TYPE_REFERENCE
             NULLABLE_TYPE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('X')
               PsiElement(QUEST)('?')
         PsiWhiteSpace(' ')
@@ -58,24 +58,24 @@ JetFile: nullableTypes.kt
         TYPE_REFERENCE
           NULLABLE_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('X')
             PsiElement(QUEST)('?')
         PsiElement(COLONCOLON)('::')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
         TYPE_REFERENCE
           NULLABLE_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('X')
             PsiWhiteSpace(' ')
             PsiElement(QUEST)('?')
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
@@ -83,14 +83,14 @@ JetFile: nullableTypes.kt
           NULLABLE_TYPE
             NULLABLE_TYPE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('X')
               PsiElement(QUEST)('?')
             PsiWhiteSpace(' ')
             PsiElement(QUEST)('?')
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
@@ -98,14 +98,14 @@ JetFile: nullableTypes.kt
           NULLABLE_TYPE
             NULLABLE_TYPE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('X')
               PsiWhiteSpace(' ')
               PsiElement(QUEST)('?')
             PsiElement(QUEST)('?')
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n    ')
       CALLABLE_REFERENCE_EXPRESSION
@@ -113,7 +113,7 @@ JetFile: nullableTypes.kt
           NULLABLE_TYPE
             NULLABLE_TYPE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('X')
               PsiWhiteSpace(' ')
               PsiElement(QUEST)('?')
@@ -121,7 +121,7 @@ JetFile: nullableTypes.kt
         PsiWhiteSpace(' ')
         PsiElement(COLONCOLON)('::')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n\n    ')
       PROPERTY
@@ -136,7 +136,7 @@ JetFile: nullableTypes.kt
               TYPE_REFERENCE
                 NULLABLE_TYPE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('X')
                   PsiElement(QUEST)('?')
             PsiElement(DOT)('.')
@@ -148,7 +148,7 @@ JetFile: nullableTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n    ')
       PROPERTY
@@ -164,7 +164,7 @@ JetFile: nullableTypes.kt
                 NULLABLE_TYPE
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('X')
                     PsiElement(QUEST)('?')
                   PsiElement(QUEST)('?')
@@ -177,7 +177,7 @@ JetFile: nullableTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n    ')
       PROPERTY
@@ -193,7 +193,7 @@ JetFile: nullableTypes.kt
                 NULLABLE_TYPE
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('X')
                     PsiElement(QUEST)('?')
                   PsiElement(QUEST)('?')
@@ -207,7 +207,7 @@ JetFile: nullableTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n    ')
       PROPERTY
@@ -222,7 +222,7 @@ JetFile: nullableTypes.kt
               TYPE_REFERENCE
                 NULLABLE_TYPE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('X')
                   PsiWhiteSpace(' ')
                   PsiElement(QUEST)('?')
@@ -236,7 +236,7 @@ JetFile: nullableTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n    ')
       PROPERTY
@@ -251,7 +251,7 @@ JetFile: nullableTypes.kt
               TYPE_REFERENCE
                 NULLABLE_TYPE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('X')
                   PsiWhiteSpace(' ')
                   PsiElement(QUEST)('?')
@@ -264,7 +264,7 @@ JetFile: nullableTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

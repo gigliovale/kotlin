@@ -19,14 +19,14 @@ JetFile: ArrayList.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMutableList')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -44,7 +44,7 @@ JetFile: ArrayList.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('MutableArray')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -94,21 +94,21 @@ JetFile: ArrayList.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('mutableIterator')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -129,14 +129,14 @@ JetFile: ArrayList.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IMutableIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
@@ -153,7 +153,7 @@ JetFile: ArrayList.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('IMutableIterator')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -187,7 +187,7 @@ JetFile: ArrayList.kt
                 PsiWhiteSpace(' ')
                 PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('version')
               PsiWhiteSpace('\n\n    ')
               FUN
@@ -210,13 +210,13 @@ JetFile: ArrayList.kt
                     PsiElement(LPAR)('(')
                     CONDITION
                       BINARY_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('version')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
                           PsiElement(EXCLEQ)('!=')
                         PsiWhiteSpace(' ')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('myVersion')
                     PsiElement(RPAR)(')')
                     PsiWhiteSpace('\n        ')
@@ -225,7 +225,7 @@ JetFile: ArrayList.kt
                         PsiElement(throw)('throw')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('ConcurrentModificationException')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
@@ -248,7 +248,7 @@ JetFile: ArrayList.kt
                   PsiElement(LBRACE)('{')
                   PsiWhiteSpace('\n      ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('checkVersion')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -259,7 +259,7 @@ JetFile: ArrayList.kt
                     PsiWhiteSpace(' ')
                     PsiElement(LPAR)('(')
                     CONDITION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('hasNext')
                     PsiElement(RPAR)(')')
                     PsiWhiteSpace('\n        ')
@@ -268,19 +268,19 @@ JetFile: ArrayList.kt
                         PsiElement(throw)('throw')
                         PsiWhiteSpace(' ')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('NoMoreElementsException')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n      ')
                   ARRAY_ACCESS_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('data')
                     INDICES
                       PsiElement(LBRACKET)('[')
                       POSTFIX_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('index')
                         OPERATION_REFERENCE
                           PsiElement(PLUSPLUS)('++')
@@ -304,13 +304,13 @@ JetFile: ArrayList.kt
                   PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('index')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(LT)('<')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('used')
               PsiWhiteSpace('\n\n\n    ')
               FUN
@@ -328,7 +328,7 @@ JetFile: ArrayList.kt
                   PsiElement(LBRACE)('{')
                   PsiWhiteSpace('\n      ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('checkVersion')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -343,21 +343,21 @@ JetFile: ArrayList.kt
                     PsiWhiteSpace(' ')
                     DOT_QUALIFIED_EXPRESSION
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('ArrayList')
                         PsiElement(DOT)('.')
                         THIS_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(this)('this')
                       PsiElement(DOT)('.')
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('remove')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
                           VALUE_ARGUMENT
                             BINARY_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('index')
                               PsiWhiteSpace(' ')
                               OPERATION_REFERENCE
@@ -368,16 +368,16 @@ JetFile: ArrayList.kt
                           PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n      ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('myVersion')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(EQ)('=')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('version')
                   PsiWhiteSpace('\n      ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('result')
                   PsiWhiteSpace('\n    ')
                   PsiElement(RBRACE)('}')
@@ -400,7 +400,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -408,21 +408,21 @@ JetFile: ArrayList.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('checkIndex')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
               PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
           ARRAY_ACCESS_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('data')
             INDICES
               PsiElement(LBRACKET)('[')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('index')
               PsiElement(RBRACKET)(']')
           PsiWhiteSpace('\n  ')
@@ -444,7 +444,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -457,13 +457,13 @@ JetFile: ArrayList.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(GT)('>')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('used')
             PsiElement(RPAR)(')')
             PsiWhiteSpace('\n      ')
@@ -472,12 +472,12 @@ JetFile: ArrayList.kt
                 PsiElement(throw)('throw')
                 PsiWhiteSpace(' ')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('IndexOutOfBoundsException')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('index')
                     PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -499,7 +499,7 @@ JetFile: ArrayList.kt
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('used')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -523,7 +523,7 @@ JetFile: ArrayList.kt
           PsiWhiteSpace(' ')
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('used')
       PsiWhiteSpace('\n\n\n  ')
       FUN
@@ -542,7 +542,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -553,7 +553,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -561,12 +561,12 @@ JetFile: ArrayList.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('checkIndex')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
               PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
@@ -578,31 +578,31 @@ JetFile: ArrayList.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             ARRAY_ACCESS_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('data')
               INDICES
                 PsiElement(LBRACKET)('[')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
                 PsiElement(RBRACKET)(']')
           PsiWhiteSpace('\n    ')
           BINARY_EXPRESSION
             ARRAY_ACCESS_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('data')
               INDICES
                 PsiElement(LBRACKET)('[')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
                 PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
               PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('value')
           PsiWhiteSpace('\n    ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('result')
           PsiWhiteSpace('\n  ')
           PsiElement(RBRACE)('}')
@@ -623,7 +623,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -634,7 +634,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -642,13 +642,13 @@ JetFile: ArrayList.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ensureSize')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('used')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -664,13 +664,13 @@ JetFile: ArrayList.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
                   PsiElement(EQEQ)('==')
                 PsiWhiteSpace(' ')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('used')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -680,12 +680,12 @@ JetFile: ArrayList.kt
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
                   ARRAY_ACCESS_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('data')
                     INDICES
                       PsiElement(LBRACKET)('[')
                       POSTFIX_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('used')
                         OPERATION_REFERENCE
                           PsiElement(PLUSPLUS)('++')
@@ -694,7 +694,7 @@ JetFile: ArrayList.kt
                   OPERATION_REFERENCE
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('value')
                 PsiWhiteSpace('\n    ')
                 PsiElement(RBRACE)('}')
@@ -708,13 +708,13 @@ JetFile: ArrayList.kt
                 PsiElement(LPAR)('(')
                 CONDITION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('index')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(LT)('<')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('used')
                 PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -734,7 +734,7 @@ JetFile: ArrayList.kt
                       LOOP_RANGE
                         BINARY_EXPRESSION
                           BINARY_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('used')
                             OPERATION_REFERENCE
                               PsiElement(MINUS)('-')
@@ -742,7 +742,7 @@ JetFile: ArrayList.kt
                               PsiElement(INTEGER_LITERAL)('1')
                           OPERATION_REFERENCE
                             PsiElement(RANGE)('..')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('index')
                       PsiElement(RPAR)(')')
                       PsiWhiteSpace(' ')
@@ -751,12 +751,12 @@ JetFile: ArrayList.kt
                       BODY
                         BINARY_EXPRESSION
                           ARRAY_ACCESS_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('data')
                             INDICES
                               PsiElement(LBRACKET)('[')
                               BINARY_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('i')
                                 PsiWhiteSpace(' ')
                                 OPERATION_REFERENCE
@@ -770,32 +770,32 @@ JetFile: ArrayList.kt
                             PsiElement(EQ)('=')
                           PsiWhiteSpace(' ')
                           ARRAY_ACCESS_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('data')
                             INDICES
                               PsiElement(LBRACKET)('[')
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('i')
                               PsiElement(RBRACKET)(']')
                     PsiWhiteSpace('\n      ')
                     BINARY_EXPRESSION
                       ARRAY_ACCESS_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('data')
                         INDICES
                           PsiElement(LBRACKET)('[')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('index')
                           PsiElement(RBRACKET)(']')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(EQ)('=')
                       PsiWhiteSpace(' ')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('value')
                     PsiWhiteSpace('\n      ')
                     POSTFIX_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('used')
                       OPERATION_REFERENCE
                         PsiElement(PLUSPLUS)('++')
@@ -809,12 +809,12 @@ JetFile: ArrayList.kt
                     PsiElement(throw)('throw')
                     PsiWhiteSpace(' ')
                     CALL_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('IndexOutOfBoundsException')
                       VALUE_ARGUMENT_LIST
                         PsiElement(LPAR)('(')
                         VALUE_ARGUMENT
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('index')
                         PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -836,7 +836,7 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -854,12 +854,12 @@ JetFile: ArrayList.kt
             PsiWhiteSpace(' ')
             LOOP_RANGE
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('index')
                 OPERATION_REFERENCE
                   PsiElement(RANGE)('..')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('used')
                   OPERATION_REFERENCE
                     PsiElement(MINUS)('-')
@@ -870,11 +870,11 @@ JetFile: ArrayList.kt
             BODY
               BINARY_EXPRESSION
                 ARRAY_ACCESS_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('data')
                   INDICES
                     PsiElement(LBRACKET)('[')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('i')
                     PsiElement(RBRACKET)(']')
                 PsiWhiteSpace(' ')
@@ -882,12 +882,12 @@ JetFile: ArrayList.kt
                   PsiElement(EQ)('=')
                 PsiWhiteSpace(' ')
                 ARRAY_ACCESS_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('data')
                   INDICES
                     PsiElement(LBRACKET)('[')
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('i')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE

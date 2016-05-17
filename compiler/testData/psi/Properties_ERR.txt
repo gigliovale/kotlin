@@ -71,7 +71,7 @@ JetFile: Properties_ERR.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -85,21 +85,21 @@ JetFile: Properties_ERR.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         ANNOTATION_ENTRY
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('foo')
         PsiErrorElement:Expecting ']' to close the annotation list
           <empty list>
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('foo')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -108,10 +108,10 @@ JetFile: Properties_ERR.kt
     TYPE_REFERENCE
       USER_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
     PsiElement(DOT)('.')
     PsiErrorElement:Expecting property name
@@ -122,7 +122,7 @@ JetFile: Properties_ERR.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
     PsiElement(DOT)('.')
     PsiErrorElement:Expecting property name
@@ -137,7 +137,7 @@ JetFile: Properties_ERR.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
     PsiWhiteSpace(' ')
     PsiElement(IDENTIFIER)('foo')
@@ -149,7 +149,7 @@ JetFile: Properties_ERR.kt
         <empty list>
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -157,7 +157,7 @@ JetFile: Properties_ERR.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
     PsiElement(DOT)('.')
     PsiElement(IDENTIFIER)('bar')
@@ -194,10 +194,10 @@ JetFile: Properties_ERR.kt
     TYPE_REFERENCE
       USER_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('f')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('d')
     PsiElement(DOT)('.')
     PsiErrorElement:Expecting property name
@@ -205,7 +205,7 @@ JetFile: Properties_ERR.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('f')
   PsiWhiteSpace('\n\n')
   PROPERTY

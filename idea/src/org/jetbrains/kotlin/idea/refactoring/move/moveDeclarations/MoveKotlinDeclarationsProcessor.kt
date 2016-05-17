@@ -288,8 +288,8 @@ class MoveKotlinDeclarationsProcessor(
         fun checkVisibilityInDeclarations() {
             val targetContainer = descriptor.moveTarget.getContainerDescriptor() ?: return
             for (declaration in elementsToMove) {
-                declaration.forEachDescendantOfType<KtReferenceExpression> { refExpr ->
-                    refExpr.references
+                declaration.forEachDescendantOfType<KtReferenceElement> { refElement ->
+                    refElement.references
                             .forEach { ref ->
                                 val target = ref.resolve() ?: return@forEach
                                 if (target.isInsideOf(elementsToMove)) return@forEach
@@ -300,7 +300,7 @@ class MoveKotlinDeclarationsProcessor(
                                 } ?: return@forEach
                                 if (!targetDescriptor.isVisibleIn(targetContainer)) {
                                     val message = "${render(declaration)} uses ${render(target)} which will be inaccessible after move"
-                                    conflicts.putValue(refExpr, message.capitalize())
+                                    conflicts.putValue(refElement, message.capitalize())
                                 }
                             }
                 }

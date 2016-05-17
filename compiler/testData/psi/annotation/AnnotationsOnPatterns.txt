@@ -18,7 +18,7 @@ JetFile: AnnotationsOnPatterns.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -36,17 +36,17 @@ JetFile: AnnotationsOnPatterns.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                 PsiElement(RBRACKET)(']')
               PsiWhiteSpace(' ')
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('d')
         PsiWhiteSpace('\n    ')
         PsiElement(RBRACE)('}')

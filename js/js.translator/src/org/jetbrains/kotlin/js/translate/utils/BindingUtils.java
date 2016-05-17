@@ -113,7 +113,7 @@ public final class BindingUtils {
 
     @Nullable
     private static DeclarationDescriptor getNullableDescriptorForReferenceExpression(@NotNull BindingContext context,
-            @NotNull KtReferenceExpression reference) {
+            @NotNull KtReferenceElement reference) {
         return context.get(BindingContext.REFERENCE_TARGET, reference);
     }
 

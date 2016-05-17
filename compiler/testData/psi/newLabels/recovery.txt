@@ -16,10 +16,10 @@ JetFile: recovery.kt
       PsiWhiteSpace('\n\n    ')
       BINARY_EXPRESSION
         DOT_QUALIFIED_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x2')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -45,11 +45,11 @@ JetFile: recovery.kt
               PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x3')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
           PsiWhiteSpace(' ')
           LAMBDA_ARGUMENT
@@ -72,7 +72,7 @@ JetFile: recovery.kt
                   PsiWhiteSpace('\n    ')
                   PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('loop2')
       PsiWhiteSpace(' ')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -102,7 +102,7 @@ JetFile: recovery.kt
               PsiErrorElement:Label must be named
                 PsiElement(AT)('@')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('loop2')
             PsiWhiteSpace(' ')
             PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -116,7 +116,7 @@ JetFile: recovery.kt
               PsiErrorElement:Label must be named
                 PsiElement(AT)('@')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('loop2')
             PsiWhiteSpace(' ')
             PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -131,7 +131,7 @@ JetFile: recovery.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('loop2')
               PsiWhiteSpace(' ')
               INTEGER_CONSTANT
@@ -164,7 +164,7 @@ JetFile: recovery.kt
               PsiWhiteSpace('\n    ')
               PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('label2')
       PsiWhiteSpace(' ')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -208,7 +208,7 @@ JetFile: recovery.kt
         INTEGER_CONSTANT
           PsiElement(INTEGER_LITERAL)('4')
       PsiWhiteSpace('\n\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('l1')
       PsiWhiteSpace(' ')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -229,7 +229,7 @@ JetFile: recovery.kt
       BINARY_EXPRESSION
         BINARY_EXPRESSION
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -239,7 +239,7 @@ JetFile: recovery.kt
               PsiErrorElement:Expected annotation identifier after '@'
                 PsiElement(AT)('@')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE
@@ -253,7 +253,7 @@ JetFile: recovery.kt
                 PsiElement(IDENTIFIER)('foo')
                 PsiElement(AT)('@')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE

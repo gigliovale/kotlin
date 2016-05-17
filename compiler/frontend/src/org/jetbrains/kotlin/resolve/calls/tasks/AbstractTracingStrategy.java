@@ -52,10 +52,10 @@ import static org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.Co
 import static org.jetbrains.kotlin.types.TypeUtils.noExpectedType;
 
 public abstract class AbstractTracingStrategy implements TracingStrategy {
-    protected final KtExpression reference;
+    protected final KtReferenceElement reference;
     protected final Call call;
 
-    protected AbstractTracingStrategy(@NotNull KtExpression reference, @NotNull Call call) {
+    protected AbstractTracingStrategy(@NotNull KtReferenceElement reference, @NotNull Call call) {
         this.reference = reference;
         this.call = call;
     }
@@ -89,7 +89,7 @@ public abstract class AbstractTracingStrategy implements TracingStrategy {
     ) {
         KtExpression reportOn = receiverArgument instanceof ExpressionReceiver
                                 ? ((ExpressionReceiver) receiverArgument).getExpression()
-                                : reference;
+                                : (KtExpression) reference;
 
         if (!DiagnosticUtilsKt.reportTypeMismatchDueToTypeProjection(
                 c, reportOn, receiverParameter.getType(), receiverArgument.getType())) {
@@ -137,7 +137,7 @@ public abstract class AbstractTracingStrategy implements TracingStrategy {
 
     @Override
     public void abstractSuperCall(@NotNull BindingTrace trace) {
-        trace.report(ABSTRACT_SUPER_CALL.on(reference));
+        trace.report(ABSTRACT_SUPER_CALL.on((KtExpression) reference));
     }
 
     @Override
@@ -157,11 +157,11 @@ public abstract class AbstractTracingStrategy implements TracingStrategy {
                 else {
                     qualifiedName = fqName.asString();
                 }
-                trace.report(NESTED_CLASS_SHOULD_BE_QUALIFIED.on(reference, classDescriptor, qualifiedName));
+                trace.report(NESTED_CLASS_SHOULD_BE_QUALIFIED.on((KtExpression) reference, classDescriptor, qualifiedName));
                 return;
             }
         }
-        trace.report(NESTED_CLASS_ACCESSED_VIA_INSTANCE_REFERENCE.on(reference, classDescriptor));
+        trace.report(NESTED_CLASS_ACCESSED_VIA_INSTANCE_REFERENCE.on((KtExpression) reference, classDescriptor));
     }
 
     @Override

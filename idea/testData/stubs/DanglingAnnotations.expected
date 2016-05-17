@@ -9,11 +9,11 @@ PsiJetFileStubImpl[package=]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=Ann]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=Ann]
   MODIFIER_LIST:[]
     ANNOTATION:
       ANNOTATION_ENTRY:[hasValueArguments=false, shortName=Ann]
         CONSTRUCTOR_CALLEE:
           TYPE_REFERENCE:
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=Ann]
+              NAME_REFERENCE_EXPRESSION:[referencedName=Ann]

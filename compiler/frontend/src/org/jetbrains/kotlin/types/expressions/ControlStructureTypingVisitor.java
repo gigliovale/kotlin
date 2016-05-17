@@ -269,7 +269,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
         expression.accept(new KtTreeVisitor<List<KtLoopExpression>>() {
             @Override
             public Void visitBreakExpression(@NotNull KtBreakExpression breakExpression, List<KtLoopExpression> outerLoops) {
-                KtSimpleNameExpression targetLabel = breakExpression.getTargetLabel();
+                KtLabelReferenceExpression targetLabel = breakExpression.getTargetLabel();
                 PsiElement element = targetLabel != null ? context.trace.get(LABEL_TARGET, targetLabel) : null;
                 if (outerLoops.isEmpty() || element == expression ||
                     (targetLabel == null && outerLoops.get(outerLoops.size() - 1) == expression)) {
@@ -281,7 +281,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
             @Override
             public Void visitContinueExpression(@NotNull KtContinueExpression expression, List<KtLoopExpression> outerLoops) {
                 // continue@someOuterLoop is also considered as break
-                KtSimpleNameExpression targetLabel = expression.getTargetLabel();
+                KtLabelReferenceExpression targetLabel = expression.getTargetLabel();
                 if (targetLabel != null) {
                     PsiElement element = context.trace.get(LABEL_TARGET, targetLabel);
                     if (element instanceof KtLoopExpression && !outerLoops.contains(element)) {

@@ -25,7 +25,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
           PsiWhiteSpace(' ')
           PsiElement(IDENTIFIER)('x')
@@ -33,7 +33,7 @@ JetFile: forParameters.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('z')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -55,7 +55,7 @@ JetFile: forParameters.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiElement(RBRACKET)(']')
           PsiErrorElement:Expecting a variable name
@@ -110,7 +110,7 @@ JetFile: forParameters.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiWhiteSpace(' ')
               ANNOTATION
@@ -120,7 +120,7 @@ JetFile: forParameters.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('ann')
                 PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -130,7 +130,7 @@ JetFile: forParameters.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -154,7 +154,7 @@ JetFile: forParameters.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('ann')
                 PsiElement(RBRACKET)(']')
             PsiErrorElement:Expecting a name
@@ -168,7 +168,7 @@ JetFile: forParameters.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('pair')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -188,7 +188,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
           PsiWhiteSpace(' ')
           PsiElement(IDENTIFIER)('x')
@@ -221,7 +221,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -260,7 +260,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -278,7 +278,7 @@ JetFile: forParameters.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Volatile')
             PsiWhiteSpace(' ')
             PsiElement(IDENTIFIER)('y')
@@ -312,7 +312,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
           PsiWhiteSpace(' ')
           PsiElement(var)('var')
@@ -349,7 +349,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
           PsiWhiteSpace(' ')
           PsiElement(var)('var')
@@ -386,7 +386,7 @@ JetFile: forParameters.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
           PsiWhiteSpace(' ')
           PsiElement(val)('val')
@@ -403,7 +403,7 @@ JetFile: forParameters.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Volatile')
             PsiWhiteSpace(' ')
             PsiElement(IDENTIFIER)('y')

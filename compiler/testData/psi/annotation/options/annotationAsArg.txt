@@ -18,7 +18,7 @@ JetFile: annotationAsArg.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -47,7 +47,7 @@ JetFile: annotationAsArg.kt
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -64,14 +64,14 @@ JetFile: annotationAsArg.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Annotation')
       PsiElement(RPAR)(')')
     PsiElement(COLON)(':')
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     BLOCK
@@ -84,11 +84,11 @@ JetFile: annotationAsArg.kt
         CONDITION
           BINARY_EXPRESSION
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('annotation')
               PsiElement(DOT)('.')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('bar')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -106,11 +106,11 @@ JetFile: annotationAsArg.kt
             PsiElement(LBRACE)('{')
             PsiWhiteSpace('\n        ')
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('annotation')
               PsiElement(DOT)('.')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('baz')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')

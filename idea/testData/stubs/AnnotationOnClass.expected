@@ -7,5 +7,5 @@ PsiJetFileStubImpl[package=]
         CONSTRUCTOR_CALLEE:
           TYPE_REFERENCE:
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=Deprecated]
+              NAME_REFERENCE_EXPRESSION:[referencedName=Deprecated]
     CLASS_BODY:

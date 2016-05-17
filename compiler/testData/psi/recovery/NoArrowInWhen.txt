@@ -17,7 +17,7 @@ JetFile: NoArrowInWhen.kt
       WHEN
         PsiElement(when)('when')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('element')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -29,7 +29,7 @@ JetFile: NoArrowInWhen.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('JetProperty')
           PsiWhiteSpace(' ')
           PsiErrorElement:Expecting '->'

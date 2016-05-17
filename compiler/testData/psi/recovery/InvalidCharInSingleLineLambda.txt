@@ -17,7 +17,7 @@ JetFile: InvalidCharInSingleLineLambda.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         PsiWhiteSpace(' ')
         LAMBDA_ARGUMENT
@@ -27,10 +27,10 @@ JetFile: InvalidCharInSingleLineLambda.kt
               PsiWhiteSpace(' ')
               BLOCK
                 DOT_QUALIFIED_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('v')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('s')
                 PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
                   PsiElement(BAD_CHARACTER)('$')

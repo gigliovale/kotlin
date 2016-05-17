@@ -24,7 +24,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -50,7 +50,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -76,7 +76,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -118,7 +118,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -141,7 +141,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -173,7 +173,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -197,7 +197,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -218,7 +218,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -233,7 +233,7 @@ JetFile: PropertiesFollowedByInitializers.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('a')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -250,7 +250,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -280,7 +280,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -293,7 +293,7 @@ JetFile: PropertiesFollowedByInitializers.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('a')
             PsiWhiteSpace(' ')
             PsiElement(abstract)('abstract')
@@ -309,7 +309,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_ACCESSOR
@@ -393,7 +393,7 @@ JetFile: PropertiesFollowedByInitializers.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace(' ')
       PsiElement(RBRACE)('}')
@@ -489,7 +489,7 @@ JetFile: PropertiesFollowedByInitializers.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Long')
     PsiWhiteSpace(' ')
     PROPERTY_ACCESSOR
@@ -500,11 +500,11 @@ JetFile: PropertiesFollowedByInitializers.kt
       PsiElement(EQ)('=')
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('System')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('currentTimeMillis')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -521,5 +521,5 @@ JetFile: PropertiesFollowedByInitializers.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('now')

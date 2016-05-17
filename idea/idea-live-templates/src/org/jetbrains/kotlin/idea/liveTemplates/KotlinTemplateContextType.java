@@ -60,7 +60,7 @@ public abstract class KotlinTemplateContextType extends TemplateContextType {
                 IElementType elementType = ((LeafPsiElement) element).getElementType();
                 if (elementType == KtTokens.IDENTIFIER) {
                     PsiElement parent = element.getParent();
-                    if (parent instanceof KtReferenceExpression) {
+                    if (parent instanceof KtReferenceElement) {
                         PsiElement parentOfParent = parent.getParent();
                         KtQualifiedExpression qualifiedExpression = PsiTreeUtil.getParentOfType(element, KtQualifiedExpression.class);
                         if (qualifiedExpression != null && qualifiedExpression.getSelectorExpression() == parentOfParent) {

@@ -19,14 +19,14 @@ JetFile: PropertyInClass.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PROPERTY_DELEGATE
           PsiElement(by)('by')
           PsiWhiteSpace(' ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

@@ -25,7 +25,7 @@ JetFile: nestedClassAmbiguity.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
           PsiWhiteSpace(' ')
           PsiElement(constructor)('constructor')
@@ -58,7 +58,7 @@ JetFile: nestedClassAmbiguity.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann')
         PsiWhiteSpace(' ')
         PsiElement(constructor)('constructor')
@@ -93,7 +93,7 @@ JetFile: nestedClassAmbiguity.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
           PsiWhiteSpace(' ')
           PsiElement(constructor)('constructor')
@@ -191,7 +191,7 @@ JetFile: nestedClassAmbiguity.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')

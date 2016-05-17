@@ -214,8 +214,8 @@ object PositioningStrategies {
             return markElement(nameIdentifier ?: element)
         }
     }
-    @JvmField val FOR_UNRESOLVED_REFERENCE: PositioningStrategy<KtReferenceExpression> = object : PositioningStrategy<KtReferenceExpression>() {
-        override fun mark(element: KtReferenceExpression): List<TextRange> {
+    @JvmField val FOR_UNRESOLVED_REFERENCE: PositioningStrategy<KtReferenceElement> = object : PositioningStrategy<KtReferenceElement>() {
+        override fun mark(element: KtReferenceElement): List<TextRange> {
             if (element is KtArrayAccessExpression) {
                 val ranges = element.bracketRanges
                 if (!ranges.isEmpty()) {

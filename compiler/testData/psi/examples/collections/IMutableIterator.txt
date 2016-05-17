@@ -25,14 +25,14 @@ JetFile: IMutableIterator.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IIterator')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(GT)('>')
     PsiWhiteSpace(' ')
@@ -51,7 +51,7 @@ JetFile: IMutableIterator.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiWhiteSpace('\n\n')
       PsiComment(BLOCK_COMMENT)('/*\n  Considerations:\n    pro: why not + non iteration breaking\n    con: counter-intuitive for, e.g., TreeSet\n\n\n  fun addBefore(item : T) : Boolean\n  fun addAfter(item : T) : Boolean\n*/')

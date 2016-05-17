@@ -12,21 +12,21 @@ JetFile: FunctionTypesAsArguments.kt
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('java')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('util')
       PsiElement(DOT)('.')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('HashMap')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('String')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -41,7 +41,7 @@ JetFile: FunctionTypesAsArguments.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Unit')
           PsiElement(GT)('>')
         VALUE_ARGUMENT_LIST
@@ -65,7 +65,7 @@ JetFile: FunctionTypesAsArguments.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('ArrayList')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
@@ -78,7 +78,7 @@ JetFile: FunctionTypesAsArguments.kt
                   PsiElement(ARROW)('->')
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Unit')
             PsiElement(GT)('>')
           VALUE_ARGUMENT_LIST

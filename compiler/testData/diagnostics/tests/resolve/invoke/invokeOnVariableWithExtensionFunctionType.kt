@@ -58,7 +58,7 @@ fun test(a: A, b: B) {
 
         b.(foo)()
 
-        <!FUNCTION_EXPECTED!>(b.<!FUNCTION_CALL_EXPECTED!>foo<!>)<!>()
+        (b.<!UNRESOLVED_REFERENCE!>foo<!>)()
 
         foo(b)
         (foo)(b)

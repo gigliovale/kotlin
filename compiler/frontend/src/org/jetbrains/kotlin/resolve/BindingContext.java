@@ -104,19 +104,19 @@ public interface BindingContext {
     WritableSlice<KtSuperExpression, KotlinType> THIS_TYPE_FOR_SUPER_EXPRESSION =
             new BasicWritableSlice<KtSuperExpression, KotlinType>(DO_NOTHING);
 
-    WritableSlice<KtReferenceExpression, DeclarationDescriptor> REFERENCE_TARGET =
-            new BasicWritableSlice<KtReferenceExpression, DeclarationDescriptor>(DO_NOTHING);
+    WritableSlice<KtReferenceElement, DeclarationDescriptor> REFERENCE_TARGET =
+            new BasicWritableSlice<KtReferenceElement, DeclarationDescriptor>(DO_NOTHING);
     // if 'A' really means 'A.Companion' then this slice stores class descriptor for A, REFERENCE_TARGET stores descriptor Companion in this case
-    WritableSlice<KtReferenceExpression, ClassDescriptor> SHORT_REFERENCE_TO_COMPANION_OBJECT =
-            new BasicWritableSlice<KtReferenceExpression, ClassDescriptor>(DO_NOTHING);
+    WritableSlice<KtReferenceElement, ClassDescriptor> SHORT_REFERENCE_TO_COMPANION_OBJECT =
+            new BasicWritableSlice<KtReferenceElement, ClassDescriptor>(DO_NOTHING);
 
     WritableSlice<Call, ResolvedCall<?>> RESOLVED_CALL = new BasicWritableSlice<Call, ResolvedCall<?>>(DO_NOTHING);
     WritableSlice<Call, TailRecursionKind> TAIL_RECURSION_CALL = Slices.createSimpleSlice();
     WritableSlice<KtElement, ConstraintSystemCompleter> CONSTRAINT_SYSTEM_COMPLETER = new BasicWritableSlice<KtElement, ConstraintSystemCompleter>(DO_NOTHING);
     WritableSlice<KtElement, Call> CALL = new BasicWritableSlice<KtElement, Call>(DO_NOTHING);
 
-    WritableSlice<KtExpression, Collection<? extends DeclarationDescriptor>> AMBIGUOUS_REFERENCE_TARGET =
-            new BasicWritableSlice<KtExpression, Collection<? extends DeclarationDescriptor>>(DO_NOTHING);
+    WritableSlice<KtReferenceElement, Collection<? extends DeclarationDescriptor>> AMBIGUOUS_REFERENCE_TARGET =
+            new BasicWritableSlice<KtReferenceElement, Collection<? extends DeclarationDescriptor>>(DO_NOTHING);
 
     WritableSlice<KtExpression, ResolvedCall<FunctionDescriptor>> LOOP_RANGE_ITERATOR_RESOLVED_CALL = Slices.createSimpleSlice();
 
@@ -228,8 +228,8 @@ public interface BindingContext {
                     .setFurtherLookupSlices(DECLARATIONS_TO_DESCRIPTORS)
                     .build();
 
-    WritableSlice<KtReferenceExpression, PsiElement> LABEL_TARGET = Slices.createSimpleSlice();
-    WritableSlice<KtReferenceExpression, Collection<? extends PsiElement>> AMBIGUOUS_LABEL_TARGET = Slices.createSimpleSlice();
+    WritableSlice<KtLabelReferenceExpression, PsiElement> LABEL_TARGET = Slices.createSimpleSlice();
+    WritableSlice<KtLabelReferenceExpression, Collection<? extends PsiElement>> AMBIGUOUS_LABEL_TARGET = Slices.createSimpleSlice();
     WritableSlice<ValueParameterDescriptor, PropertyDescriptor> VALUE_PARAMETER_AS_PROPERTY = Slices.createSimpleSlice();
 
     WritableSlice<ValueParameterDescriptor, FunctionDescriptor> DATA_CLASS_COMPONENT_FUNCTION = Slices.createSimpleSlice();

@@ -185,7 +185,7 @@ public class ValueArgumentsToParametersMapper {
                 ValueArgumentName argumentName = argument.getArgumentName();
                 assert argumentName != null;
                 ValueParameterDescriptor valueParameterDescriptor = parameterByName.get(argumentName.getAsName());
-                KtReferenceExpression nameReference = argumentName.getReferenceExpression();
+                KtNameReferenceExpression nameReference = argumentName.getReferenceExpression();
                 if (!candidate.hasStableParameterNames() && nameReference != null) {
                     report(NAMED_ARGUMENTS_NOT_ALLOWED.on(
                             nameReference,

@@ -25,7 +25,7 @@ JetFile: ForWithoutParamButWithRange.kt
         PsiWhiteSpace(' ')
         LOOP_RANGE
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('some')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

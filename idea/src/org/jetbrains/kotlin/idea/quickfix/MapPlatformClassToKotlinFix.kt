@@ -44,10 +44,10 @@ import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.util.*
 
 class MapPlatformClassToKotlinFix(
-        element: KtReferenceExpression,
+        element: KtReferenceElement,
         private val platformClass: ClassDescriptor,
         private val possibleClasses: Collection<ClassDescriptor>
-) : KotlinQuickFixAction<KtReferenceExpression>(element) {
+) : KotlinQuickFixAction<KtReferenceElement>(element) {
 
     override fun getText(): String {
         val platformClassQualifiedName = DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(platformClass.defaultType)
@@ -148,32 +148,32 @@ class MapPlatformClassToKotlinFix(
         })
     }
 
-    companion object : KotlinSingleIntentionActionFactoryWithDelegate<KtReferenceExpression, Companion.Data>() {
+    companion object : KotlinSingleIntentionActionFactoryWithDelegate<KtReferenceElement, Companion.Data>() {
         data class Data(val platformClass: ClassDescriptor,
                         val possibleClasses: Collection<ClassDescriptor>)
 
-        override fun getElementOfInterest(diagnostic: Diagnostic): KtReferenceExpression?
+        override fun getElementOfInterest(diagnostic: Diagnostic): KtReferenceElement?
                 = getImportOrUsageFromDiagnostic(diagnostic)
 
-        override fun extractFixData(element: KtReferenceExpression, diagnostic: Diagnostic): Data? {
+        override fun extractFixData(element: KtReferenceElement, diagnostic: Diagnostic): Data? {
             val context = element.analyze(BodyResolveMode.PARTIAL)
             val platformClass = resolveToClass(element, context) ?: return null
             val possibleClasses = Errors.PLATFORM_CLASS_MAPPED_TO_KOTLIN.cast(diagnostic).a
             return Data(platformClass, possibleClasses)
         }
 
-        override fun createFix(originalElement: KtReferenceExpression, data: Data): IntentionAction? {
+        override fun createFix(originalElement: KtReferenceElement, data: Data): IntentionAction? {
             return MapPlatformClassToKotlinFix(originalElement, data.platformClass, data.possibleClasses)
         }
 
-        private fun resolveToClass(referenceExpression: KtReferenceExpression, context: BindingContext): ClassDescriptor? {
-            return referenceExpression.mainReference.resolveToDescriptors(context).firstIsInstanceOrNull<ClassDescriptor>()
+        private fun resolveToClass(referenceElement: KtReferenceElement, context: BindingContext): ClassDescriptor? {
+            return referenceElement.mainReference.resolveToDescriptors(context).firstIsInstanceOrNull<ClassDescriptor>()
         }
 
-        private fun getImportOrUsageFromDiagnostic(diagnostic: Diagnostic): KtReferenceExpression? {
+        private fun getImportOrUsageFromDiagnostic(diagnostic: Diagnostic): KtReferenceElement? {
             val import = diagnostic.psiElement.getNonStrictParentOfType<KtImportDirective>()
             return if (import != null) {
-                import.importedReference?.getQualifiedElementSelector() as? KtReferenceExpression
+                import.importedReference?.getQualifiedElementSelector() as? KtReferenceElement
             }
             else {
                 (diagnostic.psiElement.getNonStrictParentOfType<KtUserType>() ?: return null).referenceExpression

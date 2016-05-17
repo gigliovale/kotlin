@@ -14,7 +14,7 @@ JetFile: WhileWithoutLPar.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Boolean')
     PsiWhiteSpace(' ')
     BLOCK

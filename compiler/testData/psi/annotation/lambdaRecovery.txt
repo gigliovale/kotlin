@@ -14,7 +14,7 @@ JetFile: lambdaRecovery.kt
     BLOCK
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('bar')
       PsiWhiteSpace(' ')
       PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
@@ -28,7 +28,7 @@ JetFile: lambdaRecovery.kt
           PsiWhiteSpace('\n        ')
           BLOCK
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('print')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -40,7 +40,7 @@ JetFile: lambdaRecovery.kt
           PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         PsiWhiteSpace(' ')
         LAMBDA_ARGUMENT
@@ -54,7 +54,7 @@ JetFile: lambdaRecovery.kt
                 PsiWhiteSpace('\n        ')
                 BLOCK
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('print')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -66,7 +66,7 @@ JetFile: lambdaRecovery.kt
                 PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         PsiWhiteSpace(' ')
         LAMBDA_ARGUMENT
@@ -81,7 +81,7 @@ JetFile: lambdaRecovery.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -91,7 +91,7 @@ JetFile: lambdaRecovery.kt
                 PsiWhiteSpace('\n        ')
                 BLOCK
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('print')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -104,7 +104,7 @@ JetFile: lambdaRecovery.kt
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
         ARRAY_ACCESS_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           PsiWhiteSpace(' ')
           INDICES
@@ -124,7 +124,7 @@ JetFile: lambdaRecovery.kt
                 PsiWhiteSpace('\n        ')
                 BLOCK
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('print')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -136,7 +136,7 @@ JetFile: lambdaRecovery.kt
                 PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -153,7 +153,7 @@ JetFile: lambdaRecovery.kt
                 PsiWhiteSpace('\n        ')
                 BLOCK
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('print')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -165,7 +165,7 @@ JetFile: lambdaRecovery.kt
                 PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -189,7 +189,7 @@ JetFile: lambdaRecovery.kt
                 PsiWhiteSpace('\n        ')
                 BLOCK
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('print')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -201,7 +201,7 @@ JetFile: lambdaRecovery.kt
                 PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -221,14 +221,14 @@ JetFile: lambdaRecovery.kt
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
                   BLOCK
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('param')
                   PsiWhiteSpace('\n    ')
                   PsiElement(RBRACE)('}')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -238,7 +238,7 @@ JetFile: lambdaRecovery.kt
                 PsiElement(AT)('@')
               PsiWhiteSpace(' ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ann')
                 PsiWhiteSpace(' ')
                 LAMBDA_ARGUMENT
@@ -253,7 +253,7 @@ JetFile: lambdaRecovery.kt
                       PsiElement(ARROW)('->')
                       PsiWhiteSpace(' ')
                       BLOCK
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('param')
                       PsiWhiteSpace('\n    ')
                       PsiElement(RBRACE)('}')
@@ -289,7 +289,7 @@ JetFile: lambdaRecovery.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -297,7 +297,7 @@ JetFile: lambdaRecovery.kt
               PsiElement(AT)('@')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ann')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT

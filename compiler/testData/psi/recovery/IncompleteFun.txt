@@ -12,7 +12,7 @@ JetFile: IncompleteFun.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')

@@ -16,7 +16,7 @@ JetFile: Array.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -28,7 +28,7 @@ JetFile: Array.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -41,7 +41,7 @@ JetFile: Array.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -53,7 +53,7 @@ JetFile: Array.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
                     PsiErrorElement:Unexpected token
                       PsiElement(EXCL)('!')
@@ -68,7 +68,7 @@ JetFile: Array.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -80,7 +80,7 @@ JetFile: Array.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Array')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
@@ -92,7 +92,7 @@ JetFile: Array.kt
                         PsiWhiteSpace(' ')
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Foo')
                       PsiElement(GT)('>')
                     PsiErrorElement:Unexpected token

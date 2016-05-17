@@ -21,7 +21,7 @@ JetFile: twoAnnotationLists.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace('\n    ')
           ANNOTATION
@@ -34,14 +34,14 @@ JetFile: twoAnnotationLists.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('b')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('c')
             PsiElement(RBRACKET)(']')
           PsiWhiteSpace('\n    ')
@@ -53,7 +53,7 @@ JetFile: twoAnnotationLists.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('d')
         PsiWhiteSpace('\n    ')
         PsiElement(var)('var')
@@ -63,7 +63,7 @@ JetFile: twoAnnotationLists.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace('\n        ')
         PROPERTY_ACCESSOR
@@ -73,7 +73,7 @@ JetFile: twoAnnotationLists.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('e')
           PsiWhiteSpace(' ')
           PsiElement(get)('get')
@@ -92,7 +92,7 @@ JetFile: twoAnnotationLists.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('f')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
@@ -100,7 +100,7 @@ JetFile: twoAnnotationLists.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('g')
           PsiWhiteSpace(' ')
           PsiElement(set)('set')
@@ -113,7 +113,7 @@ JetFile: twoAnnotationLists.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('h')
               PsiWhiteSpace(' ')
               PsiElement(IDENTIFIER)('v')

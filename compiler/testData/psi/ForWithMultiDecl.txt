@@ -27,7 +27,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -53,7 +53,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -74,7 +74,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -84,14 +84,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -112,7 +112,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -123,7 +123,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -148,14 +148,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -179,7 +179,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -207,7 +207,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -230,7 +230,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -240,14 +240,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -270,7 +270,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -281,7 +281,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -308,14 +308,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -339,7 +339,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -367,7 +367,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -390,7 +390,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -400,14 +400,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -430,7 +430,7 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -441,7 +441,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -468,14 +468,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -498,7 +498,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -524,7 +524,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -551,7 +551,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -582,7 +582,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -606,14 +606,14 @@ JetFile: ForWithMultiDecl.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -638,7 +638,7 @@ JetFile: ForWithMultiDecl.kt
         PsiElement(in)('in')
         PsiWhiteSpace(' ')
         LOOP_RANGE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')

@@ -23,7 +23,8 @@ import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.KtLabelReferenceExpression
+import org.jetbrains.kotlin.psi.KtReferenceElement
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getReferenceTargets
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
@@ -106,10 +107,7 @@ abstract class AbstractKtReference<T : KtElement>(element: T)
     protected abstract fun getTargetDescriptors(context: BindingContext): Collection<DeclarationDescriptor>
 
     private fun getLabelTargets(context: BindingContext): Collection<PsiElement>? {
-        val reference = expression
-        if (reference !is KtReferenceExpression) {
-            return null
-        }
+        val reference = expression as? KtLabelReferenceExpression ?: return null
         val labelTarget = context[BindingContext.LABEL_TARGET, reference]
         if (labelTarget != null) {
             return listOf(labelTarget)
@@ -120,7 +118,7 @@ abstract class AbstractKtReference<T : KtElement>(element: T)
     override fun toString() = javaClass.simpleName + ": " + expression.text
 }
 
-abstract class KtSimpleReference<T : KtReferenceExpression>(expression: T) : AbstractKtReference<T>(expression) {
+abstract class KtSimpleReference<T : KtReferenceElement>(expression: T) : AbstractKtReference<T>(expression) {
     override fun getTargetDescriptors(context: BindingContext) = expression.getReferenceTargets(context)
 }
 

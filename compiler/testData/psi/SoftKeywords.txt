@@ -4,20 +4,20 @@ JetFile: SoftKeywords.kt
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('foo')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
       PsiElement(DOT)('.')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('goo')
   PsiWhiteSpace('\n\n')
   IMPORT_LIST
     IMPORT_DIRECTIVE
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('foo')
   PsiWhiteSpace('\n\n')
   CLASS
@@ -75,7 +75,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiElement(COMMA)(',')
       PsiWhiteSpace(' ')
@@ -134,7 +134,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('B')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -144,12 +144,12 @@ JetFile: SoftKeywords.kt
       DELEGATED_SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
         PsiWhiteSpace(' ')
         PsiElement(by)('by')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -321,7 +321,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace('\n      ')
         PROPERTY_ACCESSOR
@@ -335,7 +335,7 @@ JetFile: SoftKeywords.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('s')
           PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
@@ -365,7 +365,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('abstract')
       PsiWhiteSpace('\n    ')
       FUN
@@ -381,7 +381,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('open')
       PsiWhiteSpace('\n    ')
       FUN
@@ -397,7 +397,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('enum')
       PsiWhiteSpace('\n    ')
       FUN
@@ -413,7 +413,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('open')
       PsiWhiteSpace('\n    ')
       FUN
@@ -429,7 +429,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('annotation')
       PsiWhiteSpace('\n    ')
       FUN
@@ -445,7 +445,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('override')
       PsiWhiteSpace('\n    ')
       FUN
@@ -461,7 +461,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('open')
       PsiWhiteSpace('\n    ')
       FUN
@@ -477,7 +477,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('abstract')
       PsiWhiteSpace('\n    ')
       FUN
@@ -493,7 +493,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('private')
       PsiWhiteSpace('\n    ')
       FUN
@@ -509,7 +509,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('protected')
       PsiWhiteSpace('\n    ')
       FUN
@@ -525,7 +525,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('public')
       PsiWhiteSpace('\n    ')
       FUN
@@ -541,7 +541,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('internal')
       PsiWhiteSpace('\n    ')
       FUN
@@ -557,7 +557,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('lazy')
       PsiWhiteSpace('\n    ')
       FUN
@@ -573,7 +573,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('wraps')
       PsiWhiteSpace('\n    ')
       FUN
@@ -589,7 +589,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('import')
       PsiWhiteSpace('\n    ')
       FUN
@@ -605,7 +605,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('where')
       PsiWhiteSpace('\n    ')
       FUN
@@ -621,7 +621,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('by')
       PsiWhiteSpace('\n    ')
       FUN
@@ -637,7 +637,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('get')
       PsiWhiteSpace('\n    ')
       FUN
@@ -653,7 +653,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('set')
       PsiWhiteSpace('\n    ')
       FUN
@@ -669,7 +669,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('public')
       PsiWhiteSpace('\n    ')
       FUN
@@ -685,7 +685,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('private')
       PsiWhiteSpace('\n    ')
       FUN
@@ -701,7 +701,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('protected')
       PsiWhiteSpace('\n    ')
       FUN
@@ -717,7 +717,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('internal')
       PsiWhiteSpace('\n    ')
       FUN
@@ -733,7 +733,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('field')
       PsiWhiteSpace('\n    ')
       FUN
@@ -749,7 +749,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('property')
       PsiWhiteSpace('\n    ')
       FUN
@@ -765,7 +765,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('receiver')
       PsiWhiteSpace('\n    ')
       FUN
@@ -781,7 +781,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('param')
       PsiWhiteSpace('\n    ')
       FUN
@@ -797,7 +797,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('setparam')
       PsiWhiteSpace('\n    ')
       FUN
@@ -813,7 +813,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('lateinit')
       PsiWhiteSpace('\n    ')
       FUN
@@ -829,7 +829,7 @@ JetFile: SoftKeywords.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('const')
       PsiWhiteSpace('\n\n    ')
       FUN
@@ -846,7 +846,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -857,7 +857,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -868,7 +868,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -879,7 +879,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -890,7 +890,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -901,7 +901,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -912,7 +912,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -923,7 +923,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -934,7 +934,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -945,7 +945,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -956,7 +956,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -967,7 +967,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -978,7 +978,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -989,7 +989,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1000,7 +1000,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1011,7 +1011,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1022,7 +1022,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1033,7 +1033,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1044,7 +1044,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1055,7 +1055,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1066,7 +1066,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1077,7 +1077,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1088,7 +1088,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1099,7 +1099,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1110,7 +1110,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1121,7 +1121,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1132,7 +1132,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1143,7 +1143,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1154,7 +1154,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n        ')
@@ -1165,7 +1165,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n    ')
@@ -1209,7 +1209,7 @@ JetFile: SoftKeywords.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiWhiteSpace('\n\n     ')
           PsiElement(RPAR)(')')
@@ -1232,7 +1232,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1243,7 +1243,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1254,7 +1254,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1265,7 +1265,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1276,7 +1276,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1287,7 +1287,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1298,7 +1298,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1309,7 +1309,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1320,7 +1320,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1331,7 +1331,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1342,7 +1342,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1353,7 +1353,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1364,7 +1364,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1375,7 +1375,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1386,7 +1386,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1397,7 +1397,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1408,7 +1408,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1419,7 +1419,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1430,7 +1430,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1441,7 +1441,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1452,7 +1452,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1463,7 +1463,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1474,7 +1474,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1485,7 +1485,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1496,7 +1496,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1507,7 +1507,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1518,7 +1518,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1529,7 +1529,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1540,7 +1540,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1551,7 +1551,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -1562,7 +1562,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('t')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n    ')
@@ -1606,7 +1606,7 @@ JetFile: SoftKeywords.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
         PsiWhiteSpace('\n')
         PsiElement(RPAR)(')')

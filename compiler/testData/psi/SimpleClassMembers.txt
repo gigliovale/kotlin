@@ -112,7 +112,7 @@ JetFile: SimpleClassMembers.kt
                   SUPER_TYPE_ENTRY
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Fooo')
                 PsiWhiteSpace(' ')
                 CLASS_BODY
@@ -134,19 +134,19 @@ JetFile: SimpleClassMembers.kt
                   SUPER_TYPE_ENTRY
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Fooo')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   DELEGATED_SUPER_TYPE_ENTRY
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Bar')
                     PsiWhiteSpace(' ')
                     PsiElement(by)('by')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('foo')
                 PsiWhiteSpace(' ')
                 CLASS_BODY
@@ -168,19 +168,19 @@ JetFile: SimpleClassMembers.kt
                   SUPER_TYPE_ENTRY
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Fooo')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   DELEGATED_SUPER_TYPE_ENTRY
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Bar')
                     PsiWhiteSpace(' ')
                     PsiElement(by)('by')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('foo')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
@@ -188,7 +188,7 @@ JetFile: SimpleClassMembers.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('Goo')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -281,7 +281,7 @@ JetFile: SimpleClassMembers.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Fooo')
         PsiWhiteSpace(' ')
         CLASS_BODY
@@ -303,19 +303,19 @@ JetFile: SimpleClassMembers.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Fooo')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           DELEGATED_SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Bar')
             PsiWhiteSpace(' ')
             PsiElement(by)('by')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         CLASS_BODY
@@ -337,19 +337,19 @@ JetFile: SimpleClassMembers.kt
           SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Fooo')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           DELEGATED_SUPER_TYPE_ENTRY
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Bar')
             PsiWhiteSpace(' ')
             PsiElement(by)('by')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -357,7 +357,7 @@ JetFile: SimpleClassMembers.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Goo')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

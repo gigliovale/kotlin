@@ -21,7 +21,7 @@ JetFile: recoveryEmptyDelegationType.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -38,7 +38,7 @@ JetFile: recoveryEmptyDelegationType.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n        ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -82,7 +82,7 @@ JetFile: recoveryEmptyDelegationType.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -115,7 +115,7 @@ JetFile: recoveryEmptyDelegationType.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -132,7 +132,7 @@ JetFile: recoveryEmptyDelegationType.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n        ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE

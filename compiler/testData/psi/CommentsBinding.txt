@@ -5,10 +5,10 @@ JetFile: CommentsBinding.kt
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('foo')
       PsiElement(DOT)('.')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace(' ')
   PsiComment(EOL_COMMENT)('// package directive')
@@ -18,10 +18,10 @@ JetFile: CommentsBinding.kt
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('java')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('util')
       PsiElement(DOT)('.')
       PsiElement(MUL)('*')
@@ -31,7 +31,7 @@ JetFile: CommentsBinding.kt
     IMPORT_DIRECTIVE
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('javax')
       PsiElement(DOT)('.')
       PsiElement(MUL)('*')
@@ -44,20 +44,20 @@ JetFile: CommentsBinding.kt
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
     PsiWhiteSpace('\n')
     IMPORT_DIRECTIVE
       PsiElement(import)('import')
       PsiWhiteSpace(' ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('c')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('d')
   PsiWhiteSpace('\n\n')
   CLASS
@@ -158,7 +158,7 @@ JetFile: CommentsBinding.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
             PsiComment(BLOCK_COMMENT)('/* p1 */')
           PsiElement(COMMA)(',')
@@ -169,7 +169,7 @@ JetFile: CommentsBinding.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
             PsiWhiteSpace(' ')
             PsiComment(BLOCK_COMMENT)('/* p2 */')
@@ -181,22 +181,22 @@ JetFile: CommentsBinding.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('String')
             PsiWhiteSpace(' ')
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
               PsiElement(DOT)('.')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('c')
                   PsiElement(RPAR)(')')
             PsiComment(BLOCK_COMMENT)('/*parameter with default value*/')
@@ -251,7 +251,7 @@ JetFile: CommentsBinding.kt
           PsiComment(EOL_COMMENT)('// before statement')
           PsiWhiteSpace('\n        ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -416,7 +416,7 @@ JetFile: CommentsBinding.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiComment(EOL_COMMENT)('// Int')
@@ -455,7 +455,7 @@ JetFile: CommentsBinding.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PROPERTY_ACCESSOR

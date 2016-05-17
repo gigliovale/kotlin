@@ -24,7 +24,7 @@ JetFile: Graph.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('V')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -53,7 +53,7 @@ JetFile: Graph.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('V')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -66,7 +66,7 @@ JetFile: Graph.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('E')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -79,7 +79,7 @@ JetFile: Graph.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('V')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -111,28 +111,28 @@ JetFile: Graph.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('ArrayList')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Edge')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('V')
                     PsiElement(COMMA)(',')
                     PsiWhiteSpace(' ')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('E')
                     PsiElement(GT)('>')
             PsiElement(GT)('>')
@@ -155,21 +155,21 @@ JetFile: Graph.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('HashSet')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Vertex')
                   TYPE_ARGUMENT_LIST
                     PsiElement(LT)('<')
                     TYPE_PROJECTION
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('V')
                     PsiElement(GT)('>')
             PsiElement(GT)('>')
@@ -186,35 +186,35 @@ JetFile: Graph.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('IList')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Edge')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('V')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('E')
                       PsiElement(GT)('>')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('mutableEdges')
         PsiElement(SEMICOLON)(';')
       PsiWhiteSpace('\n  ')
@@ -227,35 +227,35 @@ JetFile: Graph.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('ISet')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Edge')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('V')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('E')
                       PsiElement(GT)('>')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('mutableVertices')
         PsiElement(SEMICOLON)(';')
       PsiWhiteSpace('\n\n  ')
@@ -272,7 +272,7 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -283,7 +283,7 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('E')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -294,7 +294,7 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -302,32 +302,32 @@ JetFile: Graph.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('mutableEdges')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('add')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Edge')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('from')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('data')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('to')
                       PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -349,7 +349,7 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -357,32 +357,32 @@ JetFile: Graph.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('mutableEdges')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('add')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Edge')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('from')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('data')
                       PsiElement(COMMA)(',')
                       PsiWhiteSpace(' ')
                       VALUE_ARGUMENT
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('to')
                       PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -404,14 +404,14 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Vertex')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('V')
                   PsiElement(GT)('>')
           PsiElement(RPAR)(')')
@@ -420,11 +420,11 @@ JetFile: Graph.kt
         PsiWhiteSpace(' ')
         DOT_QUALIFIED_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('edges')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('filter')
               LAMBDA_ARGUMENT
                 LAMBDA_EXPRESSION
@@ -433,21 +433,21 @@ JetFile: Graph.kt
                     BLOCK
                       BINARY_EXPRESSION
                         DOT_QUALIFIED_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('it')
                           PsiElement(DOT)('.')
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('from')
                         PsiWhiteSpace(' ')
                         OPERATION_REFERENCE
                           PsiElement(EQEQ)('==')
                         PsiWhiteSpace(' ')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('v')
                     PsiElement(RBRACE)('}')
           PsiElement(DOT)('.')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('map')
             LAMBDA_ARGUMENT
               LAMBDA_EXPRESSION
@@ -455,10 +455,10 @@ JetFile: Graph.kt
                   PsiElement(LBRACE)('{')
                   BLOCK
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('it')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('to')
                   PsiElement(RBRACE)('}')
         PsiWhiteSpace(' ')
@@ -482,7 +482,7 @@ JetFile: Graph.kt
                   VALUE_PARAMETER
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('V')
                   PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -490,7 +490,7 @@ JetFile: Graph.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Unit')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -505,21 +505,21 @@ JetFile: Graph.kt
             PsiElement(EQ)('=')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('HashSet')
               TYPE_ARGUMENT_LIST
                 PsiElement(LT)('<')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Vertex')
                       TYPE_ARGUMENT_LIST
                         PsiElement(LT)('<')
                         TYPE_PROJECTION
                           TYPE_REFERENCE
                             USER_TYPE
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('V')
                         PsiElement(GT)('>')
                 PsiElement(GT)('>')
@@ -528,11 +528,11 @@ JetFile: Graph.kt
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('vertices')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foreach')
               LAMBDA_ARGUMENT
                 LAMBDA_EXPRESSION
@@ -540,22 +540,22 @@ JetFile: Graph.kt
                     PsiElement(LBRACE)('{')
                     BLOCK
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('dfs')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('it')
                           PsiElement(COMMA)(',')
                           PsiWhiteSpace(' ')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('visited')
                           PsiElement(COMMA)(',')
                           PsiWhiteSpace(' ')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('handler')
                           PsiElement(RPAR)(')')
                     PsiElement(RBRACE)('}')
@@ -573,14 +573,14 @@ JetFile: Graph.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Vertex')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('V')
                       PsiElement(GT)('>')
               PsiElement(COMMA)(',')
@@ -592,21 +592,21 @@ JetFile: Graph.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('ISet')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('Vertex')
                             TYPE_ARGUMENT_LIST
                               PsiElement(LT)('<')
                               TYPE_PROJECTION
                                 TYPE_REFERENCE
                                   USER_TYPE
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('V')
                               PsiElement(GT)('>')
                       PsiElement(GT)('>')
@@ -624,7 +624,7 @@ JetFile: Graph.kt
                       VALUE_PARAMETER
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('V')
                       PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -632,7 +632,7 @@ JetFile: Graph.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Unit')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -648,16 +648,16 @@ JetFile: Graph.kt
                     OPERATION_REFERENCE
                       PsiElement(EXCL)('!')
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('visited')
                       PsiElement(DOT)('.')
                       CALL_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('add')
                         VALUE_ARGUMENT_LIST
                           PsiElement(LPAR)('(')
                           VALUE_ARGUMENT
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('current')
                           PsiElement(RPAR)(')')
                 PsiElement(RPAR)(')')
@@ -667,28 +667,28 @@ JetFile: Graph.kt
                     PsiElement(return)('return')
               PsiWhiteSpace('\n      ')
               CALL_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('handler')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('current')
                   PsiElement(RPAR)(')')
               PsiWhiteSpace('\n      ')
               DOT_QUALIFIED_EXPRESSION
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('neighbours')
                   VALUE_ARGUMENT_LIST
                     PsiElement(LPAR)('(')
                     VALUE_ARGUMENT
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('current')
                     PsiElement(RPAR)(')')
                 PsiElement(DOT)('.')
                 CALL_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('foreach')
                   LAMBDA_ARGUMENT
                     LAMBDA_EXPRESSION
@@ -696,22 +696,22 @@ JetFile: Graph.kt
                         PsiElement(LBRACE)('{')
                         BLOCK
                           CALL_EXPRESSION
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('dfs')
                             VALUE_ARGUMENT_LIST
                               PsiElement(LPAR)('(')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('it')
                               PsiElement(COMMA)(',')
                               PsiWhiteSpace(' ')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('visited')
                               PsiElement(COMMA)(',')
                               PsiWhiteSpace(' ')
                               VALUE_ARGUMENT
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('handler')
                               PsiElement(RPAR)(')')
                         PsiElement(RBRACE)('}')
@@ -736,21 +736,21 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('IPushPop')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Vertex')
                         TYPE_ARGUMENT_LIST
                           PsiElement(LT)('<')
                           TYPE_PROJECTION
                             TYPE_REFERENCE
                               USER_TYPE
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('V')
                           PsiElement(GT)('>')
                   PsiElement(GT)('>')
@@ -763,21 +763,21 @@ JetFile: Graph.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ISet')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Vertex')
                         TYPE_ARGUMENT_LIST
                           PsiElement(LT)('<')
                           TYPE_PROJECTION
                             TYPE_REFERENCE
                               USER_TYPE
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('V')
                           PsiElement(GT)('>')
                   PsiElement(GT)('>')
@@ -795,7 +795,7 @@ JetFile: Graph.kt
                   VALUE_PARAMETER
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('V')
                   PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -803,7 +803,7 @@ JetFile: Graph.kt
                 PsiWhiteSpace(' ')
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Unit')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -811,11 +811,11 @@ JetFile: Graph.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n    ')
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('vertices')
             PsiElement(DOT)('.')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foreach')
               PsiWhiteSpace(' ')
               LAMBDA_ARGUMENT
@@ -833,16 +833,16 @@ JetFile: Graph.kt
                             OPERATION_REFERENCE
                               PsiElement(EXCL)('!')
                             DOT_QUALIFIED_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('visited')
                               PsiElement(DOT)('.')
                               CALL_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('add')
                                 VALUE_ARGUMENT_LIST
                                   PsiElement(LPAR)('(')
                                   VALUE_ARGUMENT
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('it')
                                   PsiElement(RPAR)(')')
                         PsiElement(RPAR)(')')
@@ -852,16 +852,16 @@ JetFile: Graph.kt
                             PsiElement(continue)('continue')
                       PsiWhiteSpace('\n      ')
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('pending')
                         PsiElement(DOT)('.')
                         CALL_EXPRESSION
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('push')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
                             VALUE_ARGUMENT
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('it')
                             PsiElement(RPAR)(')')
                       PsiWhiteSpace('\n      ')
@@ -874,10 +874,10 @@ JetFile: Graph.kt
                             OPERATION_REFERENCE
                               PsiElement(EXCL)('!')
                             DOT_QUALIFIED_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('pending')
                               PsiElement(DOT)('.')
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('isEmpty')
                         PsiElement(RPAR)(')')
                         PsiWhiteSpace(' ')
@@ -893,40 +893,40 @@ JetFile: Graph.kt
                               PsiElement(EQ)('=')
                               PsiWhiteSpace(' ')
                               DOT_QUALIFIED_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('pending')
                                 PsiElement(DOT)('.')
                                 CALL_EXPRESSION
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('pop')
                                   VALUE_ARGUMENT_LIST
                                     PsiElement(LPAR)('(')
                                     PsiElement(RPAR)(')')
                             PsiWhiteSpace('\n        ')
                             CALL_EXPRESSION
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('handler')
                               VALUE_ARGUMENT_LIST
                                 PsiElement(LPAR)('(')
                                 VALUE_ARGUMENT
-                                  REFERENCE_EXPRESSION
+                                  NAME_REFERENCE_EXPRESSION
                                     PsiElement(IDENTIFIER)('current')
                                 PsiElement(RPAR)(')')
                             PsiElement(SEMICOLON)(';')
                             PsiWhiteSpace('\n        ')
                             DOT_QUALIFIED_EXPRESSION
                               CALL_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('neighbours')
                                 VALUE_ARGUMENT_LIST
                                   PsiElement(LPAR)('(')
                                   VALUE_ARGUMENT
-                                    REFERENCE_EXPRESSION
+                                    NAME_REFERENCE_EXPRESSION
                                       PsiElement(IDENTIFIER)('current')
                                   PsiElement(RPAR)(')')
                               PsiElement(DOT)('.')
                               CALL_EXPRESSION
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('foreach')
                                 PsiWhiteSpace(' ')
                                 LAMBDA_ARGUMENT
@@ -947,16 +947,16 @@ JetFile: Graph.kt
                                           PsiElement(LPAR)('(')
                                           CONDITION
                                             DOT_QUALIFIED_EXPRESSION
-                                              REFERENCE_EXPRESSION
+                                              NAME_REFERENCE_EXPRESSION
                                                 PsiElement(IDENTIFIER)('visited')
                                               PsiElement(DOT)('.')
                                               CALL_EXPRESSION
-                                                REFERENCE_EXPRESSION
+                                                NAME_REFERENCE_EXPRESSION
                                                   PsiElement(IDENTIFIER)('add')
                                                 VALUE_ARGUMENT_LIST
                                                   PsiElement(LPAR)('(')
                                                   VALUE_ARGUMENT
-                                                    REFERENCE_EXPRESSION
+                                                    NAME_REFERENCE_EXPRESSION
                                                       PsiElement(IDENTIFIER)('n')
                                                   PsiElement(RPAR)(')')
                                           PsiElement(RPAR)(')')
@@ -966,16 +966,16 @@ JetFile: Graph.kt
                                               PsiElement(LBRACE)('{')
                                               PsiWhiteSpace('\n            ')
                                               DOT_QUALIFIED_EXPRESSION
-                                                REFERENCE_EXPRESSION
+                                                NAME_REFERENCE_EXPRESSION
                                                   PsiElement(IDENTIFIER)('pending')
                                                 PsiElement(DOT)('.')
                                                 CALL_EXPRESSION
-                                                  REFERENCE_EXPRESSION
+                                                  NAME_REFERENCE_EXPRESSION
                                                     PsiElement(IDENTIFIER)('push')
                                                   VALUE_ARGUMENT_LIST
                                                     PsiElement(LPAR)('(')
                                                     VALUE_ARGUMENT
-                                                      REFERENCE_EXPRESSION
+                                                      NAME_REFERENCE_EXPRESSION
                                                         PsiElement(IDENTIFIER)('n')
                                                     PsiElement(RPAR)(')')
                                               PsiWhiteSpace('\n          ')

@@ -22,10 +22,10 @@ JetFile: fqName.kt
               TYPE_REFERENCE
                 USER_TYPE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('kotlin')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Deprecated')
         PsiWhiteSpace('\n    ')
         PsiElement(val)('val')

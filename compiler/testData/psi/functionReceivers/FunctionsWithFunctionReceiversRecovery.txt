@@ -14,7 +14,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -22,7 +22,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('G')
       PsiElement(RPAR)(')')
     PsiElement(DOT)('.')
@@ -51,7 +51,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -59,7 +59,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('G')
       PsiElement(RPAR)(')')
     PsiElement(DOT)('.')
@@ -83,7 +83,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -91,7 +91,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('G')
       PsiElement(RPAR)(')')
     PsiElement(DOT)('.')
@@ -115,7 +115,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -123,7 +123,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('G')
       PsiElement(RPAR)(')')
     PsiElement(DOT)('.')
@@ -148,7 +148,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
             VALUE_PARAMETER
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
             PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
@@ -156,7 +156,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('G')
         PsiElement(RPAR)(')')
         PsiElement(QUEST)('?')
@@ -183,7 +183,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
               VALUE_PARAMETER
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -191,7 +191,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('G')
           PsiElement(RPAR)(')')
           PsiElement(QUEST)('?')
@@ -221,19 +221,19 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('a')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
               TYPE_ARGUMENT_LIST
                 PsiElement(LT)('<')
                 TYPE_PROJECTION
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('T')
                 PsiElement(GT)('>')
         PsiElement(DOT)('.')
@@ -242,14 +242,14 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('A')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('B')
                   PsiElement(GT)('>')
           PsiElement(COMMA)(',')
@@ -257,21 +257,21 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('C')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('D')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('E')
                   PsiElement(GT)('>')
           PsiElement(RPAR)(')')
@@ -308,19 +308,19 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiElement(RBRACKET)(']')
       PsiWhiteSpace(' ')
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('T')
         TYPE_ARGUMENT_LIST
           PsiElement(LT)('<')
           TYPE_PROJECTION
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(GT)('>')
     PsiElement(DOT)('.')
@@ -331,14 +331,14 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           <empty list>
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('B')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
@@ -362,7 +362,7 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiElement(RBRACKET)(']')
       PsiWhiteSpace(' ')
@@ -375,14 +375,14 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
                 FUNCTION_TYPE_RECEIVER
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('T')
                       TYPE_ARGUMENT_LIST
                         PsiElement(LT)('<')
                         TYPE_PROJECTION
                           TYPE_REFERENCE
                             USER_TYPE
-                              REFERENCE_EXPRESSION
+                              NAME_REFERENCE_EXPRESSION
                                 PsiElement(IDENTIFIER)('T')
                         PsiElement(GT)('>')
                 PsiElement(DOT)('.')
@@ -391,14 +391,14 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
                   VALUE_PARAMETER
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('A')
                         TYPE_ARGUMENT_LIST
                           PsiElement(LT)('<')
                           TYPE_PROJECTION
                             TYPE_REFERENCE
                               USER_TYPE
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('B')
                           PsiElement(GT)('>')
                   PsiElement(RPAR)(')')
@@ -469,13 +469,13 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiElement(ARROW)('->')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('G')
       PsiElement(RPAR)(')')
     PsiElement(DOT)('.')
@@ -575,14 +575,14 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('A')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('String')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
@@ -591,18 +591,18 @@ JetFile: FunctionsWithFunctionReceiversRecovery.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Int')
             PsiElement(GT)('>')
           VALUE_ARGUMENT_LIST

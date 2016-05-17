@@ -14,14 +14,14 @@ JetFile: ParameterNameMising.kt
           <empty list>
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('String')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
@@ -30,7 +30,7 @@ JetFile: ParameterNameMising.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Unit')
     PsiWhiteSpace(' ')
     BLOCK
@@ -45,7 +45,7 @@ JetFile: ParameterNameMising.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -54,7 +54,7 @@ JetFile: ParameterNameMising.kt
           PsiElement(INTEGER_LITERAL)('42')
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE
@@ -76,21 +76,21 @@ JetFile: ParameterNameMising.kt
           <empty list>
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('String')
               PsiElement(GT)('>')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('array')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -105,7 +105,7 @@ JetFile: ParameterNameMising.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Unit')
     PsiWhiteSpace(' ')
     BLOCK
@@ -120,7 +120,7 @@ JetFile: ParameterNameMising.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -129,7 +129,7 @@ JetFile: ParameterNameMising.kt
           PsiElement(INTEGER_LITERAL)('42')
       PsiWhiteSpace('\n    ')
       BINARY_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         PsiWhiteSpace(' ')
         OPERATION_REFERENCE

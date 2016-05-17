@@ -1173,7 +1173,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             }
             else if (stackElement instanceof LoopBlockStackElement) {
                 LoopBlockStackElement loopBlockStackElement = (LoopBlockStackElement) stackElement;
-                KtSimpleNameExpression labelElement = expression.getTargetLabel();
+                KtLabelReferenceExpression labelElement = expression.getTargetLabel();
                 //noinspection ConstantConditions
                 if (labelElement == null ||
                     loopBlockStackElement.targetLabel != null &&
@@ -2811,7 +2811,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         }
     }
 
-    public int indexOfLocalNotDelegated(KtReferenceExpression lhs) {
+    private int indexOfLocalNotDelegated(KtReferenceExpression lhs) {
         DeclarationDescriptor declarationDescriptor = bindingContext.get(REFERENCE_TARGET, lhs);
         if (isVarCapturedInClosure(bindingContext, declarationDescriptor)) {
             return -1;
@@ -3257,7 +3257,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     @Nullable
-    private static KtSimpleNameExpression targetLabel(KtExpression expression) {
+    private static KtLabelReferenceExpression targetLabel(KtExpression expression) {
         if (expression.getParent() instanceof KtLabeledExpression) {
             return ((KtLabeledExpression) expression.getParent()).getTargetLabel();
         }

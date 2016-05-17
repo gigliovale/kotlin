@@ -7,14 +7,14 @@ PsiJetFileStubImpl[package=]
         CONSTRUCTOR_CALLEE:
           TYPE_REFERENCE:
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=a]
+              NAME_REFERENCE_EXPRESSION:[referencedName=a]
     PRIMARY_CONSTRUCTOR:
       MODIFIER_LIST:[private]
         ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
           CONSTRUCTOR_CALLEE:
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
-                REFERENCE_EXPRESSION:[referencedName=a]
+                NAME_REFERENCE_EXPRESSION:[referencedName=a]
       VALUE_PARAMETER_LIST:
         VALUE_PARAMETER:[fqName=null, hasDefaultValue=false, hasValOrVar=false, isMutable=false, name=c1]
           MODIFIER_LIST:[]
@@ -22,24 +22,24 @@ PsiJetFileStubImpl[package=]
               CONSTRUCTOR_CALLEE:
                 TYPE_REFERENCE:
                   USER_TYPE:[isAbsoluteInRootPackage=false]
-                    REFERENCE_EXPRESSION:[referencedName=a]
+                    NAME_REFERENCE_EXPRESSION:[referencedName=a]
           TYPE_REFERENCE:
             USER_TYPE:[isAbsoluteInRootPackage=false]
               USER_TYPE:[isAbsoluteInRootPackage=false]
-                REFERENCE_EXPRESSION:[referencedName=kotlin]
-              REFERENCE_EXPRESSION:[referencedName=Int]
+                NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+              NAME_REFERENCE_EXPRESSION:[referencedName=Int]
         VALUE_PARAMETER:[fqName=null, hasDefaultValue=false, hasValOrVar=false, isMutable=false, name=c2]
           MODIFIER_LIST:[]
             ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
               CONSTRUCTOR_CALLEE:
                 TYPE_REFERENCE:
                   USER_TYPE:[isAbsoluteInRootPackage=false]
-                    REFERENCE_EXPRESSION:[referencedName=a]
+                    NAME_REFERENCE_EXPRESSION:[referencedName=a]
           TYPE_REFERENCE:
             USER_TYPE:[isAbsoluteInRootPackage=false]
               USER_TYPE:[isAbsoluteInRootPackage=false]
-                REFERENCE_EXPRESSION:[referencedName=kotlin]
-              REFERENCE_EXPRESSION:[referencedName=Int]
+                NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+              NAME_REFERENCE_EXPRESSION:[referencedName=Int]
     CLASS_BODY:
       OBJECT_DECLARATION:[fqName=Annotations.Companion, isCompanion=true, isLocal=false, isObjectLiteral=false, isTopLevel=false, name=Companion, superNames=[]]
         MODIFIER_LIST:[private companion]
@@ -51,50 +51,50 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=f]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=f]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=kotlin]
-                REFERENCE_EXPRESSION:[referencedName=Int]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+                NAME_REFERENCE_EXPRESSION:[referencedName=Int]
       PROPERTY:[fqName=Annotations.c, hasDelegate=false, hasDelegateExpression=false, hasInitializer=false, hasReturnTypeRef=true, isExtension=false, isTopLevel=false, isVar=false, name=c]
         MODIFIER_LIST:[private final]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]
       PROPERTY:[fqName=Annotations.c1, hasDelegate=false, hasDelegateExpression=false, hasInitializer=false, hasReturnTypeRef=true, isExtension=false, isTopLevel=false, isVar=false, name=c1]
         MODIFIER_LIST:[private final]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=a]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=a]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]
       PROPERTY:[fqName=Annotations.c2, hasDelegate=false, hasDelegateExpression=false, hasInitializer=false, hasReturnTypeRef=true, isExtension=false, isTopLevel=false, isVar=false, name=c2]
         MODIFIER_LIST:[public final]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=a]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=a]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]
       PROPERTY:[fqName=Annotations.withCustomAccessors, hasDelegate=false, hasDelegateExpression=false, hasInitializer=false, hasReturnTypeRef=true, isExtension=false, isTopLevel=false, isVar=true, name=withCustomAccessors]
         MODIFIER_LIST:[public final]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]
       FUN:[fqName=Annotations.annotationWithVararg, hasBlockBody=true, hasBody=true, hasTypeParameterListBeforeFunctionName=false, isExtension=false, isTopLevel=false, name=annotationWithVararg]
         MODIFIER_LIST:[private final]
         VALUE_PARAMETER_LIST:
@@ -104,37 +104,37 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=kotlin]
-                REFERENCE_EXPRESSION:[referencedName=Int]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+                NAME_REFERENCE_EXPRESSION:[referencedName=Int]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Unit]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Unit]
       FUN:[fqName=Annotations.f, hasBlockBody=true, hasBody=true, hasTypeParameterListBeforeFunctionName=false, isExtension=false, isTopLevel=false, name=f]
         MODIFIER_LIST:[protected final]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=a]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=a]
         VALUE_PARAMETER_LIST:
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Unit]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Unit]
       FUN:[fqName=Annotations.g, hasBlockBody=true, hasBody=true, hasTypeParameterListBeforeFunctionName=false, isExtension=false, isTopLevel=false, name=g]
         MODIFIER_LIST:[public final]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=a]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=a]
         VALUE_PARAMETER_LIST:
           VALUE_PARAMETER:[fqName=null, hasDefaultValue=false, hasValOrVar=false, isMutable=false, name=p1]
             MODIFIER_LIST:[]
@@ -142,15 +142,15 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
-                REFERENCE_EXPRESSION:[referencedName=E]
+                NAME_REFERENCE_EXPRESSION:[referencedName=E]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Unit]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Unit]
       FUN:[fqName=Annotations.inlineFun, hasBlockBody=true, hasBody=true, hasTypeParameterListBeforeFunctionName=true, isExtension=false, isTopLevel=false, name=inlineFun]
         MODIFIER_LIST:[public final inline]
         TYPE_PARAMETER_LIST:
@@ -160,20 +160,20 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
           TYPE_PARAMETER:[fqName=null, isInVariance=false, isOutVariance=false, name=F]
             MODIFIER_LIST:[]
               ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
         VALUE_PARAMETER_LIST:
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Unit]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Unit]
       FUN:[fqName=Annotations.types, hasBlockBody=true, hasBody=true, hasTypeParameterListBeforeFunctionName=false, isExtension=false, isTopLevel=false, name=types]
         MODIFIER_LIST:[public final]
         VALUE_PARAMETER_LIST:
@@ -183,33 +183,33 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
               ANNOTATION_ENTRY:[hasValueArguments=false, shortName=b]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=b]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=b]
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
                   USER_TYPE:[isAbsoluteInRootPackage=false]
-                    REFERENCE_EXPRESSION:[referencedName=kotlin]
-                  REFERENCE_EXPRESSION:[referencedName=ranges]
-                REFERENCE_EXPRESSION:[referencedName=LongRange]
+                    NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=ranges]
+                NAME_REFERENCE_EXPRESSION:[referencedName=LongRange]
         TYPE_REFERENCE:
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=a]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=a]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=b]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=b]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=b]
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Unit]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Unit]
       CLASS:[fqName=Annotations.En, isEnumEntry=false, isInterface=false, isLocal=false, isTopLevel=false, name=En, superNames=[Enum]]
         MODIFIER_LIST:[enum public final]
         PRIMARY_CONSTRUCTOR:
@@ -220,15 +220,15 @@ PsiJetFileStubImpl[package=]
             TYPE_REFERENCE:
               USER_TYPE:[isAbsoluteInRootPackage=false]
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=kotlin]
-                REFERENCE_EXPRESSION:[referencedName=Enum]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+                NAME_REFERENCE_EXPRESSION:[referencedName=Enum]
                 TYPE_ARGUMENT_LIST:
                   TYPE_PROJECTION:[projectionKind=NONE]
                     TYPE_REFERENCE:
                       USER_TYPE:[isAbsoluteInRootPackage=false]
                         USER_TYPE:[isAbsoluteInRootPackage=false]
-                          REFERENCE_EXPRESSION:[referencedName=Annotations]
-                        REFERENCE_EXPRESSION:[referencedName=En]
+                          NAME_REFERENCE_EXPRESSION:[referencedName=Annotations]
+                        NAME_REFERENCE_EXPRESSION:[referencedName=En]
         CLASS_BODY:
           ENUM_ENTRY:[fqName=Annotations.En.Entry1, isEnumEntry=true, isInterface=false, isLocal=false, isTopLevel=false, name=Entry1, superNames=[]]
           ENUM_ENTRY:[fqName=Annotations.En.Entry2, isEnumEntry=true, isInterface=false, isLocal=false, isTopLevel=false, name=Entry2, superNames=[]]
@@ -237,19 +237,19 @@ PsiJetFileStubImpl[package=]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
           ENUM_ENTRY:[fqName=Annotations.En.Entry3, isEnumEntry=true, isInterface=false, isLocal=false, isTopLevel=false, name=Entry3, superNames=[]]
             MODIFIER_LIST:[]
               ANNOTATION_ENTRY:[hasValueArguments=false, shortName=a]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=a]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=a]
               ANNOTATION_ENTRY:[hasValueArguments=false, shortName=c]
                 CONSTRUCTOR_CALLEE:
                   TYPE_REFERENCE:
                     USER_TYPE:[isAbsoluteInRootPackage=false]
-                      REFERENCE_EXPRESSION:[referencedName=c]
+                      NAME_REFERENCE_EXPRESSION:[referencedName=c]
       CLASS:[fqName=Annotations.Nested, isEnumEntry=false, isInterface=false, isLocal=false, isTopLevel=false, name=Nested, superNames=[]]
         MODIFIER_LIST:[public final]
         PRIMARY_CONSTRUCTOR:
@@ -258,6 +258,6 @@ PsiJetFileStubImpl[package=]
               CONSTRUCTOR_CALLEE:
                 TYPE_REFERENCE:
                   USER_TYPE:[isAbsoluteInRootPackage=false]
-                    REFERENCE_EXPRESSION:[referencedName=a]
+                    NAME_REFERENCE_EXPRESSION:[referencedName=a]
           VALUE_PARAMETER_LIST:
         CLASS_BODY:

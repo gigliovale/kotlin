@@ -6,13 +6,13 @@ JetFile: PackageLongNameBetweenDots.kt
       PsiElement(DOT)('.')
     DOT_QUALIFIED_EXPRESSION
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         PsiElement(DOT)('.')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('b')
       PsiElement(DOT)('.')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('c')
     PsiElement(DOT)('.')
     PsiErrorElement:Package name must be a '.'-separated identifier list placed on a single line

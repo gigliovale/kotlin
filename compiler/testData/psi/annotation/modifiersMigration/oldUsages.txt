@@ -10,7 +10,7 @@ JetFile: oldUsages.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('inline')
       PsiWhiteSpace(' ')
       ANNOTATION_ENTRY
@@ -18,7 +18,7 @@ JetFile: oldUsages.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('tailrec')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')
@@ -35,7 +35,7 @@ JetFile: oldUsages.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('inline')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -82,10 +82,10 @@ JetFile: oldUsages.kt
                   TYPE_REFERENCE
                     USER_TYPE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('kotlin')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('data')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')

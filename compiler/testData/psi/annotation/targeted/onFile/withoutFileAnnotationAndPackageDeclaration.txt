@@ -10,7 +10,7 @@ JetFile: withoutFileAnnotationAndPackageDeclaration.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('ann')
     PsiWhiteSpace(' ')
     PsiElement(fun)('fun')
@@ -24,7 +24,7 @@ JetFile: withoutFileAnnotationAndPackageDeclaration.kt
     TYPE_REFERENCE
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('String')
         PsiElement(QUEST)('?')
     PsiWhiteSpace(' ')

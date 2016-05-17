@@ -36,7 +36,7 @@ JetFile: valid.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -47,7 +47,7 @@ JetFile: valid.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Base1')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -57,7 +57,7 @@ JetFile: valid.kt
       SUPER_TYPE_ENTRY
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Base2')
     PsiWhiteSpace(' ')
     CLASS_BODY
@@ -71,7 +71,7 @@ JetFile: valid.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')
@@ -88,7 +88,7 @@ JetFile: valid.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('private')
       PsiWhiteSpace(' ')
       PsiElement(constructor)('constructor')
@@ -100,7 +100,7 @@ JetFile: valid.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -116,7 +116,7 @@ JetFile: valid.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -136,7 +136,7 @@ JetFile: valid.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -154,7 +154,7 @@ JetFile: valid.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -172,7 +172,7 @@ JetFile: valid.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -188,7 +188,7 @@ JetFile: valid.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
         PsiWhiteSpace(' ')
         PsiElement(private)('private')
@@ -214,7 +214,7 @@ JetFile: valid.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')

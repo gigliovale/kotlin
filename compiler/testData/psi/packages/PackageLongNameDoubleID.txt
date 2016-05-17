@@ -2,7 +2,7 @@ JetFile: PackageLongNameDoubleID.kt
   PACKAGE_DIRECTIVE
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('a')
   IMPORT_LIST
     <empty list>

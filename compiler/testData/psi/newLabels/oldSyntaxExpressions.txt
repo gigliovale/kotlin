@@ -20,7 +20,7 @@ JetFile: oldSyntaxExpressions.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('loop1')
         PsiWhiteSpace(' ')
         FOR
@@ -49,11 +49,11 @@ JetFile: oldSyntaxExpressions.kt
               PsiElement(RBRACE)('}')
       PsiWhiteSpace('\n\n    ')
       DOT_QUALIFIED_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x2')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('filter')
           PsiWhiteSpace(' ')
           LAMBDA_ARGUMENT
@@ -63,7 +63,7 @@ JetFile: oldSyntaxExpressions.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('f')
               PsiWhiteSpace(' ')
               LAMBDA_EXPRESSION
@@ -90,7 +90,7 @@ JetFile: oldSyntaxExpressions.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('f')
             PsiWhiteSpace(' ')
             INTEGER_CONSTANT

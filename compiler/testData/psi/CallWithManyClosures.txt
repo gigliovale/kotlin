@@ -11,7 +11,7 @@ JetFile: CallWithManyClosures.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('f')
       VALUE_ARGUMENT_LIST
         PsiElement(LPAR)('(')
@@ -49,7 +49,7 @@ JetFile: CallWithManyClosures.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('f')
       PsiWhiteSpace(' ')
       LAMBDA_ARGUMENT
@@ -84,7 +84,7 @@ JetFile: CallWithManyClosures.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('f')
       PsiWhiteSpace(' ')
       LAMBDA_ARGUMENT
@@ -103,7 +103,7 @@ JetFile: CallWithManyClosures.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('f')
       VALUE_ARGUMENT_LIST
         PsiElement(LPAR)('(')
@@ -127,7 +127,7 @@ JetFile: CallWithManyClosures.kt
     CALL_EXPRESSION
       PARENTHESIZED
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('f')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -165,7 +165,7 @@ JetFile: CallWithManyClosures.kt
     CALL_EXPRESSION
       PARENTHESIZED
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('f')
         PsiElement(RPAR)(')')
       VALUE_ARGUMENT_LIST
@@ -206,7 +206,7 @@ JetFile: CallWithManyClosures.kt
     CALL_EXPRESSION
       PARENTHESIZED
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('f')
         PsiElement(RPAR)(')')
       TYPE_ARGUMENT_LIST
@@ -214,7 +214,7 @@ JetFile: CallWithManyClosures.kt
         TYPE_PROJECTION
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('A')
         PsiElement(GT)('>')
       VALUE_ARGUMENT_LIST

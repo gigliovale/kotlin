@@ -89,18 +89,14 @@ class DeprecatedSymbolValidator : SymbolUsageValidator {
         if (binaryExpression != null) {
             val left = binaryExpression.left
             if (left == expression) {
-                val operation = binaryExpression.operationToken
-                if (operation != null && operation in PROPERTY_SET_OPERATIONS)
-                    return
+                if (binaryExpression.operationToken in PROPERTY_SET_OPERATIONS) return
             }
 
-            val jetReferenceExpressions = PsiTreeUtil.getChildrenOfType<KtReferenceExpression>(left, KtReferenceExpression::class.java)
-            if (jetReferenceExpressions != null) {
-                for (expr in jetReferenceExpressions) {
+            val referenceElements = PsiTreeUtil.getChildrenOfType<KtReferenceElement>(left, KtReferenceElement::class.java)
+            if (referenceElements != null) {
+                for (expr in referenceElements) {
                     if (expr == expression) {
-                        val operation = binaryExpression.operationToken
-                        if (operation != null && operation in PROPERTY_SET_OPERATIONS)
-                            return // skip binary set operations
+                        if (binaryExpression.operationToken in PROPERTY_SET_OPERATIONS) return // skip binary set operations
                     }
                 }
             }
@@ -109,7 +105,7 @@ class DeprecatedSymbolValidator : SymbolUsageValidator {
         val unaryExpression = PsiTreeUtil.getParentOfType(expression, KtUnaryExpression::class.java)
         if (unaryExpression != null) {
             val operation = unaryExpression.operationReference.getReferencedNameElementType()
-            if (operation != null && operation in PROPERTY_SET_OPERATIONS)
+            if (operation in PROPERTY_SET_OPERATIONS)
                 return // skip unary set operations
 
         }

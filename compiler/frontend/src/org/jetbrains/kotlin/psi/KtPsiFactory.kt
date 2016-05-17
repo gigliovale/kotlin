@@ -246,8 +246,8 @@ class KtPsiFactory(private val project: Project) {
         return createProperty(name, null, false).getNameIdentifier()!!
     }
 
-    fun createSimpleName(name: String): KtSimpleNameExpression {
-        return createProperty(name, null, false, name).getInitializer() as KtSimpleNameExpression
+    fun createSimpleName(name: String): KtNameReferenceExpression {
+        return createProperty(name, null, false, name).initializer as KtNameReferenceExpression
     }
 
     fun createOperationName(name: String): KtSimpleNameExpression {

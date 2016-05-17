@@ -23,21 +23,21 @@ JetFile: manyInOneAnnotationBlock.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('first')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('second')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('third')
             PsiElement(RBRACKET)(']')
         PsiWhiteSpace('\n    ')

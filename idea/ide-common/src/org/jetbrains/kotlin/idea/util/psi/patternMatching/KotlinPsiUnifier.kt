@@ -831,7 +831,7 @@ class KotlinPsiUnifier(
             if (targetElementUnwrapped == null || patternElementUnwrapped == null) return UNMATCHED
 
             if (!checkEquivalence && targetElementUnwrapped !is KtBlockExpression) {
-                val referencedPatternDescriptor = (patternElementUnwrapped as? KtReferenceExpression)?.let {
+                val referencedPatternDescriptor = (patternElementUnwrapped as? KtReferenceElement)?.let {
                     it.bindingContext[BindingContext.REFERENCE_TARGET, it]
                 }
                 val referencedPatternDeclaration = (referencedPatternDescriptor as? DeclarationDescriptorWithSource)?.source?.getPsi()

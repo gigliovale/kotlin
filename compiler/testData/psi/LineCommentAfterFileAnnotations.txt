@@ -10,7 +10,7 @@ JetFile: LineCommentAfterFileAnnotations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Volatile')
       PsiElement(RBRACKET)(']')
   PACKAGE_DIRECTIVE

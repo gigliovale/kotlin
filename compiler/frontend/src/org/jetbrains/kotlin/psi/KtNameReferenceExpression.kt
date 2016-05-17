@@ -31,7 +31,7 @@ class KtNameReferenceExpression : KtExpressionImplStub<KotlinNameReferenceExpres
     constructor(node: ASTNode) : super(node) {
     }
 
-    constructor(stub: KotlinNameReferenceExpressionStub) : super(stub, KtStubElementTypes.REFERENCE_EXPRESSION) {
+    constructor(stub: KotlinNameReferenceExpressionStub) : super(stub, KtStubElementTypes.NAME_REFERENCE_EXPRESSION) {
     }
 
     override fun getReferencedName(): String {

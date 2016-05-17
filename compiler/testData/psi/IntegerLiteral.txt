@@ -11,14 +11,14 @@ JetFile: IntegerLiteral.kt
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('array')
       TYPE_ARGUMENT_LIST
         PsiElement(LT)('<')
         TYPE_PROJECTION
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Any')
         PsiElement(GT)('>')
       VALUE_ARGUMENT_LIST

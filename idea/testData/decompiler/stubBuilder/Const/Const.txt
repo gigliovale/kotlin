@@ -1,6 +1,6 @@
 PsiJetFileStubImpl[package=test]
   PACKAGE_DIRECTIVE:
-    REFERENCE_EXPRESSION:[referencedName=test]
+    NAME_REFERENCE_EXPRESSION:[referencedName=test]
   IMPORT_LIST:
   OBJECT_DECLARATION:[fqName=test.Const, isCompanion=false, isLocal=false, isObjectLiteral=false, isTopLevel=true, name=Const, superNames=[]]
     MODIFIER_LIST:[public]
@@ -10,5 +10,5 @@ PsiJetFileStubImpl[package=test]
         TYPE_REFERENCE:
           USER_TYPE:[isAbsoluteInRootPackage=false]
             USER_TYPE:[isAbsoluteInRootPackage=false]
-              REFERENCE_EXPRESSION:[referencedName=kotlin]
-            REFERENCE_EXPRESSION:[referencedName=Int]
+              NAME_REFERENCE_EXPRESSION:[referencedName=kotlin]
+            NAME_REFERENCE_EXPRESSION:[referencedName=Int]

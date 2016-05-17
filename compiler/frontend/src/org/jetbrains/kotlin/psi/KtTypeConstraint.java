@@ -38,7 +38,7 @@ public class KtTypeConstraint extends KtElementImplStub<KotlinPlaceHolderStub<Kt
 
     @Nullable @IfNotParsed
     public KtSimpleNameExpression getSubjectTypeParameterName() {
-        return getStubOrPsiChild(KtStubElementTypes.REFERENCE_EXPRESSION);
+        return getStubOrPsiChild(KtStubElementTypes.NAME_REFERENCE_EXPRESSION);
     }
 
     @Nullable @IfNotParsed

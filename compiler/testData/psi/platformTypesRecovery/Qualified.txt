@@ -17,10 +17,10 @@ JetFile: Qualified.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('qualified')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Type')
             PsiErrorElement:Unexpected token
               PsiElement(EXCL)('!')
@@ -33,10 +33,10 @@ JetFile: Qualified.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('qualified')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -44,10 +44,10 @@ JetFile: Qualified.kt
                 TYPE_REFERENCE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('qualified')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Type')
                     PsiErrorElement:Unexpected token
                       PsiElement(EXCL)('!')
@@ -57,10 +57,10 @@ JetFile: Qualified.kt
                 TYPE_REFERENCE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('qualified')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Type')
                     PsiErrorElement:Unexpected token
                       PsiElement(EXCL)('!')
@@ -74,10 +74,10 @@ JetFile: Qualified.kt
         TYPE_REFERENCE
           USER_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('qualified')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -85,10 +85,10 @@ JetFile: Qualified.kt
                 TYPE_REFERENCE
                   USER_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('qualified')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Type')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token

@@ -9,16 +9,16 @@ PsiJetFileStubImpl[package=]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=Deprecated]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=Deprecated]
         ANNOTATION:
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=Override]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=Override]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=Override]
           ANNOTATION_ENTRY:[hasValueArguments=false, shortName=Deprecated]
             CONSTRUCTOR_CALLEE:
               TYPE_REFERENCE:
                 USER_TYPE:[isAbsoluteInRootPackage=false]
-                  REFERENCE_EXPRESSION:[referencedName=Deprecated]
+                  NAME_REFERENCE_EXPRESSION:[referencedName=Deprecated]
       VALUE_PARAMETER_LIST:

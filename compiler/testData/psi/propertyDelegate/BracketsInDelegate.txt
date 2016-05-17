@@ -12,7 +12,7 @@ JetFile: BracketsInDelegate.kt
       PsiElement(by)('by')
       PsiWhiteSpace(' ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('A')
         PsiWhiteSpace(' ')
         LAMBDA_ARGUMENT

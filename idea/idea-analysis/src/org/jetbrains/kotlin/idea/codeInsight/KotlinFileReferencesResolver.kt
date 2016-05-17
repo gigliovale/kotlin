@@ -26,7 +26,7 @@ object KotlinFileReferencesResolver {
             element: KtElement,
             resolveQualifiers: Boolean = true,
             resolveShortNames: Boolean = true
-    ): Map<KtReferenceExpression, BindingContext> {
+    ): Map<KtReferenceElement, BindingContext> {
         return (element.containingFile as? KtFile)?.let { file ->
             resolve(file, listOf(element), resolveQualifiers, resolveShortNames)
         } ?: Collections.emptyMap()
@@ -37,7 +37,7 @@ object KotlinFileReferencesResolver {
             elements: Iterable<KtElement>? = null,
             resolveQualifiers: Boolean = true,
             resolveShortNames: Boolean = true
-    ): Map<KtReferenceExpression, BindingContext> {
+    ): Map<KtReferenceElement, BindingContext> {
         val visitor = ResolveAllReferencesVisitor(file, resolveQualifiers, resolveShortNames)
         if (elements != null) {
             elements.forEach { it.accept(visitor) }
@@ -50,9 +50,9 @@ object KotlinFileReferencesResolver {
 
     private class ResolveAllReferencesVisitor(file: KtFile, val resolveQualifiers: Boolean, val resolveShortNames: Boolean) : KtTreeVisitorVoid() {
         private val resolutionFacade = file.getResolutionFacade()
-        private val resolveMap = LinkedHashMap<KtReferenceExpression, BindingContext>()
+        private val resolveMap = LinkedHashMap<KtReferenceElement, BindingContext>()
 
-        val result: Map<KtReferenceExpression, BindingContext> = resolveMap
+        val result: Map<KtReferenceElement, BindingContext> = resolveMap
 
         override fun visitUserType(userType: KtUserType) {
             if (resolveQualifiers) {
@@ -88,5 +88,5 @@ object KotlinFileReferencesResolver {
     }
 }
 
-fun KtExpression.referenceExpression(): KtReferenceExpression? =
+private fun KtExpression.referenceExpression(): KtReferenceExpression? =
         (if (this is KtCallExpression) calleeExpression else this) as? KtReferenceExpression

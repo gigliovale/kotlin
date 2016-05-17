@@ -37,7 +37,7 @@ JetFile: When.kt
               WHEN
                 PsiElement(when)('when')
                 PsiElement(LPAR)('(')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('x')
                 PsiElement(RPAR)(')')
                 PsiWhiteSpace(' ')
@@ -49,12 +49,12 @@ JetFile: When.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiWhiteSpace(' ')
                   PsiElement(ARROW)('->')
                   PsiWhiteSpace(' ')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
                 PsiWhiteSpace(' ')
                 PsiElement(RBRACE)('}')
@@ -91,7 +91,7 @@ JetFile: When.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -103,7 +103,7 @@ JetFile: When.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -115,12 +115,12 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n  ')
         PsiElement(RBRACE)('}')
@@ -129,7 +129,7 @@ JetFile: When.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -141,27 +141,27 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Tree')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('b')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -171,7 +171,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -181,21 +181,21 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
           WHEN_CONDITION_WITH_EXPRESSION
             DOT_QUALIFIED_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('A')
               PsiElement(DOT)('.')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -205,7 +205,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -215,7 +215,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -228,7 +228,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -241,7 +241,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n  ')
         PsiElement(RBRACE)('}')
@@ -257,7 +257,7 @@ JetFile: When.kt
             PsiElement(when)('when')
             PsiWhiteSpace(' ')
             PsiElement(LPAR)('(')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('e')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -299,7 +299,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -311,12 +311,12 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Tree')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -326,30 +326,30 @@ JetFile: When.kt
             TYPE_REFERENCE
               USER_TYPE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('b')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -361,30 +361,30 @@ JetFile: When.kt
                 USER_TYPE
                   PsiElement(package)('package')
                   PsiElement(DOT)('.')
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
                 PsiElement(DOT)('.')
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('b')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -402,7 +402,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('dsf')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -415,7 +415,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('sd')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -424,25 +424,25 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('d')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
           WHEN_CONDITION_WITH_EXPRESSION
             PARENTHESIZED
               PsiElement(LPAR)('(')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
               PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Bar')
         PsiWhiteSpace(' ')
         WHEN_ENTRY
@@ -451,7 +451,7 @@ JetFile: When.kt
               <empty list>
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('fgpp')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -460,21 +460,21 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Pair')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Int')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
@@ -488,7 +488,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace('\n  ')
         PsiElement(RBRACE)('}')
@@ -517,7 +517,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           PsiElement(EQ)('=')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('e')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -529,7 +529,7 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Tree')
           PsiElement(COMMA)(',')
           PsiWhiteSpace('\n    ')
@@ -538,27 +538,27 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('b')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n    ')
         WHEN_ENTRY
@@ -569,7 +569,7 @@ JetFile: When.kt
           PsiWhiteSpace(' ')
           WHEN_CONDITION_WITH_EXPRESSION
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -577,7 +577,7 @@ JetFile: When.kt
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           WHEN_CONDITION_WITH_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('bar')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -598,27 +598,27 @@ JetFile: When.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('a')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   TYPE_PROJECTION
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('b')
                   PsiElement(GT)('>')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('c')
         PsiWhiteSpace('\n  ')
         PsiElement(RBRACE)('}')
@@ -638,7 +638,7 @@ JetFile: When.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -676,7 +676,7 @@ JetFile: When.kt
         WHEN_ENTRY
           WHEN_CONDITION_WITH_EXPRESSION
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('i')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -696,25 +696,25 @@ JetFile: When.kt
         WHEN_ENTRY
           WHEN_CONDITION_WITH_EXPRESSION
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('j')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
                 PsiElement(LT)('<')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('i')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
           WHEN_CONDITION_WITH_EXPRESSION
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('j')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
                 PsiElement(EQEQ)('==')
               PsiWhiteSpace(' ')
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('i')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
@@ -728,7 +728,7 @@ JetFile: When.kt
         WHEN_ENTRY
           WHEN_CONDITION_WITH_EXPRESSION
             IS_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('i')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -736,7 +736,7 @@ JetFile: When.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Int')
           PsiWhiteSpace(' ')
           PsiElement(ARROW)('->')
@@ -769,7 +769,7 @@ JetFile: When.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -780,7 +780,7 @@ JetFile: When.kt
         PsiElement(when)('when')
         PsiWhiteSpace(' ')
         PsiElement(LPAR)('(')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')

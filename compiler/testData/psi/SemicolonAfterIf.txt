@@ -15,14 +15,14 @@ JetFile: SemicolonAfterIf.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiElement(RPAR)(')')
     PsiElement(COLON)(':')
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     BLOCK
@@ -35,7 +35,7 @@ JetFile: SemicolonAfterIf.kt
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
       PsiElement(SEMICOLON)(';')
       PsiWhiteSpace(' ')
@@ -47,7 +47,7 @@ JetFile: SemicolonAfterIf.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         POSTFIX_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('x')
           OPERATION_REFERENCE
             PsiElement(PLUSPLUS)('++')
@@ -60,7 +60,7 @@ JetFile: SemicolonAfterIf.kt
         CONDITION
           BINARY_EXPRESSION
             BINARY_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('y')
               OPERATION_REFERENCE
                 PsiElement(PLUS)('+')
@@ -70,7 +70,7 @@ JetFile: SemicolonAfterIf.kt
             OPERATION_REFERENCE
               PsiElement(EXCLEQ)('!=')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -88,7 +88,7 @@ JetFile: SemicolonAfterIf.kt
       RETURN
         PsiElement(return)('return')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('x')
       PsiElement(SEMICOLON)(';')
       PsiWhiteSpace(' ')

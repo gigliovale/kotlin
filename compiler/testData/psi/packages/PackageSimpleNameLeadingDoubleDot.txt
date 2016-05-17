@@ -7,7 +7,7 @@ JetFile: PackageSimpleNameLeadingDoubleDot.kt
     PsiWhiteSpace(' ')
     PsiErrorElement:Package name must be a '.'-separated identifier list
       PsiElement(DOT)('.')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('a')
   IMPORT_LIST
     <empty list>

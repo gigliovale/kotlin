@@ -24,7 +24,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT_LIST
@@ -57,7 +57,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann')
         PsiWhiteSpace('\n    ')
         PsiElement(fun)('fun')
@@ -95,7 +95,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
         PsiErrorElement:Expecting 'constructor' keyword
           <empty list>
@@ -136,7 +136,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -180,7 +180,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -195,7 +195,7 @@ JetFile: recoveryNestedClassAmbiguity.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Base')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

@@ -300,9 +300,9 @@ public class DelegatedPropertyResolver {
         arguments.add(createExpressionForProperty(psiFactory));
 
         if (!isGet) {
-            KtReferenceExpression fakeArgument = (KtReferenceExpression) createFakeExpressionOfType(delegateExpression.getProject(), trace,
-                                                                                                      "fakeArgument" + arguments.size(),
-                                                                                                    propertyDescriptor.getType());
+            KtNameReferenceExpression fakeArgument = createFakeExpressionOfType(delegateExpression.getProject(), trace,
+                                                                                "fakeArgument" + arguments.size(),
+                                                                                propertyDescriptor.getType());
             arguments.add(fakeArgument);
             List<ValueParameterDescriptor> valueParameters = accessor.getValueParameters();
             trace.record(REFERENCE_TARGET, fakeArgument, valueParameters.get(0));

@@ -17,7 +17,7 @@ JetFile: WrongWordInParentheses.kt
         TYPE_REFERENCE
           PsiElement(LPAR)('(')
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
           PsiElement(RPAR)(')')
       PsiErrorElement:Expecting comma or ')'
@@ -25,14 +25,14 @@ JetFile: WrongWordInParentheses.kt
       VALUE_PARAMETER
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('List')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
               TYPE_PROJECTION
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Bar')
               PsiElement(GT)('>')
             PsiErrorElement:Unexpected token
@@ -45,7 +45,7 @@ JetFile: WrongWordInParentheses.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -53,7 +53,7 @@ JetFile: WrongWordInParentheses.kt
                 TYPE_REFERENCE
                   PsiElement(LPAR)('(')
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('foo')
                   PsiElement(RPAR)(')')
               PsiErrorElement:Expecting a '>'

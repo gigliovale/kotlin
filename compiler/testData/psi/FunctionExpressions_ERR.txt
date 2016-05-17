@@ -52,12 +52,12 @@ JetFile: FunctionExpressions_ERR.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       PsiElement(IDENTIFIER)('foo')
@@ -77,7 +77,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n\n')
   PROPERTY
@@ -98,7 +98,7 @@ JetFile: FunctionExpressions_ERR.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -106,7 +106,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       PsiElement(IDENTIFIER)('foo')
@@ -124,7 +124,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -132,7 +132,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -153,7 +153,7 @@ JetFile: FunctionExpressions_ERR.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -161,7 +161,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       TYPE_PARAMETER_LIST
@@ -178,7 +178,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -186,7 +186,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n\n')
   PROPERTY
@@ -201,7 +201,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       PsiElement(IDENTIFIER)('foo')
@@ -226,7 +226,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -234,7 +234,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -249,7 +249,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       PsiElement(IDENTIFIER)('foo')
@@ -277,7 +277,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -285,7 +285,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n')
   PROPERTY
@@ -300,7 +300,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('T')
       PsiElement(DOT)('.')
       PsiElement(IDENTIFIER)('foo')
@@ -325,7 +325,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('foo')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -338,7 +338,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
         PsiElement(RPAR)(')')
       PsiWhiteSpace(' ')
@@ -346,7 +346,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace(' ')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
   PsiWhiteSpace('\n\n')
   PROPERTY
@@ -371,7 +371,7 @@ JetFile: FunctionExpressions_ERR.kt
           <empty list>
       PsiElement(EQ)('=')
       PsiWhiteSpace(' ')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('a')
       PsiElement(SEMICOLON)(';')
   PsiWhiteSpace('\n\n')
@@ -382,7 +382,7 @@ JetFile: FunctionExpressions_ERR.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('public')
     PsiWhiteSpace(' ')
     PsiErrorElement:Property getter or setter expected
@@ -398,7 +398,7 @@ JetFile: FunctionExpressions_ERR.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('open')
     PsiWhiteSpace(' ')
     PsiErrorElement:Property getter or setter expected
@@ -414,7 +414,7 @@ JetFile: FunctionExpressions_ERR.kt
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('final')
     PsiWhiteSpace(' ')
     PsiErrorElement:Property getter or setter expected
@@ -442,13 +442,13 @@ JetFile: FunctionExpressions_ERR.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
   PsiWhiteSpace('\n')
   FUN
@@ -473,13 +473,13 @@ JetFile: FunctionExpressions_ERR.kt
         PsiWhiteSpace(' ')
         TYPE_CONSTRAINT_LIST
           TYPE_CONSTRAINT
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
             PsiElement(COLON)(':')
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('V')
   PsiWhiteSpace('\n\n')
   FUN
@@ -494,7 +494,7 @@ JetFile: FunctionExpressions_ERR.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -507,7 +507,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -521,7 +521,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -531,7 +531,7 @@ JetFile: FunctionExpressions_ERR.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
               PsiElement(DOT)('.')
               PsiErrorElement:Expecting '('
@@ -539,7 +539,7 @@ JetFile: FunctionExpressions_ERR.kt
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -555,7 +555,7 @@ JetFile: FunctionExpressions_ERR.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('a')
                   PsiElement(RBRACKET)(']')
               PsiErrorElement:Expecting '('
@@ -564,12 +564,12 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace('\n\n\n    ')
       CALL_EXPRESSION
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('public')
             PsiWhiteSpace(' ')
             PsiErrorElement:Expecting ')'
@@ -583,12 +583,12 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('open')
             PsiWhiteSpace(' ')
             PsiErrorElement:Expecting ')'
@@ -602,12 +602,12 @@ JetFile: FunctionExpressions_ERR.kt
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('bar')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('final')
             PsiWhiteSpace(' ')
             PsiErrorElement:Expecting ')'
@@ -620,7 +620,7 @@ JetFile: FunctionExpressions_ERR.kt
         PsiElement(RPAR)(')')
       PsiWhiteSpace('\n\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -637,13 +637,13 @@ JetFile: FunctionExpressions_ERR.kt
                 PsiWhiteSpace(' ')
                 TYPE_CONSTRAINT_LIST
                   TYPE_CONSTRAINT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('T')
                     PsiElement(COLON)(':')
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('V')
           PsiElement(RPAR)(')')
       PsiWhiteSpace('\n')

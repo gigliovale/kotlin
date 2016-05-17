@@ -29,13 +29,13 @@ JetFile: functionLiterals.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Any')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
-    REFERENCE_EXPRESSION
+    NAME_REFERENCE_EXPRESSION
       PsiElement(IDENTIFIER)('a')
   PsiWhiteSpace('\n\n')
   FUN
@@ -50,7 +50,7 @@ JetFile: functionLiterals.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('a')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -102,7 +102,7 @@ JetFile: functionLiterals.kt
               FUNCTION_LITERAL
                 PsiElement(LBRACE)('{')
                 BLOCK
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('x')
                 PsiElement(RBRACE)('}')
           PsiWhiteSpace('\n')
@@ -185,7 +185,7 @@ JetFile: functionLiterals.kt
                 BLOCK
                   PARENTHESIZED
                     PsiElement(LPAR)('(')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('x')
                     PsiElement(RPAR)(')')
                 PsiElement(RBRACE)('}')

@@ -21,7 +21,7 @@ JetFile: delegate.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Transient')
         PsiWhiteSpace('\n    ')
         PsiElement(val)('val')
@@ -31,7 +31,7 @@ JetFile: delegate.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -49,7 +49,7 @@ JetFile: delegate.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Transient')
         PsiWhiteSpace('\n    ')
         PsiElement(val)('val')
@@ -60,7 +60,7 @@ JetFile: delegate.kt
           PsiElement(by)('by')
           PsiWhiteSpace(' ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('lazy')
             PsiWhiteSpace(' ')
             LAMBDA_ARGUMENT

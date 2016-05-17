@@ -32,7 +32,7 @@ JetFile: basic.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n\n    ')
       SECONDARY_CONSTRUCTOR
@@ -44,7 +44,7 @@ JetFile: basic.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('annot')
         PsiWhiteSpace(' ')
         PsiElement(constructor)('constructor')
@@ -56,7 +56,7 @@ JetFile: basic.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         CONSTRUCTOR_DELEGATION_CALL
@@ -74,7 +74,7 @@ JetFile: basic.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('constructor')
         PsiWhiteSpace(' ')
         PsiElement(fun)('fun')
@@ -95,7 +95,7 @@ JetFile: basic.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('annot')
           PsiWhiteSpace(' ')
           PsiElement(protected)('protected')
@@ -109,7 +109,7 @@ JetFile: basic.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -119,7 +119,7 @@ JetFile: basic.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -152,7 +152,7 @@ JetFile: basic.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('constructor')
             PsiElement(RBRACKET)(']')
           PsiWhiteSpace(' ')
@@ -176,7 +176,7 @@ JetFile: basic.kt
           PsiElement(LBRACE)('{')
           PsiWhiteSpace('\n        ')
           BINARY_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('x')
             PsiWhiteSpace(' ')
             OPERATION_REFERENCE
@@ -196,7 +196,7 @@ JetFile: basic.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('constructor')
     PsiWhiteSpace(' ')
     PsiElement(class)('class')

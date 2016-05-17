@@ -392,7 +392,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
             expression.done(CLASS_LITERAL_EXPRESSION);
         }
         else {
-            parseSimpleNameExpression();
+            parseNameReferenceExpression();
 
             if (at(LT)) {
                 PsiBuilder.Marker typeArgumentList = mark();
@@ -674,7 +674,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
             parseLocalDeclaration();
         }
         else if (at(IDENTIFIER)) {
-            parseSimpleNameExpression();
+            parseNameReferenceExpression();
         }
         else if (at(LBRACE)) {
             parseFunctionLiteral();
@@ -750,7 +750,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
                 PsiBuilder.Marker thisExpression = mark();
                 PsiBuilder.Marker reference = mark();
                 advance(); // THIS_KEYWORD
-                reference.done(REFERENCE_EXPRESSION);
+                reference.done(NAME_REFERENCE_EXPRESSION);
                 thisExpression.done(THIS_EXPRESSION);
             }
             else {
@@ -762,7 +762,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
                 else {
                     PsiBuilder.Marker reference = mark();
                     expect(IDENTIFIER, "Expecting a name");
-                    reference.done(REFERENCE_EXPRESSION);
+                    reference.done(NAME_REFERENCE_EXPRESSION);
                 }
             }
 
@@ -1008,10 +1008,10 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
     /*
      * SimpleName
      */
-    public void parseSimpleNameExpression() {
+    public void parseNameReferenceExpression() {
         PsiBuilder.Marker simpleName = mark();
         expect(IDENTIFIER, "Expecting an identifier");
-        simpleName.done(REFERENCE_EXPRESSION);
+        simpleName.done(NAME_REFERENCE_EXPRESSION);
     }
 
     /*
@@ -1665,7 +1665,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
         PsiBuilder.Marker thisReference = mark();
         advance(); // THIS_KEYWORD
-        thisReference.done(REFERENCE_EXPRESSION);
+        thisReference.done(NAME_REFERENCE_EXPRESSION);
 
         parseLabelReferenceWithNoWhitespace();
 
@@ -1681,7 +1681,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
         PsiBuilder.Marker superReference = mark();
         advance(); // SUPER_KEYWORD
-        superReference.done(REFERENCE_EXPRESSION);
+        superReference.done(NAME_REFERENCE_EXPRESSION);
 
         if (at(LT)) {
             // This may be "super < foo" or "super<foo>", thus the backtracking
@@ -1750,7 +1750,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
             PsiBuilder.Marker argName = mark();
             PsiBuilder.Marker reference = mark();
             advance(); // IDENTIFIER
-            reference.done(REFERENCE_EXPRESSION);
+            reference.done(NAME_REFERENCE_EXPRESSION);
             argName.done(VALUE_ARGUMENT_NAME);
             advance(); // EQ
         }

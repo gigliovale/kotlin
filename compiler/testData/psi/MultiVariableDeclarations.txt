@@ -37,7 +37,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -73,7 +73,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -83,7 +83,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -102,7 +102,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -129,7 +129,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -161,7 +161,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -197,7 +197,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -207,7 +207,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -226,7 +226,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace(' ')
@@ -253,7 +253,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -323,7 +323,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -347,7 +347,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiErrorElement:Expecting a name
@@ -414,7 +414,7 @@ JetFile: MultiVariableDeclarations.kt
         PsiErrorElement:Receiver type is not allowed on a destructuring declaration
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
           PsiElement(DOT)('.')
         PsiElement(LPAR)('(')
@@ -439,7 +439,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -453,7 +453,7 @@ JetFile: MultiVariableDeclarations.kt
         PsiErrorElement:Receiver type is not allowed on a destructuring declaration
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('T')
           PsiElement(DOT)('.')
         PsiElement(LPAR)('(')
@@ -465,7 +465,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -499,7 +499,7 @@ JetFile: MultiVariableDeclarations.kt
     PsiErrorElement:Receiver type is not allowed on a destructuring declaration
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
       PsiElement(DOT)('.')
     PsiErrorElement:Destructuring declarations are only allowed for local variables/values
@@ -533,7 +533,7 @@ JetFile: MultiVariableDeclarations.kt
       PsiElement(COLON)(':')
       TYPE_REFERENCE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
@@ -573,7 +573,7 @@ JetFile: MultiVariableDeclarations.kt
         PsiErrorElement:Receiver type is not allowed on a destructuring declaration
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
           PsiElement(DOT)('.')
         PsiErrorElement:Destructuring declarations are only allowed for local variables/values
@@ -608,7 +608,7 @@ JetFile: MultiVariableDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')

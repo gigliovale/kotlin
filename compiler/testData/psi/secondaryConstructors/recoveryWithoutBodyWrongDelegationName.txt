@@ -36,7 +36,7 @@ JetFile: recoveryWithoutBodyWrongDelegationName.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
       PsiWhiteSpace('\n\n    ')
       SECONDARY_CONSTRUCTOR
@@ -56,7 +56,7 @@ JetFile: recoveryWithoutBodyWrongDelegationName.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
         PsiWhiteSpace(' ')
         PsiElement(fun)('fun')

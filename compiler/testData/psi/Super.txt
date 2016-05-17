@@ -18,11 +18,11 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(super)('super')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -31,17 +31,17 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
           PsiElement(GT)('>')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -50,7 +50,7 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
@@ -59,7 +59,7 @@ JetFile: Super.kt
           PsiElement(GT)('>')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -68,12 +68,12 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
           PsiElement(GT)('>')
           LABEL_QUALIFIER
@@ -82,7 +82,7 @@ JetFile: Super.kt
               PsiElement(IDENTIFIER)('label')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')

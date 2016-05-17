@@ -37,7 +37,7 @@ JetFile: oldAnnotationsRecovery.kt
           PsiWhiteSpace('\n        ')
           PsiErrorElement:Expecting an element
             PsiElement(LBRACKET)('[')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('inline')
           PsiErrorElement:Unexpected tokens (use ';' to separate expressions on the same line)
             PsiElement(RBRACKET)(']')
@@ -64,7 +64,7 @@ JetFile: oldAnnotationsRecovery.kt
           PsiErrorElement:Expecting an element
             PsiElement(LBRACKET)('[')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('suppress')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

@@ -20,7 +20,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ann')
           PsiWhiteSpace(' ')
           VALUE_ARGUMENT_LIST
@@ -38,7 +38,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
                   PsiWhiteSpace(' ')
                   BLOCK
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('it')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
@@ -52,7 +52,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
         PsiComment(EOL_COMMENT)('// lambda parsed as argument of annotation, and annotated expression is "print(1)"')
         PsiWhiteSpace('\n    ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('print')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -67,7 +67,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('ann')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -87,7 +87,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
               PsiWhiteSpace(' ')
               BLOCK
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('it')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -101,7 +101,7 @@ JetFile: annotationValueArgumentsAmbiguity.kt
       PsiComment(EOL_COMMENT)('// lambda in parenthesises annotated, "print(1)" is separated expression')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('print')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')

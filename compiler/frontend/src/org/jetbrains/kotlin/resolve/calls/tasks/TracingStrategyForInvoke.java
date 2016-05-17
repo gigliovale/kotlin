@@ -20,10 +20,7 @@ import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.builtins.FunctionTypesKt;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
-import org.jetbrains.kotlin.psi.Call;
-import org.jetbrains.kotlin.psi.KtExpression;
-import org.jetbrains.kotlin.psi.KtReferenceExpression;
-import org.jetbrains.kotlin.psi.KtSimpleNameExpression;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
@@ -37,23 +34,25 @@ import static org.jetbrains.kotlin.resolve.BindingContext.CALL;
 import static org.jetbrains.kotlin.resolve.BindingContext.RESOLVED_CALL;
 
 public class TracingStrategyForInvoke extends AbstractTracingStrategy {
-    private final KotlinType calleeType;
+    @NotNull private final KotlinType calleeType;
+    private final KtExpression calleeExpression;
 
     public TracingStrategyForInvoke(
-            @NotNull KtExpression reference,
+            @NotNull KtCallExpression callExpression,
             @NotNull Call call,
             @NotNull KotlinType calleeType
     ) {
-        super(reference, call);
+        super(callExpression, call);
         this.calleeType = calleeType;
+        this.calleeExpression = ((KtCallExpression) reference).getCalleeExpression();
     }
 
     @Override
     public void bindCall(@NotNull BindingTrace trace, @NotNull Call call) {
         // If reference is a simple name, it's 'variable as function call' case ('foo(a, b)' where 'foo' is a variable).
         // The outer call is bound ('foo(a, b)'), while 'invoke' call for this case is 'foo.invoke(a, b)' and shouldn't be bound.
-        if (reference instanceof KtSimpleNameExpression) return;
-        trace.record(CALL, reference, call);
+        if (calleeExpression instanceof KtNameReferenceExpression) return;
+        trace.record(CALL, calleeExpression, call);
     }
 
     @Override
@@ -61,8 +60,8 @@ public class TracingStrategyForInvoke extends AbstractTracingStrategy {
             @NotNull BindingTrace trace, @NotNull ResolvedCall<D> resolvedCall
     ) {
         PsiElement callElement = call.getCallElement();
-        if (callElement instanceof KtReferenceExpression) {
-            trace.record(BindingContext.REFERENCE_TARGET, (KtReferenceExpression) callElement, resolvedCall.getCandidateDescriptor());
+        if (callElement instanceof KtReferenceElement) {
+            trace.record(BindingContext.REFERENCE_TARGET, (KtReferenceElement) callElement, resolvedCall.getCandidateDescriptor());
         }
     }
 
@@ -88,10 +87,10 @@ public class TracingStrategyForInvoke extends AbstractTracingStrategy {
 
     private void functionExpectedOrNoReceiverAllowed(BindingTrace trace) {
         if (FunctionTypesKt.isNonExtensionFunctionType(calleeType)) {
-            trace.report(NO_RECEIVER_ALLOWED.on(reference));
+            trace.report(NO_RECEIVER_ALLOWED.on(calleeExpression));
         }
         else {
-            trace.report(FUNCTION_EXPECTED.on(reference, reference, calleeType));
+            trace.report(FUNCTION_EXPECTED.on(calleeExpression, calleeExpression, calleeType));
         }
     }
 }

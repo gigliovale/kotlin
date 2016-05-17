@@ -16,7 +16,7 @@ JetFile: FunctionsAndTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -24,18 +24,18 @@ JetFile: FunctionsAndTypes.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('X')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
     PsiWhiteSpace(' ')
     CALL_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('something')
       VALUE_ARGUMENT_LIST
         PsiElement(LPAR)('(')
         VALUE_ARGUMENT
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('t')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')
@@ -57,19 +57,19 @@ JetFile: FunctionsAndTypes.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
         PsiWhiteSpace(' ')
         PsiElement(ARROW)('->')
         PsiWhiteSpace(' ')
         BLOCK
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('something')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
               PsiElement(RPAR)(')')
         PsiElement(RBRACE)('}')
@@ -92,12 +92,12 @@ JetFile: FunctionsAndTypes.kt
         PsiWhiteSpace(' ')
         BLOCK
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('something')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('t')
               PsiElement(RPAR)(')')
         PsiElement(RBRACE)('}')
@@ -114,12 +114,12 @@ JetFile: FunctionsAndTypes.kt
         PsiElement(LBRACE)('{')
         BLOCK
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('something')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
               VALUE_ARGUMENT
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('it')
               PsiElement(RPAR)(')')
         PsiElement(RBRACE)('}')
@@ -138,7 +138,7 @@ JetFile: FunctionsAndTypes.kt
           VALUE_PARAMETER
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('T')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -146,7 +146,7 @@ JetFile: FunctionsAndTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('X')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
@@ -156,7 +156,7 @@ JetFile: FunctionsAndTypes.kt
         PsiElement(LBRACE)('{')
         BLOCK
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('X')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')

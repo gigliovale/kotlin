@@ -12,7 +12,7 @@ JetFile: validDeclarations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('open')
       PsiWhiteSpace(' ')
       ANNOTATION
@@ -22,7 +22,7 @@ JetFile: validDeclarations.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Ann1')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -37,7 +37,7 @@ JetFile: validDeclarations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Ann2')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -54,7 +54,7 @@ JetFile: validDeclarations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Ann3')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -80,7 +80,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Volatile')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -102,7 +102,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('AnnType')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -119,11 +119,11 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('open')
             PsiWhiteSpace(' ')
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -134,7 +134,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('private')
           PsiWhiteSpace(' ')
           PsiElement(var)('var')
@@ -144,7 +144,7 @@ JetFile: validDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiElement(COMMA)(',')
         PsiWhiteSpace('\n        ')
@@ -155,7 +155,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('open')
           PsiWhiteSpace(' ')
           PsiElement(IDENTIFIER)('z')
@@ -163,7 +163,7 @@ JetFile: validDeclarations.kt
           PsiWhiteSpace(' ')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace('\n')
         PsiElement(RPAR)(')')
@@ -178,7 +178,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('private')
           PsiWhiteSpace(' ')
           ANNOTATION
@@ -188,7 +188,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Ann3')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -203,7 +203,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Ann4')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -232,7 +232,7 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('data')
             PsiWhiteSpace(' ')
             PsiElement(class)('class')
@@ -240,7 +240,7 @@ JetFile: validDeclarations.kt
             PsiElement(IDENTIFIER)('LocalClass')
           PsiWhiteSpace('\n\n        ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('print')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -256,17 +256,17 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('inline')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('option1')
                   PsiElement(COMMA)(',')
                   PsiWhiteSpace(' ')
                   VALUE_ARGUMENT
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('option2')
                   PsiElement(RPAR)(')')
               PsiWhiteSpace('\n\n        ')
@@ -277,7 +277,7 @@ JetFile: validDeclarations.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('inline2')
                 PsiElement(RBRACKET)(']')
               PsiWhiteSpace(' ')
@@ -303,7 +303,7 @@ JetFile: validDeclarations.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Ann')
                 PsiElement(RBRACKET)(']')
               PsiWhiteSpace('\n        ')
@@ -314,7 +314,7 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('abstract')
               PsiWhiteSpace('\n        ')
               ANNOTATION_ENTRY
@@ -322,7 +322,7 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Volatile')
             PsiWhiteSpace(' ')
             PsiElement(var)('var')
@@ -335,7 +335,7 @@ JetFile: validDeclarations.kt
               PsiElement(INTEGER_LITERAL)('1')
           PsiWhiteSpace('\n\n        ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -351,7 +351,7 @@ JetFile: validDeclarations.kt
                           CONSTRUCTOR_CALLEE
                             TYPE_REFERENCE
                               USER_TYPE
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('vararg')
                         PsiWhiteSpace(' ')
                         ANNOTATION_ENTRY
@@ -359,7 +359,7 @@ JetFile: validDeclarations.kt
                           CONSTRUCTOR_CALLEE
                             TYPE_REFERENCE
                               USER_TYPE
-                                REFERENCE_EXPRESSION
+                                NAME_REFERENCE_EXPRESSION
                                   PsiElement(IDENTIFIER)('ann')
                           VALUE_ARGUMENT_LIST
                             PsiElement(LPAR)('(')
@@ -373,7 +373,7 @@ JetFile: validDeclarations.kt
                       PsiWhiteSpace(' ')
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('Int')
                     PsiElement(RPAR)(')')
                   PsiWhiteSpace(' ')
@@ -392,7 +392,7 @@ JetFile: validDeclarations.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace('\n        ')
         PROPERTY_ACCESSOR
@@ -402,7 +402,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('inject')
             PsiWhiteSpace(' ')
             ANNOTATION
@@ -412,7 +412,7 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('inline')
               PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -423,7 +423,7 @@ JetFile: validDeclarations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('open')
           PsiWhiteSpace(' ')
           PsiElement(get)('get')
@@ -442,7 +442,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('open')
           PsiWhiteSpace(' ')
           ANNOTATION_ENTRY
@@ -450,7 +450,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('ann')
         PsiWhiteSpace(' ')
         PsiElement(init)('init')
@@ -466,7 +466,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('companion')
         PsiWhiteSpace(' ')
         PsiElement(object)('object')
@@ -482,7 +482,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('private')
         PsiWhiteSpace(' ')
         PsiElement(object)('object')
@@ -497,7 +497,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('main')
           PsiWhiteSpace('\n\n    ')
           ANNOTATION_ENTRY
@@ -505,7 +505,7 @@ JetFile: validDeclarations.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('private')
         PsiWhiteSpace('\n    ')
         PsiElement(constructor)('constructor')
@@ -528,7 +528,7 @@ JetFile: validDeclarations.kt
                 CONSTRUCTOR_CALLEE
                   TYPE_REFERENCE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('ann')
                 VALUE_ARGUMENT_LIST
                   PsiElement(LPAR)('(')
@@ -545,7 +545,7 @@ JetFile: validDeclarations.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('ann')
                 PsiElement(RBRACKET)(']')
             PsiWhiteSpace(' ')
@@ -555,7 +555,7 @@ JetFile: validDeclarations.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('R')
           PsiElement(GT)('>')
         PsiWhiteSpace(' ')
@@ -577,7 +577,7 @@ JetFile: validDeclarations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('private')
     PsiWhiteSpace(' ')
     PsiElement(val)('val')
@@ -596,7 +596,7 @@ JetFile: validDeclarations.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('inline')
       PsiWhiteSpace(' ')
       PsiElement(private)('private')
@@ -643,7 +643,7 @@ JetFile: validDeclarations.kt
                   CONSTRUCTOR_CALLEE
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Volatile')
               PsiWhiteSpace(' ')
               PsiElement(IDENTIFIER)('e')
@@ -651,7 +651,7 @@ JetFile: validDeclarations.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Exception')
             PsiElement(RPAR)(')')
           PsiWhiteSpace(' ')

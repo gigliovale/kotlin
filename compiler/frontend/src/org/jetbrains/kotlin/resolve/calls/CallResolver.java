@@ -140,7 +140,7 @@ public class CallResolver {
     public OverloadResolutionResults<FunctionDescriptor> resolveCallWithGivenName(
             @NotNull ExpressionTypingContext context,
             @NotNull Call call,
-            @NotNull KtReferenceExpression functionReference,
+            @NotNull KtReferenceElement functionReference,
             @NotNull Name name
     ) {
         BasicCallResolutionContext callResolutionContext = BasicCallResolutionContext.create(context, call, CheckArgumentTypesMode.CHECK_VALUE_ARGUMENTS);
@@ -163,10 +163,10 @@ public class CallResolver {
     private <D extends CallableDescriptor> OverloadResolutionResults<D> computeTasksAndResolveCall(
             @NotNull BasicCallResolutionContext context,
             @NotNull Name name,
-            @NotNull KtReferenceExpression referenceExpression,
+            @NotNull KtReferenceElement referenceElement,
             @NotNull NewResolutionOldInference.ResolutionKind<D> kind
     ) {
-        TracingStrategy tracing = TracingStrategyImpl.create(referenceExpression, context.call);
+        TracingStrategy tracing = TracingStrategyImpl.create(referenceElement, context.call);
         return computeTasksAndResolveCall(context, name, tracing, kind);
     }
 
@@ -191,11 +191,11 @@ public class CallResolver {
     @NotNull
     private <D extends CallableDescriptor> OverloadResolutionResults<D> computeTasksFromCandidatesAndResolvedCall(
             @NotNull BasicCallResolutionContext context,
-            @NotNull KtReferenceExpression referenceExpression,
+            @NotNull KtReferenceElement referenceElement,
             @NotNull Collection<ResolutionCandidate<D>> candidates
     ) {
         return computeTasksFromCandidatesAndResolvedCall(context, candidates,
-                                                         TracingStrategyImpl.create(referenceExpression, context.call));
+                                                         TracingStrategyImpl.create(referenceElement, context.call));
     }
 
     @NotNull
@@ -297,8 +297,12 @@ public class CallResolver {
                 context.scope, calleeExpression, expectedType, context.dataFlowInfo, context.trace);
         ExpressionReceiver expressionReceiver = ExpressionReceiver.Companion.create(calleeExpression, calleeType, context.trace.getBindingContext());
 
+        PsiElement parent = calleeExpression.getParent();
+        if (!(parent instanceof KtCallExpression) || ((KtCallExpression) parent).getCalleeExpression() != calleeExpression) {
+            return OverloadResolutionResultsImpl.nameNotFound();
+        }
         Call call = new CallTransformer.CallForImplicitInvoke(context.call.getExplicitReceiver(), expressionReceiver, context.call);
-        TracingStrategyForInvoke tracingForInvoke = new TracingStrategyForInvoke(calleeExpression, call, calleeType);
+        TracingStrategyForInvoke tracingForInvoke = new TracingStrategyForInvoke((KtCallExpression) parent, call, calleeType);
         return resolveCallForInvoke(context.replaceCall(call), tracingForInvoke);
     }
 
@@ -311,7 +315,7 @@ public class CallResolver {
 
         context.trace.record(BindingContext.LEXICAL_SCOPE, context.call.getCallElement(), context.scope);
 
-        KtReferenceExpression functionReference = expression.getConstructorReferenceExpression();
+        KtReferenceElement functionReference = expression.getConstructorReferenceExpression();
         KtTypeReference typeReference = expression.getTypeReference();
         if (functionReference == null || typeReference == null) {
             return checkArgumentTypesAndFail(context); // No type there

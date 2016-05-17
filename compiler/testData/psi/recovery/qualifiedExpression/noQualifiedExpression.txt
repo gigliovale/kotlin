@@ -17,7 +17,7 @@ JetFile: noQualifiedExpression.kt
       BINARY_EXPRESSION
         BINARY_EXPRESSION
           DOT_QUALIFIED_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('MyClass')
             PsiElement(DOT)('.')
             PsiErrorElement:Expecting an element
@@ -25,7 +25,7 @@ JetFile: noQualifiedExpression.kt
           OPERATION_REFERENCE
             PsiElement(IDENTIFIER)('warning')
           PsiWhiteSpace(' ')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('descr')
         OPERATION_REFERENCE
           PsiElement(EQ)('=')
@@ -36,7 +36,7 @@ JetFile: noQualifiedExpression.kt
               PsiElement(CLOSING_QUOTE)('"')
             OPERATION_REFERENCE
               PsiElement(GT)('>')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Companion')
           OPERATION_REFERENCE
             PsiElement(LT)('<')
@@ -48,7 +48,7 @@ JetFile: noQualifiedExpression.kt
             PsiErrorElement:Expecting an element
               PsiElement(GT)('>')
             PsiElement(DOT)('.')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('test')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

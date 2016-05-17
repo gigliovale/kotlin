@@ -24,7 +24,7 @@ JetFile: IncompleteFunctionLiteral.kt
               PsiWhiteSpace(' ')
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('Int')
             PsiErrorElement:Expecting '->' or ','
               <empty list>

@@ -15,7 +15,7 @@ JetFile: kt5102.kt
       PsiElement(LBRACE)('{')
       PsiWhiteSpace('\n    ')
       CALL_EXPRESSION
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('bar')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -36,7 +36,7 @@ JetFile: kt5102.kt
               SUPER_TYPE_ENTRY
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
             PsiWhiteSpace('\n')
             CLASS_BODY

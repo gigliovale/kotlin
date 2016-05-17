@@ -3,10 +3,10 @@ JetFile: DocCommentOnPackageDirectiveLine.kt
     PsiElement(package)('package')
     PsiWhiteSpace(' ')
     DOT_QUALIFIED_EXPRESSION
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('p1')
       PsiElement(DOT)('.')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('p2')
     PsiElement(SEMICOLON)(';')
   IMPORT_LIST

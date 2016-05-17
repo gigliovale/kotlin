@@ -34,7 +34,7 @@ JetFile: IIterator.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('T')
       PsiWhiteSpace('\n  ')
       PROPERTY
@@ -46,7 +46,7 @@ JetFile: IIterator.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Boolean')
       PsiWhiteSpace('\n\n  ')
       FUN
@@ -62,7 +62,7 @@ JetFile: IIterator.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('MutableArray')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
@@ -72,7 +72,7 @@ JetFile: IIterator.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('T')
                   PsiElement(GT)('>')
           PsiElement(RPAR)(')')
@@ -81,7 +81,7 @@ JetFile: IIterator.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         BLOCK
@@ -93,12 +93,12 @@ JetFile: IIterator.kt
             PsiElement(return)('return')
             PsiWhiteSpace(' ')
             CALL_EXPRESSION
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('fillBuffer')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
                 VALUE_ARGUMENT
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('buffer')
                 PsiElement(COMMA)(',')
                 PsiWhiteSpace(' ')
@@ -109,10 +109,10 @@ JetFile: IIterator.kt
                 PsiWhiteSpace(' ')
                 VALUE_ARGUMENT
                   DOT_QUALIFIED_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('buffer')
                     PsiElement(DOT)('.')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('size')
                 PsiElement(RPAR)(')')
           PsiWhiteSpace('\n  ')
@@ -131,7 +131,7 @@ JetFile: IIterator.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('MutableArray')
                 TYPE_ARGUMENT_LIST
                   PsiElement(LT)('<')
@@ -141,7 +141,7 @@ JetFile: IIterator.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('T')
                   PsiElement(GT)('>')
           PsiElement(COMMA)(',')
@@ -153,7 +153,7 @@ JetFile: IIterator.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(COMMA)(',')
           PsiWhiteSpace(' ')
@@ -164,7 +164,7 @@ JetFile: IIterator.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Int')
           PsiElement(RPAR)(')')
         PsiWhiteSpace(' ')
@@ -172,7 +172,7 @@ JetFile: IIterator.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         BLOCK
@@ -189,7 +189,7 @@ JetFile: IIterator.kt
                 BINARY_EXPRESSION
                   BINARY_EXPRESSION
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('from')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
@@ -202,24 +202,24 @@ JetFile: IIterator.kt
                       PsiElement(OROR)('||')
                     PsiWhiteSpace(' ')
                     BINARY_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('from')
                       PsiWhiteSpace(' ')
                       OPERATION_REFERENCE
                         PsiElement(GT)('>')
                       PsiWhiteSpace(' ')
                       DOT_QUALIFIED_EXPRESSION
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('buffer')
                         PsiElement(DOT)('.')
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('lastIndex')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
                     PsiElement(OROR)('||')
                   PsiWhiteSpace(' ')
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('length')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
@@ -232,7 +232,7 @@ JetFile: IIterator.kt
                   PsiElement(OROR)('||')
                 PsiWhiteSpace(' ')
                 BINARY_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('length')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -240,16 +240,16 @@ JetFile: IIterator.kt
                   PsiWhiteSpace(' ')
                   BINARY_EXPRESSION
                     DOT_QUALIFIED_EXPRESSION
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('buffer')
                       PsiElement(DOT)('.')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('size')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(MINUS)('-')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('from')
             PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -261,7 +261,7 @@ JetFile: IIterator.kt
                   PsiElement(throw)('throw')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('IndexOutOfBoundsException')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -276,7 +276,7 @@ JetFile: IIterator.kt
             PsiElement(LPAR)('(')
             CONDITION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('len')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -315,7 +315,7 @@ JetFile: IIterator.kt
             PsiWhiteSpace(' ')
             LOOP_RANGE
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('from')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -323,13 +323,13 @@ JetFile: IIterator.kt
                 PsiWhiteSpace(' ')
                 BINARY_EXPRESSION
                   BINARY_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('from')
                     PsiWhiteSpace(' ')
                     OPERATION_REFERENCE
                       PsiElement(PLUS)('+')
                     PsiWhiteSpace(' ')
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('length')
                   PsiWhiteSpace(' ')
                   OPERATION_REFERENCE
@@ -351,7 +351,7 @@ JetFile: IIterator.kt
                     PREFIX_EXPRESSION
                       OPERATION_REFERENCE
                         PsiElement(EXCL)('!')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('hasNext')
                   PsiElement(RPAR)(')')
                   PsiWhiteSpace('\n        ')
@@ -359,16 +359,16 @@ JetFile: IIterator.kt
                     RETURN
                       PsiElement(return)('return')
                       PsiWhiteSpace(' ')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('count')
                 PsiWhiteSpace('\n      ')
                 BINARY_EXPRESSION
                   ARRAY_ACCESS_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('buffer')
                     INDICES
                       PsiElement(LBRACKET)('[')
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('i')
                       PsiElement(RBRACKET)(']')
                   PsiWhiteSpace(' ')
@@ -376,14 +376,14 @@ JetFile: IIterator.kt
                     PsiElement(EQ)('=')
                   PsiWhiteSpace(' ')
                   CALL_EXPRESSION
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('next')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
                       PsiElement(RPAR)(')')
                 PsiWhiteSpace('\n      ')
                 POSTFIX_EXPRESSION
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('count')
                   OPERATION_REFERENCE
                     PsiElement(PLUSPLUS)('++')
@@ -393,7 +393,7 @@ JetFile: IIterator.kt
           RETURN
             PsiElement(return)('return')
             PsiWhiteSpace(' ')
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('count')
           PsiWhiteSpace('\n  ')
           PsiElement(RBRACE)('}')

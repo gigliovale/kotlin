@@ -19,12 +19,12 @@ JetFile: annotationsOnNullableTypes.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('a')
           PsiWhiteSpace(' ')
           NULLABLE_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
             PsiElement(QUEST)('?')
       PsiElement(RPAR)(')')
@@ -45,7 +45,7 @@ JetFile: annotationsOnNullableTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('List')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -56,12 +56,12 @@ JetFile: annotationsOnNullableTypes.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('a')
                   PsiWhiteSpace(' ')
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Int')
                     PsiElement(QUEST)('?')
               PsiElement(GT)('>')
@@ -80,12 +80,12 @@ JetFile: annotationsOnNullableTypes.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
     PsiElement(DOT)('.')
@@ -110,12 +110,12 @@ JetFile: annotationsOnNullableTypes.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('a')
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
   PsiWhiteSpace('\n\n\n')
@@ -135,7 +135,7 @@ JetFile: annotationsOnNullableTypes.kt
             CONSTRUCTOR_CALLEE
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('b')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -146,7 +146,7 @@ JetFile: annotationsOnNullableTypes.kt
           PsiWhiteSpace(' ')
           NULLABLE_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
             PsiElement(QUEST)('?')
       PsiElement(RPAR)(')')
@@ -167,7 +167,7 @@ JetFile: annotationsOnNullableTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('List')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -178,7 +178,7 @@ JetFile: annotationsOnNullableTypes.kt
                     CONSTRUCTOR_CALLEE
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('b')
                     VALUE_ARGUMENT_LIST
                       PsiElement(LPAR)('(')
@@ -189,7 +189,7 @@ JetFile: annotationsOnNullableTypes.kt
                   PsiWhiteSpace(' ')
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Int')
                     PsiElement(QUEST)('?')
               PsiElement(GT)('>')
@@ -208,7 +208,7 @@ JetFile: annotationsOnNullableTypes.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -219,7 +219,7 @@ JetFile: annotationsOnNullableTypes.kt
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
     PsiElement(DOT)('.')
@@ -244,7 +244,7 @@ JetFile: annotationsOnNullableTypes.kt
         CONSTRUCTOR_CALLEE
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('b')
         VALUE_ARGUMENT_LIST
           PsiElement(LPAR)('(')
@@ -255,7 +255,7 @@ JetFile: annotationsOnNullableTypes.kt
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
   PsiWhiteSpace('\n\n\n')
@@ -277,14 +277,14 @@ JetFile: annotationsOnNullableTypes.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('a')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('b')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -296,7 +296,7 @@ JetFile: annotationsOnNullableTypes.kt
           PsiWhiteSpace(' ')
           NULLABLE_TYPE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('Int')
             PsiElement(QUEST)('?')
       PsiElement(RPAR)(')')
@@ -317,7 +317,7 @@ JetFile: annotationsOnNullableTypes.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('List')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -330,14 +330,14 @@ JetFile: annotationsOnNullableTypes.kt
                       CONSTRUCTOR_CALLEE
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('a')
                     PsiWhiteSpace(' ')
                     ANNOTATION_ENTRY
                       CONSTRUCTOR_CALLEE
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('b')
                       VALUE_ARGUMENT_LIST
                         PsiElement(LPAR)('(')
@@ -349,7 +349,7 @@ JetFile: annotationsOnNullableTypes.kt
                   PsiWhiteSpace(' ')
                   NULLABLE_TYPE
                     USER_TYPE
-                      REFERENCE_EXPRESSION
+                      NAME_REFERENCE_EXPRESSION
                         PsiElement(IDENTIFIER)('Int')
                     PsiElement(QUEST)('?')
               PsiElement(GT)('>')
@@ -370,14 +370,14 @@ JetFile: annotationsOnNullableTypes.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         ANNOTATION_ENTRY
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -389,7 +389,7 @@ JetFile: annotationsOnNullableTypes.kt
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
     PsiElement(DOT)('.')
@@ -416,14 +416,14 @@ JetFile: annotationsOnNullableTypes.kt
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('a')
         PsiWhiteSpace(' ')
         ANNOTATION_ENTRY
           CONSTRUCTOR_CALLEE
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('b')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -435,6 +435,6 @@ JetFile: annotationsOnNullableTypes.kt
       PsiWhiteSpace(' ')
       NULLABLE_TYPE
         USER_TYPE
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')

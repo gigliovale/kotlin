@@ -206,11 +206,11 @@ private class ElementAnnotator(private val element: PsiElement,
             Severity.ERROR -> {
                 when (factory) {
                     in Errors.UNRESOLVED_REFERENCE_DIAGNOSTICS -> {
-                        val referenceExpression = element as KtReferenceExpression
-                        val reference = referenceExpression.mainReference
+                        val referenceElement = element as KtReferenceElement
+                        val reference = referenceElement.mainReference
                         if (reference is MultiRangeReference) {
                             AnnotationPresentationInfo(
-                                    ranges = reference.ranges.map { it.shiftRight(referenceExpression.textOffset) },
+                                    ranges = reference.ranges.map { it.shiftRight(referenceElement.textOffset) },
                                     highlightType = ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                         }
                         else {

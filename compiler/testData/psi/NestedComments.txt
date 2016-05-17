@@ -16,22 +16,22 @@ JetFile: NestedComments.kt
       PsiWhiteSpace('\n')
       PsiComment(BLOCK_COMMENT)('/*/b\n// */')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       PsiComment(BLOCK_COMMENT)('/**/')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       PsiComment(BLOCK_COMMENT)('/* */')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       PsiComment(BLOCK_COMMENT)('/*/**/*/')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       KDoc
@@ -40,7 +40,7 @@ JetFile: NestedComments.kt
           <empty list>
         PsiElement(KDOC_END)('*/')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       KDoc
@@ -49,7 +49,7 @@ JetFile: NestedComments.kt
           PsiElement(KDOC_TEXT)(' /***/')
         PsiElement(KDOC_END)('*/')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       KDoc
@@ -60,7 +60,7 @@ JetFile: NestedComments.kt
           PsiElement(KDOC_TEXT)('*/')
         PsiElement(KDOC_END)('***/')
       PsiWhiteSpace('\n')
-      REFERENCE_EXPRESSION
+      NAME_REFERENCE_EXPRESSION
         PsiElement(IDENTIFIER)('b')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

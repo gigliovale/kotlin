@@ -190,7 +190,7 @@ JetFile: ShortAnnotations.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
@@ -237,7 +237,7 @@ JetFile: ShortAnnotations.kt
     PsiWhiteSpace(' ')
     TYPE_REFERENCE
       USER_TYPE
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Int')
     PsiWhiteSpace(' ')
     PsiElement(EQ)('=')
@@ -444,7 +444,7 @@ JetFile: ShortAnnotations.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -491,7 +491,7 @@ JetFile: ShortAnnotations.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Int')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -560,7 +560,7 @@ JetFile: ShortAnnotations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('foo')
             PsiWhiteSpace(' ')
             ANNOTATION_ENTRY
@@ -568,7 +568,7 @@ JetFile: ShortAnnotations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('bar')
               VALUE_ARGUMENT_LIST
                 PsiElement(LPAR)('(')
@@ -582,14 +582,14 @@ JetFile: ShortAnnotations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('buzz')
                     TYPE_ARGUMENT_LIST
                       PsiElement(LT)('<')
                       TYPE_PROJECTION
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('T')
                       PsiElement(GT)('>')
               VALUE_ARGUMENT_LIST
@@ -604,7 +604,7 @@ JetFile: ShortAnnotations.kt
               CONSTRUCTOR_CALLEE
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('zoo')
           PsiWhiteSpace(' ')
           PsiElement(val)('val')
@@ -639,7 +639,7 @@ JetFile: ShortAnnotations.kt
           BINARY_EXPRESSION
             BINARY_EXPRESSION
               BINARY_EXPRESSION
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('foo')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE

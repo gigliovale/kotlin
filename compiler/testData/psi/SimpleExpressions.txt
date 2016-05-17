@@ -17,12 +17,12 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
-        REFERENCE_EXPRESSION
+        NAME_REFERENCE_EXPRESSION
           PsiElement(IDENTIFIER)('Unit')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -33,7 +33,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -49,7 +49,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -65,7 +65,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -81,7 +81,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -100,7 +100,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -119,7 +119,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -135,7 +135,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -144,7 +144,7 @@ JetFile: SimpleExpressions.kt
           INTEGER_CONSTANT
             PsiElement(INTEGER_LITERAL)('10')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('dbl')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -155,7 +155,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -164,7 +164,7 @@ JetFile: SimpleExpressions.kt
           INTEGER_CONSTANT
             PsiElement(INTEGER_LITERAL)('10')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('flt')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -175,7 +175,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -184,7 +184,7 @@ JetFile: SimpleExpressions.kt
           FLOAT_CONSTANT
             PsiElement(FLOAT_CONSTANT)('10.0')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('dbl')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -195,7 +195,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -204,7 +204,7 @@ JetFile: SimpleExpressions.kt
           INTEGER_CONSTANT
             PsiElement(INTEGER_LITERAL)('10')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('lng')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -215,7 +215,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -231,7 +231,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -247,7 +247,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -263,13 +263,13 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         THIS_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(this)('this')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -280,18 +280,18 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         SUPER_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
             USER_TYPE
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('sdf')
           PsiElement(GT)('>')
       PsiElement(COMMA)(',')
@@ -303,7 +303,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -322,13 +322,13 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Triple')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -358,18 +358,18 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
             PsiElement(RPAR)(')')
       PsiElement(COMMA)(',')
@@ -381,26 +381,26 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Foo')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('A')
             PsiElement(GT)('>')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
-              REFERENCE_EXPRESSION
+              NAME_REFERENCE_EXPRESSION
                 PsiElement(IDENTIFIER)('bar')
             PsiElement(RPAR)(')')
       PsiElement(COMMA)(',')
@@ -412,13 +412,13 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Foo')
           VALUE_ARGUMENT_LIST
             PsiElement(LPAR)('(')
@@ -432,20 +432,20 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         CALL_EXPRESSION
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Foo')
           TYPE_ARGUMENT_LIST
             PsiElement(LT)('<')
             TYPE_PROJECTION
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('bar')
             PsiElement(GT)('>')
           VALUE_ARGUMENT_LIST
@@ -460,7 +460,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -475,7 +475,7 @@ JetFile: SimpleExpressions.kt
               SUPER_TYPE_ENTRY
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Foo')
             CLASS_BODY
               PsiElement(LBRACE)('{')
@@ -489,7 +489,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -498,7 +498,7 @@ JetFile: SimpleExpressions.kt
           PsiElement(throw)('throw')
           PsiWhiteSpace(' ')
           CALL_EXPRESSION
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Foo')
             VALUE_ARGUMENT_LIST
               PsiElement(LPAR)('(')
@@ -512,7 +512,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -531,7 +531,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -547,7 +547,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -567,7 +567,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -583,7 +583,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -603,7 +603,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -619,7 +619,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -635,7 +635,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -651,7 +651,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -667,7 +667,7 @@ JetFile: SimpleExpressions.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('foo')
         PsiWhiteSpace(' ')
         PsiElement(EQ)('=')
@@ -676,7 +676,7 @@ JetFile: SimpleExpressions.kt
           INTEGER_CONSTANT
             PsiElement(INTEGER_LITERAL)('0xffffffff')
           PsiElement(DOT)('.')
-          REFERENCE_EXPRESSION
+          NAME_REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('lng')
       PsiWhiteSpace('\n')
       PsiElement(RPAR)(')')

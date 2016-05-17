@@ -22,6 +22,8 @@ import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.Call
+import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
 import org.jetbrains.kotlin.resolve.calls.CallTransformer
 import org.jetbrains.kotlin.resolve.calls.CandidateResolver
@@ -386,10 +388,13 @@ class NewResolutionOldInference(
             }
             val variableType = variableDescriptor.type
 
+            val callExpression = calleeExpression!!.parent as? KtCallExpression ?: return null
+            if (calleeExpression != callExpression.calleeExpression) return null
+
             if (variableType is DeferredType && variableType.isComputing) {
                 return null // todo: create special check that there is no invoke on variable
             }
-            val variableReceiver = ExpressionReceiver.create(calleeExpression!!,
+            val variableReceiver = ExpressionReceiver.create(calleeExpression,
                                                              variableType,
                                                              basicCallContext.trace.bindingContext)
             // used for smartCasts, see: DataFlowValueFactory.getIdForSimpleNameExpression
@@ -398,7 +403,7 @@ class NewResolutionOldInference(
             val functionCall = CallTransformer.CallForImplicitInvoke(
                     basicCallContext.call.explicitReceiver?.check { useExplicitReceiver },
                     variableReceiver, basicCallContext.call)
-            val tracingForInvoke = TracingStrategyForInvoke(calleeExpression, functionCall, variableReceiver.type)
+            val tracingForInvoke = TracingStrategyForInvoke(callExpression, functionCall, variableReceiver.type)
             val basicCallResolutionContext = basicCallContext.replaceBindingTrace(variable.resolvedCall.trace)
                     .replaceCall(functionCall)
                     .replaceContextDependency(ContextDependency.DEPENDENT) // todo

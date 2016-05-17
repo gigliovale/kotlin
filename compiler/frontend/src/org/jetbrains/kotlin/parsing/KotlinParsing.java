@@ -258,7 +258,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
             PsiBuilder.Marker nsName = mark();
             boolean simpleNameFound = expect(IDENTIFIER, "Package name must be a '.'-separated identifier list", PACKAGE_NAME_RECOVERY_SET);
             if (simpleNameFound) {
-                nsName.done(REFERENCE_EXPRESSION);
+                nsName.done(NAME_REFERENCE_EXPRESSION);
             }
             else {
                 nsName.drop();
@@ -314,7 +314,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
         PsiBuilder.Marker qualifiedName = mark();
         PsiBuilder.Marker reference = mark();
         advance(); // IDENTIFIER
-        reference.done(REFERENCE_EXPRESSION);
+        reference.done(NAME_REFERENCE_EXPRESSION);
 
         while (at(DOT) && lookahead(1) != MUL) {
             advance(); // DOT
@@ -326,7 +326,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
             reference = mark();
             if (expect(IDENTIFIER, "Qualified name must be a '.'-separated identifier list", IMPORT_RECOVERY_SET)) {
-                reference.done(REFERENCE_EXPRESSION);
+                reference.done(NAME_REFERENCE_EXPRESSION);
             }
             else {
                 reference.drop();
@@ -1775,7 +1775,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
         PsiBuilder.Marker reference = mark();
         if (expect(IDENTIFIER, "Expecting type parameter name", TokenSet.orSet(TokenSet.create(COLON, COMMA, LBRACE, RBRACE), TYPE_REF_FIRST))) {
-            reference.done(REFERENCE_EXPRESSION);
+            reference.done(NAME_REFERENCE_EXPRESSION);
         }
         else {
             reference.drop();
@@ -1965,7 +1965,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
             if (expect(IDENTIFIER, "Expecting type name",
                        TokenSet.orSet(KotlinExpressionParsing.EXPRESSION_FIRST, KotlinExpressionParsing.EXPRESSION_FOLLOW, DECLARATION_FIRST))) {
-                reference.done(REFERENCE_EXPRESSION);
+                reference.done(NAME_REFERENCE_EXPRESSION);
             }
             else {
                 reference.drop();

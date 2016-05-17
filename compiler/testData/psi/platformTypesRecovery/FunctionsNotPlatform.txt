@@ -20,7 +20,7 @@ JetFile: FunctionsNotPlatform.kt
               VALUE_PARAMETER
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Mutable')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -28,7 +28,7 @@ JetFile: FunctionsNotPlatform.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -51,7 +51,7 @@ JetFile: FunctionsNotPlatform.kt
             FUNCTION_TYPE_RECEIVER
               TYPE_REFERENCE
                 USER_TYPE
-                  REFERENCE_EXPRESSION
+                  NAME_REFERENCE_EXPRESSION
                     PsiElement(IDENTIFIER)('T')
             PsiElement(DOT)('.')
             VALUE_PARAMETER_LIST
@@ -59,7 +59,7 @@ JetFile: FunctionsNotPlatform.kt
               VALUE_PARAMETER
                 TYPE_REFERENCE
                   USER_TYPE
-                    REFERENCE_EXPRESSION
+                    NAME_REFERENCE_EXPRESSION
                       PsiElement(IDENTIFIER)('Mutable')
               PsiElement(RPAR)(')')
             PsiWhiteSpace(' ')
@@ -67,7 +67,7 @@ JetFile: FunctionsNotPlatform.kt
             PsiWhiteSpace(' ')
             TYPE_REFERENCE
               USER_TYPE
-                REFERENCE_EXPRESSION
+                NAME_REFERENCE_EXPRESSION
                   PsiElement(IDENTIFIER)('Unit')
       PsiElement(RPAR)(')')
     PsiWhiteSpace(' ')
@@ -87,7 +87,7 @@ JetFile: FunctionsNotPlatform.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -99,7 +99,7 @@ JetFile: FunctionsNotPlatform.kt
                       VALUE_PARAMETER
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('out')
                       PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -107,7 +107,7 @@ JetFile: FunctionsNotPlatform.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Unit')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')
@@ -128,7 +128,7 @@ JetFile: FunctionsNotPlatform.kt
         PsiWhiteSpace(' ')
         TYPE_REFERENCE
           USER_TYPE
-            REFERENCE_EXPRESSION
+            NAME_REFERENCE_EXPRESSION
               PsiElement(IDENTIFIER)('Array')
             TYPE_ARGUMENT_LIST
               PsiElement(LT)('<')
@@ -138,7 +138,7 @@ JetFile: FunctionsNotPlatform.kt
                     FUNCTION_TYPE_RECEIVER
                       TYPE_REFERENCE
                         USER_TYPE
-                          REFERENCE_EXPRESSION
+                          NAME_REFERENCE_EXPRESSION
                             PsiElement(IDENTIFIER)('T')
                     PsiElement(DOT)('.')
                     VALUE_PARAMETER_LIST
@@ -146,7 +146,7 @@ JetFile: FunctionsNotPlatform.kt
                       VALUE_PARAMETER
                         TYPE_REFERENCE
                           USER_TYPE
-                            REFERENCE_EXPRESSION
+                            NAME_REFERENCE_EXPRESSION
                               PsiElement(IDENTIFIER)('out')
                       PsiElement(RPAR)(')')
                     PsiWhiteSpace(' ')
@@ -154,7 +154,7 @@ JetFile: FunctionsNotPlatform.kt
                     PsiWhiteSpace(' ')
                     TYPE_REFERENCE
                       USER_TYPE
-                        REFERENCE_EXPRESSION
+                        NAME_REFERENCE_EXPRESSION
                           PsiElement(IDENTIFIER)('Unit')
               PsiElement(GT)('>')
       PsiElement(RPAR)(')')

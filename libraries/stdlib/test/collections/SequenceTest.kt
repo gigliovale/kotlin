@@ -164,71 +164,71 @@ public class SequenceTest {
 
     @test fun window() {
         assertFails {
-            emptySequence<Int>().window(1, step = -1)
+            emptySequence<Int>().slidingWindow(1, step = -1)
         }
         assertFails {
-            emptySequence<Int>().window(1, step = 0)
+            emptySequence<Int>().slidingWindow(1, step = 0)
         }
         assertFails {
-            emptySequence<Int>().window(-1, step = 1)
+            emptySequence<Int>().slidingWindow(-1, step = 1)
         }
 
         // window size > source size
         expect(emptyList()) {
-            emptySequence<Int>().window(10).toList()
+            emptySequence<Int>().slidingWindow(10).toList()
         }
         expect(emptyList()) {
-            emptySequence<Int>().window(0).toList()
+            emptySequence<Int>().slidingWindow(0).toList()
         }
         expect(emptyList()) {
-            emptySequence<Int>().window(1, step = 10).toList()
+            emptySequence<Int>().slidingWindow(1, step = 10).toList()
         }
         expect(listOf(listOf(1))) {
-            sequenceOf(1).window(10).toList()
+            sequenceOf(1).slidingWindow(10).toList()
         }
         expect(emptyList()) {
-            sequenceOf(1).window(10, dropTrailing = true).toList()
+            sequenceOf(1).slidingWindow(10, dropTrailing = true).toList()
         }
 
         // step = size = source size
         expect(listOf(listOf(1))) {
-            sequenceOf(1).window(1).toList()
+            sequenceOf(1).slidingWindow(1).toList()
         }
 
         // overlap
         expect(listOf(listOf(1, 2), listOf(3, 4))) {
-            sequenceOf(1, 2, 3, 4).window(2).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2).toList()
         }
         expect(listOf(listOf(1, 2), listOf(2, 3), listOf(3, 4), listOf(4))) {
-            sequenceOf(1, 2, 3, 4).window(2, step = 1).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2, step = 1).toList()
         }
         expect(listOf(listOf(1, 2), listOf(2, 3), listOf(3, 4))) {
-            sequenceOf(1, 2, 3, 4).window(2, step = 1, dropTrailing = true).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2, step = 1, dropTrailing = true).toList()
         }
 
         // step > size (there are gaps)
         expect(listOf(listOf(1, 2), listOf(4))) {
-            sequenceOf(1, 2, 3, 4).window(2, step = 3).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2, step = 3).toList()
         }
         expect(listOf(listOf(1, 2))) {
-            sequenceOf(1, 2, 3, 4).window(2, step = 3, dropTrailing = true).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2, step = 3, dropTrailing = true).toList()
         }
         expect(listOf(listOf(1, 2))) {
-            sequenceOf(1, 2, 3, 4).window(2, step = 100).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(2, step = 100).toList()
         }
 
         // window size = 0
         expect(listOf(listOf(), listOf(), listOf(), listOf())) {
-            sequenceOf(1, 2, 3, 4).window(0).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(0).toList()
         }
         expect(listOf(listOf(), listOf())) {
-            sequenceOf(1, 2, 3, 4).window(0, step = 2).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(0, step = 2).toList()
         }
         expect(listOf(listOf())) {
-            sequenceOf(1, 2, 3, 4).window(0, step = 20).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(0, step = 20).toList()
         }
         expect(listOf(listOf())) {
-            sequenceOf(1, 2, 3, 4).window(0, step = 20, dropTrailing = true).toList()
+            sequenceOf(1, 2, 3, 4).slidingWindow(0, step = 20, dropTrailing = true).toList()
         }
     }
 

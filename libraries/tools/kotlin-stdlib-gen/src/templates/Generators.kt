@@ -523,7 +523,7 @@ fun generators(): List<GenericFunction> {
         }
     }
 
-    templates add f("windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
+    templates add f("slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
         exclude(Sequences, Iterables)
 
         doc(Lists) { f ->
@@ -537,15 +537,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                listOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(listOf(3, 4), listOf(1, 2))
+                listOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(listOf(3, 4), listOf(1, 2))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(listOf(2, 3, 4), listOf(1, 2, 3), listOf(1, 2), listOf(1))
+                listOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(listOf(2, 3, 4), listOf(1, 2, 3), listOf(1, 2), listOf(1))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(2, 3, 4), listOf(1, 2, 3))
+                listOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(2, 3, 4), listOf(1, 2, 3))
                 ```
 
             @param size of a window, shouldn't be negative
@@ -575,15 +575,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+                intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
                 ```
 
                 ```
-                intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+                intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
                 ```
 
                 ```
-                intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+                intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
                 ```
 
             @param size of a window, shouldn't be negative
@@ -613,15 +613,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                "123".windowBackward(2) -> sequenceOf("23", "1")
+                "123".slidingWindowBackward(2) -> sequenceOf("23", "1")
                 ```
 
                 ```
-                "123".windowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
+                "123".slidingWindowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
                 ```
 
                 ```
-                "123".windowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
+                "123".slidingWindowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
                 ```
 
             @param size of a window, shouldn't be negative
@@ -640,7 +640,7 @@ fun generators(): List<GenericFunction> {
         }
     }
 
-    templates add f("window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
+    templates add f("slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false)") {
         doc(Lists) { f ->
             """
             Provides a sliding window on the original ${f.collection}. The sliding window is represented by a sequence of sub lists.
@@ -651,15 +651,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
                 ```
 
             @param size of a window, shouldn't be negative
@@ -687,15 +687,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
                 ```
 
             @param size of a window, shouldn't be negative
@@ -724,15 +724,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                "123".window(2) -> sequenceOf("12", "3")
+                "123".slidingWindow(2) -> sequenceOf("12", "3")
                 ```
 
                 ```
-                "123".window(2, step = 1) -> sequenceOf("12", "23", "3")
+                "123".slidingWindow(2, step = 1) -> sequenceOf("12", "23", "3")
                 ```
 
                 ```
-                "123".window(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
+                "123".slidingWindow(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
                 ```
 
             @param size of a window, shouldn't be negative
@@ -767,15 +767,15 @@ fun generators(): List<GenericFunction> {
             Examples:
 
                 ```
-                listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
                 ```
 
                 ```
-                listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+                listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
                 ```
 
             @param size of a window, shouldn't be negative

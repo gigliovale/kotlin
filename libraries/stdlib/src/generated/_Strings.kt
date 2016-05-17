@@ -1119,20 +1119,20 @@ public inline fun String.partition(predicate: (Char) -> Boolean): Pair<String, S
  * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
  * Examples:
  * ```
- * "123".window(2) -> sequenceOf("12", "3")
+ * "123".slidingWindow(2) -> sequenceOf("12", "3")
  * ```
  * ```
- * "123".window(2, step = 1) -> sequenceOf("12", "23", "3")
+ * "123".slidingWindow(2, step = 1) -> sequenceOf("12", "23", "3")
  * ```
  * ```
- * "123".window(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
+ * "123".slidingWindow(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharSequence> {
+public fun CharSequence.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharSequence> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(length, size, step, dropTrailing).map { subSequence(it) }
 }
@@ -1144,20 +1144,20 @@ public fun CharSequence.window(size: Int, step: Int = size.coerceAtLeast(1), dro
  * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
  * Examples:
  * ```
- * "123".window(2) -> sequenceOf("12", "3")
+ * "123".slidingWindow(2) -> sequenceOf("12", "3")
  * ```
  * ```
- * "123".window(2, step = 1) -> sequenceOf("12", "23", "3")
+ * "123".slidingWindow(2, step = 1) -> sequenceOf("12", "23", "3")
  * ```
  * ```
- * "123".window(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
+ * "123".slidingWindow(2, step = 1, dropTrailing = true) -> sequenceOf("12", "23")
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+public fun String.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(length, size, step, dropTrailing).map { substring(it) }
 }
@@ -1169,20 +1169,20 @@ public fun String.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrail
  * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
  * Examples:
  * ```
- * "123".windowBackward(2) -> sequenceOf("23", "1")
+ * "123".slidingWindowBackward(2) -> sequenceOf("23", "1")
  * ```
  * ```
- * "123".windowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
+ * "123".slidingWindowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
  * ```
  * ```
- * "123".windowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
+ * "123".slidingWindowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+public fun CharSequence.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(length, size, -step, dropTrailing).map { substring(it) }
 }
@@ -1194,20 +1194,20 @@ public fun CharSequence.windowBackward(size: Int, step: Int = size.coerceAtLeast
  * If a window [size] is zero then the corresponding quantity of empty strings will be produced by the returned sequence.
  * Examples:
  * ```
- * "123".windowBackward(2) -> sequenceOf("23", "1")
+ * "123".slidingWindowBackward(2) -> sequenceOf("23", "1")
  * ```
  * ```
- * "123".windowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
+ * "123".slidingWindowBackward(2, step = 1) -> sequenceOf("23", "12", "1")
  * ```
  * ```
- * "123".windowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
+ * "123".slidingWindowBackward(2, step = 1, dropTrailing = true) -> sequenceOf("23", "12")
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive or negative value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun String.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
+public fun String.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<String> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(length, size, -step, dropTrailing).map { substring(it) }
 }

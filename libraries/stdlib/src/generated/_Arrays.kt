@@ -11146,20 +11146,20 @@ public inline fun CharArray.partition(predicate: (Char) -> Boolean): Pair<List<C
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
+public fun <T> Array<out T>.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11171,20 +11171,20 @@ public fun <T> Array<out T>.window(size: Int, step: Int = size.coerceAtLeast(1),
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
+public fun ByteArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11196,20 +11196,20 @@ public fun ByteArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
+public fun ShortArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11221,20 +11221,20 @@ public fun ShortArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropT
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
+public fun IntArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11246,20 +11246,20 @@ public fun IntArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTra
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
+public fun LongArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11271,20 +11271,20 @@ public fun LongArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
+public fun FloatArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11296,20 +11296,20 @@ public fun FloatArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropT
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
+public fun DoubleArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11321,20 +11321,20 @@ public fun DoubleArray.window(size: Int, step: Int = size.coerceAtLeast(1), drop
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
+public fun BooleanArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11346,20 +11346,20 @@ public fun BooleanArray.window(size: Int, step: Int = size.coerceAtLeast(1), dro
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step, positive for forward sliding and negative for backward
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
+public fun CharArray.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11371,20 +11371,20 @@ public fun CharArray.window(size: Int, step: Int = size.coerceAtLeast(1), dropTr
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
+public fun <T> Array<out T>.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<Array<out T>> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11396,20 +11396,20 @@ public fun <T> Array<out T>.windowBackward(size: Int, step: Int = size.coerceAtL
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
+public fun ByteArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ByteArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11421,20 +11421,20 @@ public fun ByteArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1)
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
+public fun ShortArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<ShortArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11446,20 +11446,20 @@ public fun ShortArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
+public fun IntArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<IntArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11471,20 +11471,20 @@ public fun IntArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1),
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
+public fun LongArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<LongArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11496,20 +11496,20 @@ public fun LongArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1)
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
+public fun FloatArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<FloatArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11521,20 +11521,20 @@ public fun FloatArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
+public fun DoubleArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<DoubleArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11546,20 +11546,20 @@ public fun DoubleArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
+public fun BooleanArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<BooleanArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }
@@ -11571,20 +11571,20 @@ public fun BooleanArray.windowBackward(size: Int, step: Int = size.coerceAtLeast
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(2) -> sequenceOf(intArrayOf(3, 4), intArrayOf(1, 2))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3), intArrayOf(1, 2), intArrayOf(1))
  * ```
  * ```
- * intArrayOf(1, 2, 3, 4).windowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
+ * intArrayOf(1, 2, 3, 4).slidingWindowBackward(3, step = 1, dropTrailing = true) -> sequenceOf(intArrayOf(2, 3, 4), intArrayOf(1, 2, 3))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun CharArray.windowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
+public fun CharArray.slidingWindowBackward(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<CharArray> {
     require(step > 0) { "step should be positive but it is $step" }
     return windowIndices(this.size, size, -step, dropTrailing).map { copyOfRange(it.start, it.endInclusive + 1) }
 }

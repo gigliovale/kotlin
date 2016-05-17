@@ -1141,31 +1141,31 @@ class ArraysTest {
         fun <T> Sequence<Array<out T>>.listifyT() = map { it.toList() }.toList()
 
         // int
-        assertEquals(listOf(listOf(1, 2), listOf(3)), intArrayOf(1, 2, 3).window(2).listifyInt())
-        assertEquals(listOf(listOf(1, 2), listOf(2, 3), listOf(3)), intArrayOf(1, 2, 3).window(2, step = 1).listifyInt())
-        assertEquals(listOf(listOf(1, 2), listOf(2, 3)), intArrayOf(1, 2, 3).window(2, step = 1, dropTrailing = true).listifyInt())
+        assertEquals(listOf(listOf(1, 2), listOf(3)), intArrayOf(1, 2, 3).slidingWindow(2).listifyInt())
+        assertEquals(listOf(listOf(1, 2), listOf(2, 3), listOf(3)), intArrayOf(1, 2, 3).slidingWindow(2, step = 1).listifyInt())
+        assertEquals(listOf(listOf(1, 2), listOf(2, 3)), intArrayOf(1, 2, 3).slidingWindow(2, step = 1, dropTrailing = true).listifyInt())
 
-        assertEquals(listOf(listOf(2, 3), listOf(1)), intArrayOf(1, 2, 3).windowBackward(2).listifyInt())
-        assertEquals(listOf(listOf(2, 3), listOf(1, 2), listOf(1)), intArrayOf(1, 2, 3).windowBackward(2, step = 1).listifyInt())
-        assertEquals(listOf(listOf(2, 3), listOf(1, 2)), intArrayOf(1, 2, 3).windowBackward(2, step = 1, dropTrailing = true).listifyInt())
+        assertEquals(listOf(listOf(2, 3), listOf(1)), intArrayOf(1, 2, 3).slidingWindowBackward(2).listifyInt())
+        assertEquals(listOf(listOf(2, 3), listOf(1, 2), listOf(1)), intArrayOf(1, 2, 3).slidingWindowBackward(2, step = 1).listifyInt())
+        assertEquals(listOf(listOf(2, 3), listOf(1, 2)), intArrayOf(1, 2, 3).slidingWindowBackward(2, step = 1, dropTrailing = true).listifyInt())
 
         // long
-        assertEquals(listOf(listOf(1L, 2), listOf(3L)), longArrayOf(1, 2, 3).window(2).listifyLong())
-        assertEquals(listOf(listOf(1L, 2), listOf(2L, 3), listOf(3L)), longArrayOf(1, 2, 3).window(2, step = 1).listifyLong())
-        assertEquals(listOf(listOf(1L, 2), listOf(2L, 3)), longArrayOf(1, 2, 3).window(2, step = 1, dropTrailing = true).listifyLong())
+        assertEquals(listOf(listOf(1L, 2), listOf(3L)), longArrayOf(1, 2, 3).slidingWindow(2).listifyLong())
+        assertEquals(listOf(listOf(1L, 2), listOf(2L, 3), listOf(3L)), longArrayOf(1, 2, 3).slidingWindow(2, step = 1).listifyLong())
+        assertEquals(listOf(listOf(1L, 2), listOf(2L, 3)), longArrayOf(1, 2, 3).slidingWindow(2, step = 1, dropTrailing = true).listifyLong())
 
-        assertEquals(listOf(listOf(2L, 3), listOf(1L)), longArrayOf(1, 2, 3).windowBackward(2).listifyLong())
-        assertEquals(listOf(listOf(2L, 3), listOf(1L, 2), listOf(1L)), longArrayOf(1, 2, 3).windowBackward(2, step = 1).listifyLong())
-        assertEquals(listOf(listOf(2L, 3), listOf(1L, 2)), longArrayOf(1, 2, 3).windowBackward(2, step = 1, dropTrailing = true).listifyLong())
+        assertEquals(listOf(listOf(2L, 3), listOf(1L)), longArrayOf(1, 2, 3).slidingWindowBackward(2).listifyLong())
+        assertEquals(listOf(listOf(2L, 3), listOf(1L, 2), listOf(1L)), longArrayOf(1, 2, 3).slidingWindowBackward(2, step = 1).listifyLong())
+        assertEquals(listOf(listOf(2L, 3), listOf(1L, 2)), longArrayOf(1, 2, 3).slidingWindowBackward(2, step = 1, dropTrailing = true).listifyLong())
 
         // T
-        assertEquals(listOf(listOf("1", "2"), listOf("3")), arrayOf("1", "2", "3").window(2).listifyT())
-        assertEquals(listOf(listOf("1", "2"), listOf("2", "3"), listOf("3")), arrayOf("1", "2", "3").window(2, step = 1).listifyT())
-        assertEquals(listOf(listOf("1", "2"), listOf("2", "3")), arrayOf("1", "2", "3").window(2, step = 1, dropTrailing = true).listifyT())
+        assertEquals(listOf(listOf("1", "2"), listOf("3")), arrayOf("1", "2", "3").slidingWindow(2).listifyT())
+        assertEquals(listOf(listOf("1", "2"), listOf("2", "3"), listOf("3")), arrayOf("1", "2", "3").slidingWindow(2, step = 1).listifyT())
+        assertEquals(listOf(listOf("1", "2"), listOf("2", "3")), arrayOf("1", "2", "3").slidingWindow(2, step = 1, dropTrailing = true).listifyT())
 
-        assertEquals(listOf(listOf("2", "3"), listOf("1")), arrayOf("1", "2", "3").windowBackward(2).listifyT())
-        assertEquals(listOf(listOf("2", "3"), listOf("1", "2"), listOf("1")), arrayOf("1", "2", "3").windowBackward(2, step = 1).listifyT())
-        assertEquals(listOf(listOf("2", "3"), listOf("1", "2")), arrayOf("1", "2", "3").windowBackward(2, step = 1, dropTrailing = true).listifyT())
+        assertEquals(listOf(listOf("2", "3"), listOf("1")), arrayOf("1", "2", "3").slidingWindowBackward(2).listifyT())
+        assertEquals(listOf(listOf("2", "3"), listOf("1", "2"), listOf("1")), arrayOf("1", "2", "3").slidingWindowBackward(2, step = 1).listifyT())
+        assertEquals(listOf(listOf("2", "3"), listOf("1", "2")), arrayOf("1", "2", "3").slidingWindowBackward(2, step = 1, dropTrailing = true).listifyT())
     }
 }
 

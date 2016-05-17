@@ -1145,20 +1145,20 @@ public inline fun <T> Sequence<T>.plusElement(element: T): Sequence<T> {
  * If a window [size] is zero then the corresponding quantity of empty lists will be produced by the returned sequence.
  * Examples:
  * ```
- * listOf(1, 2, 3, 4).window(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(2) -> sequenceOf(listOf(1, 2), listOf(3, 4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4), listOf(3, 4), listOf(4))
  * ```
  * ```
- * listOf(1, 2, 3, 4).window(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
+ * listOf(1, 2, 3, 4).slidingWindow(3, step = 1, dropTrailing = true) -> sequenceOf(listOf(1, 2, 3), listOf(2, 3, 4))
  * ```
  * @param size of a window, shouldn't be negative
  * @param step positive value defines a sliding step
  * @param dropTrailing is a flag to drop trailing window that smaller than the specified [size]. Has no effect when window [size] = 0.
  * @return a sequence of windows, possibly empty
  */
-public fun <T> Sequence<T>.window(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
+public fun <T> Sequence<T>.slidingWindow(size: Int, step: Int = size.coerceAtLeast(1), dropTrailing: Boolean = false): Sequence<List<T>> {
     require(step > 0) { "step should be positive but it is $step" }
     require(size >= 0) { "size shouldn't be negative but it is $size" }
     return Sequence {

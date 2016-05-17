@@ -24,11 +24,11 @@ class StringWindowTest {
     @Test
     @Suppress("UNUSED_VARIABLE")
     fun testSignature() {
-        val windowForString: Sequence<String> = "".window(1)
-        val windowBackwardForString: Sequence<String> = "".windowBackward(1)
+        val windowForString: Sequence<String> = "".slidingWindow(1)
+        val windowBackwardForString: Sequence<String> = "".slidingWindowBackward(1)
 
-        val windowForCharSequence: Sequence<CharSequence> = "".cs().window(1)
-        val windowBackwardForCharSequence: Sequence<CharSequence> = "".cs().windowBackward(1)
+        val windowForCharSequence: Sequence<CharSequence> = "".cs().slidingWindow(1)
+        val windowBackwardForCharSequence: Sequence<CharSequence> = "".cs().slidingWindowBackward(1)
 
         assertTrue { true }
     }
@@ -36,168 +36,168 @@ class StringWindowTest {
     @Test
     fun testInvalidArguments() {
         assertFails {
-            "".window(-1)
+            "".slidingWindow(-1)
         }
         assertFails {
-            "".cs().window(-1)
+            "".cs().slidingWindow(-1)
         }
         assertFails {
-            "".window(0, -1)
+            "".slidingWindow(0, -1)
         }
         assertFails {
-            "".cs().window(0, -1)
+            "".cs().slidingWindow(0, -1)
         }
         assertFails {
-            "".window(0, 0)
+            "".slidingWindow(0, 0)
         }
         assertFails {
-            "".cs().window(0, 0)
+            "".cs().slidingWindow(0, 0)
         }
         assertFails {
-            "".windowBackward(-1)
+            "".slidingWindowBackward(-1)
         }
         assertFails {
-            "".cs().windowBackward(-1)
+            "".cs().slidingWindowBackward(-1)
         }
         assertFails {
-            "".windowBackward(0, -1)
+            "".slidingWindowBackward(0, -1)
         }
         assertFails {
-            "".cs().windowBackward(0, -1)
+            "".cs().slidingWindowBackward(0, -1)
         }
         assertFails {
-            "".windowBackward(0, 0)
+            "".slidingWindowBackward(0, 0)
         }
         assertFails {
-            "".cs().windowBackward(0, 0)
+            "".cs().slidingWindowBackward(0, 0)
         }
         assertTrue { true } // it is required for JS tests to have at least one assertion
     }
 
     @Test
     fun testSimpleForward() {
-        assertEquals(listOf("a", "b", "c"), "abc".window(1).toList())
-        assertEquals(listOf("a", "b", "c"), "abc".cs().window(1).toList())
-        assertEquals(listOf("ab", "c"), "abc".window(2).toList())
-        assertEquals(listOf("ab", "c"), "abc".cs().window(2).toList())
-        assertEquals(listOf("abc"), "abc".window(3).toList())
-        assertEquals(listOf("abc"), "abc".cs().window(3).toList())
-        assertEquals(listOf("abc"), "abc".window(4).toList())
-        assertEquals(listOf("abc"), "abc".cs().window(4).toList())
+        assertEquals(listOf("a", "b", "c"), "abc".slidingWindow(1).toList())
+        assertEquals(listOf("a", "b", "c"), "abc".cs().slidingWindow(1).toList())
+        assertEquals(listOf("ab", "c"), "abc".slidingWindow(2).toList())
+        assertEquals(listOf("ab", "c"), "abc".cs().slidingWindow(2).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindow(3).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindow(3).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindow(4).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindow(4).toList())
     }
 
     @Test
     fun testForwardDropTrailing() {
-        assertEquals(listOf("a", "b", "c"), "abc".window(1, dropTrailing = true).toList())
-        assertEquals(listOf("a", "b", "c"), "abc".cs().window(1, dropTrailing = true).toList())
-        assertEquals(listOf("ab"), "abc".window(2, dropTrailing = true).toList())
-        assertEquals(listOf("ab"), "abc".cs().window(2, dropTrailing = true).toList())
-        assertEquals(listOf("abc"), "abc".window(3, dropTrailing = true).toList())
-        assertEquals(listOf("abc"), "abc".cs().window(3, dropTrailing = true).toList())
-        assertEquals(emptyList(), "abc".window(4, dropTrailing = true).toList())
-        assertEquals(emptyList(), "abc".cs().window(4, dropTrailing = true).toList())
+        assertEquals(listOf("a", "b", "c"), "abc".slidingWindow(1, dropTrailing = true).toList())
+        assertEquals(listOf("a", "b", "c"), "abc".cs().slidingWindow(1, dropTrailing = true).toList())
+        assertEquals(listOf("ab"), "abc".slidingWindow(2, dropTrailing = true).toList())
+        assertEquals(listOf("ab"), "abc".cs().slidingWindow(2, dropTrailing = true).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindow(3, dropTrailing = true).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindow(3, dropTrailing = true).toList())
+        assertEquals(emptyList(), "abc".slidingWindow(4, dropTrailing = true).toList())
+        assertEquals(emptyList(), "abc".cs().slidingWindow(4, dropTrailing = true).toList())
     }
 
     @Test
     fun testForwardCustomStep() {
-        assertEquals(listOf("ab", "bc", "cd", "de", "ef", "f"), "abcdef".window(2, step = 1).toList())
-        assertEquals(listOf("ab", "bc", "cd", "de", "ef", "f"), "abcdef".cs().window(2, step = 1).toList())
-        assertEquals(listOf("ab", "de"), "abcdef".window(2, step = 3).toList())
-        assertEquals(listOf("ab", "de"), "abcdef".cs().window(2, step = 3).toList())
+        assertEquals(listOf("ab", "bc", "cd", "de", "ef", "f"), "abcdef".slidingWindow(2, step = 1).toList())
+        assertEquals(listOf("ab", "bc", "cd", "de", "ef", "f"), "abcdef".cs().slidingWindow(2, step = 1).toList())
+        assertEquals(listOf("ab", "de"), "abcdef".slidingWindow(2, step = 3).toList())
+        assertEquals(listOf("ab", "de"), "abcdef".cs().slidingWindow(2, step = 3).toList())
     }
 
     @Test
     fun testForwardCustomStepDropTrailing() {
-        assertEquals(listOf("ab", "bc", "cd", "de", "ef"), "abcdef".window(2, step = 1, dropTrailing = true).toList())
-        assertEquals(listOf("ab", "bc", "cd", "de", "ef"), "abcdef".cs().window(2, step = 1, dropTrailing = true).toList())
-        assertEquals(listOf("ab", "de"), "abcdef".window(2, step = 3, dropTrailing = true).toList())
-        assertEquals(listOf("ab", "de"), "abcdef".cs().window(2, step = 3, dropTrailing = true).toList())
+        assertEquals(listOf("ab", "bc", "cd", "de", "ef"), "abcdef".slidingWindow(2, step = 1, dropTrailing = true).toList())
+        assertEquals(listOf("ab", "bc", "cd", "de", "ef"), "abcdef".cs().slidingWindow(2, step = 1, dropTrailing = true).toList())
+        assertEquals(listOf("ab", "de"), "abcdef".slidingWindow(2, step = 3, dropTrailing = true).toList())
+        assertEquals(listOf("ab", "de"), "abcdef".cs().slidingWindow(2, step = 3, dropTrailing = true).toList())
     }
 
     @Test
     fun testSimpleBackward() {
-        assertEquals(listOf("c", "b", "a"), "abc".windowBackward(1).toList())
-        assertEquals(listOf("c", "b", "a"), "abc".cs().windowBackward(1).toList())
+        assertEquals(listOf("c", "b", "a"), "abc".slidingWindowBackward(1).toList())
+        assertEquals(listOf("c", "b", "a"), "abc".cs().slidingWindowBackward(1).toList())
 
-        assertEquals(listOf("bc", "a"), "abc".windowBackward(2).toList())
-        assertEquals(listOf("bc", "a"), "abc".cs().windowBackward(2).toList())
+        assertEquals(listOf("bc", "a"), "abc".slidingWindowBackward(2).toList())
+        assertEquals(listOf("bc", "a"), "abc".cs().slidingWindowBackward(2).toList())
 
-        assertEquals(listOf("abc"), "abc".windowBackward(3).toList())
-        assertEquals(listOf("abc"), "abc".cs().windowBackward(3).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindowBackward(3).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindowBackward(3).toList())
 
-        assertEquals(listOf("abc"), "abc".windowBackward(4).toList())
-        assertEquals(listOf("abc"), "abc".cs().windowBackward(4).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindowBackward(4).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindowBackward(4).toList())
     }
 
     @Test
     fun testBackwardDropTrailing() {
-        assertEquals(listOf("c", "b", "a"), "abc".windowBackward(1, dropTrailing = true).toList())
-        assertEquals(listOf("c", "b", "a"), "abc".cs().windowBackward(1, dropTrailing = true).toList())
+        assertEquals(listOf("c", "b", "a"), "abc".slidingWindowBackward(1, dropTrailing = true).toList())
+        assertEquals(listOf("c", "b", "a"), "abc".cs().slidingWindowBackward(1, dropTrailing = true).toList())
 
-        assertEquals(listOf("bc"), "abc".windowBackward(2, dropTrailing = true).toList())
-        assertEquals(listOf("bc"), "abc".cs().windowBackward(2, dropTrailing = true).toList())
+        assertEquals(listOf("bc"), "abc".slidingWindowBackward(2, dropTrailing = true).toList())
+        assertEquals(listOf("bc"), "abc".cs().slidingWindowBackward(2, dropTrailing = true).toList())
 
-        assertEquals(listOf("abc"), "abc".windowBackward(3, dropTrailing = true).toList())
-        assertEquals(listOf("abc"), "abc".cs().windowBackward(3, dropTrailing = true).toList())
+        assertEquals(listOf("abc"), "abc".slidingWindowBackward(3, dropTrailing = true).toList())
+        assertEquals(listOf("abc"), "abc".cs().slidingWindowBackward(3, dropTrailing = true).toList())
 
-        assertEquals(emptyList(), "abc".windowBackward(4, dropTrailing = true).toList())
-        assertEquals(emptyList(), "abc".cs().windowBackward(4, dropTrailing = true).toList())
+        assertEquals(emptyList(), "abc".slidingWindowBackward(4, dropTrailing = true).toList())
+        assertEquals(emptyList(), "abc".cs().slidingWindowBackward(4, dropTrailing = true).toList())
     }
 
     @Test
     fun testBackwardCustomStep() {
-        assertEquals(listOf("ef", "de", "cd", "bc", "ab", "a"), "abcdef".windowBackward(2, step = 1).toList())
-        assertEquals(listOf("ef", "de", "cd", "bc", "ab", "a"), "abcdef".cs().windowBackward(2, step = 1).toList())
-        assertEquals(listOf("ef", "bc"), "abcdef".windowBackward(2, step = 3).toList())
-        assertEquals(listOf("ef", "bc"), "abcdef".cs().windowBackward(2, step = 3).toList())
+        assertEquals(listOf("ef", "de", "cd", "bc", "ab", "a"), "abcdef".slidingWindowBackward(2, step = 1).toList())
+        assertEquals(listOf("ef", "de", "cd", "bc", "ab", "a"), "abcdef".cs().slidingWindowBackward(2, step = 1).toList())
+        assertEquals(listOf("ef", "bc"), "abcdef".slidingWindowBackward(2, step = 3).toList())
+        assertEquals(listOf("ef", "bc"), "abcdef".cs().slidingWindowBackward(2, step = 3).toList())
     }
 
     @Test
     fun testBackwardCustomStepDropTrailing() {
-        assertEquals(listOf("ef", "de", "cd", "bc", "ab"), "abcdef".windowBackward(2, step = 1, dropTrailing = true).toList())
-        assertEquals(listOf("ef", "de", "cd", "bc", "ab"), "abcdef".cs().windowBackward(2, step = 1, dropTrailing = true).toList())
+        assertEquals(listOf("ef", "de", "cd", "bc", "ab"), "abcdef".slidingWindowBackward(2, step = 1, dropTrailing = true).toList())
+        assertEquals(listOf("ef", "de", "cd", "bc", "ab"), "abcdef".cs().slidingWindowBackward(2, step = 1, dropTrailing = true).toList())
 
-        assertEquals(listOf("ef", "bc"), "abcdef".windowBackward(2, step = 3, dropTrailing = true).toList())
-        assertEquals(listOf("ef", "bc"), "abcdef".cs().windowBackward(2, step = 3, dropTrailing = true).toList())
+        assertEquals(listOf("ef", "bc"), "abcdef".slidingWindowBackward(2, step = 3, dropTrailing = true).toList())
+        assertEquals(listOf("ef", "bc"), "abcdef".cs().slidingWindowBackward(2, step = 3, dropTrailing = true).toList())
     }
 
     @Test
     fun testForwardEmpty() {
-        assertEquals(emptyList(), "".window(1).toList())
-        assertEquals(emptyList(), "".cs().window(1).toList())
-        assertEquals(emptyList(), "".window(2).toList())
-        assertEquals(emptyList(), "".cs().window(2).toList())
-        assertEquals(emptyList(), "".window(2, step = 1).toList())
-        assertEquals(emptyList(), "".cs().window(2, step = 1).toList())
-        assertEquals(emptyList(), "".window(2, step = 2).toList())
-        assertEquals(emptyList(), "".cs().window(2, step = 2).toList())
-        assertEquals(emptyList(), "".window(2, step = 3).toList())
-        assertEquals(emptyList(), "".cs().window(2, step = 3).toList())
+        assertEquals(emptyList(), "".slidingWindow(1).toList())
+        assertEquals(emptyList(), "".cs().slidingWindow(1).toList())
+        assertEquals(emptyList(), "".slidingWindow(2).toList())
+        assertEquals(emptyList(), "".cs().slidingWindow(2).toList())
+        assertEquals(emptyList(), "".slidingWindow(2, step = 1).toList())
+        assertEquals(emptyList(), "".cs().slidingWindow(2, step = 1).toList())
+        assertEquals(emptyList(), "".slidingWindow(2, step = 2).toList())
+        assertEquals(emptyList(), "".cs().slidingWindow(2, step = 2).toList())
+        assertEquals(emptyList(), "".slidingWindow(2, step = 3).toList())
+        assertEquals(emptyList(), "".cs().slidingWindow(2, step = 3).toList())
 
-        assertEquals(listOf("", "", ""), "abc".window(0).toList())
-        assertEquals(listOf("", "", ""), "abc".cs().window(0).toList())
-        assertEquals(listOf("", ""), "abc".window(0, step = 2).toList())
-        assertEquals(listOf("", ""), "abc".cs().window(0, step = 2).toList())
-        assertEquals(listOf(""), "abc".window(0, step = 3).toList())
-        assertEquals(listOf(""), "abc".cs().window(0, step = 3).toList())
+        assertEquals(listOf("", "", ""), "abc".slidingWindow(0).toList())
+        assertEquals(listOf("", "", ""), "abc".cs().slidingWindow(0).toList())
+        assertEquals(listOf("", ""), "abc".slidingWindow(0, step = 2).toList())
+        assertEquals(listOf("", ""), "abc".cs().slidingWindow(0, step = 2).toList())
+        assertEquals(listOf(""), "abc".slidingWindow(0, step = 3).toList())
+        assertEquals(listOf(""), "abc".cs().slidingWindow(0, step = 3).toList())
     }
 
     @Test
     fun testBackwardEmpty() {
         for (size in 1..2) {
             for (step in 1..3) {
-                assertEquals(emptyList(), "".windowBackward(size, step).toList())
-                assertEquals(emptyList(), "".cs().windowBackward(size, step).toList())
+                assertEquals(emptyList(), "".slidingWindowBackward(size, step).toList())
+                assertEquals(emptyList(), "".cs().slidingWindowBackward(size, step).toList())
             }
         }
 
-        assertEquals(listOf("", "", ""), "abc".windowBackward(0).toList())
-        assertEquals(listOf("", "", ""), "abc".cs().windowBackward(0).toList())
+        assertEquals(listOf("", "", ""), "abc".slidingWindowBackward(0).toList())
+        assertEquals(listOf("", "", ""), "abc".cs().slidingWindowBackward(0).toList())
 
-        assertEquals(listOf("", ""), "abc".windowBackward(0, step = 2).toList())
-        assertEquals(listOf("", ""), "abc".cs().windowBackward(0, step = 2).toList())
-        assertEquals(listOf(""), "abc".windowBackward(0, step = 3).toList())
-        assertEquals(listOf(""), "abc".cs().windowBackward(0, step = 3).toList())
+        assertEquals(listOf("", ""), "abc".slidingWindowBackward(0, step = 2).toList())
+        assertEquals(listOf("", ""), "abc".cs().slidingWindowBackward(0, step = 2).toList())
+        assertEquals(listOf(""), "abc".slidingWindowBackward(0, step = 3).toList())
+        assertEquals(listOf(""), "abc".cs().slidingWindowBackward(0, step = 3).toList())
     }
 
     @Test
@@ -208,13 +208,13 @@ class StringWindowTest {
             val text = part.repeat(repeat)
 
             for (windowSize in 1..part.length) {
-                val concat = text.window(windowSize).joinToString("")
+                val concat = text.slidingWindow(windowSize).joinToString("")
 
                 assertEquals(text, concat)
             }
 
             for (windowSize in 1..part.length) {
-                val concat = text.cs().window(windowSize).joinToString("")
+                val concat = text.cs().slidingWindow(windowSize).joinToString("")
 
                 assertEquals(text, concat)
             }

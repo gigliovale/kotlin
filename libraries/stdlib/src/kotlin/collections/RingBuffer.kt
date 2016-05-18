@@ -155,4 +155,10 @@ internal class RingBuffer<T>(val capacity: Int): Iterable<T> {
 
         return if (this < n) (this - n + capacity) else this - n
     }
+
+    private fun <T> Array<T>.fill(element: T, fromIndex: Int = 0, toIndex: Int = size): Unit {
+        for (idx in fromIndex .. toIndex) {
+            this[idx] = element
+        }
+    }
 }

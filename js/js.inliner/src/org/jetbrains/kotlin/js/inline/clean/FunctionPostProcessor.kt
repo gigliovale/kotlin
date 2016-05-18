@@ -21,6 +21,7 @@ import com.google.dart.compiler.backend.js.ast.JsBlock
 class FunctionPostProcessor(private val root: JsBlock) {
     val optimizations = listOf(
         { TemporaryAssignmentElimination(root).apply() },
+        { ReturnDistribution(root).apply() },
         { RedundantLabelRemoval(root).apply() },
         { TemporaryVariableElimination(root).apply() },
         { IfStatementReduction(root).apply() },

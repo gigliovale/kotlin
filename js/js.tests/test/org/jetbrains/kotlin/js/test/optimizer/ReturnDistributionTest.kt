@@ -18,10 +18,10 @@ package org.jetbrains.kotlin.js.test.optimizer
 
 import org.junit.Test
 
-class TemporaryAssignmentEliminationTest : BasicOptimizerTest("temporary-assignment") {
-    @Test fun assignment() = box()
-
-    @Test fun declaration() = box()
+class ReturnDistributionTest : BasicOptimizerTest("return-distribution") {
+    @Test fun returnStatement() = box()
 
     @Test fun skipsGlobalDeclarations() = box()
+
+    @Test fun partial() = box()
 }

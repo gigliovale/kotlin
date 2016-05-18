@@ -262,13 +262,13 @@ fun JsStatement.collectLastStatements(): List<JsStatement> {
         override fun visitIf(x: JsIf) {
             val lastHere = last
 
-            accept(x.thenStatement)
+            visitMany(listOf(x.thenStatement))
             val shouldStopInThen = shouldStop
 
             var shouldStopInElse = false
             x.elseStatement?.let {
                 last = lastHere
-                accept(it)
+                visitMany(listOf(it))
                 shouldStopInElse = shouldStop
             }
 
@@ -334,7 +334,7 @@ fun JsStatement.collectLastStatements(): List<JsStatement> {
                 lastLabels += x
             }
             last = false
-            accept(x.body)
+            visitMany(listOf(x.body))
         }
 
         override fun visitFor(x: JsFor) {
@@ -342,7 +342,7 @@ fun JsStatement.collectLastStatements(): List<JsStatement> {
                 lastLabels += x
             }
             last = false
-            accept(x.body)
+            visitMany(listOf(x.body))
         }
 
         override fun visitForIn(x: JsForIn) {
@@ -350,7 +350,7 @@ fun JsStatement.collectLastStatements(): List<JsStatement> {
                 lastLabels += x
             }
             last = false
-            accept(x.body)
+            visitMany(listOf(x.body))
         }
 
         override fun visitBreak(x: JsBreak) {

@@ -154,3 +154,228 @@ fun <T : JsNode> collectInstances(klass: Class<T>, scope: JsNode): List<T> {
         collected
     }
 }
+
+fun JsStatement.collectBreakContinueTargets(): (JsContinue) -> JsStatement? {
+    val resultMap = mutableMapOf<JsContinue, JsStatement>()
+
+    accept(object : RecursiveJsVisitor() {
+        private var defaultBreakTarget: JsStatement? = null
+        private var defaultContinueTarget: JsStatement? = null
+        private val labels = mutableMapOf<JsName, JsStatement>()
+
+        override fun visitFunction(x: JsFunction) { }
+
+        override fun visitLabel(x: JsLabel) {
+            labels[x.name] = x.statement
+            accept(x.statement)
+            labels.remove(x.name)
+        }
+
+        override fun visitFor(x: JsFor) {
+            breakTarget(x, x) { accept(x.body) }
+        }
+
+        override fun visitForIn(x: JsForIn) {
+            breakTarget(x, x) { accept(x.body) }
+        }
+
+        override fun visitWhile(x: JsWhile) {
+            breakTarget(x, x) { accept(x.body) }
+        }
+
+        override fun visit(x: JsSwitch) {
+            breakTarget(x, null) { super.visit(x) }
+        }
+
+        override fun visitContinue(x: JsContinue) {
+            (labels[x.label?.name] ?: defaultContinueTarget)?.let { resultMap[x] = it }
+        }
+
+        override fun visitBreak(x: JsBreak) {
+            (labels[x.label?.name] ?: defaultBreakTarget)?.let { resultMap[x] = it }
+        }
+
+        private fun breakTarget(breakTarget: JsStatement?, continueTarget: JsStatement?, block: () -> Unit) {
+            val oldBreakTarget = defaultBreakTarget
+            val oldContinueTarget = defaultContinueTarget
+            if (breakTarget != null) {
+                defaultBreakTarget = breakTarget
+            }
+            if (continueTarget != null) {
+                defaultContinueTarget = continueTarget
+            }
+            block()
+            defaultBreakTarget = oldBreakTarget
+            defaultContinueTarget = oldContinueTarget
+        }
+    })
+
+    return { resultMap[it] }
+}
+
+fun JsStatement.collectLastStatements(): List<JsStatement> {
+    val resultList = mutableListOf<JsStatement>()
+    val breakTargets = collectBreakContinueTargets()
+
+    accept(object : JsVisitor() {
+        private val lastLabels = mutableSetOf<JsStatement>()
+        private var last = true
+        private var shouldStop = false
+        private var breakFound = false
+
+        override fun visitBlock(x: JsBlock) {
+            if (last) {
+                lastLabels += x
+            }
+            visitMany(x.statements)
+        }
+
+        private fun visitMany(statements: List<JsStatement>) {
+            shouldStop = false
+            breakFound = false
+            visitManyResume(statements)
+        }
+
+        private fun visitManyResume(statements: List<JsStatement>) {
+            val lastHere = last
+
+            for ((index, statement) in statements.withIndex()) {
+                last = lastHere && index == statements.lastIndex
+                val lastBackup = last
+                accept(statement)
+                if (breakFound) {
+                    if (index > 0) {
+                        breakFound = false
+                        resultList += statements[index - 1]
+                    }
+                }
+                if (shouldStop) {
+                    break
+                }
+
+                if (lastBackup) {
+                    resultList += statements[index]
+                }
+            }
+        }
+
+        override fun visitIf(x: JsIf) {
+            val lastHere = last
+
+            accept(x.thenStatement)
+            val shouldStopInThen = shouldStop
+
+            var shouldStopInElse = false
+            x.elseStatement?.let {
+                last = lastHere
+                accept(it)
+                shouldStopInElse = shouldStop
+            }
+
+            shouldStop = shouldStopInThen && shouldStopInElse
+        }
+
+        override fun visit(x: JsSwitch) {
+            if (last) {
+                lastLabels += x
+            }
+
+            var shouldStopInDefault = false
+            val lastHere = last
+            var lastStopped = false
+
+            for ((index, switchCase) in x.cases.withIndex()) {
+                last = lastHere && index == x.cases.lastIndex
+                if (lastStopped) {
+                    visitMany(switchCase.statements)
+                }
+                else {
+                    visitManyResume(switchCase.statements)
+                    lastStopped = shouldStop
+                }
+                if (switchCase is JsDefault) {
+                     shouldStopInDefault = shouldStop
+                }
+            }
+
+            shouldStop = shouldStopInDefault && lastStopped
+        }
+
+        override fun visitTry(x: JsTry) {
+            var shouldStopHere = true
+            var shouldStopInFinally = false
+            val lastHere = last
+
+            x.finallyBlock?.let {
+                last = lastHere
+                accept(it)
+                shouldStopInFinally = shouldStop
+            }
+
+            last = lastHere && !shouldStopInFinally
+            accept(x.tryBlock)
+            if (!shouldStop) {
+                shouldStopHere = false
+            }
+
+            x.catches.forEach {
+                last = lastHere && !shouldStopInFinally
+                accept(it.body)
+                if (!shouldStop) {
+                    shouldStopHere = false
+                }
+            }
+
+            shouldStop = shouldStopHere || shouldStopInFinally
+        }
+
+        override fun visitWhile(x: JsWhile) {
+            if (last) {
+                lastLabels += x
+            }
+            last = false
+            accept(x.body)
+        }
+
+        override fun visitFor(x: JsFor) {
+            if (last) {
+                lastLabels += x
+            }
+            last = false
+            accept(x.body)
+        }
+
+        override fun visitForIn(x: JsForIn) {
+            if (last) {
+                lastLabels += x
+            }
+            last = false
+            accept(x.body)
+        }
+
+        override fun visitBreak(x: JsBreak) {
+            shouldStop = true
+            if (breakTargets(x) in lastLabels) {
+                breakFound = true
+            }
+        }
+
+        override fun visitReturn(x: JsReturn) {
+            shouldStop = true
+        }
+
+        override fun visitContinue(x: JsContinue) {
+            shouldStop = true
+        }
+
+        override fun visitThrow(x: JsThrow) {
+            shouldStop = true
+        }
+
+        override fun visitLabel(x: JsLabel) {
+            accept(x.statement)
+        }
+    })
+
+    return resultList
+}

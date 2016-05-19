@@ -385,7 +385,7 @@ JetFile: UnionFind.kt
       BINARY_EXPRESSION
         BINARY_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           PsiWhiteSpace(' ')
           OPERATION_REFERENCE

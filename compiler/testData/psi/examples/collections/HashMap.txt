@@ -45,7 +45,7 @@ JetFile: HashMap.kt
             PsiElement(LPAR)('(')
             BINARY_WITH_TYPE
               THIS_EXPRESSION
-                NAME_REFERENCE_EXPRESSION
+                INSTANCE_REFERENCE
                   PsiElement(this)('this')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -138,7 +138,7 @@ JetFile: HashMap.kt
               PsiElement(LPAR)('(')
               BINARY_WITH_TYPE
                 THIS_EXPRESSION
-                  NAME_REFERENCE_EXPRESSION
+                  INSTANCE_REFERENCE
                     PsiElement(this)('this')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -368,7 +368,7 @@ JetFile: HashMap.kt
         PsiElement(LPAR)('(')
         VALUE_ARGUMENT
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
         PsiElement(RPAR)(')')
   PsiWhiteSpace('\n\n')

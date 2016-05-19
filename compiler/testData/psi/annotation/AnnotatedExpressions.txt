@@ -45,7 +45,7 @@ JetFile: AnnotatedExpressions.kt
           PsiElement(RBRACKET)(']')
         PsiWhiteSpace(' ')
         THIS_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(this)('this')
       PsiWhiteSpace('\n')
       PsiElement(RBRACE)('}')

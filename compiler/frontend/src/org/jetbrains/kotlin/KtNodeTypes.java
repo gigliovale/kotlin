@@ -120,6 +120,7 @@ public interface KtNodeTypes {
     KtNodeType ANNOTATED_EXPRESSION      = new KtNodeType("ANNOTATED_EXPRESSION", KtAnnotatedExpression.class);
 
     IElementType NAME_REFERENCE_EXPRESSION = KtStubElementTypes.NAME_REFERENCE_EXPRESSION;
+    IElementType INSTANCE_REFERENCE_EXPRESSION = new KtNodeType("INSTANCE_REFERENCE", KtInstanceReferenceExpression.class);
     IElementType ENUM_ENTRY_SUPERCLASS_REFERENCE_EXPRESSION = KtStubElementTypes.ENUM_ENTRY_SUPERCLASS_REFERENCE_EXPRESSION;
     KtNodeType OPERATION_REFERENCE       = new KtNodeType("OPERATION_REFERENCE", KtOperationReferenceExpression.class);
     KtNodeType LABEL                     = new KtNodeType("LABEL", KtLabelReferenceExpression.class);

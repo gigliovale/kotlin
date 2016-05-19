@@ -33,12 +33,6 @@ class TypeKindHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
 
     @Override
     public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
-        PsiElement parent = expression.getParent();
-        if (parent instanceof KtSuperExpression || parent instanceof KtThisExpression) {
-            // Do nothing: 'super' and 'this' are highlighted as a keyword
-            return;
-        }
-
         if (NameHighlighter.INSTANCE.getNamesHighlightingEnabled()) {
             DeclarationDescriptor referenceTarget = bindingContext.get(BindingContext.REFERENCE_TARGET, expression);
             if (referenceTarget instanceof ConstructorDescriptor) {

@@ -750,7 +750,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
                 PsiBuilder.Marker thisExpression = mark();
                 PsiBuilder.Marker reference = mark();
                 advance(); // THIS_KEYWORD
-                reference.done(NAME_REFERENCE_EXPRESSION);
+                reference.done(INSTANCE_REFERENCE_EXPRESSION);
                 thisExpression.done(THIS_EXPRESSION);
             }
             else {
@@ -1665,7 +1665,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
         PsiBuilder.Marker thisReference = mark();
         advance(); // THIS_KEYWORD
-        thisReference.done(NAME_REFERENCE_EXPRESSION);
+        thisReference.done(INSTANCE_REFERENCE_EXPRESSION);
 
         parseLabelReferenceWithNoWhitespace();
 
@@ -1681,7 +1681,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
         PsiBuilder.Marker superReference = mark();
         advance(); // SUPER_KEYWORD
-        superReference.done(NAME_REFERENCE_EXPRESSION);
+        superReference.done(INSTANCE_REFERENCE_EXPRESSION);
 
         if (at(LT)) {
             // This may be "super < foo" or "super<foo>", thus the backtracking

@@ -347,7 +347,7 @@ JetFile: ArrayList.kt
                           PsiElement(IDENTIFIER)('ArrayList')
                         PsiElement(DOT)('.')
                         THIS_EXPRESSION
-                          NAME_REFERENCE_EXPRESSION
+                          INSTANCE_REFERENCE
                             PsiElement(this)('this')
                       PsiElement(DOT)('.')
                       CALL_EXPRESSION

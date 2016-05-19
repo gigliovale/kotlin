@@ -147,7 +147,7 @@ JetFile: BinaryHeap.kt
             CONDITION
               DOT_QUALIFIED_EXPRESSION
                 THIS_EXPRESSION
-                  NAME_REFERENCE_EXPRESSION
+                  INSTANCE_REFERENCE
                     PsiElement(this)('this')
                 PsiElement(DOT)('.')
                 NAME_REFERENCE_EXPRESSION
@@ -677,7 +677,7 @@ JetFile: BinaryHeap.kt
               PsiElement(LPAR)('(')
               BINARY_EXPRESSION
                 THIS_EXPRESSION
-                  NAME_REFERENCE_EXPRESSION
+                  INSTANCE_REFERENCE
                     PsiElement(this)('this')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -720,7 +720,7 @@ JetFile: BinaryHeap.kt
           BINARY_EXPRESSION
             BINARY_EXPRESSION
               THIS_EXPRESSION
-                NAME_REFERENCE_EXPRESSION
+                INSTANCE_REFERENCE
                   PsiElement(this)('this')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -762,7 +762,7 @@ JetFile: BinaryHeap.kt
           BINARY_EXPRESSION
             BINARY_EXPRESSION
               THIS_EXPRESSION
-                NAME_REFERENCE_EXPRESSION
+                INSTANCE_REFERENCE
                   PsiElement(this)('this')
               PsiWhiteSpace(' ')
               OPERATION_REFERENCE
@@ -820,7 +820,7 @@ JetFile: BinaryHeap.kt
             INDICES
               PsiElement(LBRACKET)('[')
               THIS_EXPRESSION
-                NAME_REFERENCE_EXPRESSION
+                INSTANCE_REFERENCE
                   PsiElement(this)('this')
               PsiElement(RBRACKET)(']')
         PsiWhiteSpace('\n    ')
@@ -876,7 +876,7 @@ JetFile: BinaryHeap.kt
               PsiElement(LPAR)('(')
               BINARY_EXPRESSION
                 THIS_EXPRESSION
-                  NAME_REFERENCE_EXPRESSION
+                  INSTANCE_REFERENCE
                     PsiElement(this)('this')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -897,7 +897,7 @@ JetFile: BinaryHeap.kt
               PsiElement(LPAR)('(')
               BINARY_EXPRESSION
                 THIS_EXPRESSION
-                  NAME_REFERENCE_EXPRESSION
+                  INSTANCE_REFERENCE
                     PsiElement(this)('this')
                 PsiWhiteSpace(' ')
                 OPERATION_REFERENCE
@@ -951,7 +951,7 @@ JetFile: BinaryHeap.kt
             PsiElement(LPAR)('(')
             VALUE_ARGUMENT
               THIS_EXPRESSION
-                NAME_REFERENCE_EXPRESSION
+                INSTANCE_REFERENCE
                   PsiElement(this)('this')
             PsiElement(COMMA)(',')
             PsiWhiteSpace(' ')
@@ -1015,7 +1015,7 @@ JetFile: BinaryHeap.kt
         PsiWhiteSpace(' ')
         ARRAY_ACCESS_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           INDICES
             PsiElement(LBRACKET)('[')
@@ -1026,7 +1026,7 @@ JetFile: BinaryHeap.kt
       BINARY_EXPRESSION
         ARRAY_ACCESS_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           INDICES
             PsiElement(LBRACKET)('[')
@@ -1039,7 +1039,7 @@ JetFile: BinaryHeap.kt
         PsiWhiteSpace(' ')
         ARRAY_ACCESS_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           INDICES
             PsiElement(LBRACKET)('[')
@@ -1050,7 +1050,7 @@ JetFile: BinaryHeap.kt
       BINARY_EXPRESSION
         ARRAY_ACCESS_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           INDICES
             PsiElement(LBRACKET)('[')
@@ -1101,7 +1101,7 @@ JetFile: BinaryHeap.kt
       BINARY_EXPRESSION
         DOT_QUALIFIED_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           PsiElement(DOT)('.')
           NAME_REFERENCE_EXPRESSION

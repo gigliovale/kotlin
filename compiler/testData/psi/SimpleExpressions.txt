@@ -269,7 +269,7 @@ JetFile: SimpleExpressions.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         THIS_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(this)('this')
       PsiElement(COMMA)(',')
       PsiWhiteSpace('\n    ')
@@ -286,7 +286,7 @@ JetFile: SimpleExpressions.kt
         PsiElement(EQ)('=')
         PsiWhiteSpace(' ')
         SUPER_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE

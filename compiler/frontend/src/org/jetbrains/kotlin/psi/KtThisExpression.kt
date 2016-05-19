@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.psi;
+package org.jetbrains.kotlin.psi
 
-import com.intellij.lang.ASTNode;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.KtNodeTypes;
+import com.intellij.lang.ASTNode
 
-public abstract class KtInstanceExpressionWithLabel extends KtExpressionWithLabel {
-
-    public KtInstanceExpressionWithLabel(@NotNull ASTNode node) {
-        super(node);
-    }
-
-    @NotNull
-    public KtNameReferenceExpression getInstanceReference() {
-        return (KtNameReferenceExpression) findChildByType(KtNodeTypes.NAME_REFERENCE_EXPRESSION);
+class KtThisExpression(node: ASTNode) : KtInstanceExpressionWithLabel(node) {
+    override fun <R, D> accept(visitor: KtVisitor<R, D>, data: D): R {
+        return visitor.visitThisExpression(this, data)
     }
 }

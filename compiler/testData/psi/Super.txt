@@ -18,7 +18,7 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(super)('super')
         PsiElement(DOT)('.')
         CALL_EXPRESSION
@@ -31,7 +31,7 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
@@ -50,7 +50,7 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE
@@ -68,7 +68,7 @@ JetFile: Super.kt
       PsiWhiteSpace('\n    ')
       DOT_QUALIFIED_EXPRESSION
         SUPER_EXPRESSION
-          NAME_REFERENCE_EXPRESSION
+          INSTANCE_REFERENCE
             PsiElement(super)('super')
           PsiElement(LT)('<')
           TYPE_REFERENCE

@@ -159,7 +159,7 @@ JetFile: StringTemplates.kt
         SHORT_STRING_TEMPLATE_ENTRY
           PsiElement(SHORT_TEMPLATE_ENTRY_START)('$')
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
         LITERAL_STRING_TEMPLATE_ENTRY
           PsiElement(REGULAR_STRING_PART)(' must be')

@@ -35,9 +35,6 @@ class PropertiesHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
 
     @Override
     public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
-        if (expression.getParent() instanceof KtThisExpression) {
-            return;
-        }
         DeclarationDescriptor target = bindingContext.get(BindingContext.REFERENCE_TARGET, expression);
         if (target instanceof SyntheticFieldDescriptor) {
             NameHighlighter.highlightName(holder, expression, KotlinHighlightingColors.BACKING_FIELD_VARIABLE);

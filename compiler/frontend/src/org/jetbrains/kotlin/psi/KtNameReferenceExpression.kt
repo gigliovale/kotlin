@@ -19,9 +19,8 @@ package org.jetbrains.kotlin.psi
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.lexer.KtTokens
-import org.jetbrains.kotlin.lexer.KtTokens.*
+import org.jetbrains.kotlin.lexer.KtTokens.IDENTIFIER
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.stubs.KotlinNameReferenceExpressionStub
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
@@ -46,8 +45,7 @@ class KtNameReferenceExpression : KtExpressionImplStub<KotlinNameReferenceExpres
     }
 
     override fun getReferencedNameElement(): PsiElement {
-        val element = findChildByType<PsiElement>(NAME_REFERENCE_EXPRESSIONS) ?: return this
-        return element
+        return findChildByType<PsiElement>(IDENTIFIER) ?: this
     }
 
     override fun getIdentifier(): PsiElement? {
@@ -60,9 +58,5 @@ class KtNameReferenceExpression : KtExpressionImplStub<KotlinNameReferenceExpres
 
     override fun <R, D> accept(visitor: KtVisitor<R, D>, data: D): R {
         return visitor.visitNameReferenceExpression(this, data)
-    }
-
-    companion object {
-        private val NAME_REFERENCE_EXPRESSIONS = TokenSet.create(IDENTIFIER, THIS_KEYWORD, SUPER_KEYWORD)
     }
 }

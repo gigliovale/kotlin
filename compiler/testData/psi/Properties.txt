@@ -376,7 +376,7 @@ JetFile: Properties.kt
       BINARY_EXPRESSION
         DOT_QUALIFIED_EXPRESSION
           THIS_EXPRESSION
-            NAME_REFERENCE_EXPRESSION
+            INSTANCE_REFERENCE
               PsiElement(this)('this')
           PsiElement(DOT)('.')
           NAME_REFERENCE_EXPRESSION

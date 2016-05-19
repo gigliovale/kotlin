@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.resolve.lazy
 
 import com.intellij.psi.PsiElement
-import com.intellij.util.SmartList
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
@@ -26,9 +25,7 @@ import org.jetbrains.kotlin.resolve.StatementFilter
 import org.jetbrains.kotlin.util.isProbablyNothing
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.swap
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
+import java.util.*
 
 //TODO: do resolve anonymous object's body
 
@@ -406,7 +403,7 @@ class PartialBodyResolveFilter(
                 super.visitCallExpression(expression)
             }
 
-            override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+            override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                 val name = expression.getReferencedName()
                 if (name in nothingVariableNames) {
                     result.add(expression)

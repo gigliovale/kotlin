@@ -107,7 +107,7 @@ class KotlinParameterInfo @JvmOverloads constructor (
                                     return null
                                 }
 
-                                override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+                                override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                                     val ref = expression.mainReference
                                     val descriptor = getRelevantDescriptor(expression, ref) ?: return
                                     map[ref] = descriptor

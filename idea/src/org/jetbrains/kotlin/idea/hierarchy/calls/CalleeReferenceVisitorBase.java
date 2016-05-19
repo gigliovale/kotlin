@@ -36,30 +36,30 @@ public abstract class CalleeReferenceVisitorBase extends KtTreeVisitorVoid {
         this.deepTraversal = deepTraversal;
     }
 
-    protected abstract void processDeclaration(KtSimpleNameExpression reference, PsiElement declaration);
+    protected abstract void processDeclaration(KtReferenceElement reference, PsiElement declaration);
 
     @Override
     public void visitKtElement(@NotNull KtElement element) {
+        if (element instanceof KtReferenceElement) {
+            KtReferenceElement referenceElement = (KtReferenceElement) element;
+            DeclarationDescriptor descriptor = bindingContext.get(BindingContext.REFERENCE_TARGET, referenceElement);
+            if (descriptor == null) return;
+
+            PsiElement declaration = DescriptorToSourceUtils.descriptorToDeclaration(descriptor);
+            if (declaration == null) return;
+
+            if (isProperty(descriptor, declaration) || isCallable(descriptor, declaration, referenceElement)) {
+                processDeclaration(referenceElement, declaration);
+            }
+        }
+
         if (deepTraversal || !(element instanceof KtClassOrObject || element instanceof KtNamedFunction)) {
             super.visitKtElement(element);
         }
     }
 
-    @Override
-    public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
-        DeclarationDescriptor descriptor = bindingContext.get(BindingContext.REFERENCE_TARGET, expression);
-        if (descriptor == null) return;
-
-        PsiElement declaration = DescriptorToSourceUtils.descriptorToDeclaration(descriptor);
-        if (declaration == null) return;
-
-        if (isProperty(descriptor, declaration) || isCallable(descriptor, declaration, expression)) {
-            processDeclaration(expression, declaration);
-        }
-    }
-
     // Accept callees of JetCallElement which refer to Kotlin function, Kotlin class or Java method
-    private static boolean isCallable(DeclarationDescriptor descriptor, PsiElement declaration, KtSimpleNameExpression reference) {
+    private static boolean isCallable(DeclarationDescriptor descriptor, PsiElement declaration, KtReferenceElement reference) {
         KtCallElement callElement = PsiTreeUtil.getParentOfType(reference, KtCallElement.class);
         if (callElement == null || !PsiTreeUtil.isAncestor(callElement.getCalleeExpression(), reference, false)) return false;
 

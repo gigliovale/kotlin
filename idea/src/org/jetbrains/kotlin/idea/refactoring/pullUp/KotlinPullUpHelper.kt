@@ -67,7 +67,7 @@ class KotlinPullUpHelper(
 
                     override fun visitKtFile(file: KtFile, data: Nothing?) = false
 
-                    override fun visitSimpleNameExpression(expression: KtSimpleNameExpression, arg: Nothing?): Boolean {
+                    override fun visitReferenceExpression(expression: KtReferenceExpression, arg: Nothing?): Boolean? {
                         val resolvedCall = expression.getResolvedCall(data.resolutionFacade.analyze(expression)) ?: return true
                         val receiver = (resolvedCall.getExplicitReceiverValue() as? ExpressionReceiver)?.expression
                         if (receiver != null && receiver !is KtThisExpression && receiver !is KtSuperExpression) return true
@@ -153,7 +153,7 @@ class KotlinPullUpHelper(
         val usedProperties = LinkedHashSet<KtProperty>()
         val usedParameters = LinkedHashSet<KtParameter>()
         val visitor = object : KtTreeVisitorVoid() {
-            override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+            override fun visitReferenceExpression(expression: KtReferenceExpression) {
                 val context = data.resolutionFacade.analyze(expression)
                 val resolvedCall = expression.getResolvedCall(context) ?: return
                 val receiver = (resolvedCall.getExplicitReceiverValue() as? ExpressionReceiver)?.expression

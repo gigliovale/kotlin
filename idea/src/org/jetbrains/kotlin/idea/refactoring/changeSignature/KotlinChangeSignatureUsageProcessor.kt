@@ -160,7 +160,7 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
         val newParameterNames = changeInfo.getNonReceiverParameters().mapTo(HashSet<String>()) { it.name }
         body.accept(
                 object : KtTreeVisitorVoid() {
-                    override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+                    override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                         val currentName = expression.getReferencedName()
                         if (currentName !in newParameterNames) return
 
@@ -374,7 +374,7 @@ class KotlinChangeSignatureUsageProcessor : ChangeSignatureUsageProcessor {
                         }
                     }
 
-                    override fun visitSimpleNameExpression(expression: KtSimpleNameExpression, context: BindingContext): Void? {
+                    override fun visitNameReferenceExpression(expression: KtNameReferenceExpression, context: BindingContext): Void? {
                         val resolvedCall = expression.getResolvedCall(context) ?: return null
 
                         val resultingDescriptor = resolvedCall.resultingDescriptor

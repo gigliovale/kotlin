@@ -23,10 +23,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor;
 import org.jetbrains.kotlin.descriptors.VariableDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor;
-import org.jetbrains.kotlin.psi.KtParameter;
-import org.jetbrains.kotlin.psi.KtProperty;
-import org.jetbrains.kotlin.psi.KtSimpleNameExpression;
-import org.jetbrains.kotlin.psi.KtThisExpression;
+import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.tasks.DynamicCallsKt;
@@ -37,7 +34,7 @@ class PropertiesHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
     }
 
     @Override
-    public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
+    public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
         if (expression.getParent() instanceof KtThisExpression) {
             return;
         }

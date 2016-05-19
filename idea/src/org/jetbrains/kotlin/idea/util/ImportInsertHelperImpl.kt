@@ -342,7 +342,7 @@ class ImportInsertHelperImpl(private val project: Project) : ImportInsertHelper(
                 override fun visitPackageDirective(directive: KtPackageDirective) {
                 }
 
-                override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+                override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                     if (KtPsiUtil.isSelectorInQualified(expression)) return
 
                     val refName = expression.getReferencedNameAsName()

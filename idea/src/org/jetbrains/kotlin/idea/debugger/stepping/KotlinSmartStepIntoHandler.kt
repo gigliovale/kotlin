@@ -136,7 +136,7 @@ class KotlinSmartStepIntoHandler : JvmSmartStepIntoHandler() {
                 super.visitCallExpression(expression)
             }
 
-            override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+            override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                 val resolvedCall = expression.getResolvedCall(bindingContext)
                 if (resolvedCall != null) {
                     val propertyDescriptor = resolvedCall.resultingDescriptor
@@ -164,7 +164,7 @@ class KotlinSmartStepIntoHandler : JvmSmartStepIntoHandler() {
                         }
                     }
                 }
-                super.visitSimpleNameExpression(expression)
+                super.visitNameReferenceExpression(expression)
             }
 
             private fun recordFunction(expression: KtExpression) {

@@ -26,11 +26,11 @@ public class KtCallableReferenceExpression extends KtDoubleColonExpression {
     }
 
     @NotNull
-    public KtSimpleNameExpression getCallableReference() {
+    public KtNameReferenceExpression getCallableReference() {
         PsiElement psi = getDoubleColonTokenReference();
         while (psi != null) {
-            if (psi instanceof KtSimpleNameExpression) {
-                return (KtSimpleNameExpression) psi;
+            if (psi instanceof KtNameReferenceExpression) {
+                return (KtNameReferenceExpression) psi;
             }
             psi = psi.getNextSibling();
         }

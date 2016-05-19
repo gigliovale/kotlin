@@ -177,6 +177,10 @@ public class KtVisitorVoid extends KtVisitor<Void, Void> {
         super.visitReferenceExpression(expression, null);
     }
 
+    public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
+        super.visitNameReferenceExpression(expression, null);
+    }
+
     public void visitLabeledExpression(@NotNull KtLabeledExpression expression) {
         super.visitLabeledExpression(expression, null);
     }
@@ -655,14 +659,15 @@ public class KtVisitorVoid extends KtVisitor<Void, Void> {
     }
 
     @Override
-    public final Void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression, Void data) {
-        visitSimpleNameExpression(expression);
+    public final Void visitReferenceExpression(@NotNull KtReferenceExpression expression, Void data) {
+        visitReferenceExpression(expression);
         return null;
     }
 
+
     @Override
-    public final Void visitReferenceExpression(@NotNull KtReferenceExpression expression, Void data) {
-        visitReferenceExpression(expression);
+    public final Void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression, Void data) {
+        visitSimpleNameExpression(expression);
         return null;
     }
 

@@ -32,8 +32,8 @@ public abstract class KtUnaryExpression extends KtExpressionImpl implements KtOp
 
     @Override
     @NotNull
-    public KtSimpleNameExpression getOperationReference() {
-        return (KtSimpleNameExpression) findChildByType(KtNodeTypes.OPERATION_REFERENCE);
+    public KtOperationReferenceExpression getOperationReference() {
+        return (KtOperationReferenceExpression) findChildByType(KtNodeTypes.OPERATION_REFERENCE);
     }
 
     public IElementType getOperationToken() {

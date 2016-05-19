@@ -91,7 +91,7 @@ public class KotlinCalleeMethodsTreeStructure extends KotlinCallTreeStructure {
             element.accept(
                     new CalleeReferenceVisitorBase(ResolutionUtils.analyze(element, BodyResolveMode.FULL), false) {
                         @Override
-                        protected void processDeclaration(KtSimpleNameExpression reference, PsiElement declaration) {
+                        protected void processDeclaration(KtReferenceElement reference, PsiElement declaration) {
                             referencesToCalleeElements.put(ReferenceUtilKt.getMainReference(reference), declaration);
                         }
                     }

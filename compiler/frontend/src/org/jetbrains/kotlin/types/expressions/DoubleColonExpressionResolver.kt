@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
 import org.jetbrains.kotlin.psi.KtClassLiteralExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
@@ -171,10 +172,10 @@ class DoubleColonExpressionResolver(
             typeElement = typeElement.qualifier ?: break
         }
 
-        val simpleNameExpression = typeElement.referenceExpression ?: return
+        val nameExpression = typeElement.referenceExpression as? KtNameReferenceExpression ?: return
 
-        val traceAndCache = TemporaryTraceAndCache.create(c, "Resolve expression on LHS of callable reference", simpleNameExpression)
-        val resolutionResult = callExpressionResolver.resolveSimpleName(c.replaceTraceAndCache(traceAndCache), simpleNameExpression)
+        val traceAndCache = TemporaryTraceAndCache.create(c, "Resolve expression on LHS of callable reference", nameExpression)
+        val resolutionResult = callExpressionResolver.resolveSimpleName(c.replaceTraceAndCache(traceAndCache), nameExpression)
 
         val resultingCalls = resolutionResult.resultingCalls.filter { call ->
             call.status.possibleTransformToSuccess() && !ErrorUtils.isError(call.resultingDescriptor)

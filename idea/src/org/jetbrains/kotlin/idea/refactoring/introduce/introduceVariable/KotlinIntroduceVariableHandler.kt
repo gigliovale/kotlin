@@ -215,7 +215,7 @@ object KotlinIntroduceVariableHandler : RefactoringActionHandler {
 
                     emptyBody.accept(
                             object : KtTreeVisitorVoid() {
-                                override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+                                override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                                     if (!expression.isOccurrence) return
 
                                     expression.isOccurrence = false

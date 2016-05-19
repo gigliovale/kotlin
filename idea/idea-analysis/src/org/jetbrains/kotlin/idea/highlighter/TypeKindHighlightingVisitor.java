@@ -32,7 +32,7 @@ class TypeKindHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
     }
 
     @Override
-    public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
+    public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
         PsiElement parent = expression.getParent();
         if (parent instanceof KtSuperExpression || parent instanceof KtThisExpression) {
             // Do nothing: 'super' and 'this' are highlighted as a keyword

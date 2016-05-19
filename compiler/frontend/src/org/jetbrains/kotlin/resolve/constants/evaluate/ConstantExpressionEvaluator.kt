@@ -532,7 +532,7 @@ private class ConstantExpressionEvaluatorVisitor(
         return evaluateCall(expression.operationReference, leftExpression, expectedType)
     }
 
-    override fun visitSimpleNameExpression(expression: KtSimpleNameExpression, expectedType: KotlinType?): CompileTimeConstant<*>? {
+    override fun visitNameReferenceExpression(expression: KtNameReferenceExpression, expectedType: KotlinType?): CompileTimeConstant<*>? {
         val enumDescriptor = trace.bindingContext.get(BindingContext.REFERENCE_TARGET, expression)
         if (enumDescriptor != null && DescriptorUtils.isEnumEntry(enumDescriptor)) {
             return factory.createEnumValue(enumDescriptor as ClassDescriptor).wrap()

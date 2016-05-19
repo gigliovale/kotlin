@@ -50,24 +50,24 @@ public class KtPackageDirective extends KtModifierListOwnerStub<KotlinPlaceHolde
     }
 
     @NotNull
-    public List<KtSimpleNameExpression> getPackageNames() {
+    public List<KtNameReferenceExpression> getPackageNames() {
         KtExpression nameExpression = getPackageNameExpression();
         if (nameExpression == null) return Collections.emptyList();
 
-        List<KtSimpleNameExpression> packageNames = ContainerUtil.newArrayList();
+        List<KtNameReferenceExpression> packageNames = ContainerUtil.newArrayList();
         while (nameExpression instanceof KtQualifiedExpression) {
             KtQualifiedExpression qualifiedExpression = (KtQualifiedExpression) nameExpression;
 
             KtExpression selector = qualifiedExpression.getSelectorExpression();
-            if (selector instanceof KtSimpleNameExpression) {
-                packageNames.add((KtSimpleNameExpression) selector);
+            if (selector instanceof KtNameReferenceExpression) {
+                packageNames.add((KtNameReferenceExpression) selector);
             }
 
             nameExpression = qualifiedExpression.getReceiverExpression();
         }
 
-        if (nameExpression instanceof KtSimpleNameExpression) {
-            packageNames.add((KtSimpleNameExpression) nameExpression);
+        if (nameExpression instanceof KtNameReferenceExpression) {
+            packageNames.add((KtNameReferenceExpression) nameExpression);
         }
 
         Collections.reverse(packageNames);

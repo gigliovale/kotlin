@@ -38,7 +38,7 @@ class VariablesHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
     }
 
     @Override
-    public void visitSimpleNameExpression(@NotNull KtSimpleNameExpression expression) {
+    public void visitNameReferenceExpression(@NotNull KtNameReferenceExpression expression) {
         DeclarationDescriptor target = bindingContext.get(REFERENCE_TARGET, expression);
         if (target == null) {
             return;
@@ -55,7 +55,7 @@ class VariablesHighlightingVisitor extends AfterAnalysisHighlightingVisitor {
             highlightVariable(expression, target);
         }
 
-        super.visitSimpleNameExpression(expression);
+        super.visitNameReferenceExpression(expression);
     }
 
     @Override

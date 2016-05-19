@@ -52,7 +52,7 @@ object CreateClassFromCallWithConstructorCalleeActionFactory : CreateClassFromUs
     override fun extractFixData(element: KtCallElement, diagnostic: Diagnostic): ClassInfo? {
         val isAnnotation = element is KtAnnotationEntry
         val callee = element.calleeExpression as? KtConstructorCalleeExpression ?: return null
-        val calleeRef = callee.constructorReferenceExpression ?: return null
+        val calleeRef = callee.constructorReferenceExpression as? KtNameReferenceExpression ?: return null
         val file = element.containingFile as? KtFile ?: return null
         val typeRef = callee.typeReference ?: return null
         val userType = typeRef.typeElement as? KtUserType ?: return null

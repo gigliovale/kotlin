@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
 import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtSimpleNameExpression
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.CallResolver
@@ -72,7 +72,7 @@ private fun <D : CallableDescriptor> ResolveArgumentsMode.acceptResolution(resul
 }
 
 private fun resolvePossiblyAmbiguousCallableReference(
-        reference: KtSimpleNameExpression,
+        reference: KtNameReferenceExpression,
         receiver: ReceiverValue?,
         context: ResolutionContext<*>,
         resolutionMode: ResolveArgumentsMode,

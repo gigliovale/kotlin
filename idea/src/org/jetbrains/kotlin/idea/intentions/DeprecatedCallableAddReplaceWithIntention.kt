@@ -25,20 +25,21 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PackageFragmentDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
-import org.jetbrains.kotlin.idea.imports.importableFqName
-import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
+import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.moveCaret
 import org.jetbrains.kotlin.idea.core.unblockDocument
+import org.jetbrains.kotlin.idea.imports.importableFqName
+import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
+import org.jetbrains.kotlin.idea.references.canBeResolvedViaImport
+import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.util.ImportInsertHelper
-import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.getReceiverExpression
+import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.isReallySuccess
-import org.jetbrains.kotlin.resolve.descriptorUtil.isExtension
 import org.jetbrains.kotlin.types.typeUtil.isUnit
 import java.util.*
 
@@ -127,18 +128,18 @@ class DeprecatedCallableAddReplaceWithIntention : SelfTargetingRangeIntention<Kt
 
     private fun KtCallableDeclaration.suggestReplaceWith(): ReplaceWith? {
         val replacementExpression = when (this) {
-            is KtNamedFunction -> replacementExpressionFromBody()
+                                        is KtNamedFunction -> replacementExpressionFromBody()
 
-            is KtProperty -> {
-                if (isVar) return null //TODO
-                getter?.replacementExpressionFromBody()
-            }
+                                        is KtProperty -> {
+                                            if (isVar) return null //TODO
+                                            getter?.replacementExpressionFromBody()
+                                        }
 
-            else -> null
-        } ?: return null
+                                        else -> null
+                                    } ?: return null
 
         var isGood = true
-        replacementExpression.accept(object: KtVisitorVoid(){
+        replacementExpression.accept(object : KtVisitorVoid() {
             override fun visitReturnExpression(expression: KtReturnExpression) {
                 isGood = false
             }
@@ -155,14 +156,14 @@ class DeprecatedCallableAddReplaceWithIntention : SelfTargetingRangeIntention<Kt
                 super.visitBlockExpression(expression)
             }
 
-            override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
-                val target = expression.analyze()[BindingContext.REFERENCE_TARGET, expression] as? DeclarationDescriptorWithVisibility ?: return
-                if (Visibilities.isPrivate((target.visibility))) {
-                    isGood = false
-                }
-            }
-
             override fun visitKtElement(element: KtElement) {
+                if (element is KtReferenceElement) {
+                    val target = element.analyze()[BindingContext.REFERENCE_TARGET, element] as? DeclarationDescriptorWithVisibility ?: return
+                    if (Visibilities.isPrivate((target.visibility))) {
+                        isGood = false
+                    }
+                }
+
                 element.acceptChildren(this)
             }
         })
@@ -200,25 +201,20 @@ class DeprecatedCallableAddReplaceWithIntention : SelfTargetingRangeIntention<Kt
         val importHelper = ImportInsertHelper.getInstance(expression.project)
 
         val result = ArrayList<String>()
-        expression.accept(object : KtVisitorVoid(){
-            override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
-                val bindingContext = expression.analyze()
-                val target = bindingContext[BindingContext.SHORT_REFERENCE_TO_COMPANION_OBJECT, expression]
-                             ?: bindingContext[BindingContext.REFERENCE_TARGET, expression]
-                             ?: return
-                if (target.isExtension || expression.getReceiverExpression() == null) {
-                    val fqName = target.importableFqName ?: return
-                    if (!importHelper.isImportedWithDefault(ImportPath(fqName, false), file)
-                        && (target.containingDeclaration as? PackageFragmentDescriptor)?.fqName != currentPackageFqName) {
-                        result.add(fqName.asString())
-                    }
+        expression.forEachDescendantOfType<KtReferenceElement> { element ->
+            val bindingContext = element.analyze()
+            val target = bindingContext[BindingContext.SHORT_REFERENCE_TO_COMPANION_OBJECT, element]
+                         ?: bindingContext[BindingContext.REFERENCE_TARGET, element]
+                         ?: return@forEachDescendantOfType
+            if (element.mainReference.canBeResolvedViaImport(target)) {
+                val fqName = target.importableFqName
+                if (fqName != null
+                    && !importHelper.isImportedWithDefault(ImportPath(fqName, false), file)
+                    && (target.containingDeclaration as? PackageFragmentDescriptor)?.fqName != currentPackageFqName) {
+                    result.add(fqName.asString())
                 }
             }
-
-            override fun visitKtElement(element: KtElement) {
-                element.acceptChildren(this)
-            }
-        })
+        }
         return result
     }
 }

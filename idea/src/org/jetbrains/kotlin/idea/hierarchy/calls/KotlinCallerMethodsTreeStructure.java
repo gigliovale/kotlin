@@ -73,7 +73,7 @@ public class KotlinCallerMethodsTreeStructure extends KotlinCallTreeStructure {
             final Map<PsiReference, PsiElement> referencesToElements = new HashMap<PsiReference, PsiElement>();
             codeBlockForLocalDeclaration.accept(new CalleeReferenceVisitorBase(bindingContext, true) {
                 @Override
-                protected void processDeclaration(KtSimpleNameExpression reference, PsiElement declaration) {
+                protected void processDeclaration(KtReferenceElement reference, PsiElement declaration) {
                     if (!declaration.equals(element)) return;
 
                     //noinspection unchecked

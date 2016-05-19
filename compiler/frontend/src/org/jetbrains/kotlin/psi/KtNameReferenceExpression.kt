@@ -20,12 +20,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.lexer.KtTokens.*
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.stubs.KotlinNameReferenceExpressionStub
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
-import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.lexer.KtTokens
-
-import org.jetbrains.kotlin.lexer.KtTokens.*
 
 class KtNameReferenceExpression : KtExpressionImplStub<KotlinNameReferenceExpressionStub>, KtSimpleNameExpression {
     constructor(node: ASTNode) : super(node) {
@@ -60,7 +59,7 @@ class KtNameReferenceExpression : KtExpressionImplStub<KotlinNameReferenceExpres
     }
 
     override fun <R, D> accept(visitor: KtVisitor<R, D>, data: D): R {
-        return visitor.visitSimpleNameExpression(this, data)
+        return visitor.visitNameReferenceExpression(this, data)
     }
 
     companion object {

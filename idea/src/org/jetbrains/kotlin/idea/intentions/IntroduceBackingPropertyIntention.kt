@@ -114,7 +114,7 @@ class IntroduceBackingPropertyIntention(): SelfTargetingIntention<KtProperty>(Kt
 
         private fun replaceFieldReferences(element: KtElement, propertyName: String) {
             element.acceptChildren(object : KtTreeVisitorVoid() {
-                override fun visitSimpleNameExpression(expression: KtSimpleNameExpression) {
+                override fun visitNameReferenceExpression(expression: KtNameReferenceExpression) {
                     val bindingContext = expression.analyze()
                     val target = bindingContext.get(BindingContext.REFERENCE_TARGET, expression)
                     if (target is SyntheticFieldDescriptor) {

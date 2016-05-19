@@ -55,8 +55,8 @@ public class KtBinaryExpressionWithTypeRHS extends KtExpressionImpl implements K
 
     @Override
     @NotNull
-    public KtSimpleNameExpression getOperationReference() {
-        return (KtSimpleNameExpression) findChildByType(KtNodeTypes.OPERATION_REFERENCE);
+    public KtOperationReferenceExpression getOperationReference() {
+        return (KtOperationReferenceExpression) findChildByType(KtNodeTypes.OPERATION_REFERENCE);
     }
 
 }

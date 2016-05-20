@@ -65,7 +65,7 @@ class ObjectLiteralToLambdaIntention : SelfTargetingRangeIntention<KtObjectLiter
         val bodyExpression = singleFunction.bodyExpression!!
 
         // this-reference
-        val thisReferences = bodyExpression.collectDescendantsOfType<KtThisExpression> { it !is KtClassOrObject }
+        val thisReferences = bodyExpression.collectDescendantsOfType<KtThisExpression>()
         for (thisReference in thisReferences) {
             val context = thisReference.analyze(BodyResolveMode.PARTIAL)
             val thisDescriptor = context[BindingContext.REFERENCE_TARGET, thisReference.instanceReference]

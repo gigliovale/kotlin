@@ -17,10 +17,7 @@
 package org.jetbrains.kotlin.resolve.lazy.descriptors
 
 import com.google.common.collect.Sets
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -50,6 +47,7 @@ protected constructor(
     private val classDescriptors: MemoizedFunctionToNotNull<Name, List<ClassDescriptor>> = storageManager.createMemoizedFunction { resolveClassDescriptor(it) }
     private val functionDescriptors: MemoizedFunctionToNotNull<Name, Collection<SimpleFunctionDescriptor>> = storageManager.createMemoizedFunction { doGetFunctions(it) }
     private val propertyDescriptors: MemoizedFunctionToNotNull<Name, Collection<PropertyDescriptor>> = storageManager.createMemoizedFunction { doGetProperties(it) }
+    private val typeAliasDescriptors: MemoizedFunctionToNotNull<Name, Collection<TypeAliasDescriptor>> = storageManager.createMemoizedFunction { doGetTypeAliases(it) }
 
     private fun resolveClassDescriptor(name: Name): List<ClassDescriptor> {
         return declarationProvider.getClassOrObjectDeclarations(name).map {
@@ -60,9 +58,9 @@ protected constructor(
         }.toReadOnlyList()
     }
 
-    override fun getContributedClassifier(name: Name, location: LookupLocation): ClassDescriptor? {
+    override fun getContributedClassifier(name: Name, location: LookupLocation): ClassifierDescriptor? {
         recordLookup(name, location)
-        return classDescriptors(name).firstOrNull()
+        return classDescriptors(name).firstOrNull() ?: typeAliasDescriptors(name).firstOrNull()
     }
 
     override fun getContributedFunctions(name: Name, location: LookupLocation): Collection<SimpleFunctionDescriptor> {
@@ -120,6 +118,20 @@ protected constructor(
 
     protected abstract fun getNonDeclaredProperties(name: Name, result: MutableSet<PropertyDescriptor>)
 
+    protected fun getContributedTypeAliasDescriptors(name: Name, location: LookupLocation): Collection<TypeAliasDescriptor> {
+        recordLookup(name, location)
+        return typeAliasDescriptors(name)
+    }
+
+    private fun doGetTypeAliases(name: Name): Collection<TypeAliasDescriptor> =
+            declarationProvider.getTypeAliasDeclarations(name).map { ktTypeAlias ->
+                c.descriptorResolver.resolveTypeAliasDescriptor(
+                        thisDescriptor,
+                        getScopeForMemberDeclarationResolution(ktTypeAlias),
+                        ktTypeAlias,
+                        trace)
+            }.toReadOnlyList()
+
     protected fun computeDescriptorsFromDeclaredElements(
             kindFilter: DescriptorKindFilter,
             nameFilter: (Name) -> Boolean,
@@ -152,6 +164,12 @@ protected constructor(
                     result.addAll(getContributedVariables(name, location))
                 }
             }
+            else if (declaration is KtTypeAlias) {
+                val name = declaration.nameAsSafeName
+                if (nameFilter(name)) {
+                    result.addAll(getContributedTypeAliasDescriptors(name, location))
+                }
+            }
             else if (declaration is KtScript) {
                 val name = declaration.nameAsSafeName
                 if (nameFilter(name)) {
@@ -161,9 +179,7 @@ protected constructor(
             else if (declaration is KtDestructuringDeclaration) {
                 // MultiDeclarations are not supported on global level
             }
-            else {
-                throw IllegalArgumentException("Unsupported declaration kind: " + declaration)
-            }
+            else throw IllegalArgumentException("Unsupported declaration kind: " + declaration)
         }
         return result.toReadOnlyList()
     }

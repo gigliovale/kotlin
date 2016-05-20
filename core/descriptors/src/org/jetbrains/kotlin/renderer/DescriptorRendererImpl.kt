@@ -128,6 +128,19 @@ internal class DescriptorRendererImpl(
     }
 
     private fun renderNormalizedType(type: KotlinType): String {
+        val abbreviated = type.getAbbreviatedType()
+
+        if (abbreviated != null) {
+            // TODO nullability is lost for abbreviated type?
+            val abbreviatedRendered = renderNormalizedTypeAsIs(abbreviated)
+            val unabbreviatedRendered = renderNormalizedTypeAsIs(type)
+            return "$abbreviatedRendered [= $unabbreviatedRendered]"
+        }
+
+        return renderNormalizedTypeAsIs(type)
+    }
+
+    private fun renderNormalizedTypeAsIs(type: KotlinType): String {
         if (type is LazyType && debugMode) {
             return type.toString()
         }
@@ -260,8 +273,8 @@ internal class DescriptorRendererImpl(
             possiblyInnerType.outerType?.let {
                 append(renderPossiblyInnerType(it))
                 append('.')
-                append(renderName(possiblyInnerType.classDescriptor.name))
-            } ?: append(renderTypeConstructor(possiblyInnerType.classDescriptor.typeConstructor))
+                append(renderName(possiblyInnerType.classifierDescriptor.name))
+            } ?: append(renderTypeConstructor(possiblyInnerType.classifierDescriptor.typeConstructor))
 
             append(renderTypeArguments(possiblyInnerType.arguments))
         }
@@ -271,7 +284,7 @@ internal class DescriptorRendererImpl(
     override fun renderTypeConstructor(typeConstructor: TypeConstructor): String {
         val cd = typeConstructor.declarationDescriptor
         return when (cd) {
-            is TypeParameterDescriptor, is ClassDescriptor -> renderClassifierName(cd)
+            is TypeParameterDescriptor, is ClassDescriptor, is TypeAliasDescriptor -> renderClassifierName(cd)
             null -> typeConstructor.toString()
             else -> error("Unexpected classifier: " + cd.javaClass)
         }
@@ -791,6 +804,15 @@ internal class DescriptorRendererImpl(
         }
     }
 
+    private fun renderTypeAlias(typeAlias: TypeAliasDescriptor, builder: StringBuilder) {
+        renderAnnotations(typeAlias, builder)
+        renderVisibility(typeAlias.visibility, builder)
+        builder.append(renderKeyword("typealias")).append(" ")
+        renderName(typeAlias, builder)
+        renderTypeParameters(typeAlias.declaredTypeParameters, builder, true)
+        builder.append(" = ").append(renderType(typeAlias.underlyingType))
+    }
+
     /* CLASSES */
     private fun renderClass(klass: ClassDescriptor, builder: StringBuilder) {
         val isEnumEntry = klass.kind == ClassKind.ENUM_ENTRY
@@ -960,6 +982,10 @@ internal class DescriptorRendererImpl(
 
         override fun visitClassDescriptor(descriptor: ClassDescriptor, builder: StringBuilder) {
             renderClass(descriptor, builder)
+        }
+
+        override fun visitTypeAliasDescriptor(descriptor: TypeAliasDescriptor, builder: StringBuilder) {
+            renderTypeAlias(descriptor, builder)
         }
     }
 

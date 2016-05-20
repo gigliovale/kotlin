@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 package org.jetbrains.kotlin.descriptors.impl;
 
+import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
@@ -41,6 +43,7 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
     private final int index;
 
     private final NotNullLazyValue<TypeConstructor> typeConstructor;
+    private final NotNullLazyValue<List<KotlinType>> upperBounds;
     private final NotNullLazyValue<KotlinType> defaultType;
 
     protected AbstractTypeParameterDescriptor(
@@ -58,6 +61,13 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
         this.variance = variance;
         this.reified = isReified;
         this.index = index;
+
+        this.upperBounds = storageManager.createLazyValue(new Function0<List<KotlinType>>() {
+            @Override
+            public List<KotlinType> invoke() {
+                return resolveUpperBounds();
+            }
+        });
 
         this.typeConstructor = storageManager.createLazyValue(new Function0<TypeConstructor>() {
             @Override
@@ -113,7 +123,7 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
     @NotNull
     @Override
     public List<KotlinType> getUpperBounds() {
-        return ((TypeParameterTypeConstructor) getTypeConstructor()).getSupertypes();
+        return upperBounds.invoke();
     }
 
     @NotNull
@@ -152,7 +162,12 @@ public abstract class AbstractTypeParameterDescriptor extends DeclarationDescrip
         @NotNull
         @Override
         protected Collection<KotlinType> computeSupertypes() {
-            return resolveUpperBounds();
+            return CollectionsKt.map(upperBounds.invoke(), new Function1<KotlinType, KotlinType>() {
+                @Override
+                public KotlinType invoke(KotlinType type) {
+                    return FlexibleTypesKt.upperIfFlexible(type);
+                }
+            });
         }
 
         @NotNull

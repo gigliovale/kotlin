@@ -2727,6 +2727,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("qualifiedClassLiteral.kt")
+            public void testQualifiedClassLiteral() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/classLiteral/qualifiedClassLiteral.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("simpleClassLiteral.kt")
             public void testSimpleClassLiteral() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/classLiteral/simpleClassLiteral.kt");
@@ -12264,6 +12270,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("kt8990.kt")
+            public void testKt8990() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/kt8990.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("MissingDelegate.kt")
             public void testMissingDelegate() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/MissingDelegate.kt");
@@ -13243,6 +13255,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
         public static class PrivateInFile extends AbstractDiagnosticsTest {
             public void testAllFilesPresentInPrivateInFile() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/privateInFile"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("kt12429.kt")
+            public void testKt12429() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/privateInFile/kt12429.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("topLevelAnnotationCall.kt")
+            public void testTopLevelAnnotationCall() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/privateInFile/topLevelAnnotationCall.kt");
+                doTest(fileName);
             }
 
             @TestMetadata("visibility.kt")

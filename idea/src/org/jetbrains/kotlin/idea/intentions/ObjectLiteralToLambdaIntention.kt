@@ -24,17 +24,17 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
+import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.moveFunctionLiteralOutsideParentheses
 import org.jetbrains.kotlin.idea.core.replaced
 import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
 import org.jetbrains.kotlin.idea.inspections.RedundantSamConstructorInspection
 import org.jetbrains.kotlin.idea.util.CommentSaver
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
-import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.sam.SingleAbstractMethodUtils
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
+import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.contentRange
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
@@ -65,14 +65,12 @@ class ObjectLiteralToLambdaIntention : SelfTargetingRangeIntention<KtObjectLiter
         val bodyExpression = singleFunction.bodyExpression!!
 
         // this-reference
-        val thisReferences = bodyExpression.collectDescendantsOfType<KtThisExpression>()
-        for (thisReference in thisReferences) {
-            val context = thisReference.analyze(BodyResolveMode.PARTIAL)
-            val thisDescriptor = context[BindingContext.REFERENCE_TARGET, thisReference.instanceReference]
-            if (thisDescriptor == functionDescriptor.containingDeclaration) {
-                return null
-            }
+        val hasThis = bodyExpression.anyDescendantOfType<KtThisExpression> {
+            val context = it.analyze(BodyResolveMode.PARTIAL)
+            val thisDescriptor = context[BindingContext.REFERENCE_TARGET, it.instanceReference]
+            thisDescriptor == functionDescriptor.containingDeclaration
         }
+        if (hasThis) return null
 
         // Recursive call, skip labels
         if (ReferencesSearch.search(singleFunction, LocalSearchScope(bodyExpression)).any { it.element !is KtLabelReferenceExpression }) {

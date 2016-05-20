@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,18 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.FqNameUnsafe
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.resolve.calls.results.FlatSignature
-import org.jetbrains.kotlin.resolve.calls.results.SpecificityComparisonCallbacks
-import org.jetbrains.kotlin.resolve.calls.results.isSignatureNotLessSpecific
-import org.jetbrains.kotlin.resolve.calls.results.varargParameterPosition
+import org.jetbrains.kotlin.resolve.calls.results.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasLowPriorityInOverloadResolution
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.utils.singletonOrEmptyList
 
-object OverloadUtil {
+class OverloadChecker(val specificityComparator: TypeSpecificityComparator) {
     /**
      * Does not check names.
      */
-    @JvmStatic fun isOverloadable(a: DeclarationDescriptor, b: DeclarationDescriptor): Boolean {
+    fun isOverloadable(a: DeclarationDescriptor, b: DeclarationDescriptor): Boolean {
         val aCategory = getDeclarationCategory(a)
         val bCategory = getDeclarationCategory(b)
 
@@ -64,8 +61,8 @@ object OverloadUtil {
         val aSignature = FlatSignature.createFromCallableDescriptor(a)
         val bSignature = FlatSignature.createFromCallableDescriptor(b)
 
-        val aIsNotLessSpecificThanB = isSignatureNotLessSpecific(aSignature, bSignature, OverloadabilitySpecificityCallbacks)
-        val bIsNotLessSpecificThanA = isSignatureNotLessSpecific(bSignature, aSignature, OverloadabilitySpecificityCallbacks)
+        val aIsNotLessSpecificThanB = isSignatureNotLessSpecific(aSignature, bSignature, OverloadabilitySpecificityCallbacks, specificityComparator)
+        val bIsNotLessSpecificThanA = isSignatureNotLessSpecific(bSignature, aSignature, OverloadabilitySpecificityCallbacks, specificityComparator)
 
         return !(aIsNotLessSpecificThanB && bIsNotLessSpecificThanA)
     }
@@ -96,7 +93,7 @@ object OverloadUtil {
                     error("Unexpected declaration kind: $a")
             }
 
-    @JvmStatic fun groupModulePackageMembersByFqName(
+    fun groupModulePackageMembersByFqName(
             c: BodiesResolveContext,
             overloadFilter: OverloadFilter
     ): MultiMap<FqNameUnsafe, DeclarationDescriptorNonRoot> {
@@ -172,7 +169,7 @@ object OverloadUtil {
             this is DeclarationDescriptorWithVisibility &&
             Visibilities.isPrivate(this.visibility)
 
-    @JvmStatic fun getPossibleRedeclarationGroups(
+    fun getPossibleRedeclarationGroups(
             members: Collection<DeclarationDescriptorNonRoot>
     ): Collection<Collection<DeclarationDescriptorNonRoot>> {
         val result = arrayListOf<Collection<DeclarationDescriptorNonRoot>>()

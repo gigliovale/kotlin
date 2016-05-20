@@ -61,7 +61,8 @@ class FunctionDescriptorResolver(
         private val storageManager: StorageManager,
         private val expressionTypingServices: ExpressionTypingServices,
         private val builtIns: KotlinBuiltIns,
-        private val modifiersChecker: ModifiersChecker
+        private val modifiersChecker: ModifiersChecker,
+        private val overloadChecker: OverloadChecker
 ) {
     fun resolveFunctionDescriptor(
             containingDescriptor: DeclarationDescriptor,
@@ -142,7 +143,7 @@ class FunctionDescriptorResolver(
             expectedFunctionType: KotlinType
     ) {
         val innerScope = LexicalWritableScope(scope, functionDescriptor, true, null,
-                                              TraceBasedLocalRedeclarationChecker(trace), LexicalScopeKind.FUNCTION_HEADER)
+                                              TraceBasedLocalRedeclarationChecker(trace, overloadChecker), LexicalScopeKind.FUNCTION_HEADER)
 
         val typeParameterDescriptors = descriptorResolver.
                 resolveTypeParametersForCallableDescriptor(functionDescriptor, innerScope, scope, function.typeParameters, trace)
@@ -178,7 +179,7 @@ class FunctionDescriptorResolver(
         functionDescriptor.isExternal = function.hasModifier(KtTokens.EXTERNAL_KEYWORD)
         functionDescriptor.isInline = function.hasModifier(KtTokens.INLINE_KEYWORD)
         functionDescriptor.isTailrec = function.hasModifier(KtTokens.TAILREC_KEYWORD)
-        receiverType?.let { ForceResolveUtil.forceResolveAllContents(it.getAnnotations()) }
+        receiverType?.let { ForceResolveUtil.forceResolveAllContents(it.annotations) }
         for (valueParameterDescriptor in valueParameterDescriptors) {
             ForceResolveUtil.forceResolveAllContents(valueParameterDescriptor.type.annotations)
         }
@@ -285,7 +286,7 @@ class FunctionDescriptorResolver(
                 scope,
                 constructorDescriptor,
                 false, null,
-                TraceBasedLocalRedeclarationChecker(trace),
+                TraceBasedLocalRedeclarationChecker(trace, overloadChecker),
                 LexicalScopeKind.CONSTRUCTOR_HEADER
         )
         val constructor = constructorDescriptor.initialize(

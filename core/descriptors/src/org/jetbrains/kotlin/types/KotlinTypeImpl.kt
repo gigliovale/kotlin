@@ -22,11 +22,11 @@ import org.jetbrains.kotlin.resolve.scopes.MemberScope
 
 open class KotlinTypeImpl
 private constructor(
-        private val annotations: Annotations,
-        private val constructor: TypeConstructor,
-        private val nullable: Boolean,
-        private val arguments: List<TypeProjection>,
-        private val memberScope: MemberScope
+        override val annotations: Annotations,
+        override val constructor: TypeConstructor,
+        override val isMarkedNullable: Boolean,
+        override val arguments: List<TypeProjection>,
+        override val memberScope: MemberScope
 ) : AbstractKotlinType() {
 
     companion object {
@@ -67,10 +67,8 @@ private constructor(
             nullable: Boolean,
             arguments: List<TypeProjection>,
             memberScope: MemberScope,
-            private val typeCapabilities: TypeCapabilities
-    ) : KotlinTypeImpl(annotations, constructor, nullable, arguments, memberScope) {
-        override fun getCapabilities(): TypeCapabilities = typeCapabilities
-    }
+            override val capabilities: TypeCapabilities
+    ) : KotlinTypeImpl(annotations, constructor, nullable, arguments, memberScope)
 
     init {
         if (memberScope is ErrorUtils.ErrorScope) {
@@ -78,15 +76,5 @@ private constructor(
         }
     }
 
-    override fun getAnnotations() = annotations
-
-    override fun getConstructor() = constructor
-
-    override fun getArguments() = arguments
-
-    override fun isMarkedNullable() = nullable
-
-    override fun getMemberScope() = memberScope
-
-    override fun isError() = false
+    override val isError: Boolean get() = false
 }

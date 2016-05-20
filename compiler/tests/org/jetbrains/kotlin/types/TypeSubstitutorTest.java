@@ -39,10 +39,8 @@ import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtPsiFactoryKt;
 import org.jetbrains.kotlin.psi.KtTypeReference;
 import org.jetbrains.kotlin.renderer.DescriptorRenderer;
-import org.jetbrains.kotlin.resolve.AnalyzingUtils;
-import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.BindingTrace;
-import org.jetbrains.kotlin.resolve.BindingTraceContext;
+import org.jetbrains.kotlin.resolve.*;
+import org.jetbrains.kotlin.resolve.calls.results.TypeSpecificityComparator;
 import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.resolve.scopes.utils.ScopeUtilsKt;
@@ -93,8 +91,10 @@ public class TypeSubstitutorTest extends KotlinTestWithEnvironment {
         LexicalScope topLevelScope = trace.get(BindingContext.LEXICAL_SCOPE, jetFile);
         final ClassifierDescriptor contextClass = ScopeUtilsKt.findClassifier(topLevelScope, Name.identifier("___Context"), NoLookupLocation.FROM_TEST);
         assert contextClass instanceof ClassDescriptor;
+        LocalRedeclarationChecker redeclarationChecker = new ThrowingLocalRedeclarationChecker(new OverloadChecker(
+                TypeSpecificityComparator.NONE.INSTANCE));
         LexicalScope typeParameters = new LexicalScopeImpl(topLevelScope, module, false, null, LexicalScopeKind.SYNTHETIC,
-                                                           ThrowingLocalRedeclarationChecker.INSTANCE,
+                                                           redeclarationChecker,
                                                            new Function1<LexicalScopeImpl.InitializeHandler, Unit>() {
                                                                @Override
                                                                public Unit invoke(LexicalScopeImpl.InitializeHandler handler) {

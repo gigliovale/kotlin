@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.load.java.lazy.types
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
@@ -34,9 +33,7 @@ import org.jetbrains.kotlin.load.java.structure.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.Flexibility.SpecificityRelation
 import org.jetbrains.kotlin.types.Variance.*
-import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.types.typeUtil.createProjection
 import org.jetbrains.kotlin.types.typeUtil.replaceAnnotations
 import org.jetbrains.kotlin.types.typeUtil.replaceArgumentsWithStarProjections
@@ -101,7 +98,7 @@ class LazyJavaTypeResolver(
             private val javaType: JavaClassifierType,
             private val attr: JavaTypeAttributes
     ) : AbstractLazyType(c.storageManager) {
-        private val annotations = CompositeAnnotations(listOf(LazyJavaAnnotations(c, javaType), attr.typeAnnotations))
+        override val annotations = CompositeAnnotations(listOf(LazyJavaAnnotations(c, javaType), attr.typeAnnotations))
 
         private val classifier = c.storageManager.createNullableLazyValue { javaType.classifier }
 
@@ -186,12 +183,11 @@ class LazyJavaTypeResolver(
             // such as collections with no generics, so the Java types are not raw, formally, but they don't match with
             // their Kotlin analogs, so we treat them as raw to avoid exceptions
             // No type arguments, but some are expected => raw
-            return javaType.typeArguments.isEmpty() && !getConstructor().parameters.isEmpty()
+            return javaType.typeArguments.isEmpty() && !constructor.parameters.isEmpty()
         }
 
         override fun computeArguments(): List<TypeProjection> {
-            val typeConstructor = getConstructor()
-            val typeParameters = typeConstructor.parameters
+            val typeParameters = constructor.parameters
             if (isRaw()) {
                 return typeParameters.map {
                     parameter ->
@@ -262,7 +258,7 @@ class LazyJavaTypeResolver(
             return this != typeParameter.variance
         }
 
-        override fun getCapabilities(): TypeCapabilities = if (isRaw()) RawTypeCapabilities else TypeCapabilities.NONE
+        override val capabilities: TypeCapabilities get() = if (isRaw()) RawTypeCapabilities else TypeCapabilities.NONE
 
         private val nullable = c.storageManager.createLazyValue l@ {
             if (attr.flexibility == FLEXIBLE_LOWER_BOUND) return@l false
@@ -281,9 +277,7 @@ class LazyJavaTypeResolver(
             }
         }
 
-        override fun isMarkedNullable(): Boolean = nullable()
-
-        override fun getAnnotations() = annotations
+        override val isMarkedNullable: Boolean get() = nullable()
     }
 
     object FlexibleJavaClassifierTypeFactory : FlexibleTypeFactory {
@@ -315,21 +309,6 @@ class LazyJavaTypeResolver(
                        else create(replacement, TypeUtils.makeNullable(replacement))
             }
 
-            override fun getSpecificityRelationTo(otherType: KotlinType): SpecificityRelation {
-                // For primitive types we have to take care of the case when there are two overloaded methods like
-                //    foo(int) and foo(Integer)
-                // if we do not discriminate one of them, any call to foo(kotlin.Int) will result in overload resolution ambiguity
-                // so, for such cases, we discriminate Integer in favour of int
-                if (!KotlinBuiltIns.isPrimitiveType(otherType) || !KotlinBuiltIns.isPrimitiveType(lowerBound)) {
-                    return SpecificityRelation.DONT_KNOW
-                }
-                // Int! >< Int?
-                if (otherType.isFlexible()) return SpecificityRelation.DONT_KNOW
-                // Int? >< Int!
-                if (otherType.isMarkedNullable) return SpecificityRelation.DONT_KNOW
-                // Int! lessSpecific Int
-                return SpecificityRelation.LESS_SPECIFIC
-            }
         }
     }
 

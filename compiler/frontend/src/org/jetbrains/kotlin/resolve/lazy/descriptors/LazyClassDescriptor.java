@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -597,7 +597,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
 
             KtClassOrObject classOrObject = declarationProvider.getOwnerInfo().getCorrespondingClassOrObject();
             if (classOrObject == null) {
-                return Collections.singleton(c.getModuleDescriptor().getBuiltIns().getAnyType());
+                return Collections.<KotlinType>singleton(c.getModuleDescriptor().getBuiltIns().getAnyType());
             }
 
             List<KotlinType> allSupertypes =

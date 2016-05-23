@@ -29,11 +29,13 @@ import org.jetbrains.kotlin.codegen.extensions.ClassBuilderInterceptorExtension
 import org.jetbrains.kotlin.codegen.inline.InlineCache
 import org.jetbrains.kotlin.codegen.intrinsics.IntrinsicMethods
 import org.jetbrains.kotlin.codegen.optimization.OptimizationClassBuilderFactory
+import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
-import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
+import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
@@ -43,6 +45,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
+import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import java.io.File
 
 class GenerationState @JvmOverloads constructor(
@@ -51,26 +54,16 @@ class GenerationState @JvmOverloads constructor(
         val module: ModuleDescriptor,
         bindingContext: BindingContext,
         val files: List<KtFile>,
-        disableCallAssertions: Boolean = true,
-        disableParamAssertions: Boolean = true,
+        val configuration: CompilerConfiguration,
         val generateDeclaredClassFilter: GenerateClassFilter = GenerationState.GenerateClassFilter.GENERATE_ALL,
-        disableInline: Boolean = false,
-        disableOptimization: Boolean = false,
-        val useTypeTableInSerializer: Boolean = false,
-        val inheritMultifileParts: Boolean = false,
-        val packagesWithObsoleteParts: Collection<FqName> = emptySet(),
-        val obsoleteMultifileClasses: Collection<FqName> = emptySet(),
-        // for PackageCodegen in incremental compilation mode
+        // For incremental compilation
         val targetId: TargetId? = null,
-        moduleName: String? = null,
+        moduleName: String? = configuration.get(JVMConfigurationKeys.MODULE_NAME),
         // 'outDirectory' is a hack to correctly determine if a compiled class is from the same module as the callee during
         // partial compilation. Module chunks are treated as a single module.
         // TODO: get rid of it with the proper module infrastructure
         val outDirectory: File? = null,
-        val incrementalCompilationComponents: IncrementalCompilationComponents? = null,
-        val progress: Progress = Progress.DEAF,
-        private val onIndependentPartCompilationEnd: GenerationStateEventCallback = GenerationStateEventCallback.DO_NOTHING,
-        dumpBinarySignatureMappingTo: File? = null
+        private val onIndependentPartCompilationEnd: GenerationStateEventCallback = GenerationStateEventCallback.DO_NOTHING
 ) {
     abstract class GenerateClassFilter {
         abstract fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean
@@ -94,10 +87,28 @@ class GenerationState @JvmOverloads constructor(
     val fileClassesProvider: CodegenFileClassesProvider = CodegenFileClassesProvider()
     val inlineCache: InlineCache = InlineCache()
 
-    private fun getIncrementalCacheForThisTarget() =
-            if (incrementalCompilationComponents != null && targetId != null)
-                incrementalCompilationComponents.getIncrementalCache(targetId)
-            else null
+    val incrementalCacheForThisTarget: IncrementalCache?
+    val packagesWithObsoleteParts: Set<FqName>
+    val obsoleteMultifileClasses: List<FqName>
+
+    init {
+        val icComponents = configuration.get(JVMConfigurationKeys.INCREMENTAL_COMPILATION_COMPONENTS)
+        if (icComponents != null) {
+            incrementalCacheForThisTarget =
+                    icComponents.getIncrementalCache(targetId ?: error("Target ID should be specified for incremental compilation"))
+            packagesWithObsoleteParts = incrementalCacheForThisTarget.getObsoletePackageParts().map {
+                JvmClassName.byInternalName(it).packageFqName
+            }.toSet()
+            obsoleteMultifileClasses = incrementalCacheForThisTarget.getObsoleteMultifileClasses().map {
+                JvmClassName.byInternalName(it).fqNameForClassNameWithoutDollars
+            }
+        }
+        else {
+            incrementalCacheForThisTarget = null
+            packagesWithObsoleteParts = emptySet()
+            obsoleteMultifileClasses = emptyList()
+        }
+    }
 
     val extraJvmDiagnosticsTrace: BindingTrace = DelegatingBindingTrace(bindingContext, false, "For extra diagnostics in ${this.javaClass}")
     private val interceptedBuilderFactory: ClassBuilderFactory
@@ -114,7 +125,7 @@ class GenerationState @JvmOverloads constructor(
     val bindingTrace: BindingTrace = DelegatingBindingTrace(bindingContext, "trace in GenerationState")
     val bindingContext: BindingContext = bindingTrace.bindingContext
     val typeMapper: KotlinTypeMapper = KotlinTypeMapper(
-            this.bindingContext, classBuilderMode, fileClassesProvider, getIncrementalCacheForThisTarget(),
+            this.bindingContext, classBuilderMode, fileClassesProvider, incrementalCacheForThisTarget,
             IncompatibleClassTrackerImpl(extraJvmDiagnosticsTrace), this.moduleName
     )
     val intrinsics: IntrinsicMethods = IntrinsicMethods()
@@ -136,28 +147,24 @@ class GenerationState @JvmOverloads constructor(
         var hasResult: Boolean = false
     }
 
-    val isCallAssertionsEnabled: Boolean = !disableCallAssertions
-        @JvmName("isCallAssertionsEnabled") get
-
-    val isParamAssertionsEnabled: Boolean = !disableParamAssertions
-        @JvmName("isParamAssertionsEnabled") get
-
-    val isInlineEnabled: Boolean = !disableInline
-        @JvmName("isInlineEnabled") get
-
+    val isCallAssertionsEnabled: Boolean = !configuration.get(JVMConfigurationKeys.DISABLE_CALL_ASSERTIONS, false)
+    val isParamAssertionsEnabled: Boolean = !configuration.get(JVMConfigurationKeys.DISABLE_PARAM_ASSERTIONS, false)
+    val isInlineEnabled: Boolean = !configuration.get(JVMConfigurationKeys.DISABLE_INLINE, false)
+    val useTypeTableInSerializer: Boolean = configuration.get(JVMConfigurationKeys.USE_TYPE_TABLE, false)
+    val inheritMultifileParts: Boolean = configuration.get(JVMConfigurationKeys.INHERIT_MULTIFILE_PARTS, false)
 
     val rootContext: CodegenContext<*> = RootContext(this)
 
     init {
         this.interceptedBuilderFactory = builderFactory
                 .wrapWith(
-                    { OptimizationClassBuilderFactory(it, disableOptimization) },
+                    { OptimizationClassBuilderFactory(it, configuration.get(JVMConfigurationKeys.DISABLE_OPTIMIZATION, false)) },
                     { BuilderFactoryForDuplicateSignatureDiagnostics(
-                            it, this.bindingContext, diagnostics, fileClassesProvider,
-                            getIncrementalCacheForThisTarget(),
-                            this.moduleName).apply { duplicateSignatureFactory = this } },
+                            it, this.bindingContext, diagnostics, fileClassesProvider, incrementalCacheForThisTarget, this.moduleName
+                      ).apply { duplicateSignatureFactory = this } },
                     { BuilderFactoryForDuplicateClassNameDiagnostics(it, diagnostics) },
-                    { dumpBinarySignatureMappingTo?.let { destination -> SignatureDumpingBuilderFactory(it, destination) } ?: it }
+                    { configuration.get(JVMConfigurationKeys.DECLARATIONS_JSON_PATH)
+                              ?.let { destination -> SignatureDumpingBuilderFactory(it, File(destination)) } ?: it }
                 )
                 .wrapWith(ClassBuilderInterceptorExtension.getInstances(project)) { builderFactory, extension ->
                     extension.interceptClassBuilderFactory(builderFactory, bindingContext, diagnostics)

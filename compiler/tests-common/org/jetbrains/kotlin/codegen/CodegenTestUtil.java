@@ -21,9 +21,7 @@ import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.analyzer.AnalysisResult;
-import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
-import org.jetbrains.kotlin.cli.jvm.config.JVMConfigurationKeys;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
@@ -48,11 +46,7 @@ public class CodegenTestUtil {
 
     @NotNull
     public static ClassFileFactory generateFiles(@NotNull KotlinCoreEnvironment environment, @NotNull CodegenTestFiles files) {
-        AnalysisResult analysisResult = JvmResolveUtil.analyzeFilesWithJavaIntegrationAndCheckForErrors(
-                environment.getProject(),
-                files.getPsiFiles(),
-                new JvmPackagePartProvider(environment)
-        );
+        AnalysisResult analysisResult = JvmResolveUtil.analyzeAndCheckForErrors(files.getPsiFiles(), environment);
         analysisResult.throwIfError();
         AnalyzingUtils.throwExceptionOnErrors(analysisResult.getBindingContext());
         CompilerConfiguration configuration = environment.getConfiguration();
@@ -62,13 +56,7 @@ public class CodegenTestUtil {
                 analysisResult.getModuleDescriptor(),
                 analysisResult.getBindingContext(),
                 files.getPsiFiles(),
-                configuration.get(JVMConfigurationKeys.DISABLE_CALL_ASSERTIONS, false),
-                configuration.get(JVMConfigurationKeys.DISABLE_PARAM_ASSERTIONS, false),
-                GenerationState.GenerateClassFilter.GENERATE_ALL,
-                configuration.get(JVMConfigurationKeys.DISABLE_INLINE, false),
-                configuration.get(JVMConfigurationKeys.DISABLE_OPTIMIZATION, false),
-                /* useTypeTableInSerializer = */ false,
-                configuration.get(JVMConfigurationKeys.INHERIT_MULTIFILE_PARTS, false)
+                configuration
         );
 
         if (analysisResult.getShouldGenerateCode()) {

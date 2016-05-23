@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.cli.jvm.config;
+package org.jetbrains.kotlin.config;
 
-import org.jetbrains.kotlin.cli.jvm.compiler.CompilerJarLocator;
-import org.jetbrains.kotlin.config.CompilerConfigurationKey;
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents;
 import org.jetbrains.kotlin.modules.Module;
 
@@ -37,21 +35,21 @@ public class JVMConfigurationKeys {
             CompilerConfigurationKey.create("disable optimization");
     public static final CompilerConfigurationKey<Boolean> INHERIT_MULTIFILE_PARTS =
             CompilerConfigurationKey.create("compile multifile classes to a hierarchy of parts and facade");
+    public static final CompilerConfigurationKey<Boolean> USE_TYPE_TABLE =
+            CompilerConfigurationKey.create("use type table in serializer");
 
     public static final CompilerConfigurationKey<IncrementalCompilationComponents> INCREMENTAL_COMPILATION_COMPONENTS =
             CompilerConfigurationKey.create("incremental cache provider");
 
-    public static final CompilerConfigurationKey<CompilerJarLocator> COMPILER_JAR_LOCATOR =
-            CompilerConfigurationKey.create("Compiler jar locator");
+    public static final CompilerConfigurationKey<String> MODULE_XML_FILE_PATH =
+            CompilerConfigurationKey.create("path to module.xml");
 
-    public static final CompilerConfigurationKey<String> MODULE_XML_FILE_PATH = CompilerConfigurationKey.create("path to module.xml");
-
-    public static final CompilerConfigurationKey<String> DECLARATIONS_JSON_PATH = CompilerConfigurationKey.create("path to declarations output");
+    public static final CompilerConfigurationKey<String> DECLARATIONS_JSON_PATH =
+            CompilerConfigurationKey.create("path to declarations output");
 
     public static final CompilerConfigurationKey<List<Module>> MODULES =
             CompilerConfigurationKey.create("module data");
 
     public static final CompilerConfigurationKey<String> MODULE_NAME =
             CompilerConfigurationKey.create("module name");
-
 }

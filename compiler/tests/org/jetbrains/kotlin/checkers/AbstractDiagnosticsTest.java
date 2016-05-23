@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.diagnostics.*;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
+import org.jetbrains.kotlin.name.SpecialNames;
 import org.jetbrains.kotlin.platform.JvmBuiltIns;
 import org.jetbrains.kotlin.psi.Call;
 import org.jetbrains.kotlin.psi.KtElement;
@@ -52,7 +53,6 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform;
-import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.storage.ExceptionTracker;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.storage.StorageManager;
@@ -71,7 +71,7 @@ import static org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator.RECUR
 
 public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
 
-    public static final Function1<String, String> HASH_SANITIZER = new Function1<String, String>() {
+    private static final Function1<String, String> HASH_SANITIZER = new Function1<String, String>() {
         @Override
         public String invoke(String s) {
             return s.replaceAll("@(\\d)+", "");
@@ -238,17 +238,16 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
 
     protected void analyzeModuleContents(
             @NotNull ModuleContext moduleContext,
-            @NotNull List<KtFile> jetFiles,
+            @NotNull List<KtFile> files,
             @NotNull BindingTrace moduleTrace
     ) {
         // New JavaDescriptorResolver is created for each module, which is good because it emulates different Java libraries for each module,
         // albeit with same class names
-        TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationWithCustomContext(
+        TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
                 moduleContext,
-                jetFiles,
+                files,
                 moduleTrace,
-                null,
-                null,
+                getEnvironment().getConfiguration(),
                 new JvmPackagePartProvider(getEnvironment())
         );
     }
@@ -299,8 +298,8 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
         KotlinTestUtils.assertEqualsToFile(expectedFile, rootPackageText.toString());
     }
 
-    public RecursiveDescriptorComparator.Configuration createdAffectedPackagesConfiguration(List<TestFile> testFiles) {
-        final Set<Name> packagesNames = LazyResolveTestUtil.getTopLevelPackagesFromFileList(getJetFiles(testFiles, false));
+    private RecursiveDescriptorComparator.Configuration createdAffectedPackagesConfiguration(List<TestFile> testFiles) {
+        final Set<Name> packagesNames = getTopLevelPackagesFromFileList(getJetFiles(testFiles, false));
 
         Predicate<DeclarationDescriptor> stepIntoFilter = new Predicate<DeclarationDescriptor>() {
             @Override
@@ -319,6 +318,17 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
         };
 
         return RECURSIVE.filterRecursion(stepIntoFilter).withValidationStrategy(DescriptorValidator.ValidationVisitor.errorTypesAllowed());
+    }
+
+    @NotNull
+    private static Set<Name> getTopLevelPackagesFromFileList(@NotNull List<KtFile> files) {
+        Set<Name> shortNames = new LinkedHashSet<Name>();
+        for (KtFile file : files) {
+            List<Name> packageFqNameSegments = file.getPackageFqName().pathSegments();
+            Name name = packageFqNameSegments.isEmpty() ? SpecialNames.ROOT_PACKAGE : packageFqNameSegments.get(0);
+            shortNames.add(name);
+        }
+        return shortNames;
     }
 
     private Map<TestModule, ModuleDescriptorImpl> createModules(

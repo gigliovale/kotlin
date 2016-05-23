@@ -22,69 +22,45 @@ import org.jetbrains.kotlin.analyzer.AnalysisResult;
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport;
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
-import org.jetbrains.kotlin.context.ModuleContext;
+import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.descriptors.PackagePartProvider;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.resolve.AnalyzingUtils;
-import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
 
 import java.util.Collection;
 import java.util.Collections;
 
 public class JvmResolveUtil {
-
     public static String TEST_MODULE_NAME = "java-integration-test";
+
     @NotNull
-    public static AnalysisResult analyzeOneFileWithJavaIntegrationAndCheckForErrors(@NotNull KtFile file) {
-        return analyzeOneFileWithJavaIntegrationAndCheckForErrors(file, PackagePartProvider.Companion.getEMPTY());
+    public static AnalysisResult analyzeAndCheckForErrors(@NotNull KtFile file, @NotNull KotlinCoreEnvironment environment) {
+        return analyzeAndCheckForErrors(Collections.singleton(file), environment);
     }
 
     @NotNull
-    public static AnalysisResult analyzeOneFileWithJavaIntegrationAndCheckForErrors(@NotNull KtFile file, @NotNull PackagePartProvider provider) {
-        AnalyzingUtils.checkForSyntacticErrors(file);
-
-        AnalysisResult analysisResult = analyzeOneFileWithJavaIntegration(file, provider);
-
-        AnalyzingUtils.throwExceptionOnErrors(analysisResult.getBindingContext());
-
-        return analysisResult;
-    }
-
-    @NotNull
-    public static AnalysisResult analyzeOneFileWithJavaIntegration(@NotNull KtFile file,  @NotNull KotlinCoreEnvironment environment) {
-        return analyzeOneFileWithJavaIntegration(file, new JvmPackagePartProvider(environment));
-    }
-
-    @NotNull
-    public static AnalysisResult analyzeOneFileWithJavaIntegration(@NotNull KtFile file,  @NotNull PackagePartProvider provider) {
-        return analyzeFilesWithJavaIntegration(file.getProject(), Collections.singleton(file), provider);
-    }
-
-    @NotNull
-    public static AnalysisResult analyzeOneFileWithJavaIntegration(@NotNull KtFile file) {
-        return analyzeOneFileWithJavaIntegration(file, PackagePartProvider.Companion.getEMPTY());
-    }
-
-    @NotNull
-    public static AnalysisResult analyzeFilesWithJavaIntegrationAndCheckForErrors(
-            @NotNull Project project,
-            @NotNull Collection<KtFile> files
+    public static AnalysisResult analyzeAndCheckForErrors(
+            @NotNull Collection<KtFile> files,
+            @NotNull KotlinCoreEnvironment environment
     ) {
-        return analyzeFilesWithJavaIntegrationAndCheckForErrors(project, files, PackagePartProvider.Companion.getEMPTY());
+        return analyzeAndCheckForErrors(
+                environment.getProject(), files, environment.getConfiguration(), new JvmPackagePartProvider(environment)
+        );
     }
 
     @NotNull
-    public static AnalysisResult analyzeFilesWithJavaIntegrationAndCheckForErrors(
+    public static AnalysisResult analyzeAndCheckForErrors(
             @NotNull Project project,
             @NotNull Collection<KtFile> files,
+            @NotNull CompilerConfiguration configuration,
             @NotNull PackagePartProvider packagePartProvider
     ) {
         for (KtFile file : files) {
             AnalyzingUtils.checkForSyntacticErrors(file);
         }
 
-        AnalysisResult analysisResult = analyzeFilesWithJavaIntegration(project, files, packagePartProvider);
+        AnalysisResult analysisResult = analyze(project, files, configuration, packagePartProvider);
 
         AnalyzingUtils.throwExceptionOnErrors(analysisResult.getBindingContext());
 
@@ -92,26 +68,30 @@ public class JvmResolveUtil {
     }
 
     @NotNull
-    public static AnalysisResult analyzeFilesWithJavaIntegration(
-            @NotNull Project project,
-            @NotNull Collection<KtFile> files,
-            @NotNull KotlinCoreEnvironment environment
-    ) {
-        return analyzeFilesWithJavaIntegration(project, files, new JvmPackagePartProvider(environment));
+    public static AnalysisResult analyze(@NotNull KotlinCoreEnvironment environment) {
+        return analyze(Collections.<KtFile>emptySet(), environment);
     }
 
     @NotNull
-    public static AnalysisResult analyzeFilesWithJavaIntegration(
+    public static AnalysisResult analyze(@NotNull KtFile file, @NotNull KotlinCoreEnvironment environment) {
+        return analyze(Collections.singleton(file), environment);
+    }
+
+    @NotNull
+    public static AnalysisResult analyze(@NotNull Collection<KtFile> files, @NotNull KotlinCoreEnvironment environment) {
+        return analyze(environment.getProject(), files, environment.getConfiguration(), new JvmPackagePartProvider(environment));
+    }
+
+    @NotNull
+    private static AnalysisResult analyze(
             @NotNull Project project,
             @NotNull Collection<KtFile> files,
+            @NotNull CompilerConfiguration configuration,
             @NotNull PackagePartProvider packagePartProvider
     ) {
-
-        ModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project, TEST_MODULE_NAME);
-
-        BindingTrace trace = new CliLightClassGenerationSupport.CliBindingTrace();
-
-        return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegrationWithCustomContext(moduleContext, files, trace, null, null,
-                                                                                            packagePartProvider);
+        return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
+                TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project, TEST_MODULE_NAME),
+                files, new CliLightClassGenerationSupport.CliBindingTrace(), configuration, packagePartProvider
+        );
     }
 }

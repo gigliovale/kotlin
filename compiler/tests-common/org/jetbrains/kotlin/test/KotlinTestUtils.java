@@ -63,6 +63,7 @@ import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.diagnostics.Severity;
 import org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages;
 import org.jetbrains.kotlin.idea.KotlinLanguage;
+import org.jetbrains.kotlin.jvm.compiler.LoadDescriptorUtil;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.KtExpression;
@@ -73,7 +74,6 @@ import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.TargetPlatform;
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
-import org.jetbrains.kotlin.resolve.lazy.LazyResolveTestUtil;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.test.util.JetTestUtilsKt;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -95,9 +95,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.kotlin.cli.jvm.config.JVMConfigurationKeys.MODULE_NAME;
-import static org.jetbrains.kotlin.jvm.compiler.LoadDescriptorUtil.compileKotlinToDirAndGetAnalysisResult;
-import static org.jetbrains.kotlin.test.ConfigurationKind.ALL;
+import static org.jetbrains.kotlin.config.JVMConfigurationKeys.MODULE_NAME;
 
 public class KotlinTestUtils {
     public static final String TEST_GENERATOR_NAME = "org.jetbrains.kotlin.generators.tests.TestsPackage";
@@ -290,7 +288,7 @@ public class KotlinTestUtils {
 
     @NotNull
     public static AnalysisResult analyzeFile(@NotNull KtFile file, @NotNull KotlinCoreEnvironment environment) {
-        return JvmResolveUtil.analyzeOneFileWithJavaIntegration(file, environment);
+        return JvmResolveUtil.analyze(file, environment);
     }
 
     @NotNull
@@ -467,7 +465,7 @@ public class KotlinTestUtils {
 
         JvmContentRootsKt.addJvmClasspathRoots(configuration, classpath);
 
-        configuration.put(MODULE_NAME, "compilerConfigurationForTests");
+        configuration.put(MODULE_NAME, JvmResolveUtil.TEST_MODULE_NAME);
 
         return configuration;
     }
@@ -475,25 +473,25 @@ public class KotlinTestUtils {
     public static void resolveAllKotlinFiles(KotlinCoreEnvironment environment) throws IOException {
         List<ContentRoot> paths = environment.getConfiguration().get(CommonConfigurationKeys.CONTENT_ROOTS);
         if (paths == null) return;
-        List<KtFile> jetFiles = Lists.newArrayList();
+        List<KtFile> ktFiles = new ArrayList<KtFile>();
         for (ContentRoot root : paths) {
             if (!(root instanceof KotlinSourceRoot)) continue;
 
             String path = ((KotlinSourceRoot) root).getPath();
             File file = new File(path);
             if (file.isFile()) {
-                jetFiles.add(loadJetFile(environment.getProject(), file));
+                ktFiles.add(loadJetFile(environment.getProject(), file));
             }
             else {
                 //noinspection ConstantConditions
                 for (File childFile : file.listFiles()) {
                     if (childFile.getName().endsWith(".kt")) {
-                        jetFiles.add(loadJetFile(environment.getProject(), childFile));
+                        ktFiles.add(loadJetFile(environment.getProject(), childFile));
                     }
                 }
             }
         }
-        LazyResolveTestUtil.resolve(environment.getProject(), jetFiles, environment);
+        JvmResolveUtil.analyze(ktFiles, environment);
     }
 
     public static void assertEqualsToFile(@NotNull File expectedFile, @NotNull Editor editor) {
@@ -542,7 +540,8 @@ public class KotlinTestUtils {
             @Nullable File javaErrorFile
     ) throws IOException {
         if (!ktFiles.isEmpty()) {
-            compileKotlinToDirAndGetAnalysisResult(ktFiles, outDir, disposable, ALL, false);
+            KotlinCoreEnvironment environment = createEnvironmentWithMockJdkAndIdeaAnnotations(disposable);
+            LoadDescriptorUtil.compileKotlinToDirAndGetModule(ktFiles, outDir, environment);
         }
         else {
             boolean mkdirs = outDir.mkdirs();

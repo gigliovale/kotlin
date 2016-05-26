@@ -18,23 +18,33 @@ package org.jetbrains.kotlin.psi
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.lexer.KtTokens
 
 abstract class KtDoubleColonExpression(node: ASTNode) : KtExpressionImpl(node) {
-    val typeReference: KtTypeReference?
-        get() = findChildByType(KtNodeTypes.TYPE_REFERENCE)
+    val receiverExpression: KtExpression?
+        get() = node.firstChildNode.psi as? KtExpression
+
+    val hasQuestionMarks: Boolean
+        get() {
+            for (element in generateSequence(node.firstChildNode, ASTNode::getTreeNext)) {
+                when (element.elementType) {
+                    KtTokens.QUEST -> return true
+                    KtTokens.COLONCOLON -> return false
+                }
+            }
+            error("Double colon expression must have '::': $text")
+        }
 
     val doubleColonTokenReference: PsiElement
         get() = findChildByType(KtTokens.COLONCOLON)!!
 
-    fun setTypeReference(typeReference: KtTypeReference) {
-        val oldTypeReference = this.typeReference
-        if (oldTypeReference != null) {
-            oldTypeReference.replace(typeReference)
+    fun setReceiverExpression(newReceiverExpression: KtExpression) {
+        val oldReceiverExpression = this.receiverExpression
+        if (oldReceiverExpression != null) {
+            oldReceiverExpression.replace(newReceiverExpression)
         }
         else {
-            addBefore(typeReference, doubleColonTokenReference)
+            addBefore(newReceiverExpression, doubleColonTokenReference)
         }
     }
 

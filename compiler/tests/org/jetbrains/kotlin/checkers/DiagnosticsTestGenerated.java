@@ -1653,6 +1653,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/callableReference"), Pattern.compile("^(.+)\\.kt$"), true);
             }
 
+            @TestMetadata("bareType.kt")
+            public void testBareType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bareType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("classVsPackage.kt")
+            public void testClassVsPackage() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/classVsPackage.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("ea81649_errorPropertyLHS.kt")
             public void testEa81649_errorPropertyLHS() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/ea81649_errorPropertyLHS.kt");
@@ -1677,9 +1689,27 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("packageInLhs.kt")
+            public void testPackageInLhs() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/packageInLhs.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("parsingPriorityOfGenericArgumentsVsLess.kt")
+            public void testParsingPriorityOfGenericArgumentsVsLess() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/parsingPriorityOfGenericArgumentsVsLess.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unused.kt")
             public void testUnused() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/unused.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("whitespacesInExpression.kt")
+            public void testWhitespacesInExpression() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/whitespacesInExpression.kt");
                 doTest(fileName);
             }
 
@@ -18178,6 +18208,21 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/whileWithBreak.kt");
                     doTest(fileName);
                 }
+            }
+        }
+
+        @TestMetadata("compiler/testData/diagnostics/tests/sourceCompatibility")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class SourceCompatibility extends AbstractDiagnosticsTest {
+            public void testAllFilesPresentInSourceCompatibility() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/sourceCompatibility"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("noTopLevelSealedInheritance.kt")
+            public void testNoTopLevelSealedInheritance() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noTopLevelSealedInheritance.kt");
+                doTest(fileName);
             }
         }
 

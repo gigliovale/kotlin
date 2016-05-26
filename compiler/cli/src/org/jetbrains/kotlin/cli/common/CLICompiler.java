@@ -22,6 +22,7 @@ import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.SystemInfo;
 import com.sampullara.cli.Args;
 import kotlin.Pair;
+import kotlin.collections.ArraysKt;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.fusesource.jansi.AnsiConsole;
@@ -34,10 +35,12 @@ import org.jetbrains.kotlin.cli.jvm.compiler.CompileEnvironmentException;
 import org.jetbrains.kotlin.cli.jvm.compiler.CompilerJarLocator;
 import org.jetbrains.kotlin.config.CommonConfigurationKeys;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
+import org.jetbrains.kotlin.config.LanguageVersion;
 import org.jetbrains.kotlin.config.Services;
 import org.jetbrains.kotlin.progress.CompilationCanceledException;
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus;
 import org.jetbrains.kotlin.progress.ProgressIndicatorAndCompilationCanceledStatus;
+import org.jetbrains.kotlin.utils.StringsKt;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -241,6 +244,26 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
         CompilerJarLocator locator = services.get(CompilerJarLocator.class);
         if (locator != null) {
             configuration.put(CLIConfigurationKeys.COMPILER_JAR_LOCATOR, locator);
+        }
+
+        if (arguments.languageVersion != null) {
+            LanguageVersion languageFeatureSettings = LanguageVersion.fromVersionString(arguments.languageVersion);
+            if (languageFeatureSettings != null) {
+                configuration.put(CommonConfigurationKeys.LANGUAGE_FEATURE_SETTINGS, languageFeatureSettings);
+            }
+            else {
+                List<String> versionStrings = ArraysKt.map(LanguageVersion.values(), new Function1<LanguageVersion, String>() {
+                    @Override
+                    public String invoke(LanguageVersion version) {
+                        return version.getVersionString();
+                    }
+                });
+                String message = "Unknown language version: " + arguments.languageVersion + "\n" +
+                                 "Supported language versions: " + StringsKt.join(versionStrings, ", ");
+                configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY).report(
+                        CompilerMessageSeverity.ERROR, message, CompilerMessageLocation.NO_LOCATION
+                );
+            }
         }
     }
 

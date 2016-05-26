@@ -53,10 +53,7 @@ import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.cli.jvm.config.JvmContentRootsKt;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
-import org.jetbrains.kotlin.config.CommonConfigurationKeys;
-import org.jetbrains.kotlin.config.CompilerConfiguration;
-import org.jetbrains.kotlin.config.ContentRoot;
-import org.jetbrains.kotlin.config.KotlinSourceRoot;
+import org.jetbrains.kotlin.config.*;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.diagnostics.Diagnostic;
 import org.jetbrains.kotlin.diagnostics.Errors;
@@ -95,9 +92,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.kotlin.config.JVMConfigurationKeys.MODULE_NAME;
-
 public class KotlinTestUtils {
+    public static String TEST_MODULE_NAME = "test-module";
+
     public static final String TEST_GENERATOR_NAME = "org.jetbrains.kotlin.generators.tests.TestsPackage";
     public static final String PLEASE_REGENERATE_TESTS = "Please regenerate tests (GenerateTests.kt)";
 
@@ -308,9 +305,8 @@ public class KotlinTestUtils {
             @NotNull TestJdkKind jdkKind
     ) {
         return KotlinCoreEnvironment.createForTests(
-                disposable,
-                compilerConfigurationForTests(configurationKind, jdkKind, getAnnotationsJar()),
-                EnvironmentConfigFiles.JVM_CONFIG_FILES);
+                disposable, newConfiguration(configurationKind, jdkKind, getAnnotationsJar()), EnvironmentConfigFiles.JVM_CONFIG_FILES
+        );
     }
 
     @NotNull
@@ -422,22 +418,29 @@ public class KotlinTestUtils {
     }
 
     @NotNull
-    public static CompilerConfiguration compilerConfigurationForTests(
+    public static CompilerConfiguration newConfiguration() {
+        CompilerConfiguration configuration = new CompilerConfiguration();
+        configuration.put(CommonConfigurationKeys.MODULE_NAME, TEST_MODULE_NAME);
+        return configuration;
+    }
+
+    @NotNull
+    public static CompilerConfiguration newConfiguration(
             @NotNull ConfigurationKind configurationKind,
             @NotNull TestJdkKind jdkKind,
             @NotNull File... extraClasspath
     ) {
-        return compilerConfigurationForTests(configurationKind, jdkKind, Arrays.asList(extraClasspath), Collections.<File>emptyList());
+        return newConfiguration(configurationKind, jdkKind, Arrays.asList(extraClasspath), Collections.<File>emptyList());
     }
 
     @NotNull
-    public static CompilerConfiguration compilerConfigurationForTests(
+    public static CompilerConfiguration newConfiguration(
             @NotNull ConfigurationKind configurationKind,
             @NotNull TestJdkKind jdkKind,
             @NotNull List<File> classpath,
             @NotNull List<File> javaSource
     ) {
-        CompilerConfiguration configuration = new CompilerConfiguration();
+        CompilerConfiguration configuration = newConfiguration();
         JvmContentRootsKt.addJavaSourceRoots(configuration, javaSource);
         if (jdkKind == TestJdkKind.MOCK_JDK) {
             JvmContentRootsKt.addJvmClasspathRoot(configuration, findMockJdkRtJar());
@@ -465,13 +468,11 @@ public class KotlinTestUtils {
 
         JvmContentRootsKt.addJvmClasspathRoots(configuration, classpath);
 
-        configuration.put(MODULE_NAME, JvmResolveUtil.TEST_MODULE_NAME);
-
         return configuration;
     }
 
     public static void resolveAllKotlinFiles(KotlinCoreEnvironment environment) throws IOException {
-        List<ContentRoot> paths = environment.getConfiguration().get(CommonConfigurationKeys.CONTENT_ROOTS);
+        List<ContentRoot> paths = environment.getConfiguration().get(JVMConfigurationKeys.CONTENT_ROOTS);
         if (paths == null) return;
         List<KtFile> ktFiles = new ArrayList<KtFile>();
         for (ContentRoot root : paths) {

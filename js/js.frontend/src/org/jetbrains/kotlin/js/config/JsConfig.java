@@ -23,7 +23,8 @@ import kotlin.Unit;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.config.CommonConfigurationKeys;
+import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.js.resolve.JsPlatform;
@@ -41,64 +42,24 @@ import java.util.List;
 /**
  * Base class representing a configuration of translator.
  */
-public abstract class Config {
-    private final boolean inlineEnabled;
-    @NotNull
+public abstract class JsConfig {
     private final Project project;
-    @NotNull
+    private final CompilerConfiguration configuration;
     private final LockBasedStorageManager storageManager = new LockBasedStorageManager();
-    @NotNull
     private final List<KtFile> sourceFilesFromLibraries = new SmartList<KtFile>();
-    @NotNull
-    private final EcmaVersion target;
-
-    @NotNull
-    private final String moduleId;
-
-    private final boolean sourcemap;
-    private final boolean metaInfo;
-    private final boolean kjsm;
-
-    @NotNull
     protected final List<KotlinJavascriptMetadata> metadata = new SmartList<KotlinJavascriptMetadata>();
-
-    @Nullable
     private List<ModuleDescriptorImpl> moduleDescriptors = null;
 
     private boolean initialized = false;
 
-    protected Config(
-            @NotNull Project project,
-            @NotNull String moduleId,
-            @NotNull EcmaVersion ecmaVersion,
-            boolean sourcemap,
-            boolean inlineEnabled,
-            boolean metaInfo,
-            boolean kjsm
-    ) {
+    protected JsConfig(@NotNull Project project, @NotNull CompilerConfiguration configuration) {
         this.project = project;
-        this.target = ecmaVersion;
-        this.moduleId = moduleId;
-        this.sourcemap = sourcemap;
-        this.inlineEnabled = inlineEnabled;
-        this.metaInfo = metaInfo;
-        this.kjsm = kjsm;
+        this.configuration = configuration;
     }
 
-    public boolean isSourcemap() {
-        return sourcemap;
-    }
-
-    public boolean isMetaInfo() {
-        return metaInfo;
-    }
-
-    public boolean isKjsm() {
-        return kjsm;
-    }
-
-    public boolean isInlineEnabled() {
-        return inlineEnabled;
+    @NotNull
+    public CompilerConfiguration getConfiguration() {
+        return configuration;
     }
 
     @NotNull
@@ -107,13 +68,8 @@ public abstract class Config {
     }
 
     @NotNull
-    public EcmaVersion getTarget() {
-        return target;
-    }
-
-    @NotNull
     public String getModuleId() {
-        return moduleId;
+        return configuration.getNotNull(CommonConfigurationKeys.MODULE_NAME);
     }
 
     public abstract boolean checkLibFilesAndReportErrors(@NotNull Function1<String, Unit> report);
@@ -137,14 +93,9 @@ public abstract class Config {
     }
 
     @NotNull
-    public List<KtFile> getSourceFilesFromLibraries() {
+    private List<KtFile> getSourceFilesFromLibraries() {
         init();
         return sourceFilesFromLibraries;
-    }
-
-
-    public boolean isTestConfig() {
-        return false;
     }
 
     private void init() {
@@ -176,7 +127,7 @@ public abstract class Config {
     }
 
     @NotNull
-    public static Collection<KtFile> withJsLibAdded(@NotNull Collection<KtFile> files, @NotNull Config config) {
+    public static Collection<KtFile> withJsLibAdded(@NotNull Collection<KtFile> files, @NotNull JsConfig config) {
         Collection<KtFile> allFiles = Lists.newArrayList();
         allFiles.addAll(files);
         allFiles.addAll(config.getSourceFilesFromLibraries());

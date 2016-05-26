@@ -21,13 +21,16 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.analyzer.AnalysisResult;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
+import org.jetbrains.kotlin.config.CommonConfigurationKeys;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase;
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS;
-import org.jetbrains.kotlin.js.config.Config;
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
+import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig;
 import org.jetbrains.kotlin.js.resolve.diagnostics.ErrorsJs;
 import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.test.KotlinTestUtils;
 
 import java.lang.reflect.Field;
 
@@ -59,10 +62,12 @@ public abstract class AbstractDiagnosticMessageJsTest extends AbstractDiagnostic
     }
 
     @NotNull
-    private Config getConfig() {
-        return new LibrarySourcesConfig.Builder(getProject(), "testModule", LibrarySourcesConfig.JS_STDLIB)
-                .inlineEnabled(false)
-                .isUnitTestConfig(true)
-                .build();
+    private JsConfig getConfig() {
+        CompilerConfiguration configuration = getEnvironment().getConfiguration().copy();
+        configuration.put(CommonConfigurationKeys.MODULE_NAME, KotlinTestUtils.TEST_MODULE_NAME);
+        configuration.put(JSConfigurationKeys.LIBRARY_FILES, LibrarySourcesConfig.JS_STDLIB);
+        configuration.put(CommonConfigurationKeys.DISABLE_INLINE, true);
+        configuration.put(JSConfigurationKeys.UNIT_TEST_CONFIG, true);
+        return new LibrarySourcesConfig(getProject(), configuration);
     }
 }

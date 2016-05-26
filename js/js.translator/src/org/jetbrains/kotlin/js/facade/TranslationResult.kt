@@ -23,7 +23,8 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import org.jetbrains.kotlin.backend.common.output.*
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.js.config.Config
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
+import org.jetbrains.kotlin.js.config.JsConfig
 import org.jetbrains.kotlin.js.sourceMap.JsSourceGenerationVisitor
 import org.jetbrains.kotlin.js.sourceMap.SourceMap3Builder
 import org.jetbrains.kotlin.js.sourceMap.SourceMapBuilder
@@ -32,27 +33,28 @@ import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 import org.jetbrains.kotlin.serialization.js.KotlinJavascriptSerializationUtil
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
-import java.util.ArrayList
+import java.util.*
 
 abstract class TranslationResult protected constructor(val diagnostics: Diagnostics) {
 
     class Fail(diagnostics: Diagnostics) : TranslationResult(diagnostics)
 
     class Success(
-            private val config: Config,
+            private val config: JsConfig,
             private val files: List<KtFile>,
             val program: JsProgram,
             diagnostics: Diagnostics,
             private val moduleDescriptor: ModuleDescriptor
     ) : TranslationResult(diagnostics) {
+        @Suppress("unused") // Used in kotlin-web-demo in WebDemoTranslatorFacade
         fun getCode(): String = getCode(TextOutputImpl(), sourceMapBuilder = null)
 
         fun getOutputFiles(outputFile: File, outputPrefixFile: File?, outputPostfixFile: File?): OutputFileCollection {
             val output = TextOutputImpl()
-            val sourceMapBuilder = when {
-                config.isSourcemap -> SourceMap3Builder(outputFile, output, SourceMapBuilderConsumer())
-                else -> null
-            }
+            val sourceMapBuilder =
+                    if (config.configuration.getBoolean(JSConfigurationKeys.SOURCE_MAP))
+                        SourceMap3Builder(outputFile, output, SourceMapBuilderConsumer())
+                    else null
 
             val code = getCode(output, sourceMapBuilder)
             val prefix = outputPrefixFile?.readText() ?: ""
@@ -69,7 +71,7 @@ abstract class TranslationResult protected constructor(val diagnostics: Diagnost
             val jsFile = SimpleOutputFile(sourceFiles, outputFile.name, prefix + code + postfix)
             val outputFiles = arrayListOf<OutputFile>(jsFile)
 
-            if (config.isMetaInfo) {
+            if (config.configuration.getBoolean(JSConfigurationKeys.META_INFO)) {
                 val metaFileName = KotlinJavascriptMetadataUtils.replaceSuffix(outputFile.name)
                 val metaFileContent = KotlinJavascriptSerializationUtil.metadataAsString(config.moduleId, moduleDescriptor)
                 val sourceFilesForMetaFile = ArrayList(sourceFiles)
@@ -77,7 +79,7 @@ abstract class TranslationResult protected constructor(val diagnostics: Diagnost
                 outputFiles.add(jsMetaFile)
             }
 
-            if (config.isKjsm) {
+            if (config.configuration.getBoolean(JSConfigurationKeys.KJSM)) {
                 KotlinJavascriptSerializationUtil.toContentMap(moduleDescriptor).forEach {
                     // TODO Add correct source files
                     outputFiles.add(SimpleOutputBinaryFile(emptyList(), config.moduleId + VfsUtilCore.VFS_SEPARATOR_CHAR + it.key, it.value))

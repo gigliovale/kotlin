@@ -35,11 +35,13 @@ import org.jetbrains.kotlin.cli.common.messages.PrintingMessageCollector;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
+import org.jetbrains.kotlin.config.CommonConfigurationKeys;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.js.JavaScript;
-import org.jetbrains.kotlin.js.config.Config;
 import org.jetbrains.kotlin.js.config.EcmaVersion;
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
+import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig;
 import org.jetbrains.kotlin.js.facade.K2JSTranslator;
 import org.jetbrains.kotlin.js.facade.MainCallParameters;
@@ -83,8 +85,7 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
     public static final String TEST_MODULE = "JS_TESTS";
     public static final String TEST_PACKAGE = "foo";
     public static final String TEST_FUNCTION = "box";
-    public static final String NO_INLINE_DIRECTIVE = "// NO_INLINE";
-    public boolean isInlineEnabled = true;
+    private static final String NO_INLINE_DIRECTIVE = "// NO_INLINE";
 
     @NotNull
     private String relativePathToTestDir = "";
@@ -114,7 +115,6 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
         File outDir = new File(getOutputPath());
 
         KotlinTestUtils.mkdirs(outDir);
-        isInlineEnabled = true;
     }
 
     @Override
@@ -182,7 +182,7 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
         List<String> allFiles = withAdditionalKotlinFiles(files);
         List<KtFile> jetFiles = createJetFileList(project, allFiles, null);
 
-        Config config = createConfig(getProject(), moduleName, version, libraries, jetFiles);
+        JsConfig config = createConfig(getProject(), moduleName, version, libraries, jetFiles);
         File outputFile = new File(getOutputFilePath(testName, version));
 
         translateFiles(jetFiles, outputFile, mainCallParameters, config);
@@ -196,7 +196,7 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
             @NotNull List<KtFile> jetFiles,
             @NotNull File outputFile,
             @NotNull MainCallParameters mainCallParameters,
-            @NotNull Config config
+            @NotNull JsConfig config
     ) throws Exception {
         K2JSTranslator translator = new K2JSTranslator(config);
         TranslationResult translationResult = translator.translate(jetFiles, mainCallParameters);
@@ -321,34 +321,42 @@ public abstract class BasicTest extends KotlinTestWithEnvironment {
     }
 
     @NotNull
-    private Config createConfig(
+    private JsConfig createConfig(
             @NotNull Project project,
-            @NotNull String moduleId,
+            @NotNull String moduleName,
             @NotNull EcmaVersion ecmaVersion,
             @Nullable List<String> libraries,
-            List<KtFile> jetFiles
+            @NotNull List<KtFile> files
     ) {
-        for (KtFile file : jetFiles) {
-            String text = file.getText();
+        CompilerConfiguration configuration = getEnvironment().getConfiguration().copy();
 
-            if (isDirectiveDefined(text, NO_INLINE_DIRECTIVE)) {
-                isInlineEnabled = false;
-                break;
-            }
-        }
+        configuration.put(CommonConfigurationKeys.DISABLE_INLINE, hasNoInline(files));
 
         List<String> librariesWithStdlib = new ArrayList<String>(LibrarySourcesConfig.JS_STDLIB);
         if (libraries != null) {
             librariesWithStdlib.addAll(libraries);
         }
+        configuration.put(JSConfigurationKeys.LIBRARY_FILES, librariesWithStdlib);
 
-        return new LibrarySourcesConfig.Builder(project, moduleId, librariesWithStdlib)
-                .ecmaVersion(ecmaVersion)
-                .sourceMap(shouldGenerateSourceMap())
-                .inlineEnabled(isInlineEnabled)
-                .isUnitTestConfig(shouldBeTranslateAsUnitTestClass())
-                .metaInfo(shouldGenerateMetaInfo())
-                .build();
+        configuration.put(CommonConfigurationKeys.MODULE_NAME, moduleName);
+        configuration.put(JSConfigurationKeys.TARGET, ecmaVersion);
+
+        configuration.put(JSConfigurationKeys.SOURCE_MAP, shouldGenerateSourceMap());
+        configuration.put(JSConfigurationKeys.META_INFO, shouldGenerateMetaInfo());
+
+        configuration.put(JSConfigurationKeys.UNIT_TEST_CONFIG, shouldBeTranslateAsUnitTestClass());
+
+        return new LibrarySourcesConfig(project, configuration);
+    }
+
+    private static boolean hasNoInline(@NotNull List<KtFile> files) {
+        for (KtFile file : files) {
+            if (isDirectiveDefined(file.getText(), NO_INLINE_DIRECTIVE)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @NotNull

@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.config.addKotlinSourceRoots
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.jvm.compiler.LoadDescriptorUtil.TEST_PACKAGE_FQNAME
@@ -39,8 +40,7 @@ import org.jetbrains.kotlin.utils.sure
 import java.io.File
 
 class KotlinJavascriptSerializerTest : TestCaseWithTmpdir() {
-    private final val MODULE_NAME = "module"
-    private final val BASE_DIR = "compiler/testData/serialization"
+    private val BASE_DIR = "compiler/testData/serialization"
 
     private fun doTest(fileName: String, metaFileDir: File = tmpdir) {
         val source = "$BASE_DIR/$fileName"
@@ -48,8 +48,9 @@ class KotlinJavascriptSerializerTest : TestCaseWithTmpdir() {
 
         val srcDirs = listOf(File(source))
 
-        val configuration = CompilerConfiguration()
+        val configuration = KotlinTestUtils.newConfiguration()
         configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, MessageCollector.NONE)
+        configuration.put(JSConfigurationKeys.LIBRARY_FILES, LibrarySourcesConfig.JS_STDLIB)
 
         configuration.addKotlinSourceRoots(srcDirs.map { it.path })
 
@@ -68,9 +69,11 @@ class KotlinJavascriptSerializerTest : TestCaseWithTmpdir() {
         try {
             val environment = KotlinCoreEnvironment.createForTests(rootDisposable, configuration, EnvironmentConfigFiles.JS_CONFIG_FILES)
             val files = environment.getSourceFiles()
-            val config = LibrarySourcesConfig.Builder(environment.project, MODULE_NAME, LibrarySourcesConfig.JS_STDLIB).build()
+            val config = LibrarySourcesConfig(environment.project, environment.configuration)
             val analysisResult = TopDownAnalyzerFacadeForJS.analyzeFiles(files, config)
-            FileUtil.writeToFile(metaFile, KotlinJavascriptSerializationUtil.metadataAsString(MODULE_NAME, analysisResult.moduleDescriptor))
+            FileUtil.writeToFile(metaFile, KotlinJavascriptSerializationUtil.metadataAsString(
+                    KotlinTestUtils.TEST_MODULE_NAME, analysisResult.moduleDescriptor
+            ))
         }
         finally {
             Disposer.dispose(rootDisposable)
@@ -78,7 +81,7 @@ class KotlinJavascriptSerializerTest : TestCaseWithTmpdir() {
     }
 
     private fun deserialize(metaFile: File): ModuleDescriptorImpl {
-        val module = KotlinTestUtils.createEmptyModule("<$MODULE_NAME>", JsPlatform, JsPlatform.builtIns)
+        val module = KotlinTestUtils.createEmptyModule("<${KotlinTestUtils.TEST_MODULE_NAME}>", JsPlatform, JsPlatform.builtIns)
         val metadata = KotlinJavascriptMetadataUtils.loadMetadata(metaFile)
         assert(metadata.size == 1)
 

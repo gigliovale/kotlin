@@ -35,24 +35,29 @@ import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys;
 import org.jetbrains.kotlin.cli.common.ExitCode;
 import org.jetbrains.kotlin.cli.common.arguments.K2JSCompilerArguments;
 import org.jetbrains.kotlin.cli.common.arguments.K2JsArgumentConstants;
-import org.jetbrains.kotlin.cli.common.messages.*;
+import org.jetbrains.kotlin.cli.common.messages.AnalyzerWithCompilerReport;
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation;
+import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity;
+import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
-import org.jetbrains.kotlin.cli.jvm.compiler.CompilerJarLocator;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
+import org.jetbrains.kotlin.config.CommonConfigurationKeys;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.config.ContentRootsKt;
 import org.jetbrains.kotlin.config.Services;
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS;
 import org.jetbrains.kotlin.js.analyzer.JsAnalysisResult;
-import org.jetbrains.kotlin.js.config.Config;
 import org.jetbrains.kotlin.js.config.EcmaVersion;
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
+import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig;
 import org.jetbrains.kotlin.js.facade.K2JSTranslator;
 import org.jetbrains.kotlin.js.facade.MainCallParameters;
 import org.jetbrains.kotlin.js.facade.TranslationResult;
 import org.jetbrains.kotlin.progress.ProgressIndicatorAndCompilationCanceledStatus;
 import org.jetbrains.kotlin.psi.KtFile;
+import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.jetbrains.kotlin.utils.PathUtil;
 
 import java.io.File;
@@ -74,31 +79,19 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         return new K2JSCompilerArguments();
     }
 
-
     @NotNull
     @Override
     protected ExitCode doExecute(
-            @NotNull K2JSCompilerArguments arguments,
-            @NotNull Services services,
-            @NotNull MessageCollector messageCollector,
-            @NotNull Disposable rootDisposable
+            @NotNull K2JSCompilerArguments arguments, @NotNull CompilerConfiguration configuration, @NotNull Disposable rootDisposable
     ) {
-        final MessageSeverityCollector messageSeverityCollector = new MessageSeverityCollector(messageCollector);
+        final MessageCollector messageCollector = configuration.getNotNull(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY);
 
         if (arguments.freeArgs.isEmpty()) {
             if (arguments.version) {
                 return OK;
             }
-            messageSeverityCollector.report(CompilerMessageSeverity.ERROR, "Specify at least one source file or directory", NO_LOCATION);
+            messageCollector.report(CompilerMessageSeverity.ERROR, "Specify at least one source file or directory", NO_LOCATION);
             return COMPILATION_ERROR;
-        }
-
-        CompilerConfiguration configuration = new CompilerConfiguration();
-        configuration.put(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, messageSeverityCollector);
-
-        CompilerJarLocator locator = services.get(CompilerJarLocator.class);
-        if (locator != null) {
-            configuration.put(CLIConfigurationKeys.COMPILER_JAR_LOCATOR, locator);
         }
 
         ContentRootsKt.addKotlinSourceRoots(configuration, arguments.freeArgs);
@@ -109,37 +102,39 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         List<KtFile> sourcesFiles = environmentForJS.getSourceFiles();
 
         if (arguments.outputFile == null) {
-            messageSeverityCollector.report(CompilerMessageSeverity.ERROR, "Specify output file via -output", CompilerMessageLocation.NO_LOCATION);
+            messageCollector.report(CompilerMessageSeverity.ERROR, "Specify output file via -output", CompilerMessageLocation.NO_LOCATION);
             return ExitCode.COMPILATION_ERROR;
         }
 
-        if (messageSeverityCollector.anyReported(CompilerMessageSeverity.ERROR)) {
+        if (messageCollector.hasErrors()) {
             return ExitCode.COMPILATION_ERROR;
         }
 
         if (sourcesFiles.isEmpty()) {
-            messageSeverityCollector.report(CompilerMessageSeverity.ERROR, "No source files", CompilerMessageLocation.NO_LOCATION);
+            messageCollector.report(CompilerMessageSeverity.ERROR, "No source files", CompilerMessageLocation.NO_LOCATION);
             return COMPILATION_ERROR;
         }
 
         if (arguments.verbose) {
-            reportCompiledSourcesList(messageSeverityCollector, sourcesFiles);
+            reportCompiledSourcesList(messageCollector, sourcesFiles);
         }
 
         File outputFile = new File(arguments.outputFile);
 
-        Config config = getConfig(arguments, project);
+        configuration.put(CommonConfigurationKeys.MODULE_NAME, FileUtil.getNameWithoutExtension(outputFile));
+
+        JsConfig config = new LibrarySourcesConfig(project, configuration);
         if (config.checkLibFilesAndReportErrors(new Function1<String, Unit>() {
             @Override
             public Unit invoke(String message) {
-                messageSeverityCollector.report(CompilerMessageSeverity.ERROR, message, CompilerMessageLocation.NO_LOCATION);
+                messageCollector.report(CompilerMessageSeverity.ERROR, message, CompilerMessageLocation.NO_LOCATION);
                 return Unit.INSTANCE;
             }
         })) {
             return COMPILATION_ERROR;
         }
 
-        AnalyzerWithCompilerReport analyzerWithCompilerReport = analyzeAndReportErrors(messageSeverityCollector, sourcesFiles, config);
+        AnalyzerWithCompilerReport analyzerWithCompilerReport = analyzeAndReportErrors(messageCollector, sourcesFiles, config);
         if (analyzerWithCompilerReport.hasErrors()) {
             return COMPILATION_ERROR;
         }
@@ -154,7 +149,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         if (arguments.outputPrefix != null) {
             outputPrefixFile = new File(arguments.outputPrefix);
             if (!outputPrefixFile.exists()) {
-                messageSeverityCollector.report(CompilerMessageSeverity.ERROR,
+                messageCollector.report(CompilerMessageSeverity.ERROR,
                                         "Output prefix file '" + arguments.outputPrefix + "' not found",
                                         CompilerMessageLocation.NO_LOCATION);
                 return ExitCode.COMPILATION_ERROR;
@@ -165,7 +160,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         if (arguments.outputPostfix != null) {
             outputPostfixFile = new File(arguments.outputPostfix);
             if (!outputPostfixFile.exists()) {
-                messageSeverityCollector.report(CompilerMessageSeverity.ERROR,
+                messageCollector.report(CompilerMessageSeverity.ERROR,
                                         "Output postfix file '" + arguments.outputPostfix + "' not found",
                                         CompilerMessageLocation.NO_LOCATION);
                 return ExitCode.COMPILATION_ERROR;
@@ -179,13 +174,14 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         try {
             //noinspection unchecked
             translationResult = translator.translate(sourcesFiles, mainCallParameters, jsAnalysisResult);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }
+        catch (Exception e) {
+            throw ExceptionUtilsKt.rethrow(e);
         }
 
         ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
 
-        AnalyzerWithCompilerReport.Companion.reportDiagnostics(translationResult.getDiagnostics(), messageSeverityCollector);
+        AnalyzerWithCompilerReport.Companion.reportDiagnostics(translationResult.getDiagnostics(), messageCollector);
 
         if (!(translationResult instanceof TranslationResult.Success)) return ExitCode.COMPILATION_ERROR;
 
@@ -193,7 +189,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         OutputFileCollection outputFiles = successResult.getOutputFiles(outputFile, outputPrefixFile, outputPostfixFile);
 
         if (outputFile.isDirectory()) {
-            messageSeverityCollector.report(CompilerMessageSeverity.ERROR,
+            messageCollector.report(CompilerMessageSeverity.ERROR,
                                     "Cannot open output file '" + outputFile.getPath() + "': is a directory",
                                     CompilerMessageLocation.NO_LOCATION);
             return ExitCode.COMPILATION_ERROR;
@@ -206,7 +202,7 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
 
         ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
 
-        OutputUtilsKt.writeAll(outputFiles, outputDir, messageSeverityCollector);
+        OutputUtilsKt.writeAll(outputFiles, outputDir, messageCollector);
 
         return OK;
     }
@@ -227,8 +223,9 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
                                 CompilerMessageLocation.NO_LOCATION);
     }
 
-    private static AnalyzerWithCompilerReport analyzeAndReportErrors(@NotNull MessageCollector messageCollector,
-            @NotNull final List<KtFile> sources, @NotNull final Config config) {
+    private static AnalyzerWithCompilerReport analyzeAndReportErrors(
+            @NotNull MessageCollector messageCollector, @NotNull final List<KtFile> sources, @NotNull final JsConfig config
+    ) {
         AnalyzerWithCompilerReport analyzerWithCompilerReport = new AnalyzerWithCompilerReport(messageCollector);
         analyzerWithCompilerReport.analyzeAndReport(sources, new AnalyzerWithCompilerReport.Analyzer() {
             @NotNull
@@ -244,14 +241,24 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
         return analyzerWithCompilerReport;
     }
 
-    @NotNull
-    private static Config getConfig(@NotNull K2JSCompilerArguments arguments, @NotNull Project project) {
+    @Override
+    protected void setupPlatformSpecificArgumentsAndServices(
+            @NotNull CompilerConfiguration configuration, @NotNull K2JSCompilerArguments arguments, @NotNull Services services
+    ) {
         if (arguments.target != null) {
             assert arguments.target == "v5" : "Unsupported ECMA version: " + arguments.target;
         }
-        EcmaVersion ecmaVersion = EcmaVersion.defaultVersion();
-        String moduleId = FileUtil.getNameWithoutExtension(new File(arguments.outputFile));
-        boolean inlineEnabled = !arguments.noInline;
+        configuration.put(JSConfigurationKeys.TARGET, EcmaVersion.defaultVersion());
+
+        if (arguments.sourceMap) {
+            configuration.put(JSConfigurationKeys.SOURCE_MAP, true);
+        }
+        if (arguments.metaInfo) {
+            configuration.put(JSConfigurationKeys.META_INFO, true);
+        }
+        if (arguments.kjsm) {
+            configuration.put(JSConfigurationKeys.KJSM, true);
+        }
 
         List<String> libraryFiles = new SmartList<String>();
         if (!arguments.noStdlib) {
@@ -262,16 +269,10 @@ public class K2JSCompiler extends CLICompiler<K2JSCompilerArguments> {
             ContainerUtil.addAllNotNull(libraryFiles, arguments.libraryFiles);
         }
 
-        return new LibrarySourcesConfig.Builder(project, moduleId, libraryFiles)
-                .ecmaVersion(ecmaVersion)
-                .sourceMap(arguments.sourceMap)
-                .inlineEnabled(inlineEnabled)
-                .metaInfo(arguments.metaInfo)
-                .kjsm(arguments.kjsm)
-                .build();
+        configuration.put(JSConfigurationKeys.LIBRARY_FILES, libraryFiles);
     }
 
-    public static MainCallParameters createMainCallParameters(String main) {
+    private static MainCallParameters createMainCallParameters(String main) {
         if (K2JsArgumentConstants.NO_CALL.equals(main)) {
             return MainCallParameters.noCall();
         }

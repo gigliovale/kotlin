@@ -32,8 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class JvmResolveUtil {
-    public static String TEST_MODULE_NAME = "java-integration-test";
-
     @NotNull
     public static AnalysisResult analyzeAndCheckForErrors(@NotNull KtFile file, @NotNull KotlinCoreEnvironment environment) {
         return analyzeAndCheckForErrors(Collections.singleton(file), environment);
@@ -90,7 +88,7 @@ public class JvmResolveUtil {
             @NotNull PackagePartProvider packagePartProvider
     ) {
         return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project, TEST_MODULE_NAME),
+                TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(project, configuration),
                 files, new CliLightClassGenerationSupport.CliBindingTrace(), configuration, packagePartProvider
         );
     }

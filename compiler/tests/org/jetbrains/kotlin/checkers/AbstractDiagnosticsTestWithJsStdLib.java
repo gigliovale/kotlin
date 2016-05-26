@@ -18,10 +18,13 @@ package org.jetbrains.kotlin.checkers;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
+import org.jetbrains.kotlin.config.CommonConfigurationKeys;
+import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.context.ModuleContext;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
 import org.jetbrains.kotlin.js.analyze.TopDownAnalyzerFacadeForJS;
-import org.jetbrains.kotlin.js.config.Config;
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
+import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.config.LibrarySourcesConfig;
 import org.jetbrains.kotlin.js.resolve.JsPlatform;
 import org.jetbrains.kotlin.name.Name;
@@ -29,18 +32,22 @@ import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.TargetPlatformKt;
 import org.jetbrains.kotlin.storage.StorageManager;
+import org.jetbrains.kotlin.test.KotlinTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractDiagnosticsTestWithJsStdLib extends AbstractDiagnosticsTest {
-    private Config config;
+    private JsConfig config;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        config = new LibrarySourcesConfig.Builder(getProject(), "module", LibrarySourcesConfig.JS_STDLIB).build();
+        CompilerConfiguration configuration = getEnvironment().getConfiguration().copy();
+        configuration.put(CommonConfigurationKeys.MODULE_NAME, KotlinTestUtils.TEST_MODULE_NAME);
+        configuration.put(JSConfigurationKeys.LIBRARY_FILES, LibrarySourcesConfig.JS_STDLIB);
+        config = new LibrarySourcesConfig(getProject(), configuration);
     }
 
     @Override
@@ -94,7 +101,7 @@ public abstract class AbstractDiagnosticsTestWithJsStdLib extends AbstractDiagno
         return module;
     }
 
-    protected Config getConfig() {
+    protected JsConfig getConfig() {
         return config;
     }
 }

@@ -59,12 +59,12 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
     }
 
     override fun findCollisions(
-            element: PsiElement?,
+            element: PsiElement,
             newName: String?,
             allRenames: Map<out PsiElement?, String>,
             result: MutableList<UsageInfo>
     ) {
-        checkConflictsAndReplaceUsageInfos(result)
+        checkConflictsAndReplaceUsageInfos(element, allRenames, result)
     }
 
     override fun substituteElementToRename(element: PsiElement?, editor: Editor?): PsiElement?  {

@@ -7863,6 +7863,18 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
     public static class LocalClasses extends AbstractBlackBoxCodegenTest {
+        @TestMetadata("closureOfInnerLocalClass.kt")
+        public void ignoredClosureOfInnerLocalClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/closureOfInnerLocalClass.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("closureWithSelfInstantiation.kt")
+        public void ignoredClosureWithSelfInstantiation() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/closureWithSelfInstantiation.kt");
+            doTest(fileName);
+        }
+
         public void testAllFilesPresentInLocalClasses() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/localClasses"), Pattern.compile("^(.+)\\.kt$"), true);
         }
@@ -7876,6 +7888,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("anonymousObjectInParameterInitializer.kt")
         public void testAnonymousObjectInParameterInitializer() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/anonymousObjectInParameterInitializer.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("closureOfLambdaInLocalClass.kt")
+        public void testClosureOfLambdaInLocalClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/closureOfLambdaInLocalClass.kt");
             doTest(fileName);
         }
 
@@ -7975,6 +7993,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("localDataClass.kt")
+        public void testLocalDataClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localDataClass.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("localExtendsInnerAndReferencesOuterMember.kt")
         public void testLocalExtendsInnerAndReferencesOuterMember() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localExtendsInnerAndReferencesOuterMember.kt");
@@ -7990,6 +8014,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("object.kt")
         public void testObject() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/object.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("ownClosureOfInnerLocalClass.kt")
+        public void testOwnClosureOfInnerLocalClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/ownClosureOfInnerLocalClass.kt");
             doTest(fileName);
         }
 
@@ -9931,6 +9961,18 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("kt1170.kt")
         public void testKt1170() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/properties/kt1170.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("kt12200.kt")
+        public void testKt12200() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/properties/kt12200.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("kt12200Const.kt")
+        public void testKt12200Const() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/properties/kt12200Const.kt");
             doTest(fileName);
         }
 

@@ -25,10 +25,7 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.js.descriptorUtils.hasPrimaryConstructor
 import org.jetbrains.kotlin.js.translate.callTranslator.CallTranslator
-import org.jetbrains.kotlin.js.translate.context.DefinitionPlace
-import org.jetbrains.kotlin.js.translate.context.Namer
-import org.jetbrains.kotlin.js.translate.context.TranslationContext
-import org.jetbrains.kotlin.js.translate.context.getNameForCapturedDescriptor
+import org.jetbrains.kotlin.js.translate.context.*
 import org.jetbrains.kotlin.js.translate.expression.FunctionTranslator
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator
 import org.jetbrains.kotlin.js.translate.initializer.ClassInitializerTranslator

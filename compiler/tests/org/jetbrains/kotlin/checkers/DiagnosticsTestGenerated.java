@@ -2955,6 +2955,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("extensionLambda.kt")
+            public void testExtensionLambda() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/extensionLambda.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("getset.kt")
             public void testGetset() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/getset.kt");
@@ -2994,6 +3000,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("localObject.kt")
             public void testLocalObject() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/localObject.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("localObjectLeaking.kt")
+            public void testLocalObjectLeaking() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/localObjectLeaking.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nestedClass.kt")
+            public void testNestedClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/nestedClass.kt");
                 doTest(fileName);
             }
 

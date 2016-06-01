@@ -132,10 +132,6 @@ class ConstructorConsistencyChecker private constructor(
                 }
             }
 
-            if (instruction.owner != pseudocode) {
-                return@traverse
-            }
-
             if (instruction is KtElementInstruction) {
                 val element = instruction.element
                 when (instruction) {

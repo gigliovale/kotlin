@@ -8,7 +8,7 @@ fun Wise(f: () -> Int) = object: Wise {
 
 class My {
     // Still dangerous (???), nobogy can guarantee what Wise() will do with this lambda
-    val x = Wise { foo() }
+    val x = Wise { <!DEBUG_INFO_LEAKING_THIS!>foo<!>() }
 
     val y = 42
 

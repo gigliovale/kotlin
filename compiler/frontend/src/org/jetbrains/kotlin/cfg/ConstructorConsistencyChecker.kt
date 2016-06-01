@@ -95,7 +95,8 @@ class ConstructorConsistencyChecker private constructor(
             val descriptor = trace.get(BindingContext.REFERENCE_TARGET, callee)
             if (descriptor is FunctionDescriptor) {
                 val containingDescriptor = descriptor.containingDeclaration
-                if (containingDescriptor != classDescriptor) return true
+                val extensionDescriptor = descriptor.extensionReceiverParameter?.value?.type?.constructor?.declarationDescriptor
+                if (containingDescriptor != classDescriptor && extensionDescriptor != classDescriptor) return true
                 if (!finalClass && descriptor.isOverridable) {
                     trace.record(BindingContext.LEAKING_THIS, callee, LeakingThisDescriptor.NonFinalFunction(descriptor, classOrObject))
                     return true

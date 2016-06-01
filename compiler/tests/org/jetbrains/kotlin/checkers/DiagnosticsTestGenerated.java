@@ -3050,6 +3050,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/propertyAccess.kt");
                 doTest(fileName);
             }
+
+            @TestMetadata("propertyInvoke.kt")
+            public void testPropertyInvoke() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/constructorConsistency/propertyInvoke.kt");
+                doTest(fileName);
+            }
         }
 
         @TestMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis")

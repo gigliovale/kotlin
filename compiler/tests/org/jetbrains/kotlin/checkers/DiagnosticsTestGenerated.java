@@ -19131,9 +19131,63 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/typealias"), Pattern.compile("^(.+)\\.kt$"), true);
             }
 
+            @TestMetadata("boundsViolationInDeepTypeAliasExpansion.kt")
+            public void testBoundsViolationInDeepTypeAliasExpansion() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/boundsViolationInDeepTypeAliasExpansion.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("boundsViolationInTypeAliasExpansion.kt")
+            public void testBoundsViolationInTypeAliasExpansion() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/boundsViolationInTypeAliasExpansion.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("boundsViolationInTypeAliasRHS.kt")
+            public void testBoundsViolationInTypeAliasRHS() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/boundsViolationInTypeAliasRHS.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("genericTypeAliasConstructor.kt")
+            public void testGenericTypeAliasConstructor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/genericTypeAliasConstructor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("genericTypeAliasObject.kt")
+            public void testGenericTypeAliasObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/genericTypeAliasObject.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("inSupertypesList.kt")
             public void testInSupertypesList() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/inSupertypesList.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("isAsWithTypeAlias.kt")
+            public void testIsAsWithTypeAlias() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/isAsWithTypeAlias.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nested.kt")
+            public void testNested() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nested.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nestedCapturingTypeParameters.kt")
+            public void testNestedCapturingTypeParameters() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nestedCapturingTypeParameters.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nestedSubstituted.kt")
+            public void testNestedSubstituted() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nestedSubstituted.kt");
                 doTest(fileName);
             }
 
@@ -19164,6 +19218,42 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("substitutionVariance.kt")
             public void testSubstitutionVariance() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/substitutionVariance.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasArgumentsInCompanionObject.kt")
+            public void testTypeAliasArgumentsInCompanionObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasArgumentsInCompanionObject.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasArgumentsInConstructor.kt")
+            public void testTypeAliasArgumentsInConstructor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasArgumentsInConstructor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasConstructor.kt")
+            public void testTypeAliasConstructor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasConstructor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasObject.kt")
+            public void testTypeAliasObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasObject.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasObjectWithInvoke.kt")
+            public void testTypeAliasObjectWithInvoke() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasObjectWithInvoke.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsupportedTypeAlias.kt")
+            public void testUnsupportedTypeAlias() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/unsupportedTypeAlias.kt");
                 doTest(fileName);
             }
         }

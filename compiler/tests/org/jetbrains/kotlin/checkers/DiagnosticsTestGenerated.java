@@ -19185,6 +19185,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("nestedConstructorCapturingTypeParameters.kt")
+            public void testNestedConstructorCapturingTypeParameters() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nestedConstructorCapturingTypeParameters.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("nestedSubstituted.kt")
             public void testNestedSubstituted() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nestedSubstituted.kt");

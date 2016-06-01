@@ -4489,6 +4489,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("elvisWhenUnitNonExhaustive.kt")
+        public void testElvisWhenUnitNonExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/elvisWhenUnitNonExhaustive.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("emptyList.kt")
         public void testEmptyList() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/emptyList.kt");
@@ -4561,6 +4567,24 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("ifWhenUnitExhaustive.kt")
+        public void testIfWhenUnitExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/ifWhenUnitExhaustive.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("ifWhenUnitNonExhaustive.kt")
+        public void testIfWhenUnitNonExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/ifWhenUnitNonExhaustive.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("lambdaWhenUnitNonExhaustive.kt")
+        public void testLambdaWhenUnitNonExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/lambdaWhenUnitNonExhaustive.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("multipleStatements.kt")
         public void testMultipleStatements() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/multipleStatements.kt");
@@ -4588,6 +4612,24 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("returnWithNoValue.kt")
         public void testReturnWithNoValue() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/returnWithNoValue.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenUnitExhaustive.kt")
+        public void testWhenUnitExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/whenUnitExhaustive.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenUnitNonExhaustive.kt")
+        public void testWhenUnitNonExhaustive() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/whenUnitNonExhaustive.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenUnitWithElse.kt")
+        public void testWhenUnitWithElse() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertToExpressionBody/whenUnitWithElse.kt");
             doTest(fileName);
         }
 

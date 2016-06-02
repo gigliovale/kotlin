@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.deserialization.NameResolver
 import org.jetbrains.kotlin.serialization.deserialization.TypeTable
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.SimpleType
 
 interface DeserializedMemberDescriptor : MemberDescriptor {
     val proto: MessageLite
@@ -146,16 +147,16 @@ class DeserializedTypeAliasDescriptor(
 ) : AbstractTypeAliasDescriptor(containingDeclaration, annotations, name, SourceElement.NO_SOURCE, visibility),
         DeserializedMemberDescriptor {
 
-    private lateinit var underlyingTypeImpl: KotlinType
-    private lateinit var expandedTypeImpl: KotlinType
+    private lateinit var underlyingTypeImpl: SimpleType
+    private lateinit var expandedTypeImpl: SimpleType
 
-    override val underlyingType: KotlinType get() = underlyingTypeImpl
-    override val expandedType: KotlinType get() = expandedTypeImpl
+    override val underlyingType: SimpleType get() = underlyingTypeImpl
+    override val expandedType: SimpleType get() = expandedTypeImpl
 
     fun initialize(
             declaredTypeParameters: List<TypeParameterDescriptor>,
-            underlyingType: KotlinType,
-            expandedType: KotlinType
+            underlyingType: SimpleType,
+            expandedType: SimpleType
     ) {
         initialize(declaredTypeParameters)
         underlyingTypeImpl = underlyingType

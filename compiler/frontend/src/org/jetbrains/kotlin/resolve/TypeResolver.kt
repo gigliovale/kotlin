@@ -68,8 +68,20 @@ class TypeResolver(
         return resolveType(TypeResolutionContext(scope, trace, checkBounds, false, typeReference.suppressDiagnosticsInDebugMode(), false), typeReference)
     }
 
-    fun resolveAbbreviatedType(scope: LexicalScope, typeReference: KtTypeReference, trace: BindingTrace, checkBounds: Boolean): KotlinType {
-        return resolveType(TypeResolutionContext(scope, trace, checkBounds, false, typeReference.suppressDiagnosticsInDebugMode(), true), typeReference)
+    fun resolveAbbreviatedType(scope: LexicalScope, typeReference: KtTypeReference, trace: BindingTrace, abbreviated: Boolean): SimpleType {
+        return resolveSimpleType(
+                TypeResolutionContext(scope, trace, true, false, typeReference.suppressDiagnosticsInDebugMode(), abbreviated),
+                typeReference
+        )
+    }
+
+    private fun resolveSimpleType(c: TypeResolutionContext, typeReference: KtTypeReference): SimpleType {
+        val unwrappedType = resolveType(c, typeReference).unwrap()
+        return when (unwrappedType) {
+            is DynamicType -> ErrorUtils.createErrorType("dynamic type in wrong context")
+            is SimpleType -> unwrappedType
+            else -> error("Unexpected type: $unwrappedType")
+        }
     }
 
     private fun resolveType(c: TypeResolutionContext, typeReference: KtTypeReference): KotlinType {
@@ -545,7 +557,7 @@ class TypeResolver(
                                                            originalProjection.type.isMarkedNullable,
                                                            MemberScope.Empty)
 
-        return expandedType.withAbbreviatedType(abbreviatedType)
+        return expandedType.withAbbreviation(abbreviatedType)
     }
 
     private fun expandTypeProjectionForTypeAlias(
@@ -626,7 +638,7 @@ class TypeResolver(
 
                 val expandedType = expandTypeAlias(c, nestedExpansion, reportStrategy, type.annotations, recursionDepth + 1)
 
-                return TypeProjectionImpl(originalProjection.projectionKind, expandedType.withAbbreviatedType(type.asSimpleType()))
+                return TypeProjectionImpl(originalProjection.projectionKind, expandedType.withAbbreviation(type.asSimpleType()))
             }
             else -> {
                 val substitutedArguments = type.arguments.mapIndexed { i, originalArgument ->

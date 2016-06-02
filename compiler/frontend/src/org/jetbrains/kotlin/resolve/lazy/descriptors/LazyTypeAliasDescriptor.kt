@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.AbstractTypeAliasDescriptor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.storage.NotNullLazyValue
-import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.SimpleType
 
 class LazyTypeAliasDescriptor(
         containingDeclaration: DeclarationDescriptor,
@@ -32,16 +32,16 @@ class LazyTypeAliasDescriptor(
 ) : AbstractTypeAliasDescriptor(containingDeclaration, annotations, name, sourceElement, visibility),
         TypeAliasDescriptor {
 
-    private lateinit var underlyingTypeImpl: NotNullLazyValue<KotlinType>
-    private lateinit var expandedTypeImpl: NotNullLazyValue<KotlinType>
+    private lateinit var underlyingTypeImpl: NotNullLazyValue<SimpleType>
+    private lateinit var expandedTypeImpl: NotNullLazyValue<SimpleType>
 
-    override val underlyingType: KotlinType get() = underlyingTypeImpl()
-    override val expandedType: KotlinType get() = expandedTypeImpl()
+    override val underlyingType: SimpleType get() = underlyingTypeImpl()
+    override val expandedType: SimpleType get() = expandedTypeImpl()
 
     fun initialize(
             declaredTypeParameters: List<TypeParameterDescriptor>,
-            lazyUnderlyingType: NotNullLazyValue<KotlinType>,
-            lazyExpandedType: NotNullLazyValue<KotlinType>
+            lazyUnderlyingType: NotNullLazyValue<SimpleType>,
+            lazyExpandedType: NotNullLazyValue<SimpleType>
     ) {
         super.initialize(declaredTypeParameters)
         this.underlyingTypeImpl = lazyUnderlyingType

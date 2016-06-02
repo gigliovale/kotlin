@@ -372,7 +372,7 @@ public class DescriptorSerializer {
             builder.addTypeParameter(typeParameter(typeParameterDescriptor));
         }
 
-        KotlinType underlyingType = descriptor.getUnderlyingType();
+        SimpleType underlyingType = descriptor.getUnderlyingType();
         if (useTypeTable()) {
             builder.setUnderlyingTypeId(typeId(underlyingType));
         }
@@ -380,7 +380,7 @@ public class DescriptorSerializer {
             builder.setUnderlyingType(type(underlyingType));
         }
 
-        KotlinType expandedType = descriptor.getExpandedType();
+        SimpleType expandedType = descriptor.getExpandedType();
         if (useTypeTable()) {
             builder.setExpandedTypeId(typeId(expandedType));
         }
@@ -544,13 +544,13 @@ public class DescriptorSerializer {
             builder.setNullable(type.isMarkedNullable());
         }
 
-        KotlinType abbreviatedType = SpecialTypesKt.getAbbreviatedType(type);
+        AbbreviatedType abbreviatedType = SpecialTypesKt.getAbbreviatedType(type);
         if (abbreviatedType != null) {
             if (useTypeTable()) {
-                builder.setAbbreviatedTypeId(typeId(abbreviatedType));
+                builder.setAbbreviatedTypeId(typeId(abbreviatedType.getAbbreviation()));
             }
             else {
-                builder.setAbbreviatedType(type(abbreviatedType));
+                builder.setAbbreviatedType(type(abbreviatedType.getAbbreviation()));
             }
         }
 

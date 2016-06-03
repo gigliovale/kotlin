@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.asJava.KtLightClass
 import org.jetbrains.kotlin.asJava.toLightClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
-class AutomaticTestRenamerFactory : AutomaticTestRenamerFactory() {
+class KotlinAutomaticTestRenamerFactory : AutomaticTestRenamerFactory() {
     private fun getPsiClass(element: PsiElement): PsiClass? {
         return when (element) {
             is KtLightClass -> element

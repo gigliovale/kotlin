@@ -64,8 +64,8 @@ class KotlinFindUsagesProvider : FindUsagesProvider {
         return when (element) {
             is PsiDirectory, is PsiPackage, is PsiFile -> javaProvider.getDescriptiveName(element)
             is KtClassOrObject -> {
-                if (element is KtObjectDeclaration && element.isObjectLiteral()) return ""
-                element.fqName?.asString() ?: element.name ?: ""
+                if (element is KtObjectDeclaration && element.isObjectLiteral()) return "<unnamed>"
+                element.fqName?.asString() ?: element.name ?: "<unnamed>"
             }
             is KtProperty -> (element.name ?: "") + (element.containerDescription?.let { " of $it" } ?: "")
             is KtFunction -> {

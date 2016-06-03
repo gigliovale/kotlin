@@ -453,7 +453,7 @@ class TypeResolver(
 
         return if (c.abbreviated) {
             val arguments = resolveTypeProjections(c, typeAliasDescriptor.typeConstructor, typeAliasArguments)
-            val abbreviatedType = KotlinTypeFactory.simpleType(annotations, typeAliasDescriptor.typeConstructor, arguments, false, MemberScope.Empty)
+            val abbreviatedType = KotlinTypeFactory.simpleType(annotations, typeAliasDescriptor.typeConstructor, arguments, false)
             type(abbreviatedType)
         }
         else {
@@ -545,8 +545,7 @@ class TypeResolver(
         val abbreviatedType = KotlinTypeFactory.simpleType(annotations,
                                                            typeAliasExpansion.descriptor.typeConstructor,
                                                            typeAliasExpansion.arguments,
-                                                           originalProjection.type.isMarkedNullable,
-                                                           MemberScope.Empty)
+                                                           originalProjection.type.isMarkedNullable)
 
         return expandedType.withAbbreviation(abbreviatedType)
     }

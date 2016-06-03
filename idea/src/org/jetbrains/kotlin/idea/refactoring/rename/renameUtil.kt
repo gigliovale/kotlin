@@ -17,21 +17,17 @@
 package org.jetbrains.kotlin.idea.refactoring.rename
 
 import com.intellij.psi.PsiElement
+import com.intellij.refactoring.rename.ResolvableCollisionUsageInfo
 import com.intellij.refactoring.rename.UnresolvableCollisionUsageInfo
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.asJava.unwrapped
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
+import org.jetbrains.kotlin.idea.core.dropDefaultValue
 import org.jetbrains.kotlin.idea.refactoring.KotlinRefactoringBundle
 import org.jetbrains.kotlin.idea.references.AbstractKtReference
-import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtSimpleNameExpression
-import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
-import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.source.getPsi
 
 fun checkConflictsAndReplaceUsageInfos(
@@ -39,38 +35,29 @@ fun checkConflictsAndReplaceUsageInfos(
         allRenames: Map<out PsiElement?, String>,
         result: MutableList<UsageInfo>
 ) {
-    val functionWithInheritedDefaultValues = element.isFunctionWithInheritedDefaultValues(allRenames)
+    element.getOverriddenFunctionWithDefaultValues(allRenames)?.let { baseFunction ->
+        result += LostDefaultValuesInOverridingFunctionUsageInfo(element.unwrapped as KtNamedFunction, baseFunction)
+    }
 
     val usageIterator = result.listIterator()
     while (usageIterator.hasNext()) {
-        val usageInfo = usageIterator.next()
-        val ref = usageInfo.reference
-        if (usageInfo !is MoveRenameUsageInfo || ref !is AbstractKtReference<*>) continue
-
-        val refElement = usageInfo.element ?: continue
-        val referencedElement = usageInfo.referencedElement ?: continue
-
-        if (functionWithInheritedDefaultValues && refElement is KtSimpleNameExpression) {
-            val resolvedCall = refElement.getResolvedCall(refElement.analyze(BodyResolveMode.PARTIAL)) ?: continue
-            if (resolvedCall.valueArgumentsByIndex?.any { it is DefaultValueArgument } ?: false) {
-                usageIterator.set(LostDefaultValuesUsageInfo(resolvedCall.call.callElement, referencedElement))
-            }
-        }
-
+        val usageInfo = usageIterator.next() as? MoveRenameUsageInfo ?: continue
+        val ref = usageInfo.reference as? AbstractKtReference<*> ?: continue
         if (!ref.canRename()) {
+            val refElement = usageInfo.element ?: continue
+            val referencedElement = usageInfo.referencedElement ?: continue
             usageIterator.set(UnresolvableConventionViolationUsageInfo(refElement, referencedElement))
         }
     }
 }
 
-private fun PsiElement.isFunctionWithInheritedDefaultValues(allRenames: Map<out PsiElement?, String>): Boolean {
+private fun PsiElement.getOverriddenFunctionWithDefaultValues(allRenames: Map<out PsiElement?, String>): KtNamedFunction? {
     val elementsToRename = allRenames.keys.mapNotNull { it?.unwrapped }
-    val function = unwrapped as? KtNamedFunction ?: return false
+    val function = unwrapped as? KtNamedFunction ?: return null
     val descriptor = function.resolveToDescriptor() as FunctionDescriptor
-    val overriddenDescriptors = descriptor.overriddenDescriptors
-    return overriddenDescriptors.any {
-        it.source.getPsi() !in elementsToRename && it.valueParameters.any { it.declaresDefaultValue() }
-    }
+    return descriptor.overriddenDescriptors
+            .mapNotNull { it.source.getPsi() as? KtNamedFunction }
+            .firstOrNull { it !in elementsToRename && it.valueParameters.any { it.hasDefaultValue() }}
 }
 
 class UnresolvableConventionViolationUsageInfo(
@@ -80,9 +67,16 @@ class UnresolvableConventionViolationUsageInfo(
     override fun getDescription(): String = KotlinRefactoringBundle.message("naming.convention.will.be.violated.after.rename")
 }
 
-class LostDefaultValuesUsageInfo(
-        callElement: KtElement,
-        referencedElement: PsiElement
-) : UnresolvableCollisionUsageInfo(callElement, referencedElement) {
-    override fun getDescription(): String = "Default values for parameter(s) won't be available after rename: ${element!!.text}"
+class LostDefaultValuesInOverridingFunctionUsageInfo(
+        function: KtNamedFunction,
+        private val baseFunction: KtNamedFunction
+) : ResolvableCollisionUsageInfo(function, function) {
+    fun apply() {
+        val function = element as? KtNamedFunction ?: return
+        for ((subParam, superParam) in (function.valueParameters zip baseFunction.valueParameters)) {
+            val defaultValue = superParam.defaultValue ?: continue
+            subParam.dropDefaultValue()
+            subParam.addRange(superParam.equalsToken, defaultValue)
+        }
+    }
 }

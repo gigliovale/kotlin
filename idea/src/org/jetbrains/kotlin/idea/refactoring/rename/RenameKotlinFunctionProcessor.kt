@@ -67,7 +67,7 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
     override fun findCollisions(
             element: PsiElement,
             newName: String?,
-            allRenames: Map<out PsiElement?, String>,
+            allRenames: Map<out PsiElement, String>,
             result: MutableList<UsageInfo>
     ) {
         checkConflictsAndReplaceUsageInfos(element, allRenames, result)
@@ -122,15 +122,20 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
         val simpleUsages = ArrayList<UsageInfo>(usages.size)
         val ambiguousImportUsages = SmartList<UsageInfo>()
         for (usage in usages) {
+            if (usage is LostDefaultValuesInOverridingFunctionUsageInfo) {
+                usage.apply()
+                continue
+            }
+
             val ref = usage.reference as? PsiPolyVariantReference ?: continue
             val refElement = ref.element
             if (refElement.parents.any { (it is KtImportDirective && !it.isAllUnder) || (it is PsiImportStaticStatement && !it.isOnDemand) }
                 && ref.multiResolve(false).size > 1) {
                 ambiguousImportUsages += usage
+                continue
             }
-            else {
-                simpleUsages += usage
-            }
+
+            simpleUsages += usage
         }
         element.ambiguousImportUsages = ambiguousImportUsages
 

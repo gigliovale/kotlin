@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.resolve
 
 import com.intellij.util.SmartList
+import org.jetbrains.kotlin.config.LanguageFeature
+import org.jetbrains.kotlin.config.LanguageFeatureSettings
 import org.jetbrains.kotlin.context.TypeLazinessToken
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
@@ -55,7 +57,8 @@ class TypeResolver(
         private val lazinessToken: TypeLazinessToken,
         private val dynamicTypesSettings: DynamicTypesSettings,
         private val dynamicCallableDescriptors: DynamicCallableDescriptors,
-        private val identifierChecker: IdentifierChecker
+        private val identifierChecker: IdentifierChecker,
+        private val languageFeatureSettings: LanguageFeatureSettings
 ) {
 
     open class TypeTransformerForTests {
@@ -69,6 +72,13 @@ class TypeResolver(
 
     fun resolveAbbreviatedType(scope: LexicalScope, typeReference: KtTypeReference, trace: BindingTrace, checkBounds: Boolean): KotlinType {
         return resolveType(TypeResolutionContext(scope, trace, checkBounds, false, typeReference.suppressDiagnosticsInDebugMode(), true), typeReference)
+    }
+
+    fun resolveExpandedTypeForTypeAlias(typeAliasDescriptor: TypeAliasDescriptor): KotlinType {
+        val typeAliasExpansion = createTypeAliasExpansion(null, typeAliasDescriptor, emptyList())
+        val expandedType = expandTypeAlias(typeAliasExpansion, TypeAliasExpansionReportStrategy.DEFAULT, Annotations.EMPTY, 0,
+                                           withAbbreviatedType = false)
+        return expandedType
     }
 
     private fun resolveType(c: TypeResolutionContext, typeReference: KtTypeReference): KotlinType {
@@ -345,7 +355,7 @@ class TypeResolver(
                 type(resolveTypeForTypeParameter(c, annotations, descriptor, qualifierPart.expression, qualifierPart.typeArguments))
             }
             is ClassDescriptor -> resolveTypeForClass(c, annotations, descriptor, element, qualifierResolutionResult)
-            is TypeAliasDescriptor -> resolveTypeForTypeAlias(c, annotations, descriptor, element as KtUserType /* TODO */, qualifierResolutionResult)
+            is TypeAliasDescriptor -> resolveTypeForTypeAlias(c, annotations, descriptor, element as KtUserType, qualifierResolutionResult)
             else -> error("Unexpected classifier type: ${descriptor.javaClass}")
         }
     }
@@ -431,6 +441,10 @@ class TypeResolver(
         val projectionFromAllQualifierParts = qualifierResolutionResult.allProjections
 
         if (ErrorUtils.isError(descriptor)) {
+            return createErrorTypeForTypeConstructor(c, projectionFromAllQualifierParts, typeConstructor)
+        }
+        if (!languageFeatureSettings.supportsFeature(LanguageFeature.TypeAliases)) {
+            c.trace.report(UNSUPPORTED_TYPEALIAS.on(type))
             return createErrorTypeForTypeConstructor(c, projectionFromAllQualifierParts, typeConstructor)
         }
 
@@ -550,7 +564,8 @@ class TypeResolver(
             typeAliasExpansion: TypeAliasExpansion,
             reportStrategy: TypeAliasExpansionReportStrategy,
             annotations: Annotations,
-            recursionDepth: Int
+            recursionDepth: Int,
+            withAbbreviatedType: Boolean = true
     ): KotlinType {
         val originalProjection = TypeProjectionImpl(Variance.INVARIANT, typeAliasExpansion.descriptor.underlyingType)
         val expandedProjection = expandTypeProjectionForTypeAlias(originalProjection, typeAliasExpansion, null, reportStrategy, recursionDepth)
@@ -562,13 +577,18 @@ class TypeResolver(
             "Type alias expansion: result for ${typeAliasExpansion.descriptor} is ${expandedProjection.projectionKind}, should be invariant"
         }
 
-        val abbreviatedType = KotlinTypeImpl.create(annotations,
-                                                    typeAliasExpansion.descriptor.typeConstructor,
-                                                    originalProjection.type.isMarkedNullable,
-                                                    typeAliasExpansion.arguments,
-                                                    MemberScope.Empty)
+        return if (withAbbreviatedType) {
+            val abbreviatedType = KotlinTypeImpl.create(annotations,
+                                                        typeAliasExpansion.descriptor.typeConstructor,
+                                                        originalProjection.type.isMarkedNullable,
+                                                        typeAliasExpansion.arguments,
+                                                        MemberScope.Empty)
 
-        return expandedType.withAbbreviatedType(abbreviatedType)
+            expandedType.withAbbreviatedType(abbreviatedType)
+        }
+        else {
+            expandedType
+        }
     }
 
     private fun expandTypeProjectionForTypeAlias(
@@ -685,7 +705,7 @@ class TypeResolver(
             typeConstructor: TypeConstructor
     ): PossiblyBareType =
             type(ErrorUtils.createErrorTypeWithArguments(
-                    "$typeConstructor",
+                    typeConstructor.declarationDescriptor?.name?.asString() ?: typeConstructor.toString(),
                     resolveTypeProjectionsWithErrorConstructor(c, arguments)
             ))
 

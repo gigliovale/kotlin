@@ -19296,6 +19296,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("functionTypeInTypeAlias.kt")
+            public void testFunctionTypeInTypeAlias() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/functionTypeInTypeAlias.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("genericTypeAliasConstructor.kt")
             public void testGenericTypeAliasConstructor() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/genericTypeAliasConstructor.kt");
@@ -19335,6 +19341,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("nestedSubstituted.kt")
             public void testNestedSubstituted() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/nestedSubstituted.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("noRHS.kt")
+            public void testNoRHS() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/noRHS.kt");
                 doTest(fileName);
             }
 

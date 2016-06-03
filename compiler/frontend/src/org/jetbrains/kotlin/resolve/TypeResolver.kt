@@ -527,10 +527,10 @@ class TypeResolver(
             reportStrategy: TypeAliasExpansionReportStrategy,
             annotations: Annotations,
             recursionDepth: Int
-    ): KotlinType {
+    ): SimpleType {
         val originalProjection = TypeProjectionImpl(Variance.INVARIANT, typeAliasExpansion.descriptor.underlyingType)
         val expandedProjection = expandTypeProjectionForTypeAlias(c, originalProjection, typeAliasExpansion, null, reportStrategy, recursionDepth)
-        val expandedType = expandedProjection.type
+        val expandedType = expandedProjection.type.asSimpleType()
 
         if (expandedType.isError) return expandedType
 
@@ -625,7 +625,7 @@ class TypeResolver(
 
                 val expandedType = expandTypeAlias(c, nestedExpansion, reportStrategy, type.annotations, recursionDepth + 1)
 
-                return TypeProjectionImpl(originalProjection.projectionKind, expandedType.withAbbreviatedType(type))
+                return TypeProjectionImpl(originalProjection.projectionKind, expandedType.withAbbreviatedType(type.asSimpleType()))
             }
             else -> {
                 val substitutedArguments = type.arguments.mapIndexed { i, originalArgument ->

@@ -70,7 +70,7 @@ public abstract class KotlinBuiltIns {
     private final Set<PackageFragmentDescriptor> builtInsPackageFragments;
 
     private final Map<PrimitiveType, SimpleType> primitiveTypeToArrayKotlinType;
-    private final Map<SimpleType, SimpleType> primitiveKotlinTypeToKotlinArrayType;
+    private final Map<KotlinType, SimpleType> primitiveKotlinTypeToKotlinArrayType;
     private final Map<SimpleType, SimpleType> kotlinArrayTypeToPrimitiveKotlinType;
     private final StorageManager storageManager;
 
@@ -108,7 +108,7 @@ public abstract class KotlinBuiltIns {
         builtInsPackageFragments = new LinkedHashSet<PackageFragmentDescriptor>(packageNameToPackageFragment.values());
 
         primitiveTypeToArrayKotlinType = new EnumMap<PrimitiveType, SimpleType>(PrimitiveType.class);
-        primitiveKotlinTypeToKotlinArrayType = new HashMap<SimpleType, SimpleType>();
+        primitiveKotlinTypeToKotlinArrayType = new HashMap<KotlinType, SimpleType>();
         kotlinArrayTypeToPrimitiveKotlinType = new HashMap<SimpleType, SimpleType>();
         for (PrimitiveType primitive : PrimitiveType.values()) {
             makePrimitive(primitive);
@@ -709,7 +709,7 @@ public abstract class KotlinBuiltIns {
      */
     @Nullable
     public SimpleType getPrimitiveArrayKotlinTypeByPrimitiveKotlinType(@NotNull KotlinType kotlinType) {
-        return primitiveKotlinTypeToKotlinArrayType.get(kotlinType); // todo unwrap
+        return primitiveKotlinTypeToKotlinArrayType.get(kotlinType);
     }
 
     public static boolean isPrimitiveArray(@NotNull FqNameUnsafe arrayFqName) {

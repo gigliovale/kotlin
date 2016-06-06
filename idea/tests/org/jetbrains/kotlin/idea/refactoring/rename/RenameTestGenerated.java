@@ -53,9 +53,21 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("automaticRenamerKotlinTestClass/automaticRenamerKotlinTestClass.test")
+    public void testAutomaticRenamerKotlinTestClass_AutomaticRenamerKotlinTestClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerKotlinTestClass/automaticRenamerKotlinTestClass.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("automaticRenamerOverloads/package.test")
     public void testAutomaticRenamerOverloads_Package() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerOverloads/package.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("automaticRenamerOverloadsAmbiguousImport/automaticRenamerOverloadsAmbiguousImport.test")
+    public void testAutomaticRenamerOverloadsAmbiguousImport_AutomaticRenamerOverloadsAmbiguousImport() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerOverloadsAmbiguousImport/automaticRenamerOverloadsAmbiguousImport.test");
         doTest(fileName);
     }
 
@@ -65,9 +77,21 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("automaticRenamerOverloadsExtensionAndMember/automaticRenamerOverloadsExtensionAndMember.test")
+    public void testAutomaticRenamerOverloadsExtensionAndMember_AutomaticRenamerOverloadsExtensionAndMember() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerOverloadsExtensionAndMember/automaticRenamerOverloadsExtensionAndMember.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("automaticRenamerOverloadsJavaClass/overloads.test")
     public void testAutomaticRenamerOverloadsJavaClass_Overloads() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerOverloadsJavaClass/overloads.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("automaticRenamerOverloadsMemberAndExtension/automaticRenamerOverloadsMemberAndExtension.test")
+    public void testAutomaticRenamerOverloadsMemberAndExtension_AutomaticRenamerOverloadsMemberAndExtension() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerOverloadsMemberAndExtension/automaticRenamerOverloadsMemberAndExtension.test");
         doTest(fileName);
     }
 

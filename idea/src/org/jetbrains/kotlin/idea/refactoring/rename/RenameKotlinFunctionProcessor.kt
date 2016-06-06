@@ -108,9 +108,12 @@ class RenameKotlinFunctionProcessor : RenameKotlinPsiProcessor() {
                 else {
                     ref.element?.getStrictParentOfType<KtImportDirective>()?.let { importDirective ->
                         val fqName = importDirective.importedFqName!!
-                        val newFqName = fqName.parent().child(Name.guessByFirstCharacter(newName))
-                        val newImportDirective = KtPsiFactory(element).createImportDirective(ImportPath(newFqName, false))
-                        importDirective.parent.addAfter(newImportDirective, importDirective)
+                        val newFqName = fqName.parent().child(Name.identifier(newName))
+                        val importList = importDirective.parent as KtImportList
+                        if (importList.imports.none { it.importedFqName == newFqName }) {
+                            val newImportDirective = KtPsiFactory(element).createImportDirective(ImportPath(newFqName, false))
+                            importDirective.parent.addAfter(newImportDirective, importDirective)
+                        }
                     }
                 }
             }

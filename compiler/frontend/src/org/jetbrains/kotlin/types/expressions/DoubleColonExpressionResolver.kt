@@ -18,33 +18,40 @@ package org.jetbrains.kotlin.types.expressions
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.ReflectionTypes
+import org.jetbrains.kotlin.config.LanguageFeature
+import org.jetbrains.kotlin.config.LanguageFeatureSettings
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
+import org.jetbrains.kotlin.psi.psiUtil.getQualifiedElementSelector
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.callableReferences.createReflectionTypeForResolvedCallableReference
 import org.jetbrains.kotlin.resolve.callableReferences.resolvePossiblyAmbiguousCallableReference
 import org.jetbrains.kotlin.resolve.calls.CallResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.context.TemporaryTraceAndCache
 import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults
 import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResultsUtil
+import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
+import org.jetbrains.kotlin.resolve.calls.util.FakeCallableDescriptorForObject
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.KotlinTypeImpl
 import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.TypeUtils.NO_EXPECTED_TYPE
 import org.jetbrains.kotlin.types.expressions.typeInfoFactory.createTypeInfo
 import javax.inject.Inject
 
-// TODO: use a language level option
-val BOUND_REFERENCES_ENABLED by lazy { System.getProperty("kotlin.lang.enable.bound.references") == "true" }
-
 sealed class DoubleColonLHS(val type: KotlinType) {
-    class Expression(val typeInfo: KotlinTypeInfo) : DoubleColonLHS(typeInfo.type!!)
+    class Expression(typeInfo: KotlinTypeInfo) : DoubleColonLHS(typeInfo.type!!) {
+        val dataFlowInfo: DataFlowInfo = typeInfo.dataFlowInfo
+    }
 
     class Type(type: KotlinType, val possiblyBareType: PossiblyBareType) : DoubleColonLHS(type)
 }
@@ -58,7 +65,8 @@ class DoubleColonExpressionResolver(
         val qualifiedExpressionResolver: QualifiedExpressionResolver,
         val dataFlowAnalyzer: DataFlowAnalyzer,
         val reflectionTypes: ReflectionTypes,
-        val typeResolver: TypeResolver
+        val typeResolver: TypeResolver,
+        val languageFeatureSettings: LanguageFeatureSettings
 ) {
     private lateinit var expressionTypingServices: ExpressionTypingServices
 
@@ -78,7 +86,9 @@ class DoubleColonExpressionResolver(
             val type = result?.type
             if (type != null && !type.isError) {
                 checkClassLiteral(c, expression, result!!)
-                return dataFlowAnalyzer.createCheckedTypeInfo(reflectionTypes.getKClassType(Annotations.EMPTY, type), c, expression)
+                val kClassType = reflectionTypes.getKClassType(Annotations.EMPTY, type)
+                val dataFlowInfo = (result as? DoubleColonLHS.Expression)?.dataFlowInfo ?: c.dataFlowInfo
+                return dataFlowAnalyzer.checkType(createTypeInfo(kClassType, dataFlowInfo), expression, c)
             }
         }
 
@@ -120,22 +130,59 @@ class DoubleColonExpressionResolver(
         }
     }
 
+    private fun KtExpression.canBeConsideredProperType(): Boolean {
+        return when (this) {
+            is KtSimpleNameExpression -> true
+            is KtDotQualifiedExpression -> {
+                receiverExpression.canBeConsideredProperType() && selectorExpression.let { selector ->
+                    selector is KtSimpleNameExpression || (selector is KtCallExpression && selector.isWithoutValueArguments)
+                }
+            }
+            else -> false
+        }
+    }
+
+    private fun shouldTryResolveLHSAsExpression(expression: KtDoubleColonExpression): Boolean {
+        // TODO: improve diagnostic when bound callable references are disabled
+        if (!languageFeatureSettings.supportsFeature(LanguageFeature.BoundCallableReferences)) return false
+
+        val lhs = expression.receiverExpression ?: return false
+        return lhs.canBeConsideredProperExpression() && !expression.hasQuestionMarks /* TODO: test this */
+    }
+
     private fun resolveDoubleColonLHS(
             expression: KtExpression, doubleColonExpression: KtDoubleColonExpression, c: ExpressionTypingContext
     ): DoubleColonLHS? {
         // First, try resolving the LHS as expression, if possible
 
-        if (BOUND_REFERENCES_ENABLED && expression.canBeConsideredProperExpression() &&
-            !doubleColonExpression.hasQuestionMarks /* TODO: test this */) {
+        if (shouldTryResolveLHSAsExpression(doubleColonExpression)) {
             val traceForExpr = TemporaryTraceAndCache.create(c, "resolve '::' LHS as expression", expression)
-            val contextForExpr = c.replaceTraceAndCache(traceForExpr)
+            val contextForExpr = c.replaceTraceAndCache(traceForExpr).replaceExpectedType(NO_EXPECTED_TYPE)
             val typeInfo = expressionTypingServices.getTypeInfo(expression, contextForExpr)
             val type = typeInfo.type
-            // TODO (!!!): it's wrong to only check type, should check that there's a companion qualifier
-            if (type != null && !DescriptorUtils.isCompanionObject(type.constructor.declarationDescriptor)) {
-                traceForExpr.commit()
-                return DoubleColonLHS.Expression(typeInfo).apply {
-                    c.trace.record(BindingContext.DOUBLE_COLON_LHS, expression, this)
+
+            if (type != null) {
+                // Be careful not to call a utility function to get a resolved call by an expression which may accidentally
+                // deparenthesize that expression, as this is undesirable here
+                val call = traceForExpr.trace.bindingContext[BindingContext.CALL, expression.getQualifiedElementSelector()]
+                val resolvedCall = call.getResolvedCall(traceForExpr.trace.bindingContext)
+                val implicitReferenceToCompanion =
+                        resolvedCall != null &&
+                        resolvedCall.resultingDescriptor.let { result ->
+                            result is FakeCallableDescriptorForObject &&
+                            result.classDescriptor.companionObjectDescriptor != null
+                        }
+
+                val resolvedToFunctionWithoutArguments =
+                        resolvedCall != null &&
+                        expression.canBeConsideredProperType() &&
+                        resolvedCall.resultingDescriptor !is VariableDescriptor
+
+                if (!implicitReferenceToCompanion && !resolvedToFunctionWithoutArguments) {
+                    traceForExpr.commit()
+                    return DoubleColonLHS.Expression(typeInfo).apply {
+                        c.trace.record(BindingContext.DOUBLE_COLON_LHS, expression, this)
+                    }
                 }
             }
         }
@@ -214,7 +261,8 @@ class DoubleColonExpressionResolver(
 
         val (lhs, resolutionResults) = resolveCallableReference(expression, c, ResolveArgumentsMode.RESOLVE_FUNCTION_ARGUMENTS)
         val result = getCallableReferenceType(expression, lhs, resolutionResults, c)
-        return dataFlowAnalyzer.createCheckedTypeInfo(result, c, expression)
+        val dataFlowInfo = (lhs as? DoubleColonLHS.Expression)?.dataFlowInfo ?: c.dataFlowInfo
+        return dataFlowAnalyzer.checkType(createTypeInfo(result, dataFlowInfo), expression, c)
     }
 
     private fun getCallableReferenceType(
@@ -241,11 +289,7 @@ class DoubleColonExpressionResolver(
             context.trace.report(CALLABLE_REFERENCE_TO_MEMBER_OR_EXTENSION_WITH_EMPTY_LHS.on(reference))
         }
 
-        val containingDeclaration = descriptor.containingDeclaration
-        if (DescriptorUtils.isObject(containingDeclaration)) {
-            context.trace.report(CALLABLE_REFERENCE_TO_OBJECT_MEMBER.on(reference))
-        }
-        if (descriptor is ConstructorDescriptor && DescriptorUtils.isAnnotationClass(containingDeclaration)) {
+        if (descriptor is ConstructorDescriptor && DescriptorUtils.isAnnotationClass(descriptor.containingDeclaration)) {
             context.trace.report(CALLABLE_REFERENCE_TO_ANNOTATION_CONSTRUCTOR.on(reference))
         }
 

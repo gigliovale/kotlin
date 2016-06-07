@@ -47,6 +47,7 @@ import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterKind;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterSignature;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedSimpleFunctionDescriptor;
+import org.jetbrains.kotlin.types.expressions.DoubleColonLHS;
 import org.jetbrains.kotlin.types.expressions.LabelResolver;
 import org.jetbrains.org.objectweb.asm.Label;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
@@ -490,16 +491,26 @@ public class InlineCodegen extends CallGenerator {
                          : state.getTypeMapper().mapImplementationOwner(descriptor).getInternalName()
         );
 
-        FunctionGenerationStrategy strategy =
-                expression instanceof KtCallableReferenceExpression ?
-                new FunctionReferenceGenerationStrategy(
-                        state,
-                        descriptor,
-                        CallUtilKt.getResolvedCallWithAssert(
-                                ((KtCallableReferenceExpression) expression).getCallableReference(), codegen.getBindingContext()
-                        )
-                ) :
-                new FunctionGenerationStrategy.FunctionDefault(state, descriptor, (KtDeclarationWithBody) expression);
+        FunctionGenerationStrategy strategy;
+        if (expression instanceof KtCallableReferenceExpression) {
+            KtCallableReferenceExpression callableReferenceExpression = (KtCallableReferenceExpression) expression;
+            KtExpression receiverExpression = callableReferenceExpression.getReceiverExpression();
+            StackValue receiverValue =
+                    receiverExpression != null && codegen.getBindingContext().getType(receiverExpression) != null
+                    ? codegen.gen(receiverExpression)
+                    : null;
+
+            strategy = new FunctionReferenceGenerationStrategy(
+                    state,
+                    descriptor,
+                    CallUtilKt.getResolvedCallWithAssert(callableReferenceExpression.getCallableReference(), codegen.getBindingContext()),
+                    receiverValue != null ? receiverValue.type : null,
+                    receiverValue
+            );
+        }
+        else {
+            strategy = new FunctionGenerationStrategy.FunctionDefault(state, descriptor, (KtDeclarationWithBody) expression);
+        }
 
         FunctionCodegen.generateMethodBody(adapter, descriptor, context, jvmMethodSignature, strategy, parentCodegen);
 
@@ -689,6 +700,13 @@ public class InlineCodegen extends CallGenerator {
             // TODO: support inline of property references passed to inlinable function parameters
             SimpleFunctionDescriptor functionReference = state.getBindingContext().get(BindingContext.FUNCTION, deparenthesized);
             if (functionReference == null) return false;
+
+            KtExpression receiverExpression = ((KtCallableReferenceExpression) deparenthesized).getReceiverExpression();
+            if (receiverExpression != null) {
+                // TODO (!): support inline for bound function references
+                DoubleColonLHS lhs = state.getBindingContext().get(BindingContext.DOUBLE_COLON_LHS, receiverExpression);
+                if (lhs instanceof DoubleColonLHS.Expression) return false;
+            }
         }
 
         return InlineUtil.isInlineLambdaParameter(valueParameterDescriptor) &&
@@ -735,7 +753,7 @@ public class InlineCodegen extends CallGenerator {
     private void putClosureParametersOnStack() {
         for (LambdaInfo next : expressionMap.values()) {
             activeLambda = next;
-            codegen.pushClosureOnStack(next.getClassDescriptor(), true, this);
+            codegen.pushClosureOnStack(next.getClassDescriptor(), true, this, /* functionReferenceReceiver = */ null);
         }
         activeLambda = null;
     }

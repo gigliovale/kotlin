@@ -1683,9 +1683,9 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
-            @TestMetadata("objectMembersUnsupported.kt")
-            public void testObjectMembersUnsupported() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/objectMembersUnsupported.kt");
+            @TestMetadata("memberExtensionsImportedFromObjectsUnsupported.kt")
+            public void testMemberExtensionsImportedFromObjectsUnsupported() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/memberExtensionsImportedFromObjectsUnsupported.kt");
                 doTest(fileName);
             }
 
@@ -1701,6 +1701,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("sam.kt")
+            public void testSam() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/sam.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unused.kt")
             public void testUnused() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/unused.kt");
@@ -1711,6 +1717,51 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             public void testWhitespacesInExpression() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/whitespacesInExpression.kt");
                 doTest(fileName);
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/callableReference/bound")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Bound extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInBound() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/callableReference/bound"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("companionObject.kt")
+                public void testCompanionObject() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/companionObject.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("controlFlow.kt")
+                public void testControlFlow() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/controlFlow.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("dataFlow.kt")
+                public void testDataFlow() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/dataFlow.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("expectedType.kt")
+                public void testExpectedType() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/expectedType.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("functionCallWithoutArguments.kt")
+                public void testFunctionCallWithoutArguments() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/functionCallWithoutArguments.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("object.kt")
+                public void testObject() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/object.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/callableReference/function")
@@ -1742,6 +1793,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("callableRefrenceOnNestedObject.kt")
                 public void testCallableRefrenceOnNestedObject() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/function/callableRefrenceOnNestedObject.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("classMemberVsConstructorLikeFunction.kt")
+                public void testClassMemberVsConstructorLikeFunction() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/function/classMemberVsConstructorLikeFunction.kt");
                     doTest(fileName);
                 }
 
@@ -18382,6 +18439,27 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             public void testNoTopLevelSealedInheritance() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noTopLevelSealedInheritance.kt");
                 doTest(fileName);
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noBoundCallableReferences")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class NoBoundCallableReferences extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInNoBoundCallableReferences() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/sourceCompatibility/noBoundCallableReferences"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("qualifiedJavaClassLiteralInKClassExtension.kt")
+                public void testQualifiedJavaClassLiteralInKClassExtension() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noBoundCallableReferences/qualifiedJavaClassLiteralInKClassExtension.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("qualifiedJavaClassReferenceInKClassExtension.kt")
+                public void testQualifiedJavaClassReferenceInKClassExtension() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noBoundCallableReferences/qualifiedJavaClassReferenceInKClassExtension.kt");
+                    doTest(fileName);
+                }
             }
         }
 

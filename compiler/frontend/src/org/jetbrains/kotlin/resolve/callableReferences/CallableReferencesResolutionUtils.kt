@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
-import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.CallResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode
@@ -51,7 +50,6 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingUtils
 import org.jetbrains.kotlin.utils.Printer
-import org.jetbrains.kotlin.utils.ThrowingList
 
 private fun <D : CallableDescriptor> ResolveArgumentsMode.acceptResolution(results: OverloadResolutionResults<D>, trace: TemporaryTraceAndCache) {
     when (this) {
@@ -69,7 +67,7 @@ private fun resolvePossiblyAmbiguousCallableReference(
         resolutionMode: ResolveArgumentsMode,
         callResolver: CallResolver
 ): OverloadResolutionResults<CallableDescriptor> {
-    val call = CallMaker.makeCall(reference, receiver, null, reference, ThrowingList.instance<ValueArgument>())
+    val call = CallMaker.makeCall(reference, receiver, null, reference, emptyList())
     val temporaryTrace = TemporaryTraceAndCache.create(context, "trace to resolve ::${reference.getReferencedName()} as function", reference)
     val newContext = if (resolutionMode == ResolveArgumentsMode.SHAPE_FUNCTION_ARGUMENTS)
         context.replaceTraceAndCache(temporaryTrace).replaceExpectedType(TypeUtils.NO_EXPECTED_TYPE)
@@ -184,19 +182,19 @@ private fun createReflectionTypeForCallableDescriptor(
         reportOn: KtExpression?,
         ignoreReceiver: Boolean
 ): KotlinType? {
+    if (descriptor is CallableMemberDescriptor && isMemberExtension(descriptor)) {
+        if (reportOn != null) {
+            trace?.report(EXTENSION_IN_CLASS_REFERENCE_NOT_ALLOWED.on(reportOn, descriptor))
+        }
+        return null
+    }
+
     val extensionReceiver = descriptor.extensionReceiverParameter
     val dispatchReceiver = descriptor.dispatchReceiverParameter?.let { dispatchReceiver ->
         // See CallableDescriptor#getOwnerForEffectiveDispatchReceiverParameter
         if ((descriptor as? CallableMemberDescriptor)?.kind == CallableMemberDescriptor.Kind.FAKE_OVERRIDE)
             DescriptorUtils.getDispatchReceiverParameterIfNeeded(descriptor.containingDeclaration)
         else dispatchReceiver
-    }
-
-    if (extensionReceiver != null && dispatchReceiver != null && descriptor is CallableMemberDescriptor) {
-        if (reportOn != null) {
-            trace?.report(EXTENSION_IN_CLASS_REFERENCE_NOT_ALLOWED.on(reportOn, descriptor))
-        }
-        return null
     }
 
     val receiverType =
@@ -222,6 +220,11 @@ private fun createReflectionTypeForCallableDescriptor(
         else ->
             throw UnsupportedOperationException("Callable reference resolved to an unsupported descriptor: $descriptor")
     }
+}
+
+private fun isMemberExtension(descriptor: CallableMemberDescriptor): Boolean {
+    val original = (descriptor as? ImportedFromObjectCallableDescriptor<*>)?.callableFromObject ?: descriptor
+    return original.extensionReceiverParameter != null && original.dispatchReceiverParameter != null
 }
 
 fun getReflectionTypeForCandidateDescriptor(

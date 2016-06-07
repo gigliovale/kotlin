@@ -1,0 +1,1 @@
+Function call 9 repo.`method name`()  // Go to declaration works fine

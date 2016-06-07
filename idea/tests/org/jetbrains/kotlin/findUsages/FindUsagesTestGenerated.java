@@ -528,6 +528,12 @@ public class FindUsagesTestGenerated extends AbstractFindUsagesTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("extensionWithSpacesUsages.0.kt")
+            public void testExtensionWithSpacesUsages() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findFunctionUsages/extensionWithSpacesUsages.0.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("functionUsedInPlainText.0.kt")
             public void testFunctionUsedInPlainText() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findFunctionUsages/functionUsedInPlainText.0.kt");

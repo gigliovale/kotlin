@@ -696,6 +696,12 @@ public class FindUsagesTestGenerated extends AbstractFindUsagesTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("privateMethodOfCompanionObject.0.kt")
+            public void testPrivateMethodOfCompanionObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findFunctionUsages/privateMethodOfCompanionObject.0.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("synthesizedFunction.0.kt")
             public void testSynthesizedFunction() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findFunctionUsages/synthesizedFunction.0.kt");

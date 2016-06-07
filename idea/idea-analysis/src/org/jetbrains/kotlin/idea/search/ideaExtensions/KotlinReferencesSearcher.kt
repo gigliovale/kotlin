@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.idea.search.effectiveSearchScope
 import org.jetbrains.kotlin.idea.search.usagesSearch.dataClassComponentFunction
 import org.jetbrains.kotlin.idea.search.usagesSearch.getClassNameForCompanionObject
 import org.jetbrains.kotlin.idea.search.usagesSearch.getSpecialNamesToSearch
+import org.jetbrains.kotlin.idea.search.usagesSearch.processDelegationCallConstructorUsages
 import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.psi.*
@@ -104,8 +105,20 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
             runReadAction { searchNamedArguments(unwrappedElement, queryParameters) }
         }
 
+        if (element is KtSecondaryConstructor) {
+            runReadAction { searchConstructorDelegationCalls(consumer, queryParameters, unwrappedElement) }
+        }
+
         if (!(unwrappedElement is KtElement && isOnlyKotlinSearch(effectiveSearchScope))) {
             searchLightElements(queryParameters, element)
+        }
+    }
+
+    private fun searchConstructorDelegationCalls(consumer: Processor<PsiReference>, queryParameters: ReferencesSearch.SearchParameters, unwrappedElement: PsiNamedElement) {
+        unwrappedElement.toLightMethods().forEach { method ->
+            method.processDelegationCallConstructorUsages(method.useScope.intersectWith(queryParameters.effectiveSearchScope)) {
+                it.calleeExpression?.reference?.let { consumer.process(it) } ?: true
+            }
         }
     }
 

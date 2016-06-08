@@ -383,6 +383,8 @@ public class DefaultErrorMessages {
         MAP.put(OPERATOR_MODIFIER_REQUIRED, "''operator'' modifier is required on ''{0}'' in ''{1}''", NAME, STRING);
         MAP.put(INFIX_MODIFIER_REQUIRED, "''infix'' modifier is required on ''{0}'' in ''{1}''", NAME, STRING);
 
+        MAP.put(INAPPLICABLE_MODIFIER, "''{0}'' modifier is inapplicable. The reason is that {1}", TO_STRING, STRING);
+
         MAP.put(RETURN_IN_FUNCTION_WITH_EXPRESSION_BODY,
                 "Returns are not allowed for functions with expression body. Use block body in '{...}'");
         MAP.put(NO_RETURN_IN_FUNCTION_WITH_BLOCK_BODY, "A 'return' expression required in a function with a block body ('{...}')");
@@ -495,6 +497,7 @@ public class DefaultErrorMessages {
         MAP.put(UNSAFE_IMPLICIT_INVOKE_CALL, "Reference has a nullable type ''{0}'', use explicit ''?.invoke()'' to make a function-like call instead", RENDER_TYPE);
         MAP.put(AMBIGUOUS_LABEL, "Ambiguous label");
         MAP.put(UNSUPPORTED, "Unsupported [{0}]", STRING);
+        MAP.put(UNSUPPORTED_FEATURE, "{0} are unsupported at this language level", TO_STRING);
         MAP.put(EXCEPTION_FROM_ANALYZER, "Internal Error occurred while analyzing this expression:\n{0}", THROWABLE);
         MAP.put(UNNECESSARY_SAFE_CALL, "Unnecessary safe call on a non-null receiver of type {0}", RENDER_TYPE);
         MAP.put(UNEXPECTED_SAFE_CALL, "Safe-call is not allowed here");
@@ -753,6 +756,7 @@ public class DefaultErrorMessages {
         MAP.put(NON_LOCAL_RETURN_NOT_ALLOWED, "Can''t inline ''{0}'' here: it may contain non-local returns. Add ''crossinline'' modifier to parameter declaration ''{0}''", ELEMENT_TEXT);
         MAP.put(INLINE_CALL_CYCLE, "The ''{0}'' invocation is a part of inline cycle", NAME);
         MAP.put(NON_LOCAL_RETURN_IN_DISABLED_INLINE, "Non-local returns are not allowed with inlining disabled");
+        MAP.put(NON_LOCAL_SUSPENSION_POINT, "Suspension functions can be called only within coroutine body");
 
         MAP.setImmutable();
 

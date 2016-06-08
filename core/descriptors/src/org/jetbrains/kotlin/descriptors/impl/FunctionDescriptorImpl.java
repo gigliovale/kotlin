@@ -48,6 +48,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
     // 2. isHiddenForResolutionEverywhereBesideSupercalls propagates to it's overrides descriptors while isHiddenToOvercomeSignatureClash does not
     private boolean isHiddenToOvercomeSignatureClash = false;
     private boolean isHiddenForResolutionEverywhereBesideSupercalls = false;
+    private boolean isSuspend = false;
     private boolean hasStableParameterNames = true;
     private boolean hasSynthesizedParameterNames = false;
     private Collection<? extends FunctionDescriptor> overriddenFunctions = null;
@@ -56,6 +57,8 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
     private final Kind kind;
     @Nullable
     private FunctionDescriptor initialSignatureDescriptor = null;
+
+    private Map<UserDataKey<?>, Object> userDataMap = null;
 
     protected FunctionDescriptorImpl(
             @NotNull DeclarationDescriptor containingDeclaration,
@@ -137,6 +140,10 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
 
     private void setHiddenForResolutionEverywhereBesideSupercalls(boolean hiddenForResolutionEverywhereBesideSupercalls) {
         isHiddenForResolutionEverywhereBesideSupercalls = hiddenForResolutionEverywhereBesideSupercalls;
+    }
+
+    public void setSuspend(boolean suspend) {
+        isSuspend = suspend;
     }
 
     public void setReturnType(@NotNull KotlinType unsubstitutedReturnType) {
@@ -236,6 +243,18 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
     }
 
     @Override
+    public boolean isSuspend() {
+        return isSuspend;
+    }
+
+    @Override
+    public <V> V getUserData(UserDataKey<V> key) {
+        if (userDataMap == null) return null;
+        //noinspection unchecked
+        return (V) userDataMap.get(key);
+    }
+
+    @Override
     public boolean isHiddenToOvercomeSignatureClash() {
         return isHiddenToOvercomeSignatureClash;
     }
@@ -319,17 +338,19 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         protected @NotNull Kind kind;
         protected @NotNull List<ValueParameterDescriptor> newValueParameterDescriptors;
         protected @Nullable KotlinType newExtensionReceiverParameterType;
-        protected @Nullable ReceiverParameterDescriptor dispatchReceiverParameter;
+        protected @Nullable ReceiverParameterDescriptor dispatchReceiverParameter = FunctionDescriptorImpl.this.dispatchReceiverParameter;
         protected @NotNull KotlinType newReturnType;
         protected @Nullable Name name;
         protected boolean copyOverrides = true;
         protected boolean signatureChange = false;
         protected boolean preserveSourceElement = false;
         protected boolean dropOriginalInContainingParts = false;
-        private boolean isHiddenToOvercomeSignatureClash;
+        private boolean isHiddenToOvercomeSignatureClash = isHiddenToOvercomeSignatureClash();
         private List<TypeParameterDescriptor> newTypeParameters = null;
         private Annotations additionalAnnotations = null;
-        private boolean isHiddenForResolutionEverywhereBesideSupercalls;
+        private boolean isHiddenForResolutionEverywhereBesideSupercalls = isHiddenForResolutionEverywhereBesideSupercalls();
+        private SourceElement sourceElement;
+        private Map<UserDataKey<?>, Object> userDataMap = new LinkedHashMap<UserDataKey<?>, Object>();
 
         public CopyConfiguration(
                 @NotNull TypeSubstitution substitution,
@@ -349,11 +370,8 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             this.kind = kind;
             this.newValueParameterDescriptors = newValueParameterDescriptors;
             this.newExtensionReceiverParameterType = newExtensionReceiverParameterType;
-            this.dispatchReceiverParameter = FunctionDescriptorImpl.this.dispatchReceiverParameter;
             this.newReturnType = newReturnType;
             this.name = name;
-            this.isHiddenToOvercomeSignatureClash = isHiddenToOvercomeSignatureClash();
-            this.isHiddenForResolutionEverywhereBesideSupercalls = isHiddenForResolutionEverywhereBesideSupercalls();
         }
 
         @Override
@@ -435,7 +453,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
 
         @Override
         @NotNull
-        public CopyConfiguration setOriginal(@NotNull FunctionDescriptor original) {
+        public CopyConfiguration setOriginal(@Nullable FunctionDescriptor original) {
             this.original = original;
             return this;
         }
@@ -451,6 +469,13 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         @NotNull
         public CopyConfiguration setPreserveSourceElement() {
             this.preserveSourceElement = true;
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public CopyBuilder<FunctionDescriptor> setSource(@NotNull SourceElement source) {
+            this.sourceElement = source;
             return this;
         }
 
@@ -486,6 +511,13 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         @Override
         public CopyConfiguration setSubstitution(@NotNull TypeSubstitution substitution) {
             this.substitution = substitution;
+            return this;
+        }
+
+        @NotNull
+        @Override
+        public <V> CopyBuilder<FunctionDescriptor> putUserData(@NotNull UserDataKey<V> userDataKey, V value) {
+            userDataMap.put(userDataKey, value);
             return this;
         }
 
@@ -529,7 +561,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
 
         FunctionDescriptorImpl substitutedDescriptor = createSubstitutedCopy(
                 configuration.newOwner, configuration.original, configuration.kind, configuration.name, resultAnnotations,
-                configuration.preserveSourceElement);
+                getSourceToUseForCopy(configuration.preserveSourceElement, configuration.original, configuration.sourceElement));
 
         List<TypeParameterDescriptor> substitutedTypeParameters;
         final TypeSubstitutor substitutor;
@@ -599,10 +631,32 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         substitutedDescriptor.setExternal(isExternal);
         substitutedDescriptor.setInline(isInline);
         substitutedDescriptor.setTailrec(isTailrec);
+        substitutedDescriptor.setSuspend(isSuspend);
         substitutedDescriptor.setHasStableParameterNames(hasStableParameterNames);
         substitutedDescriptor.setHasSynthesizedParameterNames(hasSynthesizedParameterNames);
         substitutedDescriptor.setHiddenToOvercomeSignatureClash(configuration.isHiddenToOvercomeSignatureClash);
         substitutedDescriptor.setHiddenForResolutionEverywhereBesideSupercalls(configuration.isHiddenForResolutionEverywhereBesideSupercalls);
+
+        if (!configuration.userDataMap.isEmpty() || userDataMap != null) {
+            Map<UserDataKey<?>, Object> newMap = configuration.userDataMap;
+
+            if (userDataMap != null) {
+                for (Map.Entry<UserDataKey<?>, Object> entry : userDataMap.entrySet()) {
+                    if (!newMap.containsKey(entry.getKey())) {
+                        newMap.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+
+            if (newMap.size() == 1) {
+                substitutedDescriptor.userDataMap =
+                        Collections.<UserDataKey<?>, Object>singletonMap(
+                                newMap.keySet().iterator().next(), newMap.values().iterator().next());
+            }
+            else {
+                substitutedDescriptor.userDataMap = newMap;
+            }
+        }
 
         if (configuration.signatureChange || getInitialSignatureDescriptor() != null) {
             FunctionDescriptor initialSignature = (getInitialSignatureDescriptor() != null ? getInitialSignatureDescriptor() : this);
@@ -644,11 +698,16 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
             @NotNull Kind kind,
             @Nullable Name newName,
             @NotNull Annotations annotations,
-            boolean preserveSource
+            @NotNull SourceElement source
     );
 
     @NotNull
-    protected SourceElement getSourceToUseForCopy(boolean preserveSource, @Nullable FunctionDescriptor original) {
+    private SourceElement getSourceToUseForCopy(
+            boolean preserveSource,
+            @Nullable FunctionDescriptor original,
+            @Nullable SourceElement sourceElement
+    ) {
+        if (sourceElement != null) return sourceElement;
         return preserveSource
                ? (original != null ? original.getSource() : getOriginal().getSource())
                : SourceElement.NO_SOURCE;
@@ -685,6 +744,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
                             unsubstitutedValueParameter.declaresDefaultValue(),
                             unsubstitutedValueParameter.isCrossinline(),
                             unsubstitutedValueParameter.isNoinline(),
+                            unsubstitutedValueParameter.isCoroutine(),
                             substituteVarargElementType,
                             SourceElement.NO_SOURCE
                     )
@@ -699,7 +759,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         return initialSignatureDescriptor;
     }
 
-    public void setInitialSignatureDescriptor(@Nullable FunctionDescriptor initialSignatureDescriptor) {
+    private void setInitialSignatureDescriptor(@Nullable FunctionDescriptor initialSignatureDescriptor) {
         this.initialSignatureDescriptor = initialSignatureDescriptor;
     }
 }

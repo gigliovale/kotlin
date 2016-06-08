@@ -78,7 +78,6 @@ public interface KtTokens {
     KtKeywordToken INTERFACE_KEYWORD        = KtKeywordToken.keyword("interface");
 
     // Reserved for future use:
-    KtKeywordToken YIELD_KEYWORD            = KtKeywordToken.keyword("yield");
     KtKeywordToken TYPEOF_KEYWORD           = KtKeywordToken.keyword("typeof");
 
     KtToken AS_SAFE = KtKeywordToken.keyword("AS_SAFE");//new KtToken("as?");
@@ -187,6 +186,9 @@ public interface KtTokens {
 
     KtModifierKeywordToken CONST_KEYWORD = KtModifierKeywordToken.softKeywordModifier("const");
 
+    KtModifierKeywordToken COROUTINE_KEYWORD = KtModifierKeywordToken.softKeywordModifier("coroutine");
+    KtModifierKeywordToken SUSPEND_KEYWORD = KtModifierKeywordToken.softKeywordModifier("suspend");
+
     TokenSet KEYWORDS = TokenSet.create(PACKAGE_KEYWORD, AS_KEYWORD, TYPE_ALIAS_KEYWORD, CLASS_KEYWORD, INTERFACE_KEYWORD,
                                         THIS_KEYWORD, SUPER_KEYWORD, VAL_KEYWORD, VAR_KEYWORD, FUN_KEYWORD, FOR_KEYWORD,
                                         NULL_KEYWORD,
@@ -194,7 +196,6 @@ public interface KtTokens {
                                         IN_KEYWORD, THROW_KEYWORD, RETURN_KEYWORD, BREAK_KEYWORD, CONTINUE_KEYWORD, OBJECT_KEYWORD, IF_KEYWORD,
                                         ELSE_KEYWORD, WHILE_KEYWORD, DO_KEYWORD, TRY_KEYWORD, WHEN_KEYWORD,
                                         NOT_IN, NOT_IS, AS_SAFE,
-                                        YIELD_KEYWORD,
                                         TYPEOF_KEYWORD
     );
 
@@ -207,7 +208,8 @@ public interface KtTokens {
                                              DELEGATE_KEYWORD,
                                              LATEINIT_KEYWORD,
                                              DATA_KEYWORD, INLINE_KEYWORD, NOINLINE_KEYWORD, TAILREC_KEYWORD, EXTERNAL_KEYWORD,
-                                             ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD, CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD
+                                             ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD, CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD,
+                                             COROUTINE_KEYWORD, SUSPEND_KEYWORD
     );
 
     /*
@@ -221,7 +223,7 @@ public interface KtTokens {
                     PUBLIC_KEYWORD, INTERNAL_KEYWORD, PROTECTED_KEYWORD, OUT_KEYWORD, IN_KEYWORD, FINAL_KEYWORD, VARARG_KEYWORD,
                     REIFIED_KEYWORD, COMPANION_KEYWORD, SEALED_KEYWORD, LATEINIT_KEYWORD,
                     DATA_KEYWORD, INLINE_KEYWORD, NOINLINE_KEYWORD, TAILREC_KEYWORD, EXTERNAL_KEYWORD, ANNOTATION_KEYWORD, CROSSINLINE_KEYWORD,
-                    CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD
+                    CONST_KEYWORD, OPERATOR_KEYWORD, INFIX_KEYWORD, COROUTINE_KEYWORD, SUSPEND_KEYWORD
             };
 
     TokenSet MODIFIER_KEYWORDS = TokenSet.create(MODIFIER_KEYWORDS_ARRAY);
@@ -246,11 +248,6 @@ public interface KtTokens {
                                           RANGE, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ,
                                           NOT_IN, NOT_IS,
                                           IDENTIFIER);
-
-    TokenSet BINARY_OPERATIONS = TokenSet.create(AS_KEYWORD, AS_SAFE, IS_KEYWORD, IN_KEYWORD, MUL, PLUS,
-                                                 MINUS, DIV, PERC, LT, GT, LTEQ, GTEQ, EQEQEQ, EXCLEQEQEQ, EQEQ, EXCLEQ, ANDAND, OROR,
-                                                 ELVIS, RANGE, EQ, MULTEQ, DIVEQ, PERCEQ, PLUSEQ, MINUSEQ,
-                                                 NOT_IN, NOT_IS);
 
     TokenSet AUGMENTED_ASSIGNMENTS = TokenSet.create(PLUSEQ, MINUSEQ, MULTEQ, PERCEQ, DIVEQ);
     TokenSet ALL_ASSIGNMENTS = TokenSet.create(EQ, PLUSEQ, MINUSEQ, MULTEQ, PERCEQ, DIVEQ);

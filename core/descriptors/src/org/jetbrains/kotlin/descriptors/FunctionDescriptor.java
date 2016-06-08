@@ -80,6 +80,14 @@ public interface FunctionDescriptor extends CallableMemberDescriptor {
 
     boolean isHiddenForResolutionEverywhereBesideSupercalls();
 
+    boolean isSuspend();
+
+    interface UserDataKey<V> {}
+
+    // TODO: pull up userdata related members to DeclarationDescriptor and use more efficient implementation (e.g. THashMap)
+    @Nullable
+    <V> V getUserData(UserDataKey<V> key);
+
     @NotNull
     CopyBuilder<? extends FunctionDescriptor> newCopyBuilder();
 
@@ -118,13 +126,16 @@ public interface FunctionDescriptor extends CallableMemberDescriptor {
         CopyBuilder<D> setDispatchReceiverParameter(@Nullable ReceiverParameterDescriptor dispatchReceiverParameter);
 
         @NotNull
-        CopyBuilder<D> setOriginal(@NotNull FunctionDescriptor original);
+        CopyBuilder<D> setOriginal(@Nullable FunctionDescriptor original);
 
         @NotNull
         CopyBuilder<D> setSignatureChange();
 
         @NotNull
         CopyBuilder<D> setPreserveSourceElement();
+
+        @NotNull
+        CopyBuilder<D> setSource(@NotNull SourceElement source);
 
         @NotNull
         CopyBuilder<D> setDropOriginalInContainingParts();
@@ -140,6 +151,9 @@ public interface FunctionDescriptor extends CallableMemberDescriptor {
 
         @NotNull
         CopyBuilder<D> setSubstitution(@NotNull TypeSubstitution substitution);
+
+        @NotNull
+        <V> CopyBuilder<D> putUserData(@NotNull UserDataKey<V> userDataKey, V value);
 
         @Nullable
         D build();

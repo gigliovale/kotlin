@@ -4103,6 +4103,147 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         }
     }
 
+    @TestMetadata("compiler/testData/codegen/box/coroutines")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class Coroutines extends AbstractBlackBoxCodegenTest {
+        public void testAllFilesPresentInCoroutines() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines"), Pattern.compile("^(.+)\\.kt$"), true);
+        }
+
+        @TestMetadata("defaultParametersInSuspend.kt")
+        public void testDefaultParametersInSuspend() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/defaultParametersInSuspend.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("generate.kt")
+        public void testGenerate() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/generate.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("illegalState.kt")
+        public void testIllegalState() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/illegalState.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("inlinedTryCatchFinally.kt")
+        public void testInlinedTryCatchFinally() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/inlinedTryCatchFinally.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("innerSuspensionCalls.kt")
+        public void testInnerSuspensionCalls() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/innerSuspensionCalls.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("manualContinuationImpl.kt")
+        public void testManualContinuationImpl() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/manualContinuationImpl.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("nestedTryCatch.kt")
+        public void testNestedTryCatch() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/nestedTryCatch.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("nonLocalReturnFromInlineLambda.kt")
+        public void testNonLocalReturnFromInlineLambda() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/nonLocalReturnFromInlineLambda.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("nonLocalReturnFromInlineLambdaDeep.kt")
+        public void testNonLocalReturnFromInlineLambdaDeep() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/nonLocalReturnFromInlineLambdaDeep.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("returnByLabel.kt")
+        public void testReturnByLabel() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/returnByLabel.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("simple.kt")
+        public void testSimple() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/simple.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("simpleException.kt")
+        public void testSimpleException() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/simpleException.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("simpleWithHandleResult.kt")
+        public void testSimpleWithHandleResult() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/simpleWithHandleResult.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("statementLikeLastExpression.kt")
+        public void testStatementLikeLastExpression() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/statementLikeLastExpression.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendDelegation.kt")
+        public void testSuspendDelegation() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/suspendDelegation.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendFromInlineLambda.kt")
+        public void testSuspendFromInlineLambda() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/suspendFromInlineLambda.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendInCycle.kt")
+        public void testSuspendInCycle() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/suspendInCycle.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendInTheMiddleOfObjectConstruction.kt")
+        public void testSuspendInTheMiddleOfObjectConstruction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/suspendInTheMiddleOfObjectConstruction.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("tryCatchFinallyWithHandleResult.kt")
+        public void testTryCatchFinallyWithHandleResult() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/tryCatchFinallyWithHandleResult.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("tryCatchWithHandleResult.kt")
+        public void testTryCatchWithHandleResult() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/tryCatchWithHandleResult.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("tryFinallyInsideInlineLambda.kt")
+        public void testTryFinallyInsideInlineLambda() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/tryFinallyInsideInlineLambda.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("tryFinallyWithHandleResult.kt")
+        public void testTryFinallyWithHandleResult() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/tryFinallyWithHandleResult.kt");
+            doTest(fileName);
+        }
+    }
+
     @TestMetadata("compiler/testData/codegen/box/dataClasses")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)

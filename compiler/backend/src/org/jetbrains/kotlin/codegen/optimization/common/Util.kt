@@ -42,12 +42,10 @@ class InsnSequence(val from: AbstractInsnNode, val to: AbstractInsnNode?) : Sequ
     }
 }
 
+fun InsnList.asSequence() = InsnSequence(this)
+
 fun MethodNode.prepareForEmitting() {
-    tryCatchBlocks = tryCatchBlocks.filter { tcb ->
-        InsnSequence(tcb.start, tcb.end).any { insn ->
-            insn.isMeaningful
-        }
-    }
+    removeEmptyCatchBlocks()
 
     // local variables with live ranges starting after last meaningful instruction lead to VerifyError
     localVariables = localVariables.filter { lv ->
@@ -67,6 +65,14 @@ fun MethodNode.prepareForEmitting() {
         }
 
         current = prev
+    }
+}
+
+fun MethodNode.removeEmptyCatchBlocks() {
+    tryCatchBlocks = tryCatchBlocks.filter { tcb ->
+        InsnSequence(tcb.start, tcb.end).any { insn ->
+            insn.isMeaningful
+        }
     }
 }
 
@@ -117,3 +123,5 @@ val AbstractInsnNode.intConstant: Int? get() =
         LDC -> (this as LdcInsnNode).cst as? Int
         else -> null
     }
+
+fun insnListOf(vararg insns: AbstractInsnNode) = InsnList().apply { insns.forEach { add(it) } }

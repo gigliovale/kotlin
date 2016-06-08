@@ -94,6 +94,11 @@ public abstract class PropertyAccessorDescriptorImpl extends DeclarationDescript
         return false;
     }
 
+    @Override
+    public boolean isSuspend() {
+        return false;
+    }
+
     @NotNull
     @Override
     public FunctionDescriptor substitute(@NotNull TypeSubstitutor substitutor) {
@@ -213,5 +218,11 @@ public abstract class PropertyAccessorDescriptorImpl extends DeclarationDescript
     @Override
     public boolean isHiddenForResolutionEverywhereBesideSupercalls() {
         return false;
+    }
+
+    @Nullable
+    @Override
+    public <V> V getUserData(UserDataKey<V> key) {
+        return null;
     }
 }

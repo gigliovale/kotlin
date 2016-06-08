@@ -571,12 +571,6 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
-        @TestMetadata("ReservedAsync.kt")
-        public void testReservedAsync() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/ReservedAsync.kt");
-            doTest(fileName);
-        }
-
         @TestMetadata("ResolveOfJavaGenerics.kt")
         public void testResolveOfJavaGenerics() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/ResolveOfJavaGenerics.kt");
@@ -3861,6 +3855,75 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("when.kt234.kt973.kt")
             public void testWhen_kt234_kt973() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlStructures/when.kt234.kt973.kt");
+                doTest(fileName);
+            }
+        }
+
+        @TestMetadata("compiler/testData/diagnostics/tests/coroutines")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Coroutines extends AbstractDiagnosticsTest {
+            public void testAllFilesPresentInCoroutines() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/coroutines"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("coroutineApplicability.kt")
+            public void testCoroutineApplicability() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/coroutineApplicability.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("irrelevantSuspendDeclarations.kt")
+            public void testIrrelevantSuspendDeclarations() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/irrelevantSuspendDeclarations.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("lambdaExpectedType.kt")
+            public void testLambdaExpectedType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/lambdaExpectedType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("manyHandleResults.kt")
+            public void testManyHandleResults() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/manyHandleResults.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nonLocalSuspension.kt")
+            public void testNonLocalSuspension() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/nonLocalSuspension.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("suspendApplicability.kt")
+            public void testSuspendApplicability() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/suspendApplicability.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("suspendFunctions.kt")
+            public void testSuspendFunctions() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/suspendFunctions.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("tryCatchLambda.kt")
+            public void testTryCatchLambda() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/tryCatchLambda.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsupported.kt")
+            public void testUnsupported() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/unsupported.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("wrongHandleResult.kt")
+            public void testWrongHandleResult() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/wrongHandleResult.kt");
                 doTest(fileName);
             }
         }

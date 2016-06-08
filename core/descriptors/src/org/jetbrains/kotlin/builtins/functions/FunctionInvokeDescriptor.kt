@@ -47,7 +47,7 @@ class FunctionInvokeDescriptor private constructor(
             kind: CallableMemberDescriptor.Kind,
             newName: Name?,
             annotations: Annotations,
-            preserveSource: Boolean
+            source: SourceElement
     ): FunctionDescriptorImpl {
         return FunctionInvokeDescriptor(newOwner, original as FunctionInvokeDescriptor?, kind)
     }
@@ -101,6 +101,7 @@ class FunctionInvokeDescriptor private constructor(
                     /* declaresDefaultValue = */ false,
                     /* isCrossinline = */ false,
                     /* isNoinline = */ false,
+                    /* isCoroutine = */ false,
                     /* varargElementType = */ null,
                     SourceElement.NO_SOURCE
             )

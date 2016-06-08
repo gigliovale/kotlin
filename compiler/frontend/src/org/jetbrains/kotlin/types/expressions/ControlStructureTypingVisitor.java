@@ -23,6 +23,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
+import org.jetbrains.kotlin.coroutines.CoroutineUtilKt;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
@@ -488,7 +489,7 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
                 components.identifierChecker.checkDeclaration(catchParameter, context.trace);
                 ModifiersChecker.ModifiersCheckingProcedure modifiersChecking = components.modifiersChecker.withTrace(context.trace);
                 modifiersChecking.checkParameterHasNoValOrVar(catchParameter, VAL_OR_VAR_ON_CATCH_PARAMETER);
-                ModifierCheckerCore.INSTANCE.check(catchParameter, context.trace, null);
+                ModifierCheckerCore.INSTANCE.check(catchParameter, context.trace, null, components.languageFeatureSettings);
 
                 VariableDescriptor variableDescriptor = components.descriptorResolver.resolveLocalVariableDescriptor(
                         context.scope, catchParameter, context.trace);
@@ -602,21 +603,22 @@ public class ControlStructureTypingVisitor extends ExpressionTypingVisitor {
                     context.trace.report(RETURN_NOT_ALLOWED.on(expression));
                     resultType = ErrorUtils.createErrorType(RETURN_NOT_ALLOWED_MESSAGE);
                 }
+
+                CoroutineUtilKt.resolveCoroutineHandleResultCallIfNeeded(
+                        components.fakeCallResolver, expression, expression.getReturnedExpression(), functionDescriptor, context);
             }
             else {
                 context.trace.report(NOT_A_RETURN_LABEL.on(expression, expression.getLabelName()));
             }
         }
+
         if (returnedExpression != null) {
             facade.getTypeInfo(returnedExpression, context.replaceExpectedType(expectedType).replaceScope(context.scope)
                     .replaceContextDependency(INDEPENDENT));
         }
         else {
-            if (expectedType != null &&
-                !noExpectedType(expectedType) &&
-                !KotlinBuiltIns.isUnit(expectedType) &&
-                !isDontCarePlaceholder(expectedType)) // for lambda with implicit return type Unit
-            {
+            // for lambda with implicit return type Unit
+            if (!noExpectedType(expectedType) && !KotlinBuiltIns.isUnit(expectedType) && !isDontCarePlaceholder(expectedType)) {
                 context.trace.report(RETURN_TYPE_MISMATCH.on(expression, expectedType));
             }
         }

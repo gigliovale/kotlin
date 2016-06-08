@@ -48,7 +48,7 @@ public class ErrorSimpleFunctionDescriptorImpl extends SimpleFunctionDescriptorI
             @NotNull Kind kind,
             @Nullable Name newName,
             @NotNull Annotations annotations,
-            boolean preserveSource
+            @NotNull SourceElement source
     ) {
         return this;
     }
@@ -113,6 +113,15 @@ public class ErrorSimpleFunctionDescriptorImpl extends SimpleFunctionDescriptorI
 
             @NotNull
             @Override
+            public <V> CopyBuilder<SimpleFunctionDescriptor> putUserData(
+                    @NotNull UserDataKey<V> userDataKey,
+                    V value
+            ) {
+                return this;
+            }
+
+            @NotNull
+            @Override
             public CopyBuilder<SimpleFunctionDescriptor> setTypeParameters(@NotNull List<TypeParameterDescriptor> parameters) {
                 return this;
             }
@@ -137,7 +146,7 @@ public class ErrorSimpleFunctionDescriptorImpl extends SimpleFunctionDescriptorI
 
             @NotNull
             @Override
-            public CopyBuilder<SimpleFunctionDescriptor> setOriginal(@NotNull FunctionDescriptor original) {
+            public CopyBuilder<SimpleFunctionDescriptor> setOriginal(@Nullable FunctionDescriptor original) {
                 return this;
             }
 
@@ -150,6 +159,12 @@ public class ErrorSimpleFunctionDescriptorImpl extends SimpleFunctionDescriptorI
             @NotNull
             @Override
             public CopyBuilder<SimpleFunctionDescriptor> setPreserveSourceElement() {
+                return this;
+            }
+
+            @NotNull
+            @Override
+            public CopyBuilder<SimpleFunctionDescriptor> setSource(@NotNull SourceElement source) {
                 return this;
             }
 
@@ -183,6 +198,16 @@ public class ErrorSimpleFunctionDescriptorImpl extends SimpleFunctionDescriptorI
                 return ErrorSimpleFunctionDescriptorImpl.this;
             }
         };
+    }
+
+    @Override
+    public boolean isSuspend() {
+        return false;
+    }
+
+    @Override
+    public <V> V getUserData(UserDataKey<V> key) {
+        return null;
     }
 
     @Override

@@ -206,7 +206,7 @@ class ChangeMemberFunctionSignatureFix private constructor(
                 ValueParameterDescriptorImpl(
                         descriptor, null, index,
                         parameter.annotations, parameter.name, parameter.returnType!!, parameter.declaresDefaultValue(),
-                        parameter.isCrossinline, parameter.isNoinline, parameter.varargElementType, SourceElement.NO_SOURCE
+                        parameter.isCrossinline, parameter.isNoinline, parameter.isCoroutine, parameter.varargElementType, SourceElement.NO_SOURCE
                 )
             }
 
@@ -259,7 +259,7 @@ class ChangeMemberFunctionSignatureFix private constructor(
             override fun choose(parameter: ValueParameterDescriptor, superParameter: ValueParameterDescriptor): ValueParameterDescriptor? {
                 // TODO: support for generic functions
                 if (KotlinTypeChecker.DEFAULT.equalTypes(parameter.type, superParameter.type)) {
-                    return superParameter.copy(parameter.containingDeclaration, parameter.name)
+                    return superParameter.copy(parameter.containingDeclaration, parameter.name, parameter.index)
                 }
                 else {
                     return null

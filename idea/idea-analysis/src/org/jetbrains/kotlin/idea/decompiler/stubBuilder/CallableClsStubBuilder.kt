@@ -18,7 +18,7 @@ package org.jetbrains.kotlin.idea.decompiler.stubBuilder
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.kotlin.idea.decompiler.stubBuilder.FlagsToModifiers.*
+import org.jetbrains.kotlin.idea.decompiler.stubBuilder.flags.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import org.jetbrains.kotlin.psi.stubs.impl.KotlinFunctionStubImpl
@@ -130,7 +130,7 @@ private class FunctionClsStubBuilder(
         val modalityModifier = if (isTopLevel) listOf() else listOf(MODALITY)
         val modifierListStubImpl = createModifierListStubForDeclaration(
                 callableStub, functionProto.flags,
-                listOf(VISIBILITY, OPERATOR, INFIX, EXTERNAL_FUN, INLINE, TAILREC) + modalityModifier
+                listOf(VISIBILITY, OPERATOR, INFIX, EXTERNAL_FUN, INLINE, TAILREC, SUSPEND) + modalityModifier
         )
 
         val annotationIds = c.components.annotationLoader.loadCallableAnnotations(

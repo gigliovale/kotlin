@@ -17,6 +17,9 @@
 package org.jetbrains.kotlin.resolve.calls
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.config.LanguageFeatureSettings
+import org.jetbrains.kotlin.coroutines.controllerTypeIfCoroutine
+import org.jetbrains.kotlin.coroutines.resolveCoroutineHandleResultCallIfNeeded
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
@@ -25,6 +28,7 @@ import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode.
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.getEffectiveExpectedType
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isInvokeCallOnVariable
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
+import org.jetbrains.kotlin.resolve.calls.checkers.checkCoroutineBuilderCall
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CallCandidateResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CallPosition
@@ -46,6 +50,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.expressions.DataFlowAnalyzer
+import org.jetbrains.kotlin.types.expressions.FakeCallResolver
 import java.util.*
 
 class CallCompleter(
@@ -54,7 +59,9 @@ class CallCompleter(
         private val symbolUsageValidator: SymbolUsageValidator,
         private val dataFlowAnalyzer: DataFlowAnalyzer,
         private val callCheckers: Iterable<CallChecker>,
-        private val builtIns: KotlinBuiltIns
+        private val builtIns: KotlinBuiltIns,
+        private val fakeCallResolver: FakeCallResolver,
+        private val languageFeatureSettings: LanguageFeatureSettings
 ) {
     fun <D : CallableDescriptor> completeCall(
             context: BasicCallResolutionContext,
@@ -86,12 +93,36 @@ class CallCompleter(
             else
                 resolvedCall.call.calleeExpression
             symbolUsageValidator.validateCall(resolvedCall, resolvedCall.resultingDescriptor, context.trace, element!!)
+
+            resolveHandleResultCallForCoroutineLambdaExpressions(context, resolvedCall)
+            checkCoroutineBuilderCall(resolvedCall, context, languageFeatureSettings)
         }
 
         if (results.isSingleResult && results.resultingCall.status.isSuccess) {
             return results.changeStatusToSuccess()
         }
         return results
+    }
+
+    private fun <D : CallableDescriptor> resolveHandleResultCallForCoroutineLambdaExpressions(
+            context: BasicCallResolutionContext,
+            resolvedCall: ResolvedCall<D>
+    ) {
+        resolvedCall.valueArguments.values
+                .flatMap { it.arguments.map { it.getArgumentExpression() } }
+                .filterIsInstance<KtLambdaExpression>()
+                .forEach {
+                    val function = context.trace.bindingContext[BindingContext.FUNCTION, it.functionLiteral] ?: return@forEach
+
+                    function.controllerTypeIfCoroutine ?: return@forEach
+
+                    val lastBlockStatement = it.functionLiteral.bodyExpression?.statements?.lastOrNull() ?: return@forEach
+
+                    // Already resolved
+                    if (lastBlockStatement is KtReturnExpression) return@forEach
+
+                    fakeCallResolver.resolveCoroutineHandleResultCallIfNeeded(lastBlockStatement, lastBlockStatement, function, context)
+                }
     }
 
     private fun <D : CallableDescriptor> completeAllCandidates(

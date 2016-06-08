@@ -50,9 +50,12 @@ class DeserializedSimpleFunctionDescriptor(
         override val proto: ProtoBuf.Function,
         override val nameResolver: NameResolver,
         override val typeTable: TypeTable,
-        override val containerSource: SourceElement?
+        override val containerSource: SourceElement?,
+        source: SourceElement? = null
 ) : DeserializedCallableMemberDescriptor,
-        SimpleFunctionDescriptorImpl(containingDeclaration, original, annotations, name, kind, SourceElement.NO_SOURCE) {
+    SimpleFunctionDescriptorImpl(
+                containingDeclaration, original, annotations, name, kind,
+                source ?: SourceElement.NO_SOURCE) {
 
     override fun createSubstitutedCopy(
             newOwner: DeclarationDescriptor,
@@ -60,11 +63,11 @@ class DeserializedSimpleFunctionDescriptor(
             kind: CallableMemberDescriptor.Kind,
             newName: Name?,
             annotations: Annotations,
-            preserveSource: Boolean
+            source: SourceElement
     ): FunctionDescriptorImpl {
         return DeserializedSimpleFunctionDescriptor(
                 newOwner, original as SimpleFunctionDescriptor?, annotations, newName ?: name, kind,
-                proto, nameResolver, typeTable, containerSource
+                proto, nameResolver, typeTable, containerSource, source
         )
     }
 }
@@ -111,9 +114,10 @@ class DeserializedConstructorDescriptor(
         override val proto: ProtoBuf.Constructor,
         override val nameResolver: NameResolver,
         override val typeTable: TypeTable,
-        override val containerSource: SourceElement?
+        override val containerSource: SourceElement?,
+        source: SourceElement? = null
 ) : DeserializedCallableMemberDescriptor,
-        ConstructorDescriptorImpl(containingDeclaration, original, annotations, isPrimary, kind, SourceElement.NO_SOURCE) {
+        ConstructorDescriptorImpl(containingDeclaration, original, annotations, isPrimary, kind, source ?: SourceElement.NO_SOURCE) {
 
     override fun createSubstitutedCopy(
             newOwner: DeclarationDescriptor,
@@ -121,11 +125,11 @@ class DeserializedConstructorDescriptor(
             kind: CallableMemberDescriptor.Kind,
             newName: Name?,
             annotations: Annotations,
-            preserveSource: Boolean
+            source: SourceElement
     ): DeserializedConstructorDescriptor {
         return DeserializedConstructorDescriptor(
                 newOwner as ClassDescriptor, original as ConstructorDescriptor?, annotations, isPrimary, kind,
-                proto, nameResolver, typeTable, containerSource
+                proto, nameResolver, typeTable, containerSource, source
         )
     }
 
@@ -134,6 +138,8 @@ class DeserializedConstructorDescriptor(
     override fun isInline(): Boolean = false
 
     override fun isTailrec(): Boolean = false
+
+    override fun isSuspend(): Boolean  = false
 }
 
 class DeserializedTypeAliasDescriptor(

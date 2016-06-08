@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.cfg.WhenMissingCase;
+import org.jetbrains.kotlin.config.LanguageFeature;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.lexer.KtKeywordToken;
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken;
@@ -54,6 +55,7 @@ public interface Errors {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     DiagnosticFactory1<PsiElement, String> UNSUPPORTED = DiagnosticFactory1.create(ERROR);
+    DiagnosticFactory1<PsiElement, LanguageFeature> UNSUPPORTED_FEATURE = DiagnosticFactory1.create(ERROR);
     DiagnosticFactory1<PsiElement, Throwable> EXCEPTION_FROM_ANALYZER = DiagnosticFactory1.create(ERROR);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -622,6 +624,8 @@ public interface Errors {
     DiagnosticFactory2<PsiElement, FunctionDescriptor, String> OPERATOR_MODIFIER_REQUIRED = DiagnosticFactory2.create(ERROR);
     DiagnosticFactory2<KtOperationReferenceExpression, FunctionDescriptor, String> INFIX_MODIFIER_REQUIRED = DiagnosticFactory2.create(ERROR);
 
+    DiagnosticFactory2<PsiElement, KtModifierKeywordToken, String> INAPPLICABLE_MODIFIER = DiagnosticFactory2.create(ERROR);
+
     // Labels
 
     DiagnosticFactory0<KtSimpleNameExpression> LABEL_NAME_CLASH = DiagnosticFactory0.create(WARNING);
@@ -799,6 +803,9 @@ public interface Errors {
     DiagnosticFactory0<PsiElement> REIFIED_TYPE_PARAMETER_IN_OVERRIDE = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory1<PsiElement, CallableDescriptor> INLINE_CALL_CYCLE = DiagnosticFactory1.create(ERROR, DEFAULT);
     DiagnosticFactory0<PsiElement> NON_LOCAL_RETURN_IN_DISABLED_INLINE = DiagnosticFactory0.create(ERROR);
+
+
+    DiagnosticFactory0<KtElement> NON_LOCAL_SUSPENSION_POINT = DiagnosticFactory0.create(ERROR);
 
 
     // Error sets

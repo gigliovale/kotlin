@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.descriptors;
+@file:Suppress("unused")
 
-import kotlin.Pair;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.name.Name;
-import org.jetbrains.kotlin.types.KotlinType;
+package org.jetbrains.kotlin.scripts
 
-import java.util.List;
+open class TestDSLClass
 
-public interface ScriptDescriptor extends ClassDescriptor {
-    int getPriority();
+fun TestDSLClass.fibCombine(f: (Int) -> Int, n: Int) = if (n < 2) 1 else f(n - 1) + f(n - 2)
 
-    @NotNull
-    @Override
-    ConstructorDescriptor getUnsubstitutedPrimaryConstructor();
+interface TestDSLInterface
 
-    List<Pair<Name, KotlinType>> getScriptParametersToPassToSuperclass();
-}
+fun TestDSLInterface.fibCombine(f: (Int) -> Int, n: Int) = if (n < 2) 1 else f(n - 1) + f(n - 2)
+
+open class TestDSLClassWithParam(val offset: Int)
+
+fun TestDSLClassWithParam.fibCombine(f: (Int) -> Int, n: Int) = if (n < 2) offset else f(n - 1) + f(n - 2)

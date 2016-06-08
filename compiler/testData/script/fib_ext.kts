@@ -1,3 +1,4 @@
+
 // this script expected parameter num : Int
 
 fun fib(n: Int): Int {
@@ -6,5 +7,10 @@ fun fib(n: Int): Int {
     return v
 }
 
-System.out.println("num: $num")
+val hdr = "Num".decapitalize()
+
+org.junit.Assert.assertTrue(false)
+
+System.out.println("$hdr: $num")
 val result = fib(num)
+

@@ -17,10 +17,12 @@
 package org.jetbrains.kotlin.cli.jvm.compiler
 
 import com.intellij.openapi.util.io.JarUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.asJava.FilteredJvmDiagnostics
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection
 import org.jetbrains.kotlin.backend.common.output.SimpleOutputFileCollection
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.messages.*
@@ -49,6 +51,7 @@ import org.jetbrains.kotlin.name.isSubpackageOf
 import org.jetbrains.kotlin.progress.ProgressIndicatorAndCompilationCanceledStatus
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
+import org.jetbrains.kotlin.script.getScriptDefinition
 import org.jetbrains.kotlin.util.PerformanceCounter
 import org.jetbrains.kotlin.utils.KotlinPaths
 import org.jetbrains.kotlin.utils.PathUtil
@@ -59,6 +62,12 @@ import java.lang.reflect.InvocationTargetException
 import java.net.URLClassLoader
 import java.util.concurrent.TimeUnit
 import java.util.jar.Attributes
+import kotlin.reflect.KClass
+import kotlin.reflect.KParameter
+import kotlin.reflect.KType
+import kotlin.reflect.defaultType
+import kotlin.reflect.jvm.javaMethod
+import kotlin.reflect.jvm.javaType
 
 object KotlinToJVMBytecodeCompiler {
 
@@ -207,13 +216,17 @@ object KotlinToJVMBytecodeCompiler {
         }
     }
 
-    fun compileAndExecuteScript(environment: KotlinCoreEnvironment, paths: KotlinPaths, scriptArgs: List<String>): ExitCode {
+    fun compileAndExecuteScript(
+            environment: KotlinCoreEnvironment,
+            paths: KotlinPaths,
+            scriptArgs: List<String>): ExitCode
+    {
         val scriptClass = compileScript(environment, paths) ?: return ExitCode.COMPILATION_ERROR
-        val scriptConstructor = getScriptConstructor(scriptClass)
 
         try {
             try {
-                scriptConstructor.newInstance(*arrayOf<Any>(scriptArgs.toTypedArray()))
+                tryConstructClass(scriptClass, scriptArgs)
+                    ?: throw RuntimeException("unable to find appropriate constructor for class ${scriptClass.name} accepting arguments $scriptArgs\n")
             }
             finally {
                 // NB: these lines are required (see KT-9546) but aren't covered by tests
@@ -245,16 +258,96 @@ object KotlinToJVMBytecodeCompiler {
         }
     }
 
-    private fun getScriptConstructor(scriptClass: Class<*>): Constructor<*> =
-            scriptClass.getConstructor(Array<String>::class.java)
+    @TestOnly
+    fun tryConstructClassPub(scriptClass: Class<*>, scriptArgs: List<String>): Any? = tryConstructClass(scriptClass, scriptArgs)
 
-    fun compileScript(environment: KotlinCoreEnvironment, paths: KotlinPaths): Class<*>? {
-        val state = analyzeAndGenerate(environment) ?: return null
+    private fun tryConstructClass(scriptClass: Class<*>, scriptArgs: List<String>): Any? {
+
+        fun convertPrimitive(type: KType?, arg: String): Any? =
+                when (type) {
+                    String::class.defaultType -> arg
+                    Int::class.defaultType -> arg.toInt()
+                    Long::class.defaultType -> arg.toLong()
+                    Short::class.defaultType -> arg.toShort()
+                    Byte::class.defaultType -> arg.toByte()
+                    Char::class.defaultType -> arg[0]
+                    Float::class.defaultType -> arg.toFloat()
+                    Double::class.defaultType -> arg.toDouble()
+                    Boolean::class.defaultType -> arg.toBoolean()
+                    else -> null
+                }
+
+        fun convertArray(type: KType?, args: List<String>): Any? =
+                when (type) {
+                    String::class.defaultType -> args.toTypedArray()
+                    Int::class.defaultType -> args.map { it.toInt() }.toTypedArray()
+                    Long::class.defaultType -> args.map { it.toLong() }.toTypedArray()
+                    Short::class.defaultType -> args.map { it.toShort() }.toTypedArray()
+                    Byte::class.defaultType -> args.map { it.toByte() }.toTypedArray()
+                    Char::class.defaultType -> args.map { it[0] }.toTypedArray()
+                    Float::class.defaultType -> args.map { it.toFloat() }.toTypedArray()
+                    Double::class.defaultType -> args.map { it.toDouble() }.toTypedArray()
+                    Boolean::class.defaultType -> args.map { it.toBoolean() }.toTypedArray()
+                    else -> null
+                }
+
+        fun foldingFunc(state: Pair<List<Any>, List<String>?>, par: KParameter): Pair<List<Any>, List<String>?> {
+            state.second?.let { scriptArgsLeft ->
+                try {
+                    if (scriptArgsLeft.isNotEmpty()) {
+                        val primArgCandidate = convertPrimitive(par.type, scriptArgsLeft.first())
+                        if (primArgCandidate != null)
+                            return@foldingFunc Pair(state.first + primArgCandidate, scriptArgsLeft.drop(1))
+                    }
+
+                    val arrCompType = (par.type.javaType as? Class<*>)?.componentType?.kotlin?.defaultType
+                    val arrayArgCandidate = convertArray(arrCompType, scriptArgsLeft)
+                    if (arrayArgCandidate != null)
+                        return@foldingFunc Pair(state.first + arrayArgCandidate, null)
+                }
+                catch (e: NumberFormatException) {
+                } // just skips to return below
+            }
+            return state
+        }
 
         try {
-            val classPaths = arrayListOf(paths.runtimePath.toURI().toURL())
-            environment.configuration.jvmClasspathRoots.mapTo(classPaths) { it.toURI().toURL() }
-            val classLoader = GeneratedClassLoader(state.factory, URLClassLoader(classPaths.toTypedArray(), null))
+            return scriptClass.getConstructor(Array<String>::class.java).newInstance(*arrayOf<Any>(scriptArgs.toTypedArray()))
+        }
+        catch (e: java.lang.NoSuchMethodException) {
+            for (ctor in scriptClass.kotlin.constructors) {
+                val (ctorArgs, scriptArgsLeft) = ctor.parameters.fold(Pair(emptyList<Any>(), scriptArgs), ::foldingFunc)
+                if (ctorArgs.size <= ctor.parameters.size && (scriptArgsLeft == null || scriptArgsLeft.isEmpty())) {
+                    val argsMap = ctorArgs.zip(ctor.parameters) { a, p -> Pair(p, a) }.toMap()
+                    try {
+                        return ctor.callBy(argsMap)
+                    }
+                    catch (e: Exception) { // TODO: find the exact exception type thrown then callBy fails
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    fun compileScript(environment: KotlinCoreEnvironment, paths: KotlinPaths): Class<*>? =
+            compileScript(environment,
+                          {
+                              val classPaths = arrayListOf(paths.runtimePath.toURI().toURL())
+                              environment.configuration.jvmClasspathRoots.mapTo(classPaths) { it.toURI().toURL() }
+                              URLClassLoader(classPaths.toTypedArray())
+                          })
+
+    fun compileScript(environment: KotlinCoreEnvironment, parentClassLoader: ClassLoader): Class<*>? = compileScript(environment, { parentClassLoader })
+
+    private inline fun compileScript(
+            environment: KotlinCoreEnvironment,
+            makeParentClassLoader: () -> ClassLoader): Class<*>? {
+        val state = analyzeAndGenerate(environment) ?: return null
+
+        val classLoader: GeneratedClassLoader
+        try {
+            classLoader = GeneratedClassLoader(state.factory, makeParentClassLoader(), null)
 
             val script = environment.getSourceFiles()[0].script ?: error("Script must be parsed")
             return classLoader.loadClass(script.fqName.asString())

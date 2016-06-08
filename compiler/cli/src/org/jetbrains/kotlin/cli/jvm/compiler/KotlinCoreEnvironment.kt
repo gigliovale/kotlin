@@ -64,9 +64,7 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.WARNING
 import org.jetbrains.kotlin.cli.common.toBooleanLenient
-import org.jetbrains.kotlin.cli.jvm.config.JavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.JvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.JvmContentRoot
+import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.codegen.extensions.ClassBuilderInterceptorExtension
 import org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
@@ -89,9 +87,11 @@ import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisCompletedHandlerExten
 import org.jetbrains.kotlin.resolve.jvm.extensions.PackageFragmentProviderExtension
 import org.jetbrains.kotlin.resolve.lazy.declarations.CliDeclarationProviderFactoryService
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactoryService
-import org.jetbrains.kotlin.script.KotlinScriptDefinitionProvider
+import org.jetbrains.kotlin.script.*
 import org.jetbrains.kotlin.utils.PathUtil
+import org.jetbrains.kotlin.utils.ifEmpty
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.*
 
 class KotlinCoreEnvironment private constructor(
@@ -122,7 +122,6 @@ class KotlinCoreEnvironment private constructor(
         registerProjectServicesForCLI(projectEnvironment)
         registerProjectServices(projectEnvironment)
 
-        fillClasspath(configuration)
         val fileManager = ServiceManager.getService(project, CoreJavaFileManager::class.java)
         val index = JvmDependenciesIndex(javaRoots)
         (fileManager as KotlinCliJavaFileManagerImpl).initIndex(index)
@@ -137,9 +136,34 @@ class KotlinCoreEnvironment private constructor(
             }
         })
 
-        KotlinScriptDefinitionProvider.getInstance(project).setScriptDefinitions(
-                configuration.getList(JVMConfigurationKeys.SCRIPT_DEFINITIONS)
-        )
+        KotlinScriptDefinitionProvider.getInstance(project).let { scriptDefinitionProvider ->
+            scriptDefinitionProvider.setScriptDefinitions(
+                    configuration.getList(JVMConfigurationKeys.SCRIPT_DEFINITIONS)
+                            .ifEmpty {
+                                if (configuration.get(JVMConfigurationKeys.LOAD_SCRIPT_CONFIGS) ?: false)
+                                    loadScriptConfigsFromProjectRoot(File(project.basePath ?: ".")).let { configs ->
+                                        val kotlinEnvVars = generateKotlinScriptClasspathEnvVars(project)
+                                        configs.map { KotlinConfigurableScriptDefinition(it, kotlinEnvVars) }
+                                    }
+                                else null
+                                ?: emptyList()
+                            })
+
+            KotlinScriptExtraImportsProvider.getInstance(project)?.run {
+                configuration.getMap(JVMConfigurationKeys.SCRIPTS_EXTRA_IMPORTS).entries.forEach {
+                    val localFile = applicationEnvironment.localFileSystem.findFileByPath(it.key)
+                                    ?: throw FileNotFoundException("Unable to find target for extra imports: ${it.key}")
+                    preconfigureExtraImports(localFile, kotlin.collections.listOf(it.value))
+                }
+
+                configuration.addJvmClasspathRoots(
+                        getCombinedClasspathFor(sourceFiles.mapNotNull { src -> src.virtualFile })
+                                .map { File(it).canonicalFile }
+                                .distinct())
+            }
+        }
+
+        fillClasspath(configuration)
 
         project.registerService(JvmVirtualFileFinderFactory::class.java, JvmCliVirtualFileFinderFactory(index))
 
@@ -392,7 +416,9 @@ class KotlinCoreEnvironment private constructor(
         // made public for Upsource
         @JvmStatic fun registerProjectServices(projectEnvironment: JavaCoreProjectEnvironment) {
             with (projectEnvironment.project) {
-                registerService(KotlinScriptDefinitionProvider::class.java, KotlinScriptDefinitionProvider())
+                val kotlinScriptDefinitionProvider = KotlinScriptDefinitionProvider()
+                registerService(KotlinScriptDefinitionProvider::class.java, kotlinScriptDefinitionProvider)
+                registerService(KotlinScriptExtraImportsProvider::class.java, KotlinScriptExtraImportsProvider(projectEnvironment.project, kotlinScriptDefinitionProvider))
                 registerService(KotlinJavaPsiFacade::class.java, KotlinJavaPsiFacade(this))
                 registerService(KtLightClassForFacade.FacadeStubCache::class.java, KtLightClassForFacade.FacadeStubCache(this))
             }

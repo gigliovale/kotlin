@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -591,21 +591,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         @NotNull
         @Override
         protected Collection<KotlinType> computeSupertypes() {
-            if (KotlinBuiltIns.isSpecialClassWithNoSupertypes(LazyClassDescriptor.this)) {
-                return Collections.emptyList();
-            }
-
-            KtClassOrObject classOrObject = declarationProvider.getOwnerInfo().getCorrespondingClassOrObject();
-            if (classOrObject == null) {
-                return Collections.singleton(c.getModuleDescriptor().getBuiltIns().getAnyType());
-            }
-
-            List<KotlinType> allSupertypes =
-                    c.getDescriptorResolver()
-                            .resolveSupertypes(getScopeForClassHeaderResolution(), LazyClassDescriptor.this, classOrObject,
-                                               c.getTrace());
-
-            return Lists.newArrayList(Collections2.filter(allSupertypes, VALID_SUPERTYPE));
+            return LazyClassDescriptor.this.computeSupertypes();
         }
 
         @Override
@@ -697,5 +683,24 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
             ForceResolveUtil.forceResolveAllContents(getSupertypes());
             ForceResolveUtil.forceResolveAllContents(getParameters());
         }
+    }
+
+    @NotNull
+    protected Collection<KotlinType> computeSupertypes() {
+        if (KotlinBuiltIns.isSpecialClassWithNoSupertypes(this)) {
+            return Collections.emptyList();
+        }
+
+        KtClassOrObject classOrObject = declarationProvider.getOwnerInfo().getCorrespondingClassOrObject();
+        if (classOrObject == null) {
+            return Collections.singleton(c.getModuleDescriptor().getBuiltIns().getAnyType());
+        }
+
+        List<KotlinType> allSupertypes =
+                c.getDescriptorResolver()
+                        .resolveSupertypes(getScopeForClassHeaderResolution(), this, classOrObject,
+                                           c.getTrace());
+
+        return Lists.newArrayList(Collections2.filter(allSupertypes, VALID_SUPERTYPE));
     }
 }

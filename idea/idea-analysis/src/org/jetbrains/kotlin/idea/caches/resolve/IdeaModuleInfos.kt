@@ -23,20 +23,32 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.libraries.LibraryTable
+import com.intellij.openapi.vfs.StandardFileSystems
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.psi.search.DelegatingGlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.SmartList
+import com.intellij.util.io.URLUtil
+import org.jdom.Element
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.script.KotlinScriptDefinition
+import org.jetbrains.kotlin.script.KotlinScriptExtraImport
 import org.jetbrains.kotlin.utils.alwaysNull
 import org.jetbrains.kotlin.utils.emptyOrSingletonList
+import java.io.File
+import java.io.FileNotFoundException
 import java.lang.reflect.Method
 import java.util.*
 
 private val LIBRARY_NAME_PREFIX: String = "library "
+private val SCRIPT_NAME_PREFIX: String = "script "
 
 // TODO used reflection to be compatible with IDEA from both 143 and 144 branches,
 // TODO switch to directly using when "since-build" will be >= 144.3357.4
@@ -199,7 +211,7 @@ private class ModuleTestSourceScope(module: Module) : ModuleSourceScope(module) 
     override fun contains(file: VirtualFile) = moduleFileIndex.isInTestSourceContent(file)
 }
 
-data class LibraryInfo(val project: Project, val library: Library) : IdeaModuleInfo {
+open class LibraryInfo(val project: Project, val library: Library) : IdeaModuleInfo {
     override val moduleOrigin: ModuleOrigin
         get() = ModuleOrigin.LIBRARY
 
@@ -223,6 +235,13 @@ data class LibraryInfo(val project: Project, val library: Library) : IdeaModuleI
     }
 
     override fun toString() = "LibraryInfo(libraryName=${library.name})"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        return (other is LibraryInfo && library == other.library)
+    }
+
+    override fun hashCode(): Int = 43 * library.hashCode()
 }
 
 internal data class LibrarySourceInfo(val project: Project, val library: Library) : IdeaModuleInfo {
@@ -269,6 +288,68 @@ internal object NotUnderContentRootModuleInfo : IdeaModuleInfo {
 
     //TODO: (module refactoring) dependency on runtime can be of use here
     override fun dependencies(): List<IdeaModuleInfo> = listOf(this)
+}
+
+class ScriptModuleSearchScope(val scriptFile: VirtualFile, baseScope: GlobalSearchScope) : DelegatingGlobalSearchScope(baseScope) {
+    override fun equals(other: Any?) = other is ScriptModuleSearchScope && scriptFile == other.scriptFile && super.equals(other)
+
+    override fun hashCode() = scriptFile.hashCode() * 73 * super.hashCode()
+}
+
+internal data class ScriptModuleInfo(val project: Project, val module: Module?, val scriptFile: VirtualFile,
+                                     val scriptDefinition: KotlinScriptDefinition,
+                                     val scriptExtraImports: List<KotlinScriptExtraImport>) : IdeaModuleInfo {
+    override val moduleOrigin: ModuleOrigin
+        get() = ModuleOrigin.OTHER
+
+    override val name: Name = Name.special("<$SCRIPT_NAME_PREFIX${scriptDefinition.name}>")
+
+    override fun contentScope(): ScriptModuleSearchScope {
+        val dependenciesRoots = dependenciesRoots()
+        return ScriptModuleSearchScope(
+                scriptFile,
+                if (dependenciesRoots.isEmpty()) GlobalSearchScope.EMPTY_SCOPE
+                else GlobalSearchScope.union(dependenciesRoots.map { FileLibraryScope(project, it) }.toTypedArray()))
+    }
+
+    private fun dependenciesRoots(): List<VirtualFile> {
+        // TODO: find out whether it should be cashed (some changes listener should be implemented for the cached roots)
+        val jarfs = StandardFileSystems.jar()
+        return (scriptDefinition.getScriptDependenciesClasspath() + scriptExtraImports.flatMap { it.classpath })
+                .map { File(it).canonicalFile }
+                .distinct()
+                .mapNotNull {
+                    // TODO: ensure that the entries are checked elsewhere, so diagnostics is delivered to a user if files are not correctly specified
+                    if (it.isFile)
+                        jarfs.findFileByPath(it.absolutePath + URLUtil.JAR_SEPARATOR) ?: null // diag: Classpath entry points to a file that is not a JAR archive
+                    else
+                        StandardFileSystems.local().findFileByPath(it.absolutePath) ?: null // diag: Classpath entry points to a non-existent location
+                }
+    }
+
+    override fun dependencies() =
+            listOf(this) +
+            (module?.cached(CachedValueProvider {
+                CachedValueProvider.Result(
+                        ideaModelDependencies(module, productionOnly = false),
+                        ProjectRootModificationTracker.getInstance(module.project))
+            }) ?: emptyList())
+}
+
+class FileLibraryScope(project: Project, private val libraryRoot: VirtualFile) : GlobalSearchScope(project) {
+
+    override fun contains(file: VirtualFile): Boolean =
+        VfsUtilCore.isAncestor(libraryRoot, file, false)
+
+    override fun isSearchInLibraries(): Boolean = true
+    override fun isSearchInModuleContent(aModule: Module): Boolean = false
+
+    // TODO: check if this is a valid decision for the case of a single root
+    override fun compare(file1: VirtualFile, file2: VirtualFile): Int = 0
+
+    override fun equals(other: Any?) = other is FileLibraryScope && libraryRoot == other.libraryRoot
+
+    override fun hashCode() = libraryRoot.hashCode()
 }
 
 private class LibraryWithoutSourceScope(project: Project, private val library: Library) :

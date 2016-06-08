@@ -16,20 +16,22 @@
 
 package org.jetbrains.kotlin.codegen;
 
-import com.intellij.util.ArrayUtil;
+import kotlin.Pair;
 import kotlin.jvm.functions.Function0;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.codegen.context.CodegenContext;
 import org.jetbrains.kotlin.codegen.context.MethodContext;
 import org.jetbrains.kotlin.codegen.context.ScriptContext;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
-import org.jetbrains.kotlin.descriptors.ScriptDescriptor;
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
+import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
+import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature;
+import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
 import org.jetbrains.org.objectweb.asm.Type;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
@@ -91,8 +93,8 @@ public class ScriptCodegen extends MemberCodegen<KtScript> {
                       ACC_PUBLIC | ACC_SUPER,
                       classAsmType.getInternalName(),
                       null,
-                      "java/lang/Object",
-                      ArrayUtil.EMPTY_STRING_ARRAY);
+                      typeMapper.mapSupertype(DescriptorUtilsKt.getSuperClassOrAny(scriptDescriptor).getDefaultType(), null).getInternalName(),
+                      CodegenUtilKt.mapSupertypesNames(typeMapper, DescriptorUtilsKt.getSuperInterfaces(scriptDescriptor), null));
     }
 
     @Override
@@ -144,9 +146,40 @@ public class ScriptCodegen extends MemberCodegen<KtScript> {
 
             Type classType = typeMapper.mapType(scriptDescriptor);
 
-            iv.load(0, classType);
-            iv.invokespecial("java/lang/Object", "<init>", "()V", false);
+            ClassDescriptor superclass = DescriptorUtilsKt.getSuperClassNotAny(scriptDescriptor);
 
+            List<ValueParameterDescriptor> valueParameters = scriptDescriptor.getUnsubstitutedPrimaryConstructor().getValueParameters();
+
+            if (superclass == null) {
+                iv.load(0, classType);
+                iv.invokespecial("java/lang/Object", "<init>", "()V", false);
+            }
+            else {
+                List<Pair<Name, KotlinType>> superclassParamsMap = scriptDescriptor.getScriptParametersToPassToSuperclass();
+                ConstructorDescriptor ctorDesc = DescriptorUtilsKt.getConstructorByParamsMap(superclass, superclassParamsMap);
+                assert ctorDesc != null;
+
+                iv.load(0, classType);
+
+                for (Pair<Name, KotlinType> superclassParam: superclassParamsMap) {
+                    ValueParameterDescriptor valueParam = null;
+                    for (ValueParameterDescriptor vpd: valueParameters) {
+                        if (vpd.getName().equals(superclassParam.getFirst())) {
+                            valueParam = vpd;
+                            break;
+                        }
+                    }
+                    assert valueParam != null;
+                    iv.load(valueParam.getIndex() + 1, typeMapper.mapType(valueParam.getType()));
+                }
+
+                CallableMethod ctorMethod = typeMapper.mapToCallableMethod(ctorDesc, false);
+                String sig = ctorMethod.getAsmMethod().getDescriptor();
+
+                iv.invokespecial(
+                        typeMapper.mapSupertype(superclass.getDefaultType(), null).getInternalName(),
+                        "<init>", sig, false);
+            }
             iv.load(0, classType);
 
             FrameMap frameMap = new FrameMap();
@@ -159,7 +192,6 @@ public class ScriptCodegen extends MemberCodegen<KtScript> {
             Type[] argTypes = jvmSignature.getAsmMethod().getArgumentTypes();
             int add = 0;
 
-            List<ValueParameterDescriptor> valueParameters = scriptDescriptor.getUnsubstitutedPrimaryConstructor().getValueParameters();
             for (int i = 0; i < valueParameters.size(); i++) {
                 ValueParameterDescriptor parameter = valueParameters.get(i);
                 frameMap.enter(parameter, argTypes[i + add]);

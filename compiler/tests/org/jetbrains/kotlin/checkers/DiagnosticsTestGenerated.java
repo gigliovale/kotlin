@@ -13890,6 +13890,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("TypeAliasCtorVsFun.kt")
+            public void testTypeAliasCtorVsFun() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/redeclarations/TypeAliasCtorVsFun.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("TypeAliasVsClass.kt")
             public void testTypeAliasVsClass() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/redeclarations/TypeAliasVsClass.kt");

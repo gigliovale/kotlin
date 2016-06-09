@@ -8,9 +8,9 @@ typealias <!REDECLARATION!>SomeClass<!> = Any
 class Outer {
     class <!REDECLARATION!>Nested<!>
 
-    typealias <!REDECLARATION!>Nested<!> = Any
-    typealias <!REDECLARATION!>Nested<!> = Any
-    typealias <!REDECLARATION!>Nested<!> = Any
+    <!CONFLICTING_OVERLOADS!>typealias <!REDECLARATION!>Nested<!> = Any<!>
+    <!CONFLICTING_OVERLOADS!>typealias <!REDECLARATION!>Nested<!> = Any<!>
+    <!CONFLICTING_OVERLOADS!>typealias <!REDECLARATION!>Nested<!> = Any<!>
 }
 
 // FILE: file2.kt

@@ -104,10 +104,7 @@ class SpecifyTypeExplicitlyIntention : SelfTargetingIntention<KtCallableDeclarat
                             }
                         }
 
-                        object: DelegatingType() {
-                            override fun getDelegate() = it
-                            override val arguments: List<TypeProjection> get() = newArguments
-                        }
+                        it.replace(newArguments)
                     }
                     .ifEmpty { return null }
             return object : ChooseValueExpression<KotlinType>(types, types.first()) {

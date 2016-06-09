@@ -54,9 +54,7 @@ private fun KotlinType.render(typeParameterNameMap: Map<TypeParameterDescriptor,
                 val typeParameter = it.key
 
                 var wrappingTypeParameter: TypeParameterDescriptor? = null
-                var wrappingTypeConstructor: TypeConstructor
-
-                wrappingTypeConstructor = object : TypeConstructor by typeParameter.typeConstructor {
+                val wrappingTypeConstructor = object : TypeConstructor by typeParameter.typeConstructor {
                     override fun getDeclarationDescriptor() = wrappingTypeParameter
                 }
 
@@ -65,11 +63,7 @@ private fun KotlinType.render(typeParameterNameMap: Map<TypeParameterDescriptor,
                     override fun getTypeConstructor() = wrappingTypeConstructor
                 }
 
-                val wrappingType = object : DelegatingType()  {
-                    override fun getDelegate(): KotlinType? = typeParameter.defaultType
-                    override val constructor: TypeConstructor get() = wrappingTypeConstructor
-                }
-
+                val wrappingType = KotlinTypeFactory.simpleType(typeParameter.defaultType, constructor = wrappingTypeConstructor)
                 TypeProjectionImpl(wrappingType)
             }
             .mapKeys { it.key.typeConstructor }
@@ -251,7 +245,7 @@ internal fun KotlinType.substitute(substitution: KotlinTypeSubstitution, varianc
             val (projection, typeParameter) = pair
             TypeProjectionImpl(Variance.INVARIANT, projection.type.substitute(substitution, typeParameter.variance))
         }
-        return KotlinTypeImpl.create(annotations, constructor, isMarkedNullable, newArguments, memberScope)
+        return KotlinTypeFactory.simpleType(annotations, constructor, newArguments, isMarkedNullable, memberScope)
     }
 }
 

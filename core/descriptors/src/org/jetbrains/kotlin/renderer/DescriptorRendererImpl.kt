@@ -36,7 +36,6 @@ import org.jetbrains.kotlin.serialization.deserialization.NotFoundClasses
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.ErrorUtils.UninferredParameterTypeConstructor
 import org.jetbrains.kotlin.types.TypeUtils.CANT_INFER_FUNCTION_PARAM_TYPE
-import org.jetbrains.kotlin.types.typeUtil.builtIns
 import java.util.*
 
 internal class DescriptorRendererImpl(
@@ -61,12 +60,7 @@ internal class DescriptorRendererImpl(
         }
     }
 
-    private fun escape(string: String): String {
-        when (textFormat) {
-            RenderingFormat.PLAIN -> return string
-            RenderingFormat.HTML -> return string.replace("<", "&lt;").replace(">", "&gt;")
-        }
-    }
+    private fun escape(string: String) = textFormat.escape(string)
 
     private fun lt() = escape("<")
     private fun gt() = escape(">")
@@ -129,12 +123,12 @@ internal class DescriptorRendererImpl(
     }
 
     private fun renderNormalizedType(type: KotlinType): String {
-        val abbreviated = type.getAbbreviatedType()
+        val abbreviated = (type.unwrap() as? AbbreviatedType)
 
         if (abbreviated != null) {
             // TODO nullability is lost for abbreviated type?
-            val abbreviatedRendered = renderNormalizedTypeAsIs(abbreviated)
-            val unabbreviatedRendered = renderNormalizedTypeAsIs(type)
+            val abbreviatedRendered = renderNormalizedTypeAsIs(abbreviated.abbreviation)
+            val unabbreviatedRendered = renderNormalizedTypeAsIs(abbreviated.expandedType)
             return "$abbreviatedRendered [= $unabbreviatedRendered]"
         }
 
@@ -142,35 +136,17 @@ internal class DescriptorRendererImpl(
     }
 
     private fun renderNormalizedTypeAsIs(type: KotlinType): String {
-        if (type is LazyType && debugMode) {
-            return type.toString()
+        if (type is WrappedType && debugMode && !type.isComputed()) {
+            return "<Not computed yet>"
         }
-        if (type.isDynamic()) {
-            return "dynamic"
+        val unwrappedType = type.unwrap()
+        return when (unwrappedType) {
+            is FlexibleType -> unwrappedType.render(this, this)
+            is SimpleType -> renderSimpleType(unwrappedType)
         }
-        if (type.isFlexible()) {
-            if (debugMode) {
-                return renderFlexibleTypeWithBothBounds(type.flexibility().lowerBound, type.flexibility().upperBound)
-            }
-            else {
-                return renderFlexibleType(type)
-            }
-        }
-        return renderInflexibleType(type)
     }
 
-    private fun renderFlexibleTypeWithBothBounds(lower: KotlinType, upper: KotlinType): String {
-        return renderFlexibleTypeWithBothBounds(renderNormalizedType(lower), renderNormalizedType(upper))
-    }
-
-    private fun renderFlexibleTypeWithBothBounds(lower: String, upper: String) = "($lower..$upper)"
-
-    private fun renderInflexibleType(type: KotlinType): String {
-        assert(!type.isFlexible()) { "Flexible types not allowed here: " + renderNormalizedType(type) }
-
-        val customResult = type.getCapability<RawTypeCapability>()?.renderInflexible(type, this)
-        if (customResult != null) return customResult
-
+    private fun renderSimpleType(type: SimpleType): String {
         if (type == CANT_INFER_FUNCTION_PARAM_TYPE || TypeUtils.isDontCarePlaceholder(type)) {
             return "???"
         }
@@ -193,23 +169,16 @@ internal class DescriptorRendererImpl(
         return type.isFunctionType && type.arguments.none { it.isStarProjection }
     }
 
-    private fun renderFlexibleType(type: KotlinType): String {
-        val lower = type.flexibility().lowerBound
-        val upper = type.flexibility().upperBound
-
-        val (lowerRendered, upperRendered) = type.getCapability<RawTypeCapability>()?.renderBounds(type.flexibility(), this)
-                                             ?: Pair(renderInflexibleType(lower), renderInflexibleType(upper))
-
+    override fun renderFlexibleType(lowerRendered: String, upperRendered: String, builtIns: KotlinBuiltIns): String {
         if (differsOnlyInNullability(lowerRendered, upperRendered)) {
             if (upperRendered.startsWith("(")) {
                 // the case of complex type, e.g. (() -> Unit)?
-                return "(" + lowerRendered + ")!"
+                return "($lowerRendered)!"
             }
             return lowerRendered + "!"
         }
 
-
-        val kotlinCollectionsPrefix = classifierNamePolicy.renderClassifier(type.builtIns.collection, this).substringBefore("Collection")
+        val kotlinCollectionsPrefix = classifierNamePolicy.renderClassifier(builtIns.collection, this).substringBefore("Collection")
         val mutablePrefix = "Mutable"
         // java.util.List<Foo> -> (Mutable)List<Foo!>!
         val simpleCollection = replacePrefixes(lowerRendered, kotlinCollectionsPrefix + mutablePrefix, upperRendered, kotlinCollectionsPrefix, kotlinCollectionsPrefix + "(" + mutablePrefix + ")")
@@ -218,11 +187,12 @@ internal class DescriptorRendererImpl(
         val mutableEntry = replacePrefixes(lowerRendered, kotlinCollectionsPrefix + "MutableMap.MutableEntry", upperRendered, kotlinCollectionsPrefix + "Map.Entry", kotlinCollectionsPrefix + "(Mutable)Map.(Mutable)Entry")
         if (mutableEntry != null) return mutableEntry
 
-        val kotlinPrefix = classifierNamePolicy.renderClassifier(type.builtIns.array, this).substringBefore("Array")
+        val kotlinPrefix = classifierNamePolicy.renderClassifier(builtIns.array, this).substringBefore("Array")
         // Foo[] -> Array<(out) Foo!>!
         val array = replacePrefixes(lowerRendered, kotlinPrefix + escape("Array<"), upperRendered, kotlinPrefix + escape("Array<out "), kotlinPrefix + escape("Array<(out) "))
         if (array != null) return array
-        return renderFlexibleTypeWithBothBounds(lowerRendered, upperRendered)
+
+        return "($lowerRendered..$upperRendered)"
     }
 
     override fun renderTypeArguments(typeArguments: List<TypeProjection>): String {

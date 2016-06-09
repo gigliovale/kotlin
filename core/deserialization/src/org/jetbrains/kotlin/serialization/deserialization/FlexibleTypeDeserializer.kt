@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 package org.jetbrains.kotlin.serialization.deserialization
 
 import org.jetbrains.kotlin.serialization.ProtoBuf
-import org.jetbrains.kotlin.types.TypeCapabilities
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.SimpleType
 
-abstract class TypeCapabilitiesLoader {
-    object NONE : TypeCapabilitiesLoader() {
-        override fun loadCapabilities(type: ProtoBuf.Type): TypeCapabilities = TypeCapabilities.NONE
+interface FlexibleTypeDeserializer {
+    fun create(proto: ProtoBuf.Type, flexibleId: String, lowerBound: SimpleType, upperBound: SimpleType): KotlinType
+
+    object ThrowException : FlexibleTypeDeserializer {
+        override fun create(proto: ProtoBuf.Type, flexibleId: String, lowerBound: SimpleType, upperBound: SimpleType): KotlinType
+                = throw IllegalArgumentException("This method should not be used.")
     }
-
-    abstract fun loadCapabilities(type: ProtoBuf.Type): TypeCapabilities
 }

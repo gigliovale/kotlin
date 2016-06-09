@@ -26,7 +26,6 @@ import org.jetbrains.kotlin.idea.decompiler.textBuilder.DeserializerForDecompile
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.LoggingErrorReporter
 import org.jetbrains.kotlin.idea.decompiler.textBuilder.ResolveEverythingToKotlinAnyLocalClassifierResolver
 import org.jetbrains.kotlin.incremental.components.LookupTracker
-import org.jetbrains.kotlin.load.java.lazy.types.LazyJavaTypeResolver.FlexibleJavaClassifierTypeFactory
 import org.jetbrains.kotlin.load.java.structure.JavaClass
 import org.jetbrains.kotlin.load.kotlin.*
 import org.jetbrains.kotlin.name.ClassId
@@ -68,7 +67,7 @@ class DeserializerForClassfileDecompiler(
         deserializationComponents = DeserializationComponents(
                 storageManager, moduleDescriptor, classDataFinder, annotationAndConstantLoader, packageFragmentProvider,
                 ResolveEverythingToKotlinAnyLocalClassifierResolver(builtIns), LoggingErrorReporter(LOG),
-                LookupTracker.DO_NOTHING, FlexibleJavaClassifierTypeFactory, ClassDescriptorFactory.EMPTY, notFoundClasses
+                LookupTracker.DO_NOTHING, JavaFlexibleTypeDeserializer, ClassDescriptorFactory.EMPTY, notFoundClasses
         )
     }
 

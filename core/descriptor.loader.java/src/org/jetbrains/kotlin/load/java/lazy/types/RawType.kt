@@ -19,129 +19,140 @@ package org.jetbrains.kotlin.load.java.lazy.types
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.load.java.components.TypeUsage
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
+import org.jetbrains.kotlin.renderer.DescriptorRendererOptions
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
+import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.typeUtil.builtIns
 
-object RawTypeCapabilities : TypeCapabilities {
+class RawTypeImpl(lowerBound: SimpleType, upperBound: SimpleType) : FlexibleType(lowerBound, upperBound), RawType {
+    init {
+        assert (KotlinTypeChecker.DEFAULT.isSubtypeOf(lowerBound, upperBound)) {
+            "Lower bound $lowerBound of a flexible type must be a subtype of the upper bound $upperBound"
+        }
+    }
 
-    private object Impl : RawTypeCapability {
-        override val substitution: TypeSubstitution?
-            get() = RawSubstitution
-        override val substitutionToComposeWith: TypeSubstitution?
-            get() = RawSubstitution
+    override val delegate: SimpleType get() = lowerBound
 
-        private fun DescriptorRenderer.renderArguments(jetType: KotlinType) = jetType.arguments.map { renderTypeProjection(it) }
+    override val memberScope: MemberScope
+        get() {
+            val classDescriptor = constructor.declarationDescriptor as? ClassDescriptor
+                                  ?: error("Incorrect classifier: ${constructor.declarationDescriptor}")
+            return classDescriptor.getMemberScope(RawSubstitution)
+        }
 
-        private fun String.replaceArgs(newArgs: String): String {
+    override fun replaceAnnotations(newAnnotations: Annotations)
+            = RawTypeImpl(lowerBound.replaceAnnotations(newAnnotations), upperBound.replaceAnnotations(newAnnotations))
+
+    override fun makeNullableAsSpecified(newNullability: Boolean)
+            = RawTypeImpl(lowerBound.makeNullableAsSpecified(newNullability), upperBound.makeNullableAsSpecified(newNullability))
+
+    override fun render(renderer: DescriptorRenderer, options: DescriptorRendererOptions): String {
+        fun onlyOutDiffers(first: String, second: String) = first == second.removePrefix("out ") || second == "*"
+
+        fun renderArguments(type: KotlinType) = type.arguments.map { renderer.renderTypeProjection(it) }
+
+        fun String.replaceArgs(newArgs: String): String {
             if (!contains('<')) return this
             return "${substringBefore('<')}<$newArgs>${substringAfterLast('>')}"
         }
 
-        override fun renderInflexible(type: KotlinType, renderer: DescriptorRenderer): String? {
-            if (type.arguments.isNotEmpty()) return null
+        val lowerRendered = renderer.renderType(lowerBound)
+        val upperRendered = renderer.renderType(upperBound)
 
-            return buildString {
-                append(renderer.renderTypeConstructor(type.constructor))
-                append("(raw)")
-                if (type.isMarkedNullable) append('?')
-            }
+        if (options.debugMode) {
+            return "raw ($lowerRendered..$upperRendered)"
         }
+        if (upperBound.arguments.isEmpty()) return renderer.renderFlexibleType(lowerRendered, upperRendered, builtIns)
 
-        override fun renderBounds(flexibility: Flexibility, renderer: DescriptorRenderer): Pair<String, String>? {
-            val lowerArgs = renderer.renderArguments(flexibility.lowerBound)
-            val upperArgs = renderer.renderArguments(flexibility.upperBound)
-
-            val lowerRendered = renderer.renderType(flexibility.lowerBound)
-            val upperRendered = renderer.renderType(flexibility.upperBound)
-
-            if (!upperArgs.isNotEmpty()) return null
-
-            val newArgs = lowerArgs.map { "(raw) $it" }.joinToString(", ")
-            val newUpper =
-                    if (lowerArgs.zip(upperArgs).all { onlyOutDiffers(it.first, it.second) })
-                        upperRendered.replaceArgs(newArgs)
-                    else upperRendered
-            return Pair(lowerRendered.replaceArgs(newArgs), newUpper)
-        }
-
-        private fun onlyOutDiffers(first: String, second: String) = first == second.removePrefix("out ") || second == "*"
-    }
-
-    override fun <T : TypeCapability> getCapability(capabilityClass: Class<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return when(capabilityClass) {
-            RawTypeCapability::class.java -> Impl as T
-            else -> null
-        }
+        val lowerArgs = renderArguments(lowerBound)
+        val upperArgs = renderArguments(upperBound)
+        val newArgs = lowerArgs.map { "(raw) $it" }.joinToString(", ")
+        val newUpper =
+                if (lowerArgs.zip(upperArgs).all { onlyOutDiffers(it.first, it.second) })
+                    upperRendered.replaceArgs(newArgs)
+                else upperRendered
+        val newLower = lowerRendered.replaceArgs(newArgs)
+        if (newLower == newUpper) return newLower
+        return renderer.renderFlexibleType(newLower, newUpper, builtIns)
     }
 }
 
 internal object RawSubstitution : TypeSubstitution() {
     override fun get(key: KotlinType) = TypeProjectionImpl(eraseType(key))
 
-    private val lowerTypeAttr = TypeUsage.MEMBER_SIGNATURE_INVARIANT.toAttributes().toFlexible(JavaTypeFlexibility.FLEXIBLE_LOWER_BOUND)
-    private val upperTypeAttr = TypeUsage.MEMBER_SIGNATURE_INVARIANT.toAttributes().toFlexible(JavaTypeFlexibility.FLEXIBLE_UPPER_BOUND)
+    private val lowerTypeAttr = TypeUsage.MEMBER_SIGNATURE_INVARIANT.toAttributes()
+            .computeAttributes(allowFlexible = false, isRaw = true, forLower = true)
+    private val upperTypeAttr = TypeUsage.MEMBER_SIGNATURE_INVARIANT.toAttributes()
+            .computeAttributes(allowFlexible = false, isRaw = true, forLower = false)
 
     fun eraseType(type: KotlinType): KotlinType {
         val declaration = type.constructor.declarationDescriptor
         return when (declaration) {
             is TypeParameterDescriptor -> eraseType(declaration.getErasedUpperBound())
             is ClassDescriptor -> {
-                val lower = type.lowerIfFlexible()
-                val upper = type.upperIfFlexible()
-                LazyJavaTypeResolver.FlexibleJavaClassifierTypeFactory.create(
-                        eraseInflexibleBasedOnClassDescriptor(lower, declaration, lowerTypeAttr),
-                        eraseInflexibleBasedOnClassDescriptor(upper, declaration, upperTypeAttr)
-                )
+                val (lower, isRawL) = eraseInflexibleBasedOnClassDescriptor(type.lowerIfFlexible(), declaration, lowerTypeAttr)
+                val (upper, isRawU) = eraseInflexibleBasedOnClassDescriptor(type.upperIfFlexible(), declaration, upperTypeAttr)
+
+                if (isRawL || isRawU) {
+                    RawTypeImpl(lower, upper)
+                }
+                else {
+                    KotlinTypeFactory.flexibleType(lower, upper)
+                }
             }
             else -> error("Unexpected declaration kind: $declaration")
         }
     }
 
-    private fun eraseInflexibleBasedOnClassDescriptor(type: KotlinType, declaration: ClassDescriptor, attr: JavaTypeAttributes): KotlinType {
+    // false means that type cannot be raw
+    private fun eraseInflexibleBasedOnClassDescriptor(
+            type: SimpleType, declaration: ClassDescriptor, attr: JavaTypeAttributes
+    ): Pair<SimpleType, Boolean> {
+        if (type.constructor.parameters.isEmpty()) return type to false
+
         if (KotlinBuiltIns.isArray(type)) {
             val componentTypeProjection = type.arguments[0]
             val arguments = listOf(
                     TypeProjectionImpl(componentTypeProjection.projectionKind, eraseType(componentTypeProjection.type))
             )
-            return KotlinTypeImpl.create(
-                    type.annotations, type.constructor, type.isMarkedNullable, arguments,
-                    (type.constructor.declarationDescriptor as ClassDescriptor).getMemberScope(arguments)
-            )
+            return KotlinTypeFactory.simpleType(
+                    type.annotations, type.constructor, arguments, type.isMarkedNullable
+            ) to false
         }
 
-        if (type.isError) return ErrorUtils.createErrorType("Raw error type: ${type.constructor}")
+        if (type.isError) return ErrorUtils.createErrorType("Raw error type: ${type.constructor}") to false
 
-        val constructor = type.constructor
-        return KotlinTypeImpl.create(
-                type.annotations, constructor, type.isMarkedNullable,
+        return KotlinTypeFactory.simpleType(
+                type.annotations, type.constructor,
                 type.constructor.parameters.map {
                     parameter ->
                     computeProjection(parameter, attr)
                 },
-                declaration.getMemberScope(RawSubstitution),
-                RawTypeCapabilities
-        )
+                type.isMarkedNullable, declaration.getMemberScope(RawSubstitution)
+        ) to true
     }
 
     fun computeProjection(
             parameter: TypeParameterDescriptor,
             attr: JavaTypeAttributes,
             erasedUpperBound: KotlinType = parameter.getErasedUpperBound()
-    ) = when (attr.flexibility) {
+    ) = when (attr.rawBound) {
         // Raw(List<T>) => (List<Any?>..List<*>)
         // Raw(Enum<T>) => (Enum<Enum<*>>..Enum<out Enum<*>>)
         // In the last case upper bound is equal to star projection `Enum<*>`,
         // but we want to keep matching tree structure of flexible bounds (at least they should have the same size)
-        JavaTypeFlexibility.FLEXIBLE_LOWER_BOUND -> TypeProjectionImpl(
+        RawBound.LOWER -> TypeProjectionImpl(
                 // T : String -> String
                 // in T : String -> String
                 // T : Enum<T> -> Enum<*>
                 Variance.INVARIANT, erasedUpperBound
         )
-        JavaTypeFlexibility.FLEXIBLE_UPPER_BOUND, JavaTypeFlexibility.INFLEXIBLE -> {
+        RawBound.UPPER, RawBound.NOT_RAW -> {
             if (!parameter.variance.allowsOutPosition)
                 // in T -> Comparable<Nothing>
                 TypeProjectionImpl(Variance.INVARIANT, parameter.builtIns.nothingType)

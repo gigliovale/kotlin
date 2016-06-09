@@ -44,6 +44,7 @@ import org.jetbrains.kotlin.resolve.scopes.utils.findClassifier
 import org.jetbrains.kotlin.resolve.source.toSourceElement
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
+import org.jetbrains.kotlin.storage.getValue
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.Variance.*
 import org.jetbrains.kotlin.types.typeUtil.isArrayOfNothing
@@ -70,8 +71,20 @@ class TypeResolver(
         return resolveType(TypeResolutionContext(scope, trace, checkBounds, false, typeReference.suppressDiagnosticsInDebugMode(), false), typeReference)
     }
 
-    fun resolveAbbreviatedType(scope: LexicalScope, typeReference: KtTypeReference, trace: BindingTrace, checkBounds: Boolean): KotlinType {
-        return resolveType(TypeResolutionContext(scope, trace, checkBounds, false, typeReference.suppressDiagnosticsInDebugMode(), true), typeReference)
+    fun resolveAbbreviatedType(scope: LexicalScope, typeReference: KtTypeReference, trace: BindingTrace, abbreviated: Boolean): SimpleType {
+        return resolveSimpleType(
+                TypeResolutionContext(scope, trace, true, false, typeReference.suppressDiagnosticsInDebugMode(), abbreviated),
+                typeReference
+        )
+    }
+
+    private fun resolveSimpleType(c: TypeResolutionContext, typeReference: KtTypeReference): SimpleType {
+        val unwrappedType = resolveType(c, typeReference).unwrap()
+        return when (unwrappedType) {
+            is DynamicType -> ErrorUtils.createErrorType("dynamic type in wrong context")
+            is SimpleType -> unwrappedType
+            else -> error("Unexpected type: $unwrappedType")
+        }
     }
 
     fun resolveExpandedTypeForTypeAlias(typeAliasDescriptor: TypeAliasDescriptor): KotlinType {
@@ -99,17 +112,10 @@ class TypeResolver(
 
         if (!c.allowBareTypes && !c.forceResolveLazyTypes && lazinessToken.isLazy()) {
             // Bare types can be allowed only inside expressions; lazy type resolution is only relevant for declarations
-            class LazyKotlinType : DelegatingType(), LazyEntity {
-                private val _delegate = storageManager.createLazyValue { doResolvePossiblyBareType(c, typeReference).getActualType() }
-                override fun getDelegate() = _delegate()
 
-                override fun forceResolveAllContents() {
-                    ForceResolveUtil.forceResolveAllContents(constructor)
-                    arguments.forEach { ForceResolveUtil.forceResolveAllContents(it.type) }
-                }
+            val lazyKotlinType = LazyWrappedType(storageManager) {
+                doResolvePossiblyBareType(c, typeReference).getActualType()
             }
-
-            val lazyKotlinType = LazyKotlinType()
             c.trace.record(resolvedTypeSlice, typeReference, lazyKotlinType)
             return type(lazyKotlinType)
         }
@@ -154,8 +160,8 @@ class TypeResolver(
     private fun forceResolveTypeContents(type: KotlinType) {
         type.annotations // force read type annotations
         if (type.isFlexible()) {
-            forceResolveTypeContents(type.flexibility().lowerBound)
-            forceResolveTypeContents(type.flexibility().upperBound)
+            forceResolveTypeContents(type.asFlexibleType().lowerBound)
+            forceResolveTypeContents(type.asFlexibleType().upperBound)
         }
         else {
             type.constructor // force read type constructor
@@ -317,12 +323,11 @@ class TypeResolver(
         return if (scopeForTypeParameter is ErrorUtils.ErrorScope)
             ErrorUtils.createErrorType("?")
         else
-            KotlinTypeImpl.create(
-                    annotations,
-                    typeParameter.typeConstructor,
-                    false,
-                    listOf(),
-                    scopeForTypeParameter)
+            KotlinTypeFactory.simpleType(annotations,
+                                         typeParameter.typeConstructor,
+                                         listOf(),
+                                         false,
+                                         scopeForTypeParameter)
     }
 
     private fun getScopeForTypeParameter(c: TypeResolutionContext, typeParameterDescriptor: TypeParameterDescriptor): MemberScope {
@@ -394,7 +399,7 @@ class TypeResolver(
             " but ${collectedArgumentAsTypeProjections.size} instead of ${parameters.size} found in ${element.text}"
         }
 
-        val resultingType = KotlinTypeImpl.create(annotations, classDescriptor, false, arguments)
+        val resultingType = KotlinTypeFactory.simpleNotNullType(annotations, classDescriptor, arguments)
 
         // We create flexible types by convention here
         // This is not intended to be used in normal users' environments, only for tests and debugger etc
@@ -466,7 +471,7 @@ class TypeResolver(
         }
 
         return if (c.abbreviated) {
-            val abbreviatedType = KotlinTypeImpl.create(annotations, descriptor.typeConstructor, false, arguments, MemberScope.Empty)
+            val abbreviatedType = KotlinTypeFactory.simpleType(annotations, descriptor.typeConstructor, arguments, false)
             type(abbreviatedType)
         }
         else {

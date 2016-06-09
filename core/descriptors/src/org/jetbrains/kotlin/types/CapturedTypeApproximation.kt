@@ -92,15 +92,15 @@ private fun substituteCapturedTypesWithProjections(typeProjection: TypeProjectio
     return typeSubstitutor.substituteWithoutApproximation(typeProjection)
 }
 
+// todo: dynamic & raw type?
 fun approximateCapturedTypes(type: KotlinType): ApproximationBounds<KotlinType> {
     if (type.isFlexible()) {
         val boundsForFlexibleLower = approximateCapturedTypes(type.lowerIfFlexible())
         val boundsForFlexibleUpper = approximateCapturedTypes(type.upperIfFlexible())
 
-        val factory = type.flexibility().factory
         return ApproximationBounds(
-                factory.create(boundsForFlexibleLower.lower.lowerIfFlexible(), boundsForFlexibleUpper.lower.upperIfFlexible()),
-                factory.create(boundsForFlexibleLower.upper.lowerIfFlexible(), boundsForFlexibleUpper.upper.upperIfFlexible()))
+                KotlinTypeFactory.flexibleType(boundsForFlexibleLower.lower.lowerIfFlexible(), boundsForFlexibleUpper.lower.upperIfFlexible()),
+                KotlinTypeFactory.flexibleType(boundsForFlexibleLower.upper.lowerIfFlexible(), boundsForFlexibleUpper.upper.upperIfFlexible()))
     }
 
     val typeConstructor = type.constructor

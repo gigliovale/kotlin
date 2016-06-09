@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,12 @@ import org.jetbrains.kotlin.types.typeUtil.*
 
 fun KotlinType.approximateFlexibleTypes(preferNotNull: Boolean = false): KotlinType {
     if (isDynamic()) return this
+    return approximateNonDynamicFlexibleTypes(preferNotNull)
+}
+
+private fun KotlinType.approximateNonDynamicFlexibleTypes(preferNotNull: Boolean = false): SimpleType {
     if (isFlexible()) {
-        val flexible = flexibility()
+        val flexible = asFlexibleType()
         val lowerClass = flexible.lowerBound.constructor.declarationDescriptor as? ClassDescriptor?
         val isCollection = lowerClass != null && JavaToKotlinClassMap.INSTANCE.isMutable(lowerClass)
         // (Mutable)Collection<T>! -> MutableCollection<T>?
@@ -44,26 +48,25 @@ fun KotlinType.approximateFlexibleTypes(preferNotNull: Boolean = false): KotlinT
         // Foo<Bar!>! -> Foo<Bar>?
         var approximation =
                 if (isCollection)
-                    TypeUtils.makeNullableAsSpecified(if (isAnnotatedReadOnly()) flexible.upperBound else flexible.lowerBound, !preferNotNull)
+                    (if (isAnnotatedReadOnly()) flexible.upperBound else flexible.lowerBound).makeNullableAsSpecified(!preferNotNull)
                 else
                     if (preferNotNull) flexible.lowerBound else flexible.upperBound
 
-        approximation = approximation.approximateFlexibleTypes()
+        approximation = approximation.approximateNonDynamicFlexibleTypes()
 
-        approximation = if (isAnnotatedNotNull()) approximation.makeNotNullable() else approximation
+        approximation = if (isAnnotatedNotNull()) approximation.makeNullableAsSpecified(false) else approximation
 
         if (approximation.isMarkedNullable && !flexible.lowerBound.isMarkedNullable && TypeUtils.isTypeParameter(approximation) && TypeUtils.hasNullableSuperType(approximation)) {
-            approximation = approximation.makeNotNullable()
+            approximation = approximation.makeNullableAsSpecified(false)
         }
 
         return approximation
     }
-    return KotlinTypeImpl.create(
-            annotations,
-            constructor,
-            isMarkedNullable,
-            arguments.map { it.substitute { type -> type.approximateFlexibleTypes(preferNotNull = true) } },
-            ErrorUtils.createErrorScope("This type is not supposed to be used in member resolution", true)
+    return KotlinTypeFactory.simpleType(annotations,
+                                        constructor,
+                                        arguments.map { it.substitute { type -> type.approximateFlexibleTypes(preferNotNull = true) } },
+                                        isMarkedNullable,
+                                        ErrorUtils.createErrorScope("This type is not supposed to be used in member resolution", true)
     )
 }
 

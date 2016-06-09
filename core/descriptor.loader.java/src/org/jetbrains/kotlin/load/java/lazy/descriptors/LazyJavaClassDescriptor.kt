@@ -126,7 +126,7 @@ class LazyJavaClassDescriptor(
 
     override fun getDeclaredTypeParameters() = declaredParameters()
 
-    override fun getFunctionTypeForSamInterface(): KotlinType? = functionTypeForSamInterface()
+    override fun getFunctionTypeForSamInterface(): SimpleType? = functionTypeForSamInterface()
 
     override fun isCompanionObject() = false
 
@@ -195,10 +195,7 @@ class LazyJavaClassDescriptor(
                 parameter -> TypeProjectionImpl(Variance.INVARIANT, parameter.defaultType)
             }
 
-            return KotlinTypeImpl.create(
-                    Annotations.EMPTY, classDescriptor,
-                    /* nullable =*/ false, parametersAsTypeProjections
-            )
+            return KotlinTypeFactory.simpleNotNullType(Annotations.EMPTY, classDescriptor, parametersAsTypeProjections)
         }
 
         private fun getPurelyImplementsFqNameFromAnnotation(): FqName? {

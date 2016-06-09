@@ -12903,6 +12903,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("javaEmptyList.kt")
+            public void testJavaEmptyList() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/javaEmptyList.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("methodTypeParameterDefaultBound.kt")
             public void testMethodTypeParameterDefaultBound() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/methodTypeParameterDefaultBound.kt");
@@ -13472,6 +13478,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("nonTrivialErasure.kt")
                 public void testNonTrivialErasure() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/rawTypes/nonTrivialErasure.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("rawEnhancment.kt")
+                public void testRawEnhancment() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/platformTypes/rawTypes/rawEnhancment.kt");
                     doTest(fileName);
                 }
 

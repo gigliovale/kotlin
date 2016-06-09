@@ -133,22 +133,26 @@ public class TypeSubstitutor {
 
         // The type is within the substitution range, i.e. T or T?
         KotlinType type = originalProjection.getType();
+        if (DynamicTypesKt.isDynamic(type) || type.unwrap() instanceof RawType) {
+            return originalProjection; // todo investigate
+        }
+
         TypeProjection replacement = substitution.get(type);
         Variance originalProjectionKind = originalProjection.getProjectionKind();
         if (replacement == null && FlexibleTypesKt.isFlexible(type) && !TypeCapabilitiesKt.isCustomTypeVariable(type)) {
-            Flexibility flexibility = FlexibleTypesKt.flexibility(type);
+            FlexibleType flexibleType = FlexibleTypesKt.asFlexibleType(type);
             TypeProjection substitutedLower =
-                    unsafeSubstitute(new TypeProjectionImpl(originalProjectionKind, flexibility.getLowerBound()), recursionDepth + 1);
+                    unsafeSubstitute(new TypeProjectionImpl(originalProjectionKind, flexibleType.getLowerBound()), recursionDepth + 1);
             TypeProjection substitutedUpper =
-                    unsafeSubstitute(new TypeProjectionImpl(originalProjectionKind, flexibility.getUpperBound()), recursionDepth + 1);
+                    unsafeSubstitute(new TypeProjectionImpl(originalProjectionKind, flexibleType.getUpperBound()), recursionDepth + 1);
 
             Variance substitutedProjectionKind = substitutedLower.getProjectionKind();
             assert (substitutedProjectionKind == substitutedUpper.getProjectionKind()) &&
                    originalProjectionKind == Variance.INVARIANT || originalProjectionKind == substitutedProjectionKind :
                     "Unexpected substituted projection kind: " + substitutedProjectionKind + "; original: " + originalProjectionKind;
 
-            KotlinType substitutedFlexibleType = flexibility.getFactory().create(
-                    substitutedLower.getType(), substitutedUpper.getType());
+            KotlinType substitutedFlexibleType = KotlinTypeFactory.flexibleType(
+                    TypeSubstitutionKt.asSimpleType(substitutedLower.getType()), TypeSubstitutionKt.asSimpleType(substitutedUpper.getType()));
             return new TypeProjectionImpl(substitutedProjectionKind, substitutedFlexibleType);
         }
 

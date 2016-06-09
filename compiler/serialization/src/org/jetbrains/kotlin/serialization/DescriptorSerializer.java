@@ -377,7 +377,7 @@ public class DescriptorSerializer {
             builder.addTypeParameter(typeParameter(typeParameterDescriptor));
         }
 
-        KotlinType underlyingType = descriptor.getUnderlyingType();
+        SimpleType underlyingType = descriptor.getUnderlyingType();
         if (useTypeTable()) {
             builder.setUnderlyingTypeId(typeId(underlyingType));
         }
@@ -385,7 +385,7 @@ public class DescriptorSerializer {
             builder.setUnderlyingType(type(underlyingType));
         }
 
-        KotlinType expandedType = descriptor.getExpandedType();
+        SimpleType expandedType = descriptor.getExpandedType();
         if (useTypeTable()) {
             builder.setExpandedTypeId(typeId(expandedType));
         }
@@ -506,15 +506,16 @@ public class DescriptorSerializer {
         }
 
         if (FlexibleTypesKt.isFlexible(type)) {
-            Flexibility flexibility = FlexibleTypesKt.flexibility(type);
+            FlexibleType flexibleType = FlexibleTypesKt.asFlexibleType(type);
 
-            ProtoBuf.Type.Builder lowerBound = type(flexibility.getLowerBound());
-            lowerBound.setFlexibleTypeCapabilitiesId(getStringTable().getStringIndex(flexibility.getFactory().getId()));
+            ProtoBuf.Type.Builder lowerBound = type(flexibleType.getLowerBound());
+            ProtoBuf.Type.Builder upperBound = type(flexibleType.getUpperBound());
+            extension.serializeFlexibleType(flexibleType, lowerBound, upperBound);
             if (useTypeTable()) {
-                lowerBound.setFlexibleUpperBoundId(typeId(flexibility.getUpperBound()));
+                lowerBound.setFlexibleUpperBoundId(typeTable.get(upperBound));
             }
             else {
-                lowerBound.setFlexibleUpperBound(type(flexibility.getUpperBound()));
+                lowerBound.setFlexibleUpperBound(upperBound);
             }
             return lowerBound;
         }
@@ -547,13 +548,13 @@ public class DescriptorSerializer {
             builder.setNullable(type.isMarkedNullable());
         }
 
-        KotlinType abbreviatedType = TypeCapabilitiesKt.getAbbreviatedType(type);
+        AbbreviatedType abbreviatedType = SpecialTypesKt.getAbbreviatedType(type);
         if (abbreviatedType != null) {
             if (useTypeTable()) {
-                builder.setAbbreviatedTypeId(typeId(abbreviatedType));
+                builder.setAbbreviatedTypeId(typeId(abbreviatedType.getAbbreviation()));
             }
             else {
-                builder.setAbbreviatedType(type(abbreviatedType));
+                builder.setAbbreviatedType(type(abbreviatedType.getAbbreviation()));
             }
         }
 

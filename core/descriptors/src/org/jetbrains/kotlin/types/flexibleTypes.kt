@@ -16,46 +16,19 @@
 
 package org.jetbrains.kotlin.types
 
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.renderer.DescriptorRenderer
+import org.jetbrains.kotlin.renderer.DescriptorRendererOptions
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.types.typeUtil.builtIns
 
-interface FlexibleTypeFactory {
-    val id: String
 
-    fun create(lowerBound: KotlinType, upperBound: KotlinType): KotlinType
-
-    object ThrowException : FlexibleTypeFactory {
-        private fun error(): Nothing = throw IllegalArgumentException("This factory should not be used.")
-        override val id: String
-            get() = error()
-
-        override fun create(lowerBound: KotlinType, upperBound: KotlinType): KotlinType = error()
-    }
-}
-
-interface Flexibility : TypeCapability, SubtypingRepresentatives {
-    // lowerBound is a subtype of upperBound
-    val lowerBound: KotlinType
-    val upperBound: KotlinType
-
-    val factory: FlexibleTypeFactory
-
-    override val subTypeRepresentative: KotlinType
-        get() = lowerBound
-
-    override val superTypeRepresentative: KotlinType
-        get() = upperBound
-
-    override fun sameTypeConstructor(type: KotlinType) = false
-
-    fun makeNullableAsSpecified(nullable: Boolean): KotlinType
-
-}
-
-fun KotlinType.isFlexible(): Boolean = this.getCapability(Flexibility::class.java) != null
-fun KotlinType.flexibility(): Flexibility = this.getCapability(Flexibility::class.java)!!
+fun KotlinType.isFlexible(): Boolean = unwrap() is FlexibleType
+fun KotlinType.asFlexibleType(): FlexibleType = unwrap() as FlexibleType
 
 fun KotlinType.isNullabilityFlexible(): Boolean {
-    val flexibility = this.getCapability(Flexibility::class.java) ?: return false
+    val flexibility = unwrap() as? FlexibleType ?: return false
     return TypeUtils.isNullableType(flexibility.lowerBound) != TypeUtils.isNullableType(flexibility.upperBound)
 }
 
@@ -87,31 +60,36 @@ fun Collection<TypeProjection>.singleBestRepresentative(): TypeProjection? {
     val projectionKinds = this.map { it.projectionKind }.toSet()
     if (projectionKinds.size != 1) return null
 
-    val bestType = this.map { it.type }.singleBestRepresentative()
-    if (bestType == null) return null
+    val bestType = this.map { it.type }.singleBestRepresentative() ?: return null
 
     return TypeProjectionImpl(projectionKinds.single(), bestType)
 }
 
-fun KotlinType.lowerIfFlexible(): KotlinType = if (this.isFlexible()) this.flexibility().lowerBound else this
-fun KotlinType.upperIfFlexible(): KotlinType = if (this.isFlexible()) this.flexibility().upperBound else this
+fun KotlinType.lowerIfFlexible(): SimpleType = with(unwrap()) {
+    when (this) {
+        is FlexibleType -> lowerBound
+        is SimpleType -> this
+    }
+}
+fun KotlinType.upperIfFlexible(): SimpleType = with(unwrap()) {
+    when (this) {
+        is FlexibleType -> upperBound
+        is SimpleType -> this
+    }
+}
 
-abstract class DelegatingFlexibleType protected constructor(
-        override val lowerBound: KotlinType,
-        override val upperBound: KotlinType,
-        override val factory: FlexibleTypeFactory
-) : DelegatingType(), Flexibility {
+class FlexibleTypeImpl(lowerBound: SimpleType, upperBound: SimpleType) : FlexibleType(lowerBound, upperBound), CustomTypeVariable {
     companion object {
         @JvmField
         var RUN_SLOW_ASSERTIONS = false
     }
 
-     // These assertions are needed for checking invariants of flexible types.
-     //
-     // Unfortunately isSubtypeOf is running resolve for lazy types.
-     // Because of this we can't run these assertions when we are creating this type. See EA-74904
-     //
-     // Also isSubtypeOf is not a very fast operation, so we are running assertions only if ASSERTIONS_ENABLED. See KT-7540
+    // These assertions are needed for checking invariants of flexible types.
+    //
+    // Unfortunately isSubtypeOf is running resolve for lazy types.
+    // Because of this we can't run these assertions when we are creating this type. See EA-74904
+    //
+    // Also isSubtypeOf is not a very fast operation, so we are running assertions only if ASSERTIONS_ENABLED. See KT-7540
     private var assertionsDone = false
 
     private fun runAssertions() {
@@ -126,25 +104,33 @@ abstract class DelegatingFlexibleType protected constructor(
         }
     }
 
-    protected abstract val delegateType: KotlinType
+    override val delegate: SimpleType
+        get() {
+            runAssertions()
+            return lowerBound
+        }
 
-    override fun <T : TypeCapability> getCapability(capabilityClass: Class<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return when(capabilityClass) {
-            Flexibility::class.java, SubtypingRepresentatives::class.java -> this as T
-            else -> super.getCapability(capabilityClass)
+    override val isTypeVariable: Boolean get() = lowerBound.constructor.declarationDescriptor is TypeParameterDescriptor
+                                                 && lowerBound.constructor == upperBound.constructor
+
+    override fun substitutionResult(replacement: KotlinType): KotlinType {
+        val unwrapped = replacement.unwrap()
+        return when(unwrapped) {
+            is FlexibleType -> unwrapped
+            is SimpleType -> KotlinTypeFactory.flexibleType(unwrapped, unwrapped.makeNullableAsSpecified(true))
         }
     }
 
-    override fun makeNullableAsSpecified(nullable: Boolean): KotlinType {
-        return factory.create(TypeUtils.makeNullableAsSpecified(lowerBound, nullable),
-                              TypeUtils.makeNullableAsSpecified(upperBound, nullable))
+    override fun replaceAnnotations(newAnnotations: Annotations): UnwrappedType
+            = KotlinTypeFactory.flexibleType(lowerBound.replaceAnnotations(newAnnotations), upperBound.replaceAnnotations(newAnnotations))
+
+    override fun render(renderer: DescriptorRenderer, options: DescriptorRendererOptions): String {
+        if (options.debugMode) {
+            return "(${renderer.renderType(lowerBound)}..${renderer.renderType(upperBound)})"
+        }
+        return renderer.renderFlexibleType(renderer.renderType(lowerBound), renderer.renderType(upperBound), builtIns)
     }
 
-    final override fun getDelegate(): KotlinType {
-        runAssertions()
-        return delegateType
-    }
-
-    override fun toString() = "('$lowerBound'..'$upperBound')"
+    override fun makeNullableAsSpecified(newNullability: Boolean): UnwrappedType
+            = KotlinTypeFactory.flexibleType(lowerBound.makeNullableAsSpecified(newNullability), upperBound.makeNullableAsSpecified(newNullability))
 }

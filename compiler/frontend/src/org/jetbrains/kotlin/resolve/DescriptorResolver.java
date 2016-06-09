@@ -736,16 +736,17 @@ public class DescriptorResolver {
         else {
             typeAliasDescriptor.initialize(
                     typeParameterDescriptors,
-                    DeferredType.create(storageManager, trace, new Function0<KotlinType>() {
+                    storageManager.createLazyValue(new Function0<SimpleType>() {
                         @Override
-                        public KotlinType invoke() {
+                        public SimpleType invoke() {
                             return typeResolver.resolveAbbreviatedType(scopeWithTypeParameters, typeReference, trace, true);
                         }
                     }),
-                    DeferredType.create(storageManager, trace, new Function0<KotlinType>() {
+                    storageManager.createLazyValue(new Function0<SimpleType>() {
                         @Override
-                        public KotlinType invoke() {
-                            return typeResolver.resolveExpandedTypeForTypeAlias(typeAliasDescriptor);
+                        public SimpleType invoke() {
+                            // TODO do not reparse
+                            return typeResolver.resolveAbbreviatedType(scopeWithTypeParameters, typeReference, trace, false);
                         }
                     }));
         }
@@ -1151,9 +1152,9 @@ public class DescriptorResolver {
                     : "Flexible type cannot be denoted in Kotlin otherwise than as ft<T1, T2>, but was: "
                       + PsiUtilsKt.getElementTextWithContext(typeReference);
             // it's really ft<Foo, Bar>
-            Flexibility flexibility = FlexibleTypesKt.flexibility(type);
-            checkBounds(jetTypeArguments.get(0), flexibility.getLowerBound(), trace);
-            checkBounds(jetTypeArguments.get(1), flexibility.getUpperBound(), trace);
+            FlexibleType flexibleType = FlexibleTypesKt.asFlexibleType(type);
+            checkBounds(jetTypeArguments.get(0), flexibleType.getLowerBound(), trace);
+            checkBounds(jetTypeArguments.get(1), flexibleType.getUpperBound(), trace);
             return;
         }
 

@@ -52,14 +52,14 @@ class JavaTypeQualifiers internal constructor(
 private fun KotlinType.extractQualifiers(): JavaTypeQualifiers {
     val (lower, upper) =
             if (this.isFlexible())
-                flexibility().let { Pair(it.lowerBound, it.upperBound) }
+                asFlexibleType().let { Pair(it.lowerBound, it.upperBound) }
             else Pair(this, this)
 
     val mapping = JavaToKotlinClassMap.INSTANCE
     return JavaTypeQualifiers(
             if (lower.isMarkedNullable) NULLABLE else if (!upper.isMarkedNullable) NOT_NULL else null,
             if (mapping.isReadOnly(lower)) READ_ONLY else if (mapping.isMutable(upper)) MUTABLE else null,
-            isNotNullTypeParameter = getCapability<CustomTypeVariable>() is NotNullTypeParameterTypeCapability)
+            isNotNullTypeParameter = unwrap() is NotNullTypeParameter)
 }
 
 private fun KotlinType.extractQualifiersFromAnnotations(): JavaTypeQualifiers {

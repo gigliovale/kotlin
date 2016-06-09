@@ -374,23 +374,23 @@ public class ErrorUtils {
     }
 
     @NotNull
-    public static KotlinType createErrorType(@NotNull String debugMessage) {
+    public static SimpleType createErrorType(@NotNull String debugMessage) {
         return createErrorTypeWithArguments(debugMessage, Collections.<TypeProjection>emptyList());
     }
 
     @NotNull
-    public static KotlinType createErrorTypeWithCustomDebugName(@NotNull String debugName) {
+    public static SimpleType createErrorTypeWithCustomDebugName(@NotNull String debugName) {
         return createErrorTypeWithCustomConstructor(debugName, createErrorTypeConstructorWithCustomDebugName(debugName));
     }
 
     @NotNull
-    public static KotlinType createErrorTypeWithCustomConstructor(@NotNull String debugName, @NotNull TypeConstructor typeConstructor) {
+    public static SimpleType createErrorTypeWithCustomConstructor(@NotNull String debugName, @NotNull TypeConstructor typeConstructor) {
         return new ErrorTypeImpl(typeConstructor, createErrorScope(debugName));
     }
 
     @NotNull
-    public static KotlinType createErrorTypeWithArguments(@NotNull String debugMessage, @NotNull List<TypeProjection> arguments) {
-        return new ErrorTypeImpl(createErrorTypeConstructor(debugMessage), createErrorScope(debugMessage), arguments);
+    public static SimpleType createErrorTypeWithArguments(@NotNull String debugMessage, @NotNull List<TypeProjection> arguments) {
+        return new ErrorTypeImpl(createErrorTypeConstructor(debugMessage), createErrorScope(debugMessage), arguments, false);
     }
 
     @NotNull
@@ -464,7 +464,8 @@ public class ErrorUtils {
         return false;
     }
 
-    public static boolean isError(@NotNull DeclarationDescriptor candidate) {
+    public static boolean isError(@Nullable DeclarationDescriptor candidate) {
+        if (candidate == null) return false;
         return isErrorClass(candidate) || isErrorClass(candidate.getContainingDeclaration()) || candidate == ERROR_MODULE;
     }
 
@@ -472,35 +473,26 @@ public class ErrorUtils {
         return candidate instanceof ErrorClassDescriptor;
     }
 
-    @NotNull
-    public static TypeParameterDescriptor createErrorTypeParameter(int index, @NotNull String debugMessage) {
-        return TypeParameterDescriptorImpl.createWithDefaultBound(
-                ERROR_CLASS,
-                Annotations.Companion.getEMPTY(),
-                false,
-                Variance.INVARIANT,
-                Name.special("<ERROR: " + debugMessage + ">"),
-                index
-        );
-    }
-
-    private static class ErrorTypeImpl implements KotlinType {
+    private static class ErrorTypeImpl extends SimpleType {
         private final TypeConstructor constructor;
         private final MemberScope memberScope;
         private final List<TypeProjection> arguments;
+        private final boolean nullability;
 
         private ErrorTypeImpl(
                 @NotNull TypeConstructor constructor,
                 @NotNull MemberScope memberScope,
-                @NotNull List<TypeProjection> arguments
+                @NotNull List<TypeProjection> arguments,
+                boolean nullability
         ) {
             this.constructor = constructor;
             this.memberScope = memberScope;
             this.arguments = arguments;
+            this.nullability = nullability;
         }
 
         private ErrorTypeImpl(@NotNull TypeConstructor constructor, @NotNull MemberScope memberScope) {
-            this(constructor, memberScope, Collections.<TypeProjection>emptyList());
+            this(constructor, memberScope, Collections.<TypeProjection>emptyList(), false);
         }
 
         @NotNull
@@ -517,7 +509,7 @@ public class ErrorUtils {
 
         @Override
         public boolean isMarkedNullable() {
-            return false;
+            return nullability;
         }
 
         @NotNull
@@ -537,21 +529,21 @@ public class ErrorUtils {
             return Annotations.Companion.getEMPTY();
         }
 
-        @Nullable
         @Override
-        public <T extends TypeCapability> T getCapability(@NotNull Class<T> capabilityClass) {
-            return null;
+        public String toString() {
+            return constructor.toString() + (arguments.isEmpty() ? "" : joinToString(arguments, ", ", "<", ">", -1, "...", null));
         }
 
         @NotNull
         @Override
-        public TypeCapabilities getCapabilities() {
-            return TypeCapabilities.NONE.INSTANCE;
+        public SimpleType replaceAnnotations(@NotNull Annotations newAnnotations) {
+            return this;
         }
 
+        @NotNull
         @Override
-        public String toString() {
-            return constructor.toString() + (arguments.isEmpty() ? "" : joinToString(arguments, ", ", "<", ">", -1, "...", null));
+        public SimpleType makeNullableAsSpecified(boolean newNullability) {
+            return new ErrorTypeImpl(constructor, memberScope, arguments, newNullability);
         }
     }
 

@@ -26,7 +26,8 @@ public class Test {
 // FILE: main.kt
 
 fun foo(x: B<*>) {
-    val q: MutableList<String> = <!TYPE_MISMATCH!>x.foo().getChildrenStubs()<!>
+    // TODO: x.foo() now is flexible type instead of raw, because of captured type approximation
+    val q: MutableList<String> = x.foo().getChildrenStubs()
 
     // Raw(B).field erased to A<Any!>..A<out Any!>?
     Test.rawB.field = A<String>()

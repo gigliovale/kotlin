@@ -45,7 +45,6 @@ val KotlinType.builtIns: KotlinBuiltIns
     get() = constructor.builtIns
 
 fun KotlinType.makeNullable() = TypeUtils.makeNullable(this)
-fun KotlinType.makeNullableIfNeeded(nullable: Boolean) = TypeUtils.makeNullableIfNeeded(this, nullable)
 fun KotlinType.makeNotNullable() = TypeUtils.makeNotNullable(this)
 
 fun KotlinType.immediateSupertypes(): Collection<KotlinType> = TypeUtils.getImmediateSupertypes(this)
@@ -77,8 +76,6 @@ fun KotlinType.isSubtypeOf(superType: KotlinType): Boolean = KotlinTypeChecker.D
 fun KotlinType.cannotBeReified(): Boolean =
         KotlinBuiltIns.isNothingOrNullableNothing(this) || this.isDynamic() || this.isCaptured()
 
-fun KotlinType.unsafeAsReifiedArgument(): Boolean = arguments.any { !it.isStarProjection }
-
 fun TypeProjection.substitute(doSubstitute: (KotlinType) -> KotlinType): TypeProjection {
     return if (isStarProjection)
         this
@@ -87,11 +84,7 @@ fun TypeProjection.substitute(doSubstitute: (KotlinType) -> KotlinType): TypePro
 
 fun KotlinType.replaceAnnotations(newAnnotations: Annotations): KotlinType {
     if (annotations.isEmpty() && newAnnotations.isEmpty()) return this
-    return object : DelegatingType() {
-        override fun getDelegate() = this@replaceAnnotations
-
-        override val annotations: Annotations get() = newAnnotations
-    }
+    return unwrap().replaceAnnotations(newAnnotations)
 }
 
 fun KotlinTypeChecker.equalTypesOrNulls(type1: KotlinType?, type2: KotlinType?): Boolean {
@@ -139,7 +132,7 @@ private fun constituentTypes(result: MutableSet<KotlinType>, types: Collection<K
     result.addAll(types)
     for (type in types) {
         if (type.isFlexible()) {
-            with (type.flexibility()) { constituentTypes(result, setOf(lowerBound, upperBound)) }
+            with (type.asFlexibleType()) { constituentTypes(result, setOf(lowerBound, upperBound)) }
         }
         else {
             constituentTypes(result, type.arguments.filterNot { it.isStarProjection }.map { it.type })
@@ -160,26 +153,20 @@ fun KotlinType.asTypeProjection(): TypeProjection = TypeProjectionImpl(this)
 fun KotlinType.contains(predicate: (KotlinType) -> Boolean) = TypeUtils.contains(this, predicate)
 
 fun KotlinType.replaceArgumentsWithStarProjections(): KotlinType {
-    if (constructor.parameters.isEmpty() || constructor.declarationDescriptor == null) return this
-
-    // We could just create JetTypeImpl with current type constructor and star projections,
-    // but we want to preserve flexibility of type, and that it what TypeSubstitutor does
-    return TypeSubstitutor.create(ConstantStarSubstitution).substitute(this, Variance.INVARIANT)!!
+    val unwrapped = unwrap()
+    return when (unwrapped) {
+        is FlexibleType -> KotlinTypeFactory.flexibleType(
+                unwrapped.lowerBound.replaceArgumentsWithStarProjections(),
+                unwrapped.upperBound.replaceArgumentsWithStarProjections()
+        )
+        is SimpleType -> unwrapped.replaceArgumentsWithStarProjections()
+    }
 }
 
-private object ConstantStarSubstitution : TypeSubstitution() {
-    override fun get(key: KotlinType): TypeProjection? {
-        // Let substitutor deal with flexibility
-        if (key.isFlexible()) return null
+private fun SimpleType.replaceArgumentsWithStarProjections(): SimpleType {
+    if (constructor.parameters.isEmpty() || constructor.declarationDescriptor == null) return this
 
-        val newProjections = key.constructor.parameters.map(::StarProjectionImpl)
+    val newArguments = constructor.parameters.map(::StarProjectionImpl)
 
-        val substitution = TypeConstructorSubstitution.create(key.constructor, newProjections)
-
-        return TypeProjectionImpl(
-                TypeSubstitutor.create(substitution).substitute(key.constructor.declarationDescriptor!!.defaultType, Variance.INVARIANT)!!
-        )
-    }
-
-    override fun isEmpty() = false
+    return replace(newArguments)
 }

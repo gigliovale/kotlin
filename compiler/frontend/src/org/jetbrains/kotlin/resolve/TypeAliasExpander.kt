@@ -96,7 +96,7 @@ class TypeAliasExpander(
                     argumentVariance
                 else {
                     if (originalVariance != argumentVariance && !typeAliasArgument.isStarProjection) {
-                        reportStrategy.conflictingProjection(typeAliasExpansion.descriptor, typeParameterDescriptor, originalType)
+                        reportStrategy.conflictingProjection(typeAliasExpansion.descriptor, typeParameterDescriptor, typeAliasArgument.type)
                     }
                     argumentVariance
                 }
@@ -113,13 +113,15 @@ class TypeAliasExpander(
     ): TypeProjection {
         val type = originalProjection.type
 
-        if (!type.requiresTypeAliasExpansion()) {
+        if (type.isError || !type.requiresTypeAliasExpansion()) {
             return originalProjection
         }
 
         val typeConstructor = type.constructor
         val typeDescriptor = typeConstructor.declarationDescriptor
 
+        assert(typeConstructor.parameters.size == type.arguments.size) { "Unexpected malformed type: $type" }
+        
         when (typeDescriptor) {
             is TypeParameterDescriptor -> {
                 return originalProjection

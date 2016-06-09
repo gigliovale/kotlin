@@ -315,7 +315,7 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         if (originalSubstitutor.isEmpty()) {
             return this;
         }
-        return doSubstitute(newCopyBuilder(originalSubstitutor).setOriginal(getOriginal()));
+        return newCopyBuilder(originalSubstitutor).setOriginal(getOriginal()).build();
     }
 
     @Nullable
@@ -563,21 +563,14 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
                 configuration.newOwner, configuration.original, configuration.kind, configuration.name, resultAnnotations,
                 getSourceToUseForCopy(configuration.preserveSourceElement, configuration.original, configuration.sourceElement));
 
-        List<TypeParameterDescriptor> substitutedTypeParameters;
-        final TypeSubstitutor substitutor;
+        List<TypeParameterDescriptor> unsubstitutedTypeParameters =
+                configuration.newTypeParameters == null ? getTypeParameters() : configuration.newTypeParameters;
 
-        if (configuration.newTypeParameters == null) {
-            List<TypeParameterDescriptor> originalTypeParameters = getTypeParameters();
-            substitutedTypeParameters = new ArrayList<TypeParameterDescriptor>(originalTypeParameters.size());
-            substitutor = DescriptorSubstitutor.substituteTypeParameters(
-                    originalTypeParameters, configuration.substitution, substitutedDescriptor, substitutedTypeParameters
-            );
-        }
-        else {
-            // They should be already substituted
-            substitutedTypeParameters = configuration.newTypeParameters;
-            substitutor = configuration.substitution.buildSubstitutor();
-        }
+        List<TypeParameterDescriptor> substitutedTypeParameters =
+                new ArrayList<TypeParameterDescriptor>(unsubstitutedTypeParameters.size());
+        final TypeSubstitutor substitutor = DescriptorSubstitutor.substituteTypeParameters(
+                unsubstitutedTypeParameters, configuration.substitution, substitutedDescriptor, substitutedTypeParameters
+        );
 
         KotlinType substitutedReceiverParameterType = null;
         if (configuration.newExtensionReceiverParameterType != null) {
@@ -689,6 +682,24 @@ public abstract class FunctionDescriptorImpl extends DeclarationDescriptorNonRoo
         }
 
         return substitutedDescriptor;
+    }
+
+    @NotNull
+    @Override
+    public FunctionDescriptor copy(
+            DeclarationDescriptor newOwner,
+            Modality modality,
+            Visibility visibility,
+            Kind kind,
+            boolean copyOverrides
+    ) {
+        return newCopyBuilder()
+                .setOwner(newOwner)
+                .setModality(modality)
+                .setVisibility(visibility)
+                .setKind(kind)
+                .setCopyOverrides(copyOverrides)
+                .build();
     }
 
     @NotNull

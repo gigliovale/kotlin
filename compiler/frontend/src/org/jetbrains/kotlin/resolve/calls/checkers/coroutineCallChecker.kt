@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.coroutine.CoroutineReceiverValue
 import org.jetbrains.kotlin.resolve.inline.InlineUtil
 
-object CoroutineSuspendCallChecker : CallChecker {
+object CoroutineSuspendCallChecker : SimpleCallChecker {
     override fun check(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext) {
         val descriptor = resolvedCall.candidateDescriptor as? FunctionDescriptor ?: return
         if (!descriptor.isSuspend || descriptor.initialSignatureDescriptor == null) return
@@ -40,18 +40,18 @@ object CoroutineSuspendCallChecker : CallChecker {
     }
 }
 
-// It can't be another CallChecker implementation because of 3rd parameter
-fun checkCoroutineBuilderCall(
-        resolvedCall: ResolvedCall<*>,
-        context: BasicCallResolutionContext,
-        languageFeatureSettings: LanguageFeatureSettings
-) {
-    val descriptor = resolvedCall.candidateDescriptor as? FunctionDescriptor ?: return
-    if (descriptor.valueParameters.any { it.isCoroutine }
-        && !languageFeatureSettings.supportsFeature(LanguageFeature.Coroutines)) {
-        context.trace.report(
-                Errors.UNSUPPORTED_FEATURE.on(
-                        resolvedCall.call.calleeExpression ?: resolvedCall.call.callElement, LanguageFeature.Coroutines))
+object BuilderFunctionsCallChecker : CallChecker {
+    override fun check(
+            resolvedCall: ResolvedCall<*>,
+            context: BasicCallResolutionContext,
+            languageFeatureSettings: LanguageFeatureSettings
+    ) {
+        val descriptor = resolvedCall.candidateDescriptor as? FunctionDescriptor ?: return
+        if (descriptor.valueParameters.any { it.isCoroutine }
+            && !languageFeatureSettings.supportsFeature(LanguageFeature.Coroutines)) {
+            context.trace.report(
+                    Errors.UNSUPPORTED_FEATURE.on(
+                            resolvedCall.call.calleeExpression ?: resolvedCall.call.callElement, LanguageFeature.Coroutines))
+        }
     }
 }
-

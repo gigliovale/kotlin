@@ -35,9 +35,8 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils.classCanHaveAbstractMembers
 import org.jetbrains.kotlin.resolve.DescriptorUtils.classCanHaveOpenMembers
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
-import org.jetbrains.kotlin.types.typeUtil.contains
-import org.jetbrains.kotlin.types.typeUtil.isArrayOfNothing
-import org.jetbrains.kotlin.types.typeUtil.isNothing
+import org.jetbrains.kotlin.types.typeUtil.*
+import org.jetbrains.kotlin.utils.addToStdlib.check
 import java.util.*
 
 fun KtDeclaration.checkTypeReferences(trace: BindingTrace) {
@@ -146,7 +145,7 @@ class DeclarationsChecker(
         for ((declaration, typeAliasDescriptor) in bodiesResolveContext.typeAliases.entries) {
             checkTypeAliasDeclaration(typeAliasDescriptor, declaration)
             modifiersChecker.checkModifiersForDeclaration(declaration, typeAliasDescriptor)
-            // TODO exposedChecker.checkTypeAlias(declaration, typeAliasDescriptor)
+            exposedChecker.checkTypeAlias(declaration, typeAliasDescriptor)
         }
     }
 
@@ -155,7 +154,7 @@ class DeclarationsChecker(
 
         checkTypeAliasExpansion(typeAliasDescriptor, declaration)
 
-        val expandedType = typeAliasDescriptor.expandedType // TODO refactor type alias expansion
+        val expandedType = typeAliasDescriptor.expandedType
         if (expandedType.isError) return
 
         val expandedClassifier = expandedType.constructor.declarationDescriptor
@@ -167,7 +166,22 @@ class DeclarationsChecker(
         if (TypeUtils.contains(expandedType) { it.isArrayOfNothing()} ) {
             trace.report(TYPEALIAS_EXPANDED_TO_MALFORMED_TYPE.on(typeReference, expandedType, "Array<Nothing> is illegal"))
         }
+
+        val usedTypeAliasParameters: Set<TypeParameterDescriptor> = getUsedTypeAliasParameters(expandedType, typeAliasDescriptor)
+        for (typeParameter in typeAliasDescriptor.declaredTypeParameters) {
+            if (typeParameter !in usedTypeAliasParameters) {
+                val source = DescriptorToSourceUtils.descriptorToDeclaration(typeParameter) as? KtTypeParameter
+                             ?: throw AssertionError("No source element for type parameter $typeParameter of $typeAliasDescriptor")
+                trace.report(UNUSED_TYPEALIAS_PARAMETER.on(source, typeParameter, expandedType))
+            }
+        }
     }
+
+    private fun getUsedTypeAliasParameters(type: KotlinType, typeAlias: TypeAliasDescriptor): Set<TypeParameterDescriptor> =
+            type.constituentTypes().mapNotNullTo(HashSet()) {
+                val descriptor = it.constructor.declarationDescriptor as? TypeParameterDescriptor
+                descriptor?.check { it.containingDeclaration == typeAlias }
+            }
 
     private class TypeAliasDeclarationCheckingReportStrategy(
             private val trace: BindingTrace,
@@ -191,7 +205,7 @@ class DeclarationsChecker(
 
         override fun boundsViolationInSubstitution(bound: KotlinType, unsubstitutedArgument: KotlinType, argument: KotlinType, typeParameter: TypeParameterDescriptor) {
             // TODO more precise diagnostics
-            if (!argument.dependsOnTypeAliasParameters() && !bound.dependsOnTypeAliasParameters()) {
+            if (!argument.containsTypeAliasParameters() && !bound.containsTypeAliasParameters()) {
                 trace.report(UPPER_BOUND_VIOLATED_IN_TYPEALIAS_EXPANSION.on(typeReference, bound, argument, typeParameter))
             }
         }
@@ -703,9 +717,9 @@ class DeclarationsChecker(
     }
 
     private fun checkImplicitCallableType(declaration: KtCallableDeclaration, descriptor: CallableDescriptor) {
-        descriptor.returnType?.let {
+        descriptor.returnType?.unwrap()?.let {
+            val target = declaration.nameIdentifier ?: declaration
             if (declaration.typeReference == null) {
-                val target = declaration.nameIdentifier ?: declaration
                 if (it.isNothing() && !declaration.hasModifier(KtTokens.OVERRIDE_KEYWORD)) {
                     trace.report(
                             (if (declaration is KtProperty) IMPLICIT_NOTHING_PROPERTY_TYPE else IMPLICIT_NOTHING_RETURN_TYPE).on(target)
@@ -714,6 +728,11 @@ class DeclarationsChecker(
                 if (it.contains { type -> type.constructor is IntersectionTypeConstructor }) {
                     trace.report(IMPLICIT_INTERSECTION_TYPE.on(target, it))
                 }
+            }
+            else if (it.isNothing() && it is AbbreviatedType) {
+                trace.report(
+                        (if (declaration is KtProperty) ABBREVIATED_NOTHING_PROPERTY_TYPE else ABBREVIATED_NOTHING_RETURN_TYPE).on(target)
+                )
             }
         }
     }

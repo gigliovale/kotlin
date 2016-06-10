@@ -35,8 +35,6 @@ import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.resolve.PossiblyBareType.type
 import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
 import org.jetbrains.kotlin.resolve.calls.tasks.DynamicCallableDescriptors
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
-import org.jetbrains.kotlin.resolve.lazy.LazyEntity
 import org.jetbrains.kotlin.resolve.scopes.LazyScopeAdapter
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -44,9 +42,10 @@ import org.jetbrains.kotlin.resolve.scopes.utils.findClassifier
 import org.jetbrains.kotlin.resolve.source.toSourceElement
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
-import org.jetbrains.kotlin.storage.getValue
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.Variance.*
+import org.jetbrains.kotlin.types.typeUtil.containsTypeAliasParameters
+import org.jetbrains.kotlin.types.typeUtil.containsTypeAliases
 import org.jetbrains.kotlin.types.typeUtil.isArrayOfNothing
 
 class TypeResolver(
@@ -402,7 +401,7 @@ class TypeResolver(
         // This is not intended to be used in normal users' environments, only for tests and debugger etc
         typeTransformerForTests.transformType(resultingType)?.let { return type(it) }
 
-        if (c.checkBounds && !resultingType.dependsOnTypeAliasParameters()) {
+        if (shouldCheckBounds(c, resultingType)) {
             val substitutor = TypeSubstitutor.create(resultingType)
             for (i in parameters.indices) {
                 val parameter = parameters[i]
@@ -421,6 +420,14 @@ class TypeResolver(
         }
 
         return type(resultingType)
+    }
+
+    private fun shouldCheckBounds(c: TypeResolutionContext, inType: KotlinType): Boolean {
+        if (!c.checkBounds) return false
+        if (inType.containsTypeAliasParameters()) return false
+        if (c.abbreviated && inType.containsTypeAliases()) return false
+
+        return true
     }
 
     private fun resolveTypeForTypeAlias(

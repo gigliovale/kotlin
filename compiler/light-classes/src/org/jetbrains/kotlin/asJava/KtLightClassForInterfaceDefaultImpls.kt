@@ -47,7 +47,7 @@ open class KtLightClassForInterfaceDefaultImpls(
         throw IncorrectOperationException("Impossible to rename DefaultImpls")
     }
 
-    override fun getContainingClass() = KtLightClassForExplicitDeclaration.create(classOrObject)
+    override fun getContainingClass() = createLightClass(classOrObject)
 
     override fun getOwnInnerClasses() = emptyList<PsiClass>()
 }

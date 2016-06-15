@@ -168,7 +168,7 @@ open class KtLightClassForExplicitDeclaration(
 
         object : FakeFileForLightClass(
                 classOrObject.getContainingKtFile(),
-                { if (classOrObject.isTopLevel()) this else create(getOutermostClassOrObject(classOrObject))!! },
+                { if (classOrObject.isTopLevel()) this else createLightClass(getOutermostClassOrObject(classOrObject))!! },
                 { getJavaFileStub() }
         ) {
             override fun findReferenceAt(offset: Int) = ktFile.findReferenceAt(offset)
@@ -223,7 +223,7 @@ open class KtLightClassForExplicitDeclaration(
 
         val containingClassOrObject = (classOrObject.parent as? KtClassBody)?.parent as? KtClassOrObject
         if (containingClassOrObject != null) {
-            return create(containingClassOrObject)
+            return createLightClass(containingClassOrObject)
         }
 
         // TODO: should return null

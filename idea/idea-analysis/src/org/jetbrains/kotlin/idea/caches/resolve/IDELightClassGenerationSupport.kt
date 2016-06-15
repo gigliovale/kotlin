@@ -138,7 +138,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         if (virtualFile != null) {
             when {
                 ProjectRootsUtil.isProjectSourceFile(project, virtualFile) ->
-                    return KtLightClassForExplicitDeclaration.create(classOrObject)
+                    return createLightClass(classOrObject)
                 ProjectRootsUtil.isLibraryClassFile(project, virtualFile) ->
                     return getLightClassForDecompiledClassOrObject(classOrObject)
                 ProjectRootsUtil.isLibrarySourceFile(project, virtualFile) ->
@@ -147,7 +147,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         }
         if (classOrObject.getContainingKtFile().analysisContext != null) {
             // explicit request to create light class from dummy.kt
-            return KtLightClassForExplicitDeclaration.create(classOrObject)
+            return createLightClass(classOrObject)
         }
         return null
     }

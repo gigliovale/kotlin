@@ -31,7 +31,7 @@ val jetTokenToPsiModifier = listOf(
         KtTokens.FINAL_KEYWORD to PsiModifier.FINAL)
 
 
-fun create(classOrObject: KtClassOrObject): KtLightClass? {
+fun createLightClass(classOrObject: KtClassOrObject): KtLightClass? {
     if (classOrObject is KtObjectDeclaration && classOrObject.isObjectLiteral()) {
         if (classOrObject.containingFile.virtualFile == null) {
             return null
@@ -111,7 +111,7 @@ fun checkSuperTypeByFQName(classDescriptor: ClassDescriptor, qualifiedName: Stri
 
 fun getOwnInnerClasses(classOrObject: KtClassOrObject, fqName: FqName): List<PsiClass> {
     val result = ArrayList<PsiClass>()
-    classOrObject.declarations.filterIsInstance<KtClassOrObject>().mapNotNullTo(result) { create(it) }
+    classOrObject.declarations.filterIsInstance<KtClassOrObject>().mapNotNullTo(result) { createLightClass(it) }
 
     if (classOrObject.hasInterfaceDefaultImpls) {
         result.add(KtLightClassForInterfaceDefaultImpls(fqName.defaultImplsChild(), classOrObject))

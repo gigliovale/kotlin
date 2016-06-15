@@ -26,7 +26,6 @@ import com.intellij.util.SmartList
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.asJava.*
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
@@ -131,7 +130,7 @@ class CliLightClassGenerationSupport(project: Project) : LightClassGenerationSup
     }
 
     override fun getLightClass(classOrObject: KtClassOrObject): KtLightClass? {
-        return KtLightClassForExplicitDeclaration.create(classOrObject)
+        return createLightClass(classOrObject)
     }
 
     override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor? {

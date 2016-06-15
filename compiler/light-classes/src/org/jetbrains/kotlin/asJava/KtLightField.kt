@@ -23,7 +23,6 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.KtNamedDeclaration
@@ -138,8 +137,7 @@ sealed class KtLightFieldImpl(
                 is PsiEnumConstant -> {
                     val kotlinEnumEntry = (origin as? LightMemberOriginForDeclaration)?.originalElement as? KtEnumEntry
                     val initializingClass = if (kotlinEnumEntry != null && kotlinEnumEntry.declarations.isNotEmpty()) {
-                        val enumConstantFqName = FqName(containingClass.getFqName().asString() + "." + kotlinEnumEntry.name)
-                        KtLightClassForEnumEntry(enumConstantFqName, kotlinEnumEntry, delegate)
+                        KtLightClassForEnumEntry(kotlinEnumEntry, delegate)
                     }
                     else null
                     return KtLightEnumConstant(origin, delegate, containingClass, initializingClass)

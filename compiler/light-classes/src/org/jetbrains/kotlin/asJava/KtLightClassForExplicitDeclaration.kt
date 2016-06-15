@@ -423,20 +423,20 @@ open class KtLightClassForExplicitDeclaration(
                 FINAL_KEYWORD to PsiModifier.FINAL)
 
 
-        fun create(classOrObject: KtClassOrObject): KtLightClassForExplicitDeclaration? {
+        fun create(classOrObject: KtClassOrObject): KtLightClass? {
             if (classOrObject is KtObjectDeclaration && classOrObject.isObjectLiteral()) {
                 if (classOrObject.containingFile.virtualFile == null) {
                     return null
                 }
 
-                return KtLightClassForAnonymousDeclaration({ predictFqName(it) ?: FqName.ROOT }, classOrObject)
+                return KtLightClassForAnonymousDeclaration(classOrObject)
             }
 
             val fqName = predictFqName(classOrObject) ?: return null
             return KtLightClassForExplicitDeclaration({ fqName }, classOrObject)
         }
 
-        private fun predictFqName(classOrObject: KtClassOrObject): FqName? {
+        fun predictFqName(classOrObject: KtClassOrObject): FqName? {
             if (classOrObject.isLocal()) {
                 if (classOrObject.containingFile.virtualFile == null) return null
                 val data = getLightClassDataExactly(classOrObject)
@@ -466,7 +466,7 @@ open class KtLightClassForExplicitDeclaration(
             return data.dataForClass(classOrObject)
         }
 
-        private fun getOutermostClassOrObject(classOrObject: KtClassOrObject): KtClassOrObject {
+        fun getOutermostClassOrObject(classOrObject: KtClassOrObject): KtClassOrObject {
             val outermostClass = KtPsiUtil.getOutermostClassOrObject(classOrObject) ?:
                 throw IllegalStateException("Attempt to build a light class for a local class: " + classOrObject.text)
 

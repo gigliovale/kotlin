@@ -53,14 +53,10 @@ import java.util.*
 import javax.swing.Icon
 
 open class KtLightClassForExplicitDeclaration(
-        private val classFqNameFunction: ((KtClassOrObject) -> FqName),
+        protected val classFqName: FqName,
         protected val classOrObject: KtClassOrObject)
 : KtWrappingLightClass(classOrObject.manager), KtJavaMirrorMarker, StubBasedPsiElement<KotlinClassOrObjectStub<out KtClassOrObject>> {
     private val lightIdentifier = KtLightIdentifier(this, classOrObject)
-
-    protected val classFqName : FqName by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        classFqNameFunction(classOrObject)
-    }
 
     private val _extendsList by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val listDelegate = super.getExtendsList() ?: return@lazy null
@@ -156,7 +152,7 @@ open class KtLightClassForExplicitDeclaration(
     override fun getFqName(): FqName = classFqName
 
     override fun copy(): PsiElement {
-        return KtLightClassForExplicitDeclaration({ classFqName }, classOrObject.copy() as KtClassOrObject)
+        return KtLightClassForExplicitDeclaration(classFqName, classOrObject.copy() as KtClassOrObject)
     }
 
     override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -433,7 +429,7 @@ open class KtLightClassForExplicitDeclaration(
             }
 
             val fqName = predictFqName(classOrObject) ?: return null
-            return KtLightClassForExplicitDeclaration({ fqName }, classOrObject)
+            return KtLightClassForExplicitDeclaration(fqName, classOrObject)
         }
 
         fun predictFqName(classOrObject: KtClassOrObject): FqName? {

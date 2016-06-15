@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.asJava
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.*
-import com.intellij.psi.impl.DebugUtil
 import com.intellij.psi.impl.InheritanceImplUtil
 import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
 import com.intellij.psi.search.GlobalSearchScope
@@ -28,7 +27,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
 import org.jetbrains.kotlin.resolve.DescriptorUtils
-import java.util.*
 
 internal open class KtLightClassForAnonymousDeclaration(protected val classOrObject: KtClassOrObject) :
         KtWrappingLightClass(classOrObject.manager),
@@ -38,23 +36,16 @@ internal open class KtLightClassForAnonymousDeclaration(protected val classOrObj
     private fun getJavaFileStub(): PsiJavaFileStub = getLightClassData().javaFileStub
 
     private fun getLightClassData(): OutermostKotlinClassLightClassData {
-        val lightClassData = KtLightClassForExplicitDeclaration.getLightClassData(classOrObject)
+        val lightClassData = getLightClassData(classOrObject)
         return lightClassData as OutermostKotlinClassLightClassData
     }
 
     protected val classFqName : FqName by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        KtLightClassForExplicitDeclaration.predictFqName(classOrObject) ?: FqName.ROOT
+        predictFqName(classOrObject) ?: FqName.ROOT
     }
 
     override fun getOwnInnerClasses(): List<PsiClass> {
-        val result = ArrayList<PsiClass>()
-        classOrObject.declarations.filterIsInstance<KtClassOrObject>().mapNotNullTo(result) { KtLightClassForExplicitDeclaration.create(it) }
-
-        if (classOrObject.hasInterfaceDefaultImpls) {
-            result.add(KtLightClassForInterfaceDefaultImpls(classFqName.defaultImplsChild(), classOrObject))
-        }
-
-        return result
+        return getOwnInnerClasses(classOrObject, classFqName)
     }
 
     override fun copy(): PsiElement = KtLightClassForAnonymousDeclaration(classOrObject)
@@ -63,20 +54,7 @@ internal open class KtLightClassForAnonymousDeclaration(protected val classOrObj
     override fun getFqName() = classFqName
 
     override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val javaFileStub = getJavaFileStub()
-
-        LightClassUtil.findClass(classFqName, javaFileStub) ?: run {
-            val outermostClassOrObject = KtLightClassForExplicitDeclaration.getOutermostClassOrObject(classOrObject)
-            val ktFileText: String? = try {
-                outermostClassOrObject.containingFile.text
-            }
-            catch (e: Exception) {
-                "Can't get text for outermost class"
-            }
-
-            val stubFileText = DebugUtil.stubTreeToString(javaFileStub)
-            throw IllegalStateException("Class was not found $classFqName\nin $ktFileText\nstub: \n$stubFileText")
-        }
+        getClsDelegate(getJavaFileStub(), classOrObject, classFqName)
     }
 
     override fun getStub() = classOrObject.stub

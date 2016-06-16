@@ -24,7 +24,7 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.asJava.KtLightClass
-import org.jetbrains.kotlin.asJava.KtLightClassForExplicitClassDeclaration
+import org.jetbrains.kotlin.asJava.KtLightClassForExplicitDeclaration
 import org.jetbrains.kotlin.asJava.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.namedUnwrappedElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -112,7 +112,7 @@ class RenameKotlinClassProcessor : RenameKotlinPsiProcessor() {
     private fun getClassOrObject(element: PsiElement?): PsiElement? = when (element) {
         is KtLightClass ->
             when (element) {
-                is KtLightClassForExplicitClassDeclaration -> element.kotlinOrigin
+                is KtLightClassForExplicitDeclaration -> element.kotlinOrigin
                 is KtLightClassForFacade -> element
                 else -> throw AssertionError("Should not be suggested to rename element of type " + element.javaClass + " " + element)
             }

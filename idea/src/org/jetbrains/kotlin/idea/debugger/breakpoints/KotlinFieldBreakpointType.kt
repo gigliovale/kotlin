@@ -34,7 +34,7 @@ import com.intellij.xdebugger.breakpoints.XLineBreakpoint
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType
 import com.intellij.xdebugger.breakpoints.ui.XBreakpointCustomPropertiesPanel
 import org.jetbrains.kotlin.asJava.KtLightClass
-import org.jetbrains.kotlin.asJava.KtLightClassForExplicitClassDeclaration
+import org.jetbrains.kotlin.asJava.KtLightClassForExplicitDeclaration
 import org.jetbrains.kotlin.asJava.KtLightClassForFacade
 import org.jetbrains.kotlin.idea.KotlinBundle
 import org.jetbrains.kotlin.idea.debugger.breakpoints.dialog.AddFieldBreakpointDialog
@@ -88,7 +88,7 @@ class KotlinFieldBreakpointType : JavaBreakpointType<KotlinPropertyBreakpointPro
                     is KtLightClassForFacade -> {
                         psiClass.files.asSequence().mapNotNull { createBreakpointIfPropertyExists(it, it, className, fieldName) }.firstOrNull()
                     }
-                    is KtLightClassForExplicitClassDeclaration -> {
+                    is KtLightClassForExplicitDeclaration -> {
                         val jetClass = psiClass.kotlinOrigin
                         createBreakpointIfPropertyExists(jetClass, jetClass.getContainingKtFile(), className, fieldName)
                     }

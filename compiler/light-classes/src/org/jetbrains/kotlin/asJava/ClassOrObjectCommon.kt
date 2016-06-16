@@ -134,3 +134,17 @@ fun getClsDelegate(javaFileStub: PsiJavaFileStub, classOrObject: KtClassOrObject
         throw IllegalStateException("Class was not found $fqName\nin $ktFileText\nstub: \n$stubFileText")
     }
 }
+
+fun isInheritorForKtLightClass(baseClass: PsiClass, candidateClass: KtLightClassForExplicitDeclaration, checkDeep: Boolean): Boolean {
+    val qualifiedName: String?
+    if (baseClass is KtLightClassForExplicitDeclaration) {
+        val baseDescriptor = baseClass.getDescriptor()
+        qualifiedName = if (baseDescriptor != null) DescriptorUtils.getFqName(baseDescriptor).asString() else null
+    }
+    else {
+        qualifiedName = baseClass.qualifiedName
+    }
+
+    val thisDescriptor = candidateClass.getDescriptor()
+    return qualifiedName != null && thisDescriptor != null && checkSuperTypeByFQName(thisDescriptor, qualifiedName, checkDeep)
+}

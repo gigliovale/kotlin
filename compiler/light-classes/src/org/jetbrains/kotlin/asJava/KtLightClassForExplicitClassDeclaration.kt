@@ -39,13 +39,12 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
-import org.jetbrains.kotlin.resolve.DescriptorUtils
 import javax.swing.Icon
 
 open class KtLightClassForExplicitClassDeclaration(
         protected val classFqName: FqName,
         protected val classOrObject: KtClassOrObject)
-: KtWrappingLightClass(classOrObject.manager), KtJavaMirrorMarker, StubBasedPsiElement<KotlinClassOrObjectStub<out KtClassOrObject>> {
+: KtWrappingLightClass(classOrObject.manager), KtLightClassForExplicitDeclaration, StubBasedPsiElement<KotlinClassOrObjectStub<out KtClassOrObject>> {
     private val lightIdentifier = KtLightIdentifier(this, classOrObject)
 
     private val _extendsList by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -151,7 +150,7 @@ open class KtLightClassForExplicitClassDeclaration(
 
     private fun getJavaFileStub(): PsiJavaFileStub = getLightClassData().javaFileStub
 
-    protected fun getDescriptor(): ClassDescriptor? {
+    override fun getDescriptor(): ClassDescriptor? {
         return LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor
     }
 
@@ -344,17 +343,7 @@ open class KtLightClassForExplicitClassDeclaration(
     override fun isValid(): Boolean = classOrObject.isValid
 
     override fun isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean {
-        val qualifiedName: String?
-        if (baseClass is KtLightClassForExplicitClassDeclaration) {
-            val baseDescriptor = baseClass.getDescriptor()
-            qualifiedName = if (baseDescriptor != null) DescriptorUtils.getFqName(baseDescriptor).asString() else null
-        }
-        else {
-            qualifiedName = baseClass.qualifiedName
-        }
-
-        val thisDescriptor = getDescriptor()
-        return qualifiedName != null && thisDescriptor != null && checkSuperTypeByFQName(thisDescriptor, qualifiedName, checkDeep)
+        return isInheritorForKtLightClass(baseClass, this, checkDeep)
     }
 
     @Throws(IncorrectOperationException::class)

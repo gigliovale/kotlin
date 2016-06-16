@@ -49,7 +49,7 @@ open class FakeFileForLightClass(
 
     override fun hashCode(): Int {
         val thisClass = lightClass()
-        if (thisClass is KtLightClassForExplicitClassDeclaration) return ktFile.hashCode()
+        if (thisClass is KtLightClassForExplicitDeclaration) return ktFile.hashCode()
         return thisClass.hashCode()
     }
 
@@ -59,8 +59,8 @@ open class FakeFileForLightClass(
         val thisClass = lightClass()
         val anotherClass = other.lightClass()
 
-        if (thisClass is KtLightClassForExplicitClassDeclaration) {
-            return anotherClass is KtLightClassForExplicitClassDeclaration && ktFile == other.ktFile
+        if (thisClass is KtLightClassForExplicitDeclaration) {
+            return anotherClass is KtLightClassForExplicitDeclaration && ktFile == other.ktFile
         }
 
         return thisClass == anotherClass

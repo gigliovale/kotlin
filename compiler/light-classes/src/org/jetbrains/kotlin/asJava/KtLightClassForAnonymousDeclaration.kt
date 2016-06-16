@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 
 internal open class KtLightClassForAnonymousDeclaration(protected val classOrObject: KtClassOrObject) :
         KtWrappingLightClass(classOrObject.manager),
-        KtJavaMirrorMarker,
+        KtLightClassForExplicitDeclaration,
         StubBasedPsiElement<KotlinClassOrObjectStub<out KtClassOrObject>>,
         PsiAnonymousClass {
     private fun getJavaFileStub(): PsiJavaFileStub = getLightClassData().javaFileStub
@@ -132,8 +132,8 @@ internal open class KtLightClassForAnonymousDeclaration(protected val classOrObj
     }
 
     override fun isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean {
-        if (baseClass is KtLightClassForExplicitClassDeclaration) {
-            return super.isInheritor(baseClass, checkDeep)
+        if (baseClass is KtLightClassForExplicitDeclaration) {
+            return isInheritorForKtLightClass(baseClass, this, checkDeep)
         }
 
         return InheritanceImplUtil.isInheritor(this, baseClass, checkDeep)
@@ -151,7 +151,7 @@ internal open class KtLightClassForAnonymousDeclaration(protected val classOrObj
     override fun getTypeParameterList() = null
     override fun isEnum() = false
 
-    protected fun getDescriptor(): ClassDescriptor? {
+    override fun getDescriptor(): ClassDescriptor? {
         return LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor
     }
 

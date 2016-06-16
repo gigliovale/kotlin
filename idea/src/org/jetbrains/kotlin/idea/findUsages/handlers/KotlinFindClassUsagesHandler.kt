@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.idea.search.declarationsSearch.HierarchySearchReques
 import org.jetbrains.kotlin.idea.search.declarationsSearch.searchInheritors
 import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinReferencesSearchOptions
 import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinReferencesSearchParameters
+import org.jetbrains.kotlin.idea.search.ideaExtensions.isOnlyKotlinSearch
 import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
 import org.jetbrains.kotlin.idea.search.usagesSearch.isConstructorUsage
 import org.jetbrains.kotlin.idea.search.usagesSearch.isImportUsage
@@ -111,7 +112,7 @@ class KotlinFindClassUsagesHandler(
             }
         }
 
-        if (kotlinOptions.searchConstructorUsages) {
+        if (kotlinOptions.searchConstructorUsages && !isOnlyKotlinSearch(options.searchScope)) {
             val result = runReadAction {
                 val constructors = classOrObject.toLightClass()?.constructors ?: PsiMethod.EMPTY_ARRAY
                 constructors.filterIsInstance<KtLightMethod>().all { constructor ->

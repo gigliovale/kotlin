@@ -271,11 +271,6 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
             }
         }
 
-        private fun isOnlyKotlinSearch(searchScope: SearchScope) =
-                searchScope is LocalSearchScope && runReadAction {
-                    searchScope.scope.all { it.containingFile.fileType == KotlinFileType.INSTANCE }
-                }
-
         private fun searchNamedElement(queryParameters: ReferencesSearch.SearchParameters,
                                        element: PsiNamedElement?,
                                        name: String? = element?.name) {
@@ -293,3 +288,8 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
         }
     }
 }
+
+fun isOnlyKotlinSearch(searchScope: SearchScope) =
+        searchScope is LocalSearchScope && runReadAction {
+            searchScope.scope.all { it.containingFile.fileType == KotlinFileType.INSTANCE }
+        }

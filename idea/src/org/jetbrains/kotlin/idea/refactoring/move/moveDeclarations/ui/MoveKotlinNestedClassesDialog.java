@@ -39,7 +39,7 @@ import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.asJava.KtLightClassForExplicitDeclaration;
+import org.jetbrains.kotlin.asJava.KtLightClassForExplicitClassDeclaration;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
 import org.jetbrains.kotlin.idea.projectView.KtClassOrObjectTreeNode;
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinMemberInfo;
@@ -114,8 +114,8 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
                                 new ClassFilter() {
                                     @Override
                                     public boolean isAccepted(PsiClass aClass) {
-                                        if (!(aClass instanceof KtLightClassForExplicitDeclaration)) return false;
-                                        KtClassOrObject classOrObject = ((KtLightClassForExplicitDeclaration) aClass).getKotlinOrigin();
+                                        if (!(aClass instanceof KtLightClassForExplicitClassDeclaration)) return false;
+                                        KtClassOrObject classOrObject = ((KtLightClassForExplicitClassDeclaration) aClass).getKotlinOrigin();
 
                                         if (classOrObject instanceof KtObjectDeclaration) {
                                             return !((KtObjectDeclaration) classOrObject).isObjectLiteral();
@@ -148,8 +148,8 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
                         chooser.showDialog();
 
                         PsiClass aClass = chooser.getSelected();
-                        if (aClass instanceof KtLightClassForExplicitDeclaration) {
-                            targetClass = ((KtLightClassForExplicitDeclaration) aClass).getKotlinOrigin();
+                        if (aClass instanceof KtLightClassForExplicitClassDeclaration) {
+                            targetClass = ((KtLightClassForExplicitClassDeclaration) aClass).getKotlinOrigin();
                             targetClassChooser.setText(aClass.getQualifiedName());
                         }
                     }
@@ -166,8 +166,8 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
                         PsiClass aClass = JavaPsiFacade
                                 .getInstance(myProject)
                                 .findClass(targetClassChooser.getText(), GlobalSearchScope.projectScope(myProject));
-                        targetClass = aClass instanceof KtLightClassForExplicitDeclaration
-                                      ? ((KtLightClassForExplicitDeclaration) aClass).getKotlinOrigin()
+                        targetClass = aClass instanceof KtLightClassForExplicitClassDeclaration
+                                      ? ((KtLightClassForExplicitClassDeclaration) aClass).getKotlinOrigin()
                                       : null;
                         validateButtons();
                     }

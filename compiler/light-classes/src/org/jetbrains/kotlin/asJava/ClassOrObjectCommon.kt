@@ -41,7 +41,7 @@ fun createLightClass(classOrObject: KtClassOrObject): KtLightClass? {
     }
 
     val fqName = predictFqName(classOrObject) ?: return null
-    return KtLightClassForExplicitDeclaration(fqName, classOrObject)
+    return KtLightClassForExplicitClassDeclaration(fqName, classOrObject)
 }
 
 fun predictFqName(classOrObject: KtClassOrObject): FqName? {

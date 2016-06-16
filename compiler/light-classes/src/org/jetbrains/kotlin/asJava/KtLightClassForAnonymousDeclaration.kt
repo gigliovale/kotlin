@@ -132,7 +132,7 @@ internal open class KtLightClassForAnonymousDeclaration(protected val classOrObj
     }
 
     override fun isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean {
-        if (baseClass is KtLightClassForExplicitDeclaration) {
+        if (baseClass is KtLightClassForExplicitClassDeclaration) {
             return super.isInheritor(baseClass, checkDeep)
         }
 

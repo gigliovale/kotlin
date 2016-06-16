@@ -54,7 +54,7 @@ class LightClassesClasspathSortingTest : KotlinCodeInsightTestCase() {
 
         assertNotNull(psiClass, "Can't find class for $fqName")
         psiClass!!
-        assert(psiClass is KtLightClassForExplicitDeclaration || psiClass is KtLightClassForFacade) { "Should be an explicit light class, but was $fqName ${psiClass.javaClass}" }
+        assert(psiClass is KtLightClassForExplicitClassDeclaration || psiClass is KtLightClassForFacade) { "Should be an explicit light class, but was $fqName ${psiClass.javaClass}" }
         assert(psiClass !is KtLightClassForDecompiledDeclaration) { "Should not be decompiled light class: $fqName ${psiClass.javaClass}" }
     }
 

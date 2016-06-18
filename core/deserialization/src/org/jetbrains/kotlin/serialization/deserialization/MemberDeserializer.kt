@@ -66,23 +66,20 @@ class MemberDeserializer(private val c: DeserializationContext) {
         )
 
         val getter = if (hasGetter) {
-            val getterFlags = proto.getterFlags
+            val getterFlags = if (proto.hasGetterFlags()) proto.getterFlags else proto.flags
+            
             val isNotDefault = proto.hasGetterFlags() && Flags.IS_NOT_DEFAULT.get(getterFlags)
             val isExternal = proto.hasGetterFlags() && Flags.IS_EXTERNAL_ACCESSOR.get(getterFlags)
-            val getter = if (isNotDefault) {
-                PropertyGetterDescriptorImpl(
-                        property,
-                        getAnnotations(proto, getterFlags, AnnotatedCallableKind.PROPERTY_GETTER),
-                        Deserialization.modality(Flags.MODALITY.get(getterFlags)),
-                        Deserialization.visibility(Flags.VISIBILITY.get(getterFlags)),
-                        /* isDefault = */ !isNotDefault,
-                        /* isExternal = */ isExternal,
-                        property.kind, null, SourceElement.NO_SOURCE
-                )
-            }
-            else {
-                DescriptorFactory.createDefaultGetter(property, Annotations.EMPTY)
-            }
+            
+            val getter = PropertyGetterDescriptorImpl(
+                    property,
+                    getAnnotations(proto, getterFlags, AnnotatedCallableKind.PROPERTY_GETTER),
+                    Deserialization.modality(Flags.MODALITY.get(getterFlags)),
+                    Deserialization.visibility(Flags.VISIBILITY.get(getterFlags)),
+                    /* isDefault = */ !isNotDefault,
+                    /* isExternal = */ isExternal,
+                    property.kind, null, SourceElement.NO_SOURCE
+            )
             getter.initialize(property.returnType)
             getter
         }
@@ -91,29 +88,34 @@ class MemberDeserializer(private val c: DeserializationContext) {
         }
 
         val setter = if (Flags.HAS_SETTER.get(flags)) {
-            val setterFlags = proto.setterFlags
+            val setterFlags = if (proto.hasSetterFlags()) proto.setterFlags else proto.flags
+            
             val isNotDefault = proto.hasSetterFlags() && Flags.IS_NOT_DEFAULT.get(setterFlags)
             val isExternal = proto.hasSetterFlags() && Flags.IS_EXTERNAL_ACCESSOR.get(setterFlags)
+            
+            val setter = PropertySetterDescriptorImpl(
+                    property,
+                    getAnnotations(proto, setterFlags, AnnotatedCallableKind.PROPERTY_SETTER),
+                    Deserialization.modality(Flags.MODALITY.get(setterFlags)),
+                    Deserialization.visibility(Flags.VISIBILITY.get(setterFlags)),
+                    /* isDefault = */ !isNotDefault,
+                    /* isExternal = */ isExternal,
+                    property.kind, null, SourceElement.NO_SOURCE
+            )
+            
             if (isNotDefault) {
-                val setter = PropertySetterDescriptorImpl(
-                        property,
-                        getAnnotations(proto, setterFlags, AnnotatedCallableKind.PROPERTY_SETTER),
-                        Deserialization.modality(Flags.MODALITY.get(setterFlags)),
-                        Deserialization.visibility(Flags.VISIBILITY.get(setterFlags)),
-                        /* isDefault = */ !isNotDefault,
-                        /* isExternal = */ isExternal,
-                        property.kind, null, SourceElement.NO_SOURCE
-                )
                 val setterLocal = local.childContext(setter, listOf())
                 val valueParameters = setterLocal.memberDeserializer.valueParameters(
                         listOf(proto.setterValueParameter), proto, AnnotatedCallableKind.PROPERTY_SETTER
                 )
+
                 setter.initialize(valueParameters.single())
-                setter
             }
             else {
-                DescriptorFactory.createDefaultSetter(property, Annotations.EMPTY)
+                setter.initializeDefault()
             }
+            
+            setter
         }
         else {
             null

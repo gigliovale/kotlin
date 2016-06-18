@@ -141,15 +141,15 @@ class DescriptorSerializer private constructor(
 
         val hasAnnotations = descriptor.annotations.getAllAnnotations().isNotEmpty()
 
-        val propertyFlags = Flags.getAccessorFlags(hasAnnotations, descriptor.visibility, descriptor.modality, false, false)
+        val propertyAccessorsFlags = Flags.getAccessorFlags(
+                hasAnnotations, descriptor.visibility, descriptor.modality, /*isNotDefault*/false, /*isExternal*/false)
 
         val getter = descriptor.getter
         if (getter != null) {
             hasGetter = true
             val accessorFlags = getAccessorFlags(getter)
 
-            // TODO: Fix me - comparison of different attributes sets
-            if (accessorFlags != propertyFlags) {
+            if (accessorFlags != propertyAccessorsFlags) {
                 builder.getterFlags = accessorFlags
             }
         }
@@ -158,9 +158,8 @@ class DescriptorSerializer private constructor(
         if (setter != null) {
             hasSetter = true
             val accessorFlags = getAccessorFlags(setter)
-
-            // TODO: Fix me - comparison of different attributes sets
-            if (accessorFlags != propertyFlags) {
+            
+            if (accessorFlags != propertyAccessorsFlags) {
                 builder.setterFlags = accessorFlags
             }
 

@@ -924,7 +924,7 @@ public class DescriptorResolver {
                     propertyDescriptor, annotations,
                     resolveModalityFromModifiers(setter, propertyDescriptor.getModality()),
                     resolveVisibilityFromModifiers(setter, propertyDescriptor.getVisibility()),
-                    /* isDefault = */ false, setter.hasModifier(EXTERNAL_KEYWORD),
+                    /* isDefault = */ !setter.hasBody(), setter.hasModifier(EXTERNAL_KEYWORD),
                     CallableMemberDescriptor.Kind.DECLARATION, null, KotlinSourceElementKt.toSourceElement(setter)
             );
             KtTypeReference returnTypeReference = setter.getReturnTypeReference();
@@ -1004,7 +1004,7 @@ public class DescriptorResolver {
                     propertyDescriptor, getterAnnotations,
                     resolveModalityFromModifiers(getter, propertyDescriptor.getModality()),
                     resolveVisibilityFromModifiers(getter, propertyDescriptor.getVisibility()),
-                    /* isDefault = */ false, getter.hasModifier(EXTERNAL_KEYWORD),
+                    /* isDefault = */ !getter.hasBody(), getter.hasModifier(EXTERNAL_KEYWORD),
                     CallableMemberDescriptor.Kind.DECLARATION, null, KotlinSourceElementKt.toSourceElement(getter)
             );
             KotlinType returnType =

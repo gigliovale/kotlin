@@ -107,17 +107,21 @@ public class OverrideResolver {
                 if (descriptor.getKind() == FAKE_OVERRIDE || descriptor.getKind() == DELEGATION) {
                     reportOn = DescriptorUtils.getParentOfType(descriptor, ClassDescriptor.class);
                 }
-                else if (descriptor instanceof PropertyAccessorDescriptor && ((PropertyAccessorDescriptor) descriptor).isDefault()) {
-                    reportOn = ((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty();
-                }
                 else {
                     reportOn = descriptor;
                 }
+
                 //noinspection ConstantConditions
                 PsiElement element = DescriptorToSourceUtils.descriptorToDeclaration(reportOn);
+                if (element == null && descriptor instanceof PropertyAccessorDescriptor) {
+                    reportOn = ((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty();
+                    element = DescriptorToSourceUtils.descriptorToDeclaration(reportOn);
+                }
+
                 if (element instanceof KtDeclaration) {
                     trace.report(CANNOT_INFER_VISIBILITY.on((KtDeclaration) element, descriptor));
                 }
+
                 return Unit.INSTANCE;
             }
         };

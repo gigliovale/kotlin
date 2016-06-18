@@ -147,6 +147,8 @@ class DescriptorSerializer private constructor(
         if (getter != null) {
             hasGetter = true
             val accessorFlags = getAccessorFlags(getter)
+
+            // TODO: Fix me - comparison of different attributes sets
             if (accessorFlags != propertyFlags) {
                 builder.getterFlags = accessorFlags
             }
@@ -156,6 +158,8 @@ class DescriptorSerializer private constructor(
         if (setter != null) {
             hasSetter = true
             val accessorFlags = getAccessorFlags(setter)
+
+            // TODO: Fix me - comparison of different attributes sets
             if (accessorFlags != propertyFlags) {
                 builder.setterFlags = accessorFlags
             }

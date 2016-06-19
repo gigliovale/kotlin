@@ -1745,7 +1745,8 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             assert resolvedCall.getValueArgumentsByIndex() != null : "Arguments were not resolved for call element: " + callOwner.getText();
             KtExpression argumentExpression =
                     resolvedCall.getValueArgumentsByIndex().get(0).getArguments().get(0).getArgumentExpression();
-            if (KotlinBuiltIns.isUnit(resolvedCall.getResultingDescriptor().getValueParameters().get(0).getType())) {
+            if (valueToReturn == null
+                    && KotlinBuiltIns.isUnit(resolvedCall.getResultingDescriptor().getValueParameters().get(0).getType())) {
                 tempVariables.put(argumentExpression, StackValue.unit());
             }
             else {
@@ -1763,7 +1764,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     @NotNull
-    private StackValue genCoroutineInstanceValueFromResolvedCall(ResolvedCall<?> resolvedCall) {
+    public StackValue genCoroutineInstanceValueFromResolvedCall(ResolvedCall<?> resolvedCall) {
         // Currently only handleResult/suspend members are supported
         ReceiverValue dispatchReceiver = resolvedCall.getDispatchReceiver();
         assert dispatchReceiver != null : "Dispatch receiver is null for handleResult/suspend to " + resolvedCall.getResultingDescriptor();
@@ -2592,7 +2593,15 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         Callable callable = resolveToCallable(fd, superCallTarget != null, resolvedCall);
 
-        return callable.invokeMethodWithArguments(resolvedCall, receiver, this);
+
+        StackValue result = callable.invokeMethodWithArguments(resolvedCall, receiver, this);
+
+        if (CoroutineCodegenUtilKt.isSuspensionPoint(resolvedCall)) {
+            // Suspension points should behave like they leave actual values on stack, while real methods return VOID
+            return new OperationStackValue(getSuspensionReturnTypeByResolvedCall(resolvedCall), ((OperationStackValue) result).getLambda());
+        }
+
+        return result;
     }
 
     @Nullable
@@ -2685,14 +2694,20 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         }
 
         if (isSuspensionPoint) {
+            v.aconst(getSuspensionReturnTypeByResolvedCall(resolvedCall).getDescriptor());
             v.invokestatic(
-                    CoroutineCodegenUtilKt.SUSPENSION_POINT_MARKER_OWNER,
-                    CoroutineCodegenUtilKt.SUSPENSION_POINT_MARKER_NAME, "()V", false);
+                    CoroutineCodegenUtilKt.COROUTINE_MARKER_OWNER,
+                    CoroutineCodegenUtilKt.BEFORE_SUSPENSION_POINT_MARKER_NAME,
+                    "(Ljava/lang/String;)V", false);
         }
 
         callGenerator.genCall(callableMethod, resolvedCall, defaultMaskWasGenerated, this);
 
         if (isSuspensionPoint) {
+            StackValue.coerce(Type.VOID_TYPE, getSuspensionReturnTypeByResolvedCall(resolvedCall), v);
+            v.invokestatic(
+                    CoroutineCodegenUtilKt.COROUTINE_MARKER_OWNER,
+                    CoroutineCodegenUtilKt.AFTER_SUSPENSION_POINT_MARKER_NAME, "()V", false);
             addInlineMarker(v, false);
         }
 
@@ -2701,6 +2716,18 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             v.aconst(null);
             v.athrow();
         }
+    }
+
+    @NotNull
+    private Type getSuspensionReturnTypeByResolvedCall(@NotNull ResolvedCall<?> resolvedCall) {
+        assert resolvedCall.getResultingDescriptor() instanceof SimpleFunctionDescriptor
+                : "Suspension point resolved call should be built on SimpleFunctionDescriptor";
+
+        KotlinType returnType = org.jetbrains.kotlin.resolve.coroutine.CoroutineUtilKt
+                .getSuspensionPointReturnType((SimpleFunctionDescriptor) resolvedCall.getResultingDescriptor());
+
+        assert returnType != null : "Return type of suspension point should not be null";
+        return typeMapper.mapType(returnType);
     }
 
     @NotNull
@@ -2719,13 +2746,20 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         if (!isInline) return defaultCallGenerator;
 
-        FunctionDescriptor original = DescriptorUtils.unwrapFakeOverride((FunctionDescriptor) descriptor.getOriginal());
+        FunctionDescriptor original =
+                unwrapInitialSignatureDescriptor(DescriptorUtils.unwrapFakeOverride((FunctionDescriptor) descriptor.getOriginal()));
         if (isDefaultCompilation) {
             return new InlineCodegenForDefaultBody(original, this, state);
         }
         else {
             return new InlineCodegen(this, state, original, callElement, typeParameterMappings);
         }
+    }
+
+    @NotNull
+    private static FunctionDescriptor unwrapInitialSignatureDescriptor(@NotNull FunctionDescriptor function) {
+        if (function.getInitialSignatureDescriptor() != null) return function.getInitialSignatureDescriptor();
+        return function;
     }
 
     @NotNull
@@ -3090,7 +3124,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         PropertyReferenceCodegen codegen = new PropertyReferenceCodegen(
                 state, parentCodegen, context.intoAnonymousClass(classDescriptor, this, OwnerKind.IMPLEMENTATION),
-                element, classBuilder, target, dispatchReceiver, receiverAsmType
+                element, classBuilder, variableDescriptor, target, dispatchReceiver, receiverAsmType
         );
         codegen.generate();
 

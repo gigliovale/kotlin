@@ -506,7 +506,17 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     @Override
-    public StackValue visitWhileExpression(@NotNull KtWhileExpression expression, StackValue receiver) {
+    public StackValue visitWhileExpression(@NotNull final KtWhileExpression expression, StackValue receiver) {
+        return StackValue.operation(Type.VOID_TYPE, new Function1<InstructionAdapter, Unit>() {
+            @Override
+            public Unit invoke(InstructionAdapter adapter) {
+                generateWhile(expression);
+                return Unit.INSTANCE;
+            }
+        });
+    }
+
+    private void generateWhile(@NotNull KtWhileExpression expression) {
         Label condition = new Label();
         v.mark(condition);
 
@@ -523,13 +533,20 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         v.mark(end);
 
         blockStackElements.pop();
-
-        return StackValue.onStack(Type.VOID_TYPE);
     }
 
-
     @Override
-    public StackValue visitDoWhileExpression(@NotNull KtDoWhileExpression expression, StackValue receiver) {
+    public StackValue visitDoWhileExpression(@NotNull final KtDoWhileExpression expression, StackValue receiver) {
+        return StackValue.operation(Type.VOID_TYPE, new Function1<InstructionAdapter, Unit>() {
+            @Override
+            public Unit invoke(InstructionAdapter adapter) {
+                generateDoWhile(expression);
+                return Unit.INSTANCE;
+            }
+        });
+    }
+
+    private void generateDoWhile(@NotNull KtDoWhileExpression expression) {
         Label beginLoopLabel = new Label();
         v.mark(beginLoopLabel);
 
@@ -553,7 +570,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             statements.addAll(doWhileStatements);
             statements.add(condition);
 
-            conditionValue = generateBlock(statements, false, continueLabel, null);
+            conditionValue = generateBlock((KtBlockExpression) body, statements, false, continueLabel, null);
         }
         else {
             if (body != null) {
@@ -567,25 +584,34 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         v.mark(breakLabel);
 
         blockStackElements.pop();
-        return StackValue.none();
     }
 
     @Override
-    public StackValue visitForExpression(@NotNull KtForExpression forExpression, StackValue receiver) {
+    public StackValue visitForExpression(@NotNull final KtForExpression forExpression, StackValue receiver) {
+        return StackValue.operation(Type.VOID_TYPE, new Function1<InstructionAdapter, Unit>() {
+            @Override
+            public Unit invoke(InstructionAdapter adapter) {
+                generateFor(forExpression);
+                return Unit.INSTANCE;
+            }
+        });
+    }
+
+    private void generateFor(@NotNull KtForExpression forExpression) {
         ResolvedCall<? extends CallableDescriptor> loopRangeCall = RangeCodegenUtil.getLoopRangeResolvedCall(forExpression, bindingContext);
         if (loopRangeCall != null) {
             CallableDescriptor loopRangeCallee = loopRangeCall.getResultingDescriptor();
             if (RangeCodegenUtil.isOptimizableRangeTo(loopRangeCallee)) {
                 generateForLoop(createForInRangeLiteralLoopGenerator(forExpression, loopRangeCall));
-                return StackValue.none();
+                return;
             }
             else if (RangeCodegenUtil.isArrayOrPrimitiveArrayIndices(loopRangeCallee)) {
                 generateForLoop(createForInArrayIndicesRangeLoopGenerator(forExpression, loopRangeCall));
-                return StackValue.none();
+                return;
             }
             else if (RangeCodegenUtil.isCollectionIndices(loopRangeCallee)) {
                 generateForLoop(createForInCollectionIndicesRangeLoopGenerator(forExpression, loopRangeCall));
-                return StackValue.none();
+                return;
             }
         }
 
@@ -596,21 +622,16 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         Type asmLoopRangeType = asmType(loopRangeType);
         if (asmLoopRangeType.getSort() == Type.ARRAY) {
             generateForLoop(new ForInArrayLoopGenerator(forExpression));
-            return StackValue.none();
         }
-
-        if (RangeCodegenUtil.isRange(loopRangeType)) {
+        else if (RangeCodegenUtil.isRange(loopRangeType)) {
             generateForLoop(new ForInRangeInstanceLoopGenerator(forExpression));
-            return StackValue.none();
         }
-
-        if (RangeCodegenUtil.isProgression(loopRangeType)) {
+        else if (RangeCodegenUtil.isProgression(loopRangeType)) {
             generateForLoop(new ForInProgressionExpressionLoopGenerator(forExpression));
-            return StackValue.none();
         }
-
-        generateForLoop(new IteratorForLoopGenerator(forExpression));
-        return StackValue.none();
+        else {
+            generateForLoop(new IteratorForLoopGenerator(forExpression));
+        }
     }
 
     private AbstractForLoopGenerator createForInRangeLiteralLoopGenerator(
@@ -1657,9 +1678,9 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     /* package */ StackValue generateBlock(@NotNull KtBlockExpression expression, boolean isStatement) {
         if (expression.getParent() instanceof KtNamedFunction) {
             // For functions end of block should be end of function label
-            return generateBlock(expression.getStatements(), isStatement, null, context.getMethodEndLabel());
+            return generateBlock(expression, expression.getStatements(), isStatement, null, context.getMethodEndLabel());
         }
-        return generateBlock(expression.getStatements(), isStatement, null, null);
+        return generateBlock(expression, expression.getStatements(), isStatement, null, null);
     }
 
     @NotNull
@@ -1674,16 +1695,18 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     private StackValue generateBlock(
-            List<KtExpression> statements,
+            @NotNull KtBlockExpression block,
+            @NotNull List<KtExpression> statements,
             boolean isStatement,
-            Label labelBeforeLastExpression,
+            @Nullable Label labelBeforeLastExpression,
             @Nullable final Label labelBlockEnd
     ) {
         final Label blockEnd = labelBlockEnd != null ? labelBlockEnd : new Label();
 
         final List<Function<StackValue, Void>> leaveTasks = Lists.newArrayList();
 
-        StackValue answer = StackValue.none();
+        @Nullable
+        StackValue answer = null;
 
         for (Iterator<KtExpression> iterator = statements.iterator(); iterator.hasNext(); ) {
             KtExpression possiblyLabeledStatement = iterator.next();
@@ -1705,13 +1728,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             }
 
             // Note that this result value is potentially unused (in case of handleResult coroutine call)
+            // It's supposed here that no bytecode is emitted until 'put' call on relevant StackValue object
             StackValue result = isExpression ? gen(possiblyLabeledStatement) : genStatement(possiblyLabeledStatement);
 
             if (!iterator.hasNext()) {
                 answer = result;
-                StackValue handleResultValue = !(possiblyLabeledStatement instanceof KtReturnExpression)
-                                               ? genControllerHandleResultCallIfNeeded(possiblyLabeledStatement, possiblyLabeledStatement)
-                                               : null;
+                StackValue handleResultValue = genControllerHandleResultForLastStatementInCoroutine(block, possiblyLabeledStatement);
                 if (handleResultValue != null) {
                     answer = handleResultValue;
                 }
@@ -1721,6 +1743,13 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             }
 
             addLeaveTaskToRemoveDescriptorFromFrameMap(statement, blockEnd, leaveTasks);
+        }
+
+        if (answer == null) {
+            answer = genControllerHandleResultForLastStatementInCoroutine(block, null);
+            if (answer == null) {
+                answer = StackValue.none();
+            }
         }
 
         return new StackValueWithLeaveTask(answer, new Function1<StackValue, Unit>() {
@@ -1735,6 +1764,17 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 return Unit.INSTANCE;
             }
         });
+    }
+
+    @Nullable
+    private StackValue genControllerHandleResultForLastStatementInCoroutine(
+            @NotNull KtBlockExpression block,
+            @Nullable KtExpression lastStatement
+    ) {
+        if (!(block.getParent() instanceof KtFunctionLiteral)) return null;
+        KtFunctionLiteral functionLiteral = (KtFunctionLiteral) block.getParent();
+
+        return genControllerHandleResultCallIfNeeded(functionLiteral, lastStatement);
     }
 
     @Nullable

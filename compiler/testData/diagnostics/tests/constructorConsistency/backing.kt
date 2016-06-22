@@ -19,7 +19,7 @@ class My {
 
     init {
         <!DEBUG_INFO_LEAKING_THIS!>x<!> = 3
-        <!DEBUG_INFO_LEAKING_THIS!>m<!> = 6
+        m = 6
 
         // Writing properties using setters is dangerous
         <!DEBUG_INFO_LEAKING_THIS!>y<!> = 4

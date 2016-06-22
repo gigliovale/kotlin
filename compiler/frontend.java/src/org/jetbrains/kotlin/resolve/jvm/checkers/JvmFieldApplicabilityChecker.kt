@@ -60,7 +60,7 @@ class JvmFieldApplicabilityChecker : SimpleDeclarationChecker {
             !descriptor.hasBackingField(bindingContext) -> return
             descriptor.isOverridable -> NOT_FINAL
             Visibilities.isPrivate(descriptor.visibility) -> PRIVATE
-            descriptor.hasCustomAccessor() -> CUSTOM_ACCESSOR
+            declaration is KtProperty && hasExplicitAccessors(declaration) -> CUSTOM_ACCESSOR
             descriptor.overriddenDescriptors.isNotEmpty() -> OVERRIDES
             descriptor.isLateInit -> LATEINIT
             descriptor.isConst -> CONST
@@ -74,8 +74,8 @@ class JvmFieldApplicabilityChecker : SimpleDeclarationChecker {
         diagnosticHolder.report(ErrorsJvm.INAPPLICABLE_JVM_FIELD.on(annotationEntry, problem.errorMessage))
     }
 
-    private fun PropertyDescriptor.hasCustomAccessor()
-            = !(getter?.isDefault ?: true) || !(setter?.isDefault ?: true)
+    private fun hasExplicitAccessors(property: KtProperty)
+            = property.getter != null || property.setter != null
 
     private fun PropertyDescriptor.hasBackingField(bindingContext: BindingContext)
             = bindingContext.get(BindingContext.BACKING_FIELD_REQUIRED, this) ?: false

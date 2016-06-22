@@ -273,7 +273,7 @@ class ExplicitAccessorForAnnotation {
 
     fun foo(): String {
         if (tt is String) {
-            return <error descr="[SMARTCAST_IMPOSSIBLE] Smart cast to 'String' is impossible, because 'tt' is a property that has open or custom getter">tt</error>
+            return <info descr="Smart cast to kotlin.String">tt</info>
         }
         return ""
     }

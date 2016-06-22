@@ -4,7 +4,7 @@ class ExplicitAccessorForAnnotation {
 
     fun foo(): String {
         if (tt is String) {
-            return <!SMARTCAST_IMPOSSIBLE!>tt<!>
+            return <!DEBUG_INFO_SMARTCAST!>tt<!>
         }
         return ""
     }

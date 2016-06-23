@@ -29,10 +29,6 @@ import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
 import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
 import org.jetbrains.kotlin.cli.jvm.repl.CliReplAnalyzerEngine.ReplLineAnalysisResult.Successful
 import org.jetbrains.kotlin.cli.jvm.repl.CliReplAnalyzerEngine.ReplLineAnalysisResult.WithErrors
-import org.jetbrains.kotlin.cli.jvm.repl.messages.DiagnosticMessageHolder
-import org.jetbrains.kotlin.cli.jvm.repl.messages.ReplIdeDiagnosticMessageHolder
-import org.jetbrains.kotlin.cli.jvm.repl.messages.ReplSystemInWrapper
-import org.jetbrains.kotlin.cli.jvm.repl.messages.ReplTerminalDiagnosticMessageHolder
 import org.jetbrains.kotlin.codegen.ClassBuilderFactories
 import org.jetbrains.kotlin.codegen.CompilationErrorHandler
 import org.jetbrains.kotlin.codegen.KotlinCodegenFacade
@@ -55,9 +51,8 @@ import java.net.URLClassLoader
 class ReplInterpreter(
         disposable: Disposable,
         private val configuration: CompilerConfiguration,
-        private val ideMode: Boolean,
-        private val replReader: ReplSystemInWrapper?
-) {
+        private val replConfiguration: ReplConfiguration
+): ReplConfiguration by replConfiguration {
     private var lineNumber = 0
 
     private val earlierLines = arrayListOf<EarlierLine>()
@@ -74,72 +69,6 @@ class ReplInterpreter(
 
     private val psiFileFactory: PsiFileFactoryImpl = PsiFileFactory.getInstance(environment.project) as PsiFileFactoryImpl
     private val analyzerEngine = CliReplAnalyzerEngine(environment)
-
-    enum class LineResultType {
-        SUCCESS,
-        COMPILE_ERROR,
-        RUNTIME_ERROR,
-        INCOMPLETE
-    }
-
-    class LineResult private constructor(
-            private val resultingValue: Any?,
-            private val unit: Boolean,
-            val errorText: String?,
-            val type: LineResultType
-    ) {
-        val value: Any?
-            get() {
-                checkSuccessful()
-                return resultingValue
-            }
-
-        val isUnit: Boolean
-            get() {
-                checkSuccessful()
-                return unit
-            }
-
-        private fun checkSuccessful() {
-            if (type != LineResultType.SUCCESS) {
-                error("it is error")
-            }
-        }
-
-        companion object {
-            private fun error(errorText: String, errorType: LineResultType): LineResult {
-                val resultingErrorText = when {
-                    errorText.isEmpty() -> "<unknown error>"
-                    !errorText.endsWith("\n") -> errorText + "\n"
-                    else -> errorText
-                }
-
-                return LineResult(null, false, resultingErrorText, errorType)
-            }
-
-            fun successful(value: Any?, unit: Boolean): LineResult {
-                return LineResult(value, unit, null, LineResultType.SUCCESS)
-            }
-
-            fun compileError(errorText: String): LineResult {
-                return error(errorText, LineResultType.COMPILE_ERROR)
-            }
-
-            fun runtimeError(errorText: String): LineResult {
-                return error(errorText, LineResultType.RUNTIME_ERROR)
-            }
-
-            fun incomplete(): LineResult {
-                return LineResult(null, false, null, LineResultType.INCOMPLETE)
-            }
-        }
-    }
-
-    private fun createDiagnosticHolder(): DiagnosticMessageHolder =
-            if (ideMode)
-                ReplIdeDiagnosticMessageHolder()
-            else
-                ReplTerminalDiagnosticMessageHolder()
 
     fun eval(line: String): LineResult {
         ++lineNumber
@@ -158,25 +87,25 @@ class ReplInterpreter(
         val syntaxErrorReport = AnalyzerWithCompilerReport.reportSyntaxErrors(psiFile, errorHolder)
 
         if (syntaxErrorReport.isHasErrors && syntaxErrorReport.isAllErrorsAtEof) {
-            return if (ideMode) {
-                LineResult.compileError(errorHolder.renderedDiagnostics)
+            return if (allowIncompleteLines) {
+                previousIncompleteLines.add(line)
+                LineResult.Incomplete
             }
             else {
-                previousIncompleteLines.add(line)
-                LineResult.incomplete()
+                LineResult.Error.CompileTime(errorHolder.renderedDiagnostics)
             }
         }
 
         previousIncompleteLines.clear()
 
         if (syntaxErrorReport.isHasErrors) {
-            return LineResult.compileError(errorHolder.renderedDiagnostics)
+            return LineResult.Error.CompileTime(errorHolder.renderedDiagnostics)
         }
 
         val analysisResult = analyzerEngine.analyzeReplLine(psiFile, lineNumber)
         AnalyzerWithCompilerReport.reportDiagnostics(analysisResult.diagnostics, errorHolder, false)
         val scriptDescriptor = when (analysisResult) {
-            is WithErrors -> return LineResult.compileError(errorHolder.renderedDiagnostics)
+            is WithErrors -> return LineResult.Error.CompileTime(errorHolder.renderedDiagnostics)
             is Successful -> analysisResult.scriptDescriptor
             else -> error("Unexpected result ${analysisResult.javaClass}")
         }
@@ -203,28 +132,44 @@ class ReplInterpreter(
 
             val scriptInstanceConstructor = scriptClass.getConstructor(*constructorParams)
             val scriptInstance = try {
-                replReader?.isReplScriptExecuting = true
-                scriptInstanceConstructor.newInstance(*constructorArgs)
+                executeUserCode { scriptInstanceConstructor.newInstance(*constructorArgs) }
             }
             catch (e: Throwable) {
-                return LineResult.runtimeError(renderStackTrace(e.cause!!))
-            }
-            finally {
-                replReader?.isReplScriptExecuting = false
+                // ignore everything in the stack trace until this constructor call
+                return LineResult.Error.Runtime(renderStackTrace(e.cause!!, startFromMethodName = "${scriptClass.name}.<init>"))
             }
 
             val rvField = scriptClass.getDeclaredField(SCRIPT_RESULT_FIELD_NAME).apply { isAccessible = true }
-            val rv = rvField.get(scriptInstance)
+            val rv: Any? = rvField.get(scriptInstance)
 
             earlierLines.add(EarlierLine(line, scriptDescriptor, scriptClass, scriptInstance))
 
-            return LineResult.successful(rv, !state.replSpecific.hasResult)
+            if (!state.replSpecific.hasResult) {
+                return LineResult.UnitResult
+            }
+            val valueAsString: String = try {
+                executeUserCode { rv.toString() }
+            }
+            catch (e: Throwable) {
+                return LineResult.Error.Runtime(renderStackTrace(e, startFromMethodName = "java.lang.String.valueOf"))
+            }
+            return LineResult.ValueResult(valueAsString)
         }
         catch (e: Throwable) {
             val writer = PrintWriter(System.err)
             classLoader.dumpClasses(writer)
             writer.flush()
             throw e
+        }
+    }
+
+    private fun <T> executeUserCode(body: () -> T): T {
+        try {
+            onUserCodeExecuting(true)
+            return body()
+        }
+        finally {
+            onUserCodeExecuting(false)
         }
     }
 
@@ -244,13 +189,11 @@ class ReplInterpreter(
             override fun getScriptName(script: KtScript): Name = StandardScriptDefinition.getScriptName(script)
         }
 
-        private fun renderStackTrace(cause: Throwable): String {
+        private fun renderStackTrace(cause: Throwable, startFromMethodName: String): String {
             val newTrace = arrayListOf<StackTraceElement>()
             var skip = true
             for ((i, element) in cause.stackTrace.withIndex().reversed()) {
-                // All our code happens in the script constructor, and no reflection/native code happens in constructors.
-                // So we ignore everything in the stack trace until the first constructor
-                if (element.methodName == "<init>") {
+                if ("${element.className}.${element.methodName}" == startFromMethodName) {
                     skip = false
                 }
                 if (!skip) {
@@ -258,7 +201,6 @@ class ReplInterpreter(
                 }
             }
 
-            // throw away last element which contains Line1.kts<init>(Unknown source)
             val resultingTrace = newTrace.reversed().dropLast(1)
 
             @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN", "UsePropertyAccessSyntax")
@@ -284,5 +226,17 @@ class ReplInterpreter(
                     errorHandler
             )
         }
+    }
+}
+
+sealed class LineResult {
+    class ValueResult(val valueAsString: String): LineResult()
+
+    object UnitResult: LineResult()
+    object Incomplete : LineResult()
+
+    sealed class Error(val errorText: String): LineResult() {
+        class Runtime(errorText: String): Error(errorText)
+        class CompileTime(errorText: String): Error(errorText)
     }
 }

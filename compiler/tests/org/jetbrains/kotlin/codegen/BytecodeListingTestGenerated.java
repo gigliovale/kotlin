@@ -53,6 +53,12 @@ public class BytecodeListingTestGenerated extends AbstractBytecodeListingTest {
         doTest(fileName);
     }
 
+    @TestMetadata("immutableCollection.kt")
+    public void testImmutableCollection() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeListing/immutableCollection.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("inlineOnly.kt")
     public void testInlineOnly() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeListing/inlineOnly.kt");
@@ -62,6 +68,12 @@ public class BytecodeListingTestGenerated extends AbstractBytecodeListingTest {
     @TestMetadata("InlineOnlyMultifile.kt")
     public void testInlineOnlyMultifile() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeListing/InlineOnlyMultifile.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("noCollectionStubMethodsInInterface.kt")
+    public void testNoCollectionStubMethodsInInterface() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeListing/noCollectionStubMethodsInInterface.kt");
         doTest(fileName);
     }
 

@@ -10146,6 +10146,39 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 }
             }
 
+            @TestMetadata("compiler/testData/diagnostics/tests/inline/property")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Property extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInProperty() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/inline/property"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("invoke.kt")
+                public void testInvoke() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inline/property/invoke.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("propertyWithBackingField.kt")
+                public void testPropertyWithBackingField() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inline/property/propertyWithBackingField.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("unsupportedConstruction.kt")
+                public void testUnsupportedConstruction() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inline/property/unsupportedConstruction.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("virtualProperty.kt")
+                public void testVirtualProperty() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inline/property/virtualProperty.kt");
+                    doTest(fileName);
+                }
+            }
+
             @TestMetadata("compiler/testData/diagnostics/tests/inline/regressions")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
@@ -18624,6 +18657,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("noDataClassInheritance.kt")
             public void testNoDataClassInheritance() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noDataClassInheritance.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("noInlineProperty.kt")
+            public void testNoInlineProperty() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noInlineProperty.kt");
                 doTest(fileName);
             }
 

@@ -40,7 +40,27 @@ public class InlineUtil {
     }
 
     public static boolean isInline(@Nullable DeclarationDescriptor descriptor) {
-        return descriptor instanceof SimpleFunctionDescriptor && getInlineStrategy(descriptor).isInline();
+        return descriptor instanceof FunctionDescriptor && getInlineStrategy((FunctionDescriptor) descriptor).isInline();
+    }
+
+    public static boolean hasInlineAccessors(@NotNull PropertyDescriptor propertyDescriptor) {
+        PropertyGetterDescriptor getter = propertyDescriptor.getGetter();
+        PropertySetterDescriptor setter = propertyDescriptor.getSetter();
+        return getter != null && getter.isInline() || setter != null && setter.isInline();
+    }
+
+    public static boolean isPropertyWithAllAccessorsAreInline(@NotNull DeclarationDescriptor descriptor) {
+        if (!(descriptor instanceof PropertyDescriptor))  return false;
+
+        PropertyGetterDescriptor getter = ((PropertyDescriptor) descriptor).getGetter();
+        if (getter == null || !getter.isInline()) return false;
+
+        if (((PropertyDescriptor) descriptor).isVar()) {
+            PropertySetterDescriptor setter = ((PropertyDescriptor) descriptor).getSetter();
+            return setter != null && setter.isInline();
+        }
+
+        return true;
     }
 
     public static boolean isInlineOrContainingInline(@Nullable DeclarationDescriptor descriptor) {
@@ -50,9 +70,8 @@ public class InlineUtil {
     }
 
     @NotNull
-    public static InlineStrategy getInlineStrategy(@NotNull DeclarationDescriptor descriptor) {
-        if (descriptor instanceof FunctionDescriptor &&
-            ((FunctionDescriptor) descriptor).isInline()) {
+    private static InlineStrategy getInlineStrategy(@NotNull FunctionDescriptor descriptor) {
+        if (descriptor.isInline()) {
             return InlineStrategy.AS_FUNCTION;
         }
 

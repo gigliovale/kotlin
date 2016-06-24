@@ -2264,7 +2264,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 receiver = StackValue.receiverWithoutReceiverArgument(receiver);
             }
 
-            return intermediateValueForProperty(propertyDescriptor, directToField, directToField, superCallTarget, false, receiver);
+            return intermediateValueForProperty(propertyDescriptor, directToField, directToField, superCallTarget, false, receiver, resolvedCall);
         }
 
         if (descriptor instanceof ClassDescriptor) {
@@ -2330,7 +2330,31 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             return lookupCapturedValueInConstructorParameters(descriptor);
         }
 
-        return context.lookupInContext(descriptor, StackValue.LOCAL_0, state, false);
+        return lookupValuaAndLocalVariableMetadata(descriptor, StackValue.LOCAL_0, state, false, context, this);
+    }
+
+    @Nullable
+    static StackValue lookupValuaAndLocalVariableMetadata(
+            @NotNull DeclarationDescriptor descriptor,
+            @NotNull StackValue prefix,
+            @NotNull GenerationState state,
+            boolean ignoreNoOuter,
+            @NotNull CodegenContext context,
+            @Nullable ExpressionCodegen codegen
+    ) {
+        StackValue value = context.lookupInContext(descriptor, prefix, state, ignoreNoOuter);
+        if(!isDelegatedLocalVariable(descriptor) || value == null) {
+            return value;
+        }
+
+
+        VariableDescriptor metadata = getDelegatedLocalVariableMetadata((VariableDescriptor) descriptor, state.getBindingContext());
+        StackValue metadataValue = context.lookupInContext(metadata, prefix, state, ignoreNoOuter);
+        assert metadataValue != null : "Metadata stack value should be non-null for local delegated property";
+        //required for ImplementationBodyCodegen.lookupConstructorExpressionsInClosureIfPresent
+        if (codegen == null) return null;
+        return codegen.delegatedVariableValue(value, metadataValue, (VariableDescriptorWithAccessors) descriptor,
+                                              state.getTypeMapper());
     }
 
     @Nullable
@@ -2387,7 +2411,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             @Nullable ClassDescriptor superCallTarget,
             @NotNull StackValue receiver
     ) {
-        return intermediateValueForProperty(propertyDescriptor, forceField, false, superCallTarget, false, receiver);
+        return intermediateValueForProperty(propertyDescriptor, forceField, false, superCallTarget, false, receiver, null);
     }
 
     private CodegenContext getBackingFieldContext(
@@ -2410,7 +2434,8 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             boolean syntheticBackingField,
             @Nullable ClassDescriptor superCallTarget,
             boolean skipAccessorsForPrivateFieldInOuterClass,
-            StackValue receiver
+            @NotNull StackValue receiver,
+            @Nullable ResolvedCall resolvedCall
     ) {
         if (propertyDescriptor instanceof SyntheticJavaPropertyDescriptor) {
             return intermediateValueForSyntheticExtensionProperty((SyntheticJavaPropertyDescriptor) propertyDescriptor, receiver);
@@ -2506,13 +2531,13 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         return StackValue.property(propertyDescriptor, backingFieldOwner,
                                    typeMapper.mapType(
                                            isDelegatedProperty && forceField ? delegateType : propertyDescriptor.getOriginal().getType()),
-                                   isStaticBackingField, fieldName, callableGetter, callableSetter, state, receiver);
+                                   isStaticBackingField, fieldName, callableGetter, callableSetter, receiver, this, resolvedCall);
     }
 
     @NotNull
     private StackValue.Property intermediateValueForSyntheticExtensionProperty(
             @NotNull SyntheticJavaPropertyDescriptor propertyDescriptor,
-            StackValue receiver
+            @NotNull StackValue receiver
     ) {
         Type type = typeMapper.mapType(propertyDescriptor.getOriginal().getType());
         CallableMethod callableGetter =
@@ -2520,7 +2545,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         FunctionDescriptor setMethod = propertyDescriptor.getSetMethod();
         CallableMethod callableSetter =
                 setMethod != null ? typeMapper.mapToCallableMethod(context.accessibleDescriptor(setMethod, null), false) : null;
-        return StackValue.property(propertyDescriptor, null, type, false, null, callableGetter, callableSetter, state, receiver);
+        return StackValue.property(propertyDescriptor, null, type, false, null, callableGetter, callableSetter, receiver, this, null);
     }
 
     @Override
@@ -2807,8 +2832,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         return getOrCreateCallGenerator(descriptor, function, null, true);
     }
 
-    @NotNull
     CallGenerator getOrCreateCallGenerator(@NotNull ResolvedCall<?> resolvedCall) {
+        return getOrCreateCallGenerator(resolvedCall, resolvedCall.getResultingDescriptor());
+    }
+
+    @NotNull
+    CallGenerator getOrCreateCallGenerator(@NotNull ResolvedCall<?> resolvedCall, @NotNull CallableDescriptor descriptor) {
         Map<TypeParameterDescriptor, KotlinType> typeArguments = resolvedCall.getTypeArguments();
         TypeParameterMappings mappings = new TypeParameterMappings();
         for (Map.Entry<TypeParameterDescriptor, KotlinType> entry : typeArguments.entrySet()) {
@@ -2834,8 +2863,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 );
             }
         }
-        return getOrCreateCallGenerator(
-                resolvedCall.getResultingDescriptor(), resolvedCall.getCall().getCallElement(), mappings, false);
+        return getOrCreateCallGenerator(descriptor, resolvedCall.getCall().getCallElement(), mappings, false);
     }
 
 
@@ -3752,7 +3780,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         VariableDescriptorWithAccessors variableDescriptor = (VariableDescriptorWithAccessors) descriptor;
         StackValue metadataValue = getVariableMetadataValue(variableDescriptor);
-        return JvmCodegenUtil.delegatedVariableValue(varValue, metadataValue, variableDescriptor, bindingContext, typeMapper);
+        return delegatedVariableValue(varValue, metadataValue, variableDescriptor, typeMapper);
     }
 
     private void initializeLocalVariable(
@@ -4453,5 +4481,15 @@ The "returned" value of try expression with no finally is either the last expres
             returnType = type;
             labelName = name;
         }
+    }
+
+    @NotNull
+    private StackValue.Delegate delegatedVariableValue(
+            @NotNull StackValue delegateValue,
+            @NotNull StackValue metadataValue,
+            @NotNull VariableDescriptorWithAccessors variableDescriptor,
+            @NotNull KotlinTypeMapper typeMapper
+    ) {
+        return StackValue.delegate(typeMapper.mapType(variableDescriptor.getType()), delegateValue, metadataValue, variableDescriptor, this);
     }
 }

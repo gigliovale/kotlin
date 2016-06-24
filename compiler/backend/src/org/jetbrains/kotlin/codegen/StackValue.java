@@ -35,6 +35,8 @@ import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.java.descriptors.JavaPropertyDescriptor;
 import org.jetbrains.kotlin.psi.KtExpression;
+import org.jetbrains.kotlin.psi.ValueArgument;
+import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.ImportedFromObjectCallableDescriptor;
 import org.jetbrains.kotlin.resolve.annotations.AnnotationUtilKt;
@@ -42,6 +44,7 @@ import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedValueArgument;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
+import org.jetbrains.kotlin.resolve.inline.InlineUtil;
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterKind;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodParameterSignature;
@@ -154,13 +157,13 @@ public abstract class StackValue {
 
     @NotNull
     public static Delegate delegate(
-            Type type,
+            @NotNull Type type,
             @NotNull StackValue delegateValue,
             @NotNull StackValue metadataValue,
-            @NotNull CallableMethod getter,
-            @Nullable CallableMethod setter
+            @NotNull VariableDescriptorWithAccessors variableDescriptor,
+            @NotNull ExpressionCodegen codegen
     ) {
-        return new Delegate(type, delegateValue, metadataValue, getter, setter);
+        return new Delegate(type, delegateValue, metadataValue, variableDescriptor, codegen);
     }
 
     @NotNull
@@ -269,10 +272,11 @@ public abstract class StackValue {
             @Nullable String fieldName,
             @Nullable CallableMethod getter,
             @Nullable CallableMethod setter,
-            GenerationState state,
-            @NotNull StackValue receiver
+            @NotNull StackValue receiver,
+            @NotNull ExpressionCodegen codegen,
+            @Nullable ResolvedCall resolvedCall
     ) {
-        return new Property(descriptor, backingFieldOwner, getter, setter, isStaticBackingField, fieldName, type, state, receiver);
+        return new Property(descriptor, backingFieldOwner, getter, setter, isStaticBackingField, fieldName, type, receiver, codegen, resolvedCall);
     }
 
     @NotNull
@@ -660,62 +664,72 @@ public abstract class StackValue {
         }
     }
 
-    public static class Delegate extends StackValueWithSimpleReceiver {
-        @NotNull private final StackValue delegateValue;
-        @NotNull private final StackValue metadataValue;
-        @NotNull private final CallableMethod getter;
-        @Nullable private final CallableMethod setter;
+    public static class Delegate extends StackValue {
+        @NotNull
+        private final StackValue delegateValue;
+        @NotNull
+        private final StackValue metadataValue;
+        @NotNull
+        private final VariableDescriptorWithAccessors variableDescriptor;
+        @NotNull
+        private final ExpressionCodegen codegen;
 
         private Delegate(
-                Type type,
+                @NotNull Type type,
                 @NotNull StackValue delegateValue,
                 @NotNull StackValue metadataValue,
-                @NotNull CallableMethod getter,
-                @Nullable CallableMethod setter
+                @NotNull VariableDescriptorWithAccessors variableDescriptor,
+                @NotNull ExpressionCodegen codegen
         ) {
-            super(type, false, false, new Receiver(OBJECT_TYPE, delegateValue, constant(null, OBJECT_TYPE), metadataValue) {
-                @Override
-                public void dup(@NotNull InstructionAdapter v, boolean withReceiver) {
-                    //UGLY HACK
-                    //TODO rethink Receiver/StackValue concept
-                    //We need to make duplication of delegated var, owner (null) and property metadata: dup 3.
-                    //As HACK Type.LONG_TYPE and Type.INT_TYPE passed to dup util to simulate dup 3.
-                    AsmUtil.dup(v, Type.LONG_TYPE, Type.INT_TYPE);
-                }
-            }, false);
+            super(type);
             this.delegateValue = delegateValue;
             this.metadataValue = metadataValue;
-            this.getter = getter;
-            this.setter = setter;
+            this.variableDescriptor = variableDescriptor;
+            this.codegen = codegen;
         }
 
-        @NotNull
-        public StackValue getMetadataValue() {
-            return metadataValue;
+
+        private ResolvedCall<FunctionDescriptor> getResolvedCall(boolean isGetter) {
+            BindingContext bindingContext = codegen.getState().getBindingContext();
+            VariableAccessorDescriptor accessor = isGetter ? variableDescriptor.getGetter(): variableDescriptor.getSetter();
+            assert accessor != null : "Accessor descriptor for delegated local property should be present " + variableDescriptor;
+            ResolvedCall<FunctionDescriptor> resolvedCall = bindingContext.get(BindingContext.DELEGATED_PROPERTY_RESOLVED_CALL, accessor);
+            assert resolvedCall != null : "Resolve call should be recorded for delegate call " + variableDescriptor;
+            return resolvedCall;
         }
 
         @Override
         public void putSelector(@NotNull Type type, @NotNull InstructionAdapter v) {
-            getter.genInvokeInstruction(v);
-            coerce(getter.getReturnType(), type, v);
+            ResolvedCall<FunctionDescriptor> resolvedCall = getResolvedCall(true);
+            List<? extends ValueArgument> arguments = resolvedCall.getCall().getValueArguments();
+            assert arguments.size() == 2 : "Resolved call for 'getValue' should have 2 arguments, but was " +
+                                           arguments.size() + ": " + resolvedCall;
+
+            codegen.tempVariables.put(arguments.get(0).asElement(), StackValue.constant(null, OBJECT_TYPE));
+            codegen.tempVariables.put(arguments.get(1).asElement(), metadataValue);
+            StackValue lastValue = codegen.invokeFunction(resolvedCall, delegateValue);
+            lastValue.put(type, v);
+
+            codegen.tempVariables.remove(arguments.get(0).asElement());
+            codegen.tempVariables.remove(arguments.get(1).asElement());
         }
 
         @Override
-        public void storeSelector(@NotNull Type topOfStackType, @NotNull InstructionAdapter v) {
-            assert setter != null : "";
-            coerceFrom(topOfStackType, v);
-            setter.genInvokeInstruction(v);
-        }
+        public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
+            ResolvedCall<FunctionDescriptor> resolvedCall = getResolvedCall(false);
+            List<? extends ValueArgument> arguments = resolvedCall.getCall().getValueArguments();
+            assert arguments.size() == 3 : "Resolved call for 'setValue' should have 3 arguments, but was " +
+                                           arguments.size() + ": " + resolvedCall;
 
-        @Override
-        protected StackValueWithSimpleReceiver changeReceiver(@NotNull StackValue newReceiver) {
-            StackValue newDelegateValue = delegateValue instanceof StackValueWithSimpleReceiver
-                                          ? ((StackValueWithSimpleReceiver) delegateValue).changeReceiver(newReceiver)
-                                          : delegateValue;
-            StackValue newMetadataValue = metadataValue instanceof StackValueWithSimpleReceiver
-                                          ? ((StackValueWithSimpleReceiver) metadataValue).changeReceiver(newReceiver)
-                                          : metadataValue;
-            return delegate(type, newDelegateValue, newMetadataValue, getter, setter);
+            codegen.tempVariables.put(arguments.get(0).asElement(), StackValue.constant(null, OBJECT_TYPE));
+            codegen.tempVariables.put(arguments.get(1).asElement(), metadataValue);
+            codegen.tempVariables.put(arguments.get(2).asElement(), rightSide);
+            StackValue lastValue = codegen.invokeFunction(resolvedCall, delegateValue);
+            lastValue.put(Type.VOID_TYPE, v);
+
+            codegen.tempVariables.remove(arguments.get(0).asElement());
+            codegen.tempVariables.remove(arguments.get(1).asElement());
+            codegen.tempVariables.remove(arguments.get(2).asElement());
         }
     }
 
@@ -1158,23 +1172,27 @@ public abstract class StackValue {
         private final Type backingFieldOwner;
 
         private final PropertyDescriptor descriptor;
-        private final GenerationState state;
 
         private final String fieldName;
+        @NotNull private final ExpressionCodegen codegen;
+        @Nullable private final ResolvedCall resolvedCall;
 
         public Property(
                 @NotNull PropertyDescriptor descriptor, @Nullable Type backingFieldOwner,
                 @Nullable CallableMethod getter, @Nullable CallableMethod setter, boolean isStaticBackingField,
-                @Nullable String fieldName, @NotNull Type type, @NotNull GenerationState state,
-                @NotNull StackValue receiver
+                @Nullable String fieldName, @NotNull Type type,
+                @NotNull StackValue receiver,
+                @NotNull ExpressionCodegen codegen,
+                @Nullable ResolvedCall resolvedCall
         ) {
             super(type, isStatic(isStaticBackingField, getter), isStatic(isStaticBackingField, setter), receiver, true);
             this.backingFieldOwner = backingFieldOwner;
             this.getter = getter;
             this.setter = setter;
             this.descriptor = descriptor;
-            this.state = state;
             this.fieldName = fieldName;
+            this.codegen = codegen;
+            this.resolvedCall = resolvedCall;
         }
 
         @Override
@@ -1190,7 +1208,16 @@ public abstract class StackValue {
                 coerceTo(type, v);
             }
             else {
-                getter.genInvokeInstruction(v);
+                PropertyGetterDescriptor getterDescriptor = descriptor.getGetter();
+                assert getterDescriptor != null : "Getter descriptor should be not null for " + descriptor;
+                if (resolvedCall != null && getterDescriptor.isInline()) {
+                    CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, getterDescriptor);
+                    callGenerator.putHiddenParams();
+                    callGenerator.genCall(getter, resolvedCall, false, codegen);
+                }
+                else {
+                    getter.genInvokeInstruction(v);
+                }
                 coerce(getter.getReturnType(), type, v);
 
                 KotlinType returnType = descriptor.getReturnType();
@@ -1231,6 +1258,24 @@ public abstract class StackValue {
             v.visitLdcInsn(descriptor.getName().asString());
             v.invokestatic(IntrinsicMethods.INTRINSICS_CLASS_NAME, "throwUninitializedPropertyAccessException", "(Ljava/lang/String;)V", false);
             v.mark(ok);
+        }
+
+        @Override
+        public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
+            PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
+            if (resolvedCall != null && setterDescriptor != null && setterDescriptor.isInline()) {
+                assert setter != null : "Setter should be not null for " + descriptor;
+                CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
+                if (!skipReceiver) {
+                    putReceiver(v, false);
+                }
+                callGenerator.putHiddenParams();
+                callGenerator.putValueIfNeeded(rightSide.type, rightSide);
+                callGenerator.genCall(setter, resolvedCall, false, codegen);
+            }
+            else {
+                super.store(rightSide, v, skipReceiver);
+            }
         }
 
         @Override
@@ -1741,6 +1786,20 @@ public abstract class StackValue {
     }
 
     private static StackValue complexReceiver(StackValue stackValue, boolean... isReadOperations) {
+        if (stackValue instanceof Property) {
+            ResolvedCall resolvedCall = ((Property) stackValue).resolvedCall;
+            if (resolvedCall != null &&
+                resolvedCall.getResultingDescriptor() instanceof PropertyDescriptor &&
+                InlineUtil.hasInlineAccessors((PropertyDescriptor) resolvedCall.getResultingDescriptor())) {
+                //TODO need to support
+                throwUnsupportedComplexOperation(resolvedCall.getResultingDescriptor());
+            }
+        }
+        else if (stackValue instanceof Delegate) {
+            //TODO need to support
+            throwUnsupportedComplexOperation(((Delegate) stackValue).variableDescriptor);
+        }
+
         if (stackValue instanceof StackValueWithSimpleReceiver) {
             return new DelegatedForComplexReceiver(stackValue.type, (StackValueWithSimpleReceiver) stackValue,
                                  new ComplexReceiver((StackValueWithSimpleReceiver) stackValue, isReadOperations));
@@ -1811,6 +1870,14 @@ public abstract class StackValue {
             v.pop();
             v.mark(end);
         }
+    }
+
+    private static void throwUnsupportedComplexOperation(
+            @NotNull CallableDescriptor descriptor
+    ) {
+        throw new RuntimeException(
+                "Augment assignment and increment are not supported for local delegated properties ans inline properties: " +
+                descriptor);
     }
 }
 

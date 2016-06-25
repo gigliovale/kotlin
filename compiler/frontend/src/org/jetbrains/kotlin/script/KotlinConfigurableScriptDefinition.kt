@@ -17,14 +17,6 @@
 package org.jetbrains.kotlin.script
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.xmlb.XmlSerializer
-import com.intellij.util.xmlb.annotations.AbstractCollection
-import com.intellij.util.xmlb.annotations.Tag
-import org.jdom.Document
-import org.jdom.Element
-import org.jdom.output.Format
-import org.jdom.output.XMLOutputter
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.parsing.KotlinParserDefinition
@@ -52,9 +44,26 @@ data class KotlinConfigurableScriptDefinition(val config: KotlinScriptConfig, va
 
     override fun getScriptName(script: KtScript): Name = ScriptNameUtil.fileNameWithExtensionStripped(script, KotlinParserDefinition.STD_SCRIPT_EXT)
 
-    private val evaluatedClasspath by lazy { config.classpath.evalWithVars(environmentVars).distinct() }
+    private val evaluatedClasspath by lazy { config.classpath.evalWithVars(environmentVars).map { File(it) }.distinctBy { it.canonicalPath } }
 
-    override fun getScriptDependenciesClasspath(): List<String> = evaluatedClasspath
+    override fun <TF> getDependenciesFor(file: TF, project: Project, previousDependencies: KotlinScriptExternalDependencies?): KotlinScriptExternalDependencies? =
+            if (!isScript(file)) null
+            else {
+                val extDeps = getScriptDependenciesFromConfig(file)
+                when {
+                    extDeps != null ->
+                        object : KotlinScriptExternalDependencies {
+                            override val classpath: Iterable<File> = evaluatedClasspath + extDeps.classpath
+                            override val imports = extDeps.imports
+                            override val sources: Iterable<File> = extDeps.sources
+                        }
+                    !evaluatedClasspath.isEmpty() ->
+                        object : KotlinScriptExternalDependencies {
+                            override val classpath: Iterable<File> = evaluatedClasspath
+                        }
+                    else -> null
+                }
+            }
 }
 
 
@@ -62,7 +71,7 @@ data class KotlinConfigurableScriptDefinition(val config: KotlinScriptConfig, va
 // if corresponding list of replacements is empty, all strings containing the reference to the var are removed
 // TODO: fix and tests
 // TODO: move to some utils
-internal fun List<String>.evalWithVars(varsMap: Map<String, List<String>>?): List<String> =
+internal fun Iterable<String>.evalWithVars(varsMap: Map<String, List<String>>?): Iterable<String> =
         if (varsMap == null || varsMap.isEmpty()) this
         else this.flatMap { cpentry ->
             varsMap.entries.fold(listOf(cpentry)) { p, v ->

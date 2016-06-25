@@ -65,6 +65,10 @@ class KotlinCompletionContributor : CompletionContributor() {
         extend(CompletionType.SMART, PlatformPatterns.psiElement(), provider)
     }
 
+    @Volatile private var pceException: ProcessCanceledException? = null
+
+    class CachedPCEInException(cause: ProcessCanceledException): RuntimeException(cause)
+
     override fun beforeCompletion(context: CompletionInitializationContext) {
         val psiFile = context.file
         if (psiFile !is KtFile) return
@@ -260,63 +264,73 @@ class KotlinCompletionContributor : CompletionContributor() {
             result: CompletionResultSet,
             lookupElementPostProcessor: ((LookupElement) -> LookupElement)? = null
     ) {
-        val position = parameters.position
-        if (position.getNonStrictParentOfType<PsiComment>() != null) {
-            // don't stop here, allow other contributors to run
-            return
-        }
-
-        if (shouldSuppressCompletion(parameters, result.prefixMatcher)) {
-            result.stopHere()
-            return
-        }
-
-        if (PackageDirectiveCompletion.perform(parameters, result)) {
-            result.stopHere()
-            return
-        }
-
-        if (PropertyKeyCompletion.perform(parameters, result)) return
-
-        fun addPostProcessor(session: CompletionSession) {
-            if (lookupElementPostProcessor != null) {
-                session.addLookupElementPostProcessor(lookupElementPostProcessor)
+        try {
+            val position = parameters.position
+            if (position.getNonStrictParentOfType<PsiComment>() != null) {
+                // don't stop here, allow other contributors to run
+                return
             }
-        }
 
-        result.restartCompletionWhenNothingMatches()
-
-        val configuration = CompletionSessionConfiguration(parameters)
-        if (parameters.completionType == CompletionType.BASIC) {
-            val session = BasicCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
-
-            addPostProcessor(session)
-
-            if (parameters.isAutoPopup && session.shouldDisableAutoPopup()) {
+            if (shouldSuppressCompletion(parameters, result.prefixMatcher)) {
                 result.stopHere()
                 return
             }
 
-            val somethingAdded = session.complete()
-            if (!somethingAdded && parameters.invocationCount < 2) {
-                // Rerun completion if nothing was found
-                val newConfiguration = CompletionSessionConfiguration(
-                        useBetterPrefixMatcherForNonImportedClasses = false,
-                        completeNonAccessibleDeclarations = false,
-                        filterOutJavaGettersAndSetters = false,
-                        completeJavaClassesNotToBeUsed = false,
-                        completeStaticMembers = parameters.invocationCount > 0
-                )
+            if (PackageDirectiveCompletion.perform(parameters, result)) {
+                result.stopHere()
+                return
+            }
 
-                val newSession = BasicCompletionSession(newConfiguration, parameters, toFromOriginalFileMapper, result)
-                addPostProcessor(newSession)
-                newSession.complete()
+            if (PropertyKeyCompletion.perform(parameters, result)) return
+
+            fun addPostProcessor(session: CompletionSession) {
+                if (lookupElementPostProcessor != null) {
+                    session.addLookupElementPostProcessor(lookupElementPostProcessor)
+                }
+            }
+
+            result.restartCompletionWhenNothingMatches()
+
+            val configuration = CompletionSessionConfiguration(parameters)
+            if (parameters.completionType == CompletionType.BASIC) {
+                val session = BasicCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
+
+                addPostProcessor(session)
+
+                if (parameters.isAutoPopup && session.shouldDisableAutoPopup()) {
+                    result.stopHere()
+                    return
+                }
+
+                val somethingAdded = session.complete()
+                if (!somethingAdded && parameters.invocationCount < 2) {
+                    // Rerun completion if nothing was found
+                    val newConfiguration = CompletionSessionConfiguration(
+                            useBetterPrefixMatcherForNonImportedClasses = false,
+                            completeNonAccessibleDeclarations = false,
+                            filterOutJavaGettersAndSetters = false,
+                            completeJavaClassesNotToBeUsed = false,
+                            completeStaticMembers = parameters.invocationCount > 0
+                    )
+
+                    val newSession = BasicCompletionSession(newConfiguration, parameters, toFromOriginalFileMapper, result)
+                    addPostProcessor(newSession)
+                    newSession.complete()
+                }
+            }
+            else {
+                val session = SmartCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
+                addPostProcessor(session)
+                session.complete()
             }
         }
-        else {
-            val session = SmartCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
-            addPostProcessor(session)
-            session.complete()
+        catch (e: ProcessCanceledException) {
+            if (pceException == e) {
+                throw CachedPCEInException(e)
+            }
+            else {
+                pceException = e
+            }
         }
     }
 

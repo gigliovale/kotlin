@@ -31,7 +31,7 @@ class JsBinaryVersion(vararg numbers: Int) : BinaryVersion(*numbers) {
 
     companion object {
         @JvmField
-        val INSTANCE = JsBinaryVersion(0, 3, 0)
+        val INSTANCE = JsBinaryVersion(0, 4, 0)
 
         @JvmField
         val INVALID_VERSION = JsBinaryVersion()
@@ -80,8 +80,8 @@ object KotlinJavascriptMetadataUtils {
 
         val matcher = METADATA_PATTERN.matcher(text)
         while (matcher.find()) {
-            var abiVersion = matcher.group(1).toInt()
-            var moduleName = matcher.group(3)
+            val abiVersion = matcher.group(1).toInt()
+            val moduleName = matcher.group(3)
             val data = matcher.group(5)
             metadataList.add(KotlinJavascriptMetadata(abiVersion, moduleName, parseBase64Binary(data)))
         }

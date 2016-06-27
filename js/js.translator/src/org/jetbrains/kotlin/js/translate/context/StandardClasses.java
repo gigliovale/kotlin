@@ -112,7 +112,7 @@ public final class StandardClasses {
 
         standardClasses.declare().forFQ("kotlin.Comparable").kotlinClass("Comparable");
 
-        standardClasses.declare().forFQ("koltin.Throwable").kotlinClass("Throwable");
+        standardClasses.declare().forFQ("kotlin.Throwable").kotlinClass("Throwable");
     }
 
 

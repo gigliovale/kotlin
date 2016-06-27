@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-var Kotlin = {};
-
 (function (Kotlin) {
     'use strict';
 
@@ -451,18 +449,18 @@ var Kotlin = {};
     var propertyRefClassMetadataCache = {
         zeroArg: {
             mutable: { value: null, implementedInterface: function () {
-                return Kotlin.modules['stdlib'].kotlin.reflect.KMutableProperty0 }
+                return Kotlin.kotlin.reflect.KMutableProperty0 }
             },
             immutable: { value: null, implementedInterface: function () {
-                return Kotlin.modules['stdlib'].kotlin.reflect.KProperty0 }
+                return Kotlin.kotlin.reflect.KProperty0 }
             }
         },
         oneArg: {
             mutable: { value: null, implementedInterface: function () {
-                return Kotlin.modules['stdlib'].kotlin.reflect.KMutableProperty1 }
+                return Kotlin.kotlin.reflect.KMutableProperty1 }
             },
             immutable: { value: null, implementedInterface: function () {
-                return Kotlin.modules['stdlib'].kotlin.reflect.KProperty1 }
+                return Kotlin.kotlin.reflect.KProperty1 }
             }
         }
     };
@@ -563,11 +561,10 @@ var Kotlin = {};
      * @param {Object} declaration
      */
     Kotlin.defineModule = function (id, declaration) {
-        if (id in Kotlin.modules) {
-            throw new Error("Module " + id + " is already defined");
+        if (typeof declaration.$initializer$ === "function") {
+            declaration.$initializer$.call(declaration); // TODO: temporary hack
         }
-        declaration.$initializer$.call(declaration); // TODO: temporary hack
-        Object.defineProperty(Kotlin.modules, id, {value: declaration});
+        Kotlin.modules[id] = declaration;
     };
 
     Kotlin.defineInlineFunction = function(tag, fun) {

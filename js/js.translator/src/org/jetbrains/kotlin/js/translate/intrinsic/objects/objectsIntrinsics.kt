@@ -16,24 +16,19 @@
 
 package org.jetbrains.kotlin.js.translate.intrinsic.objects
 
-import com.google.dart.compiler.backend.js.ast.JsArrayAccess
 import com.google.dart.compiler.backend.js.ast.JsExpression
 import org.jetbrains.kotlin.builtins.CompanionObjectMapping
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.js.config.LibrarySourcesConfig
-import org.jetbrains.kotlin.js.resolve.JsPlatform
+import org.jetbrains.kotlin.js.translate.context.Namer
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
-class DefaultClassObjectIntrinsic(val fqName: FqName, val moduleName: String): ObjectIntrinsic {
+class DefaultClassObjectIntrinsic(val fqName: FqName): ObjectIntrinsic {
     override fun apply(context: TranslationContext): JsExpression {
         val nameRef = context.getQualifiedReference(fqName)
-        return JsAstUtils.replaceRootReference(
-                nameRef,
-                JsArrayAccess(context.namer().kotlin("modules"), context.program().getStringLiteral(moduleName)))
+        return JsAstUtils.replaceRootReference(nameRef, Namer.kotlinObject())
     }
 }
 
@@ -46,7 +41,7 @@ class ObjectIntrinsics {
         val containingDeclaration = classDescriptor.containingDeclaration
         val name = Name.identifier(containingDeclaration.name.asString() + "CompanionObject")
 
-        return DefaultClassObjectIntrinsic(FqName("kotlin.js.internal").child(name), LibrarySourcesConfig.STDLIB_JS_MODULE_NAME)
+        return DefaultClassObjectIntrinsic(FqName("kotlin.js.internal").child(name));
     }
 }
 

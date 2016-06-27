@@ -24,7 +24,7 @@ import com.google.dart.compiler.backend.js.ast.metadata.MetadataProperties;
 import com.google.dart.compiler.backend.js.ast.metadata.SideEffectKind;
 import com.intellij.openapi.util.Factory;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.HashMap;
+import com.intellij.util.containers.hash.LinkedHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.ReflectionTypes;
@@ -41,9 +41,10 @@ import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.util.FakeCallableDescriptorForObject;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.*;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.pureFqn;
@@ -109,6 +110,11 @@ public final class StaticContext {
     @NotNull
     private final JsConfig config;
 
+    @NotNull
+    private final Map<String, JsName> importedModules = new LinkedHashMap<String, JsName>();
+
+    private Map<String, JsName> readOnlyImportedModules;
+
     //TODO: too many parameters in constructor
     private StaticContext(
             @NotNull JsProgram program,
@@ -163,6 +169,14 @@ public final class StaticContext {
     @NotNull
     private JsScope getRootScope() {
         return rootScope;
+    }
+
+    @NotNull
+    public Map<String, JsName> getImportedModules() {
+        if (readOnlyImportedModules == null) {
+            readOnlyImportedModules = Collections.unmodifiableMap(importedModules);
+        }
+        return readOnlyImportedModules;
     }
 
     @NotNull
@@ -531,17 +545,8 @@ public final class StaticContext {
 
                     JsNameRef result = getQualifierForParentPackage(((PackageFragmentDescriptor) containingDescriptor).getFqName());
 
-                    String moduleName = getExternalModuleName(descriptor);
-                    if (moduleName == null) {
-                        return result;
-                    }
-
-                    if (LibrarySourcesConfig.UNKNOWN_EXTERNAL_MODULE_NAME.equals(moduleName)) {
-                        return null;
-                    }
-
-                    return JsAstUtils.replaceRootReference(
-                            result, namer.getModuleReference(program.getStringLiteral(moduleName)));
+                    JsExpression moduleExpression = getModuleExpressionFor(descriptor);
+                    return moduleExpression != null ? JsAstUtils.replaceRootReference(result, moduleExpression) : result;
                 }
             };
             Rule<JsExpression> constructorOrCompanionObjectHasTheSameQualifierAsTheClass = new Rule<JsExpression>() {
@@ -633,6 +638,23 @@ public final class StaticContext {
             addRule(nestedClassesHaveContainerQualifier);
             addRule(localClassesHavePackageQualifier);
         }
+    }
+
+    @Nullable
+    public JsExpression getModuleExpressionFor(@NotNull DeclarationDescriptor descriptor) {
+        String moduleName = getExternalModuleName(descriptor);
+        if (moduleName == null) return null;
+
+        if (LibrarySourcesConfig.UNKNOWN_EXTERNAL_MODULE_NAME.equals(moduleName)) return null;
+
+        JsName moduleId = moduleName.equals(Namer.KOTLIN_LOWER_NAME) ? rootScope.declareName(Namer.KOTLIN_NAME) :
+                          importedModules.get(moduleName);
+        if (moduleId == null) {
+            moduleId = rootScope.declareFreshName(Namer.LOCAL_MODULE_PREFIX + Namer.suggestedModuleName(moduleName));
+            importedModules.put(moduleName, moduleId);
+        }
+
+        return JsAstUtils.pureFqn(moduleId, null);
     }
 
     private static JsExpression applySideEffects(JsExpression expression, DeclarationDescriptor descriptor) {

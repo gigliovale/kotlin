@@ -20,7 +20,6 @@ import com.google.dart.compiler.backend.js.ast.*;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.builtins.ReflectionTypes;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.translate.intrinsic.Intrinsics;
@@ -89,6 +88,11 @@ public class TranslationContext {
         else {
             this.classDescriptor = parent != null ? parent.classDescriptor : null;
         }
+    }
+
+    @NotNull
+    public Map<String, JsName> getImportedModules() {
+        return staticContext.getImportedModules();
     }
 
     @Nullable
@@ -264,11 +268,6 @@ public class TranslationContext {
     @NotNull
     public Intrinsics intrinsics() {
         return staticContext.getIntrinsics();
-    }
-
-    @NotNull
-    public ReflectionTypes getReflectionTypes() {
-        return staticContext.getReflectionTypes();
     }
 
     @NotNull
@@ -538,5 +537,10 @@ public class TranslationContext {
         if (callSites == null) throw new IllegalStateException("This method should be call only when `shouldBeDeferred` method " +
                                                                "reports true for given constructor: " + constructor);
         callSites.add(new DeferredCallSite(constructor, invocationArgs, this));
+    }
+
+    @Nullable
+    public JsExpression getModuleExpressionFor(@NotNull DeclarationDescriptor descriptor) {
+        return staticContext.getModuleExpressionFor(descriptor);
     }
 }

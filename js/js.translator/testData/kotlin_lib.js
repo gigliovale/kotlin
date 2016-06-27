@@ -274,7 +274,7 @@
      */
     lazyInitClasses.ArrayIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableIterator];
+            return [Kotlin.kotlin.collections.MutableIterator];
         },
         /** @constructs */
         function (array) {
@@ -306,7 +306,7 @@
      */
     lazyInitClasses.ListIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.ListIterator];  // TODO: MutableListIterator
+            return [Kotlin.kotlin.collections.ListIterator];  // TODO: MutableListIterator
         },
         /** @constructs */
         function (list, index) {
@@ -380,7 +380,7 @@
 
     lazyInitClasses.AbstractCollection = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableCollection];
+            return [Kotlin.kotlin.collections.MutableCollection];
         }, null, {
         addAll_wtfk93$: function (collection) {
             var modified = false;
@@ -474,7 +474,7 @@
      */
     lazyInitClasses.AbstractList = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableList, Kotlin.AbstractCollection];
+            return [Kotlin.kotlin.collections.MutableList, Kotlin.AbstractCollection];
         }, null, {
         iterator: function () {
             return new Kotlin.ListIterator(this);
@@ -792,7 +792,7 @@
 
     lazyInitClasses.RangeIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterator];
+            return [Kotlin.kotlin.collections.Iterator];
         },
         function (start, end, step) {
             this.start = start;
@@ -878,7 +878,7 @@
 
     lazyInitClasses.NumberProgression = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterable];
+            return [Kotlin.kotlin.collections.Iterable];
         },
         function (start, end, step) {
             this.first = start;
@@ -904,7 +904,7 @@
 
     lazyInitClasses.NumberRange = Kotlin.createClass(
         function() {
-            return [Kotlin.modules['builtins'].kotlin.ranges.ClosedRange, Kotlin.NumberProgression]
+            return [Kotlin.kotlin.ranges.ClosedRange, Kotlin.NumberProgression]
         },
         function $fun(start, endInclusive) {
             $fun.baseInitializer.call(this, start, endInclusive, 1);
@@ -934,7 +934,7 @@
 
     lazyInitClasses.LongRangeIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterator];
+            return [Kotlin.kotlin.collections.Iterator];
         },
          function (start, end, step) {
              this.start = start;
@@ -957,7 +957,7 @@
 
     lazyInitClasses.LongProgression = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterable];
+            return [Kotlin.kotlin.collections.Iterable];
         },
         function (start, end, step) {
             this.first = start;
@@ -983,7 +983,7 @@
 
     lazyInitClasses.LongRange = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.ranges.ClosedRange, Kotlin.LongProgression];
+            return [Kotlin.kotlin.ranges.ClosedRange, Kotlin.LongProgression];
         },
         function $fun(start, endInclusive) {
             $fun.baseInitializer.call(this, start, endInclusive, Kotlin.Long.ONE);
@@ -1027,7 +1027,7 @@
 
     lazyInitClasses.CharProgression = Kotlin.createClassNow(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterable];
+            return [Kotlin.kotlin.collections.Iterable];
         },
         function (start, end, step) {
             this.first = start;
@@ -1056,7 +1056,7 @@
 
     lazyInitClasses.CharRange = Kotlin.createClass(
         function() {
-            return [Kotlin.modules['builtins'].kotlin.ranges.ClosedRange, Kotlin.CharProgression]
+            return [Kotlin.kotlin.ranges.ClosedRange, Kotlin.CharProgression]
         },
         function $fun(start, endInclusive) {
             $fun.baseInitializer.call(this, start, endInclusive, 1);
@@ -1241,3 +1241,4 @@
 
     Kotlin.createDefinition(lazyInitClasses, Kotlin);
 })(Kotlin);
+

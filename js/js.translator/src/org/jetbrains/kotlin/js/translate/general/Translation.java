@@ -51,10 +51,12 @@ import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.bindingContextUtil.BindingContextUtilsKt;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import static org.jetbrains.kotlin.js.translate.general.ModuleWrapperTranslation.*;
 import static org.jetbrains.kotlin.js.translate.utils.BindingUtils.getFunctionDescriptor;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.convertToStatement;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.toStringLiteralList;
@@ -196,9 +198,8 @@ public final class Translation {
     ) {
         StaticContext staticContext = StaticContext.generateStaticContext(bindingTrace, config, moduleDescriptor);
         JsProgram program = staticContext.getProgram();
-        JsBlock block = program.getGlobalBlock();
 
-        JsFunction rootFunction = JsAstUtils.createPackage(block.getStatements(), program.getScope());
+        JsFunction rootFunction = JsAstUtils.createFunctionWithEmptyBody(program.getScope());
         JsBlock rootBlock = rootFunction.getBody();
         List<JsStatement> statements = rootBlock.getStatements();
         statements.add(program.getStringLiteral("use strict").makeStmt());
@@ -207,13 +208,33 @@ public final class Translation {
         statements.addAll(PackageDeclarationTranslator.translateFiles(files, context));
         defineModule(context, statements, config.getModuleId());
 
+        mayBeGenerateTests(files, config, rootBlock, context);
+
+        // Invoke function passing modules as arguments
+        // This should help minifier tool to recognize references to these modules as local variables and make them shorter.
+        List<String> importedModuleList = new ArrayList<String>();
+        JsName kotlinName = program.getScope().declareName(Namer.KOTLIN_NAME);
+        rootFunction.getParameters().add(new JsParameter((kotlinName)));
+        importedModuleList.add(Namer.KOTLIN_LOWER_NAME);
+
+        for (String importedModule : staticContext.getImportedModules().keySet()) {
+            rootFunction.getParameters().add(new JsParameter(staticContext.getImportedModules().get(importedModule)));
+            importedModuleList.add(importedModule);
+        }
+
         if (mainCallParameters.shouldBeGenerated()) {
             JsStatement statement = generateCallToMain(context, files, mainCallParameters.arguments());
             if (statement != null) {
                 statements.add(statement);
             }
         }
-        mayBeGenerateTests(files, config, rootBlock, context);
+
+        statements.add(new JsReturn(program.getRootScope().declareName(Namer.getRootPackageName()).makeRef()));
+
+        JsBlock block = program.getGlobalBlock();
+        block.getStatements().addAll(wrapIfNecessary(config.getModuleId(), rootFunction, importedModuleList, program,
+                                                     config.getModuleKind()));
+
         return context;
     }
 

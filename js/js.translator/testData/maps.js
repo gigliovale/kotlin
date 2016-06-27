@@ -521,7 +521,7 @@
 
     lazyInitClasses.HashMap = Kotlin.createClass(
         function () {
-            return [Kotlin.HashTable, Kotlin.modules['builtins'].kotlin.collections.MutableMap];
+            return [Kotlin.HashTable, Kotlin.kotlin.collections.MutableMap];
         },
         function () {
             Kotlin.HashTable.call(this);
@@ -541,7 +541,7 @@
      */
     lazyInitClasses.PrimitiveHashMapValuesIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.Iterator];
+            return [Kotlin.kotlin.collections.Iterator];
         },
         function (map, keys) {
             this.map = map;
@@ -826,7 +826,7 @@
 
     lazyInitClasses.LinkedHashSet = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableSet, Kotlin.HashSet];
+            return [Kotlin.kotlin.collections.MutableSet, Kotlin.HashSet];
         },
         /** @constructs */
         function () {
@@ -868,7 +868,7 @@
      */
     lazyInitClasses.SetIterator = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableIterator];
+            return [Kotlin.kotlin.collections.MutableIterator];
         },
         function (set) {
             this.set = set;
@@ -1115,7 +1115,7 @@
 
     lazyInitClasses.HashSet = Kotlin.createClass(
         function () {
-            return [Kotlin.modules['builtins'].kotlin.collections.MutableSet, Kotlin.AbstractCollection];
+            return [Kotlin.kotlin.collections.MutableSet, Kotlin.AbstractCollection];
         },
         function () {
             HashSet.call(this);

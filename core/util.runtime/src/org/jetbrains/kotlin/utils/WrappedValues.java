@@ -83,6 +83,10 @@ public class WrappedValues {
                 throw new WrappedProcessCanceledException(originThrowable);
             }
 
+            if (originThrowable.getClass().getSimpleName().equals("ProcessCanceledException")) {
+                System.out.println("Hello World");
+            }
+
             throw ExceptionUtilsKt.rethrow(originThrowable);
         }
 

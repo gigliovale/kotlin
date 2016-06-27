@@ -236,26 +236,36 @@ class KotlinCompletionContributor : CompletionContributor() {
     }
 
     private fun performCompletion(parameters: CompletionParameters, result: CompletionResultSet) {
-        val position = parameters.position
-        if (position.containingFile !is KtFile) return
-        if ((parameters.originalFile as KtFile).doNotComplete ?: false) return
+        try {
+            val position = parameters.position
+            if (position.containingFile !is KtFile) return
+            if ((parameters.originalFile as KtFile).doNotComplete ?: false) return
 
-        val toFromOriginalFileMapper = ToFromOriginalFileMapper.create(parameters)
+            val toFromOriginalFileMapper = ToFromOriginalFileMapper.create(parameters)
 
-        if (position.node.elementType == KtTokens.LONG_TEMPLATE_ENTRY_START) {
-            val expression = (position.parent as KtBlockStringTemplateEntry).expression
-            if (expression is KtDotQualifiedExpression) {
-                val correctedPosition = (expression.selectorExpression as KtNameReferenceExpression).firstChild
-                val context = position.getUserData(CompletionContext.COMPLETION_CONTEXT_KEY)!!
-                val correctedOffset = context.offsetMap.getOffset(STRING_TEMPLATE_AFTER_DOT_REAL_START_OFFSET)
-                val correctedParameters = parameters.withPosition(correctedPosition, correctedOffset)
-                doComplete(correctedParameters, toFromOriginalFileMapper, result,
-                           lookupElementPostProcessor = { wrapLookupElementForStringTemplateAfterDotCompletion(it) })
-                return
+            if (position.node.elementType == KtTokens.LONG_TEMPLATE_ENTRY_START) {
+                val expression = (position.parent as KtBlockStringTemplateEntry).expression
+                if (expression is KtDotQualifiedExpression) {
+                    val correctedPosition = (expression.selectorExpression as KtNameReferenceExpression).firstChild
+                    val context = position.getUserData(CompletionContext.COMPLETION_CONTEXT_KEY)!!
+                    val correctedOffset = context.offsetMap.getOffset(STRING_TEMPLATE_AFTER_DOT_REAL_START_OFFSET)
+                    val correctedParameters = parameters.withPosition(correctedPosition, correctedOffset)
+                    doComplete(correctedParameters, toFromOriginalFileMapper, result,
+                               lookupElementPostProcessor = { wrapLookupElementForStringTemplateAfterDotCompletion(it) })
+                    return
+                }
+            }
+
+            doComplete(parameters, toFromOriginalFileMapper, result)
+        }
+        catch (e: ProcessCanceledException) {
+            if (pceException == e) {
+//                throw CachedPCEInException(e)
+            }
+            else {
+                pceException = e
             }
         }
-
-        doComplete(parameters, toFromOriginalFileMapper, result)
     }
 
     private fun doComplete(
@@ -264,73 +274,63 @@ class KotlinCompletionContributor : CompletionContributor() {
             result: CompletionResultSet,
             lookupElementPostProcessor: ((LookupElement) -> LookupElement)? = null
     ) {
-        try {
-            val position = parameters.position
-            if (position.getNonStrictParentOfType<PsiComment>() != null) {
-                // don't stop here, allow other contributors to run
-                return
-            }
+        val position = parameters.position
+        if (position.getNonStrictParentOfType<PsiComment>() != null) {
+            // don't stop here, allow other contributors to run
+            return
+        }
 
-            if (shouldSuppressCompletion(parameters, result.prefixMatcher)) {
-                result.stopHere()
-                return
-            }
+        if (shouldSuppressCompletion(parameters, result.prefixMatcher)) {
+            result.stopHere()
+            return
+        }
 
-            if (PackageDirectiveCompletion.perform(parameters, result)) {
-                result.stopHere()
-                return
-            }
+        if (PackageDirectiveCompletion.perform(parameters, result)) {
+            result.stopHere()
+            return
+        }
 
-            if (PropertyKeyCompletion.perform(parameters, result)) return
+        if (PropertyKeyCompletion.perform(parameters, result)) return
 
-            fun addPostProcessor(session: CompletionSession) {
-                if (lookupElementPostProcessor != null) {
-                    session.addLookupElementPostProcessor(lookupElementPostProcessor)
-                }
-            }
-
-            result.restartCompletionWhenNothingMatches()
-
-            val configuration = CompletionSessionConfiguration(parameters)
-            if (parameters.completionType == CompletionType.BASIC) {
-                val session = BasicCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
-
-                addPostProcessor(session)
-
-                if (parameters.isAutoPopup && session.shouldDisableAutoPopup()) {
-                    result.stopHere()
-                    return
-                }
-
-                val somethingAdded = session.complete()
-                if (!somethingAdded && parameters.invocationCount < 2) {
-                    // Rerun completion if nothing was found
-                    val newConfiguration = CompletionSessionConfiguration(
-                            useBetterPrefixMatcherForNonImportedClasses = false,
-                            completeNonAccessibleDeclarations = false,
-                            filterOutJavaGettersAndSetters = false,
-                            completeJavaClassesNotToBeUsed = false,
-                            completeStaticMembers = parameters.invocationCount > 0
-                    )
-
-                    val newSession = BasicCompletionSession(newConfiguration, parameters, toFromOriginalFileMapper, result)
-                    addPostProcessor(newSession)
-                    newSession.complete()
-                }
-            }
-            else {
-                val session = SmartCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
-                addPostProcessor(session)
-                session.complete()
+        fun addPostProcessor(session: CompletionSession) {
+            if (lookupElementPostProcessor != null) {
+                session.addLookupElementPostProcessor(lookupElementPostProcessor)
             }
         }
-        catch (e: ProcessCanceledException) {
-            if (pceException == e) {
-                throw CachedPCEInException(e)
+
+        result.restartCompletionWhenNothingMatches()
+
+        val configuration = CompletionSessionConfiguration(parameters)
+        if (parameters.completionType == CompletionType.BASIC) {
+            val session = BasicCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
+
+            addPostProcessor(session)
+
+            if (parameters.isAutoPopup && session.shouldDisableAutoPopup()) {
+                result.stopHere()
+                return
             }
-            else {
-                pceException = e
+
+            val somethingAdded = session.complete()
+            if (!somethingAdded && parameters.invocationCount < 2) {
+                // Rerun completion if nothing was found
+                val newConfiguration = CompletionSessionConfiguration(
+                        useBetterPrefixMatcherForNonImportedClasses = false,
+                        completeNonAccessibleDeclarations = false,
+                        filterOutJavaGettersAndSetters = false,
+                        completeJavaClassesNotToBeUsed = false,
+                        completeStaticMembers = parameters.invocationCount > 0
+                )
+
+                val newSession = BasicCompletionSession(newConfiguration, parameters, toFromOriginalFileMapper, result)
+                addPostProcessor(newSession)
+                newSession.complete()
             }
+        }
+        else {
+            val session = SmartCompletionSession(configuration, parameters, toFromOriginalFileMapper, result)
+            addPostProcessor(session)
+            session.complete()
         }
     }
 

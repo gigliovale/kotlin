@@ -386,7 +386,16 @@ public class LockBasedStorageManager implements StorageManager {
         @Nullable
         public V invoke(K input) {
             Object value = cache.get(input);
-            if (value != null && value != NotValue.COMPUTING) return WrappedValues.unescapeExceptionOrNull(value);
+            if (value != null && value != NotValue.COMPUTING) {
+                V exceptionOrNull = WrappedValues.unescapeExceptionOrNull(value);
+                if (exceptionOrNull != null) {
+                    if (exceptionOrNull.getClass().getSimpleName().equals("ProcessCanceledException")) {
+                        System.out.println("Unwrap PCE");
+                    }
+                }
+
+                return exceptionOrNull;
+            }
 
             storageManager.lock.lock();
             try {

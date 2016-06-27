@@ -17,10 +17,10 @@ public final class DebugJsProtoBuf {
     registry.add(org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.typeAnnotation);
     registry.add(org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.typeParameterAnnotation);
   }
-  public interface ClassesOrBuilder
-      extends org.jetbrains.kotlin.protobuf.MessageOrBuilder {
+  public interface ClassesOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.jetbrains.kotlin.serialization.js.Classes)
+      org.jetbrains.kotlin.protobuf.MessageOrBuilder {
 
-    // repeated int32 class_name = 1 [packed = true];
     /**
      * <code>repeated int32 class_name = 1 [packed = true];</code>
      *
@@ -50,8 +50,9 @@ public final class DebugJsProtoBuf {
    * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Classes}
    */
   public static final class Classes extends
-      org.jetbrains.kotlin.protobuf.GeneratedMessage
-      implements ClassesOrBuilder {
+      org.jetbrains.kotlin.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:org.jetbrains.kotlin.serialization.js.Classes)
+      ClassesOrBuilder {
     // Use Classes.newBuilder() to construct.
     private Classes(org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -160,7 +161,6 @@ public final class DebugJsProtoBuf {
       return PARSER;
     }
 
-    // repeated int32 class_name = 1 [packed = true];
     public static final int CLASS_NAME_FIELD_NUMBER = 1;
     private java.util.List<java.lang.Integer> className_;
     /**
@@ -202,7 +202,8 @@ public final class DebugJsProtoBuf {
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       memoizedIsInitialized = 1;
       return true;
@@ -323,8 +324,9 @@ public final class DebugJsProtoBuf {
      * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Classes}
      */
     public static final class Builder extends
-        org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.ClassesOrBuilder {
+        org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.jetbrains.kotlin.serialization.js.Classes)
+        org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.ClassesOrBuilder {
       public static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor;
@@ -443,7 +445,6 @@ public final class DebugJsProtoBuf {
       }
       private int bitField0_;
 
-      // repeated int32 class_name = 1 [packed = true];
       private java.util.List<java.lang.Integer> className_ = java.util.Collections.emptyList();
       private void ensureClassNameIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -519,7 +520,8 @@ public final class DebugJsProtoBuf {
       public Builder addAllClassName(
           java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureClassNameIsMutable();
-        super.addAll(values, className_);
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, className_);
         onChanged();
         return this;
       }
@@ -548,10 +550,10 @@ public final class DebugJsProtoBuf {
     // @@protoc_insertion_point(class_scope:org.jetbrains.kotlin.serialization.js.Classes)
   }
 
-  public interface LibraryOrBuilder
-      extends org.jetbrains.kotlin.protobuf.MessageOrBuilder {
+  public interface LibraryOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:org.jetbrains.kotlin.serialization.js.Library)
+      org.jetbrains.kotlin.protobuf.MessageOrBuilder {
 
-    // repeated .org.jetbrains.kotlin.serialization.js.Library.FileEntry entry = 1;
     /**
      * <code>repeated .org.jetbrains.kotlin.serialization.js.Library.FileEntry entry = 1;</code>
      */
@@ -576,7 +578,6 @@ public final class DebugJsProtoBuf {
     org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntryOrBuilder getEntryOrBuilder(
         int index);
 
-    // optional .org.jetbrains.kotlin.serialization.js.Library.Kind kind = 2 [default = PLAIN];
     /**
      * <code>optional .org.jetbrains.kotlin.serialization.js.Library.Kind kind = 2 [default = PLAIN];</code>
      */
@@ -586,32 +587,32 @@ public final class DebugJsProtoBuf {
      */
     org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind getKind();
 
-    // repeated string importedModules = 3;
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    java.util.List<java.lang.String>
-    getImportedModulesList();
+    org.jetbrains.kotlin.protobuf.ProtocolStringList
+        getImportedModuleList();
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    int getImportedModulesCount();
+    int getImportedModuleCount();
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    java.lang.String getImportedModules(int index);
+    java.lang.String getImportedModule(int index);
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
     org.jetbrains.kotlin.protobuf.ByteString
-        getImportedModulesBytes(int index);
+        getImportedModuleBytes(int index);
   }
   /**
    * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Library}
    */
   public static final class Library extends
-      org.jetbrains.kotlin.protobuf.GeneratedMessage
-      implements LibraryOrBuilder {
+      org.jetbrains.kotlin.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:org.jetbrains.kotlin.serialization.js.Library)
+      LibraryOrBuilder {
     // Use Library.newBuilder() to construct.
     private Library(org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
@@ -677,11 +678,12 @@ public final class DebugJsProtoBuf {
               break;
             }
             case 26: {
+              org.jetbrains.kotlin.protobuf.ByteString bs = input.readBytes();
               if (!((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-                importedModules_ = new org.jetbrains.kotlin.protobuf.LazyStringArrayList();
+                importedModule_ = new org.jetbrains.kotlin.protobuf.LazyStringArrayList();
                 mutable_bitField0_ |= 0x00000004;
               }
-              importedModules_.add(input.readBytes());
+              importedModule_.add(bs);
               break;
             }
           }
@@ -696,7 +698,7 @@ public final class DebugJsProtoBuf {
           entry_ = java.util.Collections.unmodifiableList(entry_);
         }
         if (((mutable_bitField0_ & 0x00000004) == 0x00000004)) {
-          importedModules_ = new org.jetbrains.kotlin.protobuf.UnmodifiableLazyStringList(importedModules_);
+          importedModule_ = importedModule_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
@@ -829,10 +831,10 @@ public final class DebugJsProtoBuf {
       // @@protoc_insertion_point(enum_scope:org.jetbrains.kotlin.serialization.js.Library.Kind)
     }
 
-    public interface FileEntryOrBuilder
-        extends org.jetbrains.kotlin.protobuf.MessageOrBuilder {
+    public interface FileEntryOrBuilder extends
+        // @@protoc_insertion_point(interface_extends:org.jetbrains.kotlin.serialization.js.Library.FileEntry)
+        org.jetbrains.kotlin.protobuf.MessageOrBuilder {
 
-      // required string path = 1;
       /**
        * <code>required string path = 1;</code>
        */
@@ -847,7 +849,6 @@ public final class DebugJsProtoBuf {
       org.jetbrains.kotlin.protobuf.ByteString
           getPathBytes();
 
-      // required bytes content = 2;
       /**
        * <code>required bytes content = 2;</code>
        */
@@ -861,8 +862,9 @@ public final class DebugJsProtoBuf {
      * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Library.FileEntry}
      */
     public static final class FileEntry extends
-        org.jetbrains.kotlin.protobuf.GeneratedMessage
-        implements FileEntryOrBuilder {
+        org.jetbrains.kotlin.protobuf.GeneratedMessage implements
+        // @@protoc_insertion_point(message_implements:org.jetbrains.kotlin.serialization.js.Library.FileEntry)
+        FileEntryOrBuilder {
       // Use FileEntry.newBuilder() to construct.
       private FileEntry(org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
@@ -909,8 +911,9 @@ public final class DebugJsProtoBuf {
                 break;
               }
               case 10: {
+                org.jetbrains.kotlin.protobuf.ByteString bs = input.readBytes();
                 bitField0_ |= 0x00000001;
-                path_ = input.readBytes();
+                path_ = bs;
                 break;
               }
               case 18: {
@@ -958,7 +961,6 @@ public final class DebugJsProtoBuf {
       }
 
       private int bitField0_;
-      // required string path = 1;
       public static final int PATH_FIELD_NUMBER = 1;
       private java.lang.Object path_;
       /**
@@ -1001,7 +1003,6 @@ public final class DebugJsProtoBuf {
         }
       }
 
-      // required bytes content = 2;
       public static final int CONTENT_FIELD_NUMBER = 2;
       private org.jetbrains.kotlin.protobuf.ByteString content_;
       /**
@@ -1024,7 +1025,8 @@ public final class DebugJsProtoBuf {
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized != -1) return isInitialized == 1;
+        if (isInitialized == 1) return true;
+        if (isInitialized == 0) return false;
 
         if (!hasPath()) {
           memoizedIsInitialized = 0;
@@ -1146,8 +1148,9 @@ public final class DebugJsProtoBuf {
        * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Library.FileEntry}
        */
       public static final class Builder extends
-          org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder>
-         implements org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntryOrBuilder {
+          org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder> implements
+          // @@protoc_insertion_point(builder_implements:org.jetbrains.kotlin.serialization.js.Library.FileEntry)
+          org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntryOrBuilder {
         public static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor;
@@ -1279,7 +1282,6 @@ public final class DebugJsProtoBuf {
         }
         private int bitField0_;
 
-        // required string path = 1;
         private java.lang.Object path_ = "";
         /**
          * <code>required string path = 1;</code>
@@ -1293,9 +1295,12 @@ public final class DebugJsProtoBuf {
         public java.lang.String getPath() {
           java.lang.Object ref = path_;
           if (!(ref instanceof java.lang.String)) {
-            java.lang.String s = ((org.jetbrains.kotlin.protobuf.ByteString) ref)
-                .toStringUtf8();
-            path_ = s;
+            org.jetbrains.kotlin.protobuf.ByteString bs =
+                (org.jetbrains.kotlin.protobuf.ByteString) ref;
+            java.lang.String s = bs.toStringUtf8();
+            if (bs.isValidUtf8()) {
+              path_ = s;
+            }
             return s;
           } else {
             return (java.lang.String) ref;
@@ -1353,7 +1358,6 @@ public final class DebugJsProtoBuf {
           return this;
         }
 
-        // required bytes content = 2;
         private org.jetbrains.kotlin.protobuf.ByteString content_ = org.jetbrains.kotlin.protobuf.ByteString.EMPTY;
         /**
          * <code>required bytes content = 2;</code>
@@ -1401,7 +1405,6 @@ public final class DebugJsProtoBuf {
     }
 
     private int bitField0_;
-    // repeated .org.jetbrains.kotlin.serialization.js.Library.FileEntry entry = 1;
     public static final int ENTRY_FIELD_NUMBER = 1;
     private java.util.List<org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntry> entry_;
     /**
@@ -1437,7 +1440,6 @@ public final class DebugJsProtoBuf {
       return entry_.get(index);
     }
 
-    // optional .org.jetbrains.kotlin.serialization.js.Library.Kind kind = 2 [default = PLAIN];
     public static final int KIND_FIELD_NUMBER = 2;
     private org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind kind_;
     /**
@@ -1453,45 +1455,45 @@ public final class DebugJsProtoBuf {
       return kind_;
     }
 
-    // repeated string importedModules = 3;
-    public static final int IMPORTEDMODULES_FIELD_NUMBER = 3;
-    private org.jetbrains.kotlin.protobuf.LazyStringList importedModules_;
+    public static final int IMPORTED_MODULE_FIELD_NUMBER = 3;
+    private org.jetbrains.kotlin.protobuf.LazyStringList importedModule_;
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    public java.util.List<java.lang.String>
-        getImportedModulesList() {
-      return importedModules_;
+    public org.jetbrains.kotlin.protobuf.ProtocolStringList
+        getImportedModuleList() {
+      return importedModule_;
     }
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    public int getImportedModulesCount() {
-      return importedModules_.size();
+    public int getImportedModuleCount() {
+      return importedModule_.size();
     }
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
-    public java.lang.String getImportedModules(int index) {
-      return importedModules_.get(index);
+    public java.lang.String getImportedModule(int index) {
+      return importedModule_.get(index);
     }
     /**
-     * <code>repeated string importedModules = 3;</code>
+     * <code>repeated string imported_module = 3;</code>
      */
     public org.jetbrains.kotlin.protobuf.ByteString
-        getImportedModulesBytes(int index) {
-      return importedModules_.getByteString(index);
+        getImportedModuleBytes(int index) {
+      return importedModule_.getByteString(index);
     }
 
     private void initFields() {
       entry_ = java.util.Collections.emptyList();
       kind_ = org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind.PLAIN;
-      importedModules_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
+      importedModule_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized != -1) return isInitialized == 1;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
 
       for (int i = 0; i < getEntryCount(); i++) {
         if (!getEntry(i).isInitialized()) {
@@ -1512,8 +1514,8 @@ public final class DebugJsProtoBuf {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeEnum(2, kind_.getNumber());
       }
-      for (int i = 0; i < importedModules_.size(); i++) {
-        output.writeBytes(3, importedModules_.getByteString(i));
+      for (int i = 0; i < importedModule_.size(); i++) {
+        output.writeBytes(3, importedModule_.getByteString(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -1534,12 +1536,12 @@ public final class DebugJsProtoBuf {
       }
       {
         int dataSize = 0;
-        for (int i = 0; i < importedModules_.size(); i++) {
+        for (int i = 0; i < importedModule_.size(); i++) {
           dataSize += org.jetbrains.kotlin.protobuf.CodedOutputStream
-            .computeBytesSizeNoTag(importedModules_.getByteString(i));
+            .computeBytesSizeNoTag(importedModule_.getByteString(i));
         }
         size += dataSize;
-        size += 1 * getImportedModulesList().size();
+        size += 1 * getImportedModuleList().size();
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1623,8 +1625,9 @@ public final class DebugJsProtoBuf {
      * Protobuf type {@code org.jetbrains.kotlin.serialization.js.Library}
      */
     public static final class Builder extends
-        org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder>
-       implements org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.LibraryOrBuilder {
+        org.jetbrains.kotlin.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:org.jetbrains.kotlin.serialization.js.Library)
+        org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.LibraryOrBuilder {
       public static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor;
@@ -1666,7 +1669,7 @@ public final class DebugJsProtoBuf {
         }
         kind_ = org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind.PLAIN;
         bitField0_ = (bitField0_ & ~0x00000002);
-        importedModules_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
+        importedModule_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
@@ -1710,11 +1713,10 @@ public final class DebugJsProtoBuf {
         }
         result.kind_ = kind_;
         if (((bitField0_ & 0x00000004) == 0x00000004)) {
-          importedModules_ = new org.jetbrains.kotlin.protobuf.UnmodifiableLazyStringList(
-              importedModules_);
+          importedModule_ = importedModule_.getUnmodifiableView();
           bitField0_ = (bitField0_ & ~0x00000004);
         }
-        result.importedModules_ = importedModules_;
+        result.importedModule_ = importedModule_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1760,13 +1762,13 @@ public final class DebugJsProtoBuf {
         if (other.hasKind()) {
           setKind(other.getKind());
         }
-        if (!other.importedModules_.isEmpty()) {
-          if (importedModules_.isEmpty()) {
-            importedModules_ = other.importedModules_;
+        if (!other.importedModule_.isEmpty()) {
+          if (importedModule_.isEmpty()) {
+            importedModule_ = other.importedModule_;
             bitField0_ = (bitField0_ & ~0x00000004);
           } else {
-            ensureImportedModulesIsMutable();
-            importedModules_.addAll(other.importedModules_);
+            ensureImportedModuleIsMutable();
+            importedModule_.addAll(other.importedModule_);
           }
           onChanged();
         }
@@ -1803,7 +1805,6 @@ public final class DebugJsProtoBuf {
       }
       private int bitField0_;
 
-      // repeated .org.jetbrains.kotlin.serialization.js.Library.FileEntry entry = 1;
       private java.util.List<org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntry> entry_ =
         java.util.Collections.emptyList();
       private void ensureEntryIsMutable() {
@@ -1945,7 +1946,8 @@ public final class DebugJsProtoBuf {
           java.lang.Iterable<? extends org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.FileEntry> values) {
         if (entryBuilder_ == null) {
           ensureEntryIsMutable();
-          super.addAll(values, entry_);
+          org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+              values, entry_);
           onChanged();
         } else {
           entryBuilder_.addAllMessages(values);
@@ -2043,7 +2045,6 @@ public final class DebugJsProtoBuf {
         return entryBuilder_;
       }
 
-      // optional .org.jetbrains.kotlin.serialization.js.Library.Kind kind = 2 [default = PLAIN];
       private org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind kind_ = org.jetbrains.kotlin.serialization.js.DebugJsProtoBuf.Library.Kind.PLAIN;
       /**
        * <code>optional .org.jetbrains.kotlin.serialization.js.Library.Kind kind = 2 [default = PLAIN];</code>
@@ -2079,95 +2080,95 @@ public final class DebugJsProtoBuf {
         return this;
       }
 
-      // repeated string importedModules = 3;
-      private org.jetbrains.kotlin.protobuf.LazyStringList importedModules_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
-      private void ensureImportedModulesIsMutable() {
+      private org.jetbrains.kotlin.protobuf.LazyStringList importedModule_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
+      private void ensureImportedModuleIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          importedModules_ = new org.jetbrains.kotlin.protobuf.LazyStringArrayList(importedModules_);
+          importedModule_ = new org.jetbrains.kotlin.protobuf.LazyStringArrayList(importedModule_);
           bitField0_ |= 0x00000004;
          }
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public java.util.List<java.lang.String>
-          getImportedModulesList() {
-        return java.util.Collections.unmodifiableList(importedModules_);
+      public org.jetbrains.kotlin.protobuf.ProtocolStringList
+          getImportedModuleList() {
+        return importedModule_.getUnmodifiableView();
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public int getImportedModulesCount() {
-        return importedModules_.size();
+      public int getImportedModuleCount() {
+        return importedModule_.size();
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public java.lang.String getImportedModules(int index) {
-        return importedModules_.get(index);
+      public java.lang.String getImportedModule(int index) {
+        return importedModule_.get(index);
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
       public org.jetbrains.kotlin.protobuf.ByteString
-          getImportedModulesBytes(int index) {
-        return importedModules_.getByteString(index);
+          getImportedModuleBytes(int index) {
+        return importedModule_.getByteString(index);
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public Builder setImportedModules(
+      public Builder setImportedModule(
           int index, java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureImportedModulesIsMutable();
-        importedModules_.set(index, value);
+  ensureImportedModuleIsMutable();
+        importedModule_.set(index, value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public Builder addImportedModules(
+      public Builder addImportedModule(
           java.lang.String value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureImportedModulesIsMutable();
-        importedModules_.add(value);
+  ensureImportedModuleIsMutable();
+        importedModule_.add(value);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public Builder addAllImportedModules(
+      public Builder addAllImportedModule(
           java.lang.Iterable<java.lang.String> values) {
-        ensureImportedModulesIsMutable();
-        super.addAll(values, importedModules_);
+        ensureImportedModuleIsMutable();
+        org.jetbrains.kotlin.protobuf.AbstractMessageLite.Builder.addAll(
+            values, importedModule_);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public Builder clearImportedModules() {
-        importedModules_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
+      public Builder clearImportedModule() {
+        importedModule_ = org.jetbrains.kotlin.protobuf.LazyStringArrayList.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000004);
         onChanged();
         return this;
       }
       /**
-       * <code>repeated string importedModules = 3;</code>
+       * <code>repeated string imported_module = 3;</code>
        */
-      public Builder addImportedModulesBytes(
+      public Builder addImportedModuleBytes(
           org.jetbrains.kotlin.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  ensureImportedModulesIsMutable();
-        importedModules_.add(value);
+  ensureImportedModuleIsMutable();
+        importedModule_.add(value);
         onChanged();
         return this;
       }
@@ -2282,17 +2283,17 @@ public final class DebugJsProtoBuf {
           .newFileScopedGeneratedExtension(
         org.jetbrains.kotlin.serialization.DebugProtoBuf.Annotation.class,
         org.jetbrains.kotlin.serialization.DebugProtoBuf.Annotation.getDefaultInstance());
-  private static org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+  private static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
     internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor;
   private static
     org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_jetbrains_kotlin_serialization_js_Classes_fieldAccessorTable;
-  private static org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+  private static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
     internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor;
   private static
     org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_org_jetbrains_kotlin_serialization_js_Library_fieldAccessorTable;
-  private static org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
+  private static final org.jetbrains.kotlin.protobuf.Descriptors.Descriptor
     internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor;
   private static
     org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable
@@ -2314,7 +2315,7 @@ public final class DebugJsProtoBuf {
       "ains.kotlin.serialization.js.Library.Fil" +
       "eEntry\022H\n\004kind\030\002 \001(\01623.org.jetbrains.kot" +
       "lin.serialization.js.Library.Kind:\005PLAIN" +
-      "\022\027\n\017importedModules\030\003 \003(\t\032*\n\tFileEntry\022\014" +
+      "\022\027\n\017imported_module\030\003 \003(\t\032*\n\tFileEntry\022\014" +
       "\n\004path\030\001 \002(\t\022\017\n\007content\030\002 \002(\014\"2\n\004Kind\022\t\n",
       "\005PLAIN\020\001\022\007\n\003AMD\020\002\022\r\n\tCOMMON_JS\020\003\022\007\n\003UMD\020" +
       "\004:t\n\020class_annotation\022).org.jetbrains.ko" +
@@ -2349,45 +2350,46 @@ public final class DebugJsProtoBuf {
       "rotoBuf"
     };
     org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-      new org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
-        public org.jetbrains.kotlin.protobuf.ExtensionRegistry assignDescriptors(
-            org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor root) {
-          descriptor = root;
-          internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor =
-            getDescriptor().getMessageTypes().get(0);
-          internal_static_org_jetbrains_kotlin_serialization_js_Classes_fieldAccessorTable = new
-            org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor,
-              new java.lang.String[] { "ClassName", });
-          internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor =
-            getDescriptor().getMessageTypes().get(1);
-          internal_static_org_jetbrains_kotlin_serialization_js_Library_fieldAccessorTable = new
-            org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor,
-              new java.lang.String[] { "Entry", "Kind", "ImportedModules", });
-          internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor =
-            internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor.getNestedTypes().get(0);
-          internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_fieldAccessorTable = new
-            org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
-              internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor,
-              new java.lang.String[] { "Path", "Content", });
-          classAnnotation.internalInit(descriptor.getExtensions().get(0));
-          constructorAnnotation.internalInit(descriptor.getExtensions().get(1));
-          functionAnnotation.internalInit(descriptor.getExtensions().get(2));
-          propertyAnnotation.internalInit(descriptor.getExtensions().get(3));
-          compileTimeValue.internalInit(descriptor.getExtensions().get(4));
-          enumEntryAnnotation.internalInit(descriptor.getExtensions().get(5));
-          parameterAnnotation.internalInit(descriptor.getExtensions().get(6));
-          typeAnnotation.internalInit(descriptor.getExtensions().get(7));
-          typeParameterAnnotation.internalInit(descriptor.getExtensions().get(8));
-          return null;
-        }
-      };
+        new org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
+          public org.jetbrains.kotlin.protobuf.ExtensionRegistry assignDescriptors(
+              org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor root) {
+            descriptor = root;
+            return null;
+          }
+        };
     org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new org.jetbrains.kotlin.protobuf.Descriptors.FileDescriptor[] {
           org.jetbrains.kotlin.serialization.DebugProtoBuf.getDescriptor(),
         }, assigner);
+    internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor =
+      getDescriptor().getMessageTypes().get(0);
+    internal_static_org_jetbrains_kotlin_serialization_js_Classes_fieldAccessorTable = new
+      org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_jetbrains_kotlin_serialization_js_Classes_descriptor,
+        new java.lang.String[] { "ClassName", });
+    internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor =
+      getDescriptor().getMessageTypes().get(1);
+    internal_static_org_jetbrains_kotlin_serialization_js_Library_fieldAccessorTable = new
+      org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor,
+        new java.lang.String[] { "Entry", "Kind", "ImportedModule", });
+    internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor =
+      internal_static_org_jetbrains_kotlin_serialization_js_Library_descriptor.getNestedTypes().get(0);
+    internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_fieldAccessorTable = new
+      org.jetbrains.kotlin.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_org_jetbrains_kotlin_serialization_js_Library_FileEntry_descriptor,
+        new java.lang.String[] { "Path", "Content", });
+    classAnnotation.internalInit(descriptor.getExtensions().get(0));
+    constructorAnnotation.internalInit(descriptor.getExtensions().get(1));
+    functionAnnotation.internalInit(descriptor.getExtensions().get(2));
+    propertyAnnotation.internalInit(descriptor.getExtensions().get(3));
+    compileTimeValue.internalInit(descriptor.getExtensions().get(4));
+    enumEntryAnnotation.internalInit(descriptor.getExtensions().get(5));
+    parameterAnnotation.internalInit(descriptor.getExtensions().get(6));
+    typeAnnotation.internalInit(descriptor.getExtensions().get(7));
+    typeParameterAnnotation.internalInit(descriptor.getExtensions().get(8));
+    org.jetbrains.kotlin.serialization.DebugProtoBuf.getDescriptor();
   }
 
   // @@protoc_insertion_point(outer_class_scope)

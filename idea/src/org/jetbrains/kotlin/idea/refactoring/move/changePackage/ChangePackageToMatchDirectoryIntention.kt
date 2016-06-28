@@ -19,8 +19,9 @@ package org.jetbrains.kotlin.idea.refactoring.move.changePackage
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.kotlin.idea.core.getFqNameByDirectory
 import org.jetbrains.kotlin.idea.core.packageMatchesDirectory
-import org.jetbrains.kotlin.idea.refactoring.hasIdentifiersOnly
 import org.jetbrains.kotlin.idea.intentions.SelfTargetingOffsetIndependentIntention
+import org.jetbrains.kotlin.idea.refactoring.hasIdentifiersOnly
+import org.jetbrains.kotlin.idea.refactoring.isInjectedFragment
 import org.jetbrains.kotlin.psi.KtPackageDirective
 
 class ChangePackageToMatchDirectoryIntention : SelfTargetingOffsetIndependentIntention<KtPackageDirective>(
@@ -28,10 +29,10 @@ class ChangePackageToMatchDirectoryIntention : SelfTargetingOffsetIndependentInt
 ) {
     override fun isApplicableTo(element: KtPackageDirective): Boolean {
         val file = element.getContainingKtFile()
-        if (file.packageMatchesDirectory()) return false
+        if (file.isInjectedFragment || file.packageMatchesDirectory()) return false
 
         val fqNameByDirectory = file.getFqNameByDirectory()
-        if (!fqNameByDirectory.toUnsafe().hasIdentifiersOnly()) {
+        if (!fqNameByDirectory.hasIdentifiersOnly()) {
             if (isIntentionBaseInspectionEnabled(file.project, element)) {
                 text = "File package doesn't match directory"
                 return true
@@ -46,7 +47,7 @@ class ChangePackageToMatchDirectoryIntention : SelfTargetingOffsetIndependentInt
     override fun applyTo(element: KtPackageDirective, editor: Editor?) {
         val file = element.getContainingKtFile()
         val newFqName = file.getFqNameByDirectory()
-        if (!newFqName.toUnsafe().hasIdentifiersOnly()) return
+        if (!newFqName.hasIdentifiersOnly()) return
         KotlinChangePackageRefactoring(file).run(newFqName)
     }
 }

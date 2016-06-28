@@ -35,6 +35,18 @@ public class RenameTestGenerated extends AbstractRenameTest {
         KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File("idea/testData/refactoring/rename"), Pattern.compile("^(.+)\\.test$"));
     }
 
+    @TestMetadata("ambiguousClassFunImportRenameClass/ambiguousClassFunImportRenameClass.test")
+    public void testAmbiguousClassFunImportRenameClass_AmbiguousClassFunImportRenameClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/ambiguousClassFunImportRenameClass/ambiguousClassFunImportRenameClass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("ambiguousClassFunImportRenameFun/ambiguousClassFunImportRenameFun.test")
+    public void testAmbiguousClassFunImportRenameFun_AmbiguousClassFunImportRenameFun() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/ambiguousClassFunImportRenameFun/ambiguousClassFunImportRenameFun.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("automaticRenamer/simple.test")
     public void testAutomaticRenamer_Simple() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamer/simple.test");
@@ -56,6 +68,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("automaticRenamerKotlinTestClass/automaticRenamerKotlinTestClass.test")
     public void testAutomaticRenamerKotlinTestClass_AutomaticRenamerKotlinTestClass() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerKotlinTestClass/automaticRenamerKotlinTestClass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("automaticRenamerKotlinTestClassForFacade/automaticRenamerKotlinTestClassForFacade.test")
+    public void testAutomaticRenamerKotlinTestClassForFacade_AutomaticRenamerKotlinTestClassForFacade() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/automaticRenamerKotlinTestClassForFacade/automaticRenamerKotlinTestClassForFacade.test");
         doTest(fileName);
     }
 
@@ -113,6 +131,36 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("clashOfNestedWithOuterClass/clashOfNestedWithOuterClass.test")
+    public void testClashOfNestedWithOuterClass_ClashOfNestedWithOuterClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/clashOfNestedWithOuterClass/clashOfNestedWithOuterClass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("clashParameterWithProperty/clashParameterWithProperty.test")
+    public void testClashParameterWithProperty_ClashParameterWithProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/clashParameterWithProperty/clashParameterWithProperty.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("clashWithInnerClass/clashWithInnerClass.test")
+    public void testClashWithInnerClass_ClashWithInnerClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/clashWithInnerClass/clashWithInnerClass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("clashWithNestedClass/clashWithNestedClass.test")
+    public void testClashWithNestedClass_ClashWithNestedClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/clashWithNestedClass/clashWithNestedClass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("clashWithOuterClass/clashWithOuterClass.test")
+    public void testClashWithOuterClass_ClashWithOuterClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/clashWithOuterClass/clashWithOuterClass.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("companionObject/companionObject.test")
     public void testCompanionObject_CompanionObject() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/companionObject/companionObject.test");
@@ -128,6 +176,84 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("companionObjectWithNameMatchingClass/companionObject.test")
     public void testCompanionObjectWithNameMatchingClass_CompanionObject() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/companionObjectWithNameMatchingClass/companionObject.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("memberPropertyRedeclaration/memberPropertyRedeclaration.test")
+    public void testMemberPropertyRedeclaration_MemberPropertyRedeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/memberPropertyRedeclaration/memberPropertyRedeclaration.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("memberPropertyShadowedByLocalVar/memberPropertyShadowedByLocalVar.test")
+    public void testMemberPropertyShadowedByLocalVar_MemberPropertyShadowedByLocalVar() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/memberPropertyShadowedByLocalVar/memberPropertyShadowedByLocalVar.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("memberPropertyWithInnerInstanceProperty/memberPropertyWithInnerInstanceProperty.test")
+    public void testMemberPropertyWithInnerInstanceProperty_MemberPropertyWithInnerInstanceProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/memberPropertyWithInnerInstanceProperty/memberPropertyWithInnerInstanceProperty.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("memberPropertyWithOuterInstanceProperty/memberPropertyWithOuterInstanceProperty.test")
+    public void testMemberPropertyWithOuterInstanceProperty_MemberPropertyWithOuterInstanceProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/memberPropertyWithOuterInstanceProperty/memberPropertyWithOuterInstanceProperty.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("nestedClassRedeclaration/nestedClassRedeclaration.test")
+    public void testNestedClassRedeclaration_NestedClassRedeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/nestedClassRedeclaration/nestedClassRedeclaration.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("nonCodePropertyAccessorUsages/nonCodePropertyAccessorUsages.test")
+    public void testNonCodePropertyAccessorUsages_NonCodePropertyAccessorUsages() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/nonCodePropertyAccessorUsages/nonCodePropertyAccessorUsages.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("parameterRedeclaration/parameterRedeclaration.test")
+    public void testParameterRedeclaration_ParameterRedeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/parameterRedeclaration/parameterRedeclaration.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyAccidentalOverrideSubclass/propertyAccidentalOverrideSubclass.test")
+    public void testPropertyAccidentalOverrideSubclass_PropertyAccidentalOverrideSubclass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyAccidentalOverrideSubclass/propertyAccidentalOverrideSubclass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyAccidentalOverrideSuperclass/propertyAccidentalOverrideSuperclass.test")
+    public void testPropertyAccidentalOverrideSuperclass_PropertyAccidentalOverrideSuperclass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyAccidentalOverrideSuperclass/propertyAccidentalOverrideSuperclass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyParameterAccidentalOverrideSubclass/propertyParameterAccidentalOverrideSubclass.test")
+    public void testPropertyParameterAccidentalOverrideSubclass_PropertyParameterAccidentalOverrideSubclass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyParameterAccidentalOverrideSubclass/propertyParameterAccidentalOverrideSubclass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyParameterAccidentalOverrideSuperclass/propertyParameterAccidentalOverrideSuperclass.test")
+    public void testPropertyParameterAccidentalOverrideSuperclass_PropertyParameterAccidentalOverrideSuperclass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyParameterAccidentalOverrideSuperclass/propertyParameterAccidentalOverrideSuperclass.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyParameterRedeclaredByProperty/propertyParameterRedeclaredByProperty.test")
+    public void testPropertyParameterRedeclaredByProperty_PropertyParameterRedeclaredByProperty() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyParameterRedeclaredByProperty/propertyParameterRedeclaredByProperty.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("propertyRedeclaredByPropertyParameter/propertyRedeclaredByPropertyParameter.test")
+    public void testPropertyRedeclaredByPropertyParameter_PropertyRedeclaredByPropertyParameter() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/propertyRedeclaredByPropertyParameter/propertyRedeclaredByPropertyParameter.test");
         doTest(fileName);
     }
 
@@ -176,6 +302,30 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("renameContainsWithConflicts/containsWithConflicts.test")
     public void testRenameContainsWithConflicts_ContainsWithConflicts() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameContainsWithConflicts/containsWithConflicts.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renamedClassShadowingImplicitlyImportedClassUsage/renamedClassShadowingImplicitlyImportedClassUsage.test")
+    public void testRenamedClassShadowingImplicitlyImportedClassUsage_RenamedClassShadowingImplicitlyImportedClassUsage() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renamedClassShadowingImplicitlyImportedClassUsage/renamedClassShadowingImplicitlyImportedClassUsage.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renamedClassShadowingImportedClassUsage/renamedClassShadowingImportedClassUsage.test")
+    public void testRenamedClassShadowingImportedClassUsage_RenamedClassShadowingImportedClassUsage() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renamedClassShadowingImportedClassUsage/renamedClassShadowingImportedClassUsage.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renameDefaultJavaAnnotationMethod/renameDefaultJavaAnnotationMethod.test")
+    public void testRenameDefaultJavaAnnotationMethod_RenameDefaultJavaAnnotationMethod() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameDefaultJavaAnnotationMethod/renameDefaultJavaAnnotationMethod.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renameDefaultKotlinAnnotationMethod/renameDefaultKotlinAnnotationMethod.test")
+    public void testRenameDefaultKotlinAnnotationMethod_RenameDefaultKotlinAnnotationMethod() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameDefaultKotlinAnnotationMethod/renameDefaultKotlinAnnotationMethod.test");
         doTest(fileName);
     }
 
@@ -362,6 +512,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("renameKotlinEnumEntry/renameKotlinEnumEntry.test")
     public void testRenameKotlinEnumEntry_RenameKotlinEnumEntry() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinEnumEntry/renameKotlinEnumEntry.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renameKotlinFacadeClassViaTopLevelClass/renameKotlinFacadeClassViaTopLevelClass.test")
+    public void testRenameKotlinFacadeClassViaTopLevelClass_RenameKotlinFacadeClassViaTopLevelClass() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinFacadeClassViaTopLevelClass/renameKotlinFacadeClassViaTopLevelClass.test");
         doTest(fileName);
     }
 
@@ -635,6 +791,18 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("renameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef/renameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef.test")
+    public void testRenameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef_RenameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef/renameKotlinPropertyWithMatchingGetterSetterJvmNameByGetterRef.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef/renameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef.test")
+    public void testRenameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef_RenameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef/renameKotlinPropertyWithMatchingGetterSetterJvmNameBySetterRef.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("renameKotlinPropertyWithSetterJvmName/renameKotlinPropertyWithSetterJvmName.test")
     public void testRenameKotlinPropertyWithSetterJvmName_RenameKotlinPropertyWithSetterJvmName() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameKotlinPropertyWithSetterJvmName/renameKotlinPropertyWithSetterJvmName.test");
@@ -737,6 +905,18 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("renameOverriddenPropertyViaJavaGetter/renameOverriddenPropertyViaJavaGetter.test")
+    public void testRenameOverriddenPropertyViaJavaGetter_RenameOverriddenPropertyViaJavaGetter() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameOverriddenPropertyViaJavaGetter/renameOverriddenPropertyViaJavaGetter.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renameOverriddenPropertyViaJavaSetter/renameOverriddenPropertyViaJavaSetter.test")
+    public void testRenameOverriddenPropertyViaJavaSetter_RenameOverriddenPropertyViaJavaSetter() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renameOverriddenPropertyViaJavaSetter/renameOverriddenPropertyViaJavaSetter.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("renamePlus/plus.test")
     public void testRenamePlus_Plus() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renamePlus/plus.test");
@@ -746,6 +926,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("renamePlusAssign/plusAssign.test")
     public void testRenamePlusAssign_PlusAssign() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renamePlusAssign/plusAssign.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("renamePropertyInEnumCompanionWithEntryConflict/renameKotlinPropertyInEnumCompanionWithEntryConflict.test")
+    public void testRenamePropertyInEnumCompanionWithEntryConflict_RenameKotlinPropertyInEnumCompanionWithEntryConflict() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/renamePropertyInEnumCompanionWithEntryConflict/renameKotlinPropertyInEnumCompanionWithEntryConflict.test");
         doTest(fileName);
     }
 
@@ -782,6 +968,18 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("syntheticPropertyUsages3/renameSetMethod.test")
     public void testSyntheticPropertyUsages3_RenameSetMethod() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/syntheticPropertyUsages3/renameSetMethod.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("topLevelClassRedeclaration/topLevelClassRedeclaration.test")
+    public void testTopLevelClassRedeclaration_TopLevelClassRedeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/topLevelClassRedeclaration/topLevelClassRedeclaration.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("topLevelPropertyRedeclaration/topLevelPropertyRedeclaration.test")
+    public void testTopLevelPropertyRedeclaration_TopLevelPropertyRedeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/topLevelPropertyRedeclaration/topLevelPropertyRedeclaration.test");
         doTest(fileName);
     }
 }

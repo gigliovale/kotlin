@@ -19,20 +19,42 @@ package org.jetbrains.kotlin.idea.refactoring.rename
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
+import com.intellij.refactoring.JavaRefactoringSettings
+import com.intellij.refactoring.listeners.RefactoringElementListener
+import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.usageView.UsageInfo
 import org.jetbrains.kotlin.asJava.KtLightClass
 import org.jetbrains.kotlin.asJava.KtLightClassForExplicitDeclaration
 import org.jetbrains.kotlin.asJava.KtLightClassForFacade
+import org.jetbrains.kotlin.asJava.namedUnwrappedElement
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtConstructor
+import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.utils.SmartList
+import java.util.*
 
 class RenameKotlinClassProcessor : RenameKotlinPsiProcessor() {
     override fun canProcessElement(element: PsiElement): Boolean {
         return element is KtClassOrObject || element is KtLightClass || element is KtConstructor<*>
+    }
+
+    override fun isToSearchInComments(psiElement: PsiElement) = JavaRefactoringSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_FOR_CLASS
+
+    override fun setToSearchInComments(element: PsiElement, enabled: Boolean) {
+        JavaRefactoringSettings.getInstance().RENAME_SEARCH_IN_COMMENTS_FOR_CLASS = enabled
+    }
+
+    override fun isToSearchForTextOccurrences(element: PsiElement) = JavaRefactoringSettings.getInstance().RENAME_SEARCH_FOR_TEXT_FOR_CLASS
+
+    override fun setToSearchForTextOccurrences(element: PsiElement, enabled: Boolean) {
+        JavaRefactoringSettings.getInstance().RENAME_SEARCH_FOR_TEXT_FOR_CLASS = enabled
     }
 
     override fun substituteElementToRename(element: PsiElement, editor: Editor?) = getClassOrObject(element)
@@ -48,7 +70,9 @@ class RenameKotlinClassProcessor : RenameKotlinPsiProcessor() {
         if (virtualFile != null) {
             val nameWithoutExtensions = virtualFile.nameWithoutExtension
             if (nameWithoutExtensions == classOrObject.name) {
-                allRenames.put(file, newName + "." + virtualFile.extension)
+                val newFileName = newName + "." + virtualFile.extension
+                allRenames.put(file, newFileName)
+                RenamePsiElementProcessor.forElement(file).prepareRenaming(file, newFileName, allRenames)
             }
         }
     }
@@ -68,6 +92,23 @@ class RenameKotlinClassProcessor : RenameKotlinPsiProcessor() {
         return bindingContext[BindingContext.SHORT_REFERENCE_TO_COMPANION_OBJECT, element] != null
     }
 
+    override fun findCollisions(
+            element: PsiElement,
+            newName: String?,
+            allRenames: MutableMap<out PsiElement, String>,
+            result: MutableList<UsageInfo>
+    ) {
+        if (newName == null) return
+        val declaration = element.namedUnwrappedElement as? KtNamedDeclaration ?: return
+        val descriptor = declaration.resolveToDescriptor() as ClassDescriptor
+
+        val collisions = SmartList<UsageInfo>()
+        checkRedeclarations(descriptor, newName, collisions)
+        checkOriginalUsagesRetargeting(declaration, newName, result, collisions)
+        checkNewNameUsagesRetargeting(declaration, newName, collisions)
+        result += collisions
+    }
+
     private fun getClassOrObject(element: PsiElement?): PsiElement? = when (element) {
         is KtLightClass ->
             when (element) {
@@ -81,5 +122,23 @@ class RenameKotlinClassProcessor : RenameKotlinPsiProcessor() {
 
         else ->
             element as? KtClassOrObject
+    }
+
+    override fun renameElement(element: PsiElement, newName: String?, usages: Array<out UsageInfo>, listener: RefactoringElementListener?) {
+        val simpleUsages = ArrayList<UsageInfo>(usages.size)
+        val ambiguousImportUsages = com.intellij.util.SmartList<UsageInfo>()
+        for (usage in usages) {
+            if (usage.isAmbiguousImportUsage()) {
+                ambiguousImportUsages += usage
+            }
+            else {
+                simpleUsages += usage
+            }
+        }
+        element.ambiguousImportUsages = ambiguousImportUsages
+
+        super.renameElement(element, newName, simpleUsages.toTypedArray(), listener)
+
+        usages.forEach { (it as? KtResolvableCollisionUsageInfo)?.apply() }
     }
 }

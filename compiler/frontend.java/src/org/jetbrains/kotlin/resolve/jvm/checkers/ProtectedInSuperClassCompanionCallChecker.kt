@@ -16,19 +16,29 @@
 
 package org.jetbrains.kotlin.resolve.jvm.checkers
 
+import com.intellij.psi.PsiElement
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyAccessorDescriptor
 import org.jetbrains.kotlin.descriptors.Visibilities
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.annotations.hasJvmStaticAnnotation
-import org.jetbrains.kotlin.resolve.calls.checkers.SimpleCallChecker
-import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
+import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
+import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.ErrorsJvm
 
-class ProtectedInSuperClassCompanionCallChecker : SimpleCallChecker {
-    override fun check(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext) {
-        val targetDescriptor = resolvedCall.resultingDescriptor.original
+class ProtectedInSuperClassCompanionCallChecker : CallChecker {
+    override fun check(resolvedCall: ResolvedCall<*>, reportOn: PsiElement, context: CallCheckerContext) {
+        check(resolvedCall.resultingDescriptor.original, reportOn, context)
+    }
+
+    override fun checkPropertyCall(descriptor: PropertyAccessorDescriptor, reportOn: PsiElement, context: CallCheckerContext) {
+        check(descriptor, reportOn, context)
+    }
+
+    private fun check(targetDescriptor: CallableDescriptor, reportOn: PsiElement, context: CallCheckerContext) {
         // Protected non-JVM static
         if (targetDescriptor.visibility != Visibilities.PROTECTED) return
         if (targetDescriptor.hasJvmStaticAnnotation()) return
@@ -42,7 +52,7 @@ class ProtectedInSuperClassCompanionCallChecker : SimpleCallChecker {
             if (!parentClassDescriptors.any { DescriptorUtils.isSubclass(it, companionOwnerDescriptor) }) return
             // Called not within the same companion object or its owner class
             if (companionDescriptor !in parentClassDescriptors && companionOwnerDescriptor !in parentClassDescriptors) {
-                context.trace.report(ErrorsJvm.SUBCLASS_CANT_CALL_COMPANION_PROTECTED_NON_STATIC.on(resolvedCall.call.callElement))
+                context.trace.report(ErrorsJvm.SUBCLASS_CANT_CALL_COMPANION_PROTECTED_NON_STATIC.on(reportOn))
             }
         }
     }

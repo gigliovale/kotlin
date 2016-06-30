@@ -39,8 +39,7 @@ import org.jetbrains.kotlin.resolve.bindingContextUtil.BindingContextUtilsKt;
 import org.jetbrains.kotlin.resolve.calls.ArgumentTypeResolver;
 import org.jetbrains.kotlin.resolve.calls.CallExpressionResolver;
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker;
-import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext;
-import org.jetbrains.kotlin.resolve.calls.context.CheckArgumentTypesMode;
+import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext;
 import org.jetbrains.kotlin.resolve.calls.model.DataFlowInfoForArgumentsImpl;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCallImpl;
@@ -585,13 +584,10 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
         trace.record(RESOLVED_CALL, call, resolvedCall);
         trace.record(CALL, expression, call);
 
-        BasicCallResolutionContext resolutionContext =
-                BasicCallResolutionContext.create(context, call, CheckArgumentTypesMode.CHECK_CALLABLE_TYPE);
+        CallCheckerContext callCheckerContext = new CallCheckerContext(context, components.languageFeatureSettings);
         for (CallChecker checker : components.callCheckers) {
-            checker.check(resolvedCall, resolutionContext, components.languageFeatureSettings);
+            checker.check(resolvedCall, expression, callCheckerContext);
         }
-
-        components.symbolUsageValidator.validateCall(resolvedCall, descriptor, trace, expression);
     }
 
     private static boolean isDeclaredInClass(ReceiverParameterDescriptor receiver) {
@@ -871,20 +867,9 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
     public boolean checkLValue(
             @NotNull BindingTrace trace,
             @NotNull ExpressionTypingContext context,
-            @NotNull KtExpression expression,
-            @Nullable KtExpression rightHandSide,
-            @NotNull KtOperationExpression operationExpression
-    ) {
-        return checkLValue(trace, context, expression, rightHandSide, operationExpression, false);
-    }
-
-    private boolean checkLValue(
-            @NotNull BindingTrace trace,
-            @NotNull ExpressionTypingContext context,
             @NotNull KtExpression expressionWithParenthesis,
             @Nullable KtExpression rightHandSide,
-            @NotNull KtOperationExpression operationExpression,
-            boolean canBeThis
+            @NotNull KtOperationExpression operationExpression
     ) {
         KtExpression expression = KtPsiUtil.deparenthesize(expressionWithParenthesis);
         if (expression instanceof KtArrayAccessExpression) {
@@ -901,17 +886,20 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
                     || operationType == KtTokens.PLUSPLUS || operationType == KtTokens.MINUSMINUS) {
                 ResolvedCall<?> resolvedCall = ignoreReportsTrace.get(INDEXED_LVALUE_SET, expression);
                 if (resolvedCall != null) {
-                    CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
                     // Call must be validated with the actual, not temporary trace in order to report operator diagnostic
                     // Only unary assignment expressions (++, --) and +=/... must be checked, normal assignments have the proper trace
-                    components.symbolUsageValidator.validateCall(resolvedCall, descriptor, trace, expression);
+                    CallCheckerContext callCheckerContext = new CallCheckerContext(
+                            trace, context.scope, components.languageFeatureSettings, context.dataFlowInfo, context.isAnnotationContext
+                    );
+                    for (CallChecker checker : components.callCheckers) {
+                        checker.check(resolvedCall, expression, callCheckerContext);
+                    }
                 }
             }
 
             return info.getType() != null;
         }
 
-        if (canBeThis && expression instanceof KtThisExpression) return true;
         VariableDescriptor variable = BindingContextUtils.extractVariableDescriptorIfAny(trace.getBindingContext(), expression, true);
 
         boolean result = true;
@@ -929,9 +917,11 @@ public class BasicExpressionTypingVisitor extends ExpressionTypingVisitor {
                 trace.report(SETTER_PROJECTED_OUT.on(reportOn, propertyDescriptor));
                 result = false;
             }
-            else {
-                if (setter != null) {
-                    components.symbolUsageValidator.validateCall(null, setter, trace, reportOn);
+            else if (setter != null) {
+                CallCheckerContext callCheckerContext =
+                        new CallCheckerContext(trace, context.scope, components.languageFeatureSettings, context.dataFlowInfo, false);
+                for (CallChecker checker : components.callCheckers) {
+                    checker.checkPropertyCall(setter, reportOn, callCheckerContext);
                 }
             }
         }

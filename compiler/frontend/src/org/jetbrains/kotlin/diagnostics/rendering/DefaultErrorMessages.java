@@ -312,8 +312,6 @@ public class DefaultErrorMessages {
         MAP.put(NO_GET_METHOD, "No get method providing array access");
         MAP.put(NO_SET_METHOD, "No set method providing array access");
 
-        MAP.put(DEPRECATED_UNARY_PLUS_MINUS, "Unary operation must be named ''{1}'', not ''{0}''", NAME, STRING);
-
         MAP.put(INC_DEC_SHOULD_NOT_RETURN_UNIT, "Functions inc(), dec() shouldn't return Unit to be used by operators ++, --");
         MAP.put(ASSIGNMENT_OPERATOR_SHOULD_RETURN_UNIT, "Function ''{0}'' should return Unit to be used by corresponding operator ''{1}''",
                 NAME, ELEMENT_TEXT);
@@ -365,7 +363,6 @@ public class DefaultErrorMessages {
         MAP.put(ITERATOR_AMBIGUITY, "Method ''iterator()'' is ambiguous for this expression: {0}", AMBIGUOUS_CALLS);
 
         MAP.put(DELEGATE_SPECIAL_FUNCTION_MISSING, "Missing ''{0}'' method on delegate of type ''{1}''", STRING, RENDER_TYPE);
-        MAP.put(DELEGATE_RESOLVED_TO_DEPRECATED_CONVENTION, "''{0}'' method convention on type ''{1}'' is no longer supported. Rename to ''{2}''", NAME, RENDER_TYPE, STRING);
         MAP.put(DELEGATE_SPECIAL_FUNCTION_AMBIGUITY, "Overload resolution ambiguity on method ''{0}'': {1}",  STRING, AMBIGUOUS_CALLS);
         MAP.put(DELEGATE_SPECIAL_FUNCTION_NONE_APPLICABLE, "Property delegate must have a ''{0}'' method. None of the following functions is suitable: {1}",
                 STRING, AMBIGUOUS_CALLS);
@@ -657,8 +654,6 @@ public class DefaultErrorMessages {
         MAP.put(NONE_APPLICABLE, "None of the following functions can be called with the arguments supplied: {0}", AMBIGUOUS_CALLS);
         MAP.put(CANNOT_COMPLETE_RESOLVE, "Cannot choose among the following candidates without completing type inference: {0}", AMBIGUOUS_CALLS);
         MAP.put(UNRESOLVED_REFERENCE_WRONG_RECEIVER, "Unresolved reference. None of the following candidates is applicable because of receiver type mismatch: {0}", AMBIGUOUS_CALLS);
-        MAP.put(INVOKE_EXTENSION_ON_NOT_EXTENSION_FUNCTION, "Impossible call as extension because {0} is not an extension function.", ELEMENT_TEXT);
-        MAP.put(INVOKE_ON_EXTENSION_FUNCTION_WITH_EXPLICIT_DISPATCH_RECEIVER, "Such calls are no longer supported, surround callee with parenthesis or pass receiver as first argument");
 
         MAP.put(NO_VALUE_FOR_PARAMETER, "No value passed for parameter {0}", NAME);
         MAP.put(MISSING_RECEIVER, "A receiver of type {0} is required", RENDER_TYPE);

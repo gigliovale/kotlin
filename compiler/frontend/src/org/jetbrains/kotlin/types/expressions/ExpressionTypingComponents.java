@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.types.expressions;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
-import org.jetbrains.kotlin.builtins.ReflectionTypes;
 import org.jetbrains.kotlin.config.LanguageFeatureSettings;
 import org.jetbrains.kotlin.context.GlobalContext;
 import org.jetbrains.kotlin.incremental.components.LookupTracker;
@@ -28,8 +27,6 @@ import org.jetbrains.kotlin.resolve.calls.CallExpressionResolver;
 import org.jetbrains.kotlin.resolve.calls.CallResolver;
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker;
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator;
-import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator;
-import org.jetbrains.kotlin.types.DynamicTypesSettings;
 
 import javax.inject.Inject;
 
@@ -41,9 +38,6 @@ public class ExpressionTypingComponents {
     /*package*/ ControlStructureTypingUtils controlStructureTypingUtils;
     /*package*/ ForLoopConventionsChecker forLoopConventionsChecker;
     /*package*/ FakeCallResolver fakeCallResolver;
-    /*package*/ ReflectionTypes reflectionTypes;
-    /*package*/ SymbolUsageValidator symbolUsageValidator;
-    /*package*/ DynamicTypesSettings dynamicTypesSettings;
     /*package*/ KotlinBuiltIns builtIns;
     /*package*/ LocalClassifierAnalyzer localClassifierAnalyzer;
     /*package*/ FunctionDescriptorResolver functionDescriptorResolver;
@@ -101,21 +95,6 @@ public class ExpressionTypingComponents {
     }
 
     @Inject
-    public void setReflectionTypes(@NotNull ReflectionTypes reflectionTypes) {
-        this.reflectionTypes = reflectionTypes;
-    }
-
-    @Inject
-    public void setSymbolUsageValidator(SymbolUsageValidator symbolUsageValidator) {
-        this.symbolUsageValidator = symbolUsageValidator;
-    }
-
-    @Inject
-    public void setDynamicTypesSettings(@NotNull DynamicTypesSettings dynamicTypesSettings) {
-        this.dynamicTypesSettings = dynamicTypesSettings;
-    }
-
-    @Inject
     public void setBuiltIns(@NotNull KotlinBuiltIns builtIns) {
         this.builtIns = builtIns;
     }
@@ -163,11 +142,6 @@ public class ExpressionTypingComponents {
     @Inject
     public void setDestructuringDeclarationResolver(DestructuringDeclarationResolver destructuringDeclarationResolver) {
         this.destructuringDeclarationResolver = destructuringDeclarationResolver;
-    }
-
-    @NotNull
-    public ForLoopConventionsChecker getForLoopConventionsChecker() {
-        return forLoopConventionsChecker;
     }
 
     @Inject

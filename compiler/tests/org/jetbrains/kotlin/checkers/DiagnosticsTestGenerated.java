@@ -5160,6 +5160,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("localWithSmartCast.kt")
+            public void testLocalWithSmartCast() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/localWithSmartCast.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("missedGetter.kt")
             public void testMissedGetter() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/missedGetter.kt");
@@ -16700,6 +16706,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("objectLiteralAsDefaultValueParameter.kt")
                 public void testObjectLiteralAsDefaultValueParameter() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/secondaryConstructors/headerCallChecker/objectLiteralAsDefaultValueParameter.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("operatorCall.kt")
+                public void testOperatorCall() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/secondaryConstructors/headerCallChecker/operatorCall.kt");
                     doTest(fileName);
                 }
 

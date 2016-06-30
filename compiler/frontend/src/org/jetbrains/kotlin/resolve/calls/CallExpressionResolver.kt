@@ -52,7 +52,6 @@ import org.jetbrains.kotlin.resolve.calls.util.CallMaker
 import org.jetbrains.kotlin.resolve.calls.util.FakeCallableDescriptorForObject
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
 import org.jetbrains.kotlin.resolve.scopes.receivers.*
-import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -72,9 +71,8 @@ class CallExpressionResolver(
         private val dataFlowAnalyzer: DataFlowAnalyzer,
         private val builtIns: KotlinBuiltIns,
         private val qualifiedExpressionResolver: QualifiedExpressionResolver,
-        private val symbolUsageValidator: SymbolUsageValidator
+        private val classifierUsageCheckers: Iterable<ClassifierUsageChecker>
 ) {
-
     private lateinit var expressionTypingServices: ExpressionTypingServices
 
     // component dependency cycle
@@ -164,7 +162,7 @@ class CallExpressionResolver(
         val temporaryForQualifier = TemporaryTraceAndCache.create(context, "trace to resolve as qualifier", nameExpression)
         val contextForQualifier = context.replaceTraceAndCache(temporaryForQualifier)
         qualifiedExpressionResolver.resolveNameExpressionAsQualifierForDiagnostics(nameExpression, receiver, contextForQualifier)?.let {
-            resolveQualifierAsStandaloneExpression(it, contextForQualifier, symbolUsageValidator)
+            resolveQualifierAsStandaloneExpression(it, contextForQualifier, classifierUsageCheckers)
             temporaryForQualifier.commit()
         } ?: temporaryForVariable.commit()
         return noTypeInfo(context)
@@ -451,7 +449,7 @@ class CallExpressionResolver(
             context.trace.get(BindingContext.REFERENCE_TARGET, it)
         }
 
-        resolveQualifierAsReceiverInExpression(qualifier, selectorDescriptor, context, symbolUsageValidator)
+        resolveQualifierAsReceiverInExpression(qualifier, selectorDescriptor, context, classifierUsageCheckers)
     }
 
     companion object {

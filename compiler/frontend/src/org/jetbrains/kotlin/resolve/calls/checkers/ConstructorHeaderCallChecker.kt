@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve
+package org.jetbrains.kotlin.resolve.calls.checkers
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.psi.KtInstanceExpressionWithLabel
-import org.jetbrains.kotlin.resolve.calls.checkers.SimpleCallChecker
-import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
@@ -29,26 +29,27 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.Receiver
 import org.jetbrains.kotlin.resolve.scopes.utils.parentsWithSelf
 
-object ConstructorHeaderCallChecker : SimpleCallChecker {
-    override fun check(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext) {
+object ConstructorHeaderCallChecker : CallChecker {
+    override fun check(resolvedCall: ResolvedCall<*>, reportOn: PsiElement, context: CallCheckerContext) {
         val dispatchReceiverClass = resolvedCall.dispatchReceiver.classDescriptorForImplicitReceiver
         val extensionReceiverClass = resolvedCall.extensionReceiver.classDescriptorForImplicitReceiver
 
+        val callElement = resolvedCall.call.callElement
         val labelReferenceClass =
-                (resolvedCall.call.callElement as? KtInstanceExpressionWithLabel)?.let {
-                    instanceExpressionWithLabel ->
-                    context.trace.get(BindingContext.REFERENCE_TARGET, instanceExpressionWithLabel.instanceReference) as? ClassDescriptor
+                if (callElement is KtInstanceExpressionWithLabel) {
+                    context.trace.get(BindingContext.REFERENCE_TARGET, callElement.instanceReference) as? ClassDescriptor
                 }
+                else null
 
         if (dispatchReceiverClass == null && extensionReceiverClass == null && labelReferenceClass == null) return
 
-        if (context.scope.parentsWithSelf.any() {
-            it is LexicalScope && it.kind == LexicalScopeKind.CONSTRUCTOR_HEADER
-                && (it.ownerDescriptor as ConstructorDescriptor).containingDeclaration in
-                    setOf(dispatchReceiverClass, extensionReceiverClass, labelReferenceClass)
+        val classes = setOf(dispatchReceiverClass, extensionReceiverClass, labelReferenceClass)
+
+        if (context.scope.parentsWithSelf.any { scope ->
+            scope is LexicalScope && scope.kind == LexicalScopeKind.CONSTRUCTOR_HEADER &&
+            (scope.ownerDescriptor as ConstructorDescriptor).containingDeclaration in classes
         }) {
-            context.trace.report(
-                    Errors.INSTANCE_ACCESS_BEFORE_SUPER_CALL.on(context.call.calleeExpression ?: return, resolvedCall.resultingDescriptor))
+            context.trace.report(Errors.INSTANCE_ACCESS_BEFORE_SUPER_CALL.on(reportOn, resolvedCall.resultingDescriptor))
         }
     }
 }

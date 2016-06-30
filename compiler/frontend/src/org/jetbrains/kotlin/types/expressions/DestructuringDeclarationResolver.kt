@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.resolve.TypeResolver
 import org.jetbrains.kotlin.resolve.dataClassUtils.createComponentName
 import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
-import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -36,8 +35,7 @@ import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 class DestructuringDeclarationResolver(
         private val fakeCallResolver: FakeCallResolver,
         private val localVariableResolver: LocalVariableResolver,
-        private val typeResolver: TypeResolver,
-        private val symbolUsageValidator: SymbolUsageValidator
+        private val typeResolver: TypeResolver
 ) {
     fun defineLocalVariablesFromMultiDeclaration(
             writableScope: LexicalWritableScope,
@@ -81,10 +79,7 @@ class DestructuringDeclarationResolver(
 
         context.trace.record(BindingContext.COMPONENT_RESOLVED_CALL, entry, results.resultingCall)
 
-        val functionDescriptor = results.resultingDescriptor
-        symbolUsageValidator.validateCall(null, functionDescriptor, context.trace, entry)
-
-        val functionReturnType = functionDescriptor.returnType
+        val functionReturnType = results.resultingDescriptor.returnType
         if (functionReturnType != null && !TypeUtils.noExpectedType(expectedType)
             && !KotlinTypeChecker.DEFAULT.isSubtypeOf(functionReturnType, expectedType) ) {
             context.trace.report(Errors.COMPONENT_FUNCTION_RETURN_TYPE_MISMATCH.on(initializer, componentName, functionReturnType, expectedType))

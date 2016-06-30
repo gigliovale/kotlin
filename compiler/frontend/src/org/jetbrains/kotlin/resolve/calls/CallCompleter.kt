@@ -27,7 +27,9 @@ import org.jetbrains.kotlin.resolve.BindingContext.CONSTRAINT_SYSTEM_COMPLETER
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode.RESOLVE_FUNCTION_ARGUMENTS
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.getEffectiveExpectedType
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isInvokeCallOnVariable
+import org.jetbrains.kotlin.resolve.calls.callUtil.isFakeElement
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
+import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CallCandidateResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CallPosition
@@ -43,7 +45,6 @@ import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResultsImpl
 import org.jetbrains.kotlin.resolve.calls.results.ResolutionStatus
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.tasks.TracingStrategy
-import org.jetbrains.kotlin.resolve.validation.SymbolUsageValidator
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -55,7 +56,6 @@ import java.util.*
 class CallCompleter(
         private val argumentTypeResolver: ArgumentTypeResolver,
         private val candidateResolver: CandidateResolver,
-        private val symbolUsageValidator: SymbolUsageValidator,
         private val dataFlowAnalyzer: DataFlowAnalyzer,
         private val callCheckers: Iterable<CallChecker>,
         private val builtIns: KotlinBuiltIns,
@@ -83,15 +83,18 @@ class CallCompleter(
         }
 
         if (resolvedCall != null) {
-            for (callChecker in callCheckers) {
-                callChecker.check(resolvedCall, context, languageFeatureSettings)
-            }
-
-            val element = if (resolvedCall is VariableAsFunctionResolvedCall)
+            val calleeExpression = if (resolvedCall is VariableAsFunctionResolvedCall)
                 resolvedCall.variableCall.call.calleeExpression
             else
                 resolvedCall.call.calleeExpression
-            symbolUsageValidator.validateCall(resolvedCall, resolvedCall.resultingDescriptor, context.trace, element!!)
+            val reportOn =
+                    if (calleeExpression != null && !calleeExpression.isFakeElement) calleeExpression
+                    else resolvedCall.call.callElement
+
+            val callCheckerContext = CallCheckerContext(context, languageFeatureSettings)
+            for (callChecker in callCheckers) {
+                callChecker.check(resolvedCall, reportOn, callCheckerContext)
+            }
 
             resolveHandleResultCallForCoroutineLambdaExpressions(context, resolvedCall)
         }

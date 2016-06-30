@@ -24,12 +24,12 @@ import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.coroutines.getExpectedTypeForCoroutineControllerHandleResult
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.CallTransformer
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.callUtil.getValueArgumentForExpression
+import org.jetbrains.kotlin.resolve.calls.checkers.InfixCallChecker
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystem
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind.EXPECTED_TYPE_POSITION
 import org.jetbrains.kotlin.resolve.calls.inference.getNestedTypeVariables
@@ -41,7 +41,6 @@ import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.resolve.scopes.utils.getImplicitReceiversHierarchy
-import org.jetbrains.kotlin.resolve.validation.InfixValidator
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.TypeUtils.DONT_CARE
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
@@ -136,14 +135,7 @@ fun isConventionCall(call: Call): Boolean {
     return calleeExpression.getNameForConventionalOperation() != null
 }
 
-fun isInfixCall(call: Call): Boolean = InfixValidator.isInfixCall(call.calleeExpression)
-
-fun getUnaryPlusOrMinusOperatorFunctionName(call: Call): Name? {
-    if (call.callElement !is KtPrefixExpression) return null
-    val calleeExpression = call.calleeExpression as? KtOperationReferenceExpression ?: return null
-    val name = calleeExpression.getNameForConventionalOperation(unaryOperations = true, binaryOperations = false)
-    return if (name == OperatorNameConventions.UNARY_PLUS || name == OperatorNameConventions.UNARY_MINUS) name else null
-}
+fun isInfixCall(call: Call): Boolean = InfixCallChecker.isInfixCall(call.calleeExpression)
 
 fun isInvokeCallOnVariable(call: Call): Boolean {
     if (call.callType !== Call.CallType.INVOKE) return false

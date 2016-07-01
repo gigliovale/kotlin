@@ -1,7 +1,9 @@
 fun f() {
     for (i in 0..5 step 2) {
     }
-    for (i in 5 downTo 1) {
+
+    val dt = 5 downTo 1 // suppress optimized code generation for 'for-in-downTo'
+    for (i in dt) {
     }
 }
 

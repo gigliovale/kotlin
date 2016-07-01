@@ -568,14 +568,10 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         ResolvedCall<? extends CallableDescriptor> loopRangeCall = RangeCodegenUtil.getLoopRangeResolvedCall(forExpression, bindingContext);
         if (loopRangeCall != null) {
-            CallableDescriptor loopRangeCallee = loopRangeCall.getResultingDescriptor();
-            if (RangeCodegenUtil.isArrayOrPrimitiveArrayIndices(loopRangeCallee)) {
-                generateForLoop(createForInArrayIndicesRangeLoopGenerator(forExpression, loopRangeCall));
-                return StackValue.none();
-            }
-            else if (RangeCodegenUtil.isCollectionIndices(loopRangeCallee)) {
-                generateForLoop(createForInCollectionIndicesRangeLoopGenerator(forExpression, loopRangeCall));
-                return StackValue.none();
+            AbstractForLoopGenerator optimizedForLoopGenerator = createOptimizedForLoopGeneratorOrNull(forExpression, loopRangeCall);
+            if (optimizedForLoopGenerator != null) {
+                generateForLoop(optimizedForLoopGenerator);
+                return;
             }
         }
 
@@ -598,27 +594,38 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             generateForLoop(new ForInProgressionExpressionLoopGenerator(forExpression));
             return StackValue.none();
         }
-
-        generateForLoop(new IteratorForLoopGenerator(forExpression));
-        return StackValue.none();
+        else {
+            generateForLoop(new IteratorForLoopGenerator(forExpression));
+        }
     }
 
-    private AbstractForLoopGenerator createForInCollectionIndicesRangeLoopGenerator(
+    @Nullable
+    private AbstractForLoopGenerator createOptimizedForLoopGeneratorOrNull(
             @NotNull KtForExpression forExpression,
             @NotNull ResolvedCall<? extends CallableDescriptor> loopRangeCall
     ) {
-        ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
-        assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'indices' call";
-        return new ForInCollectionIndicesRangeLoopGenerator(forExpression, extensionReceiver);
-    }
+        CallableDescriptor loopRangeCallee = loopRangeCall.getResultingDescriptor();
+        if (RangeCodegenUtil.isOptimizableRangeTo(loopRangeCallee)) {
+            ReceiverValue from = loopRangeCall.getDispatchReceiver();
+            assert from != null : "Dispatch receiver should be non-null for optimizable 'rangeTo' call";
+            List<ResolvedValueArgument> valueArgumentsByIndex = loopRangeCall.getValueArgumentsByIndex();
+            assert valueArgumentsByIndex != null : "Value arguments should be non-null for optimizable 'rangeTo' call";
+            KtExpression to = valueArgumentsByIndex.get(0).getArguments().get(0).getArgumentExpression();
+            assert to != null : "1st value argument should be non-null for optimizable 'rangeTo' call";
+            return new ForInRangeLiteralLoopGenerator(forExpression, from, to);
+        }
+        else if (RangeCodegenUtil.isArrayOrPrimitiveArrayIndices(loopRangeCallee)) {
+            ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
+            assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'Array.indices' call";
+            return new ForInArrayIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+        }
+        else if (RangeCodegenUtil.isCollectionIndices(loopRangeCallee)) {
+            ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
+            assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'Collection.indices' call";
+            return new ForInCollectionIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+        }
 
-    private AbstractForLoopGenerator createForInArrayIndicesRangeLoopGenerator(
-            @NotNull KtForExpression forExpression,
-            @NotNull ResolvedCall<? extends CallableDescriptor> loopRangeCall
-    ) {
-        ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
-        assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'indices' call";
-        return new ForInArrayIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+        return null;
     }
 
     private OwnerKind contextKind() {

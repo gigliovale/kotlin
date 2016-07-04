@@ -600,17 +600,9 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     private void generateFor(@NotNull KtForExpression forExpression) {
         ResolvedCall<? extends CallableDescriptor> loopRangeCall = RangeCodegenUtil.getLoopRangeResolvedCall(forExpression, bindingContext);
         if (loopRangeCall != null) {
-            CallableDescriptor loopRangeCallee = loopRangeCall.getResultingDescriptor();
-            if (RangeCodegenUtil.isOptimizableRangeTo(loopRangeCallee)) {
-                generateForLoop(createForInRangeLiteralLoopGenerator(forExpression, loopRangeCall));
-                return;
-            }
-            else if (RangeCodegenUtil.isArrayOrPrimitiveArrayIndices(loopRangeCallee)) {
-                generateForLoop(createForInArrayIndicesRangeLoopGenerator(forExpression, loopRangeCall));
-                return;
-            }
-            else if (RangeCodegenUtil.isCollectionIndices(loopRangeCallee)) {
-                generateForLoop(createForInCollectionIndicesRangeLoopGenerator(forExpression, loopRangeCall));
+            AbstractForLoopGenerator optimizedForLoopGenerator = createOptimizedForLoopGeneratorOrNull(forExpression, loopRangeCall);
+            if (optimizedForLoopGenerator != null) {
+                generateForLoop(optimizedForLoopGenerator);
                 return;
             }
         }
@@ -634,31 +626,48 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         }
     }
 
-    private AbstractForLoopGenerator createForInRangeLiteralLoopGenerator(
+    @Nullable
+    private AbstractForLoopGenerator createOptimizedForLoopGeneratorOrNull(
             @NotNull KtForExpression forExpression,
             @NotNull ResolvedCall<? extends CallableDescriptor> loopRangeCall
     ) {
-        ReceiverValue from = loopRangeCall.getDispatchReceiver();
-        KtExpression to = loopRangeCall.getValueArgumentsByIndex().get(0).getArguments().get(0).getArgumentExpression();
-        return new ForInRangeLiteralLoopGenerator(forExpression, from, to);
+        CallableDescriptor loopRangeCallee = loopRangeCall.getResultingDescriptor();
+        if (RangeCodegenUtil.isOptimizableRangeTo(loopRangeCallee)) {
+            ReceiverValue from = loopRangeCall.getDispatchReceiver();
+            assert from != null : "Dispatch receiver should be non-null for optimizable 'rangeTo' call";
+            KtExpression to = getSingleArgumentExpression(loopRangeCall);
+            assert to != null : "Optimizable 'rangeTo' call should have a single expression argument";
+            return new ForInRangeLiteralLoopGenerator(forExpression, from, to);
+        }
+        else if (RangeCodegenUtil.isOptimizableDownTo(loopRangeCallee)) {
+            ReceiverValue from = loopRangeCall.getExtensionReceiver();
+            assert from != null : "Extension receiver should be non-null for optimizable 'downTo' call";
+            KtExpression to = getSingleArgumentExpression(loopRangeCall);
+            assert to != null : "Optimizable 'downTo' call should have a single expression argument";
+            return new ForInDownToProgressionLoopGenerator(forExpression, from, to);
+        }
+        else if (RangeCodegenUtil.isArrayOrPrimitiveArrayIndices(loopRangeCallee)) {
+            ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
+            assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'Array.indices' call";
+            return new ForInArrayIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+        }
+        else if (RangeCodegenUtil.isCollectionIndices(loopRangeCallee)) {
+            ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
+            assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'Collection.indices' call";
+            return new ForInCollectionIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+        }
+
+        return null;
     }
 
-    private AbstractForLoopGenerator createForInCollectionIndicesRangeLoopGenerator(
-            @NotNull KtForExpression forExpression,
-            @NotNull ResolvedCall<? extends CallableDescriptor> loopRangeCall
-    ) {
-        ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
-        assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'indices' call";
-        return new ForInCollectionIndicesRangeLoopGenerator(forExpression, extensionReceiver);
-    }
-
-    private AbstractForLoopGenerator createForInArrayIndicesRangeLoopGenerator(
-            @NotNull KtForExpression forExpression,
-            @NotNull ResolvedCall<? extends CallableDescriptor> loopRangeCall
-    ) {
-        ReceiverValue extensionReceiver = loopRangeCall.getExtensionReceiver();
-        assert extensionReceiver != null : "Extension receiver should be non-null for optimizable 'indices' call";
-        return new ForInArrayIndicesRangeLoopGenerator(forExpression, extensionReceiver);
+    @Nullable
+    private static KtExpression getSingleArgumentExpression(@NotNull ResolvedCall<? extends CallableDescriptor> resolvedCall) {
+        List<ResolvedValueArgument> resolvedValueArguments = resolvedCall.getValueArgumentsByIndex();
+        if (resolvedValueArguments == null) return null;
+        if (resolvedValueArguments.size() != 1) return null;
+        List<ValueArgument> valueArguments = resolvedValueArguments.get(0).getArguments();
+        if (valueArguments.size() != 1) return null;
+        return valueArguments.get(0).getArgumentExpression();
     }
 
     private OwnerKind contextKind() {
@@ -1050,8 +1059,16 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     private abstract class AbstractForInRangeLoopGenerator extends AbstractForInProgressionOrRangeLoopGenerator {
-        private AbstractForInRangeLoopGenerator(@NotNull KtForExpression forExpression) {
+        private final int step;
+
+        private AbstractForInRangeLoopGenerator(@NotNull KtForExpression forExpression, int step) {
             super(forExpression);
+            this.step = step;
+            assert step == 1 || step == -1 : "'step' should be either 1 or -1: " + step;
+        }
+
+        private AbstractForInRangeLoopGenerator(@NotNull KtForExpression forExpression) {
+            this(forExpression, 1);
         }
 
         @Override
@@ -1069,10 +1086,20 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             v.load(endVar, asmElementType);
             if (asmElementType.getSort() == Type.LONG) {
                 v.lcmp();
-                v.ifgt(loopExit);
+                if (step > 0) {
+                    v.ifgt(loopExit);
+                }
+                else {
+                    v.iflt(loopExit);
+                }
             }
             else {
-                v.ificmpgt(loopExit);
+                if (step > 0) {
+                    v.ificmpgt(loopExit);
+                }
+                else {
+                    v.ificmplt(loopExit);
+                }
             }
         }
 
@@ -1085,12 +1112,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             checkPostCondition(loopExit);
 
             if (loopParameterType == Type.INT_TYPE) {
-                v.iinc(loopParameterVar, 1);
+                v.iinc(loopParameterVar, step);
             }
             else {
                 StackValue loopParameter = loopParameter();
                 loopParameter.put(asmElementType, v);
-                genIncrement(asmElementType, 1, v);
+                genIncrement(asmElementType, step, v);
                 loopParameter.store(StackValue.onStack(asmElementType), v);
             }
         }
@@ -1106,6 +1133,27 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 @NotNull KtExpression to
         ) {
             super(forExpression);
+            this.from = from;
+            this.to = to;
+        }
+
+        @Override
+        protected void storeRangeStartAndEnd() {
+            loopParameter().store(generateReceiverValue(from, false), v);
+            StackValue.local(endVar, asmElementType).store(gen(to), v);
+        }
+    }
+
+    private class ForInDownToProgressionLoopGenerator extends AbstractForInRangeLoopGenerator {
+        private final ReceiverValue from;
+        private final KtExpression to;
+
+        private ForInDownToProgressionLoopGenerator(
+                @NotNull KtForExpression forExpression,
+                @NotNull ReceiverValue from,
+                @NotNull KtExpression to
+        ) {
+            super(forExpression, -1);
             this.from = from;
             this.to = to;
         }

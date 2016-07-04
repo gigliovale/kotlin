@@ -2085,6 +2085,33 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 }
             }
 
+            @TestMetadata("compiler/testData/diagnostics/tests/callableReference/generic")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Generic extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInGeneric() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/callableReference/generic"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("kt10968.kt")
+                public void testKt10968() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/generic/kt10968.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt11075.kt")
+                public void testKt11075() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/generic/kt11075.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt12286.kt")
+                public void testKt12286() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/generic/kt12286.kt");
+                    doTest(fileName);
+                }
+            }
+
             @TestMetadata("compiler/testData/diagnostics/tests/callableReference/property")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
@@ -2261,6 +2288,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("moreSpecificSimple.kt")
                 public void testMoreSpecificSimple() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/resolve/moreSpecificSimple.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("noFakeDescriptorForObject.kt")
+                public void testNoFakeDescriptorForObject() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/resolve/noFakeDescriptorForObject.kt");
                     doTest(fileName);
                 }
 
@@ -7467,6 +7500,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("invalidArgumentsNumberInWhere.kt")
+            public void testInvalidArgumentsNumberInWhere() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/invalidArgumentsNumberInWhere.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt1575-Class.kt")
             public void testKt1575_Class() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/kt1575-Class.kt");
@@ -7560,6 +7599,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("TypeParametersInTypeParameterBounds.kt")
             public void testTypeParametersInTypeParameterBounds() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/TypeParametersInTypeParameterBounds.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unresolvedClassifierInWhere.kt")
+            public void testUnresolvedClassifierInWhere() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/unresolvedClassifierInWhere.kt");
                 doTest(fileName);
             }
 
@@ -11081,6 +11126,33 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("withClassTypeParameters.kt")
                 public void testWithClassTypeParameters() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/genericConstructor/withClassTypeParameters.kt");
+                    doTest(fileName);
+                }
+            }
+
+            @TestMetadata("compiler/testData/diagnostics/tests/j+k/primitiveOverrides")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class PrimitiveOverrides extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInPrimitiveOverrides() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/j+k/primitiveOverrides"), Pattern.compile("^(.+)\\.kt$"), true);
+                }
+
+                @TestMetadata("kt11140.kt")
+                public void testKt11140() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/primitiveOverrides/kt11140.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("notNullAnnotated.kt")
+                public void testNotNullAnnotated() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/primitiveOverrides/notNullAnnotated.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("specializedMap.kt")
+                public void testSpecializedMap() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/primitiveOverrides/specializedMap.kt");
                     doTest(fileName);
                 }
             }

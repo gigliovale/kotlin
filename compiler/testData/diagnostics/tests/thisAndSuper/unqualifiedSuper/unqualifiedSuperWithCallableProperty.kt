@@ -1,9 +1,9 @@
 // Ambiguity between fun and callable property
 
 open class BaseWithCallableProp {
-    val fn = { "fn.invoke()" }
+    val fn = { -> "fn.invoke()" }
 
-    val bar = { "bar.invoke()"}
+    val bar = { -> "bar.invoke()"}
     open fun bar(): String = "bar()"
 }
 

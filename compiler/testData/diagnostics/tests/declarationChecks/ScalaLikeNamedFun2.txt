@@ -1,0 +1,35 @@
+package
+
+public val testFunLiteralOk: () -> () -> kotlin.Int
+public val testFunLiteralOk2: () -> () -> kotlin.Int
+public val testFunLiteralWarn: () -> () -> kotlin.Int
+public fun outer(): kotlin.Unit
+public fun testFunOk(): () -> kotlin.Int
+public fun testFunOk2(): () -> kotlin.Int
+public fun testFunWarn(): () -> kotlin.Int
+
+public final class Outer {
+    public constructor Outer()
+    public final val testFunLiteralOk: () -> () -> kotlin.Int
+    public final val testFunLiteralOk2: () -> () -> kotlin.Int
+    public final val testFunLiteralWarn: () -> () -> kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public final fun testFunOk(): () -> kotlin.Int
+    public final fun testFunOk2(): () -> kotlin.Int
+    public final fun testFunWarn(): () -> kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+
+    public final class Nested {
+        public constructor Nested()
+        public final val testFunLiteralOk: () -> () -> kotlin.Int
+        public final val testFunLiteralOk2: () -> () -> kotlin.Int
+        public final val testFunLiteralWarn: () -> () -> kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public final fun testFunOk(): () -> kotlin.Int
+        public final fun testFunOk2(): () -> kotlin.Int
+        public final fun testFunWarn(): () -> kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}

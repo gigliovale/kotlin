@@ -810,6 +810,7 @@ public interface Errors {
 
     DiagnosticFactory0<PsiElement> NON_LOCAL_SUSPENSION_POINT = DiagnosticFactory0.create(ERROR);
 
+    DiagnosticFactory0<KtNamedFunction> LAMBDA_USED_AS_BLOCK_EXPRESSION_IN_FUN = DiagnosticFactory0.create(WARNING, DECLARATION_SIGNATURE);
 
     // Error sets
     ImmutableSet<? extends DiagnosticFactory<?>> UNRESOLVED_REFERENCE_DIAGNOSTICS = ImmutableSet.of(

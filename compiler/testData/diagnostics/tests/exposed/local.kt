@@ -5,7 +5,7 @@ fun <!EXPOSED_FUNCTION_RETURN_TYPE!>foo<!>() = run {
 }
 
 // invalid, depends on local class
-fun <!EXPOSED_FUNCTION_RETURN_TYPE!>gav<!>() = {
+fun <!EXPOSED_FUNCTION_RETURN_TYPE!>gav<!>() = { ->
     class B
     B()
 }

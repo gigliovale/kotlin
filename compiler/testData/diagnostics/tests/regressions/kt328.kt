@@ -1,10 +1,10 @@
 //KT-328 Local function in function literals cause exceptions
 
-fun bar1() = {
+fun bar1() = { ->
     <!TYPECHECKER_HAS_RUN_INTO_RECURSIVE_PROBLEM!>bar1()<!>
 }
 
-fun bar2() = {
+fun bar2() = { ->
     fun foo2() = <!TYPECHECKER_HAS_RUN_INTO_RECURSIVE_PROBLEM!>bar2()<!>
 }
 

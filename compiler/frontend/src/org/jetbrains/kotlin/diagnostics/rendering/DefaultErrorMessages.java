@@ -760,6 +760,8 @@ public class DefaultErrorMessages {
         MAP.put(NON_LOCAL_RETURN_IN_DISABLED_INLINE, "Non-local returns are not allowed with inlining disabled");
         MAP.put(NON_LOCAL_SUSPENSION_POINT, "Suspension functions can be called only within coroutine body");
 
+        MAP.put(LAMBDA_USED_AS_BLOCK_EXPRESSION_IN_FUN, "Parameterless lambda expression in function expression body. Provide explicit type or use '->'");
+
         MAP.setImmutable();
 
         for (Field field : Errors.class.getFields()) {

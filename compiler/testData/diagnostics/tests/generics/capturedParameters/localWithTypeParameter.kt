@@ -3,7 +3,7 @@
 fun <T> magic(): T = null!!
 
 class Q {
-    private fun <E, F> foo() = {
+    private fun <E, F> foo() = { ->
         class C<G> {
             val e: E = magic()
             val f: F = magic()

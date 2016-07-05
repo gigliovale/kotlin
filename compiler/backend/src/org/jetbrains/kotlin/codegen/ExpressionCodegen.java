@@ -1104,7 +1104,8 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             loopParameter().store(StackValue.constant(0, asmElementType), v);
 
             StackValue receiver = generateReceiverValue(receiverValue, false);
-            receiver.put(receiver.type, v);
+            Type receiverType = asmType(receiverValue.getType());
+            receiver.put(receiverType, v);
             getReceiverSizeAsInt();
             v.iconst(1);
             v.sub(Type.INT_TYPE);

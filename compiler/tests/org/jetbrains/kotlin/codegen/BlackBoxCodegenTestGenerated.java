@@ -5368,6 +5368,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/delegation"), Pattern.compile("^(.+)\\.kt$"), true);
         }
 
+        @TestMetadata("delegationToMultipleOverrides.kt")
+        public void testDelegationToMultipleOverrides() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegation/delegationToMultipleOverrides.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("delegationToVal.kt")
         public void testDelegationToVal() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegation/delegationToVal.kt");

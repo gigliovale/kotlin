@@ -147,3 +147,14 @@ public abstract class Test8 : IGeneric<kotlin.String>, IInt {
     public open override /*2*/ /*fake_override*/ fun hashCode(): kotlin.Int
     public open override /*2*/ /*fake_override*/ fun toString(): kotlin.String
 }
+
+public abstract class Test9 : IGeneric<kotlin.String>, IGeneric<kotlin.Int> {
+    public constructor Test9()
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*2*/ /*delegation*/ fun foo(): kotlin.String
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+}

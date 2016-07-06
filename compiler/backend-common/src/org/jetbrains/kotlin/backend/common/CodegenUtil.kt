@@ -46,34 +46,61 @@ object CodegenUtil {
     ): Map<CallableMemberDescriptor, CallableDescriptor> {
         if (delegateExpressionType?.isDynamic() ?: false) return emptyMap()
 
-        return descriptor.defaultType.memberScope.getContributedDescriptors().asSequence()
+        val delegatingMembers = descriptor.defaultType.memberScope.getContributedDescriptors().asSequence()
                 .filterIsInstance<CallableMemberDescriptor>()
                 .filter { it.kind == CallableMemberDescriptor.Kind.DELEGATION }
                 .asIterable()
                 .sortedWith(MemberComparator.INSTANCE)
-                .keysToMapExceptNulls { delegatingMember ->
-                    val actualDelegates = DescriptorUtils.getAllOverriddenDescriptors(delegatingMember)
-                            .mapNotNull { overriddenDescriptor ->
-                                if (overriddenDescriptor.containingDeclaration == toInterface) {
-                                    val scope = (delegateExpressionType ?: toInterface.defaultType).memberScope
-                                    val name = overriddenDescriptor.name
 
-                                    // this is the actual member of delegateExpressionType that we are delegating to
-                                    (scope.getContributedFunctions(name, NoLookupLocation.FROM_BACKEND) +
-                                     scope.getContributedVariables(name, NoLookupLocation.FROM_BACKEND))
-                                            .firstOrNull {
-                                                (listOf(it) + DescriptorUtils.getAllOverriddenDescriptors(it))
-                                                        .map(CallableMemberDescriptor::getOriginal)
-                                                        .contains(overriddenDescriptor.original)
-                                            }
-                                }
-                                else null
-                            }
+        return delegatingMembers.keysToMapExceptNulls { delegatingMember ->
+            val relevantOverriddenDescriptors = getRelevantOverriddenDescriptorsForDelegation(delegatingMember, toInterface)
 
-                    assert(actualDelegates.size <= 1) { "Many delegates found for $delegatingMember: $actualDelegates" }
+            val actualDelegates = relevantOverriddenDescriptors.mapNotNull { overriddenDescriptor ->
+                getDelegateForOverriddenDescriptorOrNull(overriddenDescriptor, delegateExpressionType, toInterface)
+            }
 
-                    actualDelegates.firstOrNull()
-                }
+            assert(actualDelegates.size <= 1) { "Many delegates found for $delegatingMember: $actualDelegates" }
+
+            actualDelegates.firstOrNull()
+        }
+    }
+
+    // Substituted descriptors for the same original overridden descriptor can appear in "all overridden descriptors" set
+    // multiple times, e.g.:
+    //   interface A<Ta> { fun foo() }
+    //   interface B<Tb> : A<Tb> { /* ... */ }
+    //   class C<Tc>(val da: A<Tc>) : A<Tc> by da, B<Tc> { /* ... */ }
+    // Here a delegated member C<Tc>::foo overrides A<Tc>::foo, B<Tc>::foo, and A<Tb=Tc>::foo.
+    // Substitutions for them should be equivalent, otherwise it is a compilation error (inconsistent type parameter values).
+    // NB: this code is used to generate light classes in IDE, so we should be permissive with potentially erroneous cases.
+    // So we filter out overridden descriptors by uniqueness of the original (unsubstituted) descriptor;
+    // we need only one such descriptor (arbitrarily chosen; first one is ok).
+    private fun getRelevantOverriddenDescriptorsForDelegation(
+            delegatingMember: CallableMemberDescriptor,
+            toInterface: ClassDescriptor
+    ): Collection<CallableMemberDescriptor> =
+            DescriptorUtils.getAllOverriddenDescriptors(delegatingMember)
+                    .filter { it.containingDeclaration == toInterface }
+                    .associateBy { it.original }
+                    .values
+
+    private fun getDelegateForOverriddenDescriptorOrNull(
+            overriddenDescriptor: CallableMemberDescriptor,
+            delegateExpressionType: KotlinType?,
+            toInterface: ClassDescriptor
+    ): CallableMemberDescriptor? {
+        val scope = (delegateExpressionType ?: toInterface.defaultType).memberScope
+        val name = overriddenDescriptor.name
+
+        val candidates = scope.getContributedFunctions(name, NoLookupLocation.FROM_BACKEND) +
+                         scope.getContributedVariables(name, NoLookupLocation.FROM_BACKEND)
+
+        return candidates.firstOrNull {
+            it.original == overriddenDescriptor.original ||
+            DescriptorUtils.getAllOverriddenDeclarations(it).any {
+                it.original == overriddenDescriptor.original
+            }
+        }
     }
 
     @JvmStatic

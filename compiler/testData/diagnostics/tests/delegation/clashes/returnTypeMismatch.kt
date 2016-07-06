@@ -48,8 +48,7 @@ abstract class Test7 : IGeneric<String> by CGeneric<String>(), IStr
 
 abstract <!RETURN_TYPE_MISMATCH_ON_INHERITANCE!>class Test8<!> : IGeneric<String> by CGeneric<String>(), IInt
 
-// Can't test due to https://youtrack.jetbrains.com/issue/KT-10258
-// abstract class Test9 : IGeneric<String> by CGeneric<String>(), IGeneric<Int>
+abstract class <!CONFLICTING_INHERITED_JVM_DECLARATIONS, CONFLICTING_INHERITED_JVM_DECLARATIONS, CONFLICTING_INHERITED_JVM_DECLARATIONS!>Test9<!> : <!INCONSISTENT_TYPE_PARAMETER_VALUES!>IGeneric<String> by CGeneric<String>(), <!SUPERTYPE_APPEARS_TWICE!>IGeneric<Int><!><!>
 
 abstract <!MANY_IMPL_MEMBER_NOT_IMPLEMENTED, MANY_IMPL_MEMBER_NOT_IMPLEMENTED, RETURN_TYPE_MISMATCH_ON_INHERITANCE!>class Test10<!> : IInt by CInt(), IStr by CStr(), IAny by CAny()
 

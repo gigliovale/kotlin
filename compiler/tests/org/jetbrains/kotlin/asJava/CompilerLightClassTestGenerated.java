@@ -61,6 +61,12 @@ public class CompilerLightClassTestGenerated extends AbstractCompilerLightClassT
             doTest(fileName);
         }
 
+        @TestMetadata("Kt8154.kt")
+        public void testKt8154() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/delegation/Kt8154.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("Property.kt")
         public void testProperty() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/delegation/Property.kt");

@@ -880,22 +880,20 @@ public class OverrideResolver {
             @NotNull CallableMemberDescriptor mostSpecific,
             @NotNull CheckInheritedSignaturesReportStrategy reportingStrategy
     ) {
-        if (inheritedDescriptors.size() > 1) {
-            PropertyDescriptor mostSpecificProperty = mostSpecific instanceof PropertyDescriptor ? (PropertyDescriptor) mostSpecific : null;
+        PropertyDescriptor mostSpecificProperty = mostSpecific instanceof PropertyDescriptor ? (PropertyDescriptor) mostSpecific : null;
 
-            for (CallableMemberDescriptor inheritedDescriptor : inheritedDescriptors) {
-                if (mostSpecificProperty != null) {
-                    assert inheritedDescriptor instanceof PropertyDescriptor
-                            : inheritedDescriptor + " inherited from " + mostSpecificProperty + " is not a property";
-                    PropertyDescriptor inheritedPropertyDescriptor = (PropertyDescriptor) inheritedDescriptor;
+        for (CallableMemberDescriptor inheritedDescriptor : inheritedDescriptors) {
+            if (mostSpecificProperty != null) {
+                assert inheritedDescriptor instanceof PropertyDescriptor
+                        : inheritedDescriptor + " inherited from " + mostSpecificProperty + " is not a property";
+                PropertyDescriptor inheritedPropertyDescriptor = (PropertyDescriptor) inheritedDescriptor;
 
-                    if (!isPropertyTypeOkForOverride(inheritedPropertyDescriptor, mostSpecificProperty)) {
-                        reportingStrategy.propertyTypeMismatchOnInheritance(mostSpecificProperty, inheritedPropertyDescriptor);
-                    }
+                if (!isPropertyTypeOkForOverride(inheritedPropertyDescriptor, mostSpecificProperty)) {
+                    reportingStrategy.propertyTypeMismatchOnInheritance(mostSpecificProperty, inheritedPropertyDescriptor);
                 }
-                else if (!isReturnTypeOkForOverride(inheritedDescriptor, mostSpecific)) {
-                    reportingStrategy.returnTypeMismatchOnInheritance(mostSpecific, inheritedDescriptor);
-                }
+            }
+            else if (!isReturnTypeOkForOverride(inheritedDescriptor, mostSpecific)) {
+                reportingStrategy.returnTypeMismatchOnInheritance(mostSpecific, inheritedDescriptor);
             }
         }
     }

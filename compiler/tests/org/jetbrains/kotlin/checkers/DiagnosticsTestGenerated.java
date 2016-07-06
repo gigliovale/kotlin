@@ -5525,6 +5525,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("returnTypeMismatchOnDelegationWithCovariantOverride.kt")
+                public void testReturnTypeMismatchOnDelegationWithCovariantOverride() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/returnTypeMismatchOnDelegationWithCovariantOverride.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("varOverriddenByVal.kt")
                 public void testVarOverriddenByVal() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegation/clashes/varOverriddenByVal.kt");
@@ -12950,6 +12956,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("returnTypeMismatch.kt")
                 public void testReturnTypeMismatch() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/returnTypeMismatch.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("returnTypeMismatchWithCovariantOverride.kt")
+                public void testReturnTypeMismatchWithCovariantOverride() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/override/clashesOnInheritance/returnTypeMismatchWithCovariantOverride.kt");
                     doTest(fileName);
                 }
 

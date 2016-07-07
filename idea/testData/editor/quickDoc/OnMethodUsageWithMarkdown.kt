@@ -10,6 +10,11 @@
  *
  * This is _emphasized text_ but text_with_underscores has to preserve the underscores.
  * Single stars embedded in a word like Embedded*Star have to be preserved as well.
+ *
+ * Exclamation marks are also important! Also in `code blocks!`
+ *
+ * bt+ : ``prefix ` postfix``
+ * backslash: `\`
  */
 fun testMethod() {
 
@@ -27,3 +32,5 @@ fun test() {
 //INFO: <p><a href="psi_element://C">C</a></p>
 //INFO: <p><a href="psi_element://C">See <strong>this</strong> class</a></p>
 //INFO: <p>This is <em>emphasized text</em> but text_with_underscores has to preserve the underscores. Single stars embedded in a word like Embedded*Star have to be preserved as well.</p>
+//INFO: <p>Exclamation marks are also important! Also in <code>code blocks!</code></p>
+//INFO: <p>bt+ : <code>prefix ` postfix</code> backslash: <code>\</code></p>

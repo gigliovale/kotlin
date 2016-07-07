@@ -154,7 +154,13 @@ object KDocRenderer {
                     sb.trimEnd()
                     wrapChildren("p", newline = true)
                 }
-                MarkdownElementTypes.CODE_SPAN -> wrapChildren("code")
+                MarkdownElementTypes.CODE_SPAN -> {
+                    val startDelimiter = node.child(MarkdownTokenTypes.BACKTICK)?.text
+                    if (startDelimiter != null) {
+                        val text = node.text.substring(startDelimiter.length).removeSuffix(startDelimiter)
+                        sb.append("<code>").append(text.htmlEscape()).append("</code>")
+                    }
+                }
                 MarkdownElementTypes.CODE_BLOCK,
                 MarkdownElementTypes.CODE_FENCE -> {
                     sb.trimEnd()
@@ -193,6 +199,7 @@ object KDocRenderer {
                 MarkdownTokenTypes.RPAREN,
                 MarkdownTokenTypes.LBRACKET,
                 MarkdownTokenTypes.RBRACKET,
+                MarkdownTokenTypes.EXCLAMATION_MARK,
                 MarkdownTokenTypes.CODE_FENCE_CONTENT-> {
                     sb.append(nodeText)
                 }

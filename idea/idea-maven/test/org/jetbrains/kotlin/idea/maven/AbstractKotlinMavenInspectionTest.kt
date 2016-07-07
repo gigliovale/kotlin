@@ -26,6 +26,7 @@ import com.intellij.openapi.application.Result
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiManager
@@ -36,6 +37,7 @@ import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.kotlin.idea.maven.inspections.KotlinMavenPluginPhaseInspection
+import org.jetbrains.kotlin.idea.maven.inspections.DifferentKotlinMavenVersionInspection
 import org.jetbrains.kotlin.idea.refactoring.toPsiDirectory
 import org.jetbrains.kotlin.idea.util.projectStructure.allModules
 import java.io.File
@@ -92,7 +94,7 @@ abstract class AbstractKotlinMavenInspectionTest : MavenImportingTestCase() {
 
             quickfix.applyFix(problem)
 
-            assertEquals(file.readText().trim(), document.text.trim())
+            assertEquals(FileUtil.loadFile(file, true).trim(), document.text.trim())
 
             ApplicationManager.getApplication().runWriteAction {
                 document.setText(originalText)
@@ -152,6 +154,11 @@ abstract class AbstractKotlinMavenInspectionTest : MavenImportingTestCase() {
 
     private fun runInspection(inspectionClass: Class<*>): List<Pair<SimplifiedProblemDescription, ProblemDescriptorBase>> {
         val toolWrapper = LocalInspectionToolWrapper(inspectionClass.newInstance() as LocalInspectionTool)
+
+        val tool = toolWrapper.tool
+        if (tool is DifferentKotlinMavenVersionInspection) {
+            tool.testVersionMessage = "\$PLUGIN_VERSION"
+        }
 
         val scope = AnalysisScope(myProject)
         val inspectionManager = (InspectionManager.getInstance(myProject) as InspectionManagerEx)

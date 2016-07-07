@@ -53,6 +53,12 @@ public class KotlinMavenInspectionTestGenerated extends AbstractKotlinMavenInspe
         doTest(fileName);
     }
 
+    @TestMetadata("ideAndMavenVersionsSuppression.xml")
+    public void testIdeAndMavenVersionsSuppression() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-maven/testData/maven-inspections/ideAndMavenVersionsSuppression.xml");
+        doTest(fileName);
+    }
+
     @TestMetadata("kotlinTestWithJunit.xml")
     public void testKotlinTestWithJunit() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-maven/testData/maven-inspections/kotlinTestWithJunit.xml");
@@ -74,6 +80,12 @@ public class KotlinMavenInspectionTestGenerated extends AbstractKotlinMavenInspe
     @TestMetadata("sameVersionPluginLibrary.xml")
     public void testSameVersionPluginLibrary() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-maven/testData/maven-inspections/sameVersionPluginLibrary.xml");
+        doTest(fileName);
+    }
+
+    @TestMetadata("sameVersionPluginLibrarySuppression.xml")
+    public void testSameVersionPluginLibrarySuppression() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-maven/testData/maven-inspections/sameVersionPluginLibrarySuppression.xml");
         doTest(fileName);
     }
 

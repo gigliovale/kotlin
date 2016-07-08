@@ -26,23 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.lexer.KtKeywordToken;
 import org.jetbrains.kotlin.lexer.KtTokens;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.jetbrains.kotlin.KtNodeTypes.*;
 import static org.jetbrains.kotlin.lexer.KtTokens.*;
 import static org.jetbrains.kotlin.parsing.KotlinParsing.AnnotationParsingMode.*;
 
 public class KotlinParsing extends AbstractKotlinParsing {
     private static final Logger LOG = Logger.getInstance(KotlinParsing.class);
-
-    // TODO: token sets to constants, including derived methods
-    public static final Map<String, IElementType> MODIFIER_KEYWORD_MAP = new HashMap<String, IElementType>();
-    static {
-        for (IElementType softKeyword : MODIFIER_KEYWORDS.getTypes()) {
-            MODIFIER_KEYWORD_MAP.put(((KtKeywordToken) softKeyword).getValue(), softKeyword);
-        }
-    }
 
     private static final TokenSet TOP_LEVEL_DECLARATION_FIRST = TokenSet.create(
             TYPE_ALIAS_KEYWORD, INTERFACE_KEYWORD, CLASS_KEYWORD, OBJECT_KEYWORD,
@@ -53,7 +42,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
     private static final TokenSet CLASS_NAME_RECOVERY_SET = TokenSet.orSet(TokenSet.create(LT, LPAR, COLON, LBRACE),
                                                                            TOP_LEVEL_DECLARATION_FIRST);
     private static final TokenSet TYPE_PARAMETER_GT_RECOVERY_SET = TokenSet.create(WHERE_KEYWORD, LPAR, COLON, LBRACE, GT);
-    private static final TokenSet PARAMETER_NAME_RECOVERY_SET = TokenSet.create(COLON, EQ, COMMA, RPAR);
+    private static final TokenSet PARAMETER_NAME_RECOVERY_SET = TokenSet.create(COLON, EQ, COMMA, RPAR, VAL_KEYWORD, VAR_KEYWORD);
     private static final TokenSet PACKAGE_NAME_RECOVERY_SET = TokenSet.create(DOT, EOL_OR_SEMICOLON);
     private static final TokenSet IMPORT_RECOVERY_SET = TokenSet.create(AS_KEYWORD, DOT, EOL_OR_SEMICOLON);
     private static final TokenSet TYPE_REF_FIRST = TokenSet.create(LBRACKET, IDENTIFIER, LPAR, HASH, DYNAMIC_KEYWORD);
@@ -68,15 +57,15 @@ public class KotlinParsing extends AbstractKotlinParsing {
             RECEIVER_KEYWORD, PARAM_KEYWORD, SETPARAM_KEYWORD, DELEGATE_KEYWORD);
 
     static KotlinParsing createForTopLevel(SemanticWhitespaceAwarePsiBuilder builder) {
-        KotlinParsing jetParsing = new KotlinParsing(builder);
-        jetParsing.myExpressionParsing = new KotlinExpressionParsing(builder, jetParsing);
-        return jetParsing;
+        KotlinParsing kotlinParsing = new KotlinParsing(builder);
+        kotlinParsing.myExpressionParsing = new KotlinExpressionParsing(builder, kotlinParsing);
+        return kotlinParsing;
     }
 
     private static KotlinParsing createForByClause(SemanticWhitespaceAwarePsiBuilder builder) {
         final SemanticWhitespaceAwarePsiBuilderForByClause builderForByClause = new SemanticWhitespaceAwarePsiBuilderForByClause(builder);
-        KotlinParsing jetParsing = new KotlinParsing(builderForByClause);
-        jetParsing.myExpressionParsing = new KotlinExpressionParsing(builderForByClause, jetParsing) {
+        KotlinParsing kotlinParsing = new KotlinParsing(builderForByClause);
+        kotlinParsing.myExpressionParsing = new KotlinExpressionParsing(builderForByClause, kotlinParsing) {
             @Override
             protected boolean parseCallWithClosure() {
                 if (builderForByClause.getStackSize() > 0) {
@@ -90,7 +79,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
                 return createForByClause(builder);
             }
         };
-        return jetParsing;
+        return kotlinParsing;
     }
 
     private KotlinExpressionParsing myExpressionParsing;
@@ -100,7 +89,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
     }
 
     /*
-     * [start] jetlFile
+     * [start] kotlinFile
      *   : preamble toplevelObject* [eof]
      *   ;
      */
@@ -409,10 +398,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
         IElementType keywordToken = tt();
         IElementType declType = null;
-//        if (keywordToken == PACKAGE_KEYWORD) {
-//            declType = parsePackageBlock();
-//        }
-//        else
+
         if (keywordToken == CLASS_KEYWORD || keywordToken == INTERFACE_KEYWORD) {
             declType = parseClass(detector.isEnumDetected());
         }
@@ -458,6 +444,9 @@ public class KotlinParsing extends AbstractKotlinParsing {
      * (modifier | annotation)*
      *
      * Feeds modifiers (not annotations) into the passed consumer, if it is not null
+     *
+     * @param noModifiersBefore is a token set with elements indicating when met them
+     *                          that previous token must be parsed as an identifier rather than modifier
      */
     boolean parseModifierList(
             @Nullable Consumer<IElementType> tokenConsumer,
@@ -472,10 +461,6 @@ public class KotlinParsing extends AbstractKotlinParsing {
             }
             else if (tryParseModifier(tokenConsumer, noModifiersBefore)) {
                 // modifier advanced
-            }
-            else if (annotationParsingMode.allowShortAnnotations && at(IDENTIFIER)) {
-                error("Use '@' symbol before annotations");
-                parseAnnotation(annotationParsingMode);
             }
             else {
                 break;
@@ -633,7 +618,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
                     continue;
                 }
 
-                parseAnnotation(IN_ANNOTATION_LIST);
+                parseAnnotation(DEFAULT);
                 while (at(COMMA)) {
                     errorAndAdvance("No commas needed to separate annotations");
                 }
@@ -1247,6 +1232,9 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
         errorIf(receiver, multiDeclaration && receiverTypeDeclared, "Receiver type is not allowed on a destructuring declaration");
 
+        boolean isNameOnTheNextLine = eol();
+        PsiBuilder.Marker beforeName = mark();
+
         if (multiDeclaration) {
             PsiBuilder.Marker multiDecl = mark();
             parseMultiDeclarationName(propertyNameFollow);
@@ -1258,7 +1246,9 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
         myBuilder.restoreJoiningComplexTokensState();
 
+        boolean noTypeReference = true;
         if (at(COLON)) {
+            noTypeReference = false;
             PsiBuilder.Marker type = mark();
             advance(); // COLON
             parseTypeRef();
@@ -1267,26 +1257,20 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
         parseTypeConstraintsGuarded(typeParametersDeclared);
 
-        if (local) {
-            if (at(BY_KEYWORD)) {
-                parsePropertyDelegate();
-            }
-            else if (at(EQ)) {
-                advance(); // EQ
-                myExpressionParsing.parseExpression();
-                // "val a = 1; b" must not be an infix call of b on "val ...;"
-            }
+        if (!parsePropertyDelegateOrAssignment() && isNameOnTheNextLine && noTypeReference && !receiverTypeDeclared) {
+            // Do not parse property identifier on the next line if declaration is invalid
+            // In most cases this identifier relates to next statement/declaration
+            beforeName.rollbackTo();
+            error("Expecting property name or receiver type");
+            return PROPERTY;
         }
-        else {
-            if (at(BY_KEYWORD)) {
-                parsePropertyDelegate();
-                consumeIf(SEMICOLON);
-            }
-            else if (at(EQ)) {
-                advance(); // EQ
-                myExpressionParsing.parseExpression();
-                consumeIf(SEMICOLON);
-            }
+
+        beforeName.drop();
+
+        if (!local) {
+            // It's only needed for non-local properties, because in local ones:
+            // "val a = 1; b" must not be an infix call of b on "val ...;"
+            consumeIf(SEMICOLON);
 
             AccessorKind accessorKind = parsePropertyGetterOrSetter(null);
             if (accessorKind != null) {
@@ -1295,7 +1279,9 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
             if (!atSet(EOL_OR_SEMICOLON, RBRACE)) {
                 if (getLastToken() != SEMICOLON) {
-                    errorUntil("Property getter or setter expected", TokenSet.create(EOL_OR_SEMICOLON, LBRACE, RBRACE));
+                    errorUntil(
+                            "Property getter or setter expected",
+                            TokenSet.orSet(DECLARATION_FIRST, TokenSet.create(EOL_OR_SEMICOLON, LBRACE, RBRACE)));
                 }
             }
             else {
@@ -1304,6 +1290,20 @@ public class KotlinParsing extends AbstractKotlinParsing {
         }
 
         return multiDeclaration ? DESTRUCTURING_DECLARATION : PROPERTY;
+    }
+
+    private boolean parsePropertyDelegateOrAssignment() {
+        if (at(BY_KEYWORD)) {
+            parsePropertyDelegate();
+            return true;
+        }
+        else if (at(EQ)) {
+            advance(); // EQ
+            myExpressionParsing.parseExpression();
+            return true;
+        }
+
+        return false;
     }
 
     /*
@@ -2071,10 +2071,8 @@ public class KotlinParsing extends AbstractKotlinParsing {
 
             recoverOnParenthesizedWordForPlatformTypes(0, "out", true);
 
-//            TokenSet lookFor = TokenSet.create(IDENTIFIER);
-//            TokenSet stopAt = TokenSet.create(COMMA, COLON, GT);
-//            parseModifierListWithUnescapedAnnotations(MODIFIER_LIST, lookFor, stopAt);
-            // Currently we do not allow annotations
+            // Currently we do not allow annotations on star projections and probably we should not
+            // Annotations on other kinds of type arguments should be parsed as common type annotations (within parseTypeRef call)
             parseModifierList(NO_ANNOTATIONS, TokenSet.create(COMMA, COLON, GT));
 
             if (at(MUL)) {
@@ -2282,22 +2280,18 @@ public class KotlinParsing extends AbstractKotlinParsing {
     }
 
     enum AnnotationParsingMode {
-        DEFAULT(false, false, true),
-        FILE_ANNOTATIONS_BEFORE_PACKAGE(false, true, true),
-        FILE_ANNOTATIONS_WHEN_PACKAGE_OMITTED(false, true, true),
-        IN_ANNOTATION_LIST(true, false, true),
-        NO_ANNOTATIONS(false, false, false);
+        DEFAULT(false, true),
+        FILE_ANNOTATIONS_BEFORE_PACKAGE(true, true),
+        FILE_ANNOTATIONS_WHEN_PACKAGE_OMITTED(true, true),
+        NO_ANNOTATIONS(false, false);
 
-        boolean allowShortAnnotations;
         boolean isFileAnnotationParsingMode;
         boolean allowAnnotations;
 
         AnnotationParsingMode(
-                boolean allowShortAnnotations,
                 boolean isFileAnnotationParsingMode,
                 boolean allowAnnotations
         ) {
-            this.allowShortAnnotations = allowShortAnnotations;
             this.isFileAnnotationParsingMode = isFileAnnotationParsingMode;
             this.allowAnnotations = allowAnnotations;
         }

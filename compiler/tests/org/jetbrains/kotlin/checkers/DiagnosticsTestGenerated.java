@@ -8776,6 +8776,24 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/diagnosticWithSyntaxError/typeReferenceError.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("valNoName.kt")
+                public void testValNoName() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/diagnosticWithSyntaxError/valNoName.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("valWithNoNameBeforeNextDeclarationWithModifiers.kt")
+                public void testValWithNoNameBeforeNextDeclarationWithModifiers() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/diagnosticWithSyntaxError/valWithNoNameBeforeNextDeclarationWithModifiers.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("valWithNoNameInBlock.kt")
+                public void testValWithNoNameInBlock() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/diagnosticWithSyntaxError/valWithNoNameInBlock.kt");
+                    doTest(fileName);
+                }
             }
         }
 

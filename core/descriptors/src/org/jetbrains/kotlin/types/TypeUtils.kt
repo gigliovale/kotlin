@@ -59,6 +59,11 @@ fun KotlinType.isNullableAny(): Boolean = KotlinBuiltIns.isNullableAny(this)
 fun KotlinType.isBoolean(): Boolean = KotlinBuiltIns.isBoolean(this)
 fun KotlinType.isPrimitiveNumberType(): Boolean = KotlinBuiltIns.isPrimitiveType(this) && !isBoolean()
 fun KotlinType.isBooleanOrNullableBoolean(): Boolean = KotlinBuiltIns.isBooleanOrNullableBoolean(this)
+fun KotlinType.isThrowable(): Boolean = isConstructedFromClassWithGivenFqName(KotlinBuiltIns.FQ_NAMES.throwable) && !isMarkedNullable
+fun KotlinType.isIterator(): Boolean = isConstructedFromClassWithGivenFqName(KotlinBuiltIns.FQ_NAMES.iterator) && !isMarkedNullable
+
+fun KotlinType.isConstructedFromClassWithGivenFqName(fqName: FqName) =
+        (constructor.declarationDescriptor as? ClassDescriptor)?.fqNameUnsafe == fqName.toUnsafe()
 
 fun KotlinType.isTypeParameter(): Boolean = TypeUtils.isTypeParameter(this)
 

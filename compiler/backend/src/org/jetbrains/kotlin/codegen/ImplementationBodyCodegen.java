@@ -41,7 +41,6 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.load.java.JvmAbi;
-import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor;
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
@@ -236,7 +235,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         if (isInterface(descriptor) && !isLocal) {
             Type defaultImplsType = state.getTypeMapper().mapDefaultImpls(descriptor);
             ClassBuilder defaultImplsBuilder =
-                    state.getFactory().newVisitor(JvmDeclarationOriginKt.TraitImpl(myClass, descriptor), defaultImplsType, myClass.getContainingFile());
+                    state.getFactory().newVisitor(JvmDeclarationOriginKt.DefaultImpls(myClass, descriptor), defaultImplsType, myClass.getContainingFile());
 
             CodegenContext parentContext = context.getParentContext();
             assert parentContext != null : "Parent context of interface declaration should not be null";
@@ -329,7 +328,7 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                 }
             }
         }
-        
+
         for (String kotlinMarkerInterface : kotlinMarkerInterfaces) {
             sw.writeInterface();
             sw.writeAsmType(Type.getObjectType(kotlinMarkerInterface));
@@ -1324,17 +1323,17 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         if (isAnnotationOrJvm6Interface(descriptor, state)) return;
 
         for (Map.Entry<FunctionDescriptor, FunctionDescriptor> entry : CodegenUtil.getNonPrivateTraitMethods(descriptor).entrySet()) {
-            FunctionDescriptor traitFun = entry.getKey();
+            FunctionDescriptor interfaceFun = entry.getKey();
             //skip java 8 default methods
-            if (!(traitFun instanceof JavaCallableMemberDescriptor)) {
-                generateDelegationToTraitImpl(traitFun, entry.getValue());
+            if (!CodegenUtilKt.isDefinitelyNotDefaultImplsMethod(interfaceFun)) {
+                generateDelegationToDefaultImpl(interfaceFun, entry.getValue());
             }
         }
     }
 
-    private void generateDelegationToTraitImpl(@NotNull final FunctionDescriptor traitFun, @NotNull final FunctionDescriptor inheritedFun) {
+    private void generateDelegationToDefaultImpl(@NotNull final FunctionDescriptor traitFun, @NotNull final FunctionDescriptor inheritedFun) {
         functionCodegen.generateMethod(
-                JvmDeclarationOriginKt.DelegationToTraitImpl(descriptorToDeclaration(traitFun), traitFun),
+                JvmDeclarationOriginKt.DelegationToDefaultImpls(descriptorToDeclaration(traitFun), traitFun),
                 inheritedFun,
                 new FunctionGenerationStrategy.CodegenBased(state) {
                     @Override

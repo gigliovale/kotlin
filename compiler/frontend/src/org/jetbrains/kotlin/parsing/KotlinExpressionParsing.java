@@ -21,6 +21,7 @@ import com.intellij.lang.PsiBuilder;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.KtNodeType;
 import org.jetbrains.kotlin.KtNodeTypes;
 import org.jetbrains.kotlin.lexer.KtToken;
@@ -41,6 +42,9 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
 
     private static final ImmutableMap<String, KtToken> KEYWORD_TEXTS = tokenSetToMap(KEYWORDS);
+
+    private static final IElementType[] LOCAL_DECLARATION_FIRST =
+            new IElementType[] {CLASS_KEYWORD, INTERFACE_KEYWORD, FUN_KEYWORD, VAL_KEYWORD, VAR_KEYWORD, TYPE_ALIAS_KEYWORD};
 
     private static ImmutableMap<String, KtToken> tokenSetToMap(TokenSet tokens) {
         ImmutableMap.Builder<String, KtToken> builder = ImmutableMap.builder();
@@ -128,7 +132,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
                     TokenSet.create(EOL_OR_SEMICOLON));
 
     /*package*/ static final TokenSet EXPRESSION_FOLLOW = TokenSet.create(
-            SEMICOLON, ARROW, COMMA, RBRACE, RPAR, RBRACKET
+            EOL_OR_SEMICOLON, ARROW, COMMA, RBRACE, RPAR, RBRACKET
     );
 
     @SuppressWarnings({"UnusedDeclaration"})
@@ -298,8 +302,6 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      * see the precedence table
      */
     private void parseBinaryExpression(Precedence precedence) {
-        //        System.out.println(precedence.name() + " at " + myBuilder.getTokenText());
-
         PsiBuilder.Marker expression = mark();
 
         precedence.parseHigherPrecedence(this);
@@ -331,10 +333,8 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      * operation? prefixExpression
      */
     private void parsePrefixExpression() {
-        //        System.out.println("pre at "  + myBuilder.getTokenText());
-
         if (at(AT)) {
-            if (!parseLocalDeclaration()) {
+            if (!parseLocalDeclaration(/* rollbackIfDefinitelyNotExpression = */ false)) {
                 PsiBuilder.Marker expression = mark();
                 myKotlinParsing.parseAnnotations(DEFAULT);
                 parsePrefixExpression();
@@ -454,7 +454,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
                     expression = mark();
                 }
 
-                parseCallExpression();
+                parseSelectorCallExpression();
 
                 if (firstExpressionParsed) {
                     expression.done(expressionType);
@@ -515,7 +515,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
     /*
      * atomicExpression typeParameters? valueParameters? functionLiteral*
      */
-    private void parseCallExpression() {
+    private void parseSelectorCallExpression() {
         PsiBuilder.Marker mark = mark();
         parseAtomicExpression();
         if (!myBuilder.newlineBeforeCurrentToken() && parseCallSuffix()) {
@@ -594,15 +594,6 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
         }
     }
 
-    private boolean isAtLabelDefinitionBeforeLBrace() {
-        if (at(IDENTIFIER)) {
-            if (myBuilder.rawLookup(1) != AT) return false;
-            return lookahead(2) == LBRACE;
-        }
-
-        return at(AT) && lookahead(1) == LBRACE;
-    }
-
     private boolean isAtLabelDefinitionOrMissingIdentifier() {
         return (at(IDENTIFIER) && myBuilder.rawLookup(1) == AT) || at(AT);
     }
@@ -624,8 +615,6 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      *   ;
      */
     private boolean parseAtomicExpression() {
-        //        System.out.println("atom at "  + myBuilder.getTokenText());
-
         boolean ok = true;
 
         if (at(LPAR)) {
@@ -670,9 +659,9 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
         else if (at(DO_KEYWORD)) {
             parseDoWhile();
         }
-        else if (atSet(CLASS_KEYWORD, INTERFACE_KEYWORD, FUN_KEYWORD, VAL_KEYWORD,
-                       VAR_KEYWORD, TYPE_ALIAS_KEYWORD)) {
-            parseLocalDeclaration();
+        else if (atSet(LOCAL_DECLARATION_FIRST) &&
+                    parseLocalDeclaration(/* rollbackIfDefinitelyNotExpression = */ myBuilder.newlineBeforeCurrentToken())) {
+            // declaration was parsed, do nothing
         }
         else if (at(IDENTIFIER)) {
             parseSimpleNameExpression();
@@ -1018,12 +1007,12 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
     /*
      * modifiers declarationRest
      */
-    private boolean parseLocalDeclaration() {
+    private boolean parseLocalDeclaration(boolean rollbackIfDefinitelyNotExpression) {
         PsiBuilder.Marker decl = mark();
         KotlinParsing.ModifierDetector detector = new KotlinParsing.ModifierDetector();
         myKotlinParsing.parseModifierList(detector, DEFAULT, TokenSet.EMPTY);
 
-        IElementType declType = parseLocalDeclarationRest(detector.isEnumDetected());
+        IElementType declType = parseLocalDeclarationRest(detector.isEnumDetected(), rollbackIfDefinitelyNotExpression);
 
         if (declType != null) {
             // we do not attach preceding comments (non-doc) to local variables because they are likely commenting a few statements below
@@ -1220,7 +1209,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      *  ;
      */
     private void parseStatement(boolean isScriptTopLevel) {
-        if (!parseLocalDeclaration()) {
+        if (!parseLocalDeclaration(/* rollbackIfDefinitelyNotExpression = */false)) {
             if (!atSet(EXPRESSION_FIRST)) {
                 errorAndAdvance("Expecting a statement");
             }
@@ -1245,9 +1234,17 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      *   : object
      *   ;
      */
-    private IElementType parseLocalDeclarationRest(boolean isEnum) {
+    @Nullable
+    private IElementType parseLocalDeclarationRest(boolean isEnum, boolean failIfDefinitelyNotExpression) {
         IElementType keywordToken = tt();
         IElementType declType = null;
+
+        if (failIfDefinitelyNotExpression) {
+            if (keywordToken != FUN_KEYWORD) return null;
+
+            return myKotlinParsing.parseFunction(/* failIfIdentifierExists = */ true);
+        }
+
         if (keywordToken == CLASS_KEYWORD ||  keywordToken == INTERFACE_KEYWORD) {
             declType = myKotlinParsing.parseClass(isEnum);
         }

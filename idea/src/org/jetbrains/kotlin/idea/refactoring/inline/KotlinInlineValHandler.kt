@@ -17,15 +17,10 @@
 package org.jetbrains.kotlin.idea.refactoring.inline
 
 import com.google.common.collect.Sets
-import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.lang.Language
 import com.intellij.lang.refactoring.InlineActionHandler
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.EditorColors
-import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiWhiteSpace
@@ -33,7 +28,6 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.util.RefactoringMessageDialog
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.kotlin.diagnostics.Errors
@@ -41,6 +35,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.codeInsight.shorten.performDelayedShortening
+import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.replaced
 import org.jetbrains.kotlin.idea.refactoring.addTypeArgumentsIfNeeded
 import org.jetbrains.kotlin.idea.refactoring.checkConflictsInteractively
@@ -52,7 +47,6 @@ import org.jetbrains.kotlin.idea.refactoring.move.postProcessMoveUsages
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
-import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
@@ -67,11 +61,6 @@ import org.jetbrains.kotlin.utils.sure
 import java.util.*
 
 class KotlinInlineValHandler : InlineActionHandler() {
-    companion object {
-        private var KtSimpleNameExpression.internalUsageInfos: MutableMap<FqName, (KtSimpleNameExpression) -> UsageInfo?>?
-                by CopyableUserDataProperty(Key.create("INTERNAL_USAGE_INFOS"))
-    }
-
     override fun isEnabledForLanguage(l: Language) = l == KotlinLanguage.INSTANCE
 
     override fun canInlineElement(element: PsiElement): Boolean {
@@ -179,7 +168,12 @@ class KotlinInlineValHandler : InlineActionHandler() {
         }
 
         fun performRefactoring() {
-            if (!showDialog(project, name, declaration, referenceExpressions)) {
+            if (!showDialog(project,
+                            name,
+                            RefactoringBundle.message("inline.variable.title"),
+                            declaration,
+                            referenceExpressions,
+                            HelpID.INLINE_VARIABLE)) {
                 if (isHighlighting) {
                     val statusBar = WindowManager.getInstance().getStatusBar(project)
                     statusBar?.info = RefactoringBundle.message("press.escape.to.remove.the.highlighting")
@@ -252,36 +246,6 @@ class KotlinInlineValHandler : InlineActionHandler() {
 
     private fun showErrorHint(project: Project, editor: Editor?, message: String) {
         CommonRefactoringUtil.showErrorHint(project, editor, message, RefactoringBundle.message("inline.variable.title"), HelpID.INLINE_VARIABLE)
-    }
-
-    private fun highlightExpressions(project: Project, editor: Editor?, elements: List<PsiElement>) {
-        if (editor == null || ApplicationManager.getApplication().isUnitTestMode) return
-
-        val editorColorsManager = EditorColorsManager.getInstance()
-        val searchResultsAttributes = editorColorsManager.globalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
-        val highlightManager = HighlightManager.getInstance(project)
-        highlightManager.addOccurrenceHighlights(editor, elements.toTypedArray(), searchResultsAttributes, true, null)
-    }
-
-    private fun showDialog(
-            project: Project,
-            name: String,
-            property: KtProperty,
-            referenceExpressions: List<KtExpression>
-    ): Boolean {
-        if (ApplicationManager.getApplication().isUnitTestMode) return true
-
-        val kind = if (property.isLocal) "local variable" else "property"
-        val dialog = RefactoringMessageDialog(
-                RefactoringBundle.message("inline.variable.title"),
-                "Inline " + kind + " '" + name + "'? " + RefactoringBundle.message("occurences.string", referenceExpressions.size),
-                HelpID.INLINE_VARIABLE,
-                "OptionPane.questionIcon",
-                true,
-                project
-        )
-        dialog.show()
-        return dialog.isOK
     }
 
     private fun getParametersForFunctionLiteral(initializer: KtExpression): String? {

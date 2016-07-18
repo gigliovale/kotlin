@@ -19,10 +19,8 @@ package org.jetbrains.kotlin.js.translate.reference;
 import com.google.dart.compiler.backend.js.ast.JsExpression;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.psi.*;
-import org.jetbrains.kotlin.js.translate.context.TemporaryVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.Translation;
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils;
 
 import java.util.LinkedHashMap;
@@ -63,12 +61,8 @@ public final class AccessTranslationUtils {
         if (forceOrderOfEvaluation) {
             Map<KtExpression, JsExpression> indexesMap = new LinkedHashMap<KtExpression, JsExpression>();
             for(KtExpression indexExpression : expression.getIndexExpressions()) {
-                JsExpression jsIndexExpression = Translation.translateAsExpression(indexExpression, context);
-                if (TranslationUtils.isCacheNeeded(jsIndexExpression)) {
-                    TemporaryVariable temporaryVariable = context.declareTemporary(null);
-                    context.addStatementToCurrentBlock(JsAstUtils.assignment(temporaryVariable.reference(), jsIndexExpression).makeStmt());
-                    jsIndexExpression = temporaryVariable.reference();
-                }
+                JsExpression jsIndexExpression = context.cacheExpressionIfNeeded(
+                        Translation.translateAsExpression(indexExpression, context));
                 indexesMap.put(indexExpression, jsIndexExpression);
             }
             accessArrayContext = context.innerContextWithAliasesForExpressions(indexesMap);

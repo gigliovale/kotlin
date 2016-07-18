@@ -240,6 +240,18 @@ public class TranslationContext {
     }
 
     @NotNull
+    public JsExpression defineTemporary(@NotNull JsExpression initExpression) {
+        TemporaryVariable var = dynamicContext.declareTemporary(initExpression);
+        addStatementToCurrentBlock(var.assignmentStatement());
+        return var.reference();
+    }
+
+    @NotNull
+    public JsExpression cacheExpressionIfNeeded(@NotNull JsExpression expression) {
+        return TranslationUtils.isCacheNeeded(expression) ? defineTemporary(expression) : expression;
+    }
+
+    @NotNull
     public TemporaryConstVariable getOrDeclareTemporaryConstVariable(@NotNull JsExpression expression) {
         TemporaryConstVariable tempVar = expressionToTempConstVariableCache.get(expression);
 
@@ -318,11 +330,6 @@ public class TranslationContext {
     @NotNull
     public JsBlock getCurrentBlock() {
         return dynamicContext.jsBlock();
-    }
-
-    @NotNull
-    public JsExpression getEmptyExpression() {
-        return program().getEmptyExpression();
     }
 
     @Nullable

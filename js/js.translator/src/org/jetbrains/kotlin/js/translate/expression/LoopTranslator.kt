@@ -16,14 +16,12 @@
 
 @file:JvmName("LoopTranslator")
 
-package org.jetbrains.kotlin.js.translate.expression.loopTranslator
+package org.jetbrains.kotlin.js.translate.expression
 
 import com.google.dart.compiler.backend.js.ast.*
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.js.translate.callTranslator.CallTranslator
-import org.jetbrains.kotlin.js.translate.context.TemporaryVariable
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
-import org.jetbrains.kotlin.js.translate.expression.DestructuringDeclarationTranslator
 import org.jetbrains.kotlin.js.translate.general.Translation
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.CompositeFIF
 import org.jetbrains.kotlin.js.translate.utils.BindingUtils.getHasNextCallable
@@ -33,7 +31,6 @@ import org.jetbrains.kotlin.js.translate.utils.BindingUtils.getTypeForExpression
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils.*
 import org.jetbrains.kotlin.js.translate.utils.PsiUtils.getLoopParameter
 import org.jetbrains.kotlin.js.translate.utils.PsiUtils.getLoopRange
-import org.jetbrains.kotlin.js.translate.utils.TemporariesUtils.temporariesInitialization
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
@@ -48,7 +45,6 @@ fun createWhile(doWhile: Boolean, expression: KtWhileExpressionBase, context: Tr
                               throw IllegalArgumentException("condition expression should not be null: ${expression.text}")
     val conditionBlock = JsBlock()
     var jsCondition = Translation.translateAsExpression(conditionExpression, context, conditionBlock)
-    val isEmptyLoopCondition = isEmptyExpression(jsCondition)
     val body = expression.body
     var bodyStatement =
         if (body != null)
@@ -62,31 +58,19 @@ fun createWhile(doWhile: Boolean, expression: KtWhileExpressionBase, context: Tr
         jsCondition = JsLiteral.TRUE
 
         if (doWhile) {
-            // translate to: tmpSecondRun = false; do { if(tmpSecondRun) { <expr> if(!tmpExprVar) break; } else tmpSecondRun=true; <body> } while(true)
-            val secondRun = context.declareTemporary(JsLiteral.FALSE)
-            context.addStatementToCurrentBlock(secondRun.assignmentExpression().makeStmt())
-            if (!isEmptyLoopCondition) {
-                conditionBlock.statements.add(breakIfConditionIsFalseStatement)
-            }
-            val ifStatement = JsIf(secondRun.reference(), conditionBlock, assignment(secondRun.reference(), JsLiteral.TRUE).makeStmt())
+            // translate to: tmpSecondRun = false;
+            // do { if(tmpSecondRun) { <expr> if(!tmpExprVar) break; } else tmpSecondRun=true; <body> } while(true)
+            val secondRun = context.defineTemporary(JsLiteral.FALSE)
+            conditionBlock.statements.add(breakIfConditionIsFalseStatement)
+            val ifStatement = JsIf(secondRun, conditionBlock, assignment(secondRun, JsLiteral.TRUE).makeStmt())
             bodyBlock.statements.add(0, ifStatement)
         }
         else {
-            // translate to: while (true) { <expr> if(!tmpExprVar) break; <body> }
-            if (isEmptyLoopCondition) {
-                bodyBlock.statements.clear()
-                context.addStatementsToCurrentBlockFrom(conditionBlock)
-            }
-            else {
-                conditionBlock.statements.add(breakIfConditionIsFalseStatement)
-                bodyBlock.statements.addAll(0, conditionBlock.statements)
-            }
+            conditionBlock.statements.add(breakIfConditionIsFalseStatement)
+            bodyBlock.statements.addAll(0, conditionBlock.statements)
         }
 
         bodyStatement = bodyBlock
-    }
-    else if (isEmptyLoopCondition) {
-        jsCondition = JsLiteral.FALSE
     }
 
     val result = if (doWhile) JsDoWhile() else JsWhile()
@@ -117,16 +101,14 @@ fun translateForExpression(expression: KtForExpression, context: TranslationCont
 
     val destructuringParameter: KtDestructuringDeclaration? = expression.destructuringParameter
 
-    fun declareParameter(): JsName {
-        val loopParameter = getLoopParameter(expression)
-        if (loopParameter != null) {
-            return context.getNameForElement(loopParameter)
-        }
-        assert(destructuringParameter != null) { "If loopParameter is null, multi parameter must be not null ${expression.text}" }
-        return context.scope().declareTemporary()
+    val loopParameter = getLoopParameter(expression)
+    val (parameterName, parameterIsTemporary) = if (loopParameter != null) {
+        Pair(context.getNameForElement(loopParameter), false)
     }
-
-    val parameterName: JsName = declareParameter()
+    else {
+        assert(destructuringParameter != null) { "If loopParameter is null, multi parameter must be not null ${expression.text}" }
+        Pair(context.scope().declareTemporary(), true)
+    }
 
     fun translateBody(itemValue: JsExpression?): JsStatement? {
         val realBody = expression.body?.let { Translation.translateAsStatementAndMergeInBlockIfNeeded(it, context) }
@@ -135,10 +117,12 @@ fun translateForExpression(expression: KtForExpression, context: TranslationCont
         }
         else {
             val currentVarInit =
-                if (destructuringParameter == null)
+                if (destructuringParameter == null) {
                     newVar(parameterName, itemValue)
-                else
+                }
+                else {
                     DestructuringDeclarationTranslator.translate(destructuringParameter, parameterName, itemValue, context)
+                }
 
             if (realBody == null) return JsBlock(currentVarInit)
 
@@ -156,59 +140,58 @@ fun translateForExpression(expression: KtForExpression, context: TranslationCont
         val leftExpression = TranslationUtils.translateLeftExpression(context, loopRange, startBlock)
         val endBlock = JsBlock()
         val rightExpression = TranslationUtils.translateRightExpression(context, loopRange, endBlock)
-        val rangeStart =
-            if (TranslationUtils.isCacheNeeded(leftExpression)) {
-                val startVar = context.declareTemporary(leftExpression)
-                context.addStatementToCurrentBlock(startVar.assignmentExpression().makeStmt())
-                startVar.reference()
-            }
-            else {
-                leftExpression
-            }
+        val rangeStart = context.cacheExpressionIfNeeded(leftExpression)
         context.addStatementsToCurrentBlockFrom(startBlock)
         context.addStatementsToCurrentBlockFrom(endBlock)
-        val rangeEnd = context.declareTemporary(rightExpression)
+        val rangeEnd = context.defineTemporary(rightExpression)
 
         val body = translateBody(null)
-        val initExpression = newVar(parameterName, rangeStart)
-        val conditionExpression = lessThanEq(parameterName.makeRef(), rangeEnd.reference())
+        val conditionExpression = lessThanEq(parameterName.makeRef(), rangeEnd)
         val incrementExpression = JsPostfixOperation(JsUnaryOperator.INC, parameterName.makeRef())
 
-        context.addStatementToCurrentBlock(temporariesInitialization(rangeEnd).makeStmt())
-        return JsFor(initExpression, conditionExpression, incrementExpression, body)
+        return if (parameterIsTemporary) {
+            JsFor(assignment(parameterName.makeRef(), rangeStart), conditionExpression, incrementExpression, body)
+        }
+        else {
+            JsFor(newVar(parameterName, rangeStart), conditionExpression, incrementExpression, body)
+        }
     }
 
     fun translateForOverRange(): JsStatement {
-        val rangeExpression = context.declareTemporary(Translation.translateAsExpression(loopRange, context))
+        val rangeExpression = context.defineTemporary(Translation.translateAsExpression(loopRange, context))
 
-        fun getProperty(funName: String): JsExpression = JsNameRef(funName, rangeExpression.reference())
+        fun getProperty(funName: String): JsExpression = JsNameRef(funName, rangeExpression)
 
-        val start = context.declareTemporary(getProperty("first"))
-        val end = context.declareTemporary(getProperty("last"))
-        val increment = context.declareTemporary(getProperty("step"))
+        val start = context.defineTemporary(getProperty("first"))
+        val end = context.defineTemporary(getProperty("last"))
+        val increment = context.defineTemporary(getProperty("step"))
 
         val body = translateBody(null)
-        val initExpression = newVar(parameterName, start.reference())
-        val  conditionExpression = lessThanEq(parameterName.makeRef(), end.reference())
-        val incrementExpression = addAssign(parameterName.makeRef(), increment.reference())
 
-        context.addStatementToCurrentBlock(temporariesInitialization(rangeExpression, start, end, increment).makeStmt())
-        return JsFor(initExpression, conditionExpression, incrementExpression, body)
+        val conditionExpression = lessThanEq(parameterName.makeRef(), end)
+        val incrementExpression = addAssign(parameterName.makeRef(), increment)
+
+
+        return if (parameterIsTemporary) {
+            JsFor(assignment(parameterName.makeRef(), start), conditionExpression, incrementExpression, body)
+        }
+        else {
+            JsFor(newVar(parameterName, start), conditionExpression, incrementExpression, body)
+        }
     }
 
     fun translateForOverArray(): JsStatement {
-        val rangeExpression  = context.declareTemporary(Translation.translateAsExpression(loopRange, context))
-        val length = CompositeFIF.LENGTH_PROPERTY_INTRINSIC.apply(rangeExpression.reference(), listOf<JsExpression>(), context)
-        val end = context.declareTemporary(length)
+        val rangeExpression = context.defineTemporary(Translation.translateAsExpression(loopRange, context))
+        val length = CompositeFIF.LENGTH_PROPERTY_INTRINSIC.apply(rangeExpression, listOf<JsExpression>(), context)
+        val end = context.defineTemporary(length)
         val index = context.declareTemporary(context.program().getNumberLiteral(0))
 
-        val arrayAccess = JsArrayAccess(rangeExpression.reference(), index.reference())
+        val arrayAccess = JsArrayAccess(rangeExpression, index.reference())
         val body = translateBody(arrayAccess)
-        val initExpression = newVar(index.name(), context.program().getNumberLiteral(0))
-        val conditionExpression = inequality(index.reference(), end.reference())
+        val initExpression = assignment(index.reference(), context.program().getNumberLiteral(0))
+        val conditionExpression = inequality(index.reference(), end)
         val incrementExpression = JsPrefixOperation(JsUnaryOperator.INC, index.reference())
 
-        context.addStatementToCurrentBlock(temporariesInitialization(rangeExpression, end).makeStmt())
         return JsFor(initExpression, conditionExpression, incrementExpression, body)
     }
 
@@ -223,18 +206,14 @@ fun translateForExpression(expression: KtForExpression, context: TranslationCont
             return translateMethodInvocation(range, resolvedCall)
         }
 
-        val iteratorVar: TemporaryVariable = context.declareTemporary(iteratorMethodInvocation())
-
-        fun nextMethodInvocation(): JsExpression =
-                translateMethodInvocation(iteratorVar.reference(), getNextFunction(context.bindingContext(), loopRange))
+        val iteratorVar = context.defineTemporary(iteratorMethodInvocation())
 
         fun hasNextMethodInvocation(): JsExpression {
             val resolvedCall = getHasNextCallable(context.bindingContext(), loopRange)
-            return translateMethodInvocation(iteratorVar.reference(), resolvedCall)
+            return translateMethodInvocation(iteratorVar, resolvedCall)
         }
 
-        context.addStatementToCurrentBlock(iteratorVar.assignmentExpression().makeStmt())
-        val nextInvoke = nextMethodInvocation()
+        val nextInvoke = translateMethodInvocation(iteratorVar, getNextFunction(context.bindingContext(), loopRange))
         val body = translateBody(nextInvoke)
         return JsWhile(hasNextMethodInvocation(), body ?: nextInvoke.makeStmt())
     }

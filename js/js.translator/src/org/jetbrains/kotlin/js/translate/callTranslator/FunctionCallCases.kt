@@ -48,7 +48,10 @@ fun CallArgumentTranslator.ArgumentsInfo.argsWithReceiver(receiver: JsExpression
 // call may be native and|or with spreadOperator
 object DefaultFunctionCallCase : FunctionCallCase() {
     // TODO: refactor after fix ArgumentsInfo - duplicate code
-    private fun nativeSpreadFunWithDispatchOrExtensionReceiver(argumentsInfo: CallArgumentTranslator.ArgumentsInfo, functionName: JsName): JsExpression {
+    private fun nativeSpreadFunWithDispatchOrExtensionReceiver(
+            argumentsInfo: CallArgumentTranslator.ArgumentsInfo,
+            functionName: JsName
+    ): JsExpression {
         val cachedReceiver = argumentsInfo.cachedReceiver!!
         val functionCallRef = Namer.getFunctionApplyRef(JsNameRef(functionName, cachedReceiver.assignmentExpression()))
         return JsInvocation(functionCallRef, argumentsInfo.translateArguments)
@@ -306,10 +309,6 @@ object DynamicOperatorCallCase : FunctionCallCase() {
 }
 
 fun FunctionCallInfo.translateFunctionCall(): JsExpression {
-    // When call has `continue` or `break` as one of its argument, they'll be temporarily represented ad JsEmptyExpression.
-    // Such call should not be translated. All side effects are already extracted by this point.
-    if (argumentsInfo.valueArguments.any { JsAstUtils.isEmptyExpression(it) }) return context.emptyExpression
-
     val intrinsic = DelegateFunctionIntrinsic.intrinsic(this)
 
     return when {

@@ -22,10 +22,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
-import org.jetbrains.kotlin.js.translate.context.TemporaryVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.utils.ErrorReportingUtils;
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilKt;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
@@ -45,9 +43,7 @@ public final class QualifiedExpressionTranslator {
                                                        @NotNull TranslationContext context, boolean forceOrderOfEvaluation) {
         JsExpression receiver = translateReceiver(expression, context);
         if (forceOrderOfEvaluation && receiver != null) {
-            TemporaryVariable temporaryVariable = context.declareTemporary(null);
-            context.addStatementToCurrentBlock(JsAstUtils.assignment(temporaryVariable.reference(), receiver).makeStmt());
-            receiver = temporaryVariable.reference();
+            receiver = context.defineTemporary(receiver);
         }
         return VariableAccessTranslator.newInstance(context, getNotNullSimpleNameSelector(expression), receiver);
     }

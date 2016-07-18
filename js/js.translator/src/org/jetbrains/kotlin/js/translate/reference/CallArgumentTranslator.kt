@@ -51,11 +51,6 @@ class CallArgumentTranslator private constructor(
             get() = reifiedArguments + valueArguments
     }
 
-    private enum class ArgumentsKind {
-        HAS_EMPTY_EXPRESSION_ARGUMENT,
-        HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
-    }
-
     private val isNativeFunctionCall = AnnotationsUtils.isNativeObject(resolvedCall.candidateDescriptor)
 
     private fun removeLastUndefinedArguments(result: MutableList<JsExpression>) {
@@ -85,7 +80,6 @@ class CallArgumentTranslator private constructor(
         var argsBeforeVararg: List<JsExpression>? = null
         var argumentsShouldBeExtractedToTmpVars = false
         val argContexts = SmartList<TranslationContext>()
-        var kind = ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
         var concatArguments: MutableList<JsExpression>? = null
 
         for (parameterDescriptor in valueParameters) {
@@ -107,15 +101,15 @@ class CallArgumentTranslator private constructor(
                         argsBeforeVararg = result
                         result = SmartList<JsExpression>()
                         val list = SmartList<JsExpression>()
-                        kind = translateValueArguments(arguments, list, argContext)
+                        translateValueArguments(arguments, list, argContext)
                         concatArguments = prepareConcatArguments(arguments, list)
                     }
                     else {
-                        kind = translateVarargArgument(arguments, result, argContext, size > 1)
+                        translateVarargArgument(arguments, result, argContext, size > 1)
                     }
                 }
                 else {
-                    kind = if (isNativeFunctionCall) {
+                    if (isNativeFunctionCall) {
                         translateValueArguments(arguments, result, argContext)
                     }
                     else {
@@ -124,18 +118,16 @@ class CallArgumentTranslator private constructor(
                 }
             }
             else {
-                kind = translateSingleArgument(actualArgument, result, argContext)
+                translateSingleArgument(actualArgument, result, argContext)
             }
 
             context().moveVarsFrom(argContext)
             argContexts.add(argContext)
             argumentsShouldBeExtractedToTmpVars = argumentsShouldBeExtractedToTmpVars || !argContext.currentBlockIsEmpty()
-
-            if (kind == ArgumentsKind.HAS_EMPTY_EXPRESSION_ARGUMENT) break
         }
 
         if (argumentsShouldBeExtractedToTmpVars) {
-            extractArguments(result, argContexts, context(), kind == ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT)
+            extractArguments(result, argContexts, context())
         }
 
         if (isNativeFunctionCall && hasSpreadOperator) {
@@ -186,12 +178,12 @@ class CallArgumentTranslator private constructor(
         }
 
         private fun translateSingleArgument(actualArgument: ResolvedValueArgument, result: MutableList<JsExpression>,
-                                            context: TranslationContext): ArgumentsKind {
+                                            context: TranslationContext) {
             val valueArguments = actualArgument.arguments
 
             if (actualArgument is DefaultValueArgument) {
                 result += Namer.getUndefinedExpression()
-                return ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
+                return
             }
 
             assert(actualArgument is ExpressionValueArgument)
@@ -201,33 +193,25 @@ class CallArgumentTranslator private constructor(
 
             val jsExpression = Translation.translateAsExpression(argumentExpression, context)
             result.add(jsExpression)
-
-            if (JsAstUtils.isEmptyExpression(jsExpression)) {
-                return ArgumentsKind.HAS_EMPTY_EXPRESSION_ARGUMENT
-            }
-            else {
-                return ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
-            }
         }
 
         private fun translateVarargArgument(arguments: List<ValueArgument>, result: MutableList<JsExpression>,
-                                            context: TranslationContext, shouldWrapVarargInArray: Boolean): ArgumentsKind {
+                                            context: TranslationContext, shouldWrapVarargInArray: Boolean) {
             if (arguments.isEmpty()) {
                 if (shouldWrapVarargInArray) {
                     result.add(JsArrayLiteral(listOf<JsExpression>()).apply { sideEffects = SideEffectKind.DEPENDS_ON_STATE })
                 }
-                return ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
+                return
             }
 
-            val list: MutableList<JsExpression>
-            if (shouldWrapVarargInArray) {
-                list = if (arguments.size == 1) SmartList<JsExpression>() else ArrayList<JsExpression>(arguments.size)
+            val list: MutableList<JsExpression> = if (shouldWrapVarargInArray) {
+                if (arguments.size == 1) SmartList<JsExpression>() else ArrayList<JsExpression>(arguments.size)
             }
             else {
-                list = result
+                result
             }
 
-            val resultKind = translateValueArguments(arguments, list, context)
+            translateValueArguments(arguments, list, context)
 
             if (shouldWrapVarargInArray) {
                 val concatArguments = prepareConcatArguments(arguments, list)
@@ -237,13 +221,10 @@ class CallArgumentTranslator private constructor(
             else if (result.size == 1) {
                 result[0] = JsAstUtils.invokeMethod(result[0], "slice")
             }
-
-            return resultKind
         }
 
         private fun translateValueArguments(arguments: List<ValueArgument>, list: MutableList<JsExpression>,
-                                            context: TranslationContext): ArgumentsKind {
-            var resultKind = ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT
+                                            context: TranslationContext) {
             val argContexts = SmartList<TranslationContext>()
             var argumentsShouldBeExtractedToTmpVars = false
             for (argument in arguments) {
@@ -254,15 +235,10 @@ class CallArgumentTranslator private constructor(
                 context.moveVarsFrom(argContext)
                 argContexts.add(argContext)
                 argumentsShouldBeExtractedToTmpVars = argumentsShouldBeExtractedToTmpVars || !argContext.currentBlockIsEmpty()
-                if (JsAstUtils.isEmptyExpression(argExpression)) {
-                    resultKind = ArgumentsKind.HAS_EMPTY_EXPRESSION_ARGUMENT
-                    break
-                }
             }
             if (argumentsShouldBeExtractedToTmpVars) {
-                extractArguments(list, argContexts, context, resultKind == ArgumentsKind.HAS_NOT_EMPTY_EXPRESSION_ARGUMENT)
+                extractArguments(list, argContexts, context)
             }
-            return resultKind
         }
 
         private fun concatArgumentsIfNeeded(concatArguments: List<JsExpression>): JsExpression {
@@ -311,19 +287,12 @@ class CallArgumentTranslator private constructor(
         }
 
         private fun extractArguments(argExpressions: MutableList<JsExpression>, argContexts: List<TranslationContext>,
-                                     context: TranslationContext, toTmpVars: Boolean) {
+                                     context: TranslationContext) {
             for (i in argExpressions.indices) {
                 val argContext = argContexts[i]
                 val jsArgExpression = argExpressions[i]
                 if (argContext.currentBlockIsEmpty() && TranslationUtils.isCacheNeeded(jsArgExpression)) {
-                    if (toTmpVars) {
-                        val temporaryVariable = context.declareTemporary(jsArgExpression)
-                        context.addStatementToCurrentBlock(temporaryVariable.assignmentExpression().makeStmt())
-                        argExpressions[i] = temporaryVariable.reference()
-                    }
-                    else {
-                        context.addStatementToCurrentBlock(jsArgExpression.makeStmt())
-                    }
+                    argExpressions[i] = context.defineTemporary(jsArgExpression)
                 }
                 else {
                     context.addStatementsToCurrentBlockFrom(argContext)

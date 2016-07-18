@@ -48,7 +48,8 @@ public final class CallExpressionTranslator extends AbstractCallExpressionTransl
             @Nullable JsExpression receiver,
             @NotNull TranslationContext context
     ) {
-        ResolvedCall<? extends FunctionDescriptor> resolvedCall = CallUtilKt.getFunctionResolvedCallWithAssert(expression, context.bindingContext());
+        ResolvedCall<? extends FunctionDescriptor> resolvedCall =
+                CallUtilKt.getFunctionResolvedCallWithAssert(expression, context.bindingContext());
 
         if (isJsCall(resolvedCall)) {
             return (new CallExpressionTranslator(expression, receiver, context)).translateJsCode();
@@ -106,7 +107,7 @@ public final class CallExpressionTranslator extends AbstractCallExpressionTransl
         int size = statements.size();
 
         if (size == 0) {
-            return program().getEmptyExpression();
+            return JsLiteral.NULL;
         } else if (size > 1) {
             return new JsBlock(statements);
         } else {

@@ -19,14 +19,12 @@ package org.jetbrains.kotlin.js.translate.expression;
 import com.google.dart.compiler.backend.js.ast.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.js.translate.context.TemporaryVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
 import org.jetbrains.kotlin.js.translate.operation.InOperationTranslator;
 import org.jetbrains.kotlin.js.translate.utils.BindingUtils;
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
-import org.jetbrains.kotlin.js.translate.utils.TranslationUtils;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.psi.psiUtil.PsiUtilsKt;
@@ -55,25 +53,10 @@ public final class WhenTranslator extends AbstractTranslator {
         whenExpression = expression;
 
         KtExpression subject = expression.getSubjectExpression();
-        if (subject != null) {
-            JsExpression subjectExpression = Translation.translateAsExpression(subject, context);
-            if (TranslationUtils.isCacheNeeded(subjectExpression)) {
-                TemporaryVariable subjectVar = context.declareTemporary(null);
-                context.addStatementToCurrentBlock(JsAstUtils.assignment(subjectVar.reference(), subjectExpression).makeStmt());
-                subjectExpression = subjectVar.reference();
-            }
-            expressionToMatch = subjectExpression;
-        }
-        else {
-            expressionToMatch = null;
-        }
+        expressionToMatch = subject != null ? context.defineTemporary(Translation.translateAsExpression(subject, context)) : null;
     }
 
     private JsNode translate() {
-        if (expressionToMatch != null && JsAstUtils.isEmptyExpression(expressionToMatch)) {
-            return JsEmpty.INSTANCE;
-        }
-
         JsIf currentIf = null;
         JsIf resultIf = null;
         for (KtWhenEntry entry : whenExpression.getEntries()) {
@@ -102,7 +85,7 @@ public final class WhenTranslator extends AbstractTranslator {
                 currentIf = nextIf;
             }
         }
-        return resultIf != null ? resultIf : context().getEmptyExpression();
+        return resultIf != null ? resultIf : JsLiteral.NULL;
     }
 
     @NotNull
@@ -134,7 +117,11 @@ public final class WhenTranslator extends AbstractTranslator {
     }
 
     @NotNull
-    private JsExpression translateOrCondition(@NotNull JsExpression leftExpression, @NotNull KtWhenCondition condition, @NotNull TranslationContext context) {
+    private JsExpression translateOrCondition(
+            @NotNull JsExpression leftExpression,
+            @NotNull KtWhenCondition condition,
+            @NotNull TranslationContext context
+    ) {
         TranslationContext rightContext = context.innerBlock();
         JsExpression rightExpression = translateCondition(condition, rightContext);
         context.moveVarsFrom(rightContext);
@@ -160,7 +147,10 @@ public final class WhenTranslator extends AbstractTranslator {
     }
 
     @NotNull
-    private JsExpression translateWhenConditionToBooleanExpression(@NotNull KtWhenCondition condition, @NotNull TranslationContext context) {
+    private JsExpression translateWhenConditionToBooleanExpression(
+            @NotNull KtWhenCondition condition,
+            @NotNull TranslationContext context
+    ) {
         if (condition instanceof KtWhenConditionIsPattern) {
             return translateIsCondition((KtWhenConditionIsPattern) condition, context);
         }

@@ -142,7 +142,7 @@ public class KotlinIntroduceTypeAliasDialog extends DialogWrapper {
                 }
         );
 
-        aliasNameField = new NameSuggestionsField(ArrayUtil.EMPTY_STRING_ARRAY, project, KotlinFileType.INSTANCE);
+        aliasNameField = new NameSuggestionsField(new String[]{originalDescriptor.getName()}, project, KotlinFileType.INSTANCE);
         aliasNameField.addDataChangedListener(
                 new NameSuggestionsField.DataChanged() {
                     @Override

@@ -1274,6 +1274,11 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                     }
                 }
             }
+
+            @Override
+            public void visitSuperExpression(@NotNull KtSuperExpression expression) {
+                lookupInContext(ExpressionCodegen.getSuperCallLabelTarget(context, expression));
+            }
         };
 
         for (KtDeclaration declaration : myClass.getDeclarations()) {

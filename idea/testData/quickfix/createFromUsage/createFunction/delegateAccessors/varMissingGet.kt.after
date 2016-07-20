@@ -1,9 +1,8 @@
-// "Create member function 'getValue'" "true"
+// "Create member function 'F.getValue'" "true"
 import kotlin.reflect.KProperty
 
 class F {
     operator fun setValue(x: X, property: KProperty<*>, i: Int) { }
-
     operator fun getValue(x: X, property: KProperty<*>): Int {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

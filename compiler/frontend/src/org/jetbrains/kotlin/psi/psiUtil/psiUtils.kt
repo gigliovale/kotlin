@@ -140,6 +140,10 @@ fun PsiElement.getNextSiblingIgnoringWhitespaceAndComments(): PsiElement? {
     return siblings(withItself = false).filter { it !is PsiWhiteSpace && it !is PsiComment }.firstOrNull()
 }
 
+fun PsiElement.getPrevSiblingIgnoringWhitespaceAndComments(): PsiElement? {
+    return siblings(withItself = false, forward = false).filter { it !is PsiWhiteSpace && it !is PsiComment }.firstOrNull()
+}
+
 inline fun <reified T : PsiElement> T.nextSiblingOfSameType() = PsiTreeUtil.getNextSiblingOfType(this, T::class.java)
 
 inline fun <reified T : PsiElement> T.prevSiblingOfSameType() = PsiTreeUtil.getPrevSiblingOfType(this, T::class.java)
@@ -152,8 +156,16 @@ fun <T : PsiElement> T.getIfChildIsInBranch(element: PsiElement, branch: T.() ->
     return if (branch().isAncestor(element)) this else null
 }
 
+fun <T : PsiElement> T.getIfChildIsInBranches(element: PsiElement, branches: T.() -> Iterable<PsiElement?>): T? {
+    return if (branches().any { it.isAncestor(element) }) this else null
+}
+
 inline fun <reified T : PsiElement> PsiElement.getParentOfTypeAndBranch(strict: Boolean = false, noinline branch: T.() -> PsiElement?): T? {
     return getParentOfType<T>(strict)?.getIfChildIsInBranch(this, branch)
+}
+
+inline fun <reified T : PsiElement> PsiElement.getParentOfTypeAndBranches(strict: Boolean = false, noinline branches: T.() -> Iterable<PsiElement?>): T? {
+    return getParentOfType<T>(strict)?.getIfChildIsInBranches(this, branches)
 }
 
 tailrec fun PsiElement.getOutermostParentContainedIn(container: PsiElement): PsiElement? {

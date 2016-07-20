@@ -79,13 +79,45 @@ abstract class CreateCallableFromUsageFixBase<E : KtElement>(
 
     override fun getText(): String {
         val renderedCallables = callableInfos.map {
-            val kind = when (it.kind) {
-                CallableKind.FUNCTION -> "function"
-                CallableKind.PROPERTY -> "property"
-                CallableKind.SECONDARY_CONSTRUCTOR -> "secondary constructor"
-                else -> throw AssertionError("Unexpected callable info: $it")
+            buildString {
+                if (it.isAbstract) {
+                    append("abstract ")
+                }
+
+                val kind = when (it.kind) {
+                    CallableKind.FUNCTION -> "function"
+                    CallableKind.PROPERTY -> "property"
+                    CallableKind.SECONDARY_CONSTRUCTOR -> "secondary constructor"
+                    else -> throw AssertionError("Unexpected callable info: $it")
+                }
+                append(kind)
+
+                if (it.name.isNotEmpty()) {
+                    append(" '")
+
+                    val callableBuilder =
+                            CallableBuilderConfiguration(callableInfos, element, isExtension = isExtension)
+                                    .createBuilder()
+                    val receiverType = callableBuilder
+                            .computeTypeCandidates(callableInfos.first().receiverTypeInfo)
+                            .firstOrNull()
+                            ?.theType
+                    if (receiverType != null) {
+                        if (isExtension) {
+                            val receiverTypeText = IdeDescriptorRenderers.SOURCE_CODE_SHORT_NAMES_IN_TYPES.renderType(receiverType)
+                            val isFunctionType = receiverType.constructor.declarationDescriptor is FunctionClassDescriptor
+                            append(if (isFunctionType) "($receiverTypeText)" else receiverTypeText).append('.')
+                        }
+                        else {
+                            receiverType.constructor.declarationDescriptor?.let {
+                                append(IdeDescriptorRenderers.SOURCE_CODE_SHORT_NAMES_IN_TYPES.renderClassifierName(it)).append('.')
+                            }
+                        }
+                    }
+
+                    append("${it.name}'")
+                }
             }
-            if (it.name.isNotEmpty()) "$kind '${it.name}'" else kind
         }
 
         return StringBuilder().apply {
@@ -113,7 +145,7 @@ abstract class CreateCallableFromUsageFixBase<E : KtElement>(
         // TODO: Remove after companion object extensions are supported
         if (isExtension && receiverInfo.staticContextRequired) return false
 
-        val callableBuilder = CallableBuilderConfiguration(callableInfos, element, file, null, isExtension).createBuilder()
+        val callableBuilder = CallableBuilderConfiguration(callableInfos, element, isExtension = isExtension).createBuilder()
         val receiverTypeCandidates = callableBuilder.computeTypeCandidates(callableInfos.first().receiverTypeInfo)
         val propertyInfo = callableInfos.firstOrNull { it is PropertyInfo } as PropertyInfo?
         val isFunction = callableInfos.any { it.kind == CallableKind.FUNCTION }

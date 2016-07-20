@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.idea.core.KotlinNameSuggester;
 import org.jetbrains.kotlin.idea.refactoring.KotlinRefactoringUtilKt;
 import org.jetbrains.kotlin.idea.refactoring.KotlinRefactoringBundle;
 import org.jetbrains.kotlin.idea.refactoring.introduce.extractionEngine.*;
+import org.jetbrains.kotlin.idea.refactoring.introduce.ui.KotlinSignatureComponent;
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -49,13 +50,13 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
     private JPanel contentPane;
     private TitledSeparator inputParametersPanel;
     private JComboBox visibilityBox;
-    private KotlinFunctionSignatureComponent signaturePreviewField;
+    private KotlinSignatureComponent signaturePreviewField;
     private JPanel functionNamePanel;
     private NameSuggestionsField functionNameField;
     private JLabel functionNameLabel;
     private JComboBox returnTypeBox;
     private JPanel returnTypePanel;
-    private KotlinParameterTablePanel parameterTablePanel;
+    private ExtractFunctionParameterTablePanel parameterTablePanel;
 
     private final Project project;
 
@@ -82,7 +83,7 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
     }
 
     private void createUIComponents() {
-        this.signaturePreviewField = new KotlinFunctionSignatureComponent("", project);
+        this.signaturePreviewField = new KotlinSignatureComponent("", project);
     }
 
     private boolean isVisibilitySectionAvailable() {
@@ -102,7 +103,7 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
 
     private boolean checkNames() {
         if (!KotlinNameSuggester.INSTANCE.isIdentifier(getFunctionName())) return false;
-        for (KotlinParameterTablePanel.ParameterInfo parameterInfo : parameterTablePanel.getParameterInfos()) {
+        for (ExtractFunctionParameterTablePanel.ParameterInfo parameterInfo : parameterTablePanel.getSelectedParameterInfos()) {
             if (!KotlinNameSuggester.INSTANCE.isIdentifier(parameterInfo.getName())) return false;
         }
         return true;
@@ -191,7 +192,7 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
                 }
         );
 
-        parameterTablePanel = new KotlinParameterTablePanel() {
+        parameterTablePanel = new ExtractFunctionParameterTablePanel() {
             @Override
             protected void updateSignature() {
                 KotlinExtractFunctionDialog.this.update();
@@ -261,8 +262,8 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
         return createNewDescriptor(originalDescriptor.getDescriptor(),
                                    getFunctionName(),
                                    getVisibility(),
-                                   parameterTablePanel.getReceiverInfo(),
-                                   parameterTablePanel.getParameterInfos(),
+                                   parameterTablePanel.getSelectedReceiverInfo(),
+                                   parameterTablePanel.getSelectedParameterInfos(),
                                    (KotlinType) returnTypeBox.getSelectedItem());
     }
 
@@ -275,12 +276,12 @@ public class KotlinExtractFunctionDialog extends DialogWrapper {
             @NotNull ExtractableCodeDescriptor originalDescriptor,
             @NotNull String newName,
             @NotNull String newVisibility,
-            @Nullable KotlinParameterTablePanel.ParameterInfo newReceiverInfo,
-            @NotNull List<KotlinParameterTablePanel.ParameterInfo> newParameterInfos,
+            @Nullable ExtractFunctionParameterTablePanel.ParameterInfo newReceiverInfo,
+            @NotNull List<ExtractFunctionParameterTablePanel.ParameterInfo> newParameterInfos,
             @Nullable KotlinType returnType
     ) {
         Map<Parameter, Parameter> oldToNewParameters = ContainerUtil.newLinkedHashMap();
-        for (KotlinParameterTablePanel.ParameterInfo parameterInfo : newParameterInfos) {
+        for (ExtractFunctionParameterTablePanel.ParameterInfo parameterInfo : newParameterInfos) {
             oldToNewParameters.put(parameterInfo.getOriginalParameter(), parameterInfo.toParameter());
         }
         Parameter originalReceiver = originalDescriptor.getReceiverParameter();

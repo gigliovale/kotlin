@@ -2262,6 +2262,84 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class Abstract extends AbstractQuickFixTest {
+                    public void testAllFilesPresentInAbstract() throws Exception {
+                        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/createFromUsage/createFunction/call/abstract"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+                    }
+
+                    @TestMetadata("classNoExplicitReceiver.kt")
+                    public void testClassNoExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract/classNoExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("explicitReceiverOfContainingClass.kt")
+                    public void testExplicitReceiverOfContainingClass() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract/explicitReceiverOfContainingClass.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("interfaceNoExplicitReceiver.kt")
+                    public void testInterfaceNoExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract/interfaceNoExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("notAbstractClass.kt")
+                    public void testNotAbstractClass() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract/notAbstractClass.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("otherExplicitReceiver.kt")
+                    public void testOtherExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/abstract/otherExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
+                }
+
+                @TestMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class ExtensionByExtensionReceiver extends AbstractQuickFixTest {
+                    public void testAllFilesPresentInExtensionByExtensionReceiver() throws Exception {
+                        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+                    }
+
+                    @TestMetadata("extensionFunction.kt")
+                    public void testExtensionFunction() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver/extensionFunction.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("extensionLambda.kt")
+                    public void testExtensionLambda() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver/extensionLambda.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("extensionPropertyGetter.kt")
+                    public void testExtensionPropertyGetter() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver/extensionPropertyGetter.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("extensionPropertySetter.kt")
+                    public void testExtensionPropertySetter() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver/extensionPropertySetter.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("notExtensionCallable.kt")
+                    public void testNotExtensionCallable() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/extensionByExtensionReceiver/notExtensionCallable.kt");
+                        doTest(fileName);
+                    }
+                }
+
                 @TestMetadata("idea/testData/quickfix/createFromUsage/createFunction/call/typeArguments")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
@@ -3559,6 +3637,45 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                 public void testVarOnUserType() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/varOnUserType.kt");
                     doTest(fileName);
+                }
+
+                @TestMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class Abstract extends AbstractQuickFixTest {
+                    public void testAllFilesPresentInAbstract() throws Exception {
+                        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/quickfix/createFromUsage/createVariable/property/abstract"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+                    }
+
+                    @TestMetadata("classNoExplicitReceiver.kt")
+                    public void testClassNoExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract/classNoExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("explicitReceiverOfContainingClass.kt")
+                    public void testExplicitReceiverOfContainingClass() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract/explicitReceiverOfContainingClass.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("interfaceNoExplicitReceiver.kt")
+                    public void testInterfaceNoExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract/interfaceNoExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("notAbstractClass.kt")
+                    public void testNotAbstractClass() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract/notAbstractClass.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("otherExplicitReceiver.kt")
+                    public void testOtherExplicitReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/createFromUsage/createVariable/property/abstract/otherExplicitReceiver.kt");
+                        doTest(fileName);
+                    }
                 }
             }
         }

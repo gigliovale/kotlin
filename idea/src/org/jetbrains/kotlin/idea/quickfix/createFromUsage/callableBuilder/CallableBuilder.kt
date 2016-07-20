@@ -119,15 +119,15 @@ fun List<TypeCandidate>.getTypeByRenderedType(renderedType: String): KotlinType?
 class CallableBuilderConfiguration(
         val callableInfos: List<CallableInfo>,
         val originalElement: KtElement,
-        val currentFile: KtFile,
-        val currentEditor: Editor?,
+        val currentFile: KtFile = originalElement.getContainingKtFile(),
+        val currentEditor: Editor? = null,
         val isExtension: Boolean = false,
         val enableSubstitutions: Boolean = true
 )
 
-interface CallablePlacement {
-    class WithReceiver(val receiverTypeCandidate: TypeCandidate): CallablePlacement
-    class NoReceiver(val containingElement: PsiElement): CallablePlacement
+sealed class CallablePlacement {
+    class WithReceiver(val receiverTypeCandidate: TypeCandidate): CallablePlacement()
+    class NoReceiver(val containingElement: PsiElement): CallablePlacement()
 }
 
 class CallableBuilder(val config: CallableBuilderConfiguration) {
@@ -243,7 +243,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                     val classDeclaration = receiverClassDescriptor?.let { DescriptorToSourceUtils.getSourceFromDescriptor(it) }
                     containingElement = if (!config.isExtension && classDeclaration != null) classDeclaration else config.currentFile
                 }
-                else -> throw IllegalArgumentException("Unexpected placement: $placement")
+                else -> throw IllegalArgumentException("Placement wan't initialized")
             }
             val receiverType = receiverClassDescriptor?.defaultType
 
@@ -443,10 +443,12 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                 val psiFactory = KtPsiFactory(currentFile)
 
                 val modifiers =
-                        if (containingElement is KtClassOrObject
-                            && containingElement.isAncestor(config.originalElement)
-                            && callableInfo.kind != CallableKind.SECONDARY_CONSTRUCTOR)
-                            "private "
+                        if (callableInfo.isAbstract) {
+                            if (containingElement is KtClass && containingElement.isInterface()) "" else "abstract "
+                        }
+                        else if (containingElement is KtClassOrObject
+                                 && containingElement.isAncestor(config.originalElement)
+                                 && callableInfo.kind != CallableKind.SECONDARY_CONSTRUCTOR) "private "
                         else ""
 
                 val declaration: KtNamedDeclaration = when (callableInfo.kind) {
@@ -454,6 +456,7 @@ class CallableBuilder(val config: CallableBuilderConfiguration) {
                         val body = when {
                             containingElement is KtClass && containingElement.isInterface() && !config.isExtension -> ""
                             callableInfo.kind == CallableKind.SECONDARY_CONSTRUCTOR -> ""
+                            callableInfo.isAbstract -> ""
                             else -> "{}"
                         }
                         @Suppress("USELESS_CAST") // KT-10755

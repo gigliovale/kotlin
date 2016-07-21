@@ -1305,21 +1305,8 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
                 assert delegateExpression != null;
                 delegateExpression.accept(visitor);
             }
-        }
-
-        ClassDescriptor superClass = DescriptorUtilsKt.getSuperClassNotAny(descriptor);
-        if (superClass != null) {
-            if (superClass.isInner()) {
-                context.lookupInContext(superClass.getContainingDeclaration(), StackValue.LOCAL_0, state, true);
-            }
-
-            ConstructorDescriptor primaryConstructor = descriptor.getUnsubstitutedPrimaryConstructor();
-            if (primaryConstructor != null && !isAnonymousObject(descriptor)) {
-                ResolvedCall<ConstructorDescriptor> delegationCall = getDelegationConstructorCall(bindingContext, primaryConstructor);
-                KtValueArgumentList argumentList = delegationCall != null ? delegationCall.getCall().getValueArgumentList() : null;
-                if (argumentList != null) {
-                    argumentList.accept(visitor);
-                }
+            else if (specifier instanceof KtSuperTypeCallEntry) {
+                specifier.accept(visitor);
             }
         }
     }

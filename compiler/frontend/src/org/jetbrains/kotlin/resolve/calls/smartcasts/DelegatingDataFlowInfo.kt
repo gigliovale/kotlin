@@ -90,8 +90,18 @@ internal class DelegatingDataFlowInfo private constructor(
                 }
             }
 
-    private fun putNullability(map: MutableMap<DataFlowValue, Nullability>, value: DataFlowValue, nullability: Nullability): Boolean {
+    private fun putNullability(map: MutableMap<DataFlowValue, Nullability>, value: DataFlowValue,
+                               nullability: Nullability, affectReceiver: Boolean = true): Boolean {
         map.put(value, nullability)
+
+        val identifierInfo = value.identifierInfo
+        if (affectReceiver && !nullability.canBeNull() && identifierInfo is IdentifierInfo.Qualified) {
+            val receiverType = identifierInfo.receiverType
+            if (identifierInfo.safe && receiverType != null) {
+                putNullability(map, DataFlowValue(identifierInfo.receiverInfo, receiverType), nullability)
+            }
+        }
+
         return nullability != getCollectedNullability(value)
     }
 
@@ -135,7 +145,7 @@ internal class DelegatingDataFlowInfo private constructor(
     override fun assign(a: DataFlowValue, b: DataFlowValue): DataFlowInfo {
         val nullability = Maps.newHashMap<DataFlowValue, Nullability>()
         val nullabilityOfB = getPredictableNullability(b)
-        putNullability(nullability, a, nullabilityOfB)
+        putNullability(nullability, a, nullabilityOfB, affectReceiver = false)
 
         val newTypeInfo = newTypeInfo()
         var typesForB = getPredictableTypes(b)
@@ -212,7 +222,7 @@ internal class DelegatingDataFlowInfo private constructor(
         val nullabilityOfA = getPredictableNullability(a)
         val nullabilityOfB = getPredictableNullability(b)
 
-        var changed = putNullability(builder, a, nullabilityOfA.refine(nullabilityOfB.invert())) or
+        val changed = putNullability(builder, a, nullabilityOfA.refine(nullabilityOfB.invert())) or
                       putNullability(builder, b, nullabilityOfB.refine(nullabilityOfA.invert()))
         return if (changed) create(this, ImmutableMap.copyOf(builder), EMPTY_TYPE_INFO) else this
     }
@@ -221,9 +231,13 @@ internal class DelegatingDataFlowInfo private constructor(
         if (value.type == type) return this
         if (getCollectedTypes(value).contains(type)) return this
         if (!value.type.isFlexible() && value.type.isSubtypeOf(type)) return this
-        val newNullabilityInfo = if (type.isMarkedNullable) EMPTY_NULLABILITY_INFO else ImmutableMap.of(value, NOT_NULL)
         val newTypeInfo = newTypeInfo()
         newTypeInfo.put(value, type)
+        val builder = Maps.newHashMap<DataFlowValue, Nullability>()
+        if (!type.isMarkedNullable) {
+            putNullability(builder, value, NOT_NULL)
+        }
+        val newNullabilityInfo = if (type.isMarkedNullable) EMPTY_NULLABILITY_INFO else ImmutableMap.copyOf(builder)
         return create(this, newNullabilityInfo, newTypeInfo)
     }
 

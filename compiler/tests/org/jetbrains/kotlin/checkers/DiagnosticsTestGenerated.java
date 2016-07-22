@@ -1721,6 +1721,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/callableReference/bound"), Pattern.compile("^(.+)\\.kt$"), true);
                 }
 
+                @TestMetadata("classVsStarImportedCompanion.kt")
+                public void testClassVsStarImportedCompanion() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/classVsStarImportedCompanion.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("classVsStarImportedObject.kt")
+                public void testClassVsStarImportedObject() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/classVsStarImportedObject.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("companionObject.kt")
                 public void testCompanionObject() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/companionObject.kt");
@@ -2192,6 +2204,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("protectedVarFromClass.kt")
+                public void testProtectedVarFromClass() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/property/protectedVarFromClass.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("returnTypeDependentOnGenericProperty.kt")
                 public void testReturnTypeDependentOnGenericProperty() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/property/returnTypeDependentOnGenericProperty.kt");
@@ -2270,6 +2288,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("kt12751.kt")
                 public void testKt12751() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/resolve/kt12751.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("kt8596.kt")
+                public void testKt8596() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/resolve/kt8596.kt");
                     doTest(fileName);
                 }
 
@@ -8604,6 +8628,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("controlStructuresErrors.kt")
             public void testControlStructuresErrors() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/controlStructuresErrors.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("illegalSelectorCallableReference.kt")
+            public void testIllegalSelectorCallableReference() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/incompleteCode/illegalSelectorCallableReference.kt");
                 doTest(fileName);
             }
 

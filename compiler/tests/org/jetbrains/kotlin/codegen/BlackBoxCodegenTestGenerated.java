@@ -1470,6 +1470,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/bound"), Pattern.compile("^(.+)\\.kt$"), true);
             }
 
+            @TestMetadata("enumEntryMember.kt")
+            public void testEnumEntryMember() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/bound/enumEntryMember.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt12738.kt")
             public void testKt12738() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/bound/kt12738.kt");
@@ -1947,6 +1953,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("kClassInstanceIsInitializedFirst.kt")
             public void testKClassInstanceIsInitializedFirst() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/property/kClassInstanceIsInitializedFirst.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt12982_protectedPropertyReference.kt")
+            public void testKt12982_protectedPropertyReference() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/property/kt12982_protectedPropertyReference.kt");
                 doTest(fileName);
             }
 

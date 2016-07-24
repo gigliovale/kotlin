@@ -102,31 +102,13 @@ public class LockBasedStorageManager implements StorageManager {
     @NotNull
     @Override
     public <K, V> MemoizedFunctionToNotNull<K, V> createMemoizedFunction(@NotNull Function1<? super K, ? extends V> compute) {
-        return createMemoizedFunction(compute, LockBasedStorageManager.<K>createConcurrentHashMap());
-    }
-
-    @NotNull
-    @Override
-    public <K, V> MemoizedFunctionToNotNull<K, V> createMemoizedFunction(
-            @NotNull Function1<? super K, ? extends V> compute,
-            @NotNull ConcurrentMap<K, Object> map
-    ) {
-        return new MapBasedMemoizedFunctionToNotNull<K, V>(this, map, compute);
+        return new MapBasedMemoizedFunctionToNotNull<K, V>(this, LockBasedStorageManager.<K>createConcurrentHashMap(), compute);
     }
 
     @NotNull
     @Override
     public <K, V> MemoizedFunctionToNullable<K, V> createMemoizedFunctionWithNullableValues(@NotNull Function1<? super K, ? extends V> compute) {
-        return createMemoizedFunctionWithNullableValues(compute, LockBasedStorageManager.<K>createConcurrentHashMap());
-    }
-
-    @Override
-    @NotNull
-    public  <K, V> MemoizedFunctionToNullable<K, V> createMemoizedFunctionWithNullableValues(
-            @NotNull Function1<? super K, ? extends V> compute,
-            @NotNull ConcurrentMap<K, Object> map
-    ) {
-        return new MapBasedMemoizedFunction<K, V>(this, map, compute);
+        return new MapBasedMemoizedFunction<K, V>(this, LockBasedStorageManager.<K>createConcurrentHashMap(), compute);
     }
 
     @NotNull
@@ -471,14 +453,6 @@ public class LockBasedStorageManager implements StorageManager {
             assert result != null : "compute() returned null under " + getStorageManager();
             return result;
         }
-    }
-
-    @NotNull
-    public static LockBasedStorageManager createDelegatingWithSameLock(
-            @NotNull LockBasedStorageManager base,
-            @NotNull ExceptionHandlingStrategy newStrategy
-    ) {
-        return new LockBasedStorageManager(getPointOfConstruction(), newStrategy, base.lock);
     }
 
     @NotNull

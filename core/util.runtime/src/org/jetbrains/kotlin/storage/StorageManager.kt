@@ -16,13 +16,10 @@
 
 package org.jetbrains.kotlin.storage
 
-import java.util.concurrent.ConcurrentMap
-
 interface StorageManager {
     /**
      * Given a function compute: K -> V create a memoized version of it that computes a value only once for each key
      * @param compute the function to be memoized
-     * @param valuesReferenceKind how to store the memoized values
      *
      * NOTE: if compute() has side-effects the WEAK reference kind is dangerous: the side-effects will be repeated if
      *       the value gets collected and then re-computed
@@ -33,10 +30,6 @@ interface StorageManager {
 
     fun <K, V : Any> createCacheWithNullableValues(): CacheWithNullableValues<K, V>
     fun <K, V : Any> createCacheWithNotNullValues(): CacheWithNotNullValues<K, V>
-
-    fun <K, V : Any> createMemoizedFunction(compute: (K) -> V, map: ConcurrentMap<K, Any>): MemoizedFunctionToNotNull<K, V>
-
-    fun <K, V : Any> createMemoizedFunctionWithNullableValues(compute: (K) -> V, map: ConcurrentMap<K, Any>): MemoizedFunctionToNullable<K, V>
 
     fun <T : Any> createLazyValue(computable: () -> T): NotNullLazyValue<T>
 

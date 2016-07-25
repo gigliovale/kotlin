@@ -114,7 +114,7 @@ abstract class AbstractExtractionTest() : KotlinLightCodeInsightFixtureTestCase(
             with (handler) {
                 val target = (file as KtFile).findElementByCommentPrefix("// TARGET:") as? KtNamedDeclaration
                 if (target != null) {
-                    KotlinRefactoringUtil.selectElement(fixture.getEditor(), file, true, CodeInsightUtils.ElementKind.EXPRESSION) { element ->
+                    KotlinRefactoringUtil.selectElement(fixture.getEditor(), file, true, listOf(CodeInsightUtils.ElementKind.EXPRESSION)) { element ->
                         invoke(fixture.getProject(), fixture.getEditor(), element as KtExpression, target)
                     }
                 }
@@ -320,14 +320,14 @@ abstract class AbstractExtractionTest() : KotlinLightCodeInsightFixtureTestCase(
 
             val explicitPreviousSibling = file.findElementByCommentPrefix("// SIBLING:")
             val fileText = file.text
-            val aliasName = InTextDirectivesUtils.findStringWithPrefixes(fileText, "// NAME:")!!
+            val aliasName = InTextDirectivesUtils.findStringWithPrefixes(fileText, "// NAME:")
             val aliasVisibility = InTextDirectivesUtils.findStringWithPrefixes(fileText, "// VISIBILITY:")?.let {
                 KtPsiFactory(project).createModifierList(it).firstChild.node.elementType as KtModifierKeywordToken
             }
             val editor = fixture.editor
             KotlinIntroduceTypeAliasHandler.selectElements(editor, file) { elements, previousSibling ->
                 KotlinIntroduceTypeAliasHandler.doInvoke(project, editor, elements, explicitPreviousSibling ?: previousSibling) {
-                    it.copy(name = aliasName, visibility = aliasVisibility ?: it.visibility)
+                    it.copy(name = aliasName ?: it.name, visibility = aliasVisibility ?: it.visibility)
                 }
             }
         }

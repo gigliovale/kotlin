@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.asJava
 
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiField
 import com.intellij.psi.PsiNamedElement
@@ -35,7 +36,7 @@ interface KtLightDeclaration<out T: KtDeclaration, out D: PsiElement>: KtLightEl
 
 interface KtLightField : PsiField, KtLightDeclaration<KtDeclaration, PsiField>, PsiVariableEx
 
-interface KtLightClassForExplicitDeclaration : KtJavaMirrorMarker {
+interface KtLightClassForExplicitDeclaration : KtJavaMirrorMarker, PsiClass {
     fun getDescriptor(): ClassDescriptor?
     val kotlinOrigin: KtClassOrObject
 }

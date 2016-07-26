@@ -17,34 +17,28 @@
 package org.jetbrains.kotlin.idea.caches.resolve
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.SLRUCache
 import org.jetbrains.kotlin.analyzer.AnalysisResult
-import org.jetbrains.kotlin.container.get
-import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.context.GlobalContextImpl
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.idea.project.ResolveElementCache
-import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
-import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompositeBindingContext
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
 internal class ProjectResolutionFacade(
+        val debugString: String,
         val project: Project,
         val globalContext: GlobalContextImpl,
-        computeModuleResolverProvider: (GlobalContextImpl, Project) -> CachedValueProvider.Result<ModuleResolverProvider>
+        computeModuleResolverProvider: (GlobalContextImpl, Project) -> ModuleResolverProvider
 ) {
     private val cachedValue = CachedValuesManager.getManager(project).createCachedValue(
-            { computeModuleResolverProvider(globalContext, project) },
+            {
+                val resolverProvider = computeModuleResolverProvider(globalContext, project)
+                CachedValueProvider.Result.create(resolverProvider, resolverProvider.cacheDependencies)
+            },
             /* trackValue = */ false
     )
 
@@ -62,11 +56,13 @@ internal class ProjectResolutionFacade(
             {
                 val resolverProvider = moduleResolverProvider
                 val results = object : SLRUCache<KtFile, PerFileAnalysisCache>(2, 3) {
-                    override fun createValue(file: KtFile?): PerFileAnalysisCache {
-                        return PerFileAnalysisCache(file!!, resolverProvider.resolverForProject.resolverForModule(file.getModuleInfo()).componentProvider)
+                    override fun createValue(file: KtFile): PerFileAnalysisCache {
+                        return PerFileAnalysisCache(file, resolverProvider.resolverForProject.resolverForModule(file.getModuleInfo()).componentProvider)
                     }
                 }
-                CachedValueProvider.Result(results, PsiModificationTracker.MODIFICATION_COUNT, resolverProvider.exceptionTracker)
+
+                val allDependencies = resolverProvider.cacheDependencies + listOf(PsiModificationTracker.MODIFICATION_COUNT)
+                CachedValueProvider.Result.create(results, allDependencies)
             }, false)
 
     fun getAnalysisResultsForElements(elements: Collection<KtElement>): AnalysisResult {
@@ -88,55 +84,8 @@ internal class ProjectResolutionFacade(
         //TODO: (module refactoring) several elements are passed here in debugger
             AnalysisResult.success(bindingContext, findModuleDescriptor(elements.first().getModuleInfo()))
     }
-}
 
-internal class ResolutionFacadeImpl(
-        private val projectFacade: ProjectResolutionFacade,
-        private val moduleInfo: IdeaModuleInfo
-) : ResolutionFacade {
-    override val project: Project
-        get() = projectFacade.project
-
-    //TODO: ideally we would like to store moduleDescriptor once and for all
-    // but there are some usages that use resolutionFacade and mutate the psi leading to recomputation of underlying structures
-    override val moduleDescriptor: ModuleDescriptor
-        get() = findModuleDescriptor(moduleInfo)
-
-    fun findModuleDescriptor(ideaModuleInfo: IdeaModuleInfo) = projectFacade.findModuleDescriptor(ideaModuleInfo)
-
-    override fun analyze(element: KtElement, bodyResolveMode: BodyResolveMode): BindingContext {
-        val resolveElementCache = getFrontendService(element, ResolveElementCache::class.java)
-        return resolveElementCache.resolveToElement(element, bodyResolveMode)
+    override fun toString(): String {
+        return "$debugString@${Integer.toHexString(hashCode())}"
     }
-
-    override fun analyzeFullyAndGetResult(elements: Collection<KtElement>): AnalysisResult
-            = projectFacade.getAnalysisResultsForElements(elements)
-
-    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        val resolveSession = projectFacade.resolverForModuleInfo(declaration.getModuleInfo()).componentProvider.get<ResolveSession>()
-        return resolveSession.resolveToDescriptor(declaration)
-    }
-
-    override fun <T : Any> getFrontendService(serviceClass: Class<T>): T  = getFrontendService(moduleInfo, serviceClass)
-
-    override fun <T : Any> getIdeService(serviceClass: Class<T>): T {
-        return projectFacade.resolverForModuleInfo(moduleInfo).componentProvider.create(serviceClass)
-    }
-
-    override fun <T : Any> getFrontendService(element: PsiElement, serviceClass: Class<T>): T {
-        return getFrontendService(element.getModuleInfo(), serviceClass)
-    }
-
-    fun <T : Any> getFrontendService(ideaModuleInfo: IdeaModuleInfo, serviceClass: Class<T>): T {
-        return projectFacade.resolverForModuleInfo(ideaModuleInfo).componentProvider.getService(serviceClass)
-    }
-
-    override fun <T : Any> getFrontendService(moduleDescriptor: ModuleDescriptor, serviceClass: Class<T>): T {
-        return projectFacade.resolverForDescriptor(moduleDescriptor).componentProvider.getService(serviceClass)
-    }
-
-}
-
-fun ResolutionFacade.findModuleDescriptor(ideaModuleInfo: IdeaModuleInfo): ModuleDescriptor? {
-    return (this as? ResolutionFacadeImpl)?.findModuleDescriptor(ideaModuleInfo)
 }

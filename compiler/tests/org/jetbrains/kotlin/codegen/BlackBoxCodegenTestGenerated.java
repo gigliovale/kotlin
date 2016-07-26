@@ -1476,6 +1476,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("kCallableNameIntrinsic.kt")
+            public void testKCallableNameIntrinsic() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/bound/kCallableNameIntrinsic.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("kt12738.kt")
             public void testKt12738() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/bound/kt12738.kt");
@@ -2337,6 +2343,105 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("weirdMutableCasts.kt")
             public void testWeirdMutableCasts() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/casts/mutableCollections/weirdMutableCasts.kt");
+                doTest(fileName);
+            }
+        }
+    }
+
+    @TestMetadata("compiler/testData/codegen/box/classLiteral")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class ClassLiteral extends AbstractBlackBoxCodegenTest {
+        public void testAllFilesPresentInClassLiteral() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral"), Pattern.compile("^(.+)\\.kt$"), true);
+        }
+
+        @TestMetadata("compiler/testData/codegen/box/classLiteral/bound")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Bound extends AbstractBlackBoxCodegenTest {
+            public void testAllFilesPresentInBound() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral/bound"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("javaIntrinsicWithSideEffect.kt")
+            public void testJavaIntrinsicWithSideEffect() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/bound/javaIntrinsicWithSideEffect.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("primitives.kt")
+            public void testPrimitives() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/bound/primitives.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("sideEffect.kt")
+            public void testSideEffect() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/bound/sideEffect.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("simple.kt")
+            public void testSimple() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/bound/simple.kt");
+                doTest(fileName);
+            }
+        }
+
+        @TestMetadata("compiler/testData/codegen/box/classLiteral/java")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Java extends AbstractBlackBoxCodegenTest {
+            public void testAllFilesPresentInJava() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral/java"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("java.kt")
+            public void testJava() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/java.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("javaObjectType.kt")
+            public void testJavaObjectType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/javaObjectType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("javaObjectTypeReified.kt")
+            public void testJavaObjectTypeReified() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/javaObjectTypeReified.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("javaPrimitiveType.kt")
+            public void testJavaPrimitiveType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/javaPrimitiveType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("javaPrimitiveTypeReified.kt")
+            public void testJavaPrimitiveTypeReified() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/javaPrimitiveTypeReified.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("javaReified.kt")
+            public void testJavaReified() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/javaReified.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt11943.kt")
+            public void testKt11943() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/kt11943.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("objectSuperConstructorCall.kt")
+            public void testObjectSuperConstructorCall() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/classLiteral/java/objectSuperConstructorCall.kt");
                 doTest(fileName);
             }
         }
@@ -12102,57 +12207,6 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("kt6106.kt")
             public void testKt6106() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/genericSignature/kt6106.kt");
-                doTest(fileName);
-            }
-        }
-
-        @TestMetadata("compiler/testData/codegen/box/reflection/javaProperties")
-        @TestDataPath("$PROJECT_ROOT")
-        @RunWith(JUnit3RunnerWithInners.class)
-        public static class JavaProperties extends AbstractBlackBoxCodegenTest {
-            public void testAllFilesPresentInJavaProperties() throws Exception {
-                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/javaProperties"), Pattern.compile("^(.+)\\.kt$"), true);
-            }
-
-            @TestMetadata("java.kt")
-            public void testJava() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/java.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("javaObjectType.kt")
-            public void testJavaObjectType() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/javaObjectType.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("javaObjectTypeReified.kt")
-            public void testJavaObjectTypeReified() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/javaObjectTypeReified.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("javaPrimitiveType.kt")
-            public void testJavaPrimitiveType() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/javaPrimitiveType.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("javaPrimitiveTypeReified.kt")
-            public void testJavaPrimitiveTypeReified() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/javaPrimitiveTypeReified.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("javaReified.kt")
-            public void testJavaReified() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/javaReified.kt");
-                doTest(fileName);
-            }
-
-            @TestMetadata("kt11943.kt")
-            public void testKt11943() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/javaProperties/kt11943.kt");
                 doTest(fileName);
             }
         }

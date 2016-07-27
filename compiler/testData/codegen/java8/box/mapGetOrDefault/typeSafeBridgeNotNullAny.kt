@@ -44,25 +44,37 @@ class A : MutableMap<Any, Any> {
         throw UnsupportedOperationException()
     }
 
-    override fun remove(key: Any, value: Any): Boolean {
-        val h = key.hashCode() + value.hashCode()
-        if (h != ("abc".hashCode() + "cde".hashCode())) return false
-        return key == "abc" && value == "cde"
+    override fun getOrDefault(key: Any, defaultValue: Any): Any {
+        // this condition can not be true because of checkParameterIsNotNull checks in the begin of every method, but it's left here
+        // to emphasize that we expect these parameters are not null
+        if (key == null || defaultValue == null) {
+            throw IllegalArgumentException("fail")
+        }
+        if (key == "abc") return "cde"
+        return defaultValue
     }
 }
 
 fun box(): String {
     val a = A()
-    if (!a.remove("abc", "cde")) return "fail 1"
-    if (a.remove("abc", "123")) return "fail 2"
+    if (a.getOrDefault("abc", "xyz") != "cde") return "fail 1"
+    if (a.getOrDefault("56", "123") != "123") return "fail 2"
 
     val mm = a as MutableMap<Any?, Any?>
-    if (!mm.remove("abc", "cde")) return "fail 3"
-    if (mm.remove("abc", "123")) return "fail 4"
-    if (mm.remove(1, "cde")) return "fail 5"
-    if (mm.remove(null, "cde")) return "fail 6"
-    if (mm.remove("abc", null)) return "fail 7"
-    if (mm.remove(null, null)) return "fail 8"
+    if (mm.getOrDefault("abc", "xyz") != "cde") return "fail 3"
+    if (mm.getOrDefault("56", 123) != 123) return "fail 4"
+    if (mm.getOrDefault(1, "456") != "456") return "fail 5"
+    if (mm.getOrDefault(null, "qwe") != "qwe") return "fail 6"
+
+    try {
+        // This is a known problem, there's no way to implement type-safe bridge/barrier properly:
+        // 'override fun getOrDefault(key: Any, defaultValue: Any): Any' expects two not-nullable values,
+        // and returning defaultValue if null was received seems incorrect here
+        mm.getOrDefault("abc", null)
+        return "fail 7"
+    } catch (e: java.lang.IllegalArgumentException) {
+        // Parameter specified as non-null is null
+    }
 
     return "OK"
 }

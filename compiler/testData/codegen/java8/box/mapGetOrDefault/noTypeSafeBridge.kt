@@ -1,23 +1,23 @@
 // FULL_JDK
 // WITH_RUNTIME
 
-class A : MutableMap<Any, Any> {
-    override val entries: MutableSet<MutableMap.MutableEntry<Any, Any>>
+class A : MutableMap<Any, Any?> {
+    override val entries: MutableSet<MutableMap.MutableEntry<Any, Any?>>
         get() = throw UnsupportedOperationException()
     override val keys: MutableSet<Any>
         get() = throw UnsupportedOperationException()
-    override val values: MutableCollection<Any>
+    override val values: MutableCollection<Any?>
         get() = throw UnsupportedOperationException()
 
     override fun clear() {
         throw UnsupportedOperationException()
     }
 
-    override fun put(key: Any, value: Any): Any? {
+    override fun put(key: Any, value: Any?): Any? {
         throw UnsupportedOperationException()
     }
 
-    override fun putAll(from: Map<out Any, Any>) {
+    override fun putAll(from: Map<out Any, Any?>) {
         throw UnsupportedOperationException()
     }
 
@@ -32,7 +32,7 @@ class A : MutableMap<Any, Any> {
         throw UnsupportedOperationException()
     }
 
-    override fun containsValue(value: Any): Boolean {
+    override fun containsValue(value: Any?): Boolean {
         throw UnsupportedOperationException()
     }
 
@@ -44,25 +44,23 @@ class A : MutableMap<Any, Any> {
         throw UnsupportedOperationException()
     }
 
-    override fun remove(key: Any, value: Any): Boolean {
-        val h = key.hashCode() + value.hashCode()
-        if (h != ("abc".hashCode() + "cde".hashCode())) return false
-        return key == "abc" && value == "cde"
+    override fun getOrDefault(key: Any, defaultValue: Any?): Any? {
+        if (key == "abc") return "cde"
+        return defaultValue
     }
 }
 
 fun box(): String {
     val a = A()
-    if (!a.remove("abc", "cde")) return "fail 1"
-    if (a.remove("abc", "123")) return "fail 2"
+    if (a.getOrDefault("abc", "xyz") != "cde") return "fail 1"
+    if (a.getOrDefault("56", "123") != "123") return "fail 2"
 
     val mm = a as MutableMap<Any?, Any?>
-    if (!mm.remove("abc", "cde")) return "fail 3"
-    if (mm.remove("abc", "123")) return "fail 4"
-    if (mm.remove(1, "cde")) return "fail 5"
-    if (mm.remove(null, "cde")) return "fail 6"
-    if (mm.remove("abc", null)) return "fail 7"
-    if (mm.remove(null, null)) return "fail 8"
+    if (mm.getOrDefault("abc", "xyz") != "cde") return "fail 3"
+    if (mm.getOrDefault("56", 123) != 123) return "fail 4"
+    if (mm.getOrDefault(1, "456") != "456") return "fail 5"
+    if (mm.getOrDefault(null, "qwe") != "qwe") return "fail 6"
+    if (mm.getOrDefault("abc", null) != "cde") return "fail 7"
 
     return "OK"
 }

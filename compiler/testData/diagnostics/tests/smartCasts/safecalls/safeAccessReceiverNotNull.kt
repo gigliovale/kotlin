@@ -5,8 +5,7 @@
 fun kt6840_1(s: String?) {
     val hash = s?.hashCode()
     if (hash != null) {
-        // To be supported
-        s<!UNSAFE_CALL!>.<!>length
+        <!DEBUG_INFO_SMARTCAST!>s<!>.length
     }
 }
 
@@ -41,12 +40,11 @@ fun kt4565_1(a: SomeClass?) {
     val data = a?.data
     if (data != null) {
         <!DEBUG_INFO_SMARTCAST!>data<!>.hashCode()
-        // To be supported
-        a<!UNSAFE_CALL!>.<!>hashCode()
-        a<!UNSAFE_CALL!>.<!>data.hashCode()
+        <!DEBUG_INFO_SMARTCAST!>a<!>.hashCode()
+        <!DEBUG_INFO_SMARTCAST!>a<!>.data.hashCode()
     }
     if (a?.data != null) {
-        // To be supported
+        // To be supported (?!)
         data<!UNSAFE_CALL!>.<!>hashCode()
         <!DEBUG_INFO_SMARTCAST!>a<!>.hashCode()
         <!DEBUG_INFO_SMARTCAST!>a<!>.data.hashCode()
@@ -120,5 +118,17 @@ fun falsePositive(w: Wrapper) {
     if (w.unwrap() != null) {
         // Here we should NOT have smart cast
         <!SMARTCAST_IMPOSSIBLE!>w.unwrap()<!>.length
+    }
+}
+
+class Invokable(val x: String) {
+    operator fun invoke() = x
+}
+
+class InvokableProperty(val i: Invokable)
+
+fun checkInvokable(ip: InvokableProperty?) {
+    if (ip?.<!UNSAFE_IMPLICIT_INVOKE_CALL!>i<!>() == "Hello") {
+        <!DEBUG_INFO_SMARTCAST!>ip<!>.hashCode()
     }
 }

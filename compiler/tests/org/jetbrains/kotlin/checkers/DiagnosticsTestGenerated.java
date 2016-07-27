@@ -18620,6 +18620,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("boundInitializer.kt")
+                public void testBoundInitializer() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/boundInitializer.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("doWhileWithBreak.kt")
                 public void testDoWhileWithBreak() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/doWhileWithBreak.kt");
@@ -18725,6 +18731,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("nestedWhile.kt")
                 public void testNestedWhile() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/nestedWhile.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("plusplusMinusminus.kt")
+                public void testPlusplusMinusminus() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/varnotnull/plusplusMinusminus.kt");
                     doTest(fileName);
                 }
 

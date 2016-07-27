@@ -17,14 +17,9 @@
 package org.jetbrains.kotlin.resolve.calls.smartcasts
 
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValue.Kind.OTHER
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValue.Kind.STABLE_VALUE
-import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
-import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.types.KotlinType
 
@@ -44,12 +39,15 @@ interface IdentifierInfo {
         override fun toString() = "ERROR"
     }
 
-    class Variable(val variable: VariableDescriptor, override val kind: DataFlowValue.Kind) : IdentifierInfo {
+    class Variable(
+            val variable: VariableDescriptor,
+            override val kind: DataFlowValue.Kind,
+            val bound: DataFlowValue?
+    ) : IdentifierInfo {
 
-        override fun equals(other: Any?) =
-                other is Variable && variable == other.variable && kind.isStable() == other.kind.isStable()
+        override fun equals(other: Any?) = other is Variable && variable == other.variable
 
-        override fun hashCode() = variable.hashCode() + 31 * (if (kind.isStable()) 1 else 0)
+        override fun hashCode() = variable.hashCode()
 
         override fun toString() = variable.toString()
     }

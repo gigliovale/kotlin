@@ -22,12 +22,13 @@ import org.jetbrains.kotlin.cfg.ControlFlowInformationProvider
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor
+import org.jetbrains.kotlin.lexer.KtToken
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.before
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.BindingContext.DECLARATION_TO_DESCRIPTOR
-import org.jetbrains.kotlin.resolve.BindingContext.REFERENCE_TARGET
+import org.jetbrains.kotlin.resolve.BindingContext.*
+import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.callUtil.isSafeCall
@@ -56,16 +57,6 @@ object DataFlowValueFactory {
             resolutionContext: ResolutionContext<*>
     ) = createDataFlowValue(expression, type, resolutionContext.trace.bindingContext, resolutionContext.scope.ownerDescriptor)
 
-    private fun isComplexExpression(expression: KtExpression): Boolean = when(expression) {
-        is KtBlockExpression, is KtIfExpression, is KtWhenExpression -> true
-        is KtBinaryExpression -> expression.operationToken === KtTokens.ELVIS
-        is KtParenthesizedExpression -> {
-            val deparenthesized = KtPsiUtil.deparenthesize(expression)
-            deparenthesized != null && isComplexExpression(deparenthesized)
-        }
-        else -> false
-    }
-
     @JvmStatic
     fun createDataFlowValue(
             expression: KtExpression,
@@ -92,10 +83,6 @@ object DataFlowValueFactory {
             return DataFlowValue(ExpressionIdentifierInfo(expression),
                                  type,
                                  Nullability.NOT_NULL)
-        }
-
-        if (isComplexExpression(expression)) {
-            return createDataFlowValueForComplexExpression(expression, type)
         }
 
         val result = getIdForStableIdentifier(expression, bindingContext, containingDeclarationOrModule)
@@ -132,37 +119,30 @@ object DataFlowValueFactory {
             bindingContext: BindingContext,
             usageContainingModule: ModuleDescriptor?
     ) = DataFlowValue(IdentifierInfo.Variable(variableDescriptor,
-                                              variableKind(variableDescriptor, usageContainingModule, bindingContext, property)),
-                      variableDescriptor.type)
+                                              variableKind(variableDescriptor, usageContainingModule,
+                                                           bindingContext, property),
+                                              bindingContext[BOUND_INITIALIZER_VALUE, variableDescriptor]),
+                                     variableDescriptor.type)
 
-    private fun createDataFlowValueForComplexExpression(
-            expression: KtExpression,
-            type: KotlinType
-    ) = DataFlowValue(ExpressionIdentifierInfo(expression, stableComplex = true), type)
-
-    private data class PostfixIdentifierInfo(val argumentInfo: IdentifierInfo) : IdentifierInfo {
+    // For only ++ and -- postfix operations
+    private data class PostfixIdentifierInfo(val argumentInfo: IdentifierInfo, val op: KtToken) : IdentifierInfo {
         override val kind: DataFlowValue.Kind get() = argumentInfo.kind
 
-        override fun toString() = "$argumentInfo (postfix)"
+        override fun toString() = "$argumentInfo($op)"
     }
 
-    class ExpressionIdentifierInfo(val expression: KtExpression, stableComplex: Boolean = false) : IdentifierInfo {
-
-        override val kind = if (stableComplex) STABLE_COMPLEX_EXPRESSION else OTHER
-        
-        override fun equals(other: Any?) = other is ExpressionIdentifierInfo && expression == other.expression
-
-        override fun hashCode() = expression.hashCode()
+    data class ExpressionIdentifierInfo(val expression: KtExpression) : IdentifierInfo {
+        override val kind = OTHER
 
         override fun toString() = expression.text ?: "(empty expression)"
     }
 
-    private fun postfix(argumentInfo: IdentifierInfo) =
+    private fun postfix(argumentInfo: IdentifierInfo, op: KtToken) =
             if (argumentInfo == IdentifierInfo.NO) {
                 IdentifierInfo.NO
             }
             else {
-                PostfixIdentifierInfo(argumentInfo)
+                PostfixIdentifierInfo(argumentInfo, op)
             }
 
     private fun getIdForStableIdentifier(
@@ -195,7 +175,8 @@ object DataFlowValueFactory {
             is KtPostfixExpression -> {
                 val operationType = expression.operationReference.getReferencedNameElementType()
                 if (operationType === KtTokens.PLUSPLUS || operationType === KtTokens.MINUSMINUS) {
-                    postfix(getIdForStableIdentifier(expression.baseExpression, bindingContext, containingDeclarationOrModule))
+                    postfix(getIdForStableIdentifier(expression.baseExpression, bindingContext, containingDeclarationOrModule),
+                            operationType)
                 }
                 else {
                     IdentifierInfo.NO
@@ -222,7 +203,8 @@ object DataFlowValueFactory {
                 val usageModuleDescriptor = DescriptorUtils.getContainingModuleOrNull(containingDeclarationOrModule)
                 val selectorInfo = IdentifierInfo.Variable(declarationDescriptor,
                                                            variableKind(declarationDescriptor, usageModuleDescriptor,
-                                                                        bindingContext, simpleNameExpression))
+                                                                        bindingContext, simpleNameExpression),
+                                                           bindingContext[BOUND_INITIALIZER_VALUE, declarationDescriptor])
 
                 val implicitReceiver = resolvedCall?.dispatchReceiver
                 if (implicitReceiver == null) {

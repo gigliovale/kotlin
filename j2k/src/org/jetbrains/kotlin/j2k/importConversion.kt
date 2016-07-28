@@ -17,10 +17,10 @@
 package org.jetbrains.kotlin.j2k
 
 import com.intellij.psi.*
-import org.jetbrains.kotlin.asJava.KtLightClass
-import org.jetbrains.kotlin.asJava.KtLightClassForFacade
-import org.jetbrains.kotlin.asJava.KtLightDeclaration
-import org.jetbrains.kotlin.asJava.KtLightMethod
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
+import org.jetbrains.kotlin.asJava.elements.KtLightDeclaration
+import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.j2k.ast.Import
@@ -80,7 +80,7 @@ private fun Converter.convertImport(fqName: FqName, ref: PsiJavaCodeReferenceEle
 
 private fun Converter.convertStaticImportOnDemand(fqName: FqName, target: PsiElement?): List<String> {
     when (target) {
-        is KtLightClassForFacade -> return listOf(target.getFqName().parent().render() + ".*")
+        is KtLightClassForFacade -> return listOf(target.fqName.parent().render() + ".*")
 
         is KtLightClass -> {
             val kotlinOrigin = target.kotlinOrigin
@@ -140,7 +140,7 @@ private fun convertStaticExplicitImport(fqName: FqName, target: PsiElement?): Li
 
 private fun convertNonStaticImport(fqName: FqName, isOnDemand: Boolean, target: PsiElement?): List<String> {
     when (target) {
-        is KtLightClassForFacade -> return listOf(target.getFqName().parent().render() + ".*")
+        is KtLightClassForFacade -> return listOf(target.fqName.parent().render() + ".*")
 
         is KtLightClass -> {
             if (!isOnDemand) {
@@ -161,4 +161,4 @@ private val DEFAULT_IMPORTS_SET: Set<FqName> = JvmPlatform.defaultModuleParamete
         .map { it.fqnPart() }
         .toSet()
 
-private fun isImportedByDefault(c: KtLightClass) = c.getFqName().parent() in DEFAULT_IMPORTS_SET
+private fun isImportedByDefault(c: KtLightClass) = c.qualifiedName?.let { FqName(it).parent() } in DEFAULT_IMPORTS_SET

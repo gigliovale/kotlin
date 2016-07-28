@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,10 @@ import com.intellij.testIntegration.JavaTestFinder
 import com.intellij.testIntegration.TestFinderHelper
 import com.intellij.util.CommonProcessors
 import com.intellij.util.containers.HashSet
-import org.jetbrains.kotlin.asJava.*
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
+import org.jetbrains.kotlin.asJava.findFacadeClass
+import org.jetbrains.kotlin.asJava.toLightClass
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
@@ -69,7 +72,7 @@ class KotlinTestFinder : JavaTestFinder() {
                 if (eachClass is KtLightClassForFacade) {
                     eachClass.files.mapTo(classesWithWeights) { Pair.create(it, candidateNameWithWeight.second) }
                 }
-                else if (eachClass.isPhysical || eachClass is KtLightClassForExplicitDeclaration) {
+                else if (eachClass.isPhysical || eachClass is KtLightClassForSourceDeclaration) {
                     classesWithWeights.add(Pair.create(eachClass, candidateNameWithWeight.second))
                 }
             }
@@ -98,7 +101,7 @@ class KotlinTestFinder : JavaTestFinder() {
             if (!pattern.matcher(candidateName).matches()) continue
             for (candidateClass in cache.getClassesByName(candidateName, scope)) {
                 if (!(frameworks.isTestClass(candidateClass) || frameworks.isPotentialTestClass(candidateClass))) continue
-                if (!candidateClass.isPhysical && candidateClass !is KtLightClassForExplicitDeclaration) continue
+                if (!candidateClass.isPhysical && candidateClass !is KtLightClassForSourceDeclaration) continue
                 processor.process(Pair.create(candidateClass, TestFinderHelper.calcTestNameProximity(klassName, candidateName)))
             }
         }

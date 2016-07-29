@@ -4809,6 +4809,18 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             doTest(fileName);
         }
 
+        @TestMetadata("unsafeCall4.kt")
+        public void testUnsafeCall4() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/expressions/unsafeCall4.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("unsafeCall5.kt")
+        public void testUnsafeCall5() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/expressions/unsafeCall5.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("uselessCastStaticAssertIsFine.kt")
         public void testUselessCastStaticAssertIsFine() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/expressions/uselessCastStaticAssertIsFine.kt");
@@ -5358,6 +5370,12 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
         @TestMetadata("inner.kt")
         public void testInner() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/makeConstructorParameterProperty/inner.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("override.kt")
+        public void testOverride() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/makeConstructorParameterProperty/override.kt");
             doTest(fileName);
         }
 
@@ -6066,9 +6084,39 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("unsafeGet.kt")
+            public void testUnsafeGet() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafeGet.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unsafeInfixCall.kt")
             public void testUnsafeInfixCall() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafeInfixCall.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsafeInvoke.kt")
+            public void testUnsafeInvoke() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafeInvoke.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsafeInvokeWithReceiver.kt")
+            public void testUnsafeInvokeWithReceiver() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafeInvokeWithReceiver.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsafePlus.kt")
+            public void testUnsafePlus() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafePlus.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unsafeSet.kt")
+            public void testUnsafeSet() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/nullables/unsafeInfixCall/unsafeSet.kt");
                 doTest(fileName);
             }
         }

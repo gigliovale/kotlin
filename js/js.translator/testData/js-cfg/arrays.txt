@@ -1,0 +1,8 @@
+0 -> [1 as FINALLY_BLOCK]
+  $0(JsIntLiteral): 1
+  $1(JsIntLiteral): 2
+  $2(JsIntLiteral): 3
+  $3(JsArrayLiteral): [$0, $1, $2]
+  $4(JsReturn): $3
+1 -> []
+  $5(JsFunction)

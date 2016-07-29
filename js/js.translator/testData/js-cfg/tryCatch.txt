@@ -1,0 +1,22 @@
+0 -> [1]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+1 -> [4, 2 as EXCEPTION_HANDLER]
+  $3(JsNameRef): causesException
+  $4(JsInvocation): $3()
+  $5(JsExpressionStatement): $4
+2 -> [3]
+  $6(JsTry): $7
+3 -> [4]
+  $7(JsCatch): e
+  $8(JsNameRef): reportException
+  $9(JsNameRef): e
+  $10(JsInvocation): $8($9)
+  $11(JsExpressionStatement): $10
+4 -> [5]
+  $12(JsNameRef): after
+  $13(JsInvocation): $12()
+  $14(JsExpressionStatement): $13
+5 -> []
+  $15(JsFunction)

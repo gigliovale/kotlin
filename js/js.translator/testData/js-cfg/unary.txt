@@ -1,0 +1,17 @@
+0 -> [1 as FINALLY_BLOCK]
+  $0(JsNameRef): x
+  $1(JsNameRef): $0.foo
+  $2(JsPostfixOperation): $1 INC
+  $3(JsExpressionStatement): $2
+  $4(JsNameRef): x
+  $5(JsNameRef): $4.bar
+  $6(JsPrefixOperation): DEC $5
+  $7(JsExpressionStatement): $6
+  $8(JsNameRef): y
+  $9(JsPrefixOperation): NEG $8
+  $10(JsNameRef): z
+  $11(JsPrefixOperation): BIT_NOT $10
+  $12(JsBinaryOperation): $9 ADD $11
+  $13(JsReturn): $12
+1 -> []
+  $14(JsFunction)

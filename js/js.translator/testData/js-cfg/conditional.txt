@@ -1,0 +1,15 @@
+0 -> [1, 2]
+  $0(JsNameRef): test
+  $1(JsInvocation): $0()
+  $2(JsConditional): $1
+1 -> [3]
+  $3(JsNameRef): first
+  $4(JsInvocation): $3()
+2 -> [3]
+  $5(JsNameRef): second
+  $6(JsInvocation): $5()
+3 -> [4 as FINALLY_BLOCK]
+  $2(JsConditional): $1
+  $7(JsReturn): $2
+4 -> []
+  $8(JsFunction)

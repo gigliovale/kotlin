@@ -1,0 +1,36 @@
+0 -> [1]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+  $3(JsNameRef): start
+  $4(JsInvocation): $3()
+  $5(JsVars): i = $4
+1 -> [2, 6]
+  $6(JsNameRef): i
+  $7(JsNameRef): end
+  $8(JsInvocation): $7()
+  $9(JsBinaryOperation): $6 LT $8
+  $10(JsFor): $5; $9; $11
+2 -> [3, 4]
+  $12(JsNameRef): body1
+  $13(JsInvocation): $12()
+  $14(JsExpressionStatement): $13
+  $15(JsNameRef): i
+  $16(JsIntLiteral): 5
+  $17(JsBinaryOperation): $15 EQ $16
+  $18(JsIf): $17
+3 -> [5]
+  $19(JsContinue)
+4 -> [5]
+  $20(JsNameRef): body2
+  $21(JsInvocation): $20()
+  $22(JsExpressionStatement): $21
+5 -> [1]
+  $23(JsNameRef): i
+  $11(JsPrefixOperation): INC $23
+6 -> [7]
+  $24(JsNameRef): after
+  $25(JsInvocation): $24()
+  $26(JsExpressionStatement): $25
+7 -> []
+  $27(JsFunction)

@@ -1,0 +1,13 @@
+0 -> [3, 1 as EXCEPTION_HANDLER]
+  $0(JsNameRef): causesException
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+1 -> [2]
+  $3(JsTry): $4
+2 -> [3 as FINALLY_BLOCK]
+  $4(JsCatch): e
+  $5(JsNameRef): Error
+  $6(JsNew): $5()
+  $7(JsThrow): $6
+3 -> []
+  $8(JsFunction)

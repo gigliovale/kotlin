@@ -1,0 +1,19 @@
+0 -> [1]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+1 -> [2, 3]
+  $3(JsNameRef): test
+  $4(JsInvocation): $3()
+  $5(JsWhile): $4
+2 -> [3]
+  $6(JsNameRef): body1
+  $7(JsInvocation): $6()
+  $8(JsExpressionStatement): $7
+  $9(JsBreak)
+3 -> [4]
+  $10(JsNameRef): after
+  $11(JsInvocation): $10()
+  $12(JsExpressionStatement): $11
+4 -> []
+  $13(JsFunction)

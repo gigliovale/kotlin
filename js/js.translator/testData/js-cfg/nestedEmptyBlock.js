@@ -1,0 +1,7 @@
+function box() {
+    before();
+    {
+        {}
+    }
+    after();
+}

@@ -1,0 +1,16 @@
+0 -> [1 as FINALLY_BLOCK]
+  $0(JsVars): a
+  $1(JsIntLiteral): 23
+  $2(JsVars): b = $1
+  $3(JsIntLiteral): 42
+  $4(JsVars): c; d = $3
+  $5(JsNameRef): a
+  $6(JsNameRef): b
+  $7(JsBinaryOperation): $5 ADD $6
+  $8(JsNameRef): c
+  $9(JsBinaryOperation): $7 ADD $8
+  $10(JsNameRef): d
+  $11(JsBinaryOperation): $9 ADD $10
+  $12(JsReturn): $11
+1 -> []
+  $13(JsFunction)

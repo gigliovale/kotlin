@@ -1,0 +1,36 @@
+0 -> [1]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+1 -> [2, 4, 7 as EXCEPTION_HANDLER]
+  $3(JsNameRef): test1
+  $4(JsInvocation): $3()
+  $5(JsIf): $4
+2 -> [3, 7 as EXCEPTION_HANDLER]
+  $6(JsNameRef): causesException
+  $7(JsInvocation): $6()
+  $8(JsExpressionStatement): $7
+3 -> [8, 7 as EXCEPTION_HANDLER]
+4 -> [5, 6, 7 as EXCEPTION_HANDLER]
+  $9(JsNameRef): test2
+  $10(JsInvocation): $9()
+  $11(JsIf): $10
+5 -> [7 as EXCEPTION_HANDLER, 8 as FINALLY_BLOCK]
+  $12(JsNameRef): Error
+  $13(JsNew): $12()
+  $14(JsThrow): $13
+6 -> [7 as EXCEPTION_HANDLER, 8 as FINALLY_BLOCK]
+  $15(JsReturn)
+7 -> [8]
+  $16(JsTry): $17
+8 -> [9, 10 as FINALLY_BLOCK]
+  finally: $16
+  $18(JsNameRef): cleanup
+  $19(JsInvocation): $18()
+  $20(JsExpressionStatement): $19
+9 -> [10]
+  $21(JsNameRef): after
+  $22(JsInvocation): $21()
+  $23(JsExpressionStatement): $22
+10 -> []
+  $24(JsFunction)

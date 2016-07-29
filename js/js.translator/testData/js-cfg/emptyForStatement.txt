@@ -1,0 +1,14 @@
+0 -> [1]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+  $3(JsNameRef): nothing
+  $4(JsInvocation): $3()
+1 -> [1, 2]
+  $5(JsFor): $4;;
+2 -> [3]
+  $6(JsNameRef): after
+  $7(JsInvocation): $6()
+  $8(JsExpressionStatement): $7
+3 -> []
+  $9(JsFunction)

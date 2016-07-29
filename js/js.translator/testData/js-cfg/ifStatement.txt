@@ -1,0 +1,22 @@
+0 -> [1, 2]
+  $0(JsNameRef): before
+  $1(JsInvocation): $0()
+  $2(JsExpressionStatement): $1
+  $3(JsNameRef): x
+  $4(JsIntLiteral): 0
+  $5(JsBinaryOperation): $3 GT $4
+  $6(JsIf): $5
+1 -> [3]
+  $7(JsNameRef): positive
+  $8(JsInvocation): $7()
+  $9(JsExpressionStatement): $8
+2 -> [3]
+  $10(JsNameRef): negative
+  $11(JsInvocation): $10()
+  $12(JsExpressionStatement): $11
+3 -> [4]
+  $13(JsNameRef): after
+  $14(JsInvocation): $13()
+  $15(JsExpressionStatement): $14
+4 -> []
+  $16(JsFunction)

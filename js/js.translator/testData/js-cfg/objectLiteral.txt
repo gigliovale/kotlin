@@ -1,0 +1,24 @@
+0 -> [1, 2]
+  $0(JsStringLiteral): a
+  $1(JsIntLiteral): 23
+  $2(JsStringLiteral): b
+  $3(JsNameRef): foo
+  $4(JsInvocation): $3()
+  $5(JsStringLiteral): c
+  $6(JsNameRef): test
+  $7(JsInvocation): $6()
+  $8(JsConditional): $7
+1 -> [3]
+  $9(JsNameRef): first
+  $10(JsInvocation): $9()
+2 -> [3]
+  $11(JsNameRef): second
+  $12(JsInvocation): $11()
+3 -> [4 as FINALLY_BLOCK]
+  $8(JsConditional): $7
+  $13(JsStringLiteral): d
+  $14(JsStringLiteral): !
+  $15(JsObjectLiteral): { $0: $1, $2: $4, $5: $8, $13: $14 }
+  $16(JsReturn): $15
+4 -> []
+  $17(JsFunction)

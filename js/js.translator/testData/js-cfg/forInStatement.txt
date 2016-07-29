@@ -1,0 +1,34 @@
+0 -> [1]
+  $0(JsStringLiteral): a
+  $1(JsIntLiteral): 1
+  $2(JsStringLiteral): b
+  $3(JsIntLiteral): 2
+  $4(JsObjectLiteral): { $0: $1, $2: $3 }
+1 -> [2, 3]
+  $5(JsForIn): property in $4
+2 -> [1]
+  $6(JsNameRef): print
+  $7(JsNameRef): property
+  $8(JsInvocation): $6($7)
+  $9(JsExpressionStatement): $8
+3 -> [4]
+  $10(JsVars): key
+  $11(JsStringLiteral): c
+  $12(JsIntLiteral): 3
+  $13(JsStringLiteral): d
+  $14(JsIntLiteral): 4
+  $15(JsObjectLiteral): { $11: $12, $13: $14 }
+4 -> [5, 6]
+  $16(JsNameRef): key
+  $17(JsForIn): $16 in $15
+5 -> [4]
+  $18(JsNameRef): print
+  $19(JsNameRef): property
+  $20(JsInvocation): $18($19)
+  $21(JsExpressionStatement): $20
+6 -> [7]
+  $22(JsNameRef): after
+  $23(JsInvocation): $22()
+  $24(JsExpressionStatement): $23
+7 -> []
+  $25(JsFunction)

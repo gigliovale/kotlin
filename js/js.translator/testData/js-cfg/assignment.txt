@@ -1,0 +1,19 @@
+0 -> [1]
+  $0(JsNameRef): o
+  $1(JsIntLiteral): 1
+  $2(JsBinaryOperation): $0.foo ASG $1
+  $3(JsExpressionStatement): $2
+  $4(JsNameRef): o
+  $5(JsStringLiteral): bar
+  $6(JsIntLiteral): 2
+  $7(JsBinaryOperation): $4[$5] ASG $6
+  $8(JsExpressionStatement): $7
+  $9(JsNameRef): o
+  $10(JsIntLiteral): 3
+  $11(JsBinaryOperation): $9.baz ASG_ADD $10
+  $12(JsExpressionStatement): $11
+  $13(JsIntLiteral): 4
+  $14(JsBinaryOperation): x ASG $13
+  $15(JsExpressionStatement): $14
+1 -> []
+  $16(JsFunction)

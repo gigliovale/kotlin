@@ -16,10 +16,7 @@
 
 package org.jetbrains.kotlin.resolve
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
-import org.jetbrains.kotlin.builtins.getReceiverTypeFromFunctionType
-import org.jetbrains.kotlin.builtins.getValueParameterTypesFromFunctionType
-import org.jetbrains.kotlin.builtins.isFunctionType
+import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.ConstructorDescriptorImpl
@@ -38,6 +35,7 @@ import org.jetbrains.kotlin.resolve.ModifiersChecker.resolveMemberModalityFromMo
 import org.jetbrains.kotlin.resolve.ModifiersChecker.resolveVisibilityFromModifiers
 import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
+import org.jetbrains.kotlin.resolve.calls.util.createValueParametersForInvokeInFunctionType
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
@@ -152,10 +150,12 @@ class FunctionDescriptorResolver(
 
         val receiverTypeRef = function.receiverTypeReference
         val receiverType =
-                if (receiverTypeRef != null)
+                if (receiverTypeRef != null) {
                     typeResolver.resolveType(innerScope, receiverTypeRef, trace, true)
-                else
-                    expectedFunctionType.getReceiverType()
+                }
+                else {
+                    if (function is KtFunctionLiteral) expectedFunctionType.getReceiverType() else null
+                }
 
 
         val valueParameterDescriptors = createValueParameterDescriptors(function, functionDescriptor, innerScope, trace, expectedFunctionType)

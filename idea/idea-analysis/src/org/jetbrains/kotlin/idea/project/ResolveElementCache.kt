@@ -25,7 +25,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.cfg.ControlFlowInformationProvider
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.container.get
-import org.jetbrains.kotlin.context.SimpleGlobalContext
+import org.jetbrains.kotlin.context.GlobalContextImpl
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.context.withProject
 import org.jetbrains.kotlin.descriptors.*
@@ -540,7 +540,7 @@ class ResolveElementCache(
             file: KtFile,
             statementFilter: StatementFilter
     ): BodyResolver {
-        val globalContext = SimpleGlobalContext(resolveSession.storageManager, resolveSession.exceptionTracker)
+        val globalContext = GlobalContextImpl(resolveSession.storageManager, resolveSession.exceptionTracker)
         val module = resolveSession.moduleDescriptor
         return createContainerForBodyResolve(
                 globalContext.withProject(file.project).withModule(module),

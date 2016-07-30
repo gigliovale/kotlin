@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.createModule
 import org.jetbrains.kotlin.storage.ExceptionTracker
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.storage.LocklessStorageManager
 import org.jetbrains.kotlin.storage.StorageManager
 
 interface GlobalContext {
@@ -65,17 +66,10 @@ interface MutableModuleContext: ModuleContext {
     }
 }
 
-open class SimpleGlobalContext(
+open class GlobalContextImpl(
         override val storageManager: StorageManager,
         override val exceptionTracker: ExceptionTracker
 ) : GlobalContext
-
-open class GlobalContextImpl(
-        storageManager: LockBasedStorageManager,
-        exceptionTracker: ExceptionTracker
-) : SimpleGlobalContext(storageManager, exceptionTracker) {
-    override val storageManager: LockBasedStorageManager = super.storageManager as LockBasedStorageManager
-}
 
 class ProjectContextImpl(
         override val project: Project,
@@ -92,12 +86,19 @@ class MutableModuleContextImpl(
         projectContext: ProjectContext
 ) : MutableModuleContext, ProjectContext by projectContext
 
-fun GlobalContext(): GlobalContextImpl {
+fun GlobalContext(lockless: Boolean = false): GlobalContextImpl {
     val tracker = ExceptionTracker()
+
+    if (lockless) {
+        return GlobalContextImpl(LocklessStorageManager(), tracker)
+    }
     return GlobalContextImpl(LockBasedStorageManager.createWithExceptionHandling(tracker), tracker)
 }
 
-fun ProjectContext(project: Project): ProjectContext = ProjectContextImpl(project, GlobalContext())
+@JvmOverloads
+fun ProjectContext(project: Project, lockless: Boolean = false): ProjectContext =
+        ProjectContextImpl(project, GlobalContext(lockless))
+
 fun ModuleContext(module: ModuleDescriptor, project: Project): ModuleContext =
         ModuleContextImpl(module, ProjectContext(project))
 

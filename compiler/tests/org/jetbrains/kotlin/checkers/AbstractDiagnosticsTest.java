@@ -34,8 +34,8 @@ import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.config.LanguageFeatureSettings;
 import org.jetbrains.kotlin.context.ContextKt;
 import org.jetbrains.kotlin.context.GlobalContext;
+import org.jetbrains.kotlin.context.GlobalContextImpl;
 import org.jetbrains.kotlin.context.ModuleContext;
-import org.jetbrains.kotlin.context.SimpleGlobalContext;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
@@ -109,7 +109,7 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
         ExceptionTracker tracker = new ExceptionTracker();
         if (checkLazyResolveLog) {
             lazyOperationsLog = new LazyOperationsLog(HASH_SANITIZER);
-            context = new SimpleGlobalContext(
+            context = new GlobalContextImpl(
                     new LoggingStorageManager(
                             LockBasedStorageManager.createWithExceptionHandling(tracker),
                             lazyOperationsLog.getAddRecordFunction()
@@ -118,7 +118,7 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
             );
         }
         else {
-            context = new SimpleGlobalContext(LockBasedStorageManager.createWithExceptionHandling(tracker), tracker);
+            context = new GlobalContextImpl(LockBasedStorageManager.createWithExceptionHandling(tracker), tracker);
         }
 
         Map<TestModule, ModuleDescriptorImpl> modules = createModules(groupedByModule, context.getStorageManager());

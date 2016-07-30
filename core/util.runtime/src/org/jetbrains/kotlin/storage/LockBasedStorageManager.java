@@ -21,15 +21,17 @@ import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.storage.StorageUtils.KeyWithComputation;
+import org.jetbrains.kotlin.storage.StorageUtils.NotValue;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.jetbrains.kotlin.utils.WrappedValues;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import static org.jetbrains.kotlin.storage.StorageUtils.*;
 
 public class LockBasedStorageManager implements StorageManager {
     public interface ExceptionHandlingStrategy {
@@ -52,13 +54,7 @@ public class LockBasedStorageManager implements StorageManager {
         RuntimeException handleException(@NotNull Throwable throwable);
     }
 
-    public static final StorageManager NO_LOCKS = new LockBasedStorageManager("NO_LOCKS", ExceptionHandlingStrategy.THROW, NoLock.INSTANCE) {
-        @NotNull
-        @Override
-        protected <T> RecursionDetectedResult<T> recursionDetectedDefault() {
-            return RecursionDetectedResult.fallThrough();
-        }
-    };
+    public static final StorageManager NO_LOCKS = new LocklessStorageManager(true);
 
     @NotNull
     public static LockBasedStorageManager createWithExceptionHandling(@NotNull ExceptionHandlingStrategy exceptionHandlingStrategy) {
@@ -135,7 +131,7 @@ public class LockBasedStorageManager implements StorageManager {
     @Override
     public <T> NotNullLazyValue<T> createLazyValueWithPostCompute(
             @NotNull Function0<? extends T> computable,
-            final Function1<? super Boolean, ? extends T> onRecursiveCall,
+            @Nullable final Function1<? super Boolean, ? extends T> onRecursiveCall,
             @NotNull final Function1<? super T, Unit> postCompute
     ) {
         return new LockBasedNotNullLazyValue<T>(this, computable) {
@@ -244,12 +240,6 @@ public class LockBasedStorageManager implements StorageManager {
         public String toString() {
             return isFallThrough() ? "FALL_THROUGH" : String.valueOf(value);
         }
-    }
-
-    private enum NotValue {
-        NOT_COMPUTED,
-        COMPUTING,
-        RECURSION_WAS_DETECTED
     }
 
     // Being static is memory optimization to prevent capturing outer-class reference at each level of inheritance hierarchy
@@ -456,27 +446,6 @@ public class LockBasedStorageManager implements StorageManager {
     }
 
     @NotNull
-    private static <T extends Throwable> T sanitizeStackTrace(@NotNull T throwable) {
-        String storagePackageName = LockBasedStorageManager.class.getPackage().getName();
-        StackTraceElement[] stackTrace = throwable.getStackTrace();
-        int size = stackTrace.length;
-
-        int firstNonStorage = -1;
-        for (int i = 0; i < size; i++) {
-            // Skip everything (memoized functions and lazy values) from package org.jetbrains.kotlin.storage
-            if (!stackTrace[i].getClassName().startsWith(storagePackageName)) {
-                firstNonStorage = i;
-                break;
-            }
-        }
-        assert firstNonStorage >= 0 : "This method should only be called on exceptions created in LockBasedStorageManager";
-
-        List<StackTraceElement> list = Arrays.asList(stackTrace).subList(firstNonStorage, size);
-        throwable.setStackTrace(list.toArray(new StackTraceElement[list.size()]));
-        return throwable;
-    }
-
-    @NotNull
     @Override
     public <K, V> CacheWithNullableValues<K, V> createCacheWithNullableValues() {
         return new CacheWithNullableValuesBasedOnMemoizedFunction<K, V>(
@@ -525,34 +494,6 @@ public class LockBasedStorageManager implements StorageManager {
             V result = super.computeIfAbsent(key, computation);
             assert result != null : "computeIfAbsent() returned null under " + getStorageManager();
             return result;
-        }
-    }
-
-    // equals and hashCode use only key
-    private static class KeyWithComputation<K, V> {
-        private final K key;
-        private final Function0<? extends V> computation;
-
-        public KeyWithComputation(K key, Function0<? extends V> computation) {
-            this.key = key;
-            this.computation = computation;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            KeyWithComputation<?, ?> that = (KeyWithComputation<?, ?>) o;
-
-            if (!key.equals(that.key)) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return key.hashCode();
         }
     }
 }

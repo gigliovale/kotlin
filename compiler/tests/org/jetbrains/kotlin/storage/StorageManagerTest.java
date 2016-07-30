@@ -29,15 +29,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class StorageManagerTest extends TestCase {
+public abstract class StorageManagerTest extends TestCase {
 
-    private StorageManager m;
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        m = new LockBasedStorageManager();
-    }
+    protected StorageManager m;
 
     public static <T> void doTestComputesOnce(Function0<T> v, T expected, Counter counter) throws Exception {
         assert 0 == counter.getCount();
@@ -92,32 +86,6 @@ public class StorageManagerTest extends TestCase {
         assertTrue(value.isComputed());
     }
 
-    public void testIsComputedAfterException() throws Exception {
-        NotNullLazyValue<String> value = m.createLazyValue(new ExceptionCounterValue());
-        assertFalse(value.isComputed());
-
-        try {
-            value.invoke();
-        }
-        catch (Exception ignored) {
-        }
-
-        assertTrue(value.isComputed());
-    }
-
-    public void testIsNullableComputedAfterException() throws Exception {
-        NullableLazyValue<String> value = m.createNullableLazyValue(new ExceptionCounterValue());
-        assertFalse(value.isComputed());
-
-        try {
-            value.invoke();
-        }
-        catch (Exception ignored) {
-        }
-
-        assertTrue(value.isComputed());
-    }
-
     public void testFunctionComputesOnce() throws Exception {
         CounterFunction counter = new CounterFunction();
         MemoizedFunctionToNotNull<String, String> f = m.createMemoizedFunction(counter);
@@ -134,18 +102,6 @@ public class StorageManagerTest extends TestCase {
         CounterFunctionToNull counter = new CounterFunctionToNull();
         MemoizedFunctionToNullable<String, String> f = m.createMemoizedFunctionWithNullableValues(counter);
         doTestComputesOnce(apply(f, ""), null, counter);
-    }
-
-    public void testFunctionPreservesExceptions() throws Exception {
-        ExceptionCounterFunction counter = new ExceptionCounterFunction();
-        MemoizedFunctionToNotNull<String, String> f = m.createMemoizedFunction(counter);
-        doTestExceptionPreserved(apply(f, ""), UnsupportedOperationException.class, counter);
-    }
-
-    public void testNullableFunctionPreservesExceptions() throws Exception {
-        ExceptionCounterFunction counter = new ExceptionCounterFunction();
-        MemoizedFunctionToNullable<String, String> f = m.createMemoizedFunctionWithNullableValues(counter);
-        doTestExceptionPreserved(apply(f, ""), UnsupportedOperationException.class, counter);
     }
 
     public void testRecursionDetection() throws Exception {
@@ -187,18 +143,6 @@ public class StorageManagerTest extends TestCase {
         CounterValueNull counter = new CounterValueNull();
         NullableLazyValue<String> value = m.createNullableLazyValue(counter);
         doTestComputesOnce(value, null, counter);
-    }
-
-    public void testNotNullLazyPreservesException() throws Exception {
-        ExceptionCounterValue counter = new ExceptionCounterValue();
-        NotNullLazyValue<String> value = m.createLazyValue(counter);
-        doTestExceptionPreserved(value, UnsupportedOperationException.class, counter);
-    }
-
-    public void testNullableLazyPreservesException() throws Exception {
-        ExceptionCounterValue counter = new ExceptionCounterValue();
-        NullableLazyValue<String> value = m.createNullableLazyValue(counter);
-        doTestExceptionPreserved(value, UnsupportedOperationException.class, counter);
     }
 
     public void testRecursionIntolerance() throws Exception {
@@ -423,27 +367,6 @@ public class StorageManagerTest extends TestCase {
         assertEquals("second", c.rec.invoke());
     }
 
-    public void testFallThrough() throws Exception {
-        final CounterImpl c = new CounterImpl();
-        class C {
-            NotNullLazyValue<Integer> rec = LockBasedStorageManager.NO_LOCKS.createLazyValue(new Function0<Integer>() {
-                @Override
-                public Integer invoke() {
-                    c.inc();
-                    if (c.getCount() < 2) {
-                        return rec.invoke();
-                    }
-                    else {
-                        return c.getCount();
-                    }
-                }
-            });
-        }
-
-        assertEquals(2, new C().rec.invoke().intValue());
-        assertEquals(2, c.getCount());
-    }
-
     // ExceptionHandlingStrategy
 
     public void testExceptionHandlingStrategyForLazyValues() throws Exception {
@@ -498,16 +421,9 @@ public class StorageManagerTest extends TestCase {
         }
     }
 
-    // toString()
-
-    public void testToString() throws Exception {
-        assertTrue("Should mention the setUp() method of this class: " + m.toString(),
-                   m.toString().contains(getClass().getSimpleName() + ".setUp("));
-    }
-
     // Utilities
 
-    private static <K, V> Function0<V> apply(final Function1<K, V> f, final K x) {
+    protected static <K, V> Function0<V> apply(final Function1<K, V> f, final K x) {
         return new Function0<V>() {
             @Override
             public V invoke() {
@@ -520,7 +436,7 @@ public class StorageManagerTest extends TestCase {
         int getCount();
     }
 
-    private static class CounterImpl implements Counter {
+    static class CounterImpl implements Counter {
 
         private int count;
 
@@ -534,7 +450,7 @@ public class StorageManagerTest extends TestCase {
         }
     }
 
-    private static class CounterValueNull extends CounterImpl implements Function0<String>, Counter {
+    protected static class CounterValueNull extends CounterImpl implements Function0<String>, Counter {
         @Override
         public String invoke() {
             inc();
@@ -550,15 +466,7 @@ public class StorageManagerTest extends TestCase {
         }
     }
 
-    private static class ExceptionCounterValue extends CounterValueNull {
-        @Override
-        public String invoke() {
-            inc();
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    private static class CounterFunctionToNull extends CounterImpl implements Function1<String, String>, Counter {
+    protected static class CounterFunctionToNull extends CounterImpl implements Function1<String, String>, Counter {
         @Override
         public String invoke(String s) {
             inc();
@@ -571,14 +479,6 @@ public class StorageManagerTest extends TestCase {
         public String invoke(String s) {
             inc();
             return s + getCount();
-        }
-    }
-
-    private static class ExceptionCounterFunction extends CounterFunctionToNull {
-        @Override
-        public String invoke(String s) {
-            inc();
-            throw new UnsupportedOperationException();
         }
     }
 }

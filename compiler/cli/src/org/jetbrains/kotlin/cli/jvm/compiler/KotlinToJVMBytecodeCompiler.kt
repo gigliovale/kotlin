@@ -374,7 +374,7 @@ object KotlinToJVMBytecodeCompiler {
             override fun analyze(): AnalysisResult {
                 val sharedTrace = CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace()
                 val moduleContext =
-                        TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.project, environment.configuration)
+                        TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.project, environment.configuration, true)
 
                 return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
                         moduleContext,

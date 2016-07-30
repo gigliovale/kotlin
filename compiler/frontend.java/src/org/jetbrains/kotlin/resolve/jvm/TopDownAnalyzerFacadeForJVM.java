@@ -146,9 +146,19 @@ public enum TopDownAnalyzerFacadeForJVM {
 
     @NotNull
     public static MutableModuleContext createContextWithSealedModule(
-            @NotNull Project project, @NotNull CompilerConfiguration configuration
+            @NotNull Project project,
+            @NotNull CompilerConfiguration configuration
     ) {
-        ProjectContext projectContext = ContextKt.ProjectContext(project);
+        return createContextWithSealedModule(project, configuration, false);
+    }
+
+    @NotNull
+    public static MutableModuleContext createContextWithSealedModule(
+            @NotNull Project project,
+            @NotNull CompilerConfiguration configuration,
+            boolean lockless
+    ) {
+        ProjectContext projectContext = ContextKt.ProjectContext(project, lockless);
         JvmBuiltIns builtIns = new JvmBuiltIns(projectContext.getStorageManager());
         MutableModuleContext context = ContextKt.ContextForNewModule(
                 projectContext, Name.special("<" + configuration.getNotNull(CommonConfigurationKeys.MODULE_NAME) + ">"),

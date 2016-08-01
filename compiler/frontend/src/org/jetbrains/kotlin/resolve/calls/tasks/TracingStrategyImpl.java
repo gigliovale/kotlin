@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import static org.jetbrains.kotlin.diagnostics.Errors.UNRESOLVED_REFERENCE_WRONG
 import static org.jetbrains.kotlin.resolve.BindingContext.*;
 
 public class TracingStrategyImpl extends AbstractTracingStrategy {
-    private final KtReferenceExpression reference;
+    public final KtReferenceExpression reference;
 
     private TracingStrategyImpl(@NotNull KtReferenceExpression reference, @NotNull Call call) {
         super(reference, call);

@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResultsImpl;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.tasks.*;
 import org.jetbrains.kotlin.resolve.calls.tower.NewResolutionOldInference;
+import org.jetbrains.kotlin.resolve.calls.tower.PSICallResolver;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
@@ -68,7 +69,8 @@ public class CallResolver {
     private ArgumentTypeResolver argumentTypeResolver;
     private GenericCandidateResolver genericCandidateResolver;
     private CallCompleter callCompleter;
-    private NewResolutionOldInference newCallResolver;
+    private NewResolutionOldInference newResolutionOldInference;
+    private PSICallResolver PSICallResolver;
     private final KotlinBuiltIns builtIns;
     private final LanguageVersionSettings languageVersionSettings;
 
@@ -114,8 +116,14 @@ public class CallResolver {
 
     // component dependency cycle
     @Inject
-    public void setCallCompleter(@NotNull NewResolutionOldInference newCallResolver) {
-        this.newCallResolver = newCallResolver;
+    public void setResolutionOldInference(@NotNull NewResolutionOldInference newResolutionOldInference) {
+        this.newResolutionOldInference = newResolutionOldInference;
+    }
+
+    // component dependency cycle
+    @Inject
+    public void setPSICallResolver(@NotNull PSICallResolver PSICallResolver) {
+        this.PSICallResolver = PSICallResolver;
     }
 
     @NotNull
@@ -502,13 +510,23 @@ public class CallResolver {
         });
     }
 
-    private <D extends CallableDescriptor> OverloadResolutionResultsImpl<D> doResolveCallOrGetCachedResults(
+    private <D extends CallableDescriptor> OverloadResolutionResults<D> doResolveCallOrGetCachedResults(
             @NotNull BasicCallResolutionContext context,
             @NotNull ResolutionTask<D> resolutionTask,
             @NotNull TracingStrategy tracing
     ) {
         Call call = context.call;
         tracing.bindCall(context.trace, call);
+
+        if (PSICallResolver.getUseNewInference() && (resolutionTask.resolutionKind.getAstKind() != ASTCallKind.UNSUPPORTED)) {
+            assert resolutionTask.name != null;
+            return PSICallResolver.runResolutionAndInference(context, resolutionTask.name, resolutionTask.resolutionKind, tracing);
+        }
+
+        if (PSICallResolver.getUseNewInference() && resolutionTask.resolutionKind instanceof NewResolutionOldInference.ResolutionKind.GivenCandidates) {
+            assert resolutionTask.givenCandidates != null;
+            return PSICallResolver.runResolutionAndInferenceForGivenCandidates(context, resolutionTask.givenCandidates, tracing);
+        }
 
         TemporaryBindingTrace traceToResolveCall = TemporaryBindingTrace.create(context.trace, "trace to resolve call", call);
         BasicCallResolutionContext newContext = context.replaceBindingTrace(traceToResolveCall);
@@ -606,11 +624,11 @@ public class CallResolver {
 
         if (!(resolutionTask.resolutionKind instanceof NewResolutionOldInference.ResolutionKind.GivenCandidates)) {
             assert resolutionTask.name != null;
-            return newCallResolver.runResolution(context, resolutionTask.name, resolutionTask.resolutionKind, tracing);
+            return newResolutionOldInference.runResolution(context, resolutionTask.name, resolutionTask.resolutionKind, tracing);
         }
         else {
             assert resolutionTask.givenCandidates != null;
-            return newCallResolver.runResolutionForGivenCandidates(context, tracing, resolutionTask.givenCandidates);
+            return newResolutionOldInference.runResolutionForGivenCandidates(context, tracing, resolutionTask.givenCandidates);
         }
     }
 

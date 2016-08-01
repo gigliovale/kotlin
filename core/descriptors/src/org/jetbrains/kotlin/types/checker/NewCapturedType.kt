@@ -68,6 +68,7 @@ fun captureFromArguments(
 
 enum class CaptureStatus {
     FOR_SUBTYPING,
+    FOR_INCORPORATION,
     FROM_EXPRESSION
 }
 
@@ -87,7 +88,7 @@ class NewCapturedType(
         override val isMarkedNullable: Boolean = false
 ): SimpleType() {
 
-    constructor(captureStatus: CaptureStatus, lowerType: UnwrappedType?, projection: TypeProjection): this(captureStatus, NewCapturedTypeConstructor(projection), lowerType)
+    internal constructor(captureStatus: CaptureStatus, lowerType: UnwrappedType?, projection: TypeProjection): this(captureStatus, NewCapturedTypeConstructor(projection), lowerType)
 
     override val arguments: List<TypeProjection> get() = listOf()
     override val memberScope: MemberScope // todo what about foo().bar() where foo() return captured type?

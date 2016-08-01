@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
+import org.jetbrains.kotlin.resolve.calls.ASTCallKind
 import org.jetbrains.kotlin.resolve.calls.CallTransformer
 import org.jetbrains.kotlin.resolve.calls.CandidateResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isBinaryRemOperator
@@ -70,7 +71,7 @@ class NewResolutionOldInference(
         private val languageVersionSettings: LanguageVersionSettings,
         private val coroutineInferenceSupport: CoroutineInferenceSupport
 ) {
-    sealed class ResolutionKind<D : CallableDescriptor> {
+    sealed class ResolutionKind<D : CallableDescriptor>(val astKind: ASTCallKind = ASTCallKind.UNSUPPORTED) {
         abstract internal fun createTowerProcessor(
                 outer: NewResolutionOldInference,
                 name: Name,
@@ -80,7 +81,7 @@ class NewResolutionOldInference(
                 context: BasicCallResolutionContext
         ): ScopeTowerProcessor<MyCandidate>
 
-        object Function : ResolutionKind<FunctionDescriptor>() {
+        object Function : ResolutionKind<FunctionDescriptor>(ASTCallKind.FUNCTION) {
             override fun createTowerProcessor(
                     outer: NewResolutionOldInference, name: Name, tracing: TracingStrategy,
                     scopeTower: ImplicitScopeTower, explicitReceiver: DetailedReceiver?, context: BasicCallResolutionContext
@@ -90,7 +91,7 @@ class NewResolutionOldInference(
             }
         }
 
-        object Variable : ResolutionKind<VariableDescriptor>() {
+        object Variable : ResolutionKind<VariableDescriptor>(ASTCallKind.VARIABLE) {
             override fun createTowerProcessor(
                     outer: NewResolutionOldInference, name: Name, tracing: TracingStrategy,
                     scopeTower: ImplicitScopeTower, explicitReceiver: DetailedReceiver?, context: BasicCallResolutionContext
@@ -461,7 +462,7 @@ class NewResolutionOldInference(
 
 }
 
-private fun ResolutionContext<*>.transformToReceiverWithSmartCastInfo(receiver: ReceiverValue): ReceiverValueWithSmartCastInfo {
+fun ResolutionContext<*>.transformToReceiverWithSmartCastInfo(receiver: ReceiverValue): ReceiverValueWithSmartCastInfo {
     val dataFlowValue = DataFlowValueFactory.createDataFlowValue(receiver, this)
     return ReceiverValueWithSmartCastInfo(receiver, dataFlowInfo.getCollectedTypes(dataFlowValue), dataFlowValue.isStable)
 }

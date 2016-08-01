@@ -58,6 +58,7 @@ import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform;
 import org.jetbrains.kotlin.storage.ExceptionTracker;
+import org.jetbrains.kotlin.storage.LockBasedLazyResolveStorageManager;
 import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.test.InTextDirectivesUtils;
@@ -107,19 +108,18 @@ public abstract class AbstractDiagnosticsTest extends BaseDiagnosticsTest {
         GlobalContext context;
 
         ExceptionTracker tracker = new ExceptionTracker();
+        StorageManager storageManager;
         if (checkLazyResolveLog) {
             lazyOperationsLog = new LazyOperationsLog(HASH_SANITIZER);
-            context = new GlobalContextImpl(
-                    new LoggingStorageManager(
-                            LockBasedStorageManager.createWithExceptionHandling(tracker),
-                            lazyOperationsLog.getAddRecordFunction()
-                    ),
-                    tracker
+            storageManager = new LoggingStorageManager(
+                    LockBasedStorageManager.createWithExceptionHandling(tracker),
+                    lazyOperationsLog.getAddRecordFunction()
             );
         }
         else {
-            context = new GlobalContextImpl(LockBasedStorageManager.createWithExceptionHandling(tracker), tracker);
+            storageManager = LockBasedStorageManager.createWithExceptionHandling(tracker);
         }
+        context = new GlobalContextImpl(storageManager, tracker, new LockBasedLazyResolveStorageManager(storageManager));
 
         Map<TestModule, ModuleDescriptorImpl> modules = createModules(groupedByModule, context.getStorageManager());
         Map<TestModule, BindingContext> moduleBindings = new HashMap<TestModule, BindingContext>();

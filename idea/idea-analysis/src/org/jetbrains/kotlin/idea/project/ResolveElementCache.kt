@@ -540,7 +540,7 @@ class ResolveElementCache(
             file: KtFile,
             statementFilter: StatementFilter
     ): BodyResolver {
-        val globalContext = GlobalContextImpl(resolveSession.storageManager, resolveSession.exceptionTracker)
+        val globalContext = GlobalContextImpl(resolveSession.storageManager, resolveSession.exceptionTracker, resolveSession.lazyResolveStorageManager)
         val module = resolveSession.moduleDescriptor
         return createContainerForBodyResolve(
                 globalContext.withProject(file.project).withModule(module),
@@ -553,7 +553,7 @@ class ResolveElementCache(
 
     // All additional resolve should be done to separate trace
     private fun createDelegatingTrace(resolveElement: KtElement): BindingTrace {
-        return resolveSession.storageManager.createSafeTrace(
+        return resolveSession.lazyResolveStorageManager.createSafeTrace(
                 DelegatingBindingTrace(resolveSession.bindingContext, "trace to resolve element", resolveElement))
     }
 

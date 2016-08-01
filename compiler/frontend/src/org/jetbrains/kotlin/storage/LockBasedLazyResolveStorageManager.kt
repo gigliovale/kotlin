@@ -28,7 +28,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.types.KotlinType
 
-class LockBasedLazyResolveStorageManager(private val storageManager: StorageManager): StorageManager by storageManager, LazyResolveStorageManager {
+class LockBasedLazyResolveStorageManager(private val storageManager: StorageManager) : LazyResolveStorageManager {
     override fun createSafeTrace(originalTrace: BindingTrace): BindingTrace =
             LockProtectedTrace(storageManager, originalTrace)
 

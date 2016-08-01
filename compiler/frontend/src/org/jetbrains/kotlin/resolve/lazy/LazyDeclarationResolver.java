@@ -61,10 +61,7 @@ public class LazyDeclarationResolver {
     ) {
         this.topLevelDescriptorProvider = topLevelDescriptorProvider;
         this.absentDescriptorHandler = absentDescriptorHandler;
-        LockBasedLazyResolveStorageManager lockBasedLazyResolveStorageManager =
-                new LockBasedLazyResolveStorageManager(globalContext.getStorageManager());
-
-        this.trace = lockBasedLazyResolveStorageManager.createSafeTrace(delegationTrace);
+        this.trace = globalContext.getLazyResolveStorageManager().createSafeTrace(delegationTrace);
     }
 
     @NotNull

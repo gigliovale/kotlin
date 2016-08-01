@@ -54,7 +54,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
-    private final LazyResolveStorageManager storageManager;
+    private final StorageManager storageManager;
+    private final LazyResolveStorageManager lazyResolveStorageManager;
     private final ExceptionTracker exceptionTracker;
 
     private final ModuleDescriptor module;
@@ -134,12 +135,10 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
             @NotNull DeclarationProviderFactory declarationProviderFactory,
             @NotNull BindingTrace delegationTrace
     ) {
-        LockBasedLazyResolveStorageManager lockBasedLazyResolveStorageManager =
-                new LockBasedLazyResolveStorageManager(globalContext.getStorageManager());
-
-        this.storageManager = lockBasedLazyResolveStorageManager;
+        this.storageManager = globalContext.getStorageManager();
         this.exceptionTracker = globalContext.getExceptionTracker();
-        this.trace = lockBasedLazyResolveStorageManager.createSafeTrace(delegationTrace);
+        this.lazyResolveStorageManager = globalContext.getLazyResolveStorageManager();
+        this.trace = globalContext.getLazyResolveStorageManager().createSafeTrace(delegationTrace);
         this.module = rootDescriptor;
 
         this.packages =
@@ -224,8 +223,12 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
 
     @NotNull
     @Override
-    public LazyResolveStorageManager getStorageManager() {
+    public StorageManager getStorageManager() {
         return storageManager;
+    }
+
+    public LazyResolveStorageManager getLazyResolveStorageManager() {
+        return lazyResolveStorageManager;
     }
 
     @NotNull

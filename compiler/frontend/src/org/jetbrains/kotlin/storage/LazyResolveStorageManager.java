@@ -19,8 +19,16 @@ package org.jetbrains.kotlin.storage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 
-public interface LazyResolveStorageManager extends StorageManager {
+public interface LazyResolveStorageManager {
 
     @NotNull
     BindingTrace createSafeTrace(@NotNull BindingTrace originalTrace);
+
+    public static final LazyResolveStorageManager EMPTY = new LazyResolveStorageManager() {
+        @NotNull
+        @Override
+        public BindingTrace createSafeTrace(@NotNull BindingTrace originalTrace) {
+            return originalTrace;
+        }
+    };
 }

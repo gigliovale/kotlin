@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.jps.incremental
 
 import org.jetbrains.jps.builders.BuildTarget
 import org.jetbrains.jps.builders.storage.BuildDataPaths
+import org.jetbrains.jps.cmdline.ProjectDescriptor
 import org.jetbrains.jps.incremental.ModuleBuildTarget
 import org.jetbrains.kotlin.incremental.CacheVersion
 import org.jetbrains.kotlin.incremental.dataContainerCacheVersion
@@ -26,7 +27,9 @@ import org.jetbrains.kotlin.incremental.normalCacheVersion
 import java.io.File
 
 
-class CacheVersionProvider(private val paths: BuildDataPaths) {
+class CacheVersionProvider(val projectDescriptor: ProjectDescriptor) {
+    private val paths: BuildDataPaths = projectDescriptor.dataManager.dataPaths
+
     private val BuildTarget<*>.dataRoot: File
         get() = paths.getTargetDataRoot(this)
 
@@ -34,15 +37,15 @@ class CacheVersionProvider(private val paths: BuildDataPaths) {
 
     fun experimentalVersion(target: ModuleBuildTarget): CacheVersion = experimentalCacheVersion(target.dataRoot)
 
-    fun dataContainerVersion(): CacheVersion = dataContainerCacheVersion(KotlinDataContainerTarget.dataRoot)
+    fun dataContainerVersion(): CacheVersion = dataContainerCacheVersion(KotlinDataContainerTarget.dataRoot, projectDescriptor)
 
     fun allVersions(targets: Iterable<ModuleBuildTarget>): Iterable<CacheVersion> {
         val versions = arrayListOf<CacheVersion>()
-        versions.add(dataContainerCacheVersion(KotlinDataContainerTarget.dataRoot))
+        versions.add(dataContainerVersion())
 
-        for (dataRoot in targets.map { it.dataRoot }) {
-            versions.add(normalCacheVersion(dataRoot))
-            versions.add(experimentalCacheVersion(dataRoot))
+        for (target in targets) {
+            versions.add(normalVersion(target))
+            versions.add(experimentalVersion(target))
         }
 
         return versions

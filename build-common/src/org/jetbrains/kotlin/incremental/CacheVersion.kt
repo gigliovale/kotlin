@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,13 @@ class CacheVersion(
         private val whenVersionChanged: CacheVersion.Action,
         private val whenTurnedOn: CacheVersion.Action,
         private val whenTurnedOff: CacheVersion.Action,
-        isEnabled: ()->Boolean
+        isEnabled: ()->Boolean,
+        val lock: Any? = null
 ) {
     private val isEnabled by lazy(isEnabled)
 
     private val actualVersion: Int
-        get() = versionFile.readText().toInt()
+        get() = syncReadVersion()
 
     private val expectedVersion: Int
         get() {
@@ -67,10 +68,53 @@ class CacheVersion(
             versionFile.parentFile.mkdirs()
         }
 
-        versionFile.writeText(expectedVersion.toString())
+        syncWriteVersion(expectedVersion)
+    }
+
+    private fun syncReadVersion(): Int {
+        if (lock == null) {
+            return readVersion()
+        }
+
+        synchronized(lock) {
+            return readVersion()
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun readVersion(): Int {
+        return versionFile.readText().toInt()
+    }
+
+    private fun syncWriteVersion(version: Int) {
+        if (lock == null) {
+            writeVersion(version)
+            return
+        }
+
+        synchronized(lock) {
+            writeVersion(version)
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun writeVersion(version: Int) {
+        versionFile.writeText(version.toString())
     }
 
     fun clean() {
+        if (lock == null) {
+            deleteVersionFile()
+            return
+        }
+
+        synchronized(lock) {
+            deleteVersionFile()
+        }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun deleteVersionFile() {
         versionFile.delete()
     }
 
@@ -105,10 +149,11 @@ fun experimentalCacheVersion(dataRoot: File): CacheVersion =
                      whenTurnedOff = CacheVersion.Action.CLEAN_EXPERIMENTAL_CACHES,
                      isEnabled = { IncrementalCompilation.isExperimental() })
 
-fun dataContainerCacheVersion(dataRoot: File): CacheVersion =
+fun dataContainerCacheVersion(dataRoot: File, lock: Any?): CacheVersion =
         CacheVersion(ownVersion = DATA_CONTAINER_VERSION,
                      versionFile = File(dataRoot, DATA_CONTAINER_VERSION_FILE_NAME),
                      whenVersionChanged = CacheVersion.Action.REBUILD_ALL_KOTLIN,
                      whenTurnedOn = CacheVersion.Action.REBUILD_ALL_KOTLIN,
                      whenTurnedOff = CacheVersion.Action.CLEAN_DATA_CONTAINER,
-                     isEnabled = { IncrementalCompilation.isExperimental() })
+                     isEnabled = { IncrementalCompilation.isExperimental() },
+                     lock = lock)

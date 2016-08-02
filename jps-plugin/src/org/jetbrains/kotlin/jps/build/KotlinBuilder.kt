@@ -113,7 +113,7 @@ class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
 
         if (targets.none { hasKotlin[it] == true }) return
 
-        val cacheVersionsProvider = CacheVersionProvider(dataManager.dataPaths)
+        val cacheVersionsProvider = CacheVersionProvider(context.projectDescriptor)
         val allVersions = cacheVersionsProvider.allVersions(targets)
         val actions = allVersions.map { it.checkVersion() }.toSet()
 
@@ -358,9 +358,8 @@ class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
     }
 
     private fun saveVersions(context: CompileContext, chunk: ModuleChunk) {
-        val dataManager = context.projectDescriptor.dataManager
         val targets = chunk.targets
-        val cacheVersionsProvider = CacheVersionProvider(dataManager.dataPaths)
+        val cacheVersionsProvider = CacheVersionProvider(context.projectDescriptor)
         cacheVersionsProvider.allVersions(targets).forEach { it.saveIfNeeded() }
     }
 

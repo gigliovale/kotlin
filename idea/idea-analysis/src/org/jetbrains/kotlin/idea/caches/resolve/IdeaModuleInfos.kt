@@ -24,24 +24,19 @@ import com.intellij.openapi.roots.*
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.search.DelegatingGlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.idea.core.script.KotlinScriptConfigurationManager
-import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.script.KotlinScriptDefinition
 import org.jetbrains.kotlin.utils.alwaysNull
 import org.jetbrains.kotlin.utils.emptyOrSingletonList
 import java.lang.reflect.Method
 import java.util.*
 
 private val LIBRARY_NAME_PREFIX: String = "library "
-private val SCRIPT_NAME_PREFIX: String = "script "
 
 // TODO used reflection to be compatible with IDEA from both 143 and 144 branches,
 // TODO switch to directly using when "since-build" will be >= 144.3357.4
@@ -283,37 +278,6 @@ internal object NotUnderContentRootModuleInfo : IdeaModuleInfo {
 
     //TODO: (module refactoring) dependency on runtime can be of use here
     override fun dependencies(): List<IdeaModuleInfo> = listOf(this)
-}
-
-class ScriptModuleSearchScope(val scriptFile: VirtualFile, baseScope: GlobalSearchScope) : DelegatingGlobalSearchScope(baseScope) {
-    override fun equals(other: Any?) = other is ScriptModuleSearchScope && scriptFile == other.scriptFile && super.equals(other)
-
-    override fun hashCode() = scriptFile.hashCode() * 73 * super.hashCode()
-}
-
-data class ScriptModuleInfo(val project: Project, val scriptFile: VirtualFile,
-                            val scriptDefinition: KotlinScriptDefinition) : IdeaModuleInfo {
-    override val moduleOrigin: ModuleOrigin
-        get() = ModuleOrigin.OTHER
-
-    override val name: Name = Name.special("<$SCRIPT_NAME_PREFIX${scriptDefinition.name}>")
-
-    override fun contentScope() = GlobalSearchScope.fileScope(project, scriptFile)
-
-    // TODO: only dependencies of this particular script
-    override fun dependencies() = listOf(this, ScriptDependenciesModuleInfo(project))
-}
-
-data class ScriptDependenciesModuleInfo(val project: Project): IdeaModuleInfo {
-    override fun dependencies() = listOf(this)
-
-    override val name = Name.special("<Script dependencies>")
-
-    // TODO: this is not very efficient because KotlinSourceFilterScope already checks if the files are in scripts classpath
-    override fun contentScope() = KotlinSourceFilterScope.libraryClassFiles(KotlinScriptConfigurationManager.getInstance(project).getAllScriptsClasspathScope(), project)
-
-    override val moduleOrigin: ModuleOrigin
-        get() = ModuleOrigin.LIBRARY
 }
 
 private class LibraryWithoutSourceScope(project: Project, private val library: Library) :

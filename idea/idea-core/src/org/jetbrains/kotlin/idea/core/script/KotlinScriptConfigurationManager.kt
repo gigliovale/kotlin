@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.idea.core.script
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.openapi.startup.StartupManager
@@ -73,11 +74,11 @@ class KotlinScriptConfigurationManager(
     private val cacheLock = ReentrantReadWriteLock()
 
     private val allScriptsClasspathCache = ClearableLazyValue(cacheLock) {
-        scriptExternalImportsProvider.getKnownCombinedClasspath().distinct().mapNotNull { it.classpathEntryToVfs() }
+        toVfsRoots(scriptExternalImportsProvider.getKnownCombinedClasspath().distinct())
     }
 
     private val allLibrarySourcesCache = ClearableLazyValue(cacheLock) {
-        scriptExternalImportsProvider.getKnownSourceRoots().distinct().mapNotNull { it.classpathEntryToVfs() }
+        toVfsRoots(scriptExternalImportsProvider.getKnownSourceRoots().distinct())
     }
 
     private fun notifyRootsChanged() {
@@ -86,32 +87,20 @@ class KotlinScriptConfigurationManager(
         }
     }
 
-    fun getScriptClasspath(file: VirtualFile): List<VirtualFile> =
-            scriptExternalImportsProvider.getExternalImports(file)
-                    .flatMap { it.classpath }
-                    .mapNotNull { it.classpathEntryToVfs() }
+    fun getScriptClasspath(file: VirtualFile): List<VirtualFile> = toVfsRoots(
+            scriptExternalImportsProvider.getExternalImports(file)?.classpath ?: emptyList()
+    )
 
     fun getAllScriptsClasspath(): List<VirtualFile> = allScriptsClasspathCache.get()
 
     fun getAllLibrarySources(): List<VirtualFile> = allLibrarySourcesCache.get()
-
-    private fun File.classpathEntryToVfs(): VirtualFile? {
-        val res = when {
-            !exists() -> null
-            isDirectory -> StandardFileSystems.local()?.findFileByPath(this.canonicalPath) ?: null
-            isFile -> StandardFileSystems.jar()?.findFileByPath(this.canonicalPath + URLUtil.JAR_SEPARATOR) ?: null
-            else -> null
-        }
-        // TODO: report this somewhere, but do not throw: assert(res != null, { "Invalid classpath entry '$this': exists: ${exists()}, is directory: $isDirectory, is file: $isFile" })
-        return res
-    }
 
     fun getAllScriptsClasspathScope() = NonClasspathDirectoriesScope(getAllScriptsClasspath())
 
     fun getAllLibrarySourcesScope() = NonClasspathDirectoriesScope(getAllLibrarySources())
 
     private fun reloadScriptDefinitions() {
-        (makeScriptDefsFromTemplateProviderExtensions(project, { ep, ex -> /* TODO: add logging here */ }) +
+        (makeScriptDefsFromTemplateProviderExtensions(project, { ep, ex -> log.error("[kts] Error loading definition from ${ep.id}", ex) }) +
          loadScriptConfigsFromProjectRoot(File(project.basePath ?: "")).map { KotlinConfigurableScriptDefinition(it, kotlinEnvVars) }).let {
             if (it.isNotEmpty()) {
                 scriptDefinitionProvider.setScriptDefinitions(it + StandardScriptDefinition)
@@ -147,6 +136,22 @@ class KotlinScriptConfigurationManager(
         @JvmStatic
         fun getInstance(project: Project): KotlinScriptConfigurationManager =
                 ServiceManager.getService(project, KotlinScriptConfigurationManager::class.java)
+
+        fun toVfsRoots(roots: Iterable<File>): List<VirtualFile> {
+            return roots.mapNotNull { it.classpathEntryToVfs() }
+        }
+
+        private fun File.classpathEntryToVfs(): VirtualFile? {
+            val res = when {
+                !exists() -> null
+                isDirectory -> StandardFileSystems.local()?.findFileByPath(this.canonicalPath) ?: null
+                isFile -> StandardFileSystems.jar()?.findFileByPath(this.canonicalPath + URLUtil.JAR_SEPARATOR) ?: null
+                else -> null
+            }
+            // TODO: report this somewhere, but do not throw: assert(res != null, { "Invalid classpath entry '$this': exists: ${exists()}, is directory: $isDirectory, is file: $isFile" })
+            return res
+        }
+        internal val log = Logger.getInstance(KotlinScriptConfigurationManager::class.java)
     }
 }
 

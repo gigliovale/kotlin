@@ -69,13 +69,20 @@ class ScriptTest2 {
         aClass!!.getConstructor(Integer.TYPE).newInstance(4)
     }
 
+    @Test
+    fun testScriptWithDependsAnn2() {
+        val aClass = compileScript("fib_ext_ann2.kts", ScriptWithIntParam::class, null)
+        Assert.assertNotNull(aClass)
+        aClass!!.getConstructor(Integer.TYPE).newInstance(4)
+    }
+
     private fun compileScript(
             scriptPath: String,
             scriptBase: KClass<out Any>,
             environment: Map<String, Any?>? = null,
             runIsolated: Boolean = true,
             suppressOutput: Boolean = false): Class<*>? =
-            compileScriptImpl("compiler/testData/script/" + scriptPath, KotlinScriptDefinitionFromTemplate(scriptBase, environment), runIsolated, suppressOutput)
+            compileScriptImpl("compiler/testData/script/" + scriptPath, KotlinScriptDefinitionFromTemplate(scriptBase, null, null, environment), runIsolated, suppressOutput)
 
     private fun compileScriptImpl(
             scriptPath: String,
@@ -119,27 +126,35 @@ class ScriptTest2 {
     }
 }
 
-class TestKotlinScriptDependenciesResolver : ScriptDependenciesResolverEx {
+class TestKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
 
     private val kotlinPaths by lazy { PathUtil.getKotlinPathsForCompiler() }
 
-    @AcceptedAnnotations(DependsOn::class)
+    @AcceptedAnnotations(DependsOn::class, DependsOnTwo::class)
     override fun resolve(script: ScriptContents,
                          environment: Map<String, Any?>?,
+                         report: (ScriptDependenciesResolver.ReportSeverity, String, ScriptContents.Position?) -> Unit,
                          previousDependencies: KotlinScriptExternalDependencies?
-    ): KotlinScriptExternalDependencies?
+    ): Future<KotlinScriptExternalDependencies?>
     {
         val cp = script.annotations.flatMap {
             when (it) {
                 is DependsOn -> listOf(if (it.path == "@{runtime}") kotlinPaths.runtimePath else File(it.path))
+                is DependsOnTwo -> listOf(it.path1, it.path2).mapNotNull {
+                    when {
+                        it.isBlank() -> null
+                        it == "@{runtime}" -> kotlinPaths.runtimePath
+                        else -> File(it)
+                    }
+                }
                 is InvalidScriptResolverAnnotation -> throw Exception("Invalid annotation ${it.name}", it.error)
                 else -> throw Exception("Unknown annotation ${it.javaClass}")
             }
         }
         return object : KotlinScriptExternalDependencies {
             override val classpath: Iterable<File> = classpathFromClassloader() + cp
-            override val imports: Iterable<String> = listOf("org.jetbrains.kotlin.scripts.DependsOn")
-        }
+            override val imports: Iterable<String> = listOf("org.jetbrains.kotlin.scripts.DependsOn", "org.jetbrains.kotlin.scripts.DependsOnTwo")
+        }.asFuture()
     }
 
     private fun classpathFromClassloader(): List<File> =
@@ -167,3 +182,7 @@ abstract class ScriptWithBaseClass(num: Int, passthrough: Int) : TestDSLClassWit
 @Target(AnnotationTarget.FILE)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class DependsOn(val path: String)
+
+@Target(AnnotationTarget.FILE)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class DependsOnTwo(val unused: String = "", val path1: String = "", val path2: String = "")

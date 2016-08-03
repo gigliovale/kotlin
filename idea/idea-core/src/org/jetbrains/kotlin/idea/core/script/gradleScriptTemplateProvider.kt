@@ -16,13 +16,18 @@
 
 package org.jetbrains.kotlin.idea.core.script
 
+import com.intellij.execution.configurations.CommandLineTokenizer
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.Project
 import org.gradle.tooling.ProjectConnection
+import org.jetbrains.kotlin.lexer.KotlinLexer
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.script.ScriptTemplateProvider
 import org.jetbrains.plugins.gradle.service.execution.GradleExecutionHelper
 import org.jetbrains.plugins.gradle.settings.GradleExecutionSettings
 import java.io.File
+import java.util.*
 
 class GradleScriptTemplateProvider(project: Project): ScriptTemplateProvider {
 
@@ -34,12 +39,23 @@ class GradleScriptTemplateProvider(project: Project): ScriptTemplateProvider {
                     org.jetbrains.plugins.gradle.util.GradleConstants.SYSTEM_ID)
         }
         catch (e: NoClassDefFoundError) {
-            // TODO: log warning and consider displaying it to user
+            // TODO: consider displaying the warning to the user
+            Logger.getInstance(GradleScriptTemplateProvider::class.java).error("[kts] Cannot get gradle execution settings", e)
             null
         }
         catch (e: ClassNotFoundException) {
+            Logger.getInstance(GradleScriptTemplateProvider::class.java).error("[kts] Cannot get gradle execution settings", e)
             null // see todo above
         }
+    }
+
+    private val gradleJvmOptions: List<String> by lazy {
+        gradleExeSettings?.daemonVmOptions?.let { vmOptions ->
+            CommandLineTokenizer(vmOptions).toList()
+                    .mapNotNull { it?.let { it as? String } }
+                    .filterNot { it.isBlank() }
+                    .distinct()
+        } ?: emptyList()
     }
 
     override val id: String = "Gradle"
@@ -54,12 +70,16 @@ class GradleScriptTemplateProvider(project: Project): ScriptTemplateProvider {
                     ?.map { it.canonicalPath }
                 ?: emptyList()
     }
-    override val environment: Map<String, Any?>? by lazy { mapOf(
+    override val environment: Map<String, Any?>? by lazy {
+
+        mapOf(
             "gradleHome" to gradleExeSettings?.gradleHome?.let { File(it) },
             "projectRoot" to (project.basePath ?: project.baseDir.canonicalPath)?.let { File(it) },
-            "projectActionExecutor" to { action: (ProjectConnection) -> Unit ->
+            "gradleWithConnection" to { action: (ProjectConnection) -> Unit ->
                 GradleExecutionHelper().execute(project.basePath!!, null) { action(it) } },
-            "gradleJavaHome" to gradleExeSettings?.javaHome)
+            "gradleJavaHome" to gradleExeSettings?.javaHome,
+            "gradleJvmOptions" to gradleJvmOptions,
+            "getScriptSectionTokens" to ::topLevelSectionCodeTextTokens)
     }
 
     companion object {
@@ -67,3 +87,53 @@ class GradleScriptTemplateProvider(project: Project): ScriptTemplateProvider {
     }
 }
 
+class TopLevelSectionTokensEnumerator(script: CharSequence, identifier: String) : Enumeration<KotlinLexer> {
+
+    private val lexer = KotlinLexer().apply {
+        start(script)
+        var depth = 0
+
+        loop@ while (tokenType != null) {
+            when (tokenType) {
+                KtTokens.IDENTIFIER -> if (depth == 0 && tokenText == identifier) {
+                    advance()
+                    skipWhiteSpaceAndComments()
+                    if (tokenType == KtTokens.LBRACE)
+                        break@loop
+                }
+                KtTokens.LBRACE -> depth += 1
+                KtTokens.RBRACE -> depth -= 1
+            }
+            advance()
+        }
+    }
+
+    private var depth = 1
+    private var finished = false
+
+    override fun hasMoreElements(): Boolean = !finished && lexer.tokenType != null
+
+    override fun nextElement(): KotlinLexer = lexer.apply {
+        advance()
+        when (tokenType) {
+            KtTokens.LBRACE -> depth += 1
+            KtTokens.RBRACE -> {
+                if (depth == 1) {
+                    finished = true
+                }
+                depth -= 1
+            }
+        }
+    }
+
+    private fun KotlinLexer.skipWhiteSpaceAndComments() {
+        while (tokenType in KtTokens.WHITE_SPACE_OR_COMMENT_BIT_SET) {
+            advance()
+        }
+    }
+}
+
+fun topLevelSectionCodeTextTokens(script: CharSequence, sectionIdentifier: String): Sequence<CharSequence> =
+        TopLevelSectionTokensEnumerator(script, sectionIdentifier).asSequence()
+                .filter { it.tokenType !in KtTokens.WHITE_SPACE_OR_COMMENT_BIT_SET }
+                .map { it.tokenSequence }

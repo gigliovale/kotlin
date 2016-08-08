@@ -45,6 +45,11 @@ public interface KCallable<out R> : KAnnotatedElement {
     public val returnType: KType
 
     /**
+     * The list of type parameters of this callable.
+     */
+    public val typeParameters: List<KTypeParameter>
+
+    /**
      * Calls this callable with the specified list of arguments and returns the result.
      * Throws an exception if the number of specified arguments is not equal to the size of [parameters],
      * or if their types do not match the types of the parameters.
@@ -57,4 +62,24 @@ public interface KCallable<out R> : KAnnotatedElement {
      * or its type does not match the type of the provided value, an exception is thrown.
      */
     public fun callBy(args: Map<KParameter, Any?>): R
+
+    /**
+     * Visibility of this callable, or `null` if its visibility cannot be represented in Kotlin.
+     */
+    public val visibility: KVisibility?
+
+    /**
+     * `true` if this callable is `final`.
+     */
+    public val isFinal: Boolean
+
+    /**
+     * `true` if this callable is `open`.
+     */
+    public val isOpen: Boolean
+
+    /**
+     * `true` if this callable is `abstract`.
+     */
+    public val isAbstract: Boolean
 }

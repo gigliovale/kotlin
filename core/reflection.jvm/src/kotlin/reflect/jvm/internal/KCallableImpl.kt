@@ -17,13 +17,11 @@
 package kotlin.reflect.jvm.internal
 
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
+import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import java.lang.reflect.Type
 import java.util.*
-import kotlin.reflect.KCallable
-import kotlin.reflect.KParameter
-import kotlin.reflect.KType
-import kotlin.reflect.KotlinReflectionInternalError
+import kotlin.reflect.*
 import kotlin.reflect.jvm.javaType
 
 internal interface KCallableImpl<out R> : KCallable<R>, KAnnotatedElementImpl {
@@ -61,6 +59,21 @@ internal interface KCallableImpl<out R> : KCallable<R>, KAnnotatedElementImpl {
 
     override val returnType: KType
         get() = KTypeImpl(descriptor.returnType!!) { caller.returnType }
+
+    override val typeParameters: List<KTypeParameter>
+        get() = descriptor.typeParameters.map(::KTypeParameterImpl)
+
+    override val visibility: KVisibility?
+        get() = descriptor.visibility.toKVisibility()
+
+    override val isFinal: Boolean
+        get() = descriptor.modality == Modality.FINAL
+
+    override val isOpen: Boolean
+        get() = descriptor.modality == Modality.OPEN
+
+    override val isAbstract: Boolean
+        get() = descriptor.modality == Modality.ABSTRACT
 
     @Suppress("UNCHECKED_CAST")
     override fun call(vararg args: Any?): R = reflectionCall {

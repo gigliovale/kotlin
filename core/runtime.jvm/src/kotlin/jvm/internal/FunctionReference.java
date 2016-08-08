@@ -17,11 +17,9 @@
 package kotlin.jvm.internal;
 
 import kotlin.jvm.KotlinReflectionNotSupportedError;
-import kotlin.reflect.KDeclarationContainer;
-import kotlin.reflect.KFunction;
-import kotlin.reflect.KParameter;
-import kotlin.reflect.KType;
+import kotlin.reflect.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -71,6 +69,12 @@ public class FunctionReference extends FunctionImpl implements KFunction {
         return getReflected().getAnnotations();
     }
 
+    @NotNull
+    @Override
+    public List<KTypeParameter> getTypeParameters() {
+        return getReflected().getTypeParameters();
+    }
+
     @Override
     public Object call(@NotNull Object... args) {
         return getReflected().call(args);
@@ -79,6 +83,57 @@ public class FunctionReference extends FunctionImpl implements KFunction {
     @Override
     public Object callBy(@NotNull Map args) {
         return getReflected().callBy(args);
+    }
+
+    @Nullable
+    @Override
+    public KVisibility getVisibility() {
+        return getReflected().getVisibility();
+    }
+
+    @Override
+    public boolean isFinal() {
+        return getReflected().isFinal();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return getReflected().isOpen();
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return getReflected().isAbstract();
+    }
+
+    @Override
+    public boolean isInline() {
+        return getReflected().isInline();
+    }
+
+    @Override
+    public boolean isExternal() {
+        return getReflected().isExternal();
+    }
+
+    @Override
+    public boolean isOperator() {
+        return getReflected().isOperator();
+    }
+
+    @Override
+    public boolean isInfix() {
+        return getReflected().isInfix();
+    }
+
+    @Override
+    public boolean isTailrec() {
+        return getReflected().isTailrec();
+    }
+
+    @Override
+    public boolean isSuspend() {
+        return getReflected().isSuspend();
     }
 
     @Override

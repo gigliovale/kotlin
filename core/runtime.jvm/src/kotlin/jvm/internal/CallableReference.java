@@ -19,6 +19,7 @@ package kotlin.jvm.internal;
 import kotlin.jvm.KotlinReflectionNotSupportedError;
 import kotlin.reflect.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -83,6 +84,12 @@ public abstract class CallableReference implements KCallable {
         return getReflected().getAnnotations();
     }
 
+    @NotNull
+    @Override
+    public List<KTypeParameter> getTypeParameters() {
+        return getReflected().getTypeParameters();
+    }
+
     @Override
     public Object call(@NotNull Object... args) {
         return getReflected().call(args);
@@ -91,6 +98,27 @@ public abstract class CallableReference implements KCallable {
     @Override
     public Object callBy(@NotNull Map args) {
         return getReflected().callBy(args);
+    }
+
+    @Nullable
+    @Override
+    public KVisibility getVisibility() {
+        return getReflected().getVisibility();
+    }
+
+    @Override
+    public boolean isFinal() {
+        return getReflected().isFinal();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return getReflected().isOpen();
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return getReflected().isAbstract();
     }
 
     public KCallable compute() {

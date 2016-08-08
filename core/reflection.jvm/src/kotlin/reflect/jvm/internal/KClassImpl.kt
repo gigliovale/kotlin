@@ -20,22 +20,20 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.load.java.JvmAbi
-import org.jetbrains.kotlin.load.java.reflect.tryLoadClass
-import org.jetbrains.kotlin.load.java.structure.reflect.safeClassLoader
+import org.jetbrains.kotlin.load.java.structure.reflect.functionClassArity
+import org.jetbrains.kotlin.load.java.structure.reflect.wrapperByPrimitive
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader
 import org.jetbrains.kotlin.load.kotlin.reflect.ReflectKotlinClass
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.serialization.deserialization.findClassAcrossModuleDependencies
-import kotlin.reflect.KCallable
-import kotlin.reflect.KClass
-import kotlin.reflect.KFunction
-import kotlin.reflect.KotlinReflectionInternalError
+import kotlin.jvm.internal.TypeIntrinsics
+import kotlin.reflect.*
 
-internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclarationContainerImpl(), KClass<T>, KAnnotatedElementImpl {
+internal class KClassImpl<T : Any>(override val jClass: Class<T>) :
+        KDeclarationContainerImpl(), KClass<T>, KClassifierImpl, KAnnotatedElementImpl {
     private val descriptor_ = ReflectProperties.lazySoft {
         val classId = classId
 
@@ -46,7 +44,7 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
         descriptor ?: reportUnresolvedClass()
     }
 
-    val descriptor: ClassDescriptor
+    override val descriptor: ClassDescriptor
         get() = descriptor_()
 
     override val annotated: Annotated get() = descriptor
@@ -120,16 +118,9 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
     override val nestedClasses: Collection<KClass<*>>
         get() = descriptor.unsubstitutedInnerClassesScope.getContributedDescriptors().filterNot(DescriptorUtils::isEnumEntry).mapNotNull {
             nestedClass ->
-            (nestedClass as ClassDescriptor).toJavaClass() ?: run {
-                // If neither a Kotlin class nor a Java class, it must be a built-in
-                val classId = JavaToKotlinClassMap.INSTANCE.mapKotlinToJava(DescriptorUtils.getFqName(nestedClass))
-                              ?: throw KotlinReflectionInternalError("Class with no source must be a built-in: $nestedClass")
-                val packageName = classId.packageFqName.asString()
-                val className = classId.relativeClassName.asString().replace('.', '$')
-                // All pseudo-classes like String.Companion must be accessible from the current class loader
-                (this as Any).javaClass.safeClassLoader.tryLoadClass("$packageName.$className")
-            }
-        }.map { KClassImpl(it) }
+            val jClass = (nestedClass as ClassDescriptor).toJavaClass()
+            jClass?.let { KClassImpl(it) }
+        }
 
     @Suppress("UNCHECKED_CAST")
     private val objectInstance_ = ReflectProperties.lazy {
@@ -147,6 +138,61 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) : KDeclaration
 
     override val objectInstance: T?
         get() = objectInstance_()
+
+    override fun isInstance(value: Any?): Boolean {
+        // TODO: use Kotlin semantics for mutable/read-only collections once KT-11754 is supported (see TypeIntrinsics)
+        jClass.functionClassArity?.let { arity ->
+            return TypeIntrinsics.isFunctionOfArity(value, arity)
+        }
+        return (jClass.wrapperByPrimitive ?: jClass).isInstance(value)
+    }
+
+    override val typeParameters: List<KTypeParameter>
+        get() = descriptor.declaredTypeParameters.map(::KTypeParameterImpl)
+
+    override val supertypes: List<KType>
+        get() = descriptor.typeConstructor.supertypes.map { kotlinType ->
+            KTypeImpl(kotlinType) {
+                val superClass = kotlinType.constructor.declarationDescriptor
+                if (superClass !is ClassDescriptor) throw KotlinReflectionInternalError("Supertype not a class: $superClass")
+
+                val superJavaClass = superClass.toJavaClass()
+                                     ?: throw KotlinReflectionInternalError("Unsupported superclass of $this: $superClass")
+
+                if (jClass.superclass == superJavaClass) {
+                    jClass.genericSuperclass
+                }
+                else {
+                    val index = jClass.interfaces.indexOf(superJavaClass)
+                    if (index < 0) throw KotlinReflectionInternalError("No superclass of $this in Java reflection for $superClass")
+                    jClass.genericInterfaces[index]
+                }
+            }
+        }
+
+    override val visibility: KVisibility?
+        get() = descriptor.visibility.toKVisibility()
+
+    override val isFinal: Boolean
+        get() = descriptor.modality == Modality.FINAL
+
+    override val isOpen: Boolean
+        get() = descriptor.modality == Modality.OPEN
+
+    override val isAbstract: Boolean
+        get() = descriptor.modality == Modality.ABSTRACT
+
+    override val isSealed: Boolean
+        get() = descriptor.modality == Modality.SEALED
+
+    override val isData: Boolean
+        get() = descriptor.isData
+
+    override val isInner: Boolean
+        get() = descriptor.isInner
+
+    override val isCompanion: Boolean
+        get() = descriptor.isCompanionObject
 
     override fun equals(other: Any?): Boolean =
             other is KClassImpl<*> && jClass == other.jClass

@@ -24,7 +24,7 @@ package kotlin.reflect
  *
  * @param T the type of the class.
  */
-public interface KClass<T : Any> : KDeclarationContainer, KAnnotatedElement {
+public interface KClass<T : Any> : KDeclarationContainer, KAnnotatedElement, KClassifier {
     /**
      * The simple name of the class as it was declared in the source code,
      * or `null` if the class has no name (if, for example, it is an anonymous object literal).
@@ -57,6 +57,69 @@ public interface KClass<T : Any> : KDeclarationContainer, KAnnotatedElement {
      * The instance of the object declaration, or `null` if this class is not an object declaration.
      */
     public val objectInstance: T?
+
+    /**
+     * Returns `true` if [value] is an instance of this class on a given platform.
+     */
+    public fun isInstance(value: Any?): Boolean
+
+    /**
+     * The list of type parameters of this class. This list does *not* include type parameters of outer classes.
+     */
+    public val typeParameters: List<KTypeParameter>
+
+    /**
+     * The list of immediate supertypes of this class, in the order they are listed in the source code.
+     */
+    public val supertypes: List<KType>
+
+    /**
+     * Visibility of this class, or `null` if its visibility cannot be represented in Kotlin.
+     */
+    public val visibility: KVisibility?
+
+    /**
+     * `true` if this class is `final`.
+     */
+    public val isFinal: Boolean
+
+    /**
+     * `true` if this class is `open`.
+     */
+    public val isOpen: Boolean
+
+    /**
+     * `true` if this class is `abstract`.
+     */
+    public val isAbstract: Boolean
+
+    /**
+     * `true` if this class is `sealed`.
+     * See the [Kotlin language documentation](https://kotlinlang.org/docs/reference/classes.html#sealed-classes)
+     * for more information.
+     */
+    public val isSealed: Boolean
+
+    /**
+     * `true` if this class is a data class.
+     * See the [Kotlin language documentation](https://kotlinlang.org/docs/reference/data-classes.html)
+     * for more information.
+     */
+    public val isData: Boolean
+
+    /**
+     * `true` if this class is an inner class.
+     * See the [Kotlin language documentation](https://kotlinlang.org/docs/reference/nested-classes.html#inner-classes)
+     * for more information.
+     */
+    public val isInner: Boolean
+
+    /**
+     * `true` if this class is a companion object.
+     * See the [Kotlin language documentation](https://kotlinlang.org/docs/reference/object-declarations.html#companion-objects)
+     * for more information.
+     */
+    public val isCompanion: Boolean
 
     /**
      * Returns `true` if [other] is a [KClass] instance representing the same class on a given platform.

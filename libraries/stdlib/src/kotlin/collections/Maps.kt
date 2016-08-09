@@ -439,6 +439,30 @@ public fun <K, V, M : MutableMap<in K, in V>> Sequence<Pair<K, V>>.toMap(destina
         = destination.apply { putAll(this@toMap) }
 
 /**
+ * Returns a new read-only map containing all key-value pairs from the original map.
+ *
+ * The returned map preserves the entry iteration order of the original map.
+ */
+public fun <K, V> Map<out K, V>.toMap(): Map<K, V> = when (size) {
+    0 -> emptyMap()
+    1 -> toSingletonMap()
+    else -> toMutableMap()
+}
+
+/**
+ * Returns a new mutable map containing all key-value pairs from the original map.
+ *
+ * The returned map preserves the entry iteration order of the original map.
+ */
+public fun <K, V> Map<out K, V>.toMutableMap(): MutableMap<K, V> = LinkedHashMap(this)
+
+/**
+ * Populates and returns the [destination] mutable map with key-value pairs from the given map.
+ */
+public fun <K, V, M : MutableMap<in K, in V>> Map<out K, V>.toMap(destination: M): M
+        = destination.apply { putAll(this@toMap) }
+
+/**
  * Creates a new read-only map by replacing or adding an entry to this map from a given key-value [pair].
  *
  * The returned map preserves the entry iteration order of the original map.
@@ -528,10 +552,16 @@ public inline operator fun <K, V> MutableMap<in K, in V>.plusAssign(map: Map<K, 
 // do not expose for now @kotlin.internal.InlineExposed
 internal fun <K, V> Map<K, V>.optimizeReadOnlyMap() = when (size) {
     0 -> emptyMap()
-    1 -> toSingletonMap()
+    1 -> toSingletonMapOrSelf()
     else -> this
 }
 
+// creates a singleton copy of map, if there is specialization available in target platform, otherwise returns itself
 @kotlin.jvm.JvmVersion
-internal fun <K, V> Map<K, V>.toSingletonMap(): Map<K, V>
-        = with (entries.iterator().next()) { Collections.singletonMap(key, value) }
+@kotlin.internal.InlineOnly
+internal inline fun <K, V> Map<K, V>.toSingletonMapOrSelf(): Map<K, V> = toSingletonMap()
+
+// creates a singleton copy of map
+@kotlin.jvm.JvmVersion
+internal fun <K, V> Map<out K, V>.toSingletonMap(): Map<K, V>
+    = with (entries.iterator().next()) { Collections.singletonMap(key, value) }

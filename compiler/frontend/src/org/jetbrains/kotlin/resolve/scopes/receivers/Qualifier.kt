@@ -53,7 +53,9 @@ class TypeParameterQualifier(
     override fun toString() = "TypeParameter{$descriptor}"
 }
 
-interface ClassifierQualifier : Qualifier
+interface ClassifierQualifier : Qualifier {
+    override val descriptor: ClassDescriptor
+}
 
 class ClassQualifier(
         override val referenceExpression: KtSimpleNameExpression,
@@ -80,16 +82,13 @@ class ClassQualifier(
 
 class TypeAliasQualifier(
         override val referenceExpression: KtSimpleNameExpression,
-        override val descriptor: TypeAliasDescriptor,
-        val classDescriptor: ClassDescriptor
+        override val descriptor: ClassDescriptor
 ) : ClassifierQualifier {
     override val classValueReceiver: ClassValueReceiver?
-        get() = classDescriptor.classValueType?.let {
-            ClassValueReceiver(this, it)
-        }
+        get() = descriptor.classValueType?.let { ClassValueReceiver(this, it) }
 
     override val staticScope: MemberScope
-        get() = classDescriptor.staticScope
+        get() = descriptor.staticScope
 }
 
 class ClassValueReceiver(val classQualifier: ClassifierQualifier, private val type: KotlinType) : ExpressionReceiver {

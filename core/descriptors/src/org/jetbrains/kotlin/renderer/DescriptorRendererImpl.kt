@@ -128,6 +128,7 @@ internal class DescriptorRendererImpl(
         if (abbreviated != null) {
             // TODO nullability is lost for abbreviated type?
             val abbreviatedRendered = renderNormalizedTypeAsIs(abbreviated.abbreviation)
+            if (!renderUnabbreviatedType) return abbreviatedRendered
             val unabbreviatedRendered = renderNormalizedTypeAsIs(abbreviated.expandedType)
             return "$abbreviatedRendered /* = $unabbreviatedRendered */"
         }
@@ -626,10 +627,14 @@ internal class DescriptorRendererImpl(
         renderVisibility(constructor.visibility, builder)
         renderMemberKind(constructor, builder)
 
-        builder.append(renderKeyword("constructor"))
+        if (renderConstructorKeyword) {
+            builder.append(renderKeyword("constructor"))
+        }
         if (secondaryConstructorsAsPrimary) {
             val classDescriptor = constructor.containingDeclaration
-            builder.append(" ")
+            if (renderConstructorKeyword) {
+                builder.append(" ")
+            }
             renderName(classDescriptor, builder)
             renderTypeParameters(constructor.typeParameters, builder, false)
         }

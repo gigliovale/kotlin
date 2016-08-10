@@ -35,6 +35,8 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.findDocComment.findDocComment
 import org.jetbrains.kotlin.renderer.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.setSingleOverridden
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.isFlexible
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
 
 interface OverrideMemberChooserObject : ClassMember {
@@ -104,7 +106,7 @@ fun OverrideMemberChooserObject.generateMember(project: Project, copyDoc: Boolea
     }
 
     if (copyDoc) {
-        val superDeclaration = DescriptorToSourceUtilsIde.getAnyDeclaration(project, descriptor)
+        val superDeclaration = DescriptorToSourceUtilsIde.getAnyDeclaration(project, descriptor)?.navigationElement
         val kDoc = when (superDeclaration) {
             is KtDeclaration ->
                 findDocComment(superDeclaration)
@@ -130,6 +132,7 @@ private val OVERRIDE_RENDERER = DescriptorRenderer.withOptions {
     overrideRenderingPolicy = OverrideRenderingPolicy.RENDER_OVERRIDE
     unitReturnType = false
     typeNormalizer = IdeDescriptorRenderers.APPROXIMATE_FLEXIBLE_TYPES
+    renderUnabbreviatedType = false
 }
 
 private fun generateProperty(project: Project, descriptor: PropertyDescriptor, bodyType: OverrideMemberChooserObject.BodyType): KtProperty {
@@ -158,7 +161,10 @@ private fun generateConstructorParameter(project: Project, descriptor: PropertyD
 private fun generateFunction(project: Project, descriptor: FunctionDescriptor, bodyType: OverrideMemberChooserObject.BodyType): KtNamedFunction {
     val newDescriptor = object : FunctionDescriptor by descriptor {
         override fun getModality() = Modality.OPEN
-        override fun getReturnType() = descriptor.returnType?.makeNotNullable()
+        override fun getReturnType(): KotlinType? {
+            val originalType = descriptor.returnType ?: return null
+            return if (originalType.isFlexible()) originalType.makeNotNullable() else originalType
+        }
         override fun getOverriddenDescriptors() = listOf(descriptor)
         override fun <R : Any?, D : Any?> accept(visitor: DeclarationDescriptorVisitor<R, D>, data: D) = visitor.visitFunctionDescriptor(this, data)
     }

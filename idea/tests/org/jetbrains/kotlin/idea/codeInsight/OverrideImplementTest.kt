@@ -248,7 +248,19 @@ class OverrideImplementTest : AbstractOverrideImplementTest() {
         doOverrideDirectoryTest("foo")
     }
 
+    fun testNullableJavaType() {
+        doOverrideDirectoryTest("foo")
+    }
+
+    fun testNullableKotlinType() {
+        doOverrideDirectoryTest("foo")
+    }
+
     fun testAbstractAndNonAbstractInheritedFromInterface() {
         doImplementFileTest("getFoo")
+    }
+
+    fun testTypeAliasNotExpanded() {
+        doOverrideFileTest("test")
     }
 }

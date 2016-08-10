@@ -2445,6 +2445,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("AsTypeAlias.kt")
+            public void testAsTypeAlias() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/AsTypeAlias.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("AsWithOtherParameter.kt")
             public void testAsWithOtherParameter() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/AsWithOtherParameter.kt");
@@ -2670,6 +2676,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("kt614.kt")
             public void testKt614() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/kt614.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("NullableToNullable.kt")
+            public void testNullableToNullable() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/cast/NullableToNullable.kt");
                 doTest(fileName);
             }
 

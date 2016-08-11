@@ -192,6 +192,15 @@ open class KotlinCompile() : AbstractKotlinCompile<K2JVMCompilerArguments>() {
         args.languageVersion = kotlinOptions.languageVersion
         args.jvmTarget = kotlinOptions.jvmTarget
         args.allowKotlinPackage = kotlinOptions.allowKotlinPackage
+        args.reportPerf = kotlinOptions.reportPerf
+        args.inheritMultifileParts = kotlinOptions.inheritMultifileParts
+        args.declarationsOutputPath = kotlinOptions.declarationsOutputPath
+
+        args.scriptTemplates = kotlinOptions.scriptTemplates
+
+        if (args.scriptTemplates?.isNotEmpty() ?: false) {
+            logger.kotlinDebug { "scriptTemplates = ${args.scriptTemplates.joinToString()}" }
+        }
 
         fun addFriendPathForTestTask(friendKotlinTaskName: String) {
             val friendTask = project.getTasksByName(friendKotlinTaskName, /* recursive = */false).firstOrNull() as? KotlinCompile ?: return

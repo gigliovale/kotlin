@@ -1793,6 +1793,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("noThisInSuperCall.kt")
+                public void testNoThisInSuperCall() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/noThisInSuperCall.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("object.kt")
                 public void testObject() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/object.kt");
@@ -1808,6 +1814,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("referenceToStaticMethodOnInstance.kt")
                 public void testReferenceToStaticMethodOnInstance() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/referenceToStaticMethodOnInstance.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("syntheticExtensionOnLHS.kt")
+                public void testSyntheticExtensionOnLHS() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/callableReference/bound/syntheticExtensionOnLHS.kt");
                     doTest(fileName);
                 }
 
@@ -12564,6 +12576,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("kt11300.kt")
             public void testKt11300() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/operatorsOverloading/kt11300.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt13330.kt")
+            public void testKt13330() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/operatorsOverloading/kt13330.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt13349.kt")
+            public void testKt13349() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/operatorsOverloading/kt13349.kt");
                 doTest(fileName);
             }
 

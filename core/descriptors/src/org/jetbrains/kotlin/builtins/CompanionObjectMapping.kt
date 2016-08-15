@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import java.util.*
 
-class CompanionObjectMapping {
+object CompanionObjectMapping {
     private val classesFqNames = linkedSetOf<FqName>()
 
     init {
@@ -35,7 +35,7 @@ class CompanionObjectMapping {
     fun allClassesWithIntrinsicCompanions(): Set<FqName> =
             Collections.unmodifiableSet(classesFqNames)
 
-    fun hasMappingToObject(classDescriptor: ClassDescriptor): Boolean {
+    fun isMappedIntrinsicCompanionObject(classDescriptor: ClassDescriptor): Boolean {
         if (!DescriptorUtils.isCompanionObject(classDescriptor)) return false
         val fqName = DescriptorUtils.getFqName(classDescriptor.containingDeclaration)
         if (!fqName.isSafe) return false

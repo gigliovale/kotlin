@@ -16,6 +16,7 @@
 
 package kotlin.reflect.jvm.internal
 
+import org.jetbrains.kotlin.builtins.CompanionObjectMapping
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotated
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
@@ -127,7 +128,7 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) :
         val descriptor = descriptor
         if (descriptor.kind != ClassKind.OBJECT) return@lazy null
 
-        val field = if (descriptor.isCompanionObject) {
+        val field = if (descriptor.isCompanionObject && !CompanionObjectMapping.isMappedIntrinsicCompanionObject(descriptor)) {
             jClass.enclosingClass.getDeclaredField(descriptor.name.asString())
         }
         else {
@@ -195,10 +196,10 @@ internal class KClassImpl<T : Any>(override val jClass: Class<T>) :
         get() = descriptor.isCompanionObject
 
     override fun equals(other: Any?): Boolean =
-            other is KClassImpl<*> && jClass == other.jClass
+            other is KClassImpl<*> && javaObjectType == other.javaObjectType
 
     override fun hashCode(): Int =
-            jClass.hashCode()
+            javaObjectType.hashCode()
 
     override fun toString(): String {
         return "class " + classId.let { classId ->

@@ -230,7 +230,7 @@
                         serviceImplementation="org.jetbrains.kotlin.idea.decompiler.navigation.KotlinDeclarationNavigationPolicyImpl"/>
 
     <projectService serviceInterface="org.jetbrains.kotlin.caches.resolve.KotlinCacheService"
-                    serviceImplementation="org.jetbrains.kotlin.idea.caches.resolve.KotlinCacheServiceImpl"/>
+                    serviceImplementation="org.jetbrains.upsource.kotlin.cache.PooledCacheService"/>
 
     <projectService serviceInterface="org.jetbrains.kotlin.load.kotlin.JvmVirtualFileFinderFactory"
                     serviceImplementation="org.jetbrains.kotlin.idea.vfilefinder.JvmIDEVirtualFileFinderFactory"/>

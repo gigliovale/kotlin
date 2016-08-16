@@ -20,7 +20,6 @@ import com.google.common.collect.HashMultimap
 import com.google.common.collect.Multimap
 import com.google.common.collect.Sets
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassifierDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
@@ -46,6 +45,10 @@ class DeclarationResolver(
     fun resolveAnnotationsOnFiles(c: TopDownAnalysisContext, scopeProvider: FileScopeProvider) {
         val filesToScope = c.files.keysToMap { scopeProvider.getFileResolutionScope(it) }
         for ((file, fileScope) in filesToScope) {
+            if (file.annotationEntries.isEmpty() && file.danglingAnnotations.isEmpty()) {
+                continue
+            }
+
             annotationResolver.resolveAnnotationsWithArguments(fileScope, file.annotationEntries, trace)
             annotationResolver.resolveAnnotationsWithArguments(fileScope, file.danglingAnnotations, trace)
         }

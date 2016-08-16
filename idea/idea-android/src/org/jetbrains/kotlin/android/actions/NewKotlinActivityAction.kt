@@ -22,6 +22,7 @@ import com.intellij.history.core.RevisionsCollector
 import com.intellij.history.core.revisions.Revision
 import com.intellij.history.integration.LocalHistoryImpl
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.DumbService
@@ -41,9 +42,9 @@ private val NEW_KOTLIN_ACTIVITY_START_LABEL = "Start New Kotlin Activity Action"
 private val NEW_KOTLIN_ACTIVITY_END_LABEL = "Finish New Kotlin Activity Action"
 
 class NewKotlinActivityAction: AnAction(KotlinIcons.ACTIVITY) {
-
     companion object {
         internal fun attachGradleSyncListener(project: Project) {
+            if (ApplicationManager.getApplication().isUnitTestMode) return
             subscribe(project, gradleSyncListener)
         }
 

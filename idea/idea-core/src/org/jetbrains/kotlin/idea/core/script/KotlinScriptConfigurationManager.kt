@@ -32,6 +32,7 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.NonClasspathDirectoriesScope
 import com.intellij.util.io.URLUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.script.*
@@ -82,6 +83,7 @@ class KotlinScriptConfigurationManager(
     }
 
     private fun notifyRootsChanged() {
+        // TODO: it seems invokeLater leads to inconsistent behaviour (at least in tests)
         ApplicationManager.getApplication().invokeLater {
             runWriteAction { ProjectRootManagerEx.getInstanceEx(project)?.makeRootsChange(EmptyRunnable.getInstance(), false, true) }
         }
@@ -152,6 +154,15 @@ class KotlinScriptConfigurationManager(
             return res
         }
         internal val log = Logger.getInstance(KotlinScriptConfigurationManager::class.java)
+
+        @TestOnly
+        fun reloadScriptDefinitions(project: Project) {
+            with (getInstance(project)) {
+                reloadScriptDefinitions()
+                scriptExternalImportsProvider.invalidateCaches()
+                invalidateLocalCaches()
+            }
+        }
     }
 }
 

@@ -39,6 +39,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.PersistentFSConstants
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileSystem
 import com.intellij.openapi.vfs.impl.ZipHandler
 import com.intellij.psi.FileContextProvider
 import com.intellij.psi.PsiElementFinder
@@ -60,6 +61,7 @@ import org.jetbrains.kotlin.asJava.finder.JavaElementFinder
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.CliModuleVisibilityManagerImpl
 import org.jetbrains.kotlin.cli.common.KOTLIN_COMPILER_ENVIRONMENT_KEEPALIVE_PROPERTY
+import org.jetbrains.kotlin.cli.common.jarvfs.impl.jar.CoreJarFileSystem
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity.ERROR
@@ -366,7 +368,11 @@ class KotlinCoreEnvironment private constructor(
         private fun createApplicationEnvironment(parentDisposable: Disposable, configuration: CompilerConfiguration, configFilePaths: List<String>): JavaCoreApplicationEnvironment {
             Extensions.cleanRootArea(parentDisposable)
             registerAppExtensionPoints()
-            val applicationEnvironment = JavaCoreApplicationEnvironment(parentDisposable)
+            val applicationEnvironment = object : JavaCoreApplicationEnvironment(parentDisposable) {
+                override fun createJarFileSystem(): VirtualFileSystem {
+                    return CoreJarFileSystem()
+                }
+            }
 
             for (configPath in configFilePaths) {
                 registerApplicationExtensionPointsAndExtensionsFrom(configuration, configPath)

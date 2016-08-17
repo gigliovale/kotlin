@@ -17577,6 +17577,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("multipleResolvedCalls.kt")
+            public void testMultipleResolvedCalls() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/multipleResolvedCalls.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("noErrorCheckForPackageLevelVal.kt")
             public void testNoErrorCheckForPackageLevelVal() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/noErrorCheckForPackageLevelVal.kt");
@@ -17658,6 +17664,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("thisWithLabelAsReceiverPart.kt")
             public void testThisWithLabelAsReceiverPart() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/thisWithLabelAsReceiverPart.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("threeImplicitReceivers.kt")
+            public void testThreeImplicitReceivers() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/threeImplicitReceivers.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("twoImplicitReceivers.kt")
+            public void testTwoImplicitReceivers() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/smartCasts/twoImplicitReceivers.kt");
                 doTest(fileName);
             }
 

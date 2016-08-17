@@ -886,6 +886,12 @@ public class PsiCheckerTestGenerated extends AbstractPsiCheckerTest {
             doTestWithInfos(fileName);
         }
 
+        @TestMetadata("multipleResolvedCalls.kt")
+        public void testMultipleResolvedCalls() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/checker/infos/multipleResolvedCalls.kt");
+            doTestWithInfos(fileName);
+        }
+
         @TestMetadata("PropertiesWithBackingFields.kt")
         public void testPropertiesWithBackingFields() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/checker/infos/PropertiesWithBackingFields.kt");
@@ -925,6 +931,18 @@ public class PsiCheckerTestGenerated extends AbstractPsiCheckerTest {
         @TestMetadata("suspendApplicability.kt")
         public void testSuspendApplicability() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/checker/infos/suspendApplicability.kt");
+            doTestWithInfos(fileName);
+        }
+
+        @TestMetadata("threeImplicitReceivers.kt")
+        public void testThreeImplicitReceivers() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/checker/infos/threeImplicitReceivers.kt");
+            doTestWithInfos(fileName);
+        }
+
+        @TestMetadata("twoImplicitReceivers.kt")
+        public void testTwoImplicitReceivers() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/checker/infos/twoImplicitReceivers.kt");
             doTestWithInfos(fileName);
         }
 

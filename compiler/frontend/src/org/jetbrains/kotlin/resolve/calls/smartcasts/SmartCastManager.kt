@@ -19,13 +19,15 @@ package org.jetbrains.kotlin.resolve.calls.smartcasts
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.diagnostics.Errors.SMARTCAST_IMPOSSIBLE
+import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.BindingContext.IMPLICIT_RECEIVER_SMARTCAST
-import org.jetbrains.kotlin.resolve.BindingContext.SMARTCAST
+import org.jetbrains.kotlin.resolve.BindingContext.*
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.ArgumentTypeResolver
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
+import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeIntersector
@@ -113,11 +115,14 @@ class SmartCastManager {
                 type: KotlinType,
                 trace: BindingTrace,
                 dataFlowValue: DataFlowValue,
+                call: Call?,
                 recordExpressionType: Boolean
         ) {
             if (KotlinBuiltIns.isNullableNothing(type)) return
             if (dataFlowValue.isStable) {
-                trace.record(SMARTCAST, expression, type)
+                val oldSmartCasts = trace[SMARTCAST, expression]
+                val newSmartCast = SingleSmartCast(call, type)
+                trace.record(SMARTCAST, expression, oldSmartCasts?.let { it + newSmartCast } ?: newSmartCast)
                 if (recordExpressionType) {
                     //TODO
                     //Why the expression type is rewritten for receivers and is not rewritten for arguments? Is it necessary?
@@ -134,10 +139,10 @@ class SmartCastManager {
                 expectedType: KotlinType,
                 expression: KtExpression?,
                 c: ResolutionContext<*>,
-                calleeExpression: KtExpression?,
+                call: Call?,
                 recordExpressionType: Boolean
         ): SmartCastResult? {
-            return checkAndRecordPossibleCast(dataFlowValue, expectedType, null, expression, c, calleeExpression, recordExpressionType)
+            return checkAndRecordPossibleCast(dataFlowValue, expectedType, null, expression, c, call, recordExpressionType)
         }
 
         fun checkAndRecordPossibleCast(
@@ -146,16 +151,24 @@ class SmartCastManager {
                 additionalPredicate: ((KotlinType) -> Boolean)?,
                 expression: KtExpression?,
                 c: ResolutionContext<*>,
-                calleeExpression: KtExpression?,
+                call: Call?,
                 recordExpressionType: Boolean
         ): SmartCastResult? {
+            val calleeExpression = call?.calleeExpression
             for (possibleType in c.dataFlowInfo.getCollectedTypes(dataFlowValue)) {
                 if (ArgumentTypeResolver.isSubtypeOfForArgumentType(possibleType, expectedType) && (additionalPredicate == null || additionalPredicate(possibleType))) {
                     if (expression != null) {
-                        recordCastOrError(expression, possibleType, c.trace, dataFlowValue, recordExpressionType)
+                        recordCastOrError(expression, possibleType, c.trace, dataFlowValue, call, recordExpressionType)
                     }
                     else if (calleeExpression != null && dataFlowValue.isStable) {
-                        c.trace.record(IMPLICIT_RECEIVER_SMARTCAST, calleeExpression, possibleType)
+                        val receiver = (dataFlowValue.identifierInfo as? IdentifierInfo.Receiver)?.value
+                        if (receiver is ImplicitReceiver) {
+                            val oldSmartCasts = c.trace[IMPLICIT_RECEIVER_SMARTCAST, calleeExpression]
+                            val newSmartCasts = ImplicitSmartCasts(receiver, possibleType)
+                            c.trace.record(IMPLICIT_RECEIVER_SMARTCAST, calleeExpression,
+                                           oldSmartCasts?.let { it + newSmartCasts } ?: newSmartCasts)
+
+                        }
                     }
                     return SmartCastResult(possibleType, dataFlowValue.isStable)
                 }
@@ -180,12 +193,12 @@ class SmartCastManager {
 
                 if (ArgumentTypeResolver.isSubtypeOfForArgumentType(dataFlowValue.type, nullableExpectedType) && (additionalPredicate == null || additionalPredicate(dataFlowValue.type))) {
                     if (!immanentlyNotNull && expression != null) {
-                        recordCastOrError(expression, dataFlowValue.type, c.trace, dataFlowValue, recordExpressionType)
+                        recordCastOrError(expression, dataFlowValue.type, c.trace, dataFlowValue, call, recordExpressionType)
                     }
 
                     return SmartCastResult(dataFlowValue.type, immanentlyNotNull || dataFlowValue.isStable)
                 }
-                return checkAndRecordPossibleCast(dataFlowValue, nullableExpectedType, expression, c, calleeExpression, recordExpressionType)
+                return checkAndRecordPossibleCast(dataFlowValue, nullableExpectedType, expression, c, call, recordExpressionType)
             }
 
             return null

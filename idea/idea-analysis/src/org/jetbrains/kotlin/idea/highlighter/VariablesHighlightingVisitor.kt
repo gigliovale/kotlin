@@ -28,7 +28,10 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingContext.*
+import org.jetbrains.kotlin.resolve.calls.smartcasts.MultipleSmartCasts
 import org.jetbrains.kotlin.resolve.calls.tasks.isDynamic
+import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver
+import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitClassReceiver
 import org.jetbrains.kotlin.types.expressions.CaptureKind
 
 internal class VariablesHighlightingVisitor(holder: AnnotationHolder, bindingContext: BindingContext)
@@ -79,9 +82,16 @@ internal class VariablesHighlightingVisitor(holder: AnnotationHolder, bindingCon
     override fun visitExpression(expression: KtExpression) {
         val implicitSmartCast = bindingContext.get(IMPLICIT_RECEIVER_SMARTCAST, expression)
         if (implicitSmartCast != null) {
-            holder.createInfoAnnotation(expression,
-                                        "Implicit receiver smart cast to " + DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(implicitSmartCast))
-                    .textAttributes = SMART_CAST_RECEIVER
+            for ((receiver, type) in implicitSmartCast.receiverTypes) {
+                val receiverName = when (receiver) {
+                    is ExtensionReceiver -> "Extension implicit receiver"
+                    is ImplicitClassReceiver -> "Implicit receiver"
+                    else -> "Unknown receiver"
+                }
+                holder.createInfoAnnotation(expression,
+                                            "$receiverName smart cast to " + DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(type))
+                        .textAttributes = SMART_CAST_RECEIVER
+            }
         }
 
         val nullSmartCast = bindingContext.get(SMARTCAST_NULL, expression) == true
@@ -92,9 +102,19 @@ internal class VariablesHighlightingVisitor(holder: AnnotationHolder, bindingCon
 
         val smartCast = bindingContext.get(SMARTCAST, expression)
         if (smartCast != null) {
-            holder.createInfoAnnotation(getSmartCastTarget(expression),
-                                        "Smart cast to " + DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(smartCast))
-                    .textAttributes = SMART_CAST_VALUE
+            val defaultType = smartCast.defaultType
+            if (defaultType != null) {
+                holder.createInfoAnnotation(getSmartCastTarget(expression),
+                                            "Smart cast to " + DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(defaultType))
+                        .textAttributes = SMART_CAST_VALUE
+            }
+            else if (smartCast is MultipleSmartCasts) {
+                for ((call, type) in smartCast.map) {
+                    holder.createInfoAnnotation(getSmartCastTarget(expression),
+                                                "Smart cast to ${DescriptorRenderer.FQ_NAMES_IN_TYPES.renderType(type)} (for $call call)")
+                            .textAttributes = SMART_CAST_VALUE
+                }
+            }
         }
 
         super.visitExpression(expression)

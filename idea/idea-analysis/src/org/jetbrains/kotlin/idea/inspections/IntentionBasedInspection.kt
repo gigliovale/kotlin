@@ -78,20 +78,18 @@ abstract class IntentionBasedInspection<TElement : PsiElement>(
                 var fixes: SmartList<LocalQuickFix>? = null
 
                 for ((intention, additionalChecker) in intentions) {
-                    synchronized(intention) {
-                        val range = intention.applicabilityRange(targetElement)?.let { range ->
-                            val elementRange = targetElement.textRange
-                            assert(range in elementRange) { "Wrong applicabilityRange() result for $intention - should be within element's range" }
-                            range.shiftRight(-elementRange.startOffset)
-                        }
+                    val range = intention.applicabilityRange(targetElement)?.let { range ->
+                        val elementRange = targetElement.textRange
+                        assert(range in elementRange) { "Wrong applicabilityRange() result for $intention - should be within element's range" }
+                        range.shiftRight(-elementRange.startOffset)
+                    }
 
-                        if (range != null && additionalChecker(targetElement, this@IntentionBasedInspection)) {
-                            problemRange = problemRange?.union(range) ?: range
-                            if (fixes == null) {
-                                fixes = SmartList<LocalQuickFix>()
-                            }
-                            fixes!!.add(createQuickFix(intention, additionalChecker, targetElement))
+                    if (range != null && additionalChecker(targetElement, this@IntentionBasedInspection)) {
+                        problemRange = problemRange?.union(range) ?: range
+                        if (fixes == null) {
+                            fixes = SmartList<LocalQuickFix>()
                         }
+                        fixes!!.add(createQuickFix(intention, additionalChecker, targetElement))
                     }
                 }
 

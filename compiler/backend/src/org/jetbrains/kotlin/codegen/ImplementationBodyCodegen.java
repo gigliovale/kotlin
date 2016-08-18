@@ -52,6 +52,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ExpressionValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.VarargValueArgument;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
+import org.jetbrains.kotlin.resolve.jvm.AsmTypes;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt;
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmClassSignature;
@@ -1152,26 +1153,47 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
     @NotNull
     private DelegationFieldsInfo getDelegationFieldsInfo(@NotNull List<KtSuperTypeListEntry> delegationSpecifiers) {
         DelegationFieldsInfo result = new DelegationFieldsInfo();
-        int n = 0;
+        int delegationSpecifiersCount = 0;
         for (KtSuperTypeListEntry specifier : delegationSpecifiers) {
             if (specifier instanceof KtDelegatedSuperTypeEntry) {
-                KtExpression expression = ((KtDelegatedSuperTypeEntry) specifier).getDelegateExpression();
-                PropertyDescriptor propertyDescriptor = CodegenUtil.getDelegatePropertyIfAny(expression, descriptor, bindingContext);
-
-
-                if (CodegenUtil.isFinalPropertyWithBackingField(propertyDescriptor, bindingContext)) {
-                    result.addField((KtDelegatedSuperTypeEntry) specifier, propertyDescriptor);
-                }
-                else {
-                    KotlinType expressionType = expression != null ? bindingContext.getType(expression) : null;
-                    Type asmType =
-                            expressionType != null ? typeMapper.mapType(expressionType) : typeMapper.mapType(getSuperClass(specifier));
-                    result.addField((KtDelegatedSuperTypeEntry) specifier, asmType, JvmAbi.DELEGATE_SUPER_FIELD_PREFIX + n);
-                }
-                n++;
+                processDelegationSpecifier((KtDelegatedSuperTypeEntry) specifier, delegationSpecifiersCount, result);
+                delegationSpecifiersCount++;
             }
         }
         return result;
+    }
+
+    private void processDelegationSpecifier(
+            @NotNull KtDelegatedSuperTypeEntry specifier,
+            int delegationSpecifierCount,
+            @NotNull DelegationFieldsInfo result
+    ) {
+        KtExpression expression = specifier.getDelegateExpression();
+        if (expression == null && state.getClassBuilderMode().generateBodies) {
+            throw new IllegalStateException(
+                    "No delegate expression in mode:" + state.getClassBuilderMode() + "\nCode:\n" + specifier.getText()
+            );
+        }
+        if (expression == null) {
+            // invent dummy delegated to field
+            result.addField(specifier, AsmTypes.OBJECT_TYPE, generateNameForFieldDelegatedTo(delegationSpecifierCount));
+            return;
+        }
+        PropertyDescriptor propertyDescriptor = CodegenUtil.getDelegatePropertyIfAny(expression, descriptor, bindingContext);
+
+        if (CodegenUtil.isFinalPropertyWithBackingField(propertyDescriptor, bindingContext)) {
+            result.addField(specifier, propertyDescriptor);
+            return;
+        }
+        KotlinType expressionType = bindingContext.getType(expression);
+        Type asmType =
+                expressionType != null ? typeMapper.mapType(expressionType) : typeMapper.mapType(getSuperClass(specifier));
+        result.addField(specifier, asmType, generateNameForFieldDelegatedTo(delegationSpecifierCount));
+    }
+
+    @NotNull
+    private static String generateNameForFieldDelegatedTo(int delegationSpecifierCount) {
+        return JvmAbi.DELEGATE_SUPER_FIELD_PREFIX + delegationSpecifierCount;
     }
 
     @NotNull

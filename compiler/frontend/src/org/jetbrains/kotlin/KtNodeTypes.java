@@ -16,9 +16,19 @@
 
 package org.jetbrains.kotlin;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.PsiBuilder;
+import com.intellij.lang.PsiBuilderFactory;
+import com.intellij.openapi.project.Project;
+import com.intellij.psi.impl.source.CharTableImpl;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.IFileElementType;
+import com.intellij.psi.tree.ILazyParseableElementType;
+import com.intellij.psi.tree.IReparseableElementType;
+import com.intellij.util.CharTable;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.idea.KotlinLanguage;
+import org.jetbrains.kotlin.parsing.KotlinParser;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes;
 
@@ -115,7 +125,24 @@ public interface KtNodeTypes {
     KtNodeType LOOP_RANGE                = new KtNodeType("LOOP_RANGE", KtContainerNode.class);
     KtNodeType BODY                      = new KtNodeType("BODY", KtContainerNode.class);
     KtNodeType BLOCK                     = new KtNodeType("BLOCK", KtBlockExpression.class);
-    KtNodeType LAMBDA_EXPRESSION         = new KtNodeType("LAMBDA_EXPRESSION", KtLambdaExpression.class);
+
+    ILazyParseableElementType LAMBDA_EXPRESSION = new IReparseableElementType("LAMBDA_EXPRESSION", KotlinLanguage.INSTANCE) {
+        @Override
+        public ASTNode parseContents(ASTNode chameleon) {
+            Project project = chameleon.getPsi().getProject();
+            chameleon.putUserData(CharTable.CHAR_TABLE_KEY, new CharTableImpl());
+            PsiBuilder builder = PsiBuilderFactory.getInstance().createBuilder(project, chameleon, null, KotlinLanguage.INSTANCE, chameleon.getChars());
+            return KotlinParser.parseLambdaExpression(builder).getFirstChildNode();
+        }
+
+        @Nullable
+        @Override
+        public ASTNode createNode(CharSequence text) {
+            return new KtLambdaExpression(text);
+        }
+    };
+
+
     KtNodeType FUNCTION_LITERAL          = new KtNodeType("FUNCTION_LITERAL", KtFunctionLiteral.class);
     KtNodeType ANNOTATED_EXPRESSION      = new KtNodeType("ANNOTATED_EXPRESSION", KtAnnotatedExpression.class);
 

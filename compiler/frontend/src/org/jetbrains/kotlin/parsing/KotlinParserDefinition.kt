@@ -66,6 +66,7 @@ class KotlinParserDefinition : ParserDefinition {
             KtNodeTypes.TYPE_CODE_FRAGMENT, KtNodeTypes.EXPRESSION_CODE_FRAGMENT, KtNodeTypes.BLOCK_CODE_FRAGMENT -> ASTWrapperPsiElement(astNode)
             is KDocElementType -> elementType.createPsi(astNode)
             KDocTokens.MARKDOWN_LINK -> KDocLink(astNode)
+//            KtNodeTypes.LAMBDA_EXPRESSION -> KtLambdaExpression(astNode.text)
             else -> (elementType as KtNodeType).createPsi(astNode)
         }
     }

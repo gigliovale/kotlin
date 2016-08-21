@@ -157,7 +157,7 @@ public class KotlinParsing extends AbstractKotlinParsing {
     }
 
     void parseLambdaExpression() {
-        myExpressionParsing.parseFunctionLiteral(true, false);
+        myExpressionParsing.parseFunctionLiteral(false, false);
     }
 
     void parseScript() {

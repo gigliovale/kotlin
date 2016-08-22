@@ -38,7 +38,7 @@ public class KtLambdaExpression extends LazyParseablePsiElement implements KtExp
 
     @NotNull
     public KtFunctionLiteral getFunctionLiteral() {
-        return (KtFunctionLiteral) findChildByType(KtNodeTypes.FUNCTION_LITERAL);
+        return findChildByType(KtNodeTypes.FUNCTION_LITERAL).getPsi(KtFunctionLiteral.class);
     }
 
     @NotNull

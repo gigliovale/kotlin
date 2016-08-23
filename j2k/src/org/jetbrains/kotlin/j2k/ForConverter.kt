@@ -69,7 +69,7 @@ class ForConverter(
                         }
                     }
                     else {
-                        return Block(statements, LBrace().assignNoPrototype(), RBrace().assignNoPrototype())
+                        return Block.of(statements)
                     }
                 }
             })
@@ -85,7 +85,7 @@ class ForConverter(
 
                 if (nameConflict) {
                     val statements = listOf(codeConverterToUse.convertStatement(body), updateConverted)
-                    Block(statements, LBrace().assignNoPrototype(), RBrace().assignNoPrototype(), true).assignNoPrototype()
+                    Block.of(statements).assignNoPrototype()
                 }
                 else {
                     val block = codeConverterToUse.convertBlock(body.codeBlock, true)
@@ -94,7 +94,7 @@ class ForConverter(
             }
             else {
                 val statements = listOf(codeConverterToUse.convertStatement(body), updateConverted)
-                Block(statements, LBrace().assignNoPrototype(), RBrace().assignNoPrototype(), true).assignNoPrototype()
+                Block.of(statements).assignNoPrototype()
             }
         }
 
@@ -133,12 +133,13 @@ class ForConverter(
                 builder.append(statements, "\n")
             }
             else {
-                val block = Block(statements, LBrace().assignNoPrototype(), RBrace().assignNoPrototype()).assignNoPrototype()
+                val block = Block.of(statements).assignNoPrototype()
                 if (kind == Kind.WITH_BLOCK) {
                     block.generateCode(builder)
                 }
                 else {
-                    val call = MethodCallExpression.build(null, "run", listOf(LambdaExpression(null, block)), listOf(), false)
+                    val argumentList = ArgumentList.withNoPrototype(LambdaExpression(null, block))
+                    val call = MethodCallExpression.buildNonNull(null, "run", argumentList)
                     call.generateCode(builder)
                 }
             }
@@ -178,7 +179,7 @@ class ForConverter(
 
                     val range = forIterationRange(start, right, reversed, inclusive).assignNoPrototype()
                     val explicitType = if (settings.specifyLocalVariableTypeByDefault)
-                        PrimitiveType(Identifier("Int").assignNoPrototype()).assignNoPrototype()
+                        PrimitiveType(Identifier.withNoPrototype("Int")).assignNoPrototype()
                     else
                         null
                     return ForeachStatement(loopVar.declarationIdentifier(), explicitType, range, codeConverter.convertStatementOrBlock(body), statement.isInSingleLine())
@@ -239,7 +240,7 @@ class ForConverter(
                     val collectionType = PsiElementFactory.SERVICE.getInstance(project).createTypeByFQClassName(CommonClassNames.JAVA_UTIL_COLLECTION)
                     val qualifierType = qualifier.type
                     if (qualifierType != null && collectionType.isAssignableFrom(qualifierType)) {
-                        indices = QualifiedExpression(codeConverter.convertExpression(qualifier), Identifier("indices", false).assignNoPrototype())
+                        indices = QualifiedExpression(codeConverter.convertExpression(qualifier), Identifier.withNoPrototype("indices", isNullable = false))
                     }
                 }
             }
@@ -249,14 +250,14 @@ class ForConverter(
             && collectionSize.referenceName == "length") {
             val qualifier = collectionSize.qualifierExpression
             if (qualifier is PsiReferenceExpression && qualifier.type is PsiArrayType) {
-                indices = QualifiedExpression(codeConverter.convertExpression(qualifier), Identifier("indices", false).assignNoPrototype())
+                indices = QualifiedExpression(codeConverter.convertExpression(qualifier), Identifier.withNoPrototype("indices", isNullable = false))
             }
         }
 
         if (indices == null) return null
 
         return if (reversed)
-            MethodCallExpression.build(indices.assignNoPrototype(), "reversed", listOf(), listOf(), false)
+            MethodCallExpression.buildNonNull(indices.assignNoPrototype(), "reversed")
         else
             indices
     }

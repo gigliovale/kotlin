@@ -34,8 +34,8 @@ fun getDefaultInitializer(property: Property): Expression? {
         when (t.name.name) {
             "Boolean" -> LiteralExpression("false")
             "Char" -> LiteralExpression("' '")
-            "Double" -> MethodCallExpression.buildNotNull(LiteralExpression("0").assignNoPrototype(), OperatorConventions.DOUBLE.toString())
-            "Float" -> MethodCallExpression.buildNotNull(LiteralExpression("0").assignNoPrototype(), OperatorConventions.FLOAT.toString())
+            "Double" -> MethodCallExpression.buildNonNull(LiteralExpression("0").assignNoPrototype(), OperatorConventions.DOUBLE.toString())
+            "Float" -> MethodCallExpression.buildNonNull(LiteralExpression("0").assignNoPrototype(), OperatorConventions.FLOAT.toString())
             else -> LiteralExpression("0")
         }
     }
@@ -139,7 +139,7 @@ fun Converter.convertToKotlinAnalog(classQualifiedName: String?, mutability: Mut
 
 fun Converter.convertToKotlinAnalogIdentifier(classQualifiedName: String?, mutability: Mutability): Identifier? {
     val kotlinClassName = convertToKotlinAnalog(classQualifiedName, mutability) ?: return null
-    return Identifier(kotlinClassName.substringAfterLast('.')).assignNoPrototype()
+    return Identifier.withNoPrototype(kotlinClassName.substringAfterLast('.'))
 }
 
 private val toKotlinTypesMap: Map<String, String> = mapOf(

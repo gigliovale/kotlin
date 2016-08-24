@@ -16,14 +16,12 @@
 
 package org.jetbrains.kotlin.resolve.calls.results
 
-import org.jetbrains.kotlin.resolve.calls.inference.CallHandle
-import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystem
-import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilderImpl
-import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.valueParameterPosition
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
+import org.jetbrains.kotlin.utils.singletonOrEmptyList
 
 interface SpecificityComparisonCallbacks {
     fun isNonSubtypeNotLessSpecific(specific: KotlinType, general: KotlinType): Boolean
@@ -37,21 +35,52 @@ interface TypeSpecificityComparator {
     }
 }
 
-fun <T> isSignatureNotLessSpecific(
+class FlatSignature<out T>(
+        val origin: T,
+        val typeParameters: Collection<TypeParameterDescriptor>,
+        val valueParameterTypes: List<KotlinType?>,
+        val hasExtensionReceiver: Boolean,
+        val hasVarargs: Boolean,
+        val numDefaults: Int
+) {
+    val isGeneric = typeParameters.isNotEmpty()
+
+    companion object {
+        fun <D : CallableDescriptor> createFromCallableDescriptor(descriptor: D): FlatSignature<D> =
+                FlatSignature(descriptor,
+                              descriptor.typeParameters,
+                              valueParameterTypes = descriptor.extensionReceiverTypeOrEmpty() + descriptor.valueParameters.map { it.argumentValueType },
+                              hasExtensionReceiver = descriptor.extensionReceiverParameter != null,
+                              hasVarargs = descriptor.valueParameters.any { it.varargElementType != null },
+                              numDefaults = 0)
+
+        val ValueParameterDescriptor.argumentValueType: KotlinType
+            get() = varargElementType ?: type
+
+        fun CallableDescriptor.extensionReceiverTypeOrEmpty() =
+                extensionReceiverParameter?.type.singletonOrEmptyList()
+    }
+}
+
+
+interface SimpleConstraintSystem {
+    fun registerTypeVariables(typeParameters: Collection<TypeParameterDescriptor>): TypeSubstitutor
+    fun addSubtypeConstraint(subType: UnwrappedType, superType: UnwrappedType)
+    fun hasContradiction(): Boolean
+}
+
+fun <T> SimpleConstraintSystem.isSignatureNotLessSpecific(
         specific: FlatSignature<T>,
         general: FlatSignature<T>,
         callbacks: SpecificityComparisonCallbacks,
-        specificityComparator: TypeSpecificityComparator,
-        callHandle: CallHandle = CallHandle.NONE
+        specificityComparator: TypeSpecificityComparator
 ): Boolean {
     if (specific.hasExtensionReceiver != general.hasExtensionReceiver) return false
     if (specific.valueParameterTypes.size != general.valueParameterTypes.size) return false
 
     val typeParameters = general.typeParameters
-    val constraintSystemBuilder: ConstraintSystem.Builder = ConstraintSystemBuilderImpl.forSpecificity()
-    val typeSubstitutor = constraintSystemBuilder.registerTypeVariables(callHandle, typeParameters)
+    val typeSubstitutor = registerTypeVariables(typeParameters)
 
-    var numConstraints = 0
     for ((specificType, generalType) in specific.valueParameterTypes.zip(general.valueParameterTypes)) {
         if (specificType == null || generalType == null) continue
 
@@ -68,11 +97,10 @@ fun <T> isSignatureNotLessSpecific(
         }
         else {
             val substitutedGeneralType = typeSubstitutor.safeSubstitute(generalType, Variance.INVARIANT)
-            constraintSystemBuilder.addSubtypeConstraint(specificType, substitutedGeneralType, valueParameterPosition(numConstraints++))
+            addSubtypeConstraint(specificType.unwrap(), substitutedGeneralType.unwrap())
         }
     }
 
-    constraintSystemBuilder.fixVariables()
-    val constraintSystem = constraintSystemBuilder.build()
-    return !constraintSystem.status.hasContradiction()
+    return !hasContradiction()
 }
+

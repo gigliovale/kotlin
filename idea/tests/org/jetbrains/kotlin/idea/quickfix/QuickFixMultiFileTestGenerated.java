@@ -239,6 +239,60 @@ public class QuickFixMultiFileTestGenerated extends AbstractQuickFixMultiFileTes
             doTestWithExtraFile(fileName);
         }
 
+        @TestMetadata("memberImportFunction.test")
+        public void testMemberImportFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportFunction.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportJavaField.test")
+        public void testMemberImportJavaField() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportJavaField.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportJavaMethod.test")
+        public void testMemberImportJavaMethod() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportJavaMethod.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportNotForClassFunction.test")
+        public void testMemberImportNotForClassFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportNotForClassFunction.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportNotForClassProperty.test")
+        public void testMemberImportNotForClassProperty() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportNotForClassProperty.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportNotForJavaNonStaticField.test")
+        public void testMemberImportNotForJavaNonStaticField() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportNotForJavaNonStaticField.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportNotForJavaNonStaticMethod.test")
+        public void testMemberImportNotForJavaNonStaticMethod() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportNotForJavaNonStaticMethod.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportNotForTopLevelFunction.test")
+        public void testMemberImportNotForTopLevelFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportNotForTopLevelFunction.test");
+            doTestWithExtraFile(fileName);
+        }
+
+        @TestMetadata("memberImportProperty.test")
+        public void testMemberImportProperty() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/memberImportProperty.test");
+            doTestWithExtraFile(fileName);
+        }
+
         @TestMetadata("minusOperator.before.Main.kt")
         public void testMinusOperator() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/minusOperator.before.Main.kt");

@@ -19,19 +19,18 @@ package org.jetbrains.kotlin.idea.core
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiMember
 import com.intellij.psi.PsiModifier
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiShortNamesCache
 import com.intellij.psi.stubs.StringStubIndexExtension
 import com.intellij.util.indexing.IdFilter
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.caches.resolve.getJavaFieldDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.getJavaMethodDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
-import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.*
 import org.jetbrains.kotlin.idea.core.extension.KotlinIndicesHelperExtension
 import org.jetbrains.kotlin.idea.imports.importableFqName
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
+import org.jetbrains.kotlin.idea.search.usagesSearch.descriptor
 import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.idea.util.CallType
 import org.jetbrains.kotlin.idea.util.CallTypeAndReceiver
@@ -154,7 +153,7 @@ class KotlinIndicesHelper(
                 .filter {
                     ProgressManager.checkCanceled()
                     KotlinTopLevelExtensionsByReceiverTypeIndex.receiverTypeNameFromKey(it) in receiverTypeNames
-                        && nameFilter(KotlinTopLevelExtensionsByReceiverTypeIndex.callableNameFromKey(it))
+                    && nameFilter(KotlinTopLevelExtensionsByReceiverTypeIndex.callableNameFromKey(it))
                 }
                 .flatMap { index.get(it, project, scope).asSequence() }
 
@@ -202,6 +201,29 @@ class KotlinIndicesHelper(
     fun getJvmClassesByName(name: String): Collection<ClassDescriptor> {
         return PsiShortNamesCache.getInstance(project).getClassesByName(name, scope)
                 .mapNotNull { it.resolveToDescriptor(resolutionFacade) }
+                .filter(descriptorFilter)
+                .toSet()
+    }
+
+    fun getJvmCallablesByName(name: String): Collection<CallableDescriptor> {
+        val javaDeclarations = PsiShortNamesCache.getInstance(project).getFieldsByName(name, scope).asSequence() +
+                           PsiShortNamesCache.getInstance(project).getMethodsByName(name, scope).asSequence()
+        return javaDeclarations
+                .mapNotNull { (it as PsiMember).getJavaMemberDescriptor(resolutionFacade) as? CallableDescriptor }
+                .filter(descriptorFilter)
+                .toSet()
+    }
+
+    fun getKotlinCallablesByName(name: String): Collection<CallableDescriptor> {
+        val functions = KotlinFunctionShortNameIndex.getInstance().get(name, project, scope)
+                .asSequence()
+                .map { it.descriptor as? CallableDescriptor }
+        val properties = KotlinPropertyShortNameIndex.getInstance().get(name, project, scope)
+                .asSequence()
+                .map { it.descriptor as? CallableDescriptor }
+
+        return (functions + properties)
+                .filterNotNull()
                 .filter(descriptorFilter)
                 .toSet()
     }

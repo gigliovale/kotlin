@@ -83,6 +83,12 @@ public class OptimizeImportsTestGenerated extends AbstractOptimizeImportsTest {
         doTest(fileName);
     }
 
+    @TestMetadata("DefaultImportedTypeAliases.kt")
+    public void testDefaultImportedTypeAliases() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/DefaultImportedTypeAliases.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("DefaultJsImports.kt")
     public void testDefaultJsImports() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/DefaultJsImports.kt");

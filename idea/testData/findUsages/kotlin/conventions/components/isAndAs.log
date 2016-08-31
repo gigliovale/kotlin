@@ -1,0 +1,8 @@
+Checked type of (x, y)
+Checked type of (x1, y1)
+Checked type of list
+Searched references to A
+Searched references to list in Kotlin files
+Used plain search in LocalSearchScope:
+    CLASS:A
+    FUN:x

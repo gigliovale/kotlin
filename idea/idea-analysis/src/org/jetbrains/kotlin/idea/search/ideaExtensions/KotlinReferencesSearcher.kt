@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.idea.search.allScope
 import org.jetbrains.kotlin.idea.search.effectiveSearchScope
 import org.jetbrains.kotlin.idea.search.unionSafe
 import org.jetbrains.kotlin.idea.search.usagesSearch.dataClassComponentFunction
+import org.jetbrains.kotlin.idea.search.usagesSearch.findDestructuringDeclarationUsages
 import org.jetbrains.kotlin.idea.search.usagesSearch.getClassNameForCompanionObject
 import org.jetbrains.kotlin.idea.search.usagesSearch.getSpecialNamesToSearch
 import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope
@@ -45,16 +46,18 @@ import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 import org.jetbrains.kotlin.psi.psiUtil.parents
+import org.jetbrains.kotlin.resolve.dataClassUtils.isComponentLike
 
 data class KotlinReferencesSearchOptions(val acceptCallableOverrides: Boolean = false,
                                          val acceptOverloads: Boolean = false,
                                          val acceptExtensionsOfDeclarationClass: Boolean = false,
                                          val acceptCompanionObjectMembers: Boolean = false,
-                                         val searchForComponentConventions: Boolean = true) {
+                                         val searchForComponentConventions: Boolean = true,
+                                         val searchNamedArguments: Boolean = true) {
     fun anyEnabled(): Boolean = acceptCallableOverrides || acceptOverloads || acceptExtensionsOfDeclarationClass
 
     companion object {
-        val Empty = KotlinReferencesSearchOptions(false, false, false)
+        val Empty = KotlinReferencesSearchOptions()
     }
 }
 
@@ -96,8 +99,8 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
 
         val resultProcessor = KotlinRequestResultProcessor(unwrappedElement, filter = refFilter, options = kotlinOptions)
 
+        val name = runReadAction { unwrappedElement.name }
         if (kotlinOptions.anyEnabled()) {
-            val name = runReadAction { unwrappedElement.name }
             if (name != null) {
                 queryParameters.optimizer.searchWord(name, effectiveSearchScope, UsageSearchContext.IN_CODE, true, unwrappedElement,
                                                      resultProcessor)
@@ -109,12 +112,37 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
                                                  resultProcessor)
         }
 
-        if (unwrappedElement is KtParameter) {
+        if (unwrappedElement is KtParameter && kotlinOptions.searchNamedArguments) {
             runReadAction { searchNamedArguments(unwrappedElement, queryParameters) }
         }
 
         if (!(unwrappedElement is KtElement && isOnlyKotlinSearch(effectiveSearchScope))) {
-            searchLightElements(queryParameters, element)
+            searchLightElements(queryParameters, element, consumer)
+        }
+
+        if (kotlinOptions.searchForComponentConventions) {
+            when (element) {
+                is KtFunction -> {
+                    if (name != null && isComponentLike(name)) {
+                        findDestructuringDeclarationUsages(element, effectiveSearchScope, consumer, queryParameters.optimizer)
+                    }
+                }
+
+                is KtParameter -> {
+                    val componentFunctionDescriptor = runReadAction { element.dataClassComponentFunction() }
+                    if (componentFunctionDescriptor != null) {
+                        val containingClass = element.getStrictParentOfType<KtClassOrObject>()?.toLightClass()
+                        searchDataClassComponentUsages(queryParameters, containingClass, componentFunctionDescriptor, consumer)
+                    }
+                }
+
+                is KtLightParameter -> {
+                    val componentFunctionDescriptor = runReadAction { element.kotlinOrigin?.dataClassComponentFunction() }
+                    if (componentFunctionDescriptor != null) {
+                        searchDataClassComponentUsages(queryParameters, element.method.containingClass, componentFunctionDescriptor, consumer)
+                    }
+                }
+            }
         }
     }
 
@@ -209,16 +237,19 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
 
         private fun searchDataClassComponentUsages(queryParameters: ReferencesSearch.SearchParameters,
                                                    containingClass: PsiClass?,
-                                                   componentFunctionDescriptor: FunctionDescriptor) {
+                                                   componentFunctionDescriptor: FunctionDescriptor,
+                                                   consumer: Processor<PsiReference>
+        ) {
             val componentFunction = containingClass?.methods?.find {
                 it.name == componentFunctionDescriptor.name.asString() && it.parameterList.parametersCount == 0
             }
             if (componentFunction != null) {
                 searchNamedElement(queryParameters, componentFunction)
+                findDestructuringDeclarationUsages(componentFunction, queryParameters.effectiveSearchScope, consumer, queryParameters.optimizer)
             }
         }
 
-        private fun searchLightElements(queryParameters: ReferencesSearch.SearchParameters, element: PsiElement) {
+        private fun searchLightElements(queryParameters: ReferencesSearch.SearchParameters, element: PsiElement, consumer: Processor<PsiReference>) {
             when (element) {
                 is KtClassOrObject -> processKtClassOrObject(element, queryParameters)
                 is KtNamedFunction, is KtSecondaryConstructor -> {
@@ -242,14 +273,6 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
 
                 is KtParameter -> {
                     searchPropertyMethods(queryParameters, element)
-                    runReadAction {
-
-                        val componentFunctionDescriptor = element.dataClassComponentFunction()
-                        if (componentFunctionDescriptor != null) {
-                            val containingClass = element.getStrictParentOfType<KtClassOrObject>()?.toLightClass()
-                            searchDataClassComponentUsages(queryParameters, containingClass, componentFunctionDescriptor)
-                        }
-                    }
                 }
 
                 is KtLightMethod -> {
@@ -269,12 +292,6 @@ class KotlinReferencesSearcher : QueryExecutorBase<PsiReference, ReferencesSearc
 
                 is KtLightParameter -> {
                     val origin = element.kotlinOrigin ?: return
-                    runReadAction {
-                        val componentFunctionDescriptor = origin.dataClassComponentFunction()
-                        if (componentFunctionDescriptor != null) {
-                            searchDataClassComponentUsages(queryParameters, element.method.containingClass, componentFunctionDescriptor)
-                        }
-                    }
                     searchPropertyMethods(queryParameters, origin)
                 }
             }

@@ -1,0 +1,6 @@
+Checked type of (x, y, z)
+Checked type of a
+Searched references to A
+Searched references to a in Kotlin files
+Used plain search in LocalSearchScope:
+    CLASS:A

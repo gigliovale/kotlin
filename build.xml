@@ -28,7 +28,7 @@
     <property name="protobuf-lite.jar" value="${basedir}/dependencies/protobuf-2.6.1-lite.jar"/>
     <property name="javax.inject.jar" value="${basedir}/lib/javax.inject.jar"/>
 
-    <property name="java.target" value="1.6"/>
+    <property name="java.target" value="1.8"/>
 
     <property name="dependencies.dir" value="${basedir}/dependencies"/>
 
@@ -825,13 +825,18 @@
             <local name="src.line"/>
             <pathconvert property="src.line" refid="src.dirset" pathsep=" "/>
 
-            <java classname="org.jetbrains.kotlin.preloading.Preloader" failonerror="true" fork="true" maxmemory="${max.heap.size.for.forked.jvm}">
+            <exec command="java -version"/>
+            <echo>Java/JVM version: ${ant.java.version}</echo>
+
+            <java classname="org.jetbrains.kotlin.preloading.Preloader" failonerror="true" fork="false" maxmemory="${max.heap.size.for.forked.jvm}" append=""
+                  jvm="/home/mike/devel/tools/java/jdk1.8.0_40/bin/java">
                 <classpath>
                     <pathelement location="${kotlin-home}/lib/kotlin-preloader.jar"/>
                 </classpath>
                 <assertions>
                     <enable/>
                 </assertions>
+                <!--<arg value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"/>-->
                 <arg value="-cp"/>
                 <arg value="${kotlin-home}/lib/kotlin-compiler.jar"/>
                 <arg value="org.jetbrains.kotlin.cli.jvm.K2JVMCompiler"/>
@@ -846,6 +851,8 @@
                 <arg value="-module-name"/>
                 <arg value="@{moduleName}"/>
                 <arg value="-Xallow-kotlin-package"/>
+                <arg value="-jvm-target"/>
+                <arg value="1.8"/>
             </java>
 
             <javac2 srcdir="${toString:src.dirset}" destdir="@{output}" debug="true" debuglevel="lines,vars,source"

@@ -103,6 +103,9 @@ These artifacts include extensions for the types available in the latter JDKs, s
 - [`KT-9285`](https://youtrack.jetbrains.com/issue/KT-9285) Rename: Optimize search of private class members
 - [`KT-13589`](https://youtrack.jetbrains.com/issue/KT-13589) Use TODO() consistently in implementation stubs
 - [`KT-13630`](https://youtrack.jetbrains.com/issue/KT-13630) Do not show Change Signature dialog when applying "Remove parameter" quick-fix
+- Re-highlight only single function after local modifications
+- [`KT-13474`](https://youtrack.jetbrains.com/issue/KT-13474) Fix performance of typing super call lambda
+- Show "Variables and values captured in a closure" highlighting only for usages
 
 #### Intention actions, inspections and quickfixes
 
@@ -121,6 +124,12 @@ These artifacts include extensions for the types available in the latter JDKs, s
 ##### New features
 
 - [`KT-13155`](https://youtrack.jetbrains.com/issue/KT-13155) Implement "Introduce Type Parameter" refactoring
+
+#### Android Lint
+
+###### Issues fixed
+
+- [`KT-12022`](https://youtrack.jetbrains.com/issue/KT-12022) Report lint warnings even when file contains errors
 
 ## 1.0.4
 

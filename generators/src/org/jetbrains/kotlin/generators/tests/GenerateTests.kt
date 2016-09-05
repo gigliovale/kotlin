@@ -120,6 +120,7 @@ import org.jetbrains.kotlin.idea.stubs.AbstractMultiFileHighlightingTest
 import org.jetbrains.kotlin.idea.stubs.AbstractResolveByStubTest
 import org.jetbrains.kotlin.idea.stubs.AbstractStubBuilderTest
 import org.jetbrains.kotlin.integration.AbstractAntTaskTest
+import org.jetbrains.kotlin.ir.AbstractClosureAnnotatorTestCase
 import org.jetbrains.kotlin.ir.AbstractIrTextTestCase
 import org.jetbrains.kotlin.ir.AbstractPsi2IrAcceptanceTestCase
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterForWebDemoTest
@@ -246,6 +247,10 @@ fun main(args: Array<String>) {
 
         testClass<AbstractPsi2IrAcceptanceTestCase>() {
             model("codegen/box")
+        }
+
+        testClass<AbstractClosureAnnotatorTestCase> {
+            model("ir/closureAnnotator")
         }
 
         testClass<AbstractBytecodeListingTest>() {

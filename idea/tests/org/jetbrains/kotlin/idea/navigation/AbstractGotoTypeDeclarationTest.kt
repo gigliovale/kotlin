@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.navigation;
+package org.jetbrains.kotlin.idea.navigation
 
-import com.intellij.openapi.actionSystem.IdeActions;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.openapi.actionSystem.IdeActions
 
-public abstract class AbstractGotoSuperTest extends AbstractGotoActionTest {
-    @NotNull
-    @Override
-    protected String getActionName() {
-        return IdeActions.ACTION_GOTO_SUPER;
-    }
+abstract class AbstractGotoTypeDeclarationTest : AbstractGotoActionTest() {
+    override val actionName: String
+        get() = IdeActions.ACTION_GOTO_TYPE_DECLARATION
 }

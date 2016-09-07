@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.idea.search.usagesSearch
 
 import com.google.common.collect.ImmutableSet
-import org.jetbrains.kotlin.idea.references.KtArrayAccessReference
 import org.jetbrains.kotlin.idea.references.KtForLoopInReference
 import org.jetbrains.kotlin.idea.references.KtPropertyDelegationMethodsReference
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
@@ -40,36 +39,20 @@ val ALL_SEARCHABLE_OPERATIONS: ImmutableSet<KtToken> = ImmutableSet
         .add(KtTokens.BY_KEYWORD)
         .build()
 
-val INDEXING_OPERATION_NAMES = setOf(OperatorNameConventions.GET, OperatorNameConventions.SET)
-
 val DELEGATE_ACCESSOR_NAMES = setOf(Name.identifier("getValue"), Name.identifier("setValue"))
 
 val IN_OPERATIONS_TO_SEARCH = setOf(KtTokens.IN_KEYWORD)
 
 val COMPARISON_OPERATIONS_TO_SEARCH = setOf(KtTokens.LT, KtTokens.GT)
 
-fun Name.getOperationSymbolsToSearch(): Pair<Set<KtToken>, Class<*>?> {
+fun Name.getOperationSymbolsToSearch(): Pair<Set<KtToken>, Class<*>>? {
     when (this) {
         OperatorNameConventions.COMPARE_TO -> return COMPARISON_OPERATIONS_TO_SEARCH to KtSimpleNameReference::class.java
         OperatorNameConventions.EQUALS -> return EQUALS_OPERATIONS to KtSimpleNameReference::class.java
-        OperatorNameConventions.CONTAINS -> return IN_OPERATIONS_TO_SEARCH to KtSimpleNameReference::class.java
         OperatorNameConventions.ITERATOR -> return IN_OPERATIONS_TO_SEARCH to KtForLoopInReference::class.java
-        in INDEXING_OPERATION_NAMES -> return setOf(KtTokens.LBRACKET) to KtArrayAccessReference::class.java
         in DELEGATE_ACCESSOR_NAMES -> return setOf(KtTokens.BY_KEYWORD) to KtPropertyDelegationMethodsReference::class.java
         DelegatedPropertyResolver.PROPERTY_DELEGATED_FUNCTION_NAME -> return setOf(KtTokens.BY_KEYWORD) to KtPropertyDelegationMethodsReference::class.java
     }
 
-    val unaryOp = UNARY_OPERATION_NAMES_WITH_DEPRECATED_INVERTED[this]
-    if (unaryOp != null) return setOf(unaryOp) to KtSimpleNameReference::class.java
-
-    val binaryOp = BINARY_OPERATION_NAMES.inverse()[this]
-    if (binaryOp != null) {
-        val assignmentOp = ASSIGNMENT_OPERATION_COUNTERPARTS.inverse()[binaryOp]
-        return (if (assignmentOp != null) setOf(binaryOp, assignmentOp) else setOf(binaryOp)) to KtSimpleNameReference::class.java
-    }
-
-    val assignmentOp = ASSIGNMENT_OPERATIONS.inverse()[this]
-    if (assignmentOp != null) return setOf(assignmentOp) to KtSimpleNameReference::class.java
-
-    return emptySet<KtToken>() to null
+    return null
 }

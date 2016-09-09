@@ -96,25 +96,16 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/addBraces/notInsideElseIfBlock.kt");
             doTest(fileName);
         }
-    }
 
-    @TestMetadata("idea/testData/intentions/addBracesToWhenEntry")
-    @TestDataPath("$PROJECT_ROOT")
-    @RunWith(JUnit3RunnerWithInners.class)
-    public static class AddBracesToWhenEntry extends AbstractIntentionTest {
-        public void testAllFilesPresentInAddBracesToWhenEntry() throws Exception {
-            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/intentions/addBracesToWhenEntry"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
-        }
-
-        @TestMetadata("hasBraces.kt")
-        public void testHasBraces() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/addBracesToWhenEntry/hasBraces.kt");
+        @TestMetadata("whenHasBraces.kt")
+        public void testWhenHasBraces() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/addBraces/whenHasBraces.kt");
             doTest(fileName);
         }
 
-        @TestMetadata("simple.kt")
-        public void testSimple() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/addBracesToWhenEntry/simple.kt");
+        @TestMetadata("whenSimple.kt")
+        public void testWhenSimple() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/addBraces/whenSimple.kt");
             doTest(fileName);
         }
     }
@@ -4000,6 +3991,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("mapTo.kt")
         public void testMapTo() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/mapTo.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("mapToFqName.kt")
+        public void testMapToFqName() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/mapToFqName.kt");
             doTest(fileName);
         }
 
@@ -9641,54 +9638,57 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("whenLambda.kt")
+        public void testWhenLambda() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenLambda.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenMultiple.kt")
+        public void testWhenMultiple() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenMultiple.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenNoBraces.kt")
+        public void testWhenNoBraces() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenNoBraces.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenSimple.kt")
+        public void testWhenSimple() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenSimple.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenSimpleOutsideBlock.kt")
+        public void testWhenSimpleOutsideBlock() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenSimpleOutsideBlock.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("whenStatement.kt")
+        public void testWhenStatement() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whenStatement.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("while.kt")
         public void testWhile() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/while.kt");
             doTest(fileName);
         }
 
+        @TestMetadata("whileOutsideBlock.kt")
+        public void testWhileOutsideBlock() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whileOutsideBlock.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("whileWithTwoStatements.kt")
         public void testWhileWithTwoStatements() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBraces/whileWithTwoStatements.kt");
-            doTest(fileName);
-        }
-    }
-
-    @TestMetadata("idea/testData/intentions/removeBracesFromWhenEntry")
-    @TestDataPath("$PROJECT_ROOT")
-    @RunWith(JUnit3RunnerWithInners.class)
-    public static class RemoveBracesFromWhenEntry extends AbstractIntentionTest {
-        public void testAllFilesPresentInRemoveBracesFromWhenEntry() throws Exception {
-            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/intentions/removeBracesFromWhenEntry"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
-        }
-
-        @TestMetadata("lambda.kt")
-        public void testLambda() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBracesFromWhenEntry/lambda.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("multiple.kt")
-        public void testMultiple() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBracesFromWhenEntry/multiple.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("noBraces.kt")
-        public void testNoBraces() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBracesFromWhenEntry/noBraces.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("simple.kt")
-        public void testSimple() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBracesFromWhenEntry/simple.kt");
-            doTest(fileName);
-        }
-
-        @TestMetadata("statement.kt")
-        public void testStatement() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeBracesFromWhenEntry/statement.kt");
             doTest(fileName);
         }
     }

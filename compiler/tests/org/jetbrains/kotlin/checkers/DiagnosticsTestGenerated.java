@@ -8339,6 +8339,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("ClassDereference.kt")
+                public void testClassDereference() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/tpAsReified/ClassDereference.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("Conventions.kt")
                 public void testConventions() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/tpAsReified/Conventions.kt");
@@ -11210,6 +11216,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("irrelevantCharAtAbstract.kt")
+                public void testIrrelevantCharAtAbstract() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/collectionOverrides/irrelevantCharAtAbstract.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("irrelevantImplCharSequence.kt")
                 public void testIrrelevantImplCharSequence() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/collectionOverrides/irrelevantImplCharSequence.kt");
@@ -11231,6 +11243,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("irrelevantImplMutableListKotlin.kt")
                 public void testIrrelevantImplMutableListKotlin() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/collectionOverrides/irrelevantImplMutableListKotlin.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("irrelevantMapGetAbstract.kt")
+                public void testIrrelevantMapGetAbstract() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/j+k/collectionOverrides/irrelevantMapGetAbstract.kt");
                     doTest(fileName);
                 }
 

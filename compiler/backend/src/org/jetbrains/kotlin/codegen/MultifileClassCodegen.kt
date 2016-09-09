@@ -54,12 +54,17 @@ import org.jetbrains.org.objectweb.asm.MethodVisitor
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.Type
 
-class MultifileClassCodegen(
+interface MultifileClassCodegen {
+    fun generate(errorHandler: CompilationErrorHandler)
+    fun generateClassOrObject(classOrObject: KtClassOrObject, packagePartContext: FieldOwnerContext<PackageFragmentDescriptor>)
+}
+
+class MultifileClassCodegenImpl(
         private val state: GenerationState,
         private val files: Collection<KtFile>,
         private val facadeFqName: FqName,
         private val packagePartRegistry: PackagePartRegistry
-) {
+) : MultifileClassCodegen {
     private val facadeClassType = AsmUtil.asmTypeByFqNameWithoutInnerClasses(facadeFqName)
 
     private val packageFragment = getOnlyPackageFragment(facadeFqName.parent(), files, state.bindingContext)
@@ -153,7 +158,7 @@ class MultifileClassCodegen(
         }
     }
 
-    fun generate(errorHandler: CompilationErrorHandler) {
+    override fun generate(errorHandler: CompilationErrorHandler) {
         assert(delegateGenerationTasks.isEmpty()) { "generate() is called twice for facade class $facadeFqName" }
 
         generateCodeForSourceFiles(errorHandler)
@@ -197,7 +202,7 @@ class MultifileClassCodegen(
         writeKotlinMultifileFacadeAnnotationIfNeeded()
     }
 
-    fun generateClassOrObject(classOrObject: KtClassOrObject, packagePartContext: FieldOwnerContext<PackageFragmentDescriptor>) {
+    override fun generateClassOrObject(classOrObject: KtClassOrObject, packagePartContext: FieldOwnerContext<PackageFragmentDescriptor>) {
         MemberCodegen.genClassOrObject(packagePartContext, classOrObject, state, null)
     }
 

@@ -7924,6 +7924,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/javaInterop"), Pattern.compile("^(.+)\\.kt$"), true);
         }
 
+        @TestMetadata("lambdaInstanceOf.kt")
+        public void testLambdaInstanceOf() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/javaInterop/lambdaInstanceOf.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("compiler/testData/codegen/box/javaInterop/generics")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
@@ -12261,6 +12267,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("genericOverriddenFunction.kt")
             public void testGenericOverriddenFunction() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/functions/genericOverriddenFunction.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("instanceOfFunction.kt")
+            public void testInstanceOfFunction() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/functions/instanceOfFunction.kt");
                 doTest(fileName);
             }
 

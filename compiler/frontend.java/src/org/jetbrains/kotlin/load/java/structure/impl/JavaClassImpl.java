@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.load.java.structure.impl;
 
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.*;
 import kotlin.collections.ArraysKt;
 import kotlin.collections.CollectionsKt;
@@ -97,6 +98,10 @@ public class JavaClassImpl extends JavaClassifierImpl<PsiClass> implements JavaC
     @Override
     @NotNull
     public Collection<JavaMethod> getMethods() {
+        if (getPsi() instanceof KtLightClassMarker) {
+            String message = "Creating JavaClassImpl by light class\n" + getPsi().getQualifiedName() + ";" + getPsi().getClass().getName();
+            Logger.getInstance(JavaClassImpl.class).error(message);
+        }
         // We apply distinct here because PsiClass#getMethods() can return duplicate PSI methods, for example in Lombok (see KT-11778)
         return CollectionsKt.distinct(methods(ArraysKt.filter(getPsi().getMethods(), new Function1<PsiMethod, Boolean>() {
             @Override

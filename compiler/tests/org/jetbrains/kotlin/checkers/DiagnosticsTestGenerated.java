@@ -7934,6 +7934,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("outerArgumentsRequired.kt")
+                public void testOuterArgumentsRequired() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/outerArgumentsRequired.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("parameterShadowing.kt")
                 public void testParameterShadowing() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/parameterShadowing.kt");
@@ -7980,6 +7986,63 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 public void testSubstitutedMemberScope() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/substitutedMemberScope.kt");
                     doTest(fileName);
+                }
+
+                @TestMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments")
+                @TestDataPath("$PROJECT_ROOT")
+                @RunWith(JUnit3RunnerWithInners.class)
+                public static class ImplicitArguments extends AbstractDiagnosticsTest {
+                    public void testAllFilesPresentInImplicitArguments() throws Exception {
+                        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments"), Pattern.compile("^(.+)\\.kt$"), true);
+                    }
+
+                    @TestMetadata("fromCompanionObject.kt")
+                    public void testFromCompanionObject() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromCompanionObject.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("fromOuterClassInObjectLiteral.kt")
+                    public void testFromOuterClassInObjectLiteral() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromOuterClassInObjectLiteral.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("fromSuperClasses.kt")
+                    public void testFromSuperClasses() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromSuperClasses.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("fromSuperClassesLocal.kt")
+                    public void testFromSuperClassesLocal() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromSuperClassesLocal.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("fromSuperClassesLocalInsideInner.kt")
+                    public void testFromSuperClassesLocalInsideInner() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromSuperClassesLocalInsideInner.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("fromSuperClassesTransitive.kt")
+                    public void testFromSuperClassesTransitive() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/fromSuperClassesTransitive.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("inStaticScope.kt")
+                    public void testInStaticScope() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/inStaticScope.kt");
+                        doTest(fileName);
+                    }
+
+                    @TestMetadata("secondLevelDepth.kt")
+                    public void testSecondLevelDepth() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/generics/innerClasses/implicitArguments/secondLevelDepth.kt");
+                        doTest(fileName);
+                    }
                 }
             }
 

@@ -2961,6 +2961,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("integerValueType.kt")
+            public void testIntegerValueType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/classLiteral/integerValueType.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("nonClassesOnLHS.kt")
             public void testNonClassesOnLHS() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/classLiteral/nonClassesOnLHS.kt");
@@ -4311,6 +4317,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("extensionComponentsOnNullable.kt")
             public void testExtensionComponentsOnNullable() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/dataClasses/extensionComponentsOnNullable.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("finalMembersInBaseClass.kt")
+            public void testFinalMembersInBaseClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/dataClasses/finalMembersInBaseClass.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("implementMethodsFromInterface.kt")
+            public void testImplementMethodsFromInterface() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/dataClasses/implementMethodsFromInterface.kt");
                 doTest(fileName);
             }
 

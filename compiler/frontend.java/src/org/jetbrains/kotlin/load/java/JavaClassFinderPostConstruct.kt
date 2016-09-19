@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.jvm
 
 import com.intellij.openapi.project.Project
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
 import javax.inject.Inject
 import javax.annotation.PostConstruct
@@ -28,6 +29,7 @@ open class JavaClassFinderPostConstruct {
     open fun postCreate() {}
 }
 
+@Level.Module
 class JavaLazyAnalyzerPostConstruct : JavaClassFinderPostConstruct() {
     var project: Project? = null
         @Inject set

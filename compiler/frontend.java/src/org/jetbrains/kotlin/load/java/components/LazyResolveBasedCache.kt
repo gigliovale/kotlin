@@ -16,18 +16,28 @@
 
 package org.jetbrains.kotlin.load.java.components
 
-import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.load.java.structure.*
-import org.jetbrains.kotlin.load.java.structure.impl.*
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
-import org.jetbrains.kotlin.resolve.lazy.ResolveSessionUtils
+import org.jetbrains.kotlin.container.Level
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
+import org.jetbrains.kotlin.descriptors.PropertyDescriptor
+import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
+import org.jetbrains.kotlin.load.java.structure.JavaClass
+import org.jetbrains.kotlin.load.java.structure.JavaElement
+import org.jetbrains.kotlin.load.java.structure.JavaField
+import org.jetbrains.kotlin.load.java.structure.JavaMethod
+import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
+import org.jetbrains.kotlin.load.java.structure.impl.JavaElementImpl
+import org.jetbrains.kotlin.load.java.structure.impl.JavaFieldImpl
+import org.jetbrains.kotlin.load.java.structure.impl.JavaMethodImpl
 import org.jetbrains.kotlin.name.FqName
-import kotlin.properties.Delegates
 import org.jetbrains.kotlin.name.tail
 import org.jetbrains.kotlin.resolve.BindingContext.*
-import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.BindingContextUtils
+import org.jetbrains.kotlin.resolve.BindingTrace
+import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.lazy.ResolveSessionUtils
 
+@Level.Module
 class LazyResolveBasedCache(private val resolveSession: ResolveSession) : JavaResolverCache {
 
     private val trace: BindingTrace get() = resolveSession.trace

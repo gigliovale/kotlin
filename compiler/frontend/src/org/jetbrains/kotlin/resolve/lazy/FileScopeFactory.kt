@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.resolve.lazy
 
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.incremental.components.LookupLocation
@@ -42,6 +43,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.check
 
 data class FileScopes(val lexicalScope: LexicalScope, val importingScope: ImportingScope, val importResolver: ImportResolver)
 
+@Level.Module
 class FileScopeFactory(
         private val topLevelDescriptorProvider: TopLevelDescriptorProvider,
         private val storageManager: StorageManager,

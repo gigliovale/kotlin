@@ -104,10 +104,14 @@ class StorageComponentContainer(id: String) : ComponentContainer, ComponentProvi
 }
 
 fun StorageComponentContainer.registerSingleton(klass: Class<*>): StorageComponentContainer {
+    if (klass.isModuleLevel()) return this
+
     return registerDescriptors(listOf(SingletonTypeComponentDescriptor(this, klass)))
 }
 
 fun StorageComponentContainer.registerInstance(instance: Any): StorageComponentContainer {
+    if (instance.javaClass.isModuleLevel()) return this
+
     return registerDescriptors(listOf(InstanceComponentDescriptor(instance)))
 }
 

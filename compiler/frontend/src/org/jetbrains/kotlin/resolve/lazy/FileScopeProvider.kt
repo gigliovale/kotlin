@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.lazy
 
 import com.intellij.openapi.util.Key
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.UserDataProperty
 import org.jetbrains.kotlin.resolve.BindingTrace
@@ -35,6 +36,7 @@ interface FileScopeProvider {
     }
 }
 
+@Level.Module
 class FileScopeProviderImpl(
         private val fileScopeFactory: FileScopeFactory,
         private val bindingTrace: BindingTrace,

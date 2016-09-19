@@ -22,6 +22,7 @@ fun createContainer(id: String, init: StorageComponentContainer.() -> Unit): Sto
     val c = StorageComponentContainer(id)
     c.init()
     c.compose()
+    c.dump(System.out)
     return c
 }
 

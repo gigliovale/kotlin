@@ -21,6 +21,7 @@ import com.google.common.collect.Multimap
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.config.LanguageFeatureSettings
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyScriptDescriptor
 import java.util.*
 
+@Level.Module
 class LazyTopDownAnalyzer(
         private val trace: BindingTrace,
         private val declarationResolver: DeclarationResolver,

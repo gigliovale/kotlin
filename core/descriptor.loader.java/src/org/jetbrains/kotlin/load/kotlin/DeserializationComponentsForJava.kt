@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.load.kotlin
 
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.load.java.lazy.LazyJavaPackageFragmentProvider
@@ -24,6 +25,7 @@ import org.jetbrains.kotlin.storage.StorageManager
 
 // This class is needed only for easier injection: exact types of needed components are specified in the constructor here.
 // Otherwise injector generator is not smart enough to deduce, for example, which package fragment provider DeserializationComponents needs
+@Level.Module
 class DeserializationComponentsForJava(
         storageManager: StorageManager,
         moduleDescriptor: ModuleDescriptor,

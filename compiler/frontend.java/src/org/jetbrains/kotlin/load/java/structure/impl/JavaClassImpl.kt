@@ -111,8 +111,10 @@ class JavaClassImpl(psiClass: PsiClass) : JavaClassifierImpl<PsiClass>(psiClass)
         val psiClass = psi
         if (psiClass !is KtLightClassMarker) return
 
-        val message = "Querying members of JavaClass created for $psiClass of type ${psiClass.javaClass} defined in file ${psiClass.containingFile?.virtualFile?.canonicalPath}"
-        LOGGER.error(message)
+        LOGGER.error(
+                "Querying members of JavaClass created for $psiClass of type ${psiClass.javaClass} " +
+                "defined in file ${psiClass.containingFile?.virtualFile?.canonicalPath}"
+        )
     }
 
     companion object {

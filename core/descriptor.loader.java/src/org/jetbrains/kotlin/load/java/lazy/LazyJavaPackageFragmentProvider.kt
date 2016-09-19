@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.load.java.lazy
 
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
 import org.jetbrains.kotlin.load.java.lazy.descriptors.LazyJavaPackageFragment
 import org.jetbrains.kotlin.name.FqName
@@ -23,6 +24,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.storage.MemoizedFunctionToNullable
 import org.jetbrains.kotlin.utils.emptyOrSingletonList
 
+@Level.Module
 class LazyJavaPackageFragmentProvider(
         components: JavaResolverComponents
 ) : PackageFragmentProvider {

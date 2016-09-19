@@ -24,6 +24,7 @@ import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.ReadOnly;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.context.GlobalContext;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
@@ -53,6 +54,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+@Level.Module
 public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
     private final LazyResolveStorageManager storageManager;
     private final ExceptionTracker exceptionTracker;

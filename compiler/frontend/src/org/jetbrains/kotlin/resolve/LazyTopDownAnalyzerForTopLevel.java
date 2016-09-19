@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.resolve;
 import com.intellij.psi.PsiElement;
 import kotlin.collections.CollectionsKt;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider;
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@Level.Module
 public class LazyTopDownAnalyzerForTopLevel {
 
     @NotNull private final KotlinCodeAnalyzer codeAnalyzer;

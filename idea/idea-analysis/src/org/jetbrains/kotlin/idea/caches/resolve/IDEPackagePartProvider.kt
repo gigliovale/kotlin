@@ -18,10 +18,12 @@ package org.jetbrains.kotlin.idea.caches.resolve
 
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.FileBasedIndex
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.idea.vfilefinder.KotlinModuleMappingIndex
 import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.load.kotlin.PackageParts
 
+@Level.Module
 class IDEPackagePartProvider(val scope: GlobalSearchScope) : PackagePartProvider {
 
     override fun findPackageParts(packageFqName: String): List<String> {

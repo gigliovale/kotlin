@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.resolve.lazy;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.context.GlobalContext;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation;
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.storage.LockBasedLazyResolveStorageManager;
 import javax.inject.Inject;
 import java.util.List;
 
+@Level.Module
 public class LazyDeclarationResolver {
 
     @NotNull private final TopLevelDescriptorProvider topLevelDescriptorProvider;

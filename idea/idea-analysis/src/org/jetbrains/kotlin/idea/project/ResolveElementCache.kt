@@ -24,6 +24,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.cfg.ControlFlowInformationProvider
 import org.jetbrains.kotlin.config.LanguageVersion
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.SimpleGlobalContext
 import org.jetbrains.kotlin.context.withModule
@@ -49,6 +50,7 @@ import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
+@Level.Module
 class ResolveElementCache(
         private val resolveSession: ResolveSession,
         private val project: Project,

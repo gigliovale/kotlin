@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.project
 
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.idea.stubindex.resolve.PluginDeclarationProviderFactory
 import org.jetbrains.kotlin.psi.KtDeclaration
@@ -26,6 +27,7 @@ import org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 
+@Level.Module
 class IdeaLocalDescriptorResolver(
         private val resolveElementCache: ResolveElementCache,
         private val absentDescriptorHandler: AbsentDescriptorHandler

@@ -60,6 +60,7 @@ import java.util.*;
 import static org.jetbrains.kotlin.diagnostics.Errors.*;
 import static org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode.RESOLVE_FUNCTION_ARGUMENTS;
 import static org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults.Code.INCOMPLETE_TYPE_INFERENCE;
+import static org.jetbrains.kotlin.resolve.calls.tower.NewResolutionOldInference.ResolutionKind.*;
 import static org.jetbrains.kotlin.types.TypeUtils.NO_EXPECTED_TYPE;
 
 @SuppressWarnings("RedundantTypeArguments")
@@ -127,7 +128,7 @@ public class CallResolver {
         Name referencedName = nameExpression.getReferencedNameAsName();
         return computeTasksAndResolveCall(
                 context, referencedName, nameExpression,
-                NewResolutionOldInference.ResolutionKind.Variable.INSTANCE);
+                Variable.INSTANCE);
     }
 
     @NotNull
@@ -137,7 +138,7 @@ public class CallResolver {
     ) {
         return computeTasksAndResolveCall(
                 context, nameExpression.getReferencedNameAsName(), nameExpression,
-                NewResolutionOldInference.ResolutionKind.CallableReference.INSTANCE);
+                CallableReference.INSTANCE);
     }
 
     @NotNull
@@ -150,7 +151,7 @@ public class CallResolver {
         BasicCallResolutionContext callResolutionContext = BasicCallResolutionContext.create(context, call, CheckArgumentTypesMode.CHECK_VALUE_ARGUMENTS);
         return computeTasksAndResolveCall(
                 callResolutionContext, name, functionReference,
-                NewResolutionOldInference.ResolutionKind.Function.INSTANCE);
+                Function.INSTANCE);
     }
 
     @NotNull
@@ -160,7 +161,7 @@ public class CallResolver {
     ) {
         return computeTasksAndResolveCall(
                 context, OperatorNameConventions.INVOKE, tracing,
-                NewResolutionOldInference.ResolutionKind.Invoke.INSTANCE);
+                Invoke.INSTANCE);
     }
 
     @NotNull
@@ -212,7 +213,7 @@ public class CallResolver {
             @Override
             public OverloadResolutionResults<D> invoke() {
                 ResolutionTask<D> resolutionTask = new ResolutionTask<D>(
-                        new NewResolutionOldInference.ResolutionKind.GivenCandidates<D>(), null, candidates
+                        new GivenCandidates<D>(), null, candidates
                 );
                 return doResolveCallOrGetCachedResults(context, resolutionTask, tracing);
             }
@@ -261,7 +262,7 @@ public class CallResolver {
             KtArrayAccessExpression arrayAccessExpression = (KtArrayAccessExpression) context.call.getCallElement();
             return computeTasksAndResolveCall(
                     context, name, arrayAccessExpression,
-                    NewResolutionOldInference.ResolutionKind.Function.INSTANCE);
+                    Function.INSTANCE);
         }
 
         KtExpression calleeExpression = context.call.getCalleeExpression();
@@ -269,7 +270,7 @@ public class CallResolver {
             KtSimpleNameExpression expression = (KtSimpleNameExpression) calleeExpression;
             return computeTasksAndResolveCall(
                     context, expression.getReferencedNameAsName(), expression,
-                    NewResolutionOldInference.ResolutionKind.Function.INSTANCE);
+                    Function.INSTANCE);
         }
         else if (calleeExpression instanceof KtConstructorCalleeExpression) {
             return (OverloadResolutionResults) resolveCallForConstructor(context, (KtConstructorCalleeExpression) calleeExpression);
@@ -494,7 +495,7 @@ public class CallResolver {
 
                 ResolutionTask<FunctionDescriptor> resolutionTask =
                         new ResolutionTask<FunctionDescriptor>(
-                                new NewResolutionOldInference.ResolutionKind.GivenCandidates<FunctionDescriptor>(), null, candidates
+                                new GivenCandidates<FunctionDescriptor>(), null, candidates
                         );
 
 
@@ -598,7 +599,7 @@ public class CallResolver {
             }
         }
 
-        if (!(resolutionTask.resolutionKind instanceof NewResolutionOldInference.ResolutionKind.GivenCandidates)) {
+        if (!(resolutionTask.resolutionKind instanceof GivenCandidates)) {
             assert resolutionTask.name != null;
             return newCallResolver.runResolution(context, resolutionTask.name, resolutionTask.resolutionKind, tracing);
         }

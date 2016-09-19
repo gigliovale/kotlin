@@ -45,6 +45,7 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
     private static final IElementType[] LOCAL_DECLARATION_FIRST =
             new IElementType[] {CLASS_KEYWORD, INTERFACE_KEYWORD, FUN_KEYWORD, VAL_KEYWORD, VAR_KEYWORD, TYPE_ALIAS_KEYWORD};
+    private static final TokenSet TOKEN_SET_TO_FOLLOW_AFTER_DESTRUCTURING_DECLARATION_IN_LAMBDA = TokenSet.create(ARROW, COMMA, COLON);
 
     private static ImmutableMap<String, KtToken> tokenSetToMap(TokenSet tokens) {
         ImmutableMap.Builder<String, KtToken> builder = ImmutableMap.builder();
@@ -1054,20 +1055,19 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
             advance(); // ARROW
             paramsFound = true;
         }
-        else {
-            if (at(IDENTIFIER) || at(COLON)) {
-                // Try to parse a simple name list followed by an ARROW
-                //   {a -> ...}
-                //   {a, b -> ...}
-                PsiBuilder.Marker rollbackMarker = mark();
-                IElementType nextToken = lookahead(1);
-                boolean preferParamsToExpressions = (nextToken == COMMA || nextToken == COLON);
-                parseFunctionLiteralShorthandParameterList();
+        else if (at(IDENTIFIER) || at(COLON) || at(LPAR)) {
+            // Try to parse a simple name list followed by an ARROW
+            //   {a -> ...}
+            //   {a, b -> ...}
+            //   {(a, b) -> ... }
+            PsiBuilder.Marker rollbackMarker = mark();
+            IElementType nextToken = lookahead(1);
+            boolean preferParamsToExpressions = (nextToken == COMMA || nextToken == COLON);
+            parseFunctionLiteralParameterList();
 
-                paramsFound = preferParamsToExpressions ?
-                              rollbackOrDrop(rollbackMarker, ARROW, "An -> is expected", RBRACE) :
-                              rollbackOrDropAt(rollbackMarker, ARROW);
-            }
+            paramsFound = preferParamsToExpressions ?
+                          rollbackOrDrop(rollbackMarker, ARROW, "An -> is expected", RBRACE) :
+                          rollbackOrDropAt(rollbackMarker, ARROW);
         }
 
         if (!paramsFound && preferBlock) {
@@ -1146,19 +1146,25 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
 
     /*
-     * (SimpleName (":" type)?){","}
+     * lambdaParameter{","}
+     *
+     * lambdaParameter
+     *   : variableDeclarationEntry
+     *   : multipleVariableDeclarations (":" type)?
      */
-    private void parseFunctionLiteralShorthandParameterList() {
+    private void parseFunctionLiteralParameterList() {
         PsiBuilder.Marker parameterList = mark();
 
         while (!eof()) {
             PsiBuilder.Marker parameter = mark();
 
-            //            int parameterNamePos = matchTokenStreamPredicate(new LastBefore(new At(IDENTIFIER), new AtOffset(doubleArrowPos)));
-            //            createTruncatedBuilder(parameterNamePos).parseModifierList(MODIFIER_LIST, false);
-
             if (at(COLON)) {
                 error("Expecting parameter name");
+            }
+            else if (at(LPAR)) {
+                PsiBuilder.Marker destructuringDeclaration = mark();
+                myKotlinParsing.parseMultiDeclarationName(TOKEN_SET_TO_FOLLOW_AFTER_DESTRUCTURING_DECLARATION_IN_LAMBDA);
+                destructuringDeclaration.done(DESTRUCTURING_DECLARATION);
             }
             else {
                 expect(IDENTIFIER, "Expecting parameter name", TokenSet.create(ARROW));

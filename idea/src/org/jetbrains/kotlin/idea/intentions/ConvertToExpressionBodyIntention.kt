@@ -31,10 +31,13 @@ import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.utils.addToStdlib.check
 
-class ConvertToExpressionBodyIntention : SelfTargetingOffsetIndependentIntention<KtDeclarationWithBody>(
+class ConvertToExpressionBodyIntention(
+        val convertEmptyToUnit: Boolean = true
+) : SelfTargetingOffsetIndependentIntention<KtDeclarationWithBody>(
         KtDeclarationWithBody::class.java, "Convert to expression body"
 ) {
     override fun isApplicableTo(element: KtDeclarationWithBody): Boolean {
+        if (element is KtConstructor<*>) return false
         val value = calcValue(element) ?: return false
         return !value.anyDescendantOfType<KtReturnExpression>(
                 canGoInside = { it !is KtFunctionLiteral && it !is KtNamedFunction && it !is KtPropertyAccessor }
@@ -103,7 +106,9 @@ class ConvertToExpressionBodyIntention : SelfTargetingOffsetIndependentIntention
 
     private fun calcValue(body: KtBlockExpression): KtExpression? {
         val bodyStatements = body.statements
-        if (bodyStatements.isEmpty()) return KtPsiFactory(body).createExpression("Unit")
+        if (bodyStatements.isEmpty()) {
+            return if (convertEmptyToUnit) KtPsiFactory(body).createExpression("Unit") else null
+        }
         val statement = bodyStatements.singleOrNull() ?: return null
         when (statement) {
             is KtReturnExpression -> {

@@ -4285,6 +4285,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("companionAsReceiver.kt")
+        public void testCompanionAsReceiver() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertParameterToReceiver/companionAsReceiver.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("functionExpression.kt")
         public void testFunctionExpression() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertParameterToReceiver/functionExpression.kt");
@@ -9067,6 +9073,18 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("genericFunction.kt")
+        public void testGenericFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/moveToCompanion/genericFunction.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("genericProperty.kt")
+        public void testGenericProperty() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/moveToCompanion/genericProperty.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("implicitDispatchReceiver.kt")
         public void testImplicitDispatchReceiver() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/moveToCompanion/implicitDispatchReceiver.kt");
@@ -9118,6 +9136,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("propertyWithOverride.kt")
         public void testPropertyWithOverride() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/moveToCompanion/propertyWithOverride.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("redeclarationConflict.kt")
+        public void testRedeclarationConflict() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/moveToCompanion/redeclarationConflict.kt");
             doTest(fileName);
         }
 

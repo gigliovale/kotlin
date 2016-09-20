@@ -34,14 +34,14 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.SmartList
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.kotlin.asJava.toLightClass
+import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptorWithResolutionScopes
+import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
-import org.jetbrains.kotlin.idea.core.CollectingNameValidator
-import org.jetbrains.kotlin.idea.core.KotlinNameSuggester
-import org.jetbrains.kotlin.idea.core.getOrCreateCompanionObject
-import org.jetbrains.kotlin.idea.core.replaced
+import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
+import org.jetbrains.kotlin.idea.core.*
 import org.jetbrains.kotlin.idea.refactoring.checkConflictsInteractively
 import org.jetbrains.kotlin.idea.refactoring.move.OuterInstanceReferenceUsageInfo
 import org.jetbrains.kotlin.idea.refactoring.move.collectOuterInstanceReferences
@@ -53,7 +53,7 @@ import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.idea.search.declarationsSearch.HierarchySearchRequest
 import org.jetbrains.kotlin.idea.search.declarationsSearch.searchOverriders
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
-import org.jetbrains.kotlin.idea.core.ShortenReferences
+import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.idea.util.application.runWriteAction
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.lexer.KtTokens
@@ -61,10 +61,12 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver
+import org.jetbrains.kotlin.util.findCallableMemberBySignature
 
 class MoveMemberToCompanionObjectIntention : SelfTargetingRangeIntention<KtNamedDeclaration>(KtNamedDeclaration::class.java,
                                                                                              "Move to companion object") {
@@ -236,8 +238,20 @@ class MoveMemberToCompanionObjectIntention : SelfTargetingRangeIntention<KtNamed
         runTemplateForInstanceParam(newDeclaration, nameSuggestions, editor)
     }
 
+    private fun hasTypeParameterReferences(containingClass: KtClassOrObject, element: KtNamedDeclaration): Boolean {
+        val containingClassDescriptor = containingClass.resolveToDescriptor()
+        return element.collectDescendantsOfType<KtTypeReference> {
+            val referencedDescriptor = it.analyze(BodyResolveMode.PARTIAL)[BindingContext.TYPE, it]?.constructor?.declarationDescriptor
+            referencedDescriptor is TypeParameterDescriptor && referencedDescriptor.containingDeclaration == containingClassDescriptor
+        }.isNotEmpty()
+    }
+
+    override fun startInWriteAction() = false
+
     override fun applyTo(element: KtNamedDeclaration, editor: Editor?) {
         val project = element.project
+
+        val containingClass = element.containingClassOrObject as KtClass
 
         if (element is KtClassOrObject) {
             val nameSuggestions = if (traverseOuterInstanceReferences(element, true)) getNameSuggestionsForOuterInstance(element) else emptyList()
@@ -249,22 +263,36 @@ class MoveMemberToCompanionObjectIntention : SelfTargetingRangeIntention<KtNamed
                 }
             }
             val moveDescriptor = MoveDeclarationsDescriptor(listOf(element),
-                                                            KotlinMoveTargetForCompanion(element.containingClassOrObject!! as KtClass),
+                                                            KotlinMoveTargetForCompanion(containingClass),
                                                             MoveDeclarationsDelegate.NestedClass(null, outerInstanceName),
                                                             moveCallback = MoveCallback { runTemplateForInstanceParam(movedClass!!, nameSuggestions, editor) })
             MoveKotlinDeclarationsProcessor(project, moveDescriptor, mover).run()
             return
         }
 
+        val description = RefactoringUIUtil.getDescription(element, false).capitalize()
+
         if (HierarchySearchRequest(element, element.useScope, false).searchOverriders().any()) {
-            val description = RefactoringUIUtil.getDescription(element, false).capitalize()
-            CommonRefactoringUtil.showErrorHint(project, editor, "$description is overridden by declaration(s) in a subclass", text, null)
-            return
+            return CommonRefactoringUtil.showErrorHint(project, editor, "$description is overridden by declaration(s) in a subclass", text, null)
+        }
+
+        if (hasTypeParameterReferences(containingClass, element)) {
+            return CommonRefactoringUtil.showErrorHint(project, editor, "$description references type parameters of the containing class", text, null)
         }
 
         val externalUsages = SmartList<UsageInfo>()
         val outerInstanceUsages = SmartList<UsageInfo>()
         val conflicts = MultiMap<PsiElement, String>()
+
+        containingClass.getCompanionObjects().firstOrNull()?.let { companion ->
+            val companionDescriptor = companion.resolveToDescriptor() as ClassDescriptor
+            val callableDescriptor = element.resolveToDescriptor() as CallableMemberDescriptor
+            companionDescriptor.findCallableMemberBySignature(callableDescriptor)?.let {
+                DescriptorToSourceUtilsIde.getAnyDeclaration(project, it)
+            }?.let {
+                conflicts.putValue(it, "Companion object already contains ${RefactoringUIUtil.getDescription(it, false)}")
+            }
+        }
 
         val outerInstanceReferences = collectOuterInstanceReferences(element)
         if (outerInstanceReferences.isNotEmpty()) {
@@ -277,33 +305,35 @@ class MoveMemberToCompanionObjectIntention : SelfTargetingRangeIntention<KtNamed
         }
 
         project.runSynchronouslyWithProgress("Searching for ${element.name}", true) {
-            ReferencesSearch.search(element).mapNotNullTo(externalUsages) { ref ->
-                when (ref) {
-                    is PsiReferenceExpression -> JavaUsageInfo(ref)
-                    is KtSimpleNameReference -> {
-                        val refExpr = ref.expression
-                        if (element.isAncestor(refExpr)) return@mapNotNullTo null
-                        val context = refExpr.analyze(BodyResolveMode.PARTIAL)
-                        val resolvedCall = refExpr.getResolvedCall(context) ?: return@mapNotNullTo null
+            runReadAction {
+                ReferencesSearch.search(element).mapNotNullTo(externalUsages) { ref ->
+                    when (ref) {
+                        is PsiReferenceExpression -> JavaUsageInfo(ref)
+                        is KtSimpleNameReference -> {
+                            val refExpr = ref.expression
+                            if (element.isAncestor(refExpr)) return@mapNotNullTo null
+                            val context = refExpr.analyze(BodyResolveMode.PARTIAL)
+                            val resolvedCall = refExpr.getResolvedCall(context) ?: return@mapNotNullTo null
 
-                        val callExpression = resolvedCall.call.callElement as? KtExpression ?: return@mapNotNullTo null
+                            val callExpression = resolvedCall.call.callElement as? KtExpression ?: return@mapNotNullTo null
 
-                        val extensionReceiver = resolvedCall.extensionReceiver
-                        if (extensionReceiver != null && extensionReceiver !is ImplicitReceiver) {
-                            conflicts.putValue(callExpression,
-                                               "Calls with explicit extension receiver won't be processed: ${callExpression.text}")
-                            return@mapNotNullTo null
-                        }
+                            val extensionReceiver = resolvedCall.extensionReceiver
+                            if (extensionReceiver != null && extensionReceiver !is ImplicitReceiver) {
+                                conflicts.putValue(callExpression,
+                                                   "Calls with explicit extension receiver won't be processed: ${callExpression.text}")
+                                return@mapNotNullTo null
+                            }
 
-                        val dispatchReceiver = resolvedCall.dispatchReceiver ?: return@mapNotNullTo null
-                        if (dispatchReceiver is ExpressionReceiver) {
-                            ExplicitReceiverUsageInfo(refExpr, dispatchReceiver.expression)
+                            val dispatchReceiver = resolvedCall.dispatchReceiver ?: return@mapNotNullTo null
+                            if (dispatchReceiver is ExpressionReceiver) {
+                                ExplicitReceiverUsageInfo(refExpr, dispatchReceiver.expression)
+                            }
+                            else {
+                                ImplicitReceiverUsageInfo(refExpr, callExpression)
+                            }
                         }
-                        else {
-                            ImplicitReceiverUsageInfo(refExpr, callExpression)
-                        }
+                        else -> null
                     }
-                    else -> null
                 }
             }
         }

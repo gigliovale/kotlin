@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.ui;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
@@ -50,6 +51,7 @@ import org.jetbrains.kotlin.idea.caches.resolve.ResolutionUtils;
 import org.jetbrains.kotlin.idea.core.CollectingNameValidator;
 import org.jetbrains.kotlin.idea.core.KotlinNameSuggester;
 import org.jetbrains.kotlin.idea.core.NewDeclarationNameValidator;
+import org.jetbrains.kotlin.idea.refactoring.KotlinRefactoringSettings;
 import org.jetbrains.kotlin.idea.refactoring.KotlinRefactoringUtilKt;
 import org.jetbrains.kotlin.idea.refactoring.move.MoveUtilsKt;
 import org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.*;
@@ -218,6 +220,10 @@ public class MoveKotlinNestedClassesToUpperLevelDialog extends MoveDialogBase {
             packageNameField.prependItem(packageFqName.asString());
         }
 
+        KotlinRefactoringSettings settings = KotlinRefactoringSettings.getInstance();
+        searchForTextOccurrencesCheckBox.setSelected(settings.MOVE_TO_UPPER_LEVEL_SEARCH_FOR_TEXT);
+        searchInCommentsCheckBox.setSelected(settings.MOVE_TO_UPPER_LEVEL_SEARCH_IN_COMMENTS);
+
         super.init();
     }
 
@@ -299,16 +305,16 @@ public class MoveKotlinNestedClassesToUpperLevelDialog extends MoveDialogBase {
     }
 
     @Nullable
-    private String getErrorMessageIfAny() {
+    private PsiElement getTargetContainerWithValidation() throws ConfigurationException {
         String className = getClassName();
         String parameterName = getParameterName();
 
-        if (className != null && className.isEmpty()) return RefactoringBundle.message("no.class.name.specified");
-        if (!KotlinNameSuggester.INSTANCE.isIdentifier(className)) return RefactoringMessageUtil.getIncorrectIdentifierMessage(className);
+        if (className != null && className.isEmpty()) throw new ConfigurationException(RefactoringBundle.message("no.class.name.specified"));
+        if (!KotlinNameSuggester.INSTANCE.isIdentifier(className)) throw new ConfigurationException(RefactoringMessageUtil.getIncorrectIdentifierMessage(className));
 
         if (passOuterClassCheckBox.isSelected()) {
-            if (parameterName != null && parameterName.isEmpty()) return RefactoringBundle.message("no.parameter.name.specified");
-            if (!KotlinNameSuggester.INSTANCE.isIdentifier(parameterName)) return RefactoringMessageUtil.getIncorrectIdentifierMessage(parameterName);
+            if (parameterName != null && parameterName.isEmpty()) throw new ConfigurationException(RefactoringBundle.message("no.parameter.name.specified"));
+            if (!KotlinNameSuggester.INSTANCE.isIdentifier(parameterName)) throw new ConfigurationException(RefactoringMessageUtil.getIncorrectIdentifierMessage(parameterName));
         }
 
         PsiElement targetContainer = getTargetContainer();
@@ -317,14 +323,14 @@ public class MoveKotlinNestedClassesToUpperLevelDialog extends MoveDialogBase {
             KtClassOrObject targetClass = (KtClassOrObject) targetContainer;
             for (KtDeclaration member : targetClass.getDeclarations()) {
                 if (member instanceof KtClassOrObject && className != null && className.equals(member.getName())) {
-                    return RefactoringBundle.message("inner.class.exists", className, targetClass.getName());
+                    throw new ConfigurationException(RefactoringBundle.message("inner.class.exists", className, targetClass.getName()));
                 }
             }
         }
 
         if (targetContainer instanceof PsiDirectory || targetContainer instanceof KtFile) {
             FqName targetPackageFqName = getTargetPackageFqName();
-            if (targetPackageFqName == null) return "No package corresponds to this directory";
+            if (targetPackageFqName == null) throw new ConfigurationException("No package corresponds to this directory");
 
             //noinspection ConstantConditions
             ClassifierDescriptor existingClass = DescriptorUtils
@@ -332,27 +338,33 @@ public class MoveKotlinNestedClassesToUpperLevelDialog extends MoveDialogBase {
                     .getPackage(targetPackageFqName)
                     .getMemberScope()
                     .getContributedClassifier(Name.identifier(className), NoLookupLocation.FROM_IDE);
-            if (existingClass != null) return "Class " + className + " already exists in package " +  targetPackageFqName;
+            if (existingClass != null) throw new ConfigurationException("Class " + className + " already exists in package " +  targetPackageFqName);
 
             PsiDirectory targetDir = targetContainer instanceof PsiDirectory
                                      ? (PsiDirectory) targetContainer
                                      : targetContainer.getContainingFile().getContainingDirectory();
-            return RefactoringMessageUtil.checkCanCreateFile(targetDir, className + ".kt");
+            String message = RefactoringMessageUtil.checkCanCreateFile(targetDir, className + ".kt");
+            if (message != null) throw new ConfigurationException(message);
         }
 
-        return null;
+        return targetContainer;
     }
 
     @Override
     protected void doAction() {
-        String errorMessage = getErrorMessageIfAny();
-        if (errorMessage != null) {
-            CommonRefactoringUtil.showErrorMessage(MoveInnerImpl.REFACTORING_NAME, errorMessage, HelpID.MOVE_INNER_UPPER, project);
+        PsiElement target;
+        try {
+            target = getTargetContainerWithValidation();
+            if (target == null) return;
+        }
+        catch (ConfigurationException e) {
+            CommonRefactoringUtil.showErrorMessage(MoveInnerImpl.REFACTORING_NAME, e.getMessage(), HelpID.MOVE_INNER_UPPER, project);
             return;
         }
 
-        PsiElement target = getTargetContainer();
-        if (target == null) return;
+        KotlinRefactoringSettings settings = KotlinRefactoringSettings.getInstance();
+        settings.MOVE_TO_UPPER_LEVEL_SEARCH_FOR_TEXT = searchForTextOccurrencesCheckBox.isSelected();
+        settings.MOVE_TO_UPPER_LEVEL_SEARCH_IN_COMMENTS = searchInCommentsCheckBox.isSelected();
 
         KotlinMoveTarget moveTarget;
         if (target instanceof PsiDirectory) {

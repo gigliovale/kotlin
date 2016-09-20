@@ -53,7 +53,7 @@ public class Visibilities {
             }
 
             if (what instanceof ConstructorDescriptor) {
-                ClassDescriptor classDescriptor = ((ConstructorDescriptor) what).getContainingDeclaration();
+                ClassifierDescriptorWithTypeParameters classDescriptor = ((ConstructorDescriptor) what).getContainingDeclaration();
                 if (DescriptorUtils.isSealedClass(classDescriptor)
                     && DescriptorUtils.isTopLevelDeclaration(classDescriptor)
                     && from instanceof ConstructorDescriptor
@@ -318,10 +318,9 @@ public class Visibilities {
         }
 
         if (what instanceof TypeAliasConstructorDescriptor) {
-            DeclarationDescriptorWithVisibility invisibleMember =
-                    findInvisibleMember(receiver, ((TypeAliasConstructorDescriptor) what).getTypeAliasDescriptor(), from);
-
-            if (invisibleMember != null) return invisibleMember;
+            DeclarationDescriptorWithVisibility invisibleUnderlying =
+                    findInvisibleMember(receiver, ((TypeAliasConstructorDescriptor) what).getUnderlyingConstructorDescriptor(), from);
+            if (invisibleUnderlying != null) return invisibleUnderlying;
         }
 
         return null;

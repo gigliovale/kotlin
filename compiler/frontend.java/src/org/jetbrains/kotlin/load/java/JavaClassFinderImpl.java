@@ -25,6 +25,7 @@ import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.asJava.KtLightClassMarker;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.idea.KotlinFileType;
 import org.jetbrains.kotlin.load.java.structure.JavaClass;
 import org.jetbrains.kotlin.load.java.structure.JavaPackage;
@@ -39,6 +40,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.Set;
 
+@Level.Module
 public class JavaClassFinderImpl implements JavaClassFinder {
     private Project project;
     private GlobalSearchScope baseScope;

@@ -21,6 +21,7 @@ import kotlin.jvm.functions.Function0;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.jetbrains.kotlin.utils.WrappedValues;
 
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Level.Module
 public class LockBasedStorageManager implements StorageManager {
     public interface ExceptionHandlingStrategy {
         ExceptionHandlingStrategy THROW = new ExceptionHandlingStrategy() {

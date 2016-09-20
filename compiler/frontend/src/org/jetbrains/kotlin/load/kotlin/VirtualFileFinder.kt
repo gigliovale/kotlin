@@ -17,8 +17,10 @@
 package org.jetbrains.kotlin.load.kotlin
 
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.name.ClassId
 
+@Level.Module
 interface VirtualFileFinder {
     fun findVirtualFileWithHeader(classId: ClassId): VirtualFile?
 }

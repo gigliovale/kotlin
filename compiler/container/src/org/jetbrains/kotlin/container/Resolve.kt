@@ -63,7 +63,7 @@ private fun Member.bindArguments(parameters: List<Type>, context: ValueResolveCo
 
     for (parameter in parameters) {
         val descriptor = context.resolve(parameter)
-        if (descriptor == null) {
+        if (descriptor == null || (parameter is Class<*> && parameter.isModuleLevel())) {
             if (unsatisfied == null)
                 unsatisfied = ArrayList<Type>()
             unsatisfied.add(parameter)

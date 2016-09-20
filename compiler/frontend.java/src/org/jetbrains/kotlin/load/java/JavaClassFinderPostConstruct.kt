@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer
 
+@Level.Module
 open class JavaClassFinderPostConstruct {
     @PostConstruct
     open fun postCreate() {}

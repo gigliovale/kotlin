@@ -11,5 +11,6 @@
     <orderEntry type="module" module-name="deserialization" exported="" />
     <orderEntry type="module" module-name="util.runtime" />
     <orderEntry type="library" name="javax.inject" level="project" />
+    <orderEntry type="module" module-name="container" />
   </component>
 </module>

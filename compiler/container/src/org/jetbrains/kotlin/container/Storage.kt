@@ -70,7 +70,9 @@ class ComponentStorage(val myId: String) : ValueResolver {
         println(heading)
         println("=".repeat(heading.length))
         println()
-        getDescriptorsInDisposeOrder().forEach { descriptor ->
+        val descriptors = getDescriptorsInDisposeOrder()
+        println("Total: ${descriptors.size} objects")
+        descriptors.forEach { descriptor ->
             println(descriptor)
             dependencies[descriptor].forEach {
                 print("   -> ")

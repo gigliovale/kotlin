@@ -20,6 +20,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.builtins.KOTLIN_REFLECT_FQ_NAME
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.ReflectionTypes
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.load.java.JvmAbi
@@ -38,6 +39,7 @@ import org.jetbrains.kotlin.util.OperatorNameConventions
  * If there's no Kotlin reflection implementation found in the classpath, checks that there are no usages
  * of reflection API which will fail at runtime.
  */
+@Level.Module
 class ReflectionAPICallChecker(private val module: ModuleDescriptor, storageManager: StorageManager) : CallChecker {
     private val isReflectionAvailable by storageManager.createLazyValue {
         module.findClassAcrossModuleDependencies(JvmAbi.REFLECTION_FACTORY_IMPL) != null

@@ -21,4 +21,6 @@ class Level {
     annotation class Module
 }
 
-fun Class<*>.isModuleLevel() = this.annotations.any { it.annotationClass.qualifiedName?.endsWith("Module") ?: false }
+fun Class<*>.isModuleLevel(): Boolean = this.annotations.any { it.annotationClass.qualifiedName?.endsWith("Module") ?: false }
+                                        || (this.superclass?.isModuleLevel() ?: false)
+                                        || this.interfaces.any { it.isModuleLevel() }

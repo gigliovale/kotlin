@@ -39,6 +39,7 @@ class IdeaLocalDescriptorResolver(
     }
 }
 
+@Level.Module
 class IdeaAbsentDescriptorHandler(
         private val declarationProviderFactory: DeclarationProviderFactory
 ) : AbsentDescriptorHandler {

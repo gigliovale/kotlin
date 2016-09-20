@@ -195,7 +195,7 @@ abstract class AbstractKotlinEvaluateExpressionTest : KotlinDebuggerTestBase() {
 
     private fun createWatchesView(): XWatchesViewImpl {
         val session = myDebuggerSession.xDebugSession  as XDebugSessionImpl
-        val watchesView = XWatchesViewImpl(session)
+        val watchesView = XWatchesViewImpl(session, false)
         Disposer.register(testRootDisposable, watchesView)
         session.addSessionListener(XDebugViewSessionListener(watchesView), testRootDisposable)
         return watchesView
@@ -287,7 +287,7 @@ abstract class AbstractKotlinEvaluateExpressionTest : KotlinDebuggerTestBase() {
                 node is XStackFrameNode -> (node.valueContainer as? JavaStackFrame)?.descriptor
                 node is XValueGroupNodeImpl -> (node.valueContainer as? JavaStaticGroup)?.descriptor
                 node is WatchesRootNode -> null
-                node is WatchMessageNode -> WatchItemDescriptor(project, TextWithImportsImpl(CodeFragmentKind.EXPRESSION, node.expression.expression))
+                node is WatchNodeImpl -> WatchItemDescriptor(project, TextWithImportsImpl(CodeFragmentKind.EXPRESSION, node.expression.expression))
                 node is MessageTreeNode -> MessageDescriptor(node.text.toString())
                 else -> MessageDescriptor(node.toString())
             }

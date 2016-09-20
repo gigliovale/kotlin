@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.idea.codeInsight.generate.AbstractGenerateTestSuppor
 import org.jetbrains.kotlin.idea.codeInsight.generate.AbstractGenerateToStringActionTest
 import org.jetbrains.kotlin.idea.codeInsight.moveUpDown.AbstractMoveLeftRightTest
 import org.jetbrains.kotlin.idea.codeInsight.moveUpDown.AbstractMoveStatementTest
+import org.jetbrains.kotlin.idea.codeInsight.postfix.AbstractPostfixTemplateProviderTest
 import org.jetbrains.kotlin.idea.codeInsight.surroundWith.AbstractSurroundWithTest
 import org.jetbrains.kotlin.idea.codeInsight.unwrap.AbstractUnwrapRemoveTest
 import org.jetbrains.kotlin.idea.completion.test.*
@@ -508,6 +509,8 @@ fun main(args: Array<String>) {
             model("codeInsight/surroundWith/tryCatchFinally", testMethod = "doTestWithTryCatchFinallySurrounder")
             model("codeInsight/surroundWith/tryFinally", testMethod = "doTestWithTryFinallySurrounder")
             model("codeInsight/surroundWith/functionLiteral", testMethod = "doTestWithFunctionLiteralSurrounder")
+            model("codeInsight/surroundWith/withIfExpression", testMethod = "doTestWithSurroundWithIfExpression")
+            model("codeInsight/surroundWith/withIfElseExpression", testMethod = "doTestWithSurroundWithIfElseExpression")
         }
 
         testClass<AbstractJoinLinesTest>() {
@@ -852,6 +855,10 @@ fun main(args: Array<String>) {
             model("repl/completion")
         }
 
+        testClass<AbstractPostfixTemplateProviderTest> {
+            model("codeInsight/postfix")
+        }
+
         testClass<AbstractScriptConfigurationHighlightingTest> {
             model("script/definition/highlighting", extension = null, recursive = false)
         }
@@ -1069,12 +1076,12 @@ fun main(args: Array<String>) {
             model("collectToFile", recursive = false, extension = null)
         }
     }
-    
+
     testGroup("plugins/plugins-tests/tests", "plugins/annotation-processing/testData") {
         testClass<AbstractJavaModelWrappersTest>() {
             model("javaWrappers", extension = null)
         }
-        
+
         testClass<AbstractKotlinModelWrappersTest>() {
             model("kotlinWrappers", extension = "kt")
         }

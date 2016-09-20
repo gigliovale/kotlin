@@ -26,6 +26,10 @@ import java.lang.reflect.Modifier
 import kotlin.jvm.internal.FunctionImpl
 import kotlin.reflect.KFunction
 import kotlin.reflect.KotlinReflectionInternalError
+import kotlin.reflect.jvm.internal.AnnotationConstructorCaller.CallMode.CALL_BY_NAME
+import kotlin.reflect.jvm.internal.AnnotationConstructorCaller.CallMode.POSITIONAL_CALL
+import kotlin.reflect.jvm.internal.AnnotationConstructorCaller.Origin.JAVA
+import kotlin.reflect.jvm.internal.AnnotationConstructorCaller.Origin.KOTLIN
 import kotlin.reflect.jvm.internal.JvmFunctionSignature.*
 
 internal class KFunctionImpl private constructor(
@@ -48,13 +52,21 @@ internal class KFunctionImpl private constructor(
 
     private fun isDeclared(): Boolean = Visibilities.isPrivate(descriptor.visibility)
 
-    override val caller: FunctionCaller<*> by ReflectProperties.lazySoft {
+    override val caller: FunctionCaller<*> by ReflectProperties.lazySoft caller@ {
         val jvmSignature = RuntimeTypeMapper.mapSignature(descriptor)
         val member: Member? = when (jvmSignature) {
-            is KotlinConstructor -> container.findConstructorBySignature(jvmSignature.constructorDesc, isDeclared())
+            is KotlinConstructor -> {
+                if (isAnnotationConstructor)
+                    return@caller AnnotationConstructorCaller(container.jClass, parameters.map { it.name!! }, POSITIONAL_CALL, KOTLIN)
+                container.findConstructorBySignature(jvmSignature.constructorDesc, isDeclared())
+            }
             is KotlinFunction -> container.findMethodBySignature(jvmSignature.methodName, jvmSignature.methodDesc, isDeclared())
             is JavaMethod -> jvmSignature.method
             is JavaConstructor -> jvmSignature.constructor
+            is FakeJavaAnnotationConstructor -> {
+                val methods = jvmSignature.methods
+                return@caller AnnotationConstructorCaller(container.jClass, methods.map { it.name }, POSITIONAL_CALL, JAVA, methods)
+            }
             is BuiltInFunction -> jvmSignature.getMember(container)
         }
 
@@ -71,15 +83,21 @@ internal class KFunctionImpl private constructor(
         }
     }
 
-    override val defaultCaller: FunctionCaller<*>? by ReflectProperties.lazySoft {
+    override val defaultCaller: FunctionCaller<*>? by ReflectProperties.lazySoft defaultCaller@ {
         val jvmSignature = RuntimeTypeMapper.mapSignature(descriptor)
         val member: Member? = when (jvmSignature) {
             is KotlinFunction -> {
                 container.findDefaultMethod(jvmSignature.methodName, jvmSignature.methodDesc,
-                                            !Modifier.isStatic(caller.member.modifiers), isDeclared())
+                                            !Modifier.isStatic(caller.member!!.modifiers), isDeclared())
             }
             is KotlinConstructor -> {
+                if (isAnnotationConstructor)
+                    return@defaultCaller AnnotationConstructorCaller(container.jClass, parameters.map { it.name!! }, CALL_BY_NAME, KOTLIN)
                 container.findDefaultConstructor(jvmSignature.constructorDesc, isDeclared())
+            }
+            is FakeJavaAnnotationConstructor -> {
+                val methods = jvmSignature.methods
+                return@defaultCaller AnnotationConstructorCaller(container.jClass, methods.map { it.name }, CALL_BY_NAME, JAVA, methods)
             }
             else -> {
                 // Java methods, Java constructors and built-ins don't have $default methods

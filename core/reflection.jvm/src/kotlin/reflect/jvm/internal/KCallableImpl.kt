@@ -18,6 +18,7 @@ package kotlin.reflect.jvm.internal
 
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.Modality
+import org.jetbrains.kotlin.load.java.descriptors.JavaCallableMemberDescriptor
 import java.lang.reflect.Type
 import java.util.*
 import kotlin.reflect.*
@@ -26,8 +27,10 @@ import kotlin.reflect.jvm.javaType
 internal abstract class KCallableImpl<out R> : KCallable<R> {
     abstract val descriptor: CallableMemberDescriptor
 
+    // The instance which is used to perform a positional call, i.e. `call`
     abstract val caller: FunctionCaller<*>
 
+    // The instance which is used to perform a call "by name", i.e. `callBy`
     abstract val defaultCaller: FunctionCaller<*>?
 
     abstract val container: KDeclarationContainerImpl
@@ -51,6 +54,13 @@ internal abstract class KCallableImpl<out R> : KCallable<R> {
 
         for (i in descriptor.valueParameters.indices) {
             result.add(KParameterImpl(this, index++, KParameter.Kind.VALUE) { descriptor.valueParameters[i] })
+        }
+
+        // Constructor parameters of Java annotations are not ordered in any way, we order them by name here to be more stable.
+        // Note that positional call (via "call") is not allowed unless there's a single non-"value" parameter,
+        // so the order of parameters of Java annotation constructors here can be arbitrary
+        if (isAnnotationConstructor && descriptor is JavaCallableMemberDescriptor) {
+            result.sortBy { it.name }
         }
 
         result.trimToSize()
@@ -86,13 +96,20 @@ internal abstract class KCallableImpl<out R> : KCallable<R> {
     override val isAbstract: Boolean
         get() = descriptor.modality == Modality.ABSTRACT
 
+    protected val isAnnotationConstructor: Boolean
+        get() = name == "<init>" && container.jClass.isAnnotation
+
     @Suppress("UNCHECKED_CAST")
     override fun call(vararg args: Any?): R = reflectionCall {
         return caller.call(args) as R
     }
 
-    // See ArgumentGenerator#generate
     override fun callBy(args: Map<KParameter, Any?>): R {
+        return if (isAnnotationConstructor) callAnnotationConstructor(args) else callDefaultMethod(args)
+    }
+
+    // See ArgumentGenerator#generate
+    private fun callDefaultMethod(args: Map<KParameter, Any?>): R {
         val parameters = parameters
         val arguments = ArrayList<Any?>(parameters.size)
         var mask = 0
@@ -135,6 +152,25 @@ internal abstract class KCallableImpl<out R> : KCallable<R> {
 
         // DefaultConstructorMarker or MethodHandle
         arguments.add(null)
+
+        @Suppress("UNCHECKED_CAST")
+        return reflectionCall {
+            caller.call(arguments.toTypedArray()) as R
+        }
+    }
+
+    private fun callAnnotationConstructor(args: Map<KParameter, Any?>): R {
+        val arguments = parameters.map { parameter ->
+            when {
+                args.containsKey(parameter) -> {
+                    args[parameter] ?: throw IllegalArgumentException("Annotation argument value cannot be null ($parameter)")
+                }
+                parameter.isOptional -> null
+                else -> throw IllegalArgumentException("No argument provided for a required parameter: $parameter")
+            }
+        }
+
+        val caller = defaultCaller ?: throw KotlinReflectionInternalError("This callable does not support a default call: $descriptor")
 
         @Suppress("UNCHECKED_CAST")
         return reflectionCall {

@@ -34,9 +34,13 @@ import org.junit.Assert
 import org.junit.Test
 import java.io.File
 import java.lang.Exception
+import java.lang.reflect.InvocationTargetException
+import java.net.URISyntaxException
+import java.net.URL
 import java.net.URLClassLoader
 import java.util.concurrent.Future
 import kotlin.reflect.KClass
+import kotlin.script.StandardScriptTemplate
 
 // TODO: the contetnts of this file should go into ScriptTest.kt and replace appropriate xml-based functionality,
 // as soon as the the latter is removed from the codebase
@@ -126,6 +130,50 @@ class ScriptTest2 {
         aClass!!.getConstructor(Array<Array<in String>>::class.java).newInstance(arrayOf(arrayOf("one"), arrayOf("two")))
     }
 
+    @Test
+    fun testScriptWithStandardTemplate() {
+        val aClass = compileScript("fib_std.kts", StandardScriptTemplate::class, runIsolated = false)
+        Assert.assertNotNull(aClass)
+        aClass!!.getConstructor(Array<String>::class.java).newInstance(arrayOf("4", "other"))
+    }
+
+    @Test
+    fun testScriptWithPackage() {
+        val aClass = compileScript("fib.pkg.kts", ScriptWithIntParam::class)
+        Assert.assertNotNull(aClass)
+        aClass!!.getConstructor(Integer.TYPE).newInstance(4)
+    }
+
+    @Test
+    fun testScriptWithScriptDefinition() {
+        val aClass = compileScript("fib.kts", ScriptWithIntParam::class)
+        Assert.assertNotNull(aClass)
+        aClass!!.getConstructor(Integer.TYPE).newInstance(4)
+    }
+
+    @Test
+    fun testScriptWithParamConversion() {
+        val aClass = compileScript("fib.kts", ScriptWithIntParam::class)
+        Assert.assertNotNull(aClass)
+        val anObj = KotlinToJVMBytecodeCompiler.tryConstructClassPub(aClass!!, listOf("4"))
+        Assert.assertNotNull(anObj)
+    }
+
+    @Test
+    fun testSmokeScriptException() {
+        val aClass = compileScript("smoke_exception.kts", ScriptWithArrayParam::class)
+        Assert.assertNotNull(aClass)
+        var exceptionThrown = false
+        try {
+            KotlinToJVMBytecodeCompiler.tryConstructClassPub(aClass!!, emptyList())
+        }
+        catch (e: InvocationTargetException) {
+            Assert.assertTrue(e.cause is IllegalStateException)
+            exceptionThrown = true
+        }
+        Assert.assertTrue(exceptionThrown)
+    }
+
     private fun compileScript(
             scriptPath: String,
             scriptBase: KClass<out Any>,
@@ -212,6 +260,15 @@ class TestKotlinScriptDependenciesResolver : ScriptDependenciesResolver {
                     ?.mapNotNull { it.toFile() }
                     ?.filter { it.path.contains("out") && it.path.contains("test") }
             ?: emptyList()
+
+    private fun URL.toFile() =
+            try {
+                File(toURI().schemeSpecificPart)
+            }
+            catch (e: URISyntaxException) {
+                if (protocol != "file") null
+                else File(file)
+            }
 }
 
 @ScriptTemplateDefinition(

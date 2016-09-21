@@ -524,7 +524,7 @@ public class AsmUtil {
         mv.visitInsn(L2I);
     }
 
-    static void genInvertBoolean(InstructionAdapter v) {
+    public static void genInvertBoolean(InstructionAdapter v) {
         v.iconst(1);
         v.xor(Type.INT_TYPE);
     }

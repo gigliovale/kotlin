@@ -38,9 +38,7 @@ object JsPlatformConfigurator : PlatformConfigurator(
         identifierChecker = IdentifierChecker.DEFAULT,
         overloadFilter = OverloadFilter.DEFAULT
 ) {
-    override fun configure(container: StorageComponentContainer) {
-        super.configure(container)
-
+    override fun configureModuleComponents(container: StorageComponentContainer) {
         container.useImpl<JsCallChecker>()
         container.useInstance(SyntheticScopes.Empty)
     }

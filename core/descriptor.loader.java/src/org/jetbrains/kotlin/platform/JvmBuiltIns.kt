@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.platform
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.load.kotlin.JvmBuiltInsSettings
-import org.jetbrains.kotlin.serialization.deserialization.AdditionalClassPartsProvider
 import org.jetbrains.kotlin.serialization.deserialization.PlatformDependentDeclarationFilter
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.utils.sure
@@ -27,19 +26,23 @@ import org.jetbrains.kotlin.utils.sure
 class JvmBuiltIns(storageManager: StorageManager) : KotlinBuiltIns(storageManager) {
     // Module containing JDK classes or having them among dependencies
     private var ownerModuleDescriptor: ModuleDescriptor? = null
+    private var isAdditionalBuiltInsFeatureSupported: Boolean = true
 
-    fun setOwnerModuleDescriptor(moduleDescriptor: ModuleDescriptor) {
+    fun initialize(moduleDescriptor: ModuleDescriptor, isAdditionalBuiltInsFeatureSupported: Boolean) {
         assert(ownerModuleDescriptor == null) { "JvmBuiltins repeated initialization" }
         this.ownerModuleDescriptor = moduleDescriptor
+        this.isAdditionalBuiltInsFeatureSupported = isAdditionalBuiltInsFeatureSupported
     }
 
-    private lateinit var settings: JvmBuiltInsSettings
+    lateinit var settings: JvmBuiltInsSettings
+        private set
 
     // Here we know order in which KotlinBuiltIns constructor calls these methods
     override fun getPlatformDependentDeclarationFilter(): PlatformDependentDeclarationFilter {
         settings = JvmBuiltInsSettings(
                 builtInsModule, storageManager,
-                { ownerModuleDescriptor.sure { "JvmBuiltins has not been initialized properly" } }
+                { ownerModuleDescriptor.sure { "JvmBuiltins has not been initialized properly" } },
+                { isAdditionalBuiltInsFeatureSupported }
         )
 
         return settings

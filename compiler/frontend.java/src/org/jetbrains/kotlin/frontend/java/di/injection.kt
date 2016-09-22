@@ -84,7 +84,7 @@ fun createContainerForLazyResolveWithJava(
         targetEnvironment: TargetEnvironment = CompilerEnvironment,
         packagePartProvider: PackagePartProvider,
         languageFeatureSettings: LanguageFeatureSettings
-): ComponentProvider = createContainer("LazyResolveWithJava") {
+): ComponentProvider = createContainer("LazyResolveWithJava", JvmPlatform) {
     //TODO: idea specific code
     useInstance(packagePartProvider)
 
@@ -112,7 +112,7 @@ fun createContainerForTopDownAnalyzerForJvm(
         lookupTracker: LookupTracker,
         packagePartProvider: PackagePartProvider,
         languageFeatureSettings: LanguageFeatureSettings
-): ContainerForTopDownAnalyzerForJvm = createContainer("TopDownAnalyzerForJvm") {
+): ContainerForTopDownAnalyzerForJvm = createContainer("TopDownAnalyzerForJvm", JvmPlatform) {
     useInstance(packagePartProvider)
 
     configureModule(moduleContext, JvmPlatform, bindingTrace)

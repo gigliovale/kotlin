@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.context
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleParameters
 import org.jetbrains.kotlin.descriptors.PackageFragmentProvider
@@ -82,6 +83,7 @@ class ProjectContextImpl(
         private val globalContext: GlobalContext
 ) : ProjectContext, GlobalContext by globalContext
 
+@Level.Module
 class ModuleContextImpl(
         override val module: ModuleDescriptor,
         projectContext: ProjectContext

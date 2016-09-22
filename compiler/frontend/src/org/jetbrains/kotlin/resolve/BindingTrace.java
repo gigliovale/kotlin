@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.resolve;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -26,6 +27,7 @@ import org.jetbrains.kotlin.util.slicedMap.WritableSlice;
 
 import java.util.Collection;
 
+@Level.Module
 public interface BindingTrace extends DiagnosticSink {
 
     @NotNull

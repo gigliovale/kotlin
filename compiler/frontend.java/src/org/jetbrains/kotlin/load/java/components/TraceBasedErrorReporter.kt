@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.load.java.components
 
+import org.jetbrains.kotlin.container.Level
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.name.ClassId
@@ -27,6 +28,7 @@ import org.jetbrains.kotlin.util.slicedMap.BasicWritableSlice
 import org.jetbrains.kotlin.util.slicedMap.Slices
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 
+@Level.Module
 class TraceBasedErrorReporter(private val trace: BindingTrace) : ErrorReporter {
     companion object {
         @JvmField

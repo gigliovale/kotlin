@@ -21,7 +21,7 @@ class Level {
     annotation class Module
 }
 
-fun Class<*>.isModuleLevel(): Boolean = false
-//fun Class<*>.isModuleLevel(): Boolean = this.annotations.any { it.annotationClass.qualifiedName?.endsWith("Module") ?: false }
-//                                        || (this.superclass?.isModuleLevel() ?: false)
-//                                        || this.interfaces.any { it.isModuleLevel() }
+//fun Class<*>.isModuleLevel(): Boolean = false
+fun Class<*>.isModuleLevel(): Boolean = this.annotations.any { it.annotationClass.qualifiedName?.endsWith("Module") ?: false }
+                                        || (this.superclass?.isModuleLevel() ?: false)
+                                        || this.interfaces.any { it.isModuleLevel() } || this.name.endsWith("GlobalSearchScope")

@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.load.java.components;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.container.Level;
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor;
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.types.KotlinType;
 
 import java.util.List;
 
+@Level.Module
 public class SignaturePropagatorImpl implements SignaturePropagator {
     private final BindingTrace trace;
 

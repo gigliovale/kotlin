@@ -143,6 +143,8 @@ These artifacts include extensions for the types available in the latter JDKs, s
 ##### New features
 
 - [`KT-13155`](https://youtrack.jetbrains.com/issue/KT-13155) Implement "Introduce Type Parameter" refactoring
+- [`KT-11017`](https://youtrack.jetbrains.com/issue/KT-11017) Implement "Extract Superclass" refactoring
+- [`KT-11017`](https://youtrack.jetbrains.com/issue/KT-11017) Implement "Extract Interface" refactoring
 
 #### Android Lint
 

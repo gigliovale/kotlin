@@ -1,4 +1,4 @@
-// "Change 'bar' function return type to 'A'" "true"
+// "Change return type of enclosing function 'bar' to 'A'" "true"
 fun foo() {
     open class A
 

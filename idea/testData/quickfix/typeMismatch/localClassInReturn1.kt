@@ -1,4 +1,4 @@
-// "Change 'foo' function return type to 'U'" "true"
+// "Change return type of enclosing function 'foo' to 'U'" "true"
 interface T
 interface U
 

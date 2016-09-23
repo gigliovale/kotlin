@@ -1,2 +1,2 @@
-// "Change 'foo' function return type to 'String'" "true"
+// "Change return type of enclosing function 'foo' to 'String'" "true"
 fun foo(): Int = <caret>""

@@ -4,8 +4,7 @@ import kotlin.test.*
 import org.junit.Test
 import test.collections.*
 import test.collections.behaviors.*
-import java.util.HashSet
-import java.util.LinkedHashSet
+import java.util.*
 
 class ComplexSetJsTest : SetJsTest() {
     // Helper function with generic parameter to force to use ComlpexHashMap
@@ -32,7 +31,7 @@ class ComplexSetJsTest : SetJsTest() {
 }
 
 class PrimitiveSetJsTest : SetJsTest() {
-    override fun createEmptyMutableSet(): MutableSet<String> = HashSet()
+    override fun createEmptyMutableSet(): MutableSet<String> = stringSetOf()
     override fun createEmptyMutableSetWithNullableValues(): MutableSet<String?> = HashSet()
     @Test
     override fun constructors() {
@@ -70,6 +69,18 @@ class LinkedHashSetJsTest : SetJsTest() {
         val set = LinkedHashSet<String>(data)
 
         assertEquals(data, set)
+    }
+}
+
+class LinkedPrimitiveSetJsTest : SetJsTest() {
+    override fun createEmptyMutableSet(): MutableSet<String> = linkedStringSetOf()
+    override fun createEmptyMutableSetWithNullableValues(): MutableSet<String?> = LinkedHashSet()
+    @Test
+    override fun constructors() {
+        val orderedData = data.toList()
+        val set = linkedStringSetOf(*orderedData.toTypedArray())
+
+        assertEquals(orderedData, set.toList())
     }
 }
 

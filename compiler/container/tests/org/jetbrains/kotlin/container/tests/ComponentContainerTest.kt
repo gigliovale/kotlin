@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.container.tests
 
 import org.jetbrains.kotlin.container.*
-import org.junit.Ignore
 import org.junit.Test
 import javax.inject.Inject
 import kotlin.test.*
@@ -33,13 +32,13 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_to_null_when_empty() {
-        val container = createContainer("test") { }
+        val container = composeContainer("test") { }
         assertNull(container.resolve<TestComponentInterface>())
     }
 
     @Test
     fun should_resolve_to_instance_when_registered() {
-        val container = createContainer("test") { useImpl<TestComponent>() }
+        val container = composeContainer("test") { useImpl<TestComponent>() }
 
         val descriptor = container.resolve<TestComponentInterface>()
         assertNotNull(descriptor)
@@ -52,7 +51,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_instance_dependency() {
-        val container = createContainer("test") {
+        val container = composeContainer("test") {
             useInstance(ManualTestComponent("name"))
             useImpl<TestClientComponent>()
         }
@@ -74,7 +73,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_type_dependency() {
-        val container = createContainer("test") {
+        val container = composeContainer("test") {
             useImpl<TestComponent>()
             useImpl<TestClientComponent>()
         }
@@ -94,7 +93,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_multiple_types() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestComponent>()
             useImpl<TestClientComponent>()
             useImpl<TestClientComponent2>()
@@ -107,7 +106,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_singleton_types_to_same_instances() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestComponent>()
             useImpl<TestClientComponent>()
         }.use {
@@ -122,7 +121,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_adhoc_types_to_same_instances() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestAdhocComponent1>()
             useImpl<TestAdhocComponent2>()
         }.use {
@@ -138,7 +137,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_iterable() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestComponent>()
             useImpl<TestClientComponent>()
             useImpl<TestClientComponent2>()
@@ -155,7 +154,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_resolve_java_iterable() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestComponent>()
             useImpl<TestClientComponent>()
             useImpl<TestClientComponent2>()
@@ -175,7 +174,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_distinguish_generic() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestGenericClient>()
             useImpl<TestStringComponent>()
             useImpl<TestIntComponent>()
@@ -192,7 +191,7 @@ class ComponentContainerTest {
     @Ignore("Need generic type substitution")
     @Test
     fun should_resolve_generic_adhoc() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestImplicitGenericClient>()
         }.use {
             val descriptor = it.resolve<TestImplicitGenericClient>()
@@ -205,7 +204,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_fail_with_invalid_cardinality() {
-        createContainer("test") {
+        composeContainer("test") {
             useImpl<TestComponent>()
             useInstance(TestComponent())
         }.use {
@@ -228,7 +227,7 @@ class ComponentContainerTest {
 
     @Test
     fun should_inject_properties_of_singletons() {
-        val withSetters = createContainer("test") {
+        val withSetters = composeContainer("test") {
             useImpl<WithSetters>()
         }.get<WithSetters>()
 
@@ -238,7 +237,7 @@ class ComponentContainerTest {
     @Test
     fun should_not_inject_properties_of_instances() {
         val withSetters = WithSetters()
-        createContainer("test") {
+        composeContainer("test") {
             useInstance(withSetters)
         }
 
@@ -260,7 +259,7 @@ class ComponentContainerTest {
                 @Inject set
         }
 
-        val a = createContainer("test") {
+        val a = composeContainer("test") {
             useImpl<A>()
         }.get<A>()
 
@@ -270,4 +269,46 @@ class ComponentContainerTest {
         assertTrue(c is C)
     }
 
+    @Test
+    fun use_parent_context_to_discover_dependencies() {
+        class A
+        class B(val a: A)
+
+        val ac = composeContainer("a") {
+            useImpl<A>()
+        }
+
+        val bc = composeContainer("b", ac) {
+            useImpl<B>()
+        }
+        val b = bc.get<B>()
+
+        val a = ac.get<A>()
+        assertTrue(b is B)
+        assertTrue(b.a is A)
+        assertTrue(a is A)
+        assertTrue(b.a === a)
+    }
+
+    @Test
+    fun several_child_dependencies() {
+        class A
+        class B(val a: A)
+
+        val ac = composeContainer("a") {
+            useImpl<A>()
+        }
+
+        val bc1 = composeContainer("b1", ac) {
+            useImpl<B>()
+        }
+        val bc2 = composeContainer("b2", ac) {
+            useImpl<B>()
+        }
+        val a = ac.get<A>()
+        assertTrue(a is A)
+        assertTrue(a === bc2.get<B>().a)
+        assertTrue(a === bc1.get<B>().a)
+        assertTrue(a === bc1.get<A>())
+    }
 }

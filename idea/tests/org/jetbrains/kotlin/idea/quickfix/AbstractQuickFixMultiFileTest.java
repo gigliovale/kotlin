@@ -220,6 +220,8 @@ public abstract class AbstractQuickFixMultiFileTest extends KotlinDaemonAnalyzer
 
             configureByExistingFile(virtualFiles.get(beforeFile));
             assertEquals(guessFileType(beforeFile), myFile.getVirtualFile().getFileType());
+
+            assertTrue("\"<caret>\" is probably missing in file \"" + beforeFile.path + "\"", myEditor.getCaretModel().getOffset() != 0);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -261,10 +263,11 @@ public abstract class AbstractQuickFixMultiFileTest extends KotlinDaemonAnalyzer
         });
 
         assert beforeFile != null;
-        assert afterFile != null;
 
-        subFiles.remove(afterFile);
         subFiles.remove(beforeFile);
+        if (afterFile != null) {
+            subFiles.remove(afterFile);
+        }
 
         configureMultiFileTest(subFiles, beforeFile);
 
@@ -288,15 +291,21 @@ public abstract class AbstractQuickFixMultiFileTest extends KotlinDaemonAnalyzer
                     String actualText = getFile().getText();
                     String afterText = new StringBuilder(actualText).insert(getEditor().getCaretModel().getOffset(), "<caret>").toString();
 
-                    if (pair.second && !afterText.equals(afterFile.content)) {
-                        StringBuilder actualTestFile = new StringBuilder();
-                        actualTestFile.append("// FILE: ").append(beforeFile.path).append("\n").append(beforeFile.content);
-                        for (TestFile file : subFiles) {
-                            actualTestFile.append("// FILE: ").append(file.path).append("\n").append(file.content);
-                        }
-                        actualTestFile.append("// FILE: ").append(afterFile.path).append("\n").append(afterText);
+                    if (pair.second) {
+                        assertNotNull(".after file should exist", afterFile);
+                        if (!afterText.equals(afterFile.content)) {
+                            StringBuilder actualTestFile = new StringBuilder();
+                            actualTestFile.append("// FILE: ").append(beforeFile.path).append("\n").append(beforeFile.content);
+                            for (TestFile file : subFiles) {
+                                actualTestFile.append("// FILE: ").append(file.path).append("\n").append(file.content);
+                            }
+                            actualTestFile.append("// FILE: ").append(afterFile.path).append("\n").append(afterText);
 
-                        KotlinTestUtils.assertEqualsToFile(new File(beforeFileName), actualTestFile.toString());
+                            KotlinTestUtils.assertEqualsToFile(new File(beforeFileName), actualTestFile.toString());
+                        }
+                    }
+                    else {
+                        assertNull(".after file should not exist", afterFile);
                     }
                 }
                 catch (ComparisonFailure e) {

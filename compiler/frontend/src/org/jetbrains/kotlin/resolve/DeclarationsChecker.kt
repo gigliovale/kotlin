@@ -29,8 +29,7 @@ import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifier
-import org.jetbrains.kotlin.resolve.BindingContext.TYPE
-import org.jetbrains.kotlin.resolve.BindingContext.TYPE_PARAMETER
+import org.jetbrains.kotlin.resolve.BindingContext.*
 import org.jetbrains.kotlin.resolve.DescriptorUtils.classCanHaveAbstractMembers
 import org.jetbrains.kotlin.resolve.DescriptorUtils.classCanHaveOpenMembers
 import org.jetbrains.kotlin.types.*
@@ -657,8 +656,8 @@ class DeclarationsChecker(
             }
         }
         else {
-            if (backingFieldRequired && !inTrait && !propertyDescriptor.isLateInit &&
-                trace.bindingContext.get(BindingContext.IS_UNINITIALIZED, propertyDescriptor) ?: false) {
+            val isUninitialized = trace.bindingContext.get(BindingContext.IS_UNINITIALIZED, propertyDescriptor) ?: false
+            if (backingFieldRequired && !inTrait && !propertyDescriptor.isLateInit && isUninitialized) {
                 if (containingDeclaration !is ClassDescriptor || hasAccessorImplementation) {
                     trace.report(MUST_BE_INITIALIZED.on(property))
                 }
@@ -668,6 +667,12 @@ class DeclarationsChecker(
             }
             else if (property.typeReference == null) {
                 trace.report(PROPERTY_WITH_NO_TYPE_NO_INITIALIZER.on(property))
+            }
+            if (backingFieldRequired && !inTrait && propertyDescriptor.isLateInit && !isUninitialized) {
+                if (trace[MUST_BE_LATEINIT, propertyDescriptor] ?: false) {}
+                else {
+                    trace.report(UNNECESSARY_LATEINIT.on(property))
+                }
             }
         }
     }

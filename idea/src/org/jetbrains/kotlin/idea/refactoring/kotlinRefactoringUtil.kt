@@ -75,8 +75,12 @@ import org.jetbrains.kotlin.idea.caches.resolve.getJavaMemberDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.core.*
+import org.jetbrains.kotlin.idea.highlighter.markers.getAccessorLightMethods
 import org.jetbrains.kotlin.idea.intentions.RemoveCurlyBracesFromTemplateIntention
 import org.jetbrains.kotlin.idea.j2k.IdeaJavaToKotlinServices
+import org.jetbrains.kotlin.idea.refactoring.changeSignature.KotlinValVar
+import org.jetbrains.kotlin.idea.refactoring.changeSignature.toValVar
+import org.jetbrains.kotlin.idea.refactoring.memberInfo.KtPsiClassWrapper
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.idea.util.string.collapseSpaces
@@ -542,8 +546,9 @@ fun createJavaMethod(template: PsiMethod, targetClass: PsiClass): PsiMethod {
     return method
 }
 
-fun createJavaField(property: KtProperty, targetClass: PsiClass): PsiField {
-    val template = LightClassUtil.getLightClassPropertyMethods(property).getter
+fun createJavaField(property: KtNamedDeclaration, targetClass: PsiClass): PsiField {
+    val accessorLightMethods = property.getAccessorLightMethods()
+    val template = accessorLightMethods.getter
                    ?: throw AssertionError("Can't generate light method: ${property.getElementTextWithContext()}")
 
     val factory = PsiElementFactory.SERVICE.getInstance(template.project)
@@ -552,7 +557,7 @@ fun createJavaField(property: KtProperty, targetClass: PsiClass): PsiField {
     with(field.modifierList!!) {
         val templateModifiers = template.modifierList
         setModifierProperty(VisibilityUtil.getVisibilityModifier(templateModifiers), true)
-        if (!property.isVar || targetClass.isInterface) {
+        if ((property as KtValVarKeywordOwner).valOrVarKeyword.toValVar() != KotlinValVar.Var || targetClass.isInterface) {
             setModifierProperty(PsiModifier.FINAL, true)
         }
         copyModifierListItems(templateModifiers, this, false)
@@ -710,7 +715,12 @@ fun FqNameUnsafe.hasIdentifiersOnly(): Boolean = pathSegments().all { KotlinName
 
 fun FqName.hasIdentifiersOnly(): Boolean = pathSegments().all { KotlinNameSuggester.isIdentifier(it.asString().quoteIfNeeded()) }
 
-fun PsiNamedElement.isInterfaceClass(): Boolean = this is KtClass && isInterface() || this is PsiClass && isInterface
+fun PsiNamedElement.isInterfaceClass(): Boolean = when (this) {
+    is KtClass -> isInterface()
+    is PsiClass -> isInterface
+    is KtPsiClassWrapper -> psiClass.isInterface
+    else -> false
+}
 
 fun <ListType : KtElement> replaceListPsiAndKeepDelimiters(
         originalList: ListType,
@@ -875,4 +885,9 @@ fun checkSuperMethods(
     if (overriddenElementsToDescriptor.isEmpty()) return listOf(declaration)
 
     return askUserForMethodsToSearch(declarationDescriptor, overriddenElementsToDescriptor)
+}
+
+fun KtNamedDeclaration.isCompanionMemberOf(klass: KtClassOrObject): Boolean {
+    val containingObject = containingClassOrObject as? KtObjectDeclaration ?: return false
+    return containingObject.isCompanion() && containingObject.containingClassOrObject == klass
 }

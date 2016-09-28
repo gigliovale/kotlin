@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea.refactoring.pullUp
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiNamedElement
 import com.intellij.refactoring.RefactoringBundle
@@ -26,12 +27,14 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.refactoring.checkConflictsInteractively
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinMemberInfo
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.getChildrenToAnalyze
+import org.jetbrains.kotlin.idea.refactoring.memberInfo.resolveToDescriptorWrapperAware
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.idea.search.declarationsSearch.HierarchySearchRequest
 import org.jetbrains.kotlin.idea.search.declarationsSearch.searchInheritors
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.ParameterNameRenderingPolicy
 import org.jetbrains.kotlin.resolve.source.getPsi
@@ -55,7 +58,7 @@ fun checkConflicts(project: Project,
     with(pullUpData) {
         for (memberInfo in memberInfos) {
             val member = memberInfo.member
-            val memberDescriptor = resolutionFacade.resolveToDescriptor(member)
+            val memberDescriptor = member.resolveToDescriptorWrapperAware(resolutionFacade)
 
             checkClashWithSuperDeclaration(member, memberDescriptor, conflicts)
             checkAccidentalOverrides(member, memberDescriptor, conflicts)
@@ -90,14 +93,30 @@ internal fun KotlinPullUpData.getClashingMemberInTargetClass(memberDescriptor: C
 private fun KotlinPullUpData.checkClashWithSuperDeclaration(
         member: KtNamedDeclaration,
         memberDescriptor: DeclarationDescriptor,
-        conflicts: MultiMap<PsiElement, String>) {
+        conflicts: MultiMap<PsiElement, String>
+) {
+    val message = "${targetClassDescriptor.renderForConflicts()} already contains ${memberDescriptor.renderForConflicts()}"
+
+    if (member is KtParameter) {
+        if (((targetClass as? KtClass)?.getPrimaryConstructorParameters() ?: emptyList()).any { it.name == member.name }) {
+            conflicts.putValue(member, message.capitalize())
+        }
+        return
+    }
+
     if (memberDescriptor !is CallableMemberDescriptor) return
 
     val clashingSuper = getClashingMemberInTargetClass(memberDescriptor) ?: return
     if (clashingSuper.modality == Modality.ABSTRACT) return
     if (clashingSuper.kind != CallableMemberDescriptor.Kind.DECLARATION) return
-    val message = "${targetClassDescriptor.renderForConflicts()} already contains ${memberDescriptor.renderForConflicts()}"
     conflicts.putValue(member, message.capitalize())
+}
+
+private fun PsiClass.isSourceOrTarget(data: KotlinPullUpData): Boolean {
+    var element = unwrapped
+    if (element is KtObjectDeclaration && element.isCompanion()) element = element.containingClassOrObject
+
+    return element == data.sourceClass || element == data.targetClass
 }
 
 private fun KotlinPullUpData.checkAccidentalOverrides(
@@ -110,10 +129,10 @@ private fun KotlinPullUpData.checkAccidentalOverrides(
             HierarchySearchRequest<PsiElement>(targetClass, targetClass.useScope)
                     .searchInheritors()
                     .asSequence()
-                    .filterNot { it.unwrapped == sourceClass || it.unwrapped == targetClass }
+                    .filterNot { it.isSourceOrTarget(this) }
                     .mapNotNull { it.unwrapped as? KtClassOrObject }
                     .forEach {
-                        val subClassDescriptor = resolutionFacade.resolveToDescriptor(it) as ClassDescriptor
+                        val subClassDescriptor = it.resolveToDescriptorWrapperAware(resolutionFacade) as ClassDescriptor
                         val substitutor = getTypeSubstitutor(targetClassDescriptor.defaultType,
                                                              subClassDescriptor.defaultType) ?: TypeSubstitutor.EMPTY
                         val memberDescriptorInSubClass =
@@ -124,7 +143,7 @@ private fun KotlinPullUpData.checkAccidentalOverrides(
 
                         val message = memberDescriptor.renderForConflicts() +
                                       " in super class would clash with existing member of " +
-                                      resolutionFacade.resolveToDescriptor(it).renderForConflicts()
+                                      it.resolveToDescriptorWrapperAware(resolutionFacade).renderForConflicts()
                         conflicts.putValue(clashingMember, message.capitalize())
                     }
         }

@@ -148,6 +148,10 @@ These artifacts include extensions for the types available in the latter JDKs, s
 - [`KT-13155`](https://youtrack.jetbrains.com/issue/KT-13155) Implement "Introduce Type Parameter" refactoring
 - [`KT-11017`](https://youtrack.jetbrains.com/issue/KT-11017) Implement "Extract Superclass" refactoring
 - [`KT-11017`](https://youtrack.jetbrains.com/issue/KT-11017) Implement "Extract Interface" refactoring
+Pull Up: Support properties declared in the primary constructor
+Pull Up: Support members declared in the companion object of the original class
+Pull Up: Show member dependencies in the refactoring dialog
+- [`KT-9485`](https://youtrack.jetbrains.com/issue/KT-9485) Push Down: Support moving members from Java to Kotlin class
 
 #### Android Lint
 

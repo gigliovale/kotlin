@@ -707,6 +707,14 @@
         order="first"
         implementationClass="org.jetbrains.kotlin.idea.refactoring.pullUp.JavaToKotlinPullUpHelperFactory"/>
 
+    <lang.refactoringSupport.classMembersRefactoringSupport
+        language="kotlin"
+        implementationClass="org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinClassMembersRefactoringSupport"/>
+
+    <refactoring.pushDown
+        language="kotlin"
+        implementationClass="org.jetbrains.kotlin.idea.refactoring.pushDown.JavaToKotlinPushDownDelegate"/>
+
     <problemFileHighlightFilter implementation="org.jetbrains.kotlin.idea.projectView.KotlinProblemFileHighlightFilter"/>
 
     <codeInsight.typeInfo language="kotlin" implementationClass="org.jetbrains.kotlin.idea.codeInsight.KotlinExpressionTypeProvider"/>

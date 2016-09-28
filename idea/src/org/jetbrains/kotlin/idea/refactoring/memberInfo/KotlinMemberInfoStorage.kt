@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
-import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
+import org.jetbrains.kotlin.idea.refactoring.isInterfaceClass
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -40,8 +40,8 @@ class KotlinMemberInfoStorage(
         filter: (KtNamedDeclaration) -> Boolean = { true }
 ): AbstractMemberInfoStorage<KtNamedDeclaration, PsiNamedElement, KotlinMemberInfo>(classOrObject, filter) {
     override fun memberConflict(member1: KtNamedDeclaration, member: KtNamedDeclaration): Boolean {
-        val descriptor1 = member1.resolveToDescriptor()
-        val descriptor = member.resolveToDescriptor()
+        val descriptor1 = member1.resolveToDescriptorWrapperAware()
+        val descriptor = member.resolveToDescriptorWrapperAware()
         if (descriptor1.name != descriptor.name) return false
 
         return when {
@@ -85,6 +85,21 @@ fun extractClassMembers(
         collectSuperTypeEntries: Boolean = true,
         filter: ((KtNamedDeclaration) -> Boolean)? = null
 ): List<KotlinMemberInfo> {
+    fun KtClassOrObject.extractFromClassBody(
+            filter: ((KtNamedDeclaration) -> Boolean)?,
+            isCompanion: Boolean,
+            result: MutableCollection<KotlinMemberInfo>
+    ) {
+        declarations
+                .filter {
+                    it is KtNamedDeclaration
+                    && it !is KtConstructor<*>
+                    && !(it is KtObjectDeclaration && it.isCompanion())
+                    && (filter == null || filter(it))
+                }
+                .mapTo(result) { KotlinMemberInfo(it as KtNamedDeclaration, isCompanionMember = isCompanion) }
+    }
+
     if (aClass !is KtClassOrObject) return emptyList()
 
     val result = ArrayList<KotlinMemberInfo>()
@@ -96,18 +111,24 @@ fun extractClassMembers(
                     val typeReference = it.typeReference ?: return@mapNotNull null
                     val type = typeReference.analyze(BodyResolveMode.PARTIAL)[BindingContext.TYPE, typeReference]
                     val classDescriptor = type?.constructor?.declarationDescriptor as? ClassDescriptor
-                    classDescriptor?.source?.getPsi() as? KtClass
+                    val classPsi = classDescriptor?.source?.getPsi()
+                    when (classPsi) {
+                        is KtClass -> classPsi
+                        is PsiClass -> KtPsiClassWrapper(classPsi)
+                        else -> null
+                    }
                 }
-                .filter { it.isInterface() }
-                .mapTo(result) { KotlinMemberInfo(it, true) }
+        .filter { it.isInterfaceClass() }
+        .mapTo(result) { KotlinMemberInfo(it, true) }
     }
 
-    aClass.declarations
-            .filter { it is KtNamedDeclaration
-                      && it !is KtConstructor<*>
-                      && !(it is KtObjectDeclaration && it.isCompanion())
-                      && (filter == null || filter(it)) }
-            .mapTo(result) { KotlinMemberInfo(it as KtNamedDeclaration) }
+    aClass.getPrimaryConstructor()
+            ?.valueParameters
+            ?.filter { it.hasValOrVar() }
+            ?.mapTo(result) { KotlinMemberInfo(it) }
+
+    aClass.extractFromClassBody(filter, false, result)
+    (aClass as? KtClass)?.getCompanionObjects()?.firstOrNull()?.extractFromClassBody(filter, true, result)
 
     return result
 }

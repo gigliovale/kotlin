@@ -240,7 +240,7 @@ public class OverrideResolver {
 
         @Override
         public void overridingFinalMember(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor overridden) {
-            reportDelegationProblemIfRequired(OVERRIDING_FINAL_MEMBER_BY_DELEGATION, overriding, overridden);
+            reportDelegationProblemIfRequired(OVERRIDING_FINAL_MEMBER_BY_DELEGATION, null, overriding, overridden);
         }
 
         @Override
@@ -248,7 +248,8 @@ public class OverrideResolver {
                 @NotNull CallableMemberDescriptor overriding,
                 @NotNull CallableMemberDescriptor overridden
         ) {
-            // Always reported as RETURN_TYPE_MISMATCH_ON_INHERITANCE
+            reportDelegationProblemIfRequired(
+                    RETURN_TYPE_MISMATCH_BY_DELEGATION, RETURN_TYPE_MISMATCH_ON_INHERITANCE, overriding, overridden);
         }
 
         @Override
@@ -256,37 +257,28 @@ public class OverrideResolver {
                 @NotNull PropertyDescriptor overriding,
                 @NotNull PropertyDescriptor overridden
         ) {
-            // Always reported as PROPERTY_TYPE_MISMATCH_ON_INHERITANCE
+            reportDelegationProblemIfRequired(
+                    PROPERTY_TYPE_MISMATCH_BY_DELEGATION, PROPERTY_TYPE_MISMATCH_ON_INHERITANCE, overriding, overridden);
         }
 
         @Override
         public void varOverriddenByVal(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor overridden) {
-            reportDelegationProblemIfRequired(VAR_OVERRIDDEN_BY_VAL_BY_DELEGATION, overriding, overridden);
+            reportDelegationProblemIfRequired(VAR_OVERRIDDEN_BY_VAL_BY_DELEGATION, null, overriding, overridden);
         }
 
         private void reportDelegationProblemIfRequired(
                 @NotNull DiagnosticFactory2<KtClassOrObject, CallableMemberDescriptor, CallableMemberDescriptor> diagnosticFactory,
+                @Nullable DiagnosticFactoryWithPsiElement<?, ?> relevantDiagnosticFromInheritance,
                 @NotNull CallableMemberDescriptor delegate,
                 @NotNull CallableMemberDescriptor overridden
         ) {
             assert delegate.getKind() == DELEGATION : "Delegate expected, got " + delegate + " of kind " + delegate.getKind();
 
-            if (!onceErrorsReported.contains(diagnosticFactory)) {
+            if (!onceErrorsReported.contains(diagnosticFactory) &&
+                    (relevantDiagnosticFromInheritance == null || !onceErrorsReported.contains(relevantDiagnosticFromInheritance))) {
                 onceErrorsReported.add(diagnosticFactory);
                 trace.report(diagnosticFactory.on(klass, delegate, overridden));
             }
-        }
-
-        @Override
-        public void cannotOverrideInvisibleMember(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor invisibleOverridden) {
-            assert overriding.getKind() == DELEGATION : "Delegate expected, got " + overriding + " of kind " + overriding.getKind();
-            assert overriding.getKind() != DELEGATION : "Delegated member can't override an invisible member; " + invisibleOverridden;
-        }
-
-        @Override
-        public void nothingToOverride(@NotNull CallableMemberDescriptor overriding) {
-            assert overriding.getKind() == DELEGATION : "Delegate expected, got " + overriding + " of kind " + overriding.getKind();
-            assert overriding.getKind() != DELEGATION : "Delegated member can't override nothing; " + overriding;
         }
 
         void doReportErrors() {
@@ -576,8 +568,11 @@ public class OverrideResolver {
         void returnTypeMismatchOnOverride(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor overridden);
         void propertyTypeMismatchOnOverride(@NotNull PropertyDescriptor overriding, @NotNull PropertyDescriptor overridden);
         void varOverriddenByVal(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor overridden);
-        void cannotOverrideInvisibleMember(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor invisibleOverridden);
+    }
+
+    private interface CheckOverrideReportForDeclaredMemberStrategy extends CheckOverrideReportStrategy {
         void nothingToOverride(@NotNull CallableMemberDescriptor overriding);
+        void cannotOverrideInvisibleMember(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor invisibleOverridden);
     }
 
     private void checkOverrideForMember(@NotNull final CallableMemberDescriptor declared) {
@@ -602,7 +597,7 @@ public class OverrideResolver {
         Collection<? extends CallableMemberDescriptor> overriddenDescriptors = declared.getOverriddenDescriptors();
 
         if (hasOverrideNode) {
-            checkOverridesForMemberMarkedOverride(declared, true, new CheckOverrideReportStrategy() {
+            checkOverridesForMemberMarkedOverride(declared, new CheckOverrideReportForDeclaredMemberStrategy() {
                 private boolean finalOverriddenError = false;
                 private boolean typeMismatchError = false;
                 private boolean kindMismatchError = false;
@@ -688,14 +683,13 @@ public class OverrideResolver {
 
     private static void checkOverridesForMemberMarkedOverride(
             @NotNull CallableMemberDescriptor declared,
-            boolean checkIfOverridesNothing,
-            @NotNull CheckOverrideReportStrategy reportError
+            @NotNull CheckOverrideReportForDeclaredMemberStrategy reportError
     ) {
         Collection<? extends CallableMemberDescriptor> overriddenDescriptors = declared.getOverriddenDescriptors();
 
         checkOverridesForMember(declared, overriddenDescriptors, reportError);
 
-        if (checkIfOverridesNothing && overriddenDescriptors.isEmpty()) {
+        if (overriddenDescriptors.isEmpty()) {
             DeclarationDescriptor containingDeclaration = declared.getContainingDeclaration();
             assert containingDeclaration instanceof ClassDescriptor : "Overrides may only be resolved in a class, but " + declared + " comes from " + containingDeclaration;
             ClassDescriptor declaringClass = (ClassDescriptor) containingDeclaration;
@@ -799,7 +793,7 @@ public class OverrideResolver {
     private void checkOverrideForComponentFunction(@NotNull final CallableMemberDescriptor componentFunction) {
         final PsiElement dataModifier = findDataModifierForDataClass(componentFunction.getContainingDeclaration());
 
-        checkOverridesForMemberMarkedOverride(componentFunction, false, new CheckOverrideReportStrategy() {
+        checkOverridesForMember(componentFunction, componentFunction.getOverriddenDescriptors(), new CheckOverrideReportStrategy() {
             private boolean overrideConflict = false;
 
             @Override
@@ -826,16 +820,6 @@ public class OverrideResolver {
             @Override
             public void varOverriddenByVal(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor overridden) {
                 throw new IllegalStateException("Component functions are not properties");
-            }
-
-            @Override
-            public void cannotOverrideInvisibleMember(@NotNull CallableMemberDescriptor overriding, @NotNull CallableMemberDescriptor invisibleOverridden) {
-                throw new IllegalStateException("CANNOT_OVERRIDE_INVISIBLE_MEMBER should be reported on the corresponding property");
-            }
-
-            @Override
-            public void nothingToOverride(@NotNull CallableMemberDescriptor overriding) {
-                throw new IllegalStateException("Component functions are OK to override nothing");
             }
         });
     }

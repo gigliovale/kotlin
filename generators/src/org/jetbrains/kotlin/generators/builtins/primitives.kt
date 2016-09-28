@@ -121,6 +121,9 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
             generateRangeTo(kind)
 
             if (kind == PrimitiveType.INT || kind == PrimitiveType.LONG) {
+                generateBitShiftOperators(className)
+            }
+            if (kind == PrimitiveType.INT || kind == PrimitiveType.LONG || kind == PrimitiveType.BYTE || kind == PrimitiveType.SHORT) {
                 generateBitwiseOperators(className)
             }
 
@@ -190,11 +193,13 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
         out.println()
     }
 
-    private fun generateBitwiseOperators(className: String) {
+    private fun generateBitShiftOperators(className: String) {
         for ((name, doc) in shiftOperators) {
             out.println("    /** $doc */")
             out.println("    public infix fun $name(bitCount: Int): $className")
         }
+    }
+    private fun generateBitwiseOperators(className: String) {
         for ((name, doc) in bitwiseOperators) {
             out.println("    /** $doc */")
             out.println("    public infix fun $name(other: $className): $className")

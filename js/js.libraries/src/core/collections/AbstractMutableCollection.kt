@@ -17,12 +17,9 @@
 package kotlin.collections
 
 
-public abstract class AbstractCollection<E> protected constructor() : MutableCollection<E> {
+public abstract class AbstractMutableCollection<E> protected constructor() : AbstractCollection<E>(), MutableCollection<E> {
 
-    abstract override val size: Int
-    abstract override fun iterator(): MutableIterator<E>
-
-    override fun add(element: E): Boolean = throw UnsupportedOperationException("Add not supported on this collection")
+    abstract override fun add(element: E): Boolean
 
     override fun remove(element: E): Boolean {
         val iterator = iterator()
@@ -34,18 +31,6 @@ public abstract class AbstractCollection<E> protected constructor() : MutableCol
         }
         return false
     }
-
-    override fun isEmpty(): Boolean = size == 0
-
-    override fun contains(element: E): Boolean {
-        for (e in this) {
-            if (e == element) return true
-        }
-        return false
-    }
-
-    override fun containsAll(elements: Collection<E>): Boolean = elements.all { contains(it) }
-
 
     override fun addAll(elements: Collection<E>): Boolean {
         var modified = false
@@ -66,14 +51,7 @@ public abstract class AbstractCollection<E> protected constructor() : MutableCol
         }
     }
 
-    abstract override fun hashCode(): Int
-
-    abstract override fun equals(other: Any?): Boolean
-
-    override fun toString(): String = joinToString(", ", "[", "]") {
-        if (it === this) "(this Collection)" else it.toString()
-    }
-
+    // TODO: move somehow to AbstractCollection: can't move now, because it cannot be protected on JVM, just public
     protected open fun toArray(): Array<Any?> = copyToArrayImpl(this)
 
     open fun toJSON(): Any = this.toArray()

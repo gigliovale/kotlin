@@ -21,7 +21,7 @@ package kotlin.collections
 
 import kotlin.collections.MutableMap.MutableEntry
 
-open class LinkedHashMap<K, V> : HashMap<K, V>, Map<K, V> {
+public open class LinkedHashMap<K, V> : HashMap<K, V>, Map<K, V> {
 
     /**
      * The entry we use includes next/prev pointers for a doubly-linked circular
@@ -35,12 +35,12 @@ open class LinkedHashMap<K, V> : HashMap<K, V>, Map<K, V> {
      * small modifications. Paying a small storage cost only if you use
      * LinkedHashMap and minimizing code size seemed like a better tradeoff
      */
-    private class ChainEntry<K, V>(key: K, value: V) : AbstractMap.SimpleEntry<K, V>(key, value) {
+    private class ChainEntry<K, V>(key: K, value: V) : AbstractMutableMap.SimpleEntry<K, V>(key, value) {
         internal var next: ChainEntry<K, V>? = null
         internal var prev: ChainEntry<K, V>? = null
     }
 
-    private inner class EntrySet : AbstractSet<MutableEntry<K, V>>() {
+    private inner class EntrySet : AbstractMutableSet<MutableEntry<K, V>>() {
 
         private inner class EntryIterator : MutableIterator<MutableEntry<K, V>> {
             // The last entry that was returned from this iterator.
@@ -80,6 +80,7 @@ open class LinkedHashMap<K, V> : HashMap<K, V>, Map<K, V> {
             }
         }
 
+        override fun add(element: MutableEntry<K, V>): Boolean = throw UnsupportedOperationException("Add is not supported on entries")
         override fun clear() {
             this@LinkedHashMap.clear()
         }
@@ -201,8 +202,7 @@ open class LinkedHashMap<K, V> : HashMap<K, V>, Map<K, V> {
     }
 
 
-    override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = EntrySet()
+    override fun createEntrySet(): MutableSet<MutableMap.MutableEntry<K, V>> = EntrySet()
 
     override operator fun get(key: K): V? = map.get(key)?.value
 

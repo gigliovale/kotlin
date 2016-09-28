@@ -23,10 +23,11 @@ package kotlin.collections
 import kotlin.collections.Map.Entry
 import kotlin.collections.MutableMap.MutableEntry
 
-open class HashMap<K, V> : AbstractMap<K, V> {
+public open class HashMap<K, V> : AbstractMutableMap<K, V> {
 
-    private inner class EntrySet : AbstractSet<MutableEntry<K, V>>() {
+    private inner class EntrySet : AbstractMutableSet<MutableEntry<K, V>>() {
 
+        override fun add(element: MutableEntry<K, V>): Boolean = throw UnsupportedOperationException("Add is not supported on entries")
         override fun clear() {
             this@HashMap.clear()
         }
@@ -80,8 +81,15 @@ open class HashMap<K, V> : AbstractMap<K, V> {
 
     override fun containsValue(value: V): Boolean = internalMap.any { equality.equals(it.value, value) }
 
-    override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = EntrySet()
+    private var _entries: MutableSet<MutableMap.MutableEntry<K, V>>? = null
+    override val entries: MutableSet<MutableMap.MutableEntry<K, V>> get() {
+        if (_entries == null) {
+            _entries = createEntrySet()
+        }
+        return _entries!!
+    }
+
+    protected open fun createEntrySet(): MutableSet<MutableMap.MutableEntry<K, V>> = EntrySet()
 
     override operator fun get(key: K): V? = internalMap.get(key)
 

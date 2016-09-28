@@ -34,10 +34,20 @@ public class Date() {
 
 // TODO: Deprecate with replacement
 public typealias RandomAccess = kotlin.collections.RandomAccess
-public typealias AbstractCollection<E> = kotlin.collections.AbstractCollection<E>
-public typealias AbstractList<E> = kotlin.collections.AbstractList<E>
 public typealias ArrayList<E> = kotlin.collections.ArrayList<E>
 public typealias HashSet<E> = kotlin.collections.HashSet<E>
 public typealias LinkedHashSet<E> = kotlin.collections.LinkedHashSet<E>
 public typealias HashMap<K, V> = kotlin.collections.HashMap<K, V>
 public typealias LinkedHashMap<K, V> = kotlin.collections.LinkedHashMap<K, V>
+
+@Deprecated("Use AbstractCollection or AbstractMutableCollection from kotlin.collections", ReplaceWith("kotlin.collections.AbstractMutableCollection<E>"))
+public abstract class AbstractCollection<E> : kotlin.collections.AbstractMutableCollection<E>() {
+    override fun add(element: E): Boolean = throw UnsupportedOperationException()
+}
+
+@Deprecated("Use AbstractList or AbstractMutableList from kotlin.collections", ReplaceWith("kotlin.collections.AbstractMutableList<E>"))
+public abstract class AbstractList<E> : kotlin.collections.AbstractMutableList<E>() {
+    override fun add(index: Int, element: E): Unit = throw UnsupportedOperationException()
+    override fun removeAt(index: Int): E = throw UnsupportedOperationException()
+    override fun set(index: Int, element: E): E = throw UnsupportedOperationException()
+}

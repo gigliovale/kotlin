@@ -155,6 +155,15 @@ public class Byte private () : Number, Comparable<Byte> {
      /** Creates a range from this value to the specified [other] value. */
     public operator fun rangeTo(other: Long): LongRange
 
+    /** Shifts this value left by [bits]. */
+    @SinceKotlin("1.1")
+    public infix fun shl(bitCount: Int): Byte
+    /** Shifts this value right by [bits], filling the leftmost bits with copies of the sign bit. */
+    @SinceKotlin("1.1")
+    public infix fun shr(bitCount: Int): Byte
+    /** Shifts this value right by [bits], filling the leftmost bits with zeros. */
+    @SinceKotlin("1.1")
+    public infix fun ushr(bitCount: Int): Byte
     /** Performs a bitwise AND operation between the two values. */
     @SinceKotlin("1.1")
     public infix fun and(other: Byte): Byte
@@ -314,6 +323,15 @@ public class Short private () : Number, Comparable<Short> {
      /** Creates a range from this value to the specified [other] value. */
     public operator fun rangeTo(other: Long): LongRange
 
+    /** Shifts this value left by [bits]. */
+    @SinceKotlin("1.1")
+    public infix fun shl(bitCount: Int): Short
+    /** Shifts this value right by [bits], filling the leftmost bits with copies of the sign bit. */
+    @SinceKotlin("1.1")
+    public infix fun shr(bitCount: Int): Short
+    /** Shifts this value right by [bits], filling the leftmost bits with zeros. */
+    @SinceKotlin("1.1")
+    public infix fun ushr(bitCount: Int): Short
     /** Performs a bitwise AND operation between the two values. */
     @SinceKotlin("1.1")
     public infix fun and(other: Short): Short

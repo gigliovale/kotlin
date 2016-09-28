@@ -120,11 +120,10 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
             generateUnaryOperators(kind)
             generateRangeTo(kind)
 
-            if (kind == PrimitiveType.INT || kind == PrimitiveType.LONG) {
-                generateBitShiftOperators(className)
-            }
             if (kind == PrimitiveType.INT || kind == PrimitiveType.LONG || kind == PrimitiveType.BYTE || kind == PrimitiveType.SHORT) {
-                generateBitwiseOperators(className, since = if (kind == PrimitiveType.BYTE || kind == PrimitiveType.SHORT) "1.1" else null)
+                val since = if (kind == PrimitiveType.BYTE || kind == PrimitiveType.SHORT) "1.1" else null
+                generateBitShiftOperators(className, since = since)
+                generateBitwiseOperators(className, since = since)
             }
 
             generateConversions(kind)
@@ -193,9 +192,10 @@ class GeneratePrimitives(out: PrintWriter) : BuiltInsSourceGenerator(out) {
         out.println()
     }
 
-    private fun generateBitShiftOperators(className: String) {
+    private fun generateBitShiftOperators(className: String, since: String?) {
         for ((name, doc) in shiftOperators) {
             out.println("    /** $doc */")
+            since?.let { out.println("    @SinceKotlin(\"$it\")") }
             out.println("    public infix fun $name(bitCount: Int): $className")
         }
     }

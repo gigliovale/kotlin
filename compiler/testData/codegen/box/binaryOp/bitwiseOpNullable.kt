@@ -45,11 +45,17 @@ fun box(): String {
     var s2: Short? = sarg1 or  sarg2
     var s3: Short? = sarg1 xor sarg2
     var s4: Short? = sarg1.inv()
+    var s5: Short? = sarg1 shl 8
+    var s6: Short? = sarg1 shr 8
+    var s7: Short? = sarg1 ushr 8
 
     if (s1 != 0x4454.toShort()) return "fail: Short.and"
     if (s2 != 0xFDDE.toShort()) return "fail: Short.or"
     if (s3 != 0xB98A.toShort()) return "fail: Short.xor"
     if (s4 != 0x23A9.toShort()) return "fail: Short.inv"
+    if (s5 != 0x5600.toShort()) return "fail: Short.shl"
+    if (s6 != 0xFFDC.toShort()) return "fail: Short.shr"
+    // TODO: if (s7 != 0x00DC.toShort()) return "fail: Short.ushr"
 
     var barg1: Byte = 0xDC.toByte()
     var barg2: Byte = 0x65.toByte()
@@ -57,11 +63,17 @@ fun box(): String {
     var b2: Byte? = barg1 or  barg2
     var b3: Byte? = barg1 xor barg2
     var b4: Byte? = barg1.inv()
+    var b5: Byte? = barg1 shl 4
+    var b6: Byte? = barg1 shr 4
+    var b7: Byte? = barg1 ushr 4
 
     if (b1 != 0x44.toByte()) return "fail: Byte.and"
     if (b2 != 0xFD.toByte()) return "fail: Byte.or"
     if (b3 != 0xB9.toByte()) return "fail: Byte.xor"
     if (b4 != 0x23.toByte()) return "fail: Byte.inv"
+    if (b5 != 0xC0.toByte()) return "fail: Byte.shl"
+    if (b6 != 0xFD.toByte()) return "fail: Byte.shr"
+    // TODO: if (b7 != 0x0D.toByte()) return "fail: Byte.ushr"
 
     return "OK"
 }

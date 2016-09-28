@@ -92,6 +92,8 @@ public final class Byte : kotlin.Number, kotlin.Comparable<kotlin.Byte>, java.io
     public final operator fun rangeTo(/*0*/ other: kotlin.Int): kotlin.ranges.IntRange
     public final operator fun rangeTo(/*0*/ other: kotlin.Long): kotlin.ranges.LongRange
     public final operator fun rangeTo(/*0*/ other: kotlin.Short): kotlin.ranges.IntRange
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun shl(/*0*/ bitCount: kotlin.Int): kotlin.Byte
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun shr(/*0*/ bitCount: kotlin.Int): kotlin.Byte
     public final operator fun times(/*0*/ other: kotlin.Byte): kotlin.Int
     public final operator fun times(/*0*/ other: kotlin.Double): kotlin.Double
     public final operator fun times(/*0*/ other: kotlin.Float): kotlin.Float
@@ -107,6 +109,7 @@ public final class Byte : kotlin.Number, kotlin.Comparable<kotlin.Byte>, java.io
     public open override /*1*/ fun toShort(): kotlin.Short
     public final operator fun unaryMinus(): kotlin.Int
     public final operator fun unaryPlus(): kotlin.Int
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun ushr(/*0*/ bitCount: kotlin.Int): kotlin.Byte
     @kotlin.SinceKotlin(version = "1.1") public final infix fun xor(/*0*/ other: kotlin.Byte): kotlin.Byte
 
     public companion object Companion {
@@ -628,6 +631,8 @@ public final class Short : kotlin.Number, kotlin.Comparable<kotlin.Short>, java.
     public final operator fun rangeTo(/*0*/ other: kotlin.Int): kotlin.ranges.IntRange
     public final operator fun rangeTo(/*0*/ other: kotlin.Long): kotlin.ranges.LongRange
     public final operator fun rangeTo(/*0*/ other: kotlin.Short): kotlin.ranges.IntRange
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun shl(/*0*/ bitCount: kotlin.Int): kotlin.Short
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun shr(/*0*/ bitCount: kotlin.Int): kotlin.Short
     public final operator fun times(/*0*/ other: kotlin.Byte): kotlin.Int
     public final operator fun times(/*0*/ other: kotlin.Double): kotlin.Double
     public final operator fun times(/*0*/ other: kotlin.Float): kotlin.Float
@@ -643,6 +648,7 @@ public final class Short : kotlin.Number, kotlin.Comparable<kotlin.Short>, java.
     public open override /*1*/ fun toShort(): kotlin.Short
     public final operator fun unaryMinus(): kotlin.Int
     public final operator fun unaryPlus(): kotlin.Int
+    @kotlin.SinceKotlin(version = "1.1") public final infix fun ushr(/*0*/ bitCount: kotlin.Int): kotlin.Short
     @kotlin.SinceKotlin(version = "1.1") public final infix fun xor(/*0*/ other: kotlin.Short): kotlin.Short
 
     public companion object Companion {

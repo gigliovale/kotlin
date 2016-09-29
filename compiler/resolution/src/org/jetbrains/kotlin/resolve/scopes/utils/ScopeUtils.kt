@@ -208,7 +208,7 @@ private class LexicalScopeWrapper(val delegate: LexicalScope, val newImportingSc
         }
     }
 
-    override val parent: HierarchicalScope by lazy(LazyThreadSafetyMode.NONE) {
+    override val parent: HierarchicalScope by lazy(LazyThreadSafetyMode.PUBLICATION) {
         assert(delegate !is ImportingScope)
 
         val parent = delegate.parent

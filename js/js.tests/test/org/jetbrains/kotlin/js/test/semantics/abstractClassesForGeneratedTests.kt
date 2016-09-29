@@ -16,57 +16,47 @@
 
 package org.jetbrains.kotlin.js.test.semantics
 
-import org.jetbrains.kotlin.js.test.AbstractSingleFileTranslationWithDirectivesTest
-import org.jetbrains.kotlin.js.test.KotlinJSMultiFileTest
-import org.jetbrains.kotlin.js.test.MultipleModulesTranslationTest
-import org.jetbrains.kotlin.js.test.SingleFileTranslationTest
+import org.jetbrains.kotlin.js.test.BasicBoxTest
 
-abstract class AbstractBlackBoxTest(d: String) : SingleFileTranslationTest(d) {
-    override fun doTest(filename: String) = checkBlackBoxIsOkByPath(filename)
+abstract class BorrowedTest(relativePath: String) : BasicBoxTest(
+        "compiler/testData/codegen/box/$relativePath",
+        "${BasicBoxTest.TEST_DATA_DIR_PATH}/out/jvm/box/$relativePath/"
+) {
+    init {
+        additionalCommonFileDirectories += BasicBoxTest.TEST_DATA_DIR_PATH + relativePath + "/_commonFiles/"
+    }
 }
 
-abstract class AbstractBridgeTest : AbstractBlackBoxTest("bridges/")
+abstract class BorrowedInlineTest(relativePath: String) : BasicBoxTest(
+        "compiler/testData/codegen/boxInline/$relativePath",
+        "${BasicBoxTest.TEST_DATA_DIR_PATH}/out/jvm/boxInline/$relativePath/"
+) {
+    init {
+        additionalCommonFileDirectories += BasicBoxTest.TEST_DATA_DIR_PATH + relativePath + "/_commonFiles/"
+    }
+}
 
-abstract class AbstractCallableReferenceTest(main: String) : SingleFileTranslationTest("callableReference/" + main)
+abstract class AbstractBoxJsTest() : BasicBoxTest(
+        BasicBoxTest.TEST_DATA_DIR_PATH + "box/",
+        BasicBoxTest.TEST_DATA_DIR_PATH + "out/box/"
+)
 
-abstract class AbstractCompanionObjectTest : SingleFileTranslationTest("objectIntrinsics/")
+abstract class AbstractBridgeTest : BorrowedTest("bridges/")
 
-abstract class AbstractDynamicTest : SingleFileTranslationTest("dynamic/")
+abstract class AbstractCompanionObjectTest : BorrowedTest("objectIntrinsics/")
 
-abstract class AbstractFunctionExpressionTest : AbstractBlackBoxTest("functionExpression/")
+abstract class AbstractFunctionExpressionTest : BorrowedTest("functions/functionExpression/")
 
-abstract class AbstractInlineEvaluationOrderTest : AbstractSingleFileTranslationWithDirectivesTest("inlineEvaluationOrder/")
+abstract class AbstractSecondaryConstructorTest : BorrowedTest("secondaryConstructors/")
 
-abstract class AbstractInlineJsStdlibTest : AbstractSingleFileTranslationWithDirectivesTest("inlineStdlib/")
+abstract class AbstractInnerNestedTest : BorrowedTest("innerNested/")
 
-abstract class AbstractInlineJsTest : AbstractSingleFileTranslationWithDirectivesTest("inline/")
+abstract class AbstractClassesTest : BorrowedTest("classes/")
 
-abstract class AbstractJsCodeTest : AbstractSingleFileTranslationWithDirectivesTest("jsCode/")
+abstract class AbstractSuperTest : BorrowedTest("super/")
 
-abstract class AbstractLabelTest : AbstractSingleFileTranslationWithDirectivesTest("labels/")
+abstract class AbstractLocalClassesTest : BorrowedTest("localClasses/")
 
-abstract class AbstractMultiModuleTest : MultipleModulesTranslationTest("multiModule/")
+abstract class AbstractNonLocalReturnsTest : BorrowedInlineTest("nonLocalReturns/")
 
-abstract class AbstractInlineMultiModuleTest : MultipleModulesTranslationTest("inlineMultiModule/")
-
-abstract class AbstractReservedWordTest : SingleFileTranslationTest("reservedWords/")
-
-abstract class AbstractSecondaryConstructorTest : AbstractBlackBoxTest("secondaryConstructors/")
-
-abstract class AbstractInnerNestedTest : AbstractBlackBoxTest("innerNested/")
-
-abstract class AbstractClassesTest : AbstractBlackBoxTest("classes/")
-
-abstract class AbstractSuperTest : AbstractBlackBoxTest("super/")
-
-abstract class AbstractLocalClassesTest : AbstractBlackBoxTest("localClasses/")
-
-abstract class AbstractNonLocalReturnsTest : KotlinJSMultiFileTest("inline.generated/nonLocalReturns/")
-
-abstract class AbstractRttiTest : SingleFileTranslationTest("rtti/")
-
-abstract class AbstractCastTest : SingleFileTranslationTest("expression/cast/")
-
-abstract class AbstractLightReflectionTest : SingleFileTranslationTest("reflection/light/")
-
-abstract class AbstractTypeAliasesTests : AbstractBlackBoxTest("typealiases/")
+abstract class AbstractTypeAliasesTests : BorrowedTest("typealias/")

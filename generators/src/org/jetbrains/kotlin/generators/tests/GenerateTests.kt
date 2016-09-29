@@ -1137,60 +1137,8 @@ fun main(args: Array<String>) {
     generateTestDataForReservedWords()
 
     testGroup("js/js.tests/test", "js/js.translator/testData") {
-        testClass<AbstractReservedWordTest>() {
-            model("reservedWords/cases")
-        }
-
-        testClass<AbstractDynamicTest>() {
-            model("dynamic/cases")
-        }
-
-        testClass<AbstractMultiModuleTest>() {
-            model("multiModule/cases", extension = null, recursive =false)
-        }
-
-        testClass<AbstractInlineJsTest>() {
-            model("inline/cases")
-        }
-
-        testClass<AbstractInlineJsStdlibTest>() {
-            model("inlineStdlib/cases")
-        }
-
-        testClass<AbstractInlineEvaluationOrderTest>() {
-            model("inlineEvaluationOrder/cases")
-        }
-
-        testClass<AbstractInlineMultiModuleTest>() {
-            model("inlineMultiModule/cases", extension = null, recursive =false)
-        }
-
-        testClass<AbstractLabelTest>() {
-            model("labels/cases")
-        }
-
-        testClass<AbstractJsCodeTest>() {
-            model("jsCode/cases")
-        }
-
-        testClass<AbstractInlineSizeReductionTest>() {
-            model("inlineSizeReduction/cases")
-        }
-
-        testClass<AbstractReifiedTest>() {
-            model("reified/cases")
-        }
-
-        testClass<AbstractRttiTest>() {
-            model("rtti/cases")
-        }
-
-        testClass<AbstractCastTest>() {
-            model("expression/cast/cases")
-        }
-
-        testClass<AbstractLightReflectionTest>() {
-            model("reflection/light/cases")
+        testClass<AbstractBoxJsTest>() {
+            model("box/", pattern = "^([^_](.+))\\.kt$")
         }
     }
 

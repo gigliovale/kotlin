@@ -28,6 +28,7 @@ import com.intellij.util.LocalTimeCounter
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.lexer.KtModifierKeywordToken
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.ImportPath
@@ -211,9 +212,15 @@ class KtPsiFactory(private val project: Project) {
         return PsiFileFactory.getInstance(project).createFileFromText(fileName, KotlinFileType.INSTANCE, text, LocalTimeCounter.currentTime(), true) as KtFile
     }
 
-    fun createProperty(name: String, type: String?, isVar: Boolean, initializer: String?): KtProperty {
-        val text = (if (isVar) "var " else "val ") + name + (if (type != null) ":" + type else "") + (if (initializer == null) "" else " = " + initializer)
+    fun createProperty(modifiers: String?, name: String, type: String?, isVar: Boolean, initializer: String?): KtProperty {
+        val text = (modifiers.let { "$it "} ?: "") +
+                   (if (isVar) " var " else " val ") + name +
+                   (if (type != null) ":" + type else "") + (if (initializer == null) "" else " = " + initializer)
         return createProperty(text)
+    }
+
+    fun createProperty(name: String, type: String?, isVar: Boolean, initializer: String?): KtProperty {
+        return createProperty(null, name, type, isVar, initializer)
     }
 
     fun createProperty(name: String, type: String?, isVar: Boolean): KtProperty {
@@ -390,6 +397,10 @@ class KtPsiFactory(private val project: Project) {
         return createClass("class A()").getPrimaryConstructor()!!
     }
 
+    fun createPrimaryConstructor(modifiers: String?): KtPrimaryConstructor {
+        return modifiers?.let { createClass("class A $modifiers constructor()").getPrimaryConstructor() } ?: createPrimaryConstructor()
+    }
+
     fun createConstructorKeyword(): PsiElement =
             createClass("class A constructor()").getPrimaryConstructor()!!.getConstructorKeyword()!!
 
@@ -548,8 +559,14 @@ class KtPsiFactory(private val project: Project) {
     }
 
     class CallableBuilder(private val target: Target) {
+
+        companion object {
+            val CONSTRUCTOR_NAME = KtTokens.CONSTRUCTOR_KEYWORD.value
+        }
+
         enum class Target {
             FUNCTION,
+            CONSTRUCTOR,
             READ_ONLY_PROPERTY
         }
 
@@ -568,7 +585,7 @@ class KtPsiFactory(private val project: Project) {
         private var state = State.MODIFIERS
 
         private fun closeParams() {
-            if (target == Target.FUNCTION) {
+            if (target == Target.FUNCTION || target == Target.CONSTRUCTOR) {
                 assert(state == State.FIRST_PARAM || state == State.REST_PARAMS)
                 sb.append(")")
             }
@@ -584,6 +601,7 @@ class KtPsiFactory(private val project: Project) {
             }
             val keyword = when (target) {
                 Target.FUNCTION -> "fun"
+                Target.CONSTRUCTOR -> ""
                 Target.READ_ONLY_PROPERTY -> "val"
             }
             sb.append("$keyword ")
@@ -592,7 +610,7 @@ class KtPsiFactory(private val project: Project) {
         }
 
         private fun bodyPrefix() = when (target) {
-            Target.FUNCTION -> ""
+            Target.FUNCTION, Target.CONSTRUCTOR -> ""
             Target.READ_ONLY_PROPERTY -> "\nget()"
         }
 
@@ -604,7 +622,7 @@ class KtPsiFactory(private val project: Project) {
             return this
         }
 
-        fun typeParams(values: Collection<String>): CallableBuilder {
+        fun typeParams(values: Collection<String> = emptyList()): CallableBuilder {
             placeKeyword()
             if (!values.isEmpty()) {
                 sb.append(values.joinToString(", ", "<", "> ", -1, ""))
@@ -622,12 +640,13 @@ class KtPsiFactory(private val project: Project) {
             return this
         }
 
-        fun name(name: String): CallableBuilder {
+        fun name(name: String = CONSTRUCTOR_NAME): CallableBuilder {
             assert(state == State.NAME || state == State.RECEIVER)
+            assert(name != CONSTRUCTOR_NAME || target == Target.CONSTRUCTOR)
 
             sb.append(name)
             when (target) {
-                Target.FUNCTION -> {
+                Target.FUNCTION, Target.CONSTRUCTOR -> {
                     sb.append("(")
                     state = State.FIRST_PARAM
                 }
@@ -638,14 +657,17 @@ class KtPsiFactory(private val project: Project) {
             return this
         }
 
-        fun param(name: String, type: String): CallableBuilder {
-            assert(target == Target.FUNCTION)
+        fun param(name: String, type: String, defaultValue: String? = null): CallableBuilder {
+            assert(target == Target.FUNCTION || target == Target.CONSTRUCTOR)
             assert(state == State.FIRST_PARAM || state == State.REST_PARAMS)
 
             if (state == State.REST_PARAMS) {
                 sb.append(", ")
             }
             sb.append(name).append(": ").append(type)
+            if (defaultValue != null) {
+                sb.append("= ").append(defaultValue)
+            }
             if (state == State.FIRST_PARAM) {
                 state = State.REST_PARAMS
             }
@@ -667,11 +689,20 @@ class KtPsiFactory(private val project: Project) {
         }
 
         fun typeConstraints(values: Collection<String>): CallableBuilder {
-            assert(state == State.TYPE_CONSTRAINTS)
+            assert(state == State.TYPE_CONSTRAINTS && target != Target.CONSTRUCTOR)
 
             if (!values.isEmpty()) {
                 sb.append(values.joinToString(", ", " where ", "", -1, ""))
             }
+            state = State.BODY
+
+            return this
+        }
+
+        fun superDelegation(argumentList: String): CallableBuilder {
+            assert(state == State.TYPE_CONSTRAINTS && target == Target.CONSTRUCTOR)
+
+            sb.append(": super").append(argumentList)
             state = State.BODY
 
             return this

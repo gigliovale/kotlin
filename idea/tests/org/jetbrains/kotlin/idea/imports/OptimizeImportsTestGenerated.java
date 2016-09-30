@@ -155,6 +155,24 @@ public class OptimizeImportsTestGenerated extends AbstractOptimizeImportsTest {
         doTest(fileName);
     }
 
+    @TestMetadata("KT11640.kt")
+    public void testKT11640() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/KT11640.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("KT11640_1.kt")
+    public void testKT11640_1() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/KT11640_1.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("KT13766.kt")
+    public void testKT13766() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/KT13766.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("KT9875.kt")
     public void testKT9875() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/KT9875.kt");
@@ -209,6 +227,24 @@ public class OptimizeImportsTestGenerated extends AbstractOptimizeImportsTest {
         doTest(fileName);
     }
 
+    @TestMetadata("Operators.kt")
+    public void testOperators() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/Operators.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("Overloads.kt")
+    public void testOverloads() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/Overloads.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("PlusAndPlusAssign.kt")
+    public void testPlusAndPlusAssign() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/PlusAndPlusAssign.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("RemoveImportsIfGeneral.kt")
     public void testRemoveImportsIfGeneral() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/RemoveImportsIfGeneral.kt");
@@ -242,6 +278,12 @@ public class OptimizeImportsTestGenerated extends AbstractOptimizeImportsTest {
     @TestMetadata("TrivialAlias.kt")
     public void testTrivialAlias() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/TrivialAlias.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("TwoConstructors.kt")
+    public void testTwoConstructors() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/optimizeImports/TwoConstructors.kt");
         doTest(fileName);
     }
 

@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.references;
 
+import com.google.common.collect.Lists;
 import com.intellij.lang.ASTNode;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.psi.MultiRangeReference;
@@ -24,11 +25,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.lexer.KtTokens;
+import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.calls.callUtil.CallUtilKt;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCall;
+import org.jetbrains.kotlin.util.OperatorNameConventions;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -111,5 +114,13 @@ public class KtInvokeFunctionReference extends KtSimpleReference<KtCallExpressio
     @Override
     public PsiElement handleElementRename(@Nullable String newElementName) {
         return ReferenceUtilKt.renameImplicitConventionalCall(this, newElementName);
+    }
+
+    private static final List<Name> NAMES = Lists.newArrayList(OperatorNameConventions.INVOKE);
+
+    @NotNull
+    @Override
+    public Collection<Name> getResolvesByNames() {
+        return NAMES;
     }
 }

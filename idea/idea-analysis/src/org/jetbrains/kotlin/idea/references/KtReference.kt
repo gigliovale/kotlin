@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PackageViewDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtReferenceExpression
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -34,6 +35,8 @@ interface KtReference : PsiPolyVariantReference {
     fun resolveToDescriptors(bindingContext: BindingContext): Collection<DeclarationDescriptor>
 
     override fun getElement(): KtElement
+
+    val resolvesByNames: Collection<Name>
 }
 
 abstract class AbstractKtReference<T : KtElement>(element: T)

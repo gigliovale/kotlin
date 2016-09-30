@@ -20,19 +20,17 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.TreeElement
 import org.jetbrains.kotlin.lexer.KtSingleValueToken
-import org.jetbrains.kotlin.lexer.KtToken
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.parsing.KotlinExpressionParsing
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 
 class KtOperationReferenceExpression(node: ASTNode) : KtSimpleNameExpressionImpl(node) {
     override fun getReferencedNameElement() = findChildByType<PsiElement?>(KotlinExpressionParsing.ALL_OPERATIONS) ?: this
 
-    fun getNameForConventionalOperation(unaryOperations: Boolean = true, binaryOperations: Boolean = true): Name? {
-        val operator = (firstChild as? TreeElement)?.elementType as? KtToken ?: return null
-        return OperatorConventions.getNameForOperationSymbol(operator, unaryOperations, binaryOperations)
+    val operationSignTokenType: KtSingleValueToken?
+        get() = (firstChild as? TreeElement)?.elementType as? KtSingleValueToken
+
+    fun isConventionOperator(): Boolean {
+        val tokenType = operationSignTokenType ?: return false
+        return OperatorConventions.getNameForOperationSymbol(tokenType) != null
     }
-
-    fun isPredefinedOperator() = (firstChild as? TreeElement)?.elementType is KtSingleValueToken
-
 }

@@ -27,11 +27,18 @@ class Controller {
 
     }
 
-    <!INAPPLICABLE_MODIFIER!>suspend<!> fun starProjection(vararg x: Continuation<Any>) {
+    <!INAPPLICABLE_MODIFIER!>suspend<!> fun starProjection(x: Continuation<*>) {
+
+    }
+
+    <!INAPPLICABLE_MODIFIER!>suspend<!> fun varargs(vararg x: Continuation<Any>) {
 
     }
 
     suspend fun String.memberExtension(x: Continuation<Int>) {
 
     }
+
+    suspend fun returnsUnit(x: Continuation<Int>) = Unit
+    <!INAPPLICABLE_MODIFIER!>suspend<!> fun returnsNotUnit(x: Continuation<Int>) = 1
 }

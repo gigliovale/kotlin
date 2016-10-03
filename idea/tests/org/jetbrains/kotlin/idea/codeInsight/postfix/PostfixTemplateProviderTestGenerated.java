@@ -41,6 +41,18 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
         doTest(fileName);
     }
 
+    @TestMetadata("assertNonTopLevel.kt")
+    public void testAssertNonTopLevel() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/assertNonTopLevel.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("doNotProposeWrappingIncrement.kt")
+    public void testDoNotProposeWrappingIncrement() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/doNotProposeWrappingIncrement.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("else.kt")
     public void testElse() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/else.kt");
@@ -62,6 +74,18 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
     @TestMetadata("iter.kt")
     public void testIter() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/iter.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("noParOnLoop.kt")
+    public void testNoParOnLoop() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/noParOnLoop.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("noReturnForNonStatement.kt")
+    public void testNoReturnForNonStatement() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/noReturnForNonStatement.kt");
         doTest(fileName);
     }
 
@@ -101,9 +125,21 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
         doTest(fileName);
     }
 
+    @TestMetadata("parAssignment.kt")
+    public void testParAssignment() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/parAssignment.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("return.kt")
     public void testReturn() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/return.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("returnFromLoop.kt")
+    public void testReturnFromLoop() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/returnFromLoop.kt");
         doTest(fileName);
     }
 
@@ -113,9 +149,33 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
         doTest(fileName);
     }
 
+    @TestMetadata("soutInIf.kt")
+    public void testSoutInIf() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/soutInIf.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("soutInLoop.kt")
+    public void testSoutInLoop() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/soutInLoop.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("try.kt")
     public void testTry() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/try.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("tryOnFor.kt")
+    public void testTryOnFor() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/tryOnFor.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("tryOnStatement.kt")
+    public void testTryOnStatement() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/tryOnStatement.kt");
         doTest(fileName);
     }
 
@@ -137,6 +197,18 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
         doTest(fileName);
     }
 
+    @TestMetadata("valAtLamba.kt")
+    public void testValAtLamba() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/valAtLamba.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("valAtLambaArgumentInCall.kt")
+    public void testValAtLambaArgumentInCall() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/valAtLambaArgumentInCall.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("var.kt")
     public void testVar() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/var.kt");
@@ -146,6 +218,12 @@ public class PostfixTemplateProviderTestGenerated extends AbstractPostfixTemplat
     @TestMetadata("when.kt")
     public void testWhen() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/when.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("whenExpression.kt")
+    public void testWhenExpression() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/codeInsight/postfix/whenExpression.kt");
         doTest(fileName);
     }
 

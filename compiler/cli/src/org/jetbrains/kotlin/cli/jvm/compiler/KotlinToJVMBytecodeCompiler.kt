@@ -16,10 +16,15 @@
 
 package org.jetbrains.kotlin.cli.jvm.compiler
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.JarUtil
-import org.jetbrains.annotations.TestOnly
+import com.intellij.openapi.vfs.VfsUtilCore
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiModificationTrackerImpl
+import com.intellij.psi.search.DelegatingGlobalSearchScope
+import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.analyzer.AnalysisResult
 import org.jetbrains.kotlin.asJava.FilteredJvmDiagnostics
 import org.jetbrains.kotlin.backend.common.output.OutputFileCollection
@@ -29,15 +34,11 @@ import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.cli.common.messages.*
 import org.jetbrains.kotlin.cli.common.output.outputUtils.writeAll
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
-import org.jetbrains.kotlin.cli.jvm.config.addJavaSourceRoot
-import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoot
-import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
+import org.jetbrains.kotlin.cli.jvm.config.*
 import org.jetbrains.kotlin.codegen.ClassBuilderFactories
 import org.jetbrains.kotlin.codegen.CompilationErrorHandler
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
 import org.jetbrains.kotlin.codegen.KotlinCodegenFacade
-import org.jetbrains.kotlin.cli.jvm.config.*
-import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.codegen.state.GenerationStateEventCallback
 import org.jetbrains.kotlin.config.CompilerConfiguration
@@ -407,16 +408,21 @@ object KotlinToJVMBytecodeCompiler {
         analyzerWithCompilerReport.analyzeAndReport(
                 environment.getSourceFiles(), object : AnalyzerWithCompilerReport.Analyzer {
             override fun analyze(): AnalysisResult {
-                val sharedTrace = CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace()
-                val moduleContext =
-                        TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.project, environment.configuration)
-
+                val project = environment.project
+                val moduleOutputs = environment.configuration.get(JVMConfigurationKeys.MODULES)?.mapNotNull { module ->
+                    environment.findLocalDirectory(module.getOutputDirectory())
+                }.orEmpty()
+                val sourcesOnly = TopDownAnalyzerFacadeForJVM.newModuleSearchScope(project, environment.getSourceFiles())
+                // To support partial and incremental compilation, we add the scope which contains binaries from output directories
+                // of the compiled modules (.class) to the list of scopes of the source module
+                val scope = if (moduleOutputs.isEmpty()) sourcesOnly else sourcesOnly.uniteWith(DirectoriesScope(project, moduleOutputs))
                 return TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                        moduleContext,
+                        project,
                         environment.getSourceFiles(),
-                        sharedTrace,
+                        CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(),
                         environment.configuration,
-                        JvmPackagePartProvider(environment)
+                        { scope -> JvmPackagePartProvider(environment, scope) },
+                        scope
                 )
             }
 
@@ -443,6 +449,16 @@ object KotlinToJVMBytecodeCompiler {
             analysisResult
         else
             null
+    }
+
+    class DirectoriesScope(
+            project: Project, private val directories: List<VirtualFile>
+    ) : DelegatingGlobalSearchScope(GlobalSearchScope.allScope(project)) {
+        // TODO: optimize somehow?
+        override fun contains(file: VirtualFile) =
+                directories.any { directory -> VfsUtilCore.isAncestor(directory, file, false) }
+
+        override fun toString() = "All files under: $directories"
     }
 
     private fun generate(

@@ -20,18 +20,18 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns.*
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
+import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.PackagePartProvider
-import org.jetbrains.kotlin.frontend.java.di.createContainerForTopDownAnalyzerForJvm
-import org.jetbrains.kotlin.incremental.components.LookupTracker
+import org.jetbrains.kotlin.frontend.java.di.createContainerForTopDownSingleModuleAnalyzerForJvm
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.JvmBuiltIns
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.DescriptorRendererModifier
 import org.jetbrains.kotlin.renderer.OverrideRenderingPolicy
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
-import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory
+import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.test.ConfigurationKind
 import org.jetbrains.kotlin.test.KotlinTestUtils
@@ -57,16 +57,12 @@ abstract class AbstractBuiltInsWithJDKMembersTest : KotlinTestWithEnvironment() 
         val jvmBuiltIns = JvmBuiltIns(LockBasedStorageManager.NO_LOCKS)
         val emptyModule = KotlinTestUtils.createEmptyModule("<empty>", JvmPlatform, jvmBuiltIns)
 
-        val moduleContext = ModuleContext(emptyModule, environment.project)
-        val providerFactory = FileBasedDeclarationProviderFactory(moduleContext.storageManager, emptyList())
-
-        val container = createContainerForTopDownAnalyzerForJvm(
-                moduleContext, CliLightClassGenerationSupport.CliBindingTrace(), providerFactory,
-                GlobalSearchScope.allScope(environment.project), LookupTracker.DO_NOTHING, PackagePartProvider.EMPTY,
-                LanguageVersionSettingsImpl.DEFAULT
+        val container = createContainerForTopDownSingleModuleAnalyzerForJvm(
+                ModuleContext(emptyModule, environment.project), CliLightClassGenerationSupport.CliBindingTrace(),
+                DeclarationProviderFactory.EMPTY, GlobalSearchScope.allScope(environment.project), PackagePartProvider.Empty
         )
 
-        emptyModule.initialize(container.javaDescriptorResolver.packageFragmentProvider)
+        emptyModule.initialize(container.get<JavaDescriptorResolver>().packageFragmentProvider)
         emptyModule.setDependencies(emptyModule)
 
         val packageFragmentProvider = emptyModule.builtIns.builtInsModule.packageFragmentProvider

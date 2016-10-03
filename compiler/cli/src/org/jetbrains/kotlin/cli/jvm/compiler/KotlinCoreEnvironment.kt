@@ -76,7 +76,6 @@ import org.jetbrains.kotlin.codegen.extensions.ClassBuilderInterceptorExtension
 import org.jetbrains.kotlin.codegen.extensions.ExpressionCodegenExtension
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.*
-import org.jetbrains.kotlin.extensions.ExternalDeclarationsProvider
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.load.kotlin.JvmVirtualFileFinderFactory
@@ -170,7 +169,6 @@ class KotlinCoreEnvironment private constructor(
 
         project.registerService(JvmVirtualFileFinderFactory::class.java, JvmCliVirtualFileFinderFactory(rootsIndex))
 
-        ExternalDeclarationsProvider.registerExtensionPoint(project)
         ExpressionCodegenExtension.registerExtensionPoint(project)
         ClassBuilderInterceptorExtension.registerExtensionPoint(project)
         AnalysisCompletedHandlerExtension.registerExtensionPoint(project)
@@ -262,13 +260,16 @@ class KotlinCoreEnvironment private constructor(
 
     private fun findLocalDirectory(root: JvmContentRoot): VirtualFile? {
         val path = root.file
-        val localFile = applicationEnvironment.localFileSystem.findFileByPath(path.absolutePath)
+        val localFile = findLocalDirectory(path.absolutePath)
         if (localFile == null) {
             report(WARNING, "Classpath entry points to a non-existent location: $path")
             return null
         }
         return localFile
     }
+
+    internal fun findLocalDirectory(absolutePath: String): VirtualFile? =
+            applicationEnvironment.localFileSystem.findFileByPath(absolutePath)
 
     private fun findJarRoot(root: JvmClasspathRoot): VirtualFile? {
         val path = root.file

@@ -18,8 +18,11 @@ package org.jetbrains.kotlin.jvm.compiler;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.psi.search.GlobalSearchScope;
 import junit.framework.ComparisonFailure;
+import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.analyzer.AnalysisResult;
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider;
@@ -28,14 +31,9 @@ import org.jetbrains.kotlin.cli.jvm.config.JvmContentRootsKt;
 import org.jetbrains.kotlin.config.CompilerConfiguration;
 import org.jetbrains.kotlin.config.ContentRootsKt;
 import org.jetbrains.kotlin.config.JVMConfigurationKeys;
-import org.jetbrains.kotlin.context.ModuleContext;
-import org.jetbrains.kotlin.descriptors.ClassDescriptor;
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
-import org.jetbrains.kotlin.descriptors.PackageViewDescriptor;
+import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM;
 import org.jetbrains.kotlin.resolve.lazy.JvmResolveUtil;
@@ -45,7 +43,6 @@ import org.jetbrains.kotlin.test.KotlinTestUtils;
 import org.jetbrains.kotlin.test.TestCaseWithTmpdir;
 import org.jetbrains.kotlin.test.TestJdkKind;
 import org.jetbrains.kotlin.test.util.DescriptorValidator;
-import org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator;
 import org.junit.Assert;
 
 import java.io.File;
@@ -67,8 +64,11 @@ import static org.jetbrains.kotlin.test.util.RecursiveDescriptorComparator.*;
     The generated test compares package descriptors loaded from kotlin sources and read from compiled java.
 */
 public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
+    // There are two modules in each test case (sources and dependencies), so we should render declarations from both of them
+    public static final Configuration COMPARATOR_CONFIGURATION = DONT_INCLUDE_METHODS_OF_OBJECT.renderDeclarationsFromOtherModules(true);
+
     protected void doTestCompiledJava(@NotNull String javaFileName) throws Exception {
-        doTestCompiledJava(javaFileName, DONT_INCLUDE_METHODS_OF_OBJECT);
+        doTestCompiledJava(javaFileName, COMPARATOR_CONFIGURATION);
     }
 
     // Java-Kotlin dependencies are not supported in this method for simplicity
@@ -86,11 +86,11 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
                 javaSources, tmpdir, ConfigurationKind.JDK_ONLY
         );
 
-        checkJavaPackage(expectedFile, binaryPackageAndContext.first, binaryPackageAndContext.second, DONT_INCLUDE_METHODS_OF_OBJECT);
+        checkJavaPackage(expectedFile, binaryPackageAndContext.first, binaryPackageAndContext.second, COMPARATOR_CONFIGURATION);
     }
 
     protected void doTestCompiledJavaIncludeObjectMethods(@NotNull String javaFileName) throws Exception {
-        doTestCompiledJava(javaFileName, RECURSIVE);
+        doTestCompiledJava(javaFileName, RECURSIVE.renderDeclarationsFromOtherModules(true));
     }
 
     protected void doTestCompiledKotlin(@NotNull String ktFileName) throws Exception {
@@ -134,9 +134,7 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
 
         DescriptorValidator.validate(errorTypesForbidden(), packageFromSource);
         DescriptorValidator.validate(new DeserializedScopeValidationVisitor(), packageFromBinary);
-        Configuration comparatorConfiguration = RecursiveDescriptorComparator.DONT_INCLUDE_METHODS_OF_OBJECT
-                .checkPrimaryConstructors(true)
-                .checkPropertyAccessors(true);
+        Configuration comparatorConfiguration = COMPARATOR_CONFIGURATION.checkPrimaryConstructors(true).checkPropertyAccessors(true);
         compareDescriptors(packageFromSource, packageFromBinary, comparatorConfiguration, txtFile);
     }
 
@@ -155,19 +153,22 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
         ContentRootsKt.addKotlinSourceRoot(configuration, sourcesDir.getAbsolutePath());
         JvmContentRootsKt.addJavaSourceRoot(configuration, new File("compiler/testData/loadJava/include"));
         JvmContentRootsKt.addJavaSourceRoot(configuration, tmpdir);
-        
-        KotlinCoreEnvironment environment =
+
+        final KotlinCoreEnvironment environment =
                 KotlinCoreEnvironment.createForTests(getTestRootDisposable(), configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES);
 
-        BindingTrace trace = new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace();
-        ModuleContext moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.getProject(), configuration);
-
-        TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
-                moduleContext, environment.getSourceFiles(), trace, configuration, new JvmPackagePartProvider(environment)
+        AnalysisResult result = TopDownAnalyzerFacadeForJVM.analyzeFilesWithJavaIntegration(
+                environment.getProject(), environment.getSourceFiles(), new CliLightClassGenerationSupport.NoScopeRecordCliBindingTrace(),
+                configuration, new Function1<GlobalSearchScope, PackagePartProvider>() {
+                    @Override
+                    public PackagePartProvider invoke(GlobalSearchScope scope) {
+                        return new JvmPackagePartProvider(environment, scope);
+                    }
+                }
         );
 
-        PackageViewDescriptor packageView = moduleContext.getModule().getPackage(TEST_PACKAGE_FQNAME);
-        checkJavaPackage(expectedFile, packageView, trace.getBindingContext(), DONT_INCLUDE_METHODS_OF_OBJECT);
+        PackageViewDescriptor packageView = result.getModuleDescriptor().getPackage(TEST_PACKAGE_FQNAME);
+        checkJavaPackage(expectedFile, packageView, result.getBindingContext(), COMPARATOR_CONFIGURATION);
     }
 
     // TODO: add more tests on inherited parameter names, but currently impossible because of KT-4509
@@ -197,7 +198,7 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
         PackageViewDescriptor packageView = module.getPackage(TEST_PACKAGE_FQNAME);
         assertFalse(packageView.isEmpty());
 
-        validateAndCompareDescriptorWithFile(packageView, DONT_INCLUDE_METHODS_OF_OBJECT.withValidationStrategy(
+        validateAndCompareDescriptorWithFile(packageView, COMPARATOR_CONFIGURATION.withValidationStrategy(
                 new DeserializedScopeValidationVisitor()
         ), expectedFile);
     }
@@ -219,8 +220,10 @@ public abstract class AbstractLoadJavaTest extends TestCaseWithTmpdir {
                 tmpdir, getTestRootDisposable(), getJdkKind(), ConfigurationKind.JDK_ONLY, false
         );
 
-        checkJavaPackage(expectedFile, javaPackageAndContext.first, javaPackageAndContext.second,
-                         DONT_INCLUDE_METHODS_OF_OBJECT.withValidationStrategy(errorTypesAllowed()));
+        checkJavaPackage(
+                expectedFile, javaPackageAndContext.first, javaPackageAndContext.second,
+                COMPARATOR_CONFIGURATION.withValidationStrategy(errorTypesAllowed())
+        );
     }
 
     private void doTestCompiledJava(@NotNull String javaFileName, Configuration configuration) throws Exception {

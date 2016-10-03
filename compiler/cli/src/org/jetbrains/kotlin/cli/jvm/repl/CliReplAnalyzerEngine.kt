@@ -20,16 +20,18 @@ import com.intellij.psi.search.ProjectScope
 import org.jetbrains.kotlin.cli.jvm.compiler.CliLightClassGenerationSupport
 import org.jetbrains.kotlin.cli.jvm.compiler.JvmPackagePartProvider
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment
-import org.jetbrains.kotlin.cli.jvm.repl.di.createContainerForReplWithJava
+import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.descriptors.ScriptDescriptor
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.diagnostics.Severity
+import org.jetbrains.kotlin.frontend.java.di.createContainerForTopDownSingleModuleAnalyzerForJvm
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfoFactory
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
+import org.jetbrains.kotlin.resolve.jvm.JavaDescriptorResolver
 import org.jetbrains.kotlin.resolve.jvm.TopDownAnalyzerFacadeForJVM
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.data.KtClassLikeInfo
@@ -50,29 +52,29 @@ class CliReplAnalyzerEngine(environment: KotlinCoreEnvironment) {
         val moduleContext = TopDownAnalyzerFacadeForJVM.createContextWithSealedModule(environment.project, environment.configuration)
         this.module = moduleContext.module
 
-        scriptDeclarationFactory = ScriptMutableDeclarationProviderFactory()
+        this.scriptDeclarationFactory = ScriptMutableDeclarationProviderFactory()
 
-        val container = createContainerForReplWithJava(
+        val moduleContentScope = ProjectScope.getAllScope(environment.project)
+        val container = createContainerForTopDownSingleModuleAnalyzerForJvm(
                 moduleContext,
                 trace,
                 scriptDeclarationFactory,
-                ProjectScope.getAllScope(environment.project),
-                JvmPackagePartProvider(environment)
+                moduleContentScope,
+                JvmPackagePartProvider(environment, moduleContentScope)
         )
 
+        this.resolveSession = container.get<ResolveSession>()
         this.topDownAnalysisContext = TopDownAnalysisContext(
-                TopDownAnalysisMode.LocalDeclarations, DataFlowInfoFactory.EMPTY, container.resolveSession.declarationScopeProvider
+                TopDownAnalysisMode.LocalDeclarations, DataFlowInfoFactory.EMPTY, resolveSession.declarationScopeProvider
         )
-        this.topDownAnalyzer = container.lazyTopDownAnalyzerForTopLevel
-        this.resolveSession = container.resolveSession
+        this.topDownAnalyzer = container.get<LazyTopDownAnalyzerForTopLevel>()
 
         moduleContext.initializeModuleContents(CompositePackageFragmentProvider(
                 listOf(
-                        container.resolveSession.packageFragmentProvider,
-                        container.javaDescriptorResolver.packageFragmentProvider
+                        resolveSession.packageFragmentProvider,
+                        container.get<JavaDescriptorResolver>().packageFragmentProvider
                 )
         ))
-
     }
 
     interface ReplLineAnalysisResult {

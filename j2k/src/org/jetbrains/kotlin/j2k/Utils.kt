@@ -110,6 +110,10 @@ fun PsiModifierListOwner.accessModifier(): String = when {
 
 fun PsiMethod.isMainMethod(): Boolean = PsiMethodUtil.isMainMethod(this)
 
+fun PsiReferenceExpression.dot(): PsiElement? = node.findChildByType(JavaTokenType.DOT)?.psi
+fun PsiExpressionList.lPar(): PsiElement? = node.findChildByType(JavaTokenType.LPARENTH)?.psi
+fun PsiExpressionList.rPar(): PsiElement? = node.findChildByType(JavaTokenType.RPARENTH)?.psi
+
 fun PsiMember.isImported(file: PsiJavaFile): Boolean {
     if (this is PsiClass) {
         val fqName = qualifiedName

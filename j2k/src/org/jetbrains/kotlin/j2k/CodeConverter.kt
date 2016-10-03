@@ -57,19 +57,14 @@ class CodeConverter(
         return statementConverter.convertStatement(statement, this).assignPrototype(statement)
     }
 
-    fun convertExpressions(expressions: Array<PsiExpression>): List<Expression>
-            = expressions.map { convertExpression(it) }
-
-    fun convertExpressions(expressions: List<PsiExpression>): List<Expression>
-            = expressions.map { convertExpression(it) }
+    fun convertExpressionsInList(expressions: List<PsiExpression>): List<Expression>
+            = expressions.map { convertExpression(it).assignPrototype(it, CommentsAndSpacesInheritance.LINE_BREAKS) }
 
     fun convertArgumentList(list: PsiExpressionList): ArgumentList {
-        val lPar = list.node.findChildByType(JavaTokenType.LPARENTH)?.psi
-        val rPar = list.node.findChildByType(JavaTokenType.RPARENTH)?.psi
         return ArgumentList(
-                convertExpressions(list.expressions),
-                LPar().assignPrototype(lPar, CommentsAndSpacesInheritance.LINE_BREAKS),
-                RPar().assignPrototype(rPar, CommentsAndSpacesInheritance.LINE_BREAKS)
+                convertExpressionsInList(list.expressions.asList()),
+                LPar.withPrototype(list.lPar()),
+                RPar.withPrototype(list.rPar())
         ).assignPrototype(list)
     }
 

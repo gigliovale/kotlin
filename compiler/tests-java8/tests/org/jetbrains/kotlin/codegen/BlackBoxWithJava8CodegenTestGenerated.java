@@ -139,6 +139,12 @@ public class BlackBoxWithJava8CodegenTestGenerated extends AbstractBlackBoxCodeg
             doTest(fileName);
         }
 
+        @TestMetadata("defaultArgs.kt")
+        public void testDefaultArgs() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/defaultArgs.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("diamond.kt")
         public void testDiamond() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/diamond.kt");
@@ -160,6 +166,18 @@ public class BlackBoxWithJava8CodegenTestGenerated extends AbstractBlackBoxCodeg
         @TestMetadata("simpleCall.kt")
         public void testSimpleCall() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/simpleCall.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("simpleProperty.kt")
+        public void testSimpleProperty() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/simpleProperty.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("superCall.kt")
+        public void testSuperCall() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/superCall.kt");
             doTest(fileName);
         }
 
@@ -186,6 +204,27 @@ public class BlackBoxWithJava8CodegenTestGenerated extends AbstractBlackBoxCodeg
             @TestMetadata("noDelegationToDefaultMethodInInterface2.kt")
             public void testNoDelegationToDefaultMethodInInterface2() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/noDelegation/noDelegationToDefaultMethodInInterface2.kt");
+                doTest(fileName);
+            }
+        }
+
+        @TestMetadata("compiler/testData/codegen/java8/box/jvm8/reflection")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class Reflection extends AbstractBlackBoxCodegenTest {
+            public void testAllFilesPresentInReflection() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/java8/box/jvm8/reflection"), Pattern.compile("^(.+)\\.kt$"), true);
+            }
+
+            @TestMetadata("propertyAnnotations.kt")
+            public void testPropertyAnnotations() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/reflection/propertyAnnotations.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("propertyAnnotationsCompatibility.kt")
+            public void testPropertyAnnotationsCompatibility() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/java8/box/jvm8/reflection/propertyAnnotationsCompatibility.kt");
                 doTest(fileName);
             }
         }

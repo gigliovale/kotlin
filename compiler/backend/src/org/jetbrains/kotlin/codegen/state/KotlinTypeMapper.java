@@ -99,6 +99,7 @@ public class KotlinTypeMapper {
     private final IncrementalCache incrementalCache;
     private final IncompatibleClassTracker incompatibleClassTracker;
     private final String moduleName;
+    private boolean isJvm8Target;
     private final TypeMappingConfiguration<Type> typeMappingConfiguration = new TypeMappingConfiguration<Type>() {
         @NotNull
         @Override
@@ -126,7 +127,8 @@ public class KotlinTypeMapper {
             @NotNull JvmFileClassesProvider fileClassesProvider,
             @Nullable IncrementalCache incrementalCache,
             @NotNull IncompatibleClassTracker incompatibleClassTracker,
-            @NotNull String moduleName
+            @NotNull String moduleName,
+            boolean isJvm8Target
     ) {
         this.bindingContext = bindingContext;
         this.classBuilderMode = classBuilderMode;
@@ -134,6 +136,7 @@ public class KotlinTypeMapper {
         this.incrementalCache = incrementalCache;
         this.incompatibleClassTracker = incompatibleClassTracker;
         this.moduleName = moduleName;
+        this.isJvm8Target = isJvm8Target;
     }
 
     @NotNull
@@ -655,11 +658,13 @@ public class KotlinTypeMapper {
 
             baseMethodDescriptor = findBaseDeclaration(functionDescriptor).getOriginal();
             ClassDescriptor ownerForDefault = (ClassDescriptor) baseMethodDescriptor.getContainingDeclaration();
-            ownerForDefaultImpl = isJvmInterface(ownerForDefault) ? mapDefaultImpls(ownerForDefault) : mapClass(ownerForDefault);
+            ownerForDefaultImpl =
+                    isJvmInterface(ownerForDefault) && !isJvm8Interface(ownerForDefault) ?
+                    mapDefaultImpls(ownerForDefault) : mapClass(ownerForDefault);
 
             if (isInterface && (superCall || descriptor.getVisibility() == Visibilities.PRIVATE || isAccessor(descriptor))) {
                 thisClass = mapClass(currentOwner);
-                if (declarationOwner instanceof JavaClassDescriptor) {
+                if (declarationOwner instanceof JavaClassDescriptor || isJvm8Interface(declarationOwner)) {
                     invokeOpcode = INVOKESPECIAL;
                     signature = mapSignatureSkipGeneric(functionDescriptor);
                     owner = thisClass;
@@ -736,6 +741,10 @@ public class KotlinTypeMapper {
         return new CallableMethod(
                 owner, ownerForDefaultImpl, defaultImplDesc, signature, invokeOpcode,
                 thisClass, receiverParameterType, calleeType);
+    }
+
+    private boolean isJvm8Interface(@NotNull ClassDescriptor ownerForDefault) {
+        return isJvmInterface(ownerForDefault) && JvmCodegenUtil.isJvm8Interface(ownerForDefault, isJvm8Target);
     }
 
     public static boolean isAccessor(@NotNull CallableMemberDescriptor descriptor) {

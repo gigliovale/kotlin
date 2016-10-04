@@ -1,0 +1,52 @@
+// -- Module: <m1> --
+package
+
+package p {
+    public fun createFoo2(): p.Foo<kotlin.Int>
+
+    public final class Foo</*0*/ T> {
+        public constructor Foo</*0*/ T>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+
+// -- Module: <m2> --
+package
+
+package p {
+    public fun createFoo1(): p.Foo<kotlin.Int, kotlin.Int>
+
+    public final class Foo</*0*/ X, /*1*/ Y> {
+        public constructor Foo</*0*/ X, /*1*/ Y>()
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}
+
+
+// -- Module: <m3> --
+package
+
+package p {
+    public fun createFoo1(): p.Foo<kotlin.Int, kotlin.Int>
+    public fun createFoo2(): p.Foo<kotlin.Int>
+
+    public final class Foo</*0*/ T> {
+        // -- Module: <m1> --
+    }
+
+    public final class Foo</*0*/ X, /*1*/ Y> {
+        // -- Module: <m2> --
+    }
+}
+
+package q {
+    public fun test(/*0*/ c: kotlin.Boolean): kotlin.Any?
+    public fun test2(/*0*/ c: kotlin.Boolean): p.Foo<kotlin.Int>
+}
+
+

@@ -97,6 +97,24 @@ public class JSBasicCompletionTestGenerated extends AbstractJSBasicCompletionTes
             doTest(fileName);
         }
 
+        @TestMetadata("ComponentFunction.kt")
+        public void testComponentFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/ComponentFunction.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("DataClassMembers.kt")
+        public void testDataClassMembers() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/DataClassMembers.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("DataClassMembers2.kt")
+        public void testDataClassMembers2() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/DataClassMembers2.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("ExtendClassName.kt")
         public void testExtendClassName() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/ExtendClassName.kt");
@@ -2680,6 +2698,12 @@ public class JSBasicCompletionTestGenerated extends AbstractJSBasicCompletionTes
         @TestMetadata("AutoForceCompletion.kt")
         public void testAutoForceCompletion() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/js/AutoForceCompletion.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("DoNotPreferDynamic.kt")
+        public void testDoNotPreferDynamic() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/js/DoNotPreferDynamic.kt");
             doTest(fileName);
         }
 

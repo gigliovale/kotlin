@@ -20,7 +20,6 @@ import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementDecorator
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.util.Key
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.PsiJavaPatterns.elementType
@@ -302,10 +301,11 @@ class KotlinCompletionContributor : CompletionContributor() {
                 // Rerun completion if nothing was found
                 val newConfiguration = CompletionSessionConfiguration(
                         useBetterPrefixMatcherForNonImportedClasses = false,
-                        completeNonAccessibleDeclarations = false,
-                        filterOutJavaGettersAndSetters = false,
-                        completeJavaClassesNotToBeUsed = false,
-                        completeStaticMembers = parameters.invocationCount > 0
+                        nonAccessibleDeclarations = false,
+                        javaGettersAndSetters = true,
+                        javaClassesNotToBeUsed = false,
+                        staticMembers = parameters.invocationCount > 0,
+                        dataClassComponentFunctions = true
                 )
 
                 val newSession = BasicCompletionSession(newConfiguration, parameters, toFromOriginalFileMapper, result)

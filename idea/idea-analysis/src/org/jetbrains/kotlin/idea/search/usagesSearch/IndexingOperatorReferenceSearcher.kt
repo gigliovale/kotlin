@@ -23,9 +23,10 @@ import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
 import org.jetbrains.kotlin.idea.references.KtArrayAccessReference
 import org.jetbrains.kotlin.idea.references.readWriteAccess
+import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinReferencesSearchOptions
 import org.jetbrains.kotlin.psi.KtArrayAccessExpression
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
 class IndexingOperatorReferenceSearcher(
@@ -33,10 +34,11 @@ class IndexingOperatorReferenceSearcher(
         searchScope: SearchScope,
         consumer: Processor<PsiReference>,
         optimizer: SearchRequestCollector,
+        options: KotlinReferencesSearchOptions,
         private val isSet: Boolean
-) : OperatorReferenceSearcher<KtArrayAccessExpression>(targetFunction, searchScope, consumer, optimizer, wordsToSearch = listOf("[")) {
+) : OperatorReferenceSearcher<KtArrayAccessExpression>(targetFunction, searchScope, consumer, optimizer, options, wordsToSearch = listOf("[")) {
 
-    override fun processSuspiciousExpression(expression: KtExpression) {
+    override fun processPossibleReceiverExpression(expression: KtExpression) {
         val accessExpression = expression.parent as? KtArrayAccessExpression ?: return
         if (expression != accessExpression.arrayExpression) return
         if (!checkAccessExpression(accessExpression)) return
@@ -45,7 +47,7 @@ class IndexingOperatorReferenceSearcher(
 
     override fun isReferenceToCheck(ref: PsiReference) = ref is KtArrayAccessReference && checkAccessExpression(ref.element as KtArrayAccessExpression)
 
-    override fun extractReference(element: PsiElement): PsiReference? {
+    override fun extractReference(element: KtElement): PsiReference? {
         val accessExpression = element as? KtArrayAccessExpression ?: return null
         if (!checkAccessExpression(accessExpression)) return null
         return accessExpression.references.firstIsInstance<KtArrayAccessReference>()

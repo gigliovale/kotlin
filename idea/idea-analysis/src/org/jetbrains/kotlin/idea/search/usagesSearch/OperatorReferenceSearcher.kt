@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.idea.search.usagesSearch
 
 import com.intellij.openapi.progress.ProgressIndicatorProvider
 import com.intellij.openapi.progress.util.ProgressWrapper
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.*
 import com.intellij.psi.search.*
 import com.intellij.util.Processor
@@ -26,7 +25,9 @@ import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.asJava.namedUnwrappedElement
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
+import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.caches.resolve.getJavaOrKotlinMemberDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinReferencesSearchOptions
 import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinRequestResultProcessor
@@ -37,14 +38,16 @@ import org.jetbrains.kotlin.idea.util.FuzzyType
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.idea.util.fuzzyExtensionReceiverType
 import org.jetbrains.kotlin.idea.util.toFuzzyType
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.resolve.DataClassDescriptorResolver
 import org.jetbrains.kotlin.resolve.descriptorUtil.isExtension
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.util.isValidOperator
-import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.check
 import java.util.*
 
@@ -53,14 +56,24 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
         private val searchScope: SearchScope,
         private val consumer: Processor<PsiReference>,
         private val optimizer: SearchRequestCollector,
+        private val options: KotlinReferencesSearchOptions,
         private val wordsToSearch: List<String>
 ) {
     private val project = targetDeclaration.project
 
-    protected abstract fun processSuspiciousExpression(expression: KtExpression)
+    /**
+     * Invoked for all expressions that may have type matching receiver type of our operator
+     */
+    protected abstract fun processPossibleReceiverExpression(expression: KtExpression)
 
-    protected abstract fun extractReference(element: PsiElement): PsiReference?
+    /**
+     * Extract reference that may resolve to our operator (no actual resolve to be performed)
+     */
+    protected abstract fun extractReference(element: KtElement): PsiReference?
 
+    /**
+     * Check if reference may potentially resolve to our operator (no actual resolve to be performed)
+     */
     protected abstract fun isReferenceToCheck(ref: PsiReference): Boolean
 
     protected fun processReferenceElement(element: TReferenceElement): Boolean {
@@ -84,13 +97,13 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
         ): OperatorReferenceSearcher<*>? {
             return runReadAction {
                 if (declaration.isValid)
-                    _create(declaration, searchScope, consumer, optimizer, options)
+                    createInReadAction(declaration, searchScope, consumer, optimizer, options)
                 else
                     null
             }
         }
 
-        private fun _create(
+        private fun createInReadAction(
                 declaration: PsiElement,
                 searchScope: SearchScope,
                 consumer: Processor<PsiReference>,
@@ -113,10 +126,10 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
                 declaration
             }
 
-            return create(declarationToUse, name, consumer, optimizer, options, searchScope)
+            return createInReadAction(declarationToUse, name, consumer, optimizer, options, searchScope)
         }
 
-        private fun create(
+        private fun createInReadAction(
                 declaration: PsiElement,
                 name: Name,
                 consumer: Processor<PsiReference>,
@@ -127,45 +140,56 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
             if (DataClassDescriptorResolver.isComponentLike(name)) {
                 if (!options.searchForComponentConventions) return null
                 val componentIndex = DataClassDescriptorResolver.getComponentIndex(name.asString())
-                return DestructuringDeclarationReferenceSearcher(declaration, componentIndex, searchScope, consumer, optimizer)
+                return DestructuringDeclarationReferenceSearcher(declaration, componentIndex, searchScope, consumer, optimizer, options)
             }
 
             if (!options.searchForOperatorConventions) return null
 
-            if (name == OperatorNameConventions.INVOKE) {
-                return InvokeOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer)
-            }
-
             val binaryOp = OperatorConventions.BINARY_OPERATION_NAMES.inverse()[name]
-            if (binaryOp != null) {
-                val assignmentOp = OperatorConventions.ASSIGNMENT_OPERATION_COUNTERPARTS.inverse()[binaryOp]
-                val operationTokens = listOf(binaryOp, assignmentOp).filterNotNull()
-                return BinaryOperatorReferenceSearcher(declaration, operationTokens, searchScope, consumer, optimizer)
-            }
-
             val assignmentOp = OperatorConventions.ASSIGNMENT_OPERATIONS.inverse()[name]
-            if (assignmentOp != null) {
-                return BinaryOperatorReferenceSearcher(declaration, listOf(assignmentOp), searchScope, consumer, optimizer)
-            }
-
             val unaryOp = OperatorConventions.UNARY_OPERATION_NAMES.inverse()[name]
-            if (unaryOp != null) {
-                return UnaryOperatorReferenceSearcher(declaration, unaryOp, searchScope, consumer, optimizer)
+
+            when {
+                binaryOp != null -> {
+                    val counterpartAssignmentOp = OperatorConventions.ASSIGNMENT_OPERATION_COUNTERPARTS.inverse()[binaryOp]
+                    val operationTokens = listOf(binaryOp, counterpartAssignmentOp).filterNotNull()
+                    return BinaryOperatorReferenceSearcher(declaration, operationTokens, searchScope, consumer, optimizer, options)
+                }
+
+                assignmentOp != null ->
+                    return BinaryOperatorReferenceSearcher(declaration, listOf(assignmentOp), searchScope, consumer, optimizer, options)
+
+                unaryOp != null ->
+                    return UnaryOperatorReferenceSearcher(declaration, unaryOp, searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.INVOKE ->
+                    return InvokeOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.GET ->
+                    return IndexingOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options, isSet = false)
+
+                name == OperatorNameConventions.SET ->
+                    return IndexingOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options, isSet = true)
+
+                name == OperatorNameConventions.CONTAINS ->
+                    return ContainsOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.EQUALS ->
+                    return BinaryOperatorReferenceSearcher(declaration, listOf(KtTokens.EQEQ, KtTokens.EXCLEQ), searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.COMPARE_TO ->
+                    return BinaryOperatorReferenceSearcher(declaration, listOf(KtTokens.LT, KtTokens.GT, KtTokens.LTEQ, KtTokens.GTEQ), searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.ITERATOR ->
+                    return IteratorOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options)
+
+                name == OperatorNameConventions.GET_VALUE || name == OperatorNameConventions.SET_VALUE || name == OperatorNameConventions.PROPERTY_DELEGATED ->
+                    return PropertyDelegationOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, options)
+
+                else ->
+                    return null
             }
 
-            if (name == OperatorNameConventions.GET) {
-                return IndexingOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, isSet = false)
-            }
-
-            if (name == OperatorNameConventions.SET) {
-                return IndexingOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer, isSet = true)
-            }
-
-            if (name == OperatorNameConventions.CONTAINS) {
-                return ContainsOperatorReferenceSearcher(declaration, searchScope, consumer, optimizer)
-            }
-
-            return null
         }
 
         //TODO: check no light elements here
@@ -189,22 +213,12 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
         try {
             val receiverType = runReadAction { extractReceiverType() } ?: return
 
-            val usePlainSearch = when (ExpressionsOfTypeProcessor.mode) {
-                ExpressionsOfTypeProcessor.Mode.ALWAYS_SMART -> false
-                ExpressionsOfTypeProcessor.Mode.ALWAYS_PLAIN -> true
-                ExpressionsOfTypeProcessor.Mode.PLAIN_WHEN_NEEDED -> searchScope is LocalSearchScope // for local scope it's faster to use plain search
-            }
-            if (usePlainSearch) {
-                doPlainSearch(searchScope)
-                return
-            }
-
             ExpressionsOfTypeProcessor(
                     receiverType,
                     searchScope,
                     project,
-                    suspiciousExpressionHandler = { expression -> processSuspiciousExpression(expression) },
-                    suspiciousScopeHandler = { searchScope -> doPlainSearch(searchScope) }
+                    possibleMatchHandler = { expression -> processPossibleReceiverExpression(expression) },
+                    possibleMatchesInScopeHandler = { searchScope -> doPlainSearch(searchScope) }
             ).run()
         }
         finally {
@@ -231,17 +245,19 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
             for (element in scope.scope) {
                 runReadAction {
                     if (element.isValid) {
-                        element.accept(object : PsiRecursiveElementWalkingVisitor() {
-                            override fun visitElement(element: PsiElement) {
-                                //TODO: resolve of multiple references at once
-                                val reference = extractReference(element)
-                                if (reference != null && reference.isReferenceTo(targetDeclaration)) {
-                                    consumer.process(reference)
-                                }
+                        val refs = ArrayList<PsiReference>()
+                        val elements = element.collectDescendantsOfType<KtElement> {
+                            val ref = extractReference(it) ?: return@collectDescendantsOfType false
+                            refs.add(ref)
+                            true
+                        }
 
-                                super.visitElement(element)
-                            }
-                        })
+                        // resolve all references at once
+                        (element.containingFile as KtFile).getResolutionFacade().analyze(elements, BodyResolveMode.PARTIAL)
+
+                        refs
+                                .filter { it.isReferenceTo(targetDeclaration) }
+                                .forEach { consumer.process(it) }
                     }
                 }
             }
@@ -251,7 +267,8 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
             if (wordsToSearch.isNotEmpty()) {
                 val unwrappedElement = targetDeclaration.namedUnwrappedElement ?: return
                 val resultProcessor = KotlinRequestResultProcessor(unwrappedElement,
-                                                                   filter = { ref -> isReferenceToCheck(ref) })
+                                                                   filter = { ref -> isReferenceToCheck(ref) },
+                                                                   options = options)
                 wordsToSearch.forEach {
                     optimizer.searchWord(it, scope.restrictToKotlinSources(), UsageSearchContext.IN_CODE, true, unwrappedElement, resultProcessor)
                 }
@@ -264,22 +281,19 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
                 progress?.text = "Searching implicit usages..."
 
                 try {
-                    val files = ArrayList<KtFile>()
-                    ProjectRootManager.getInstance(project).fileIndex.iterateContent { file ->
-                        progress?.checkCanceled()
-                        runReadAction {
-                            if (file in scope) {
-                                files.addIfNotNull(psiManager.findFile(file) as? KtFile)
-                            }
-                        }
-                        true
-                    }
-
+                    val files = runReadAction { FileTypeIndex.getFiles(KotlinFileType.INSTANCE, scope) }
                     for ((index, file) in files.withIndex()) {
                         progress?.checkCanceled()
-                        progress?.fraction = index / files.size.toDouble()
-                        progress?.text2 = file.virtualFile.path
-                        doPlainSearch(LocalSearchScope(file))
+                        runReadAction {
+                            if (file.isValid) {
+                                progress?.fraction = index / files.size.toDouble()
+                                progress?.text2 = file.path
+                                val psiFile = psiManager.findFile(file) as? KtFile
+                                if (psiFile != null) {
+                                    doPlainSearch(LocalSearchScope(psiFile))
+                                }
+                            }
+                        }
                     }
                 }
                 finally {

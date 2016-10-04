@@ -21,8 +21,8 @@ import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.*
+import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.SearchScope
@@ -31,11 +31,9 @@ import com.intellij.util.Processor
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.KtNodeTypes
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
-import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.asJava.toLightClass
 import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.idea.KotlinFileType
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -53,9 +51,7 @@ import org.jetbrains.kotlin.idea.util.FuzzyType
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocName
-import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.load.java.sam.SingleAbstractMethodUtils
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
@@ -69,8 +65,8 @@ class ExpressionsOfTypeProcessor(
         private val typeToSearch: FuzzyType,
         private val searchScope: SearchScope,
         private val project: Project,
-        private val suspiciousExpressionHandler: (KtExpression) -> Unit,
-        private val suspiciousScopeHandler: (SearchScope) -> Unit
+        private val possibleMatchHandler: (KtExpression) -> Unit,
+        private val possibleMatchesInScopeHandler: (SearchScope) -> Unit
 ) {
     @TestOnly
     enum class Mode {
@@ -102,19 +98,6 @@ class ExpressionsOfTypeProcessor(
                 }
             }
         }
-
-        private fun SearchScope.isEmpty(): Boolean {
-            when (this) {
-                GlobalSearchScope.EMPTY_SCOPE -> return true
-
-                is GlobalSearchScope -> {
-                    val rootManager = ProjectRootManager.getInstance(project!!)
-                    return rootManager.fileIndex.iterateContent { it.isDirectory || it !in this }
-                }
-
-                else -> return (this as LocalSearchScope).scope.isEmpty()
-            }
-        }
     }
 
     // note: a Task must define equals & hashCode!
@@ -128,11 +111,24 @@ class ExpressionsOfTypeProcessor(
     private val scopesToUsePlainSearch = LinkedHashMap<KtFile, ArrayList<PsiElement>>()
 
     fun run() {
-        val psiClass = runReadAction { detectClassToSearch() } ?: return
+        val usePlainSearch = when (ExpressionsOfTypeProcessor.mode) {
+            ExpressionsOfTypeProcessor.Mode.ALWAYS_SMART -> false
+            ExpressionsOfTypeProcessor.Mode.ALWAYS_PLAIN -> true
+            ExpressionsOfTypeProcessor.Mode.PLAIN_WHEN_NEEDED -> searchScope is LocalSearchScope // for local scope it's faster to use plain search
+        }
+        if (usePlainSearch) {
+            possibleMatchesInScopeHandler(searchScope)
+            return
+        }
+
+        // optimization
+        if (runReadAction { searchScope is GlobalSearchScope && !FileTypeIndex.containsFileOfType(KotlinFileType.INSTANCE, searchScope) }) return
+
+        val psiClass = runReadAction { detectClassToSearch() }
 
         // for class from library always use plain search because we cannot search usages in compiled code (we could though)
-        if (!runReadAction { psiClass.isValid && ProjectRootsUtil.isInProjectSource (psiClass) }) {
-            suspiciousScopeHandler(searchScope)
+        if (psiClass == null || !runReadAction { psiClass.isValid && ProjectRootsUtil.isInProjectSource(psiClass) }) {
+            possibleMatchesInScopeHandler(searchScope)
             return
         }
 
@@ -146,14 +142,12 @@ class ExpressionsOfTypeProcessor(
                     .filter { it.isValid }
                     .toTypedArray()
             if (scopeElements.isNotEmpty()) {
-                suspiciousScopeHandler(LocalSearchScope(scopeElements))
+                possibleMatchesInScopeHandler(LocalSearchScope(scopeElements))
             }
         }
     }
 
     private fun detectClassToSearch(): PsiClass? {
-        if (searchScope.restrictToKotlinSources().isEmpty()) return null // optimization
-
         val classDescriptor = typeToSearch.type.constructor.declarationDescriptor ?: return null
         val classDeclaration = DescriptorToSourceUtilsIde.getAnyDeclaration(project, classDescriptor)
         return when (classDeclaration) {
@@ -179,7 +173,7 @@ class ExpressionsOfTypeProcessor(
     private fun downShiftToPlainSearch() {
         tasks.clear()
         scopesToUsePlainSearch.clear()
-        suspiciousScopeHandler(searchScope)
+        possibleMatchesInScopeHandler(searchScope)
     }
 
     private fun addClassToProcess(classToSearch: PsiClass) {
@@ -208,16 +202,9 @@ class ExpressionsOfTypeProcessor(
         addTask(ProcessClassUsagesTask(classToSearch))
     }
 
-    private fun addCallableDeclarationToProcess(declaration: PsiElement, processMethod: (PsiReference) -> Boolean) {
-        if (declaration.isOperatorExpensiveToSearch()) { // cancel all tasks and use plain search
-            downShiftToPlainSearch()
-            return
-        }
-
+    private fun addCallableDeclarationToProcess(declaration: PsiElement, scope: SearchScope, processMethod: (PsiReference) -> Boolean) {
         data class ProcessCallableUsagesTask(val declaration: PsiElement, val processMethod: (PsiReference) -> Boolean) : Task {
             override fun perform() {
-                // we don't need to search usages of declarations in Java because Java doesn't have implicitly typed declarations so such usages cannot affect Kotlin code
-                val scope = GlobalSearchScope.projectScope(project).excludeFileTypes(JavaFileType.INSTANCE, XmlFileType.INSTANCE)
                 testLog?.add("Searched references to ${logPresentation(declaration)} in non-Java files")
                 val searchParameters = KotlinReferencesSearchParameters(
                         declaration, scope, kotlinOptions = KotlinReferencesSearchOptions(searchNamedArguments = false))
@@ -233,8 +220,21 @@ class ExpressionsOfTypeProcessor(
         addTask(ProcessCallableUsagesTask(declaration, processMethod))
     }
 
-    private val HAS_OUR_TYPE = this::processReferenceToCallableOfOurType
-    private val PROCESS_LAMBDAS = this::processLambdasByCallableReference
+    private fun addCallableDeclarationOfOurType(declaration: PsiElement) {
+        addCallableDeclarationToProcess(declaration, searchScope.restrictToKotlinSources(), this::processReferenceToCallableOfOurType)
+    }
+
+    /**
+     * Process references to declaration which has parameter of functional type with our class used inside
+     */
+    private fun addCallableDeclarationToProcessLambdasInCalls(declaration: PsiElement) {
+        // we don't need to search usages of declarations in Java because Java doesn't have implicitly typed declarations so such usages cannot affect Kotlin code
+        val scope = GlobalSearchScope.projectScope(project).excludeFileTypes(JavaFileType.INSTANCE, XmlFileType.INSTANCE)
+        addCallableDeclarationToProcess(declaration, scope) { reference ->
+            (reference.element as? KtReferenceExpression)?.let { processLambdasForCallableReference(it) }
+            true
+        }
+    }
 
     /**
      * Process reference to declaration whose type is our class (or our class used anywhere inside that type)
@@ -244,7 +244,7 @@ class ExpressionsOfTypeProcessor(
             KotlinLanguage.INSTANCE -> {
                 if (reference is KtDestructuringDeclarationReference) {
                     // declaration usage in form of destructuring declaration entry
-                    addCallableDeclarationToProcess(reference.element, HAS_OUR_TYPE)
+                    addCallableDeclarationOfOurType(reference.element)
                 }
                 else {
                     (reference.element as? KtReferenceExpression)?.let { processSuspiciousExpression(it) }
@@ -254,14 +254,6 @@ class ExpressionsOfTypeProcessor(
 
             else -> return false // reference in unknown language - we don't know how to handle it
         }
-    }
-
-    /**
-     * Process reference to declaration which has parameter of functional type with our class used inside
-     */
-    private fun processLambdasByCallableReference(reference: PsiReference): Boolean {
-        (reference.element as? KtReferenceExpression)?.let { processLambdasForCallableReference(it) }
-        return true
     }
 
     private fun addSamInterfaceToProcess(psiClass: PsiClass) {
@@ -279,7 +271,7 @@ class ExpressionsOfTypeProcessor(
                     val parameter = ((reference as? PsiJavaCodeReferenceElement)?.parent as? PsiTypeElement)?.parent as? PsiParameter
                     val method = parameter?.declarationScope as? PsiMethod
                     if (method != null) {
-                        addCallableDeclarationToProcess(method, PROCESS_LAMBDAS)
+                        addCallableDeclarationToProcessLambdasInCalls(method)
                     }
                     true
                 }
@@ -376,14 +368,14 @@ class ExpressionsOfTypeProcessor(
             is KtCallableDeclaration -> {
                 when (typeRef) {
                     typeRefParent.typeReference -> { // usage in type of callable declaration
-                        addCallableDeclarationToProcess(typeRefParent, HAS_OUR_TYPE)
+                        addCallableDeclarationOfOurType(typeRefParent)
 
                         if (typeRefParent is KtParameter) { //TODO: what if functional type is declared with "FunctionN<...>"?
                             val usedInsideFunctionalType = userType.parents.takeWhile { it != typeRef }.any { it is KtFunctionType }
                             if (usedInsideFunctionalType) {
                                 val function = (typeRefParent.parent as? KtParameterList)?.parent as? KtFunction
                                 if (function != null) {
-                                    addCallableDeclarationToProcess(function, PROCESS_LAMBDAS)
+                                    addCallableDeclarationOfOurType(function)
                                 }
                             }
                         }
@@ -467,14 +459,14 @@ class ExpressionsOfTypeProcessor(
 
                 is PsiMethod -> {
                     if (prev == parent.returnTypeElement && !parent.isPrivateOrLocal()) { // usage in return type of a method
-                        addCallableDeclarationToProcess(parent, HAS_OUR_TYPE)
+                        addCallableDeclarationOfOurType(parent)
                     }
                     break@ParentsLoop
                 }
 
                 is PsiField -> {
                     if (prev == parent.typeElement && !parent.isPrivateOrLocal()) { // usage in type of a field
-                        addCallableDeclarationToProcess(parent, HAS_OUR_TYPE)
+                        addCallableDeclarationOfOurType(parent)
                     }
                     break@ParentsLoop
                 }
@@ -531,7 +523,7 @@ class ExpressionsOfTypeProcessor(
                 inScope = inScope && element in searchScope
             }
             if (inScope) {
-                suspiciousExpressionHandler(element)
+                possibleMatchHandler(element)
             }
 
             val parent = element.parent
@@ -586,7 +578,7 @@ class ExpressionsOfTypeProcessor(
             val descriptor = declaration.resolveToDescriptorIfAny() as? CallableDescriptor ?: return
             val type = descriptor.returnType
             if (type != null && type.containsTypeOrDerivedInside(typeToSearch)) {
-                addCallableDeclarationToProcess(declaration, HAS_OUR_TYPE)
+                addCallableDeclarationOfOurType(declaration)
             }
         }
     }
@@ -659,25 +651,6 @@ class ExpressionsOfTypeProcessor(
     }
 
     private fun PsiModifierListOwner.isLocal() = parents.any { it is PsiCodeBlock }
-
-    private fun PsiElement.isOperatorExpensiveToSearch(): Boolean {
-        when (this) {
-            is KtFunction -> {
-                val isOperator = hasModifier(KtTokens.OPERATOR_KEYWORD)
-                                  || hasModifier(KtTokens.OVERRIDE_KEYWORD) && (resolveToDescriptorIfAny() as? FunctionDescriptor)?.isOperator == true
-                val name = name
-                return isOperator && name != null && Name.isValidIdentifier(name) && Name.identifier(name).getOperationSymbolsToSearch() != null
-            }
-
-            is KtLightMethod -> {
-                return kotlinOrigin?.isOperatorExpensiveToSearch() == true
-            }
-
-            else -> {
-                return false
-            }
-        }
-    }
 
     private fun KotlinType.containsTypeOrDerivedInside(type: FuzzyType): Boolean {
         return type.checkIsSuperTypeOf(this) != null || arguments.any { it.type.containsTypeOrDerivedInside(type) }

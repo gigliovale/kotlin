@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.idea.util.*
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
+import org.jetbrains.kotlin.resolve.DataClassDescriptorResolver
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindExclude
@@ -54,18 +55,20 @@ import java.util.*
 
 class CompletionSessionConfiguration(
         val useBetterPrefixMatcherForNonImportedClasses: Boolean,
-        val completeNonAccessibleDeclarations: Boolean,
-        val filterOutJavaGettersAndSetters: Boolean,
-        val completeJavaClassesNotToBeUsed: Boolean,
-        val completeStaticMembers: Boolean
+        val nonAccessibleDeclarations: Boolean,
+        val javaGettersAndSetters: Boolean,
+        val javaClassesNotToBeUsed: Boolean,
+        val staticMembers: Boolean,
+        val dataClassComponentFunctions: Boolean
 )
 
 fun CompletionSessionConfiguration(parameters: CompletionParameters) = CompletionSessionConfiguration(
         useBetterPrefixMatcherForNonImportedClasses = parameters.invocationCount < 2,
-        completeNonAccessibleDeclarations = parameters.invocationCount >= 2,
-        filterOutJavaGettersAndSetters = parameters.invocationCount < 2,
-        completeJavaClassesNotToBeUsed = parameters.invocationCount >= 2,
-        completeStaticMembers = parameters.invocationCount >= 2
+        nonAccessibleDeclarations = parameters.invocationCount >= 2,
+        javaGettersAndSetters = parameters.invocationCount >= 2,
+        javaClassesNotToBeUsed = parameters.invocationCount >= 2,
+        staticMembers = parameters.invocationCount >= 2,
+        dataClassComponentFunctions = parameters.invocationCount >= 2
 )
 
 abstract class CompletionSession(
@@ -128,7 +131,7 @@ abstract class CompletionSession(
 
     protected val descriptorNameFilter: (Name) -> Boolean = descriptorStringNameFilter.toNameFilter()
 
-    protected val isVisibleFilter: (DeclarationDescriptor) -> Boolean = { isVisibleDescriptor(it, completeNonAccessible = configuration.completeNonAccessibleDeclarations) }
+    protected val isVisibleFilter: (DeclarationDescriptor) -> Boolean = { isVisibleDescriptor(it, completeNonAccessible = configuration.nonAccessibleDeclarations) }
     protected val isVisibleFilterCheckAlways: (DeclarationDescriptor) -> Boolean = { isVisibleDescriptor(it, completeNonAccessible = false) }
 
     protected val referenceVariantsHelper = ReferenceVariantsHelper(bindingContext, resolutionFacade, moduleDescriptor, isVisibleFilter)
@@ -175,7 +178,7 @@ abstract class CompletionSession(
     }
 
     private fun isVisibleDescriptor(descriptor: DeclarationDescriptor, completeNonAccessible: Boolean): Boolean {
-        if (!configuration.completeJavaClassesNotToBeUsed && descriptor is ClassDescriptor) {
+        if (!configuration.javaClassesNotToBeUsed && descriptor is ClassDescriptor) {
             if (descriptor.importableFqName?.let { isJavaClassNotToBeUsedInKotlin(it) } == true) return false
         }
 
@@ -339,11 +342,22 @@ abstract class CompletionSession(
                     .invoke(notImportedExtensions)
         }
 
-        if (configuration.filterOutJavaGettersAndSetters) {
+        if (!configuration.javaGettersAndSetters) {
             variants = referenceVariantsHelper.filterOutJavaGettersAndSetters(variants)
         }
 
+        if (!configuration.dataClassComponentFunctions) {
+            variants = variants.filter { !isDataClassComponentFunction(it) }
+        }
+
         return ReferenceVariants(variants, notImportedExtensions)
+    }
+
+    private fun isDataClassComponentFunction(descriptor: DeclarationDescriptor): Boolean {
+        return descriptor is FunctionDescriptor &&
+               descriptor.isOperator &&
+               DataClassDescriptorResolver.isComponentLike(descriptor.name) &&
+               descriptor.kind == CallableMemberDescriptor.Kind.SYNTHESIZED
     }
 
     protected fun referenceVariantsWithSingleFunctionTypeParameter(): ReferenceVariants? {

@@ -22,7 +22,9 @@ import com.intellij.psi.search.SearchRequestCollector
 import com.intellij.psi.search.SearchScope
 import com.intellij.util.Processor
 import org.jetbrains.kotlin.idea.references.KtInvokeFunctionReference
+import org.jetbrains.kotlin.idea.search.ideaExtensions.KotlinReferencesSearchOptions
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstance
 
@@ -30,17 +32,18 @@ class InvokeOperatorReferenceSearcher(
         targetFunction: PsiElement,
         searchScope: SearchScope,
         consumer: Processor<PsiReference>,
-        optimizer: SearchRequestCollector
-) : OperatorReferenceSearcher<KtCallExpression>(targetFunction, searchScope, consumer, optimizer, wordsToSearch = emptyList()) {
+        optimizer: SearchRequestCollector,
+        options: KotlinReferencesSearchOptions
+) : OperatorReferenceSearcher<KtCallExpression>(targetFunction, searchScope, consumer, optimizer, options, wordsToSearch = emptyList()) {
 
-    override fun processSuspiciousExpression(expression: KtExpression) {
+    override fun processPossibleReceiverExpression(expression: KtExpression) {
         val callExpression = expression.parent as? KtCallExpression ?: return
         processReferenceElement(callExpression)
     }
 
     override fun isReferenceToCheck(ref: PsiReference) = ref is KtInvokeFunctionReference
 
-    override fun extractReference(element: PsiElement): PsiReference? {
+    override fun extractReference(element: KtElement): PsiReference? {
         return (element as? KtCallExpression)?.references?.firstIsInstance<KtInvokeFunctionReference>()
     }
 }

@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.codeInsight
 
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi.ElementDescriptionUtil
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.util.RefactoringDescriptionLocation
@@ -170,7 +171,7 @@ class KotlinBreadcrumbsInfoProvider : BreadcrumbsInfoProvider() {
 
     private object PropertyAccessorHandler : ElementHandler<KtPropertyAccessor>(KtPropertyAccessor::class) {
         override fun elementInfo(element: KtPropertyAccessor): String {
-            return element.property.name + "." + (if (element.isGetter) "get" else "set")
+            return DeclarationHandler.elementInfo(element.property) + "." + (if (element.isGetter) "get" else "set")
         }
 
         override fun elementTooltip(element: KtPropertyAccessor): String {
@@ -289,7 +290,24 @@ class KotlinBreadcrumbsInfoProvider : BreadcrumbsInfoProvider() {
         override fun accepts(element: KtBlockExpression) = element.parent is KtTryExpression
 
         override fun elementInfo(element: KtBlockExpression) = "try"
-        override fun elementTooltip(element: KtBlockExpression) = "try"
+
+        override fun elementTooltip(element: KtBlockExpression): String {
+            return buildString {
+                val tryExpression = element.parent as KtTryExpression
+
+                append("try {$ellipsis}")
+
+                for (catchClause in tryExpression.catchClauses) {
+                    append("\ncatch(")
+                    append(catchClause.catchParameter?.typeReference?.text ?: "")
+                    append(") {$ellipsis}")
+                }
+
+                if (tryExpression.finallyBlock != null) {
+                    append("\nfinally {$ellipsis}")
+                }
+            }
+        }
     }
 
     private object CatchHandler : ElementHandler<KtCatchClause>(KtCatchClause::class) {
@@ -395,13 +413,15 @@ class KotlinBreadcrumbsInfoProvider : BreadcrumbsInfoProvider() {
 
     override fun getLanguages() = arrayOf(KotlinLanguage.INSTANCE)
 
-    override fun acceptElement(e: PsiElement) = handler(e) != null
+    override fun acceptElement(e: PsiElement) = !DumbService.isDumb(e.project) && handler(e) != null
 
     override fun getElementInfo(e: PsiElement): String {
+        if (DumbService.isDumb(e.project)) return ""
         return handler(e)!!.elementInfo(e as KtElement)
     }
 
     override fun getElementTooltip(e: PsiElement): String {
+        if (DumbService.isDumb(e.project)) return ""
         return handler(e)!!.elementTooltip(e as KtElement)
     }
 

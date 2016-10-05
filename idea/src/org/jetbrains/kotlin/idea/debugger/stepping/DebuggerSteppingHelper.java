@@ -19,12 +19,12 @@ package org.jetbrains.kotlin.idea.debugger.stepping;
 import com.intellij.debugger.engine.DebugProcessImpl;
 import com.intellij.debugger.engine.SuspendContextImpl;
 import com.intellij.debugger.engine.evaluation.EvaluateException;
+import com.intellij.debugger.engine.events.SuspendContextCommandImpl;
 import com.intellij.debugger.impl.DebuggerUtilsEx;
 import com.intellij.debugger.jdi.StackFrameProxyImpl;
 import com.intellij.debugger.jdi.ThreadReferenceProxyImpl;
 import com.intellij.debugger.settings.DebuggerSettings;
 import com.intellij.openapi.extensions.Extensions;
-import com.intellij.psi.PsiElement;
 import com.intellij.ui.classFilter.ClassFilter;
 import com.intellij.ui.classFilter.DebuggerClassFilterProvider;
 import com.sun.jdi.Location;
@@ -34,13 +34,11 @@ import com.sun.jdi.ThreadReference;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
-import kotlin.ranges.IntRange;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.psi.KtFile;
-import org.jetbrains.kotlin.psi.KtFunction;
 import org.jetbrains.kotlin.psi.KtFunctionLiteral;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
+import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,10 +49,7 @@ public class DebuggerSteppingHelper {
     public static DebugProcessImpl.ResumeCommand createStepOverCommand(
             final SuspendContextImpl suspendContext,
             final boolean ignoreBreakpoints,
-            final KtFile file,
-            final IntRange linesRange,
-            final List<KtFunction> inlineArguments,
-            final List<PsiElement> additionalElementsToSkip
+            final KotlinSteppingCommandProvider.KotlinSourcePosition kotlinSourcePosition
     ) {
         final DebugProcessImpl debugProcess = suspendContext.getDebugProcess();
         return debugProcess.new ResumeCommand(suspendContext) {
@@ -65,13 +60,10 @@ public class DebuggerSteppingHelper {
                     if (frameProxy != null) {
                         Action action = KotlinSteppingCommandProviderKt.getStepOverPosition(
                                 frameProxy.location(),
-                                file,
-                                linesRange,
-                                inlineArguments,
-                                additionalElementsToSkip
+                                kotlinSourcePosition
                         );
 
-                        DebugProcessImpl.ResumeCommand command = action.createCommand(debugProcess, suspendContext, ignoreBreakpoints);
+                        SuspendContextCommandImpl command = action.createCommand(debugProcess, suspendContext, ignoreBreakpoints);
 
                         if (command != null) {
                             createStepRequest(
@@ -87,6 +79,9 @@ public class DebuggerSteppingHelper {
                     debugProcess.createStepOutCommand(suspendContext).contextAction();
                 }
                 catch (EvaluateException ignored) {
+                }
+                catch (Exception e) {
+                    throw ExceptionUtilsKt.rethrow(e);
                 }
             }
         };
@@ -112,7 +107,7 @@ public class DebuggerSteppingHelper {
                                 inlineArgument
                         );
 
-                        DebugProcessImpl.ResumeCommand command = action.createCommand(debugProcess, suspendContext, ignoreBreakpoints);
+                        SuspendContextCommandImpl command = action.createCommand(debugProcess, suspendContext, ignoreBreakpoints);
 
                         if (command != null) {
                             createStepRequest(
@@ -129,6 +124,9 @@ public class DebuggerSteppingHelper {
                 }
                 catch (EvaluateException ignored) {
 
+                }
+                catch (Exception e) {
+                    throw ExceptionUtilsKt.rethrow(e);
                 }
             }
         };

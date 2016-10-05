@@ -25,8 +25,6 @@ import org.gradle.api.tasks.incremental.IncrementalTaskInputs
 import org.gradle.api.tasks.incremental.InputFileDetails
 import org.jetbrains.kotlin.bytecode.AnnotationsRemover
 import org.jetbrains.kotlin.gradle.plugin.kotlinDebug
-import org.jetbrains.kotlin.incremental.md5
-import org.jetbrains.org.objectweb.asm.*
 import java.io.*
 import java.util.*
 import kotlin.properties.Delegates
@@ -53,7 +51,7 @@ import kotlin.properties.Delegates
  * if it's timestamp now is newer than when we copied it
  * (assuming it was modified by javac when class was converted to java).
  */
-open class SyncOutputTask : DefaultTask() {
+internal open class SyncOutputTask : DefaultTask() {
     @get:InputFiles
     var kotlinOutputDir: File by Delegates.notNull()
     var javaOutputDir: File by Delegates.notNull()

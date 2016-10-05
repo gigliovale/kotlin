@@ -1233,8 +1233,8 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
 
     /*
      * statement
-     *  : expression
      *  : declaration
+     *  : annotations expression
      *  ;
      */
     private void parseStatement(boolean isScriptTopLevel) {
@@ -1244,13 +1244,25 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
             }
             else if (isScriptTopLevel){
                 PsiBuilder.Marker scriptInitializer = mark();
-                parseExpression();
+                parseStatementLevelExpression();
                 scriptInitializer.done(SCRIPT_INITIALIZER);
             }
             else {
-                parseExpression();
+                parseStatementLevelExpression();
             }
         }
+    }
+
+    private void parseStatementLevelExpression() {
+        if (at(AT)) {
+            PsiBuilder.Marker expression = mark();
+            myKotlinParsing.parseAnnotations(DEFAULT);
+            parseStatementLevelExpression();
+            expression.done(ANNOTATED_EXPRESSION);
+            return;
+        }
+
+        parseExpression();
     }
 
     /*
@@ -1599,12 +1611,6 @@ public class KotlinExpressionParsing extends AbstractKotlinParsing {
      * IDENTIFIER "@"
      */
     private void parseLabelDefinition() {
-        if (at(AT)) {
-            // recovery for empty label identifier
-            errorAndAdvance("Label must be named"); // AT
-            return;
-        }
-
         PsiBuilder.Marker labelWrap = mark();
         PsiBuilder.Marker mark = mark();
 

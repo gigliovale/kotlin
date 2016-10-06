@@ -40,7 +40,6 @@ fun StorageComponentContainer.configureModule(
     useInstance(moduleContext.project)
     useInstance(moduleContext.storageManager)
     useInstance(moduleContext.module.builtIns)
-    useInstance(moduleContext.platformToKotlinClassMap)
 
     useInstance(platform)
 
@@ -97,7 +96,7 @@ fun createContainerForLazyBodyResolve(
     useInstance(kotlinCodeAnalyzer.fileScopeProvider)
     useInstance(bodyResolveCache)
     useInstance(languageVersionSettings)
-    useImpl<LazyTopDownAnalyzerForTopLevel>()
+    useImpl<LazyTopDownAnalyzer>()
     useImpl<BasicAbsentDescriptorHandler>()
 }
 

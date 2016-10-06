@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
+import org.jetbrains.kotlin.resolve.checkers.ClassifierUsageChecker
 import org.jetbrains.kotlin.resolve.lazy.*
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyClassDescriptor
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyScriptDescriptor
@@ -50,8 +51,11 @@ class LazyTopDownAnalyzer(
         private val languageVersionSettings: LanguageVersionSettings,
         private val classifierUsageCheckers: Iterable<ClassifierUsageChecker>
 ) {
-    fun analyzeDeclarations(topDownAnalysisMode: TopDownAnalysisMode, declarations: Collection<PsiElement>, outerDataFlowInfo: DataFlowInfo): TopDownAnalysisContext {
-
+    fun analyzeDeclarations(
+            topDownAnalysisMode: TopDownAnalysisMode,
+            declarations: Collection<PsiElement>,
+            outerDataFlowInfo: DataFlowInfo = DataFlowInfo.EMPTY
+    ): TopDownAnalysisContext {
         val c = TopDownAnalysisContext(topDownAnalysisMode, outerDataFlowInfo, declarationScopeProvider)
 
         val topLevelFqNames = HashMultimap.create<FqName, KtElement>()
@@ -108,7 +112,7 @@ class LazyTopDownAnalyzer(
                     val descriptor = lazyDeclarationResolver.getClassDescriptor(classOrObject, location) as ClassDescriptorWithResolutionScopes
 
                     c.declaredClasses.put(classOrObject, descriptor)
-                    registerDeclarations(classOrObject.getDeclarations())
+                    registerDeclarations(classOrObject.declarations)
                     registerTopLevelFqName(topLevelFqNames, classOrObject, descriptor)
 
                     checkClassOrObjectDeclarations(classOrObject, descriptor)
@@ -116,7 +120,7 @@ class LazyTopDownAnalyzer(
 
                 private fun checkClassOrObjectDeclarations(classOrObject: KtClassOrObject, classDescriptor: ClassDescriptor) {
                     var companionObjectAlreadyFound = false
-                    for (jetDeclaration in classOrObject.getDeclarations()) {
+                    for (jetDeclaration in classOrObject.declarations) {
                         if (jetDeclaration is KtObjectDeclaration && jetDeclaration.isCompanion()) {
                             if (companionObjectAlreadyFound) {
                                 trace.report(MANY_COMPANION_OBJECTS.on(jetDeclaration))
@@ -205,6 +209,8 @@ class LazyTopDownAnalyzer(
 
         bodyResolver.resolveBodies(c)
 
+        resolveImportsInAllFiles(c)
+
         ClassifierUsageChecker.check(declarations, trace, classifierUsageCheckers)
 
         return c
@@ -213,6 +219,12 @@ class LazyTopDownAnalyzer(
     private fun resolveAllHeadersInClasses(c: TopDownAnalysisContext) {
         for (classDescriptor in c.allClasses) {
             (classDescriptor as LazyClassDescriptor).resolveMemberHeaders()
+        }
+    }
+
+    private fun resolveImportsInAllFiles(c: TopDownAnalysisContext) {
+        for (file in c.files + c.scripts.keys.map { it.getContainingKtFile() }) {
+            fileScopeProvider.getImportResolver(file).forceResolveAllImports()
         }
     }
 
@@ -258,5 +270,3 @@ class LazyTopDownAnalyzer(
         }
     }
 }
-
-

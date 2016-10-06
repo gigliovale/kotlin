@@ -88,7 +88,7 @@ class IterateExpressionIntention : SelfTargetingIntention<KtExpression>(KtExpres
                 PsiDocumentManager.getInstance(forExpression.project).doPostponedOperationsAndUnblockDocument(editor.document)
 
                 val bodyPlaceholder = (forExpression.body as KtBlockExpression).statements.single()
-                val parameters = forExpression.loopParameter?.singletonList() ?: forExpression.destructuringParameter!!.entries
+                val parameters = forExpression.destructuringDeclaration?.entries ?: forExpression.loopParameter!!.singletonList()
 
                 val templateBuilder = TemplateBuilderImpl(forExpression)
                 for ((parameter, parameterNames) in (parameters zip names)) {

@@ -281,7 +281,7 @@ public class KtPsiUtil {
         if (declaration instanceof KtProperty) return true;
         assert declaration instanceof KtDestructuringDeclarationEntry;
         KtDestructuringDeclarationEntry multiDeclarationEntry = (KtDestructuringDeclarationEntry) declaration;
-        return !(multiDeclarationEntry.getParent().getParent() instanceof KtForExpression);
+        return !(multiDeclarationEntry.getParent().getParent().getParent() instanceof KtForExpression);
     }
 
     @Nullable
@@ -796,7 +796,7 @@ public class KtPsiUtil {
                     return (KtElement) parent;
                 }
             }
-            if (current instanceof KtBlockExpression || current instanceof KtParameter) {
+            if (current instanceof KtBlockExpression || (current instanceof KtParameter && !skipParameters)) {
                 return (KtElement) current;
             }
             if (current instanceof KtValueArgument) {

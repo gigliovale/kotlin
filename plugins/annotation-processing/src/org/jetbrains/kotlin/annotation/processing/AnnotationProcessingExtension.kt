@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.annotation
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.StandardFileSystems
 import com.intellij.psi.JavaPsiFacade
@@ -41,6 +42,8 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.jvm.extensions.AnalysisCompletedHandlerExtension
 import java.io.File
 import java.io.IOException
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.URLClassLoader
 import java.util.*
 import javax.annotation.processing.Processor
@@ -48,6 +51,7 @@ import javax.tools.Diagnostic
 
 class ClasspathBasedAnnotationProcessingExtension(
         val annotationProcessingClasspath: List<File>,
+        override val options: Map<String, String>,
         generatedSourcesOutputDir: File,
         classesOutputDir: File,
         javaSourceRoots: List<File>,
@@ -74,7 +78,7 @@ abstract class AbstractAnnotationProcessingExtension(
     private companion object {
         val LINE_SEPARATOR = System.getProperty("line.separator") ?: "\n"
     }
-    
+
     private var annotationProcessingComplete = false
     private val messager = KotlinMessager()
 
@@ -114,11 +118,13 @@ abstract class AbstractAnnotationProcessingExtension(
             return null
         }
 
+        val startTime = System.currentTimeMillis()
+
         val psiManager = PsiManager.getInstance(project)
         val javaPsiFacade = JavaPsiFacade.getInstance(project)
         val projectScope = GlobalSearchScope.projectScope(project)
 
-        val options = emptyMap<String, String>()
+        val options = this.options
         log { "Options: $options" }
 
         val filer = KotlinFiler(generatedSourcesOutputDir, classesOutputDir)
@@ -129,12 +135,23 @@ abstract class AbstractAnnotationProcessingExtension(
                 elements, types, messager, options, filer, processors,
                 project, psiManager, javaPsiFacade, projectScope, bindingTrace.bindingContext, appendJavaSourceRootsHandler)
 
-        val processingResult = processingEnvironment.doAnnotationProcessing(files)
+        var processingResult: ProcessingResult
+        try {
+            processingResult = processingEnvironment.doAnnotationProcessing(files)
+            processingEnvironment.dispose()
+        }
+        catch (thr: Throwable) {
+            messager.printMessage(
+                    Diagnostic.Kind.ERROR,
+                    "An exception occurred during annotation processing. Stacktrace: \n" + thr.getStackTraceAsString())
+
+            processingResult = ProcessingResult(errorCount = 1, warningCount = 0, wasAnythingGenerated = false)
+        }
 
         annotationProcessingComplete = true
         log {
-            "Annotation processing complete, " + 
-                    processingResult.errorCount.count("error") + ", " + 
+            "Annotation processing complete in ${System.currentTimeMillis() - startTime} ms, " +
+                    processingResult.errorCount.count("error") + ", " +
                     processingResult.warningCount.count("warning")
         }
 
@@ -159,21 +176,33 @@ abstract class AbstractAnnotationProcessingExtension(
                 listOf(generatedSourcesOutputDir),
                 addToEnvironment = false)
     }
+
+    private fun Throwable.getStackTraceAsString(): String {
+        val out = StringWriter(1024)
+        val printWriter = PrintWriter(out)
+        try {
+            printStackTrace(printWriter)
+            return out.toString().replace("\r", "")
+        }
+        finally {
+            printWriter.close()
+        }
+    }
     
     private fun KotlinProcessingEnvironment.createTypeMapper(): KotlinTypeMapper {
-        return KotlinTypeMapper(bindingContext, ClassBuilderMode.full(false), NoResolveFileClassesProvider,
+        return KotlinTypeMapper(bindingContext(), ClassBuilderMode.full(false), NoResolveFileClassesProvider,
                                 IncompatibleClassTracker.DoNothing, JvmAbi.DEFAULT_MODULE_NAME, false)
     }
 
     private fun KotlinProcessingEnvironment.doAnnotationProcessing(files: Collection<KtFile>): ProcessingResult {
         run initializeProcessors@ {
-            processors.forEach { it.init(this) }
-            log { "Initialized processors: " + processors.joinToString { it.javaClass.name } }
+            processors().forEach { it.init(this) }
+            log { "Initialized processors: " + processors().joinToString { it.javaClass.name } }
         }
 
         val firstRoundAnnotations = RoundAnnotations(
                 sourceRetentionAnnotationHandler,
-                bindingContext,
+                bindingContext(),
                 createTypeMapper())
         
         run analyzeFilesForFirstRound@ {
@@ -185,7 +214,7 @@ abstract class AbstractAnnotationProcessingExtension(
                 javaSourceRoot.walk().filter { it.isFile && it.extension == "java" }.forEach {
                     val vFile = StandardFileSystems.local().findFileByPath(it.absolutePath)
                     if (vFile != null) {
-                        val javaFile = psiManager.findFile(vFile) as? PsiJavaFile
+                        val javaFile = psiManager().findFile(vFile) as? PsiJavaFile
                         if (javaFile != null) {
                             firstRoundAnnotations.analyzeFile(javaFile)
                         }
@@ -212,7 +241,7 @@ abstract class AbstractAnnotationProcessingExtension(
                     for (line in incrementalData.lines()) {
                         if (line.length < 3 || !line.startsWith("i ")) continue
                         val fqName = line.drop(2) 
-                        val psiClass = javaPsiFacade.findClass(fqName, projectScope) ?: continue
+                        val psiClass = javaPsiFacade().findClass(fqName, projectScope()) ?: continue
                         if (firstRoundAnnotations.analyzeDeclaration(psiClass)) {
                             analyzedClasses += fqName
                         }
@@ -237,14 +266,15 @@ abstract class AbstractAnnotationProcessingExtension(
         
         val finalRoundNumber = run annotationProcessing@ {
             val firstRoundEnvironment = KotlinRoundEnvironment(firstRoundAnnotations, false, 1)
-            process(firstRoundEnvironment)
+            process(firstRoundEnvironment) // Dispose for firstRoundEnvironment is called inside process
         } + 1
         
         log { "Starting round $finalRoundNumber (final)" }
         val finalRoundEnvironment = KotlinRoundEnvironment(firstRoundAnnotations.copy(), true, finalRoundNumber)
-        for (processor in processors) {
+        for (processor in processors()) {
             processor.process(emptySet(), finalRoundEnvironment)
         }
+        finalRoundEnvironment.dispose()
 
         return ProcessingResult(messager.errorCount, messager.warningCount, filer.wasAnythingGenerated)
     }
@@ -258,16 +288,18 @@ abstract class AbstractAnnotationProcessingExtension(
         
         // Add new Java source roots after the first round
         if (roundEnvironment.roundNumber == 1) {
-            appendJavaSourceRootsHandler(listOf(generatedSourcesOutputDir))
+            appendJavaSourceRootsHandler()(listOf(generatedSourcesOutputDir))
         }
         
         // Update the platform caches
-        (PsiManager.getInstance(project).modificationTracker as? PsiModificationTrackerImpl)?.incCounter()
+        ApplicationManager.getApplication().runWriteAction {
+            (psiManager().modificationTracker as? PsiModificationTrackerImpl)?.incCounter()
+        }
         
         // Find generated files
         val localFileSystem = StandardFileSystems.local()
         val psiFiles = newJavaFiles
-                .map { localFileSystem.findFileByPath(it.absolutePath)?.let { psiManager.findFile(it) } }
+                .map { localFileSystem.findFileByPath(it.absolutePath)?.let { psiManager().findFile(it) } }
                 .filterIsInstance<PsiJavaFile>()
 
         if (psiFiles.isEmpty()) {
@@ -276,8 +308,9 @@ abstract class AbstractAnnotationProcessingExtension(
         }
         
         // Start the next round
-        val nextRoundAnnotations = roundEnvironment.roundAnnotations.copy().apply { analyzeFiles(psiFiles) }
+        val nextRoundAnnotations = roundEnvironment.roundAnnotations().copy().apply { analyzeFiles(psiFiles) }
         val nextRoundEnvironment = KotlinRoundEnvironment(nextRoundAnnotations, false, roundEnvironment.roundNumber + 1)
+        roundEnvironment.dispose()
         return process(nextRoundEnvironment)
     }
     
@@ -287,13 +320,13 @@ abstract class AbstractAnnotationProcessingExtension(
         val newFiles = mutableListOf<File>()
         filer.onFileCreatedHandler = { newFiles += it }
 
-        for (processor in processors) {
+        for (processor in processors()) {
             val supportedAnnotationNames = processor.supportedAnnotationTypes
             val acceptsAnyAnnotation = supportedAnnotationNames.contains("*")
 
             val applicableAnnotationNames = when (acceptsAnyAnnotation) {
-                true -> roundEnvironment.roundAnnotations.annotationsMap.keys
-                false -> processor.supportedAnnotationTypes.filter { it in roundEnvironment.roundAnnotations.annotationsMap }
+                true -> roundEnvironment.roundAnnotations().annotationsMap.keys
+                false -> processor.supportedAnnotationTypes.filter { it in roundEnvironment.roundAnnotations().annotationsMap }
             }
 
             if (applicableAnnotationNames.isEmpty()) {
@@ -302,7 +335,7 @@ abstract class AbstractAnnotationProcessingExtension(
             }
 
             val applicableAnnotations = applicableAnnotationNames
-                    .map { javaPsiFacade.findClass(it, projectScope)?.let { JeTypeElement(it) } }
+                    .map { javaPsiFacade().findClass(it, projectScope())?.let { JeTypeElement(it) } }
                     .filterNotNullTo(hashSetOf())
 
             log {
@@ -318,6 +351,7 @@ abstract class AbstractAnnotationProcessingExtension(
     }
 
     protected abstract fun loadAnnotationProcessors(): List<Processor>
+    protected abstract val options: Map<String, String>
 }
 
 private class ProcessingResult(val errorCount: Int, val warningCount: Int, val wasAnythingGenerated: Boolean)

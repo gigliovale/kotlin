@@ -17,7 +17,8 @@
 package org.jetbrains.kotlin.java.model.elements
 
 import com.intellij.psi.*
-import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.kotlin.java.model.JeDisposablePsiElementOwner
+import org.jetbrains.kotlin.java.model.internal.getTypeWithTypeParameters
 import org.jetbrains.kotlin.java.model.types.JeDeclaredErrorType
 import org.jetbrains.kotlin.java.model.types.JeDeclaredType
 import javax.lang.model.element.AnnotationMirror
@@ -25,10 +26,10 @@ import javax.lang.model.element.AnnotationValue
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
-class JeAnnotationMirror(val psi: PsiAnnotation) : AnnotationMirror {
+class JeAnnotationMirror(psi: PsiAnnotation) : JeDisposablePsiElementOwner<PsiAnnotation>(psi), AnnotationMirror {
     override fun getAnnotationType(): DeclaredType? {
         val psiClass = resolveAnnotationClass() ?: return JeDeclaredErrorType
-        return JeDeclaredType(PsiTypesUtil.getClassType(psiClass), psiClass)
+        return JeDeclaredType(psiClass.getTypeWithTypeParameters(), psiClass)
     }
 
     override fun getElementValues(): Map<out ExecutableElement, AnnotationValue> = getElementValues(false)

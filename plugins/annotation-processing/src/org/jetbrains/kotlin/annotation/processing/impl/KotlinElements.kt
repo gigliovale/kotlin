@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.annotation.processing.impl
 
+import com.intellij.openapi.Disposable
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.*
@@ -26,12 +27,21 @@ import org.jetbrains.kotlin.java.model.elements.JeAnnotationMirror
 import org.jetbrains.kotlin.java.model.elements.JeMethodExecutableElement
 import org.jetbrains.kotlin.java.model.elements.JePackageElement
 import org.jetbrains.kotlin.java.model.elements.JeTypeElement
+import org.jetbrains.kotlin.java.model.internal.getTypeWithTypeParameters
 import java.io.PrintWriter
 import java.io.Writer
 import javax.lang.model.element.*
 import javax.lang.model.util.Elements
 
-class KotlinElements(val javaPsiFacade: JavaPsiFacade, val scope: GlobalSearchScope) : Elements {
+class KotlinElements(
+        javaPsiFacade: JavaPsiFacade, 
+        scope: GlobalSearchScope
+) : Elements, Disposable {
+    internal val javaPsiFacade = javaPsiFacade.toDisposable()
+    internal val scope = scope.toDisposable()
+
+    override fun dispose() = dispose(javaPsiFacade, scope)
+
     override fun hides(hider: Element, hidden: Element): Boolean {
         val hiderMethod = (hider as? JeMethodExecutableElement)?.psi ?: return false
         val hiddenMethod = (hidden as? JeMethodExecutableElement)?.psi ?: return false
@@ -39,7 +49,7 @@ class KotlinElements(val javaPsiFacade: JavaPsiFacade, val scope: GlobalSearchSc
         val hiderMethodClass = hiderMethod.containingClass ?: return false
         val hiddenMethodClass = hiddenMethod.containingClass ?: return false
 
-        if (PsiTypesUtil.getClassType(hiddenMethodClass) !in hiderMethodClass.superTypes) return false
+        if (hiddenMethodClass.getTypeWithTypeParameters() !in hiderMethodClass.superTypes) return false
         
         return isSubSignature(hiderMethod, hiddenMethod)
     }
@@ -87,12 +97,12 @@ class KotlinElements(val javaPsiFacade: JavaPsiFacade, val scope: GlobalSearchSc
     }
 
     override fun getPackageElement(name: CharSequence): PackageElement? {
-        val psiPackage = javaPsiFacade.findPackage(name.toString()) ?: return null
+        val psiPackage = javaPsiFacade().findPackage(name.toString()) ?: return null
         return JePackageElement(psiPackage)
     }
 
     override fun getTypeElement(name: CharSequence): TypeElement? {
-        val psiClass = javaPsiFacade.findClass(name.toString(), scope) ?: return null
+        val psiClass = javaPsiFacade().findClass(name.toString(), scope()) ?: return null
         return JeTypeElement(psiClass)
     }
 
@@ -139,7 +149,7 @@ class KotlinElements(val javaPsiFacade: JavaPsiFacade, val scope: GlobalSearchSc
 
 private fun PsiClass.isSubclassOf(other: PsiClass?): Boolean {
     if (other == null) return false
-    return TypeConversionUtil.isAssignable(PsiTypesUtil.getClassType(other), PsiTypesUtil.getClassType(this), false)
+    return TypeConversionUtil.isAssignable(other.getTypeWithTypeParameters(), this.getTypeWithTypeParameters(), false)
 }
 
 private fun isSubSignature(childMethod: PsiMethod, superMethod: PsiMethod): Boolean {

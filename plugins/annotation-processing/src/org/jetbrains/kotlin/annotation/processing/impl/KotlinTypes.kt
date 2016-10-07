@@ -16,20 +16,29 @@
 
 package org.jetbrains.kotlin.annotation.processing.impl
 
+import com.intellij.openapi.Disposable
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.*
-import org.jetbrains.kotlin.java.model.elements.JeClassInitializerExecutableElement
-import org.jetbrains.kotlin.java.model.elements.JeMethodExecutableElement
-import org.jetbrains.kotlin.java.model.elements.JeTypeElement
-import org.jetbrains.kotlin.java.model.elements.JeVariableElement
+import org.jetbrains.kotlin.java.model.JeElement
+import org.jetbrains.kotlin.java.model.elements.*
 import org.jetbrains.kotlin.java.model.types.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.*
 import javax.lang.model.util.Types
 
-class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, val scope: GlobalSearchScope) : Types {
+class KotlinTypes(
+        javaPsiFacade: JavaPsiFacade,
+        psiManager: PsiManager,
+        scope: GlobalSearchScope
+) : Types, Disposable {
+    val javaPsiFacade = javaPsiFacade.toDisposable()
+    val psiManager = psiManager.toDisposable()
+    val scope = scope.toDisposable()
+
+    override fun dispose() = dispose(javaPsiFacade, psiManager, scope)
+
     override fun contains(containing: TypeMirror, contained: TypeMirror): Boolean {
         assertKindNot(containing, TypeKind.PACKAGE, TypeKind.EXECUTABLE)
         assertKindNot(contained, TypeKind.PACKAGE, TypeKind.EXECUTABLE)
@@ -60,7 +69,7 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
         if (componentType is ExecutableType || componentType is NoType) error(componentType)
         assertJeType(componentType); componentType as JePsiType
         
-        return JeArrayType(PsiArrayType(componentType.psiType), psiManager, isRaw = false)
+        return JeArrayType(PsiArrayType(componentType.psiType), psiManager(), isRaw = false)
     }
 
     override fun isAssignable(t1: TypeMirror, t2: TypeMirror): Boolean {
@@ -83,11 +92,11 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
         if (superBound != null && superBound !is JePsiType) illegalArg("superBound should have PsiType")
         
         return JeWildcardType(if (extendsBound != null) {
-            PsiWildcardType.createExtends(psiManager, (extendsBound as JePsiType).psiType)
+            PsiWildcardType.createExtends(psiManager(), (extendsBound as JePsiType).psiType)
         } else if (superBound != null) {
-            PsiWildcardType.createSuper(psiManager, (superBound as JePsiType).psiType)
+            PsiWildcardType.createSuper(psiManager(), (superBound as JePsiType).psiType)
         } else {
-            PsiWildcardType.createUnbounded(psiManager)
+            PsiWildcardType.createUnbounded(psiManager())
         }, isRaw = false)
     }
 
@@ -104,7 +113,7 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
         if (t.kind == TypeKind.PACKAGE) throw IllegalArgumentException("Invalid type: $t")
         return when (t) {
             is JeTypeVariableType -> TypeConversionUtil.typeParameterErasure(t.parameter).toJeType(t.psiManager, isRaw = true)
-            is JePsiType -> TypeConversionUtil.erasure(t.psiType).toJeType(psiManager, isRaw = true)
+            is JePsiType -> TypeConversionUtil.erasure(t.psiType).toJeType(psiManager(), isRaw = true)
             is JeMethodExecutableTypeMirror -> {
                 val oldSignature = t.signature
                 val parameterTypes = oldSignature?.parameterTypes?.toList() ?: t.psi.parameterList.parameters.map { it.type }
@@ -123,15 +132,16 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
     }
 
     override fun directSupertypes(t: TypeMirror): List<TypeMirror> {
-        if (t is NoType) throw IllegalArgumentException("Invalid type: $t")
+        if (t is NoType || t is ExecutableType) throw IllegalArgumentException("Invalid type: $t")
+
         val psiType = (t as? JePsiType)?.psiType as? PsiClassType ?: return emptyList()
-        return psiType.superTypes.map { it.toJeType(psiManager) }
+        return psiType.superTypes.map { it.toJeType(psiManager()) }
     }
 
     override fun boxedClass(p: PrimitiveType): TypeElement? {
         p as? JePrimitiveType ?: throw IllegalArgumentException("Unknown type: $p")
         val boxedTypeName = p.psiType.boxedTypeName
-        val boxedClass = javaPsiFacade.findClass(boxedTypeName, scope) 
+        val boxedClass = javaPsiFacade().findClass(boxedTypeName, scope()) 
                          ?: throw IllegalStateException("Can't find boxed class $boxedTypeName")
         return JeTypeElement(boxedClass)
     }
@@ -182,7 +192,7 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
             i, t -> (t as? JePsiType)?.psiType ?: throw IllegalArgumentException("Invalid type argument #$i: $t") 
         }
 
-        val psiType = createDeclaredType(psiClass, typeArgs) ?: 
+        val psiType = createImmediateClassType(psiClass, typeArgs) ?:
                       throw IllegalStateException("Can't create declared type ($psiClass, $typeArgs)")
         return JeDeclaredType(psiType, psiClass)
     }
@@ -214,40 +224,56 @@ class KotlinTypes(val javaPsiFacade: JavaPsiFacade, val psiManager: PsiManager, 
             i, t -> (t as? JePsiType)?.psiType ?: throw IllegalArgumentException("Invalid type argument #$i: $t")
         }
 
-        val psiType = createDeclaredType(psiClass, typeArgs) ?:
+        val psiType = createImmediateClassType(psiClass, typeArgs) ?:
                       throw IllegalStateException("Can't create declared type ($psiClass, $typeArgs)")
         return JeDeclaredType(psiType, psiClass, containing)
     }
 
-    override fun asMemberOf(containing: DeclaredType, element: Element): TypeMirror {
-        val substitutor = when (containing) {
-            is JeDeclaredType -> {
-                val result = containing.psiType.resolveGenerics()
-                if (result.isValidResult) result.substitutor else PsiSubstitutor.EMPTY
-            }
-            else -> throw IllegalArgumentException("Invalid containing type: $containing")
+    private fun Array<out PsiType>.findSuperType(superTypeClass: PsiClass): PsiClassType? {
+        for (supertype in this) {
+            if (supertype is PsiClassType && supertype.resolve() == superTypeClass) return supertype
+            supertype.superTypes.findSuperType(superTypeClass)?.let { return it }
         }
-        
+        return null
+    }
+
+    override fun asMemberOf(containing: DeclaredType, element: Element): TypeMirror {
+        if (containing !is JeDeclaredType || element is JeClassInitializerExecutableElement) return element.asType()
+        val containingType = containing.psiType
+
+        val member = (element as JeElement).psi as? PsiMember ?: return element.asType()
+
+        val memberOwnerClass = when (member) {
+            is PsiTypeParameter -> member.owner as? PsiClass
+            else -> member.containingClass
+        } ?: return element.asType()
+
+        val relevantSuperType = if (memberOwnerClass == containingType.resolve()) {
+            containingType
+        } else {
+            containingType.superTypes.findSuperType(memberOwnerClass) ?: return element.asType()
+        }
+
+        val resolveResult = relevantSuperType.resolveGenerics()
+        if (!resolveResult.isValidResult) return element.asType()
+        val substitutor = resolveResult.substitutor
+
         return when (element) {
             is JeMethodExecutableElement -> {
                 val method = element.psi
-                if (method.hasModifierProperty(PsiModifier.STATIC) || !method.hasTypeParameters()) {
-                    JeMethodExecutableTypeMirror(method)
-                } else {
-                    val signature = method.getSignature(substitutor)
-                    val returnType = substitutor.substitute(element.psi.returnType)
-                    JeMethodExecutableTypeMirror(method, signature, returnType)
-                }
+                val signature = method.getSignature(substitutor)
+                val returnType = substitutor.substitute(element.psi.returnType)
+                JeMethodExecutableTypeMirror(method, signature, returnType)
             }
-            is JeClassInitializerExecutableElement -> element.asType()
-            is JeVariableElement -> substitutor.substitute(element.psi.type).toJeType(psiManager)
-            else -> throw IllegalArgumentException("Invalid element type: $element")
+            is JeVariableElement -> substitutor.substitute(element.psi.type).toJeType(psiManager())
+            is JeTypeParameterElement -> substitutor.substitute(element.psi)?.toJeType(psiManager()) ?: element.asType()
+            else -> throw IllegalArgumentException("Invalid element type: ${element.javaClass.name} ($element)")
         }
     }
 
     override fun isSubsignature(t1: ExecutableType, t2: ExecutableType): Boolean {
-        val m1 = (t1 as JeClassInitializerExecutableTypeMirror).initializer
-        val m2 = (t2 as JeClassInitializerExecutableTypeMirror).initializer
+        val m1 = (t1 as JeClassInitializerExecutableTypeMirror).psi
+        val m2 = (t2 as JeClassInitializerExecutableTypeMirror).psi
         
         // No parameters
         if (m1 is PsiClassInitializer && m2 is PsiClassInitializer) return true

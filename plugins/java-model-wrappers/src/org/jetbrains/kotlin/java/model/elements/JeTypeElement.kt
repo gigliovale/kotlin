@@ -19,15 +19,16 @@ package org.jetbrains.kotlin.java.model.elements
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.util.ClassUtil
-import com.intellij.psi.util.PsiTypesUtil
+import org.jetbrains.kotlin.asJava.elements.LightParameter
 import org.jetbrains.kotlin.java.model.*
 import org.jetbrains.kotlin.java.model.internal.DefaultConstructorPsiMethod
+import org.jetbrains.kotlin.java.model.internal.getTypeWithTypeParameters
 import org.jetbrains.kotlin.java.model.types.JeNoneType
 import org.jetbrains.kotlin.java.model.types.toJeType
 import javax.lang.model.element.*
 import javax.lang.model.type.TypeMirror
 
-class JeTypeElement(override val psi: PsiClass) : JeElement, TypeElement, JeAnnotationOwner, JeModifierListOwner {
+class JeTypeElement(psi: PsiClass) : JeAbstractElement<PsiClass>(psi), TypeElement, JeAnnotationOwner, JeModifierListOwner {
     override fun getEnclosingElement(): Element? {
         psi.containingClass?.let { return JeTypeElement(it) }
         val javaFile = psi.containingFile as? PsiJavaFile ?: return null
@@ -40,7 +41,7 @@ class JeTypeElement(override val psi: PsiClass) : JeElement, TypeElement, JeAnno
 
     private fun getSuperType(superTypes: Array<PsiClassType>, superClass: PsiClass): PsiClassType {
         return superTypes.firstOrNull { it is PsiClassReferenceType && it.resolve() == superClass }
-               ?: PsiTypesUtil.getClassType(superClass)
+               ?: superClass.getTypeWithTypeParameters()
     }
     
     override fun getSuperclass(): TypeMirror {
@@ -93,7 +94,7 @@ class JeTypeElement(override val psi: PsiClass) : JeElement, TypeElement, JeAnno
                 declarations += JeMethodExecutableElement(DefaultConstructorPsiMethod(psi, psi.language).apply {
                     val containingClass = psi.containingClass
                     if (containingClass != null && !psi.hasModifierProperty(PsiModifier.STATIC)) {
-                        addParameter("\$instance", PsiTypesUtil.getClassType(containingClass))
+                        addParameter(LightParameter("\$instance", containingClass.getTypeWithTypeParameters(), this, psi.language))
                     }
                 })
             }
@@ -124,7 +125,7 @@ class JeTypeElement(override val psi: PsiClass) : JeElement, TypeElement, JeAnno
         else -> ElementKind.CLASS
     }
 
-    override fun asType() = PsiTypesUtil.getClassType(psi).toJeType(psi.manager)
+    override fun asType() = psi.getTypeWithTypeParameters().toJeType(psi.manager)
 
     override fun <R : Any?, P : Any?> accept(v: ElementVisitor<R, P>, p: P) = v.visitType(this, p)
     

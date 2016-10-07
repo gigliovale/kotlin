@@ -16,13 +16,14 @@
 
 package org.jetbrains.kotlin.codegen
 
-import org.jetbrains.kotlin.codegen.state.GenerationState
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.DECLARATION
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.FAKE_OVERRIDE
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature.getSpecialSignatureInfo
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature.isBuiltinWithSpecialDescriptorInJvm
+import org.jetbrains.kotlin.load.java.descriptors.JavaClassDescriptor
 import org.jetbrains.kotlin.load.java.isFromBuiltins
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
@@ -32,10 +33,10 @@ import org.jetbrains.kotlin.resolve.OverridingStrategy
 import org.jetbrains.kotlin.resolve.OverridingUtil
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
+import org.jetbrains.kotlin.resolve.descriptorUtil.getAllSuperclassesWithoutAny
 import org.jetbrains.kotlin.resolve.descriptorUtil.overriddenTreeUniqueAsSequence
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin
 import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodGenericSignature
-import org.jetbrains.kotlin.resolve.jvm.jvmSignature.JvmMethodSignature
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.types.checker.KotlinTypeCheckerImpl
@@ -49,20 +50,32 @@ import java.util.*
  * Kotlin's read-only collections. This is required on JVM because Kotlin's read-only collections are mapped to mutable JDK collections
  */
 class CollectionStubMethodGenerator(
-        state: GenerationState,
-        private val descriptor: ClassDescriptor,
-        private val functionCodegen: FunctionCodegen,
-        private val v: ClassBuilder
+        private val typeMapper: KotlinTypeMapper,
+        private val descriptor: ClassDescriptor
 ) {
-    private val typeMapper = state.typeMapper
+    private data class TasksToGenerate(
+            val methodStubsToGenerate: Set<JvmMethodGenericSignature>,
+            val syntheticStubsToGenerate: Set<JvmMethodGenericSignature>,
+            val bridgesToGenerate: Set<FunctionDescriptor>
+    )
 
-    fun generate() {
-        if (descriptor.kind == ClassKind.INTERFACE) return
+    companion object {
+        private val NO_TASKS = TasksToGenerate(emptySet(), emptySet(), emptySet())
+    }
+
+    private fun computeTasksToGenerate(): TasksToGenerate {
+        if (descriptor.kind == ClassKind.INTERFACE || descriptor is JavaClassDescriptor) return NO_TASKS
         val superCollectionClasses = findRelevantSuperCollectionClasses()
-        if (superCollectionClasses.isEmpty()) return
+        if (superCollectionClasses.isEmpty()) return NO_TASKS
+
+        val existingMethodsInSuperclasses = descriptor.getAllSuperclassesWithoutAny().flatMap {
+            val tasksFromSuperClass = CollectionStubMethodGenerator(typeMapper, it).computeTasksToGenerate()
+            (tasksFromSuperClass.methodStubsToGenerate + tasksFromSuperClass.syntheticStubsToGenerate).map { it.asmMethod }
+        }
 
         val methodStubsToGenerate = LinkedHashSet<JvmMethodGenericSignature>()
         val syntheticStubsToGenerate = LinkedHashSet<JvmMethodGenericSignature>()
+        val bridgesToGenerate = LinkedHashSet<FunctionDescriptor>()
 
         for ((readOnlyClass, mutableClass) in superCollectionClasses) {
             // To determine which method stubs we need to generate, we create a synthetic class (named 'child' here) which inherits from
@@ -94,10 +107,6 @@ class CollectionStubMethodGenerator(
                     // present in the bytecode (abstract) and we don't want a duplicate signature error
                     if (method.findOverriddenFromDirectSuperClass(descriptor)?.kind == DECLARATION) continue
 
-                    // Otherwise we can safely generate the stub with the substituted signature
-                    val signature = method.signature()
-                    methodStubsToGenerate.add(signature)
-
                     // If the substituted signature differs from the original one in MutableCollection, we should also generate a stub with
                     // the original (erased) signature. It doesn't really matter if this is a bridge method delegating to the first stub or
                     // a method with its own exception-throwing code, for simplicity we do the latter here.
@@ -107,9 +116,8 @@ class CollectionStubMethodGenerator(
                     // methods which need to be generated with the ACC_SYNTHETIC flag
                     val overriddenMethod = method.findOverriddenFromDirectSuperClass(mutableClass)!!
                     val originalSignature = overriddenMethod.original.signature()
-                    var specialSignature: JvmMethodSignature? = null
 
-                    if (overriddenMethod.isBuiltinWithSpecialDescriptorInJvm()) {
+                    val commonSignature = if (overriddenMethod.isBuiltinWithSpecialDescriptorInJvm()) {
                         // Stubs for remove(Ljava/lang/Object;)Z and remove(I) should not be synthetic
                         // Otherwise Javac will not see it
                         val overriddenMethodSignature = overriddenMethod.signature()
@@ -127,41 +135,63 @@ class CollectionStubMethodGenerator(
                                 else
                                     Pair(overriddenMethodSignature.asmMethod, overriddenMethodSignature.valueParameters)
 
-                        specialSignature = JvmMethodGenericSignature(
+                        JvmMethodGenericSignature(
                                 asmMethod,
                                 valueParameters,
                                 specialGenericSignature
                         )
-
-                        methodStubsToGenerate.add(specialSignature)
+                    }
+                    else {
+                        method.signature()
                     }
 
-                    if (originalSignature.asmMethod != signature.asmMethod && originalSignature.asmMethod != specialSignature?.asmMethod) {
-                        syntheticStubsToGenerate.add(originalSignature)
+                    if (commonSignature.asmMethod !in existingMethodsInSuperclasses &&
+                            // If original method already defined in a superclass we mustn't care about specialized version
+                            // The same way we do not generate specialized version in a common case like:
+                            // open class A<T> : MutableList<T> {
+                            //      fun add(x: T) = true
+                            // }
+                            // class B : A<String>() // No 'B.add(String)Z'
+                            originalSignature.asmMethod !in existingMethodsInSuperclasses) {
+                        methodStubsToGenerate.add(commonSignature)
+
+                        if (originalSignature.asmMethod != commonSignature.asmMethod) {
+                            syntheticStubsToGenerate.add(originalSignature)
+                        }
                     }
                 }
                 else {
                     // If the fake override is non-abstract, its implementation is already present in the class or inherited from one of its
                     // super classes, but is not related to the MutableCollection hierarchy. So maybe it uses more specific return types
                     // and we may need to generate some bridges
-                    functionCodegen.generateBridges(method)
+                    bridgesToGenerate.add(method)
                 }
             }
         }
 
+        return TasksToGenerate(methodStubsToGenerate, syntheticStubsToGenerate, bridgesToGenerate)
+    }
+
+    fun generate(functionCodegen: FunctionCodegen, v: ClassBuilder) {
+        val (methodStubsToGenerate, syntheticStubsToGenerate, bridgesToGenerate) = computeTasksToGenerate()
+
         for (signature in methodStubsToGenerate) {
-            generateMethodStub(signature, synthetic = false)
+            generateMethodStub(v, signature, synthetic = false)
         }
 
         for (signature in syntheticStubsToGenerate) {
-            generateMethodStub(signature, synthetic = true)
+            generateMethodStub(v, signature, synthetic = true)
+        }
+
+        for (method in bridgesToGenerate) {
+            functionCodegen.generateBridges(method)
         }
     }
 
     private fun isDefaultInJdk(method: FunctionDescriptor) =
         method.modality != Modality.ABSTRACT &&
         method.original.overriddenTreeUniqueAsSequence(useOriginal = true).all {
-            (it as FunctionDescriptor).kind == FAKE_OVERRIDE || it.isFromBuiltins()
+            it.kind == FAKE_OVERRIDE || it.isFromBuiltins()
         }
 
     private data class CollectionClassPair(
@@ -300,7 +330,7 @@ class CollectionStubMethodGenerator(
 
     private fun FunctionDescriptor.signature(): JvmMethodGenericSignature = typeMapper.mapSignatureWithGeneric(this, OwnerKind.IMPLEMENTATION)
 
-    private fun generateMethodStub(signature: JvmMethodGenericSignature, synthetic: Boolean) {
+    private fun generateMethodStub(v: ClassBuilder, signature: JvmMethodGenericSignature, synthetic: Boolean) {
         assert(descriptor.kind != ClassKind.INTERFACE) { "No stubs should be generated for interface ${descriptor.fqNameUnsafe}" }
 
         val access = ACC_PUBLIC or (if (synthetic) ACC_SYNTHETIC else 0)
@@ -308,7 +338,10 @@ class CollectionStubMethodGenerator(
         val genericSignature = if (synthetic) null else signature.genericsSignature
         val mv = v.newMethod(JvmDeclarationOrigin.NO_ORIGIN, access, asmMethod.name, asmMethod.descriptor, genericSignature, null)
         mv.visitCode()
-        AsmUtil.genThrow(InstructionAdapter(mv), "java/lang/UnsupportedOperationException", "Mutating immutable collection")
+        AsmUtil.genThrow(
+                InstructionAdapter(mv),
+                "java/lang/UnsupportedOperationException",
+                "Operation is not supported for read-only collection")
         FunctionCodegen.endVisit(mv, "built-in stub for $signature", null)
     }
 }

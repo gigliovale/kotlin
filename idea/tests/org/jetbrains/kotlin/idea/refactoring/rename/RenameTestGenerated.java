@@ -167,6 +167,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
         doTest(fileName);
     }
 
+    @TestMetadata("classUsagesInTextFiles/classUsagesInTextFiles.test")
+    public void testClassUsagesInTextFiles_ClassUsagesInTextFiles() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/classUsagesInTextFiles/classUsagesInTextFiles.test");
+        doTest(fileName);
+    }
+
     @TestMetadata("companionObject/companionObject.test")
     public void testCompanionObject_CompanionObject() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/companionObject/companionObject.test");
@@ -1100,6 +1106,12 @@ public class RenameTestGenerated extends AbstractRenameTest {
     @TestMetadata("topLevelPropertyRedeclaration/topLevelPropertyRedeclaration.test")
     public void testTopLevelPropertyRedeclaration_TopLevelPropertyRedeclaration() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/topLevelPropertyRedeclaration/topLevelPropertyRedeclaration.test");
+        doTest(fileName);
+    }
+
+    @TestMetadata("varInDoWhile/varInDoWhile.test")
+    public void testVarInDoWhile_VarInDoWhile() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/rename/varInDoWhile/varInDoWhile.test");
         doTest(fileName);
     }
 }

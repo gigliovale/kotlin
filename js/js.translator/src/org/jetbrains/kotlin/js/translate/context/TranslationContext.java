@@ -229,9 +229,9 @@ public class TranslationContext {
         return staticContext.getQualifiedReference(packageFqName);
     }
 
-    @Nullable
-    public JsExpression getQualifierForDescriptor(@NotNull DeclarationDescriptor descriptor) {
-        return staticContext.getQualifierForDescriptor(descriptor);
+    @NotNull
+    public JsName getNameForBackingField(@NotNull PropertyDescriptor property) {
+        return staticContext.getNameForBackingField(property);
     }
 
     @NotNull

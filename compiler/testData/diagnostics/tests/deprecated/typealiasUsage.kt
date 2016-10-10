@@ -18,9 +18,7 @@ val test2 = <!DEPRECATION!>Obsolete<!>()
 
 val test3 = <!DEPRECATION!>Obsolete<!>
 
-// Calls for supertype constructors are resolved separately based on supertype.
-// TODO KT-14274
-class Test4: Obsolete()
+class Test4: <!DEPRECATION!>Obsolete<!>()
 class Test4a: <!DEPRECATION!>IObsolete<!>
 class Test4b: IG<<!DEPRECATION!>Obsolete<!>>
 class Test4c: CG<<!DEPRECATION!>Obsolete<!>>()

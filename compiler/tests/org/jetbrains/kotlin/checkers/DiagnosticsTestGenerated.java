@@ -6012,6 +6012,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("typealiasUsage.kt")
+            public void testTypealiasUsage() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/deprecated/typealiasUsage.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unusedImport.kt")
             public void testUnusedImport() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/deprecated/unusedImport.kt");

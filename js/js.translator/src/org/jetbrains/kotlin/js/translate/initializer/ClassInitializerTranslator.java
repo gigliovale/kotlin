@@ -36,7 +36,9 @@ import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtEnumEntry;
 import org.jetbrains.kotlin.psi.KtParameter;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
+import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedValueArgument;
 import org.jetbrains.kotlin.types.KotlinType;
 
 import java.util.ArrayList;
@@ -202,7 +204,23 @@ public final class ClassInitializerTranslator extends AbstractTranslator {
                     }
                 }
 
-                addCallToSuperMethod(arguments, initializer);
+                if (superDescriptor.isPrimary()) {
+                    addCallToSuperMethod(arguments, initializer);
+                }
+                else {
+                    int maxValueArgumentIndex = 0;
+                    for (ValueParameterDescriptor arg : superCall.getValueArguments().keySet()) {
+                        ResolvedValueArgument resolvedArg = superCall.getValueArguments().get(arg);
+                        if (!(resolvedArg instanceof DefaultValueArgument)) {
+                            maxValueArgumentIndex = Math.max(maxValueArgumentIndex, arg.getIndex() + 1);
+                        }
+                    }
+                    int padSize = superDescriptor.getValueParameters().size() - maxValueArgumentIndex;
+                    while (padSize-- > 0) {
+                        arguments.add(Namer.getUndefinedExpression());
+                    }
+                    addCallToSuperSecondaryConstructor(arguments, superDescriptor);
+                }
             }
         }
     }
@@ -216,6 +234,14 @@ public final class ClassInitializerTranslator extends AbstractTranslator {
         JsInvocation call = new JsInvocation(Namer.getFunctionCallRef(Namer.superMethodNameRef(initializer.getName())));
         call.getArguments().add(JsLiteral.THIS);
         call.getArguments().addAll(arguments);
+        initFunction.getBody().getStatements().add(call.makeStmt());
+    }
+
+    private void addCallToSuperSecondaryConstructor(@NotNull List<JsExpression> arguments, @NotNull ConstructorDescriptor descriptor) {
+        JsExpression reference = context.getQualifiedReference(descriptor);
+        JsInvocation call = new JsInvocation(reference);
+        call.getArguments().addAll(arguments);
+        call.getArguments().add(JsLiteral.THIS);
         initFunction.getBody().getStatements().add(call.makeStmt());
     }
 

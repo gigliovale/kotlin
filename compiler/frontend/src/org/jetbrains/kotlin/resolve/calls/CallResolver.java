@@ -294,7 +294,7 @@ public class CallResolver {
                 parameterTypes.add(NO_EXPECTED_TYPE);
             }
             expectedType = FunctionTypeResolveUtilsKt.createFunctionType(
-                    builtIns, Annotations.Companion.getEMPTY(), null, parameterTypes, context.expectedType
+                    builtIns, Annotations.Companion.getEMPTY(), null, parameterTypes, null, context.expectedType
             );
         }
         KotlinType calleeType = expressionTypingServices.safeGetType(

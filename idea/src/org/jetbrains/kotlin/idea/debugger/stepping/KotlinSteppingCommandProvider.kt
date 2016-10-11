@@ -20,7 +20,6 @@ import com.intellij.debugger.NoDataException
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.DebugProcessImpl
 import com.intellij.debugger.engine.SuspendContextImpl
-import com.intellij.debugger.engine.events.SuspendContextCommandImpl
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.impl.JvmSteppingCommandProvider
 import com.intellij.psi.PsiElement
@@ -48,7 +47,7 @@ import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.inline.InlineUtil
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
-class KotlinSteppingCommandProvider: JvmSteppingCommandProvider() {
+class KotlinSteppingCommandProvider : JvmSteppingCommandProvider() {
     override fun getStepOverCommand(
             suspendContext: SuspendContextImpl?,
             ignoreBreakpoints: Boolean,
@@ -328,24 +327,22 @@ sealed class Action(val position: XSourcePositionImpl?) {
     class STEP_OUT: Action(null)
     class RUN_TO_CURSOR(position: XSourcePositionImpl): Action(position)
 
-    fun createCommand(
-            debugProcess: DebugProcessImpl,
-            suspendContext: SuspendContextImpl,
-            ignoreBreakpoints: Boolean
-    ): SuspendContextCommandImpl? {
-        return when (this) {
+    fun apply(debugProcess: DebugProcessImpl,
+              suspendContext: SuspendContextImpl,
+              ignoreBreakpoints: Boolean) {
+        when (this) {
             is Action.RUN_TO_CURSOR -> {
                 runReadAction {
                     debugProcess.createRunToCursorCommand(suspendContext, position!!, ignoreBreakpoints)
-                }
+                }.contextAction(suspendContext)
             }
-            is Action.STEP_OUT -> debugProcess.createStepOutCommand(suspendContext)
-            is Action.STEP_OVER -> debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints)
+            is Action.STEP_OUT -> debugProcess.createStepOutCommand(suspendContext).contextAction(suspendContext)
+            is Action.STEP_OVER -> debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints).contextAction(suspendContext)
         }
     }
 }
 
-fun getStepOverPosition(
+fun getStepOverAction(
         location: Location,
         kotlinSourcePosition: KotlinSteppingCommandProvider.KotlinSourcePosition
 ): Action {
@@ -356,10 +353,10 @@ fun getStepOverPosition(
         Pair(inlineArgumentsToSkip, additionalElementsToSkip)
     }
 
-    return getStepOverPosition(location, kotlinSourcePosition.file, kotlinSourcePosition.linesRange, inlineArgumentsToSkip, additionalElementsToSkip)
+    return getStepOverAction(location, kotlinSourcePosition.file, kotlinSourcePosition.linesRange, inlineArgumentsToSkip, additionalElementsToSkip)
 }
 
-fun getStepOverPosition(
+fun getStepOverAction(
         location: Location,
         file: KtFile,
         range: IntRange,

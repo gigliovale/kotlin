@@ -64,16 +64,18 @@ private val DEFAULT_DECLARATION_CHECKERS = listOf(
         InlineParameterChecker,
         InfixModifierChecker(),
         SuspendModifierChecker,
-        CoroutineModifierChecker)
+        CoroutineModifierChecker,
+        SinceKotlinAnnotationValueChecker
+)
 
 private val DEFAULT_CALL_CHECKERS = listOf(
         CapturingInClosureChecker(), InlineCheckerWrapper(), ReifiedTypeParameterSubstitutionChecker(), SafeCallChecker(),
         DeprecatedCallChecker, CallReturnsArrayOfNothingChecker(), InfixCallChecker(), OperatorCallChecker(),
-        ConstructorHeaderCallChecker, ProtectedConstructorCallChecker,
+        ConstructorHeaderCallChecker, ProtectedConstructorCallChecker, ApiVersionCallChecker,
         CoroutineSuspendCallChecker, BuilderFunctionsCallChecker
 )
 private val DEFAULT_TYPE_CHECKERS = emptyList<AdditionalTypeChecker>()
-private val DEFAULT_CLASSIFIER_USAGE_CHECKERS = listOf(DeprecatedClassifierUsageChecker())
+private val DEFAULT_CLASSIFIER_USAGE_CHECKERS = listOf(DeprecatedClassifierUsageChecker(), ApiVersionClassifierUsageChecker)
 
 
 abstract class PlatformConfigurator(

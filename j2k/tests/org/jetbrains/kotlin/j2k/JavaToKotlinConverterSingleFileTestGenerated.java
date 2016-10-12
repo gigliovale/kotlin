@@ -1753,6 +1753,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("quoted.java")
+        public void testQuoted() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/quoted.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("seeTag.java")
         public void testSeeTag() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/seeTag.java");

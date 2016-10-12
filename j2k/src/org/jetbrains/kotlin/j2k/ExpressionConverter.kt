@@ -312,6 +312,10 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
                 val toIntIsNeeded = value != null && value.toString().toInt() < 0 && !isLongField(expression.parent)
                 text = if (value != null && !isHexLiteral(text)) value.toString() else text + (if (toIntIsNeeded) ".toInt()" else "")
             }
+            if (typeStr == "java.lang.String" || typeStr == "char")
+                text = text.replace("\\\\([0-3]?[0-7]{1,2})".toRegex()) {
+                    String.format("\\u%04x", Integer.parseInt(it.groupValues[1], 8))
+                }
 
             if (typeStr == "java.lang.String") {
                 text = text.replace("\\$([A-Za-z]+|\\{)".toRegex(), "\\\\$0")
@@ -542,7 +546,11 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
             return
         }
 
-        val referenceName = expression.referenceName!!
+        val referenceName = expression.referenceName ?: run {
+            result = LiteralExpression(expression.text).assignNoPrototype()
+            return
+        }
+
         val target = expression.resolve()
 
         val isNullable = target is PsiVariable && isNullable(target)

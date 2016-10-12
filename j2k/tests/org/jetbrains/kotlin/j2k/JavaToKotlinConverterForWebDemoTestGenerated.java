@@ -3003,6 +3003,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/issues/spaceBeforeAssignment.java");
             doTest(fileName);
         }
+
+        @TestMetadata("unfinishedReferenceExpression.java")
+        public void testUnfinishedReferenceExpression() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/issues/unfinishedReferenceExpression.java");
+            doTest(fileName);
+        }
     }
 
     @TestMetadata("j2k/testData/fileOrElement/kotlinApiAccess")
@@ -3178,6 +3184,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("charOctal.java")
+        public void testCharOctal() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/literalExpression/charOctal.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("dollarInsideString.java")
         public void testDollarInsideString() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/literalExpression/dollarInsideString.java");
@@ -3229,6 +3241,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
         @TestMetadata("octal.java")
         public void testOctal() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/literalExpression/octal.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("stringOctalChars.java")
+        public void testStringOctalChars() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/literalExpression/stringOctalChars.java");
             doTest(fileName);
         }
 

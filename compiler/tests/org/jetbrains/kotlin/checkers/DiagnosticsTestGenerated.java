@@ -6048,6 +6048,18 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("typealiasConstructor.kt")
+            public void testTypealiasConstructor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/deprecated/typealiasConstructor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typealiasUsage.kt")
+            public void testTypealiasUsage() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/deprecated/typealiasUsage.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unusedImport.kt")
             public void testUnusedImport() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/deprecated/unusedImport.kt");
@@ -19561,6 +19573,30 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/apiVersion/sinceOldVersionIsOK.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("typealiasesAsConstructors.kt")
+                public void testTypealiasesAsConstructors() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/apiVersion/typealiasesAsConstructors.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("typealiasesAsObjects.kt")
+                public void testTypealiasesAsObjects() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/apiVersion/typealiasesAsObjects.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("typealiasesAsTypes.kt")
+                public void testTypealiasesAsTypes() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/apiVersion/typealiasesAsTypes.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("typealiasesOnImport.kt")
+                public void testTypealiasesOnImport() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/apiVersion/typealiasesOnImport.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/sourceCompatibility/noBoundCallableReferences")
@@ -20520,6 +20556,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/typealias"), Pattern.compile("^(.+)\\.kt$"), true);
             }
 
+            @TestMetadata("annotationsOnTypeAliases.kt")
+            public void testAnnotationsOnTypeAliases() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/annotationsOnTypeAliases.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("boundViolationInTypeAliasConstructor.kt")
             public void testBoundViolationInTypeAliasConstructor() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/boundViolationInTypeAliasConstructor.kt");
@@ -20829,6 +20871,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("typeAliasShouldExpandToClass.kt")
             public void testTypeAliasShouldExpandToClass() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasShouldExpandToClass.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typealiasRhsAnnotations.kt")
+            public void testTypealiasRhsAnnotations() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typealiasRhsAnnotations.kt");
                 doTest(fileName);
             }
 

@@ -73,6 +73,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("annotationsOnTypeAliases.kt")
+        public void testAnnotationsOnTypeAliases() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/annotations/annotationsOnTypeAliases.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("defaultParameterValues.kt")
         public void testDefaultParameterValues() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/annotations/defaultParameterValues.kt");
@@ -15943,6 +15949,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("typeAliasConstructorAccessor.kt")
         public void testTypeAliasConstructorAccessor() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/typealias/typeAliasConstructorAccessor.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("typeAliasConstructorInSuperCall.kt")
+        public void testTypeAliasConstructorInSuperCall() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/typealias/typeAliasConstructorInSuperCall.kt");
             doTest(fileName);
         }
 

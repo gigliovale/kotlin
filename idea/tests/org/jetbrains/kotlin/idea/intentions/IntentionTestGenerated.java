@@ -3569,6 +3569,45 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         }
     }
 
+    @TestMetadata("idea/testData/intentions/convertEnumToSealedClass")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class ConvertEnumToSealedClass extends AbstractIntentionTest {
+        public void testAllFilesPresentInConvertEnumToSealedClass() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/intentions/convertEnumToSealedClass"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+        }
+
+        @TestMetadata("entriesAndMembers.kt")
+        public void testEntriesAndMembers() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertEnumToSealedClass/entriesAndMembers.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("entriesOnly.kt")
+        public void testEntriesOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertEnumToSealedClass/entriesOnly.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("membersOnly.kt")
+        public void testMembersOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertEnumToSealedClass/membersOnly.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("notEnum.kt")
+        public void testNotEnum() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertEnumToSealedClass/notEnum.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("outOfRange.kt")
+        public void testOutOfRange() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertEnumToSealedClass/outOfRange.kt");
+            doTest(fileName);
+        }
+    }
+
     @TestMetadata("idea/testData/intentions/convertForEachToForLoop")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
@@ -4720,6 +4759,75 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("topLevelFun.kt")
         public void testTopLevelFun() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertReceiverToParameter/topLevelFun.kt");
+            doTest(fileName);
+        }
+    }
+
+    @TestMetadata("idea/testData/intentions/convertSealedClassToEnum")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class ConvertSealedClassToEnum extends AbstractIntentionTest {
+        public void testAllFilesPresentInConvertSealedClassToEnum() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/intentions/convertSealedClassToEnum"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), true);
+        }
+
+        @TestMetadata("dropDefaultConstructorCall.kt")
+        public void testDropDefaultConstructorCall() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/dropDefaultConstructorCall.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("inheritorsWithMultipleSupertypes.kt")
+        public void testInheritorsWithMultipleSupertypes() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/inheritorsWithMultipleSupertypes.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("instancesAndMembers.kt")
+        public void testInstancesAndMembers() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/instancesAndMembers.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("instancesOnly.kt")
+        public void testInstancesOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/instancesOnly.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("membersOnly.kt")
+        public void testMembersOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/membersOnly.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("nonNestedInheritors.kt")
+        public void testNonNestedInheritors() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/nonNestedInheritors.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("notSealedClass.kt")
+        public void testNotSealedClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/notSealedClass.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("outOfRange.kt")
+        public void testOutOfRange() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/outOfRange.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("withNonObjectInheritors.kt")
+        public void testWithNonObjectInheritors() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/withNonObjectInheritors.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("withSuperclass.kt")
+        public void testWithSuperclass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertSealedClassToEnum/withSuperclass.kt");
             doTest(fileName);
         }
     }

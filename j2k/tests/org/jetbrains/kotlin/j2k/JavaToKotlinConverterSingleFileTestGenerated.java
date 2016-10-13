@@ -126,6 +126,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/annotations/serialVersionUID.java");
             doTest(fileName);
         }
+
+        @TestMetadata("suppressWarnings.java")
+        public void testSuppressWarnings() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/annotations/suppressWarnings.java");
+            doTest(fileName);
+        }
     }
 
     @TestMetadata("j2k/testData/fileOrElement/anonymousBlock")
@@ -403,6 +409,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
         @TestMetadata("assignment.java")
         public void testAssignment() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/assignment.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("assignmentAsExpression.java")
+        public void testAssignmentAsExpression() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/assignmentAsExpression.java");
             doTest(fileName);
         }
 
@@ -1045,6 +1057,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
         @TestMetadata("fieldsInitializedFromParams.java")
         public void testFieldsInitializedFromParams() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/comments/fieldsInitializedFromParams.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("removeNoInspectionComment.java")
+        public void testRemoveNoInspectionComment() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/comments/removeNoInspectionComment.java");
             doTest(fileName);
         }
     }
@@ -1707,6 +1725,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
     public static class DocComments extends AbstractJavaToKotlinConverterSingleFileTest {
+        @TestMetadata("aWithoutHref.java")
+        public void testAWithoutHref() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/aWithoutHref.java");
+            doTest(fileName);
+        }
+
         public void testAllFilesPresentInDocComments() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("j2k/testData/fileOrElement/docComments"), Pattern.compile("^(.+)\\.java$"), true);
         }
@@ -1720,6 +1744,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
         @TestMetadata("docCommentWithParamTag.java")
         public void testDocCommentWithParamTag() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/docCommentWithParamTag.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("escapedCharactersInCodeQuote.java")
+        public void testEscapedCharactersInCodeQuote() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/escapedCharactersInCodeQuote.java");
             doTest(fileName);
         }
 
@@ -1750,6 +1780,12 @@ public class JavaToKotlinConverterSingleFileTestGenerated extends AbstractJavaTo
         @TestMetadata("onlyDeprecatedDocTag.java")
         public void testOnlyDeprecatedDocTag() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/onlyDeprecatedDocTag.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("preserveUnknownTags.java")
+        public void testPreserveUnknownTags() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/preserveUnknownTags.java");
             doTest(fileName);
         }
 

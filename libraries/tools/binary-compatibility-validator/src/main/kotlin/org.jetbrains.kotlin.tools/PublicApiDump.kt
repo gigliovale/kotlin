@@ -35,13 +35,13 @@ fun getBinaryAPI(classStreams: Sequence<InputStream>, visibilityMap: Map<String,
             val supertypes = listOf(superName) - "java/lang/Object" + interfaces.sorted()
 
             val memberSignatures = (
-                    fields.map { with(it) { FieldBinarySignature(name, desc, isInlineExposed(), AccessFlags(access)) } } +
-                    methods.map { with(it) { MethodBinarySignature(name, desc, isInlineExposed(), AccessFlags(access)) } }
+                    fields.map { with(it) { FieldBinarySignature(name, desc, isInlineExposed(), AccessFlags(access), since) } } +
+                    methods.map { with(it) { MethodBinarySignature(name, desc, isInlineExposed(), AccessFlags(access), since) } }
             ).filter {
                 it.isEffectivelyPublic(classAccess, classVisibility)
             }
 
-            ClassBinarySignature(name, superName, outerClassName, supertypes, memberSignatures, classAccess, isEffectivelyPublic(classVisibility), isFileOrMultipartFacade() || isDefaultImpls())
+            ClassBinarySignature(name, superName, outerClassName, supertypes, memberSignatures, classAccess, since, isEffectivelyPublic(classVisibility), isFileOrMultipartFacade() || isDefaultImpls())
         }}
         .asIterable()
         .sortedBy { it.name }

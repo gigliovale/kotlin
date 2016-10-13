@@ -22,11 +22,12 @@ data class ClassBinarySignature(
         val supertypes: List<String>,
         val memberSignatures: List<MemberBinarySignature>,
         val access: AccessFlags,
+        val since: String?,
         val isEffectivelyPublic: Boolean,
         val isNotUsedWhenEmpty: Boolean) {
 
     val signature: String
-        get() = "${access.getModifierString()} class $name" + if (supertypes.isEmpty()) "" else " : ${supertypes.joinToString()}"
+        get() = "${sinceToAnnotationString(since)}${access.getModifierString()} class $name" + if (supertypes.isEmpty()) "" else " : ${supertypes.joinToString()}"
 
 }
 
@@ -36,6 +37,7 @@ interface MemberBinarySignature {
     val desc: String
     val access: AccessFlags
     val isInlineExposed: Boolean
+    val since: String?
 
     fun isEffectivelyPublic(classAccess: AccessFlags, classVisibility: ClassVisibility?)
             = access.isPublic && !(access.isProtected && classAccess.isFinal)
@@ -51,9 +53,10 @@ data class MethodBinarySignature(
         override val name: String,
         override val desc: String,
         override val isInlineExposed: Boolean,
-        override val access: AccessFlags) : MemberBinarySignature {
+        override val access: AccessFlags,
+        override val since: String?) : MemberBinarySignature {
     override val signature: String
-        get() = "${access.getModifierString()} fun $name $desc"
+        get() = "${sinceToAnnotationString(since)}${access.getModifierString()} fun $name $desc"
 
     override fun isEffectivelyPublic(classAccess: AccessFlags, classVisibility: ClassVisibility?)
             = super.isEffectivelyPublic(classAccess, classVisibility)
@@ -66,9 +69,10 @@ data class FieldBinarySignature(
         override val name: String,
         override val desc: String,
         override val isInlineExposed: Boolean,
-        override val access: AccessFlags) : MemberBinarySignature {
+        override val access: AccessFlags,
+        override val since: String?) : MemberBinarySignature {
     override val signature: String
-        get() = "${access.getModifierString()} field $name $desc"
+        get() = "${sinceToAnnotationString(since)}${access.getModifierString()} field $name $desc"
 
     override fun findMemberVisibility(classVisibility: ClassVisibility?): MemberVisibility? {
         val fieldVisibility = super.findMemberVisibility(classVisibility) ?: return null
@@ -92,6 +96,8 @@ val MEMBER_SORT_ORDER = compareBy<MemberBinarySignature>(
         { it.name },
         { it.desc }
 )
+
+private fun sinceToAnnotationString(version: String?) = version?.let { "@SinceKotlin(\"$it\") "} ?: ""
 
 
 data class AccessFlags(val access: Int) {
@@ -132,6 +138,11 @@ const val inlineExposedAnnotationName = "kotlin/internal/InlineExposed"
 fun ClassNode.isInlineExposed() = findAnnotation(inlineExposedAnnotationName, includeInvisible = true) != null
 fun MethodNode.isInlineExposed() = findAnnotation(inlineExposedAnnotationName, includeInvisible = true) != null
 fun FieldNode.isInlineExposed() = findAnnotation(inlineExposedAnnotationName, includeInvisible = true) != null
+
+const val sinceAnnotationName = "kotlin/SinceKotlin"
+val ClassNode.since: String?  get() = findAnnotation(sinceAnnotationName, includeInvisible = true)?.get("version") as String?
+val MethodNode.since: String? get() = findAnnotation(sinceAnnotationName, includeInvisible = true)?.get("version") as String?
+val FieldNode.since: String?  get() = findAnnotation(sinceAnnotationName, includeInvisible = true)?.get("version") as String?
 
 
 private object KotlinClassKind {

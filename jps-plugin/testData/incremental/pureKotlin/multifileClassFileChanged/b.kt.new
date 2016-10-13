@@ -2,3 +2,5 @@
 package test
 
 fun b() = "bcd"
+
+val bx = 42

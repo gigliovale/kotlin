@@ -300,7 +300,7 @@ public class KotlinBytecodeToolWindow extends JPanel implements Disposable {
         BindingContext bindingContext = result.getFirst();
         List<KtFile> toProcess = result.getSecond();
 
-        GenerationState.GenerateClassFilter generateClassFilter = new GenerationState.GenerateClassFilter() {
+        GenerationState.GenerationFilter generationFilter = new GenerationState.GenerationFilter() {
             @Override
             public boolean shouldGeneratePackagePart(@NotNull KtFile file) {
                 return file == ktFile;
@@ -324,7 +324,7 @@ public class KotlinBytecodeToolWindow extends JPanel implements Disposable {
 
         GenerationState state = new GenerationState(
                 ktFile.getProject(), ClassBuilderFactories.TEST, resolutionFacade.getModuleDescriptor(), bindingContext, toProcess,
-                configuration, generateClassFilter
+                configuration, generationFilter
         );
 
         KotlinCodegenFacade.compileCorrectFiles(state, CompilationErrorHandler.THROW_EXCEPTION);

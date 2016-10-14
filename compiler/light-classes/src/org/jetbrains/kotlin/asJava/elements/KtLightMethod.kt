@@ -142,9 +142,14 @@ sealed class KtLightMethodImpl(
     }
 
     private val _modifierList by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        regenerateDelegate()
         if (lightMethodOrigin is LightMemberOriginForDeclaration)
             KtLightModifierList(clsDelegate.modifierList, this)
         else clsDelegate.modifierList
+    }
+
+    private fun regenerateDelegate() {
+
     }
 
     override fun getModifierList(): PsiModifierList {

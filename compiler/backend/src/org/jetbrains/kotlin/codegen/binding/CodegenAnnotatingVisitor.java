@@ -76,14 +76,14 @@ class CodegenAnnotatingVisitor extends KtVisitorVoid {
 
     private final BindingTrace bindingTrace;
     private final BindingContext bindingContext;
-    private final GenerationState.GenerateClassFilter filter;
+    private final GenerationState.GenerationFilter filter;
     private final JvmRuntimeTypes runtimeTypes;
     private final JvmFileClassesProvider fileClassesProvider;
 
     public CodegenAnnotatingVisitor(@NotNull GenerationState state) {
         this.bindingTrace = state.getBindingTrace();
         this.bindingContext = state.getBindingContext();
-        this.filter = state.getGenerateDeclaredClassFilter();
+        this.filter = state.getGenerationFilter();
         this.runtimeTypes = state.getJvmRuntimeTypes();
         this.fileClassesProvider = state.getFileClassesProvider();
     }

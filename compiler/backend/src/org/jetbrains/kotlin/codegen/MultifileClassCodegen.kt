@@ -215,7 +215,7 @@ class MultifileClassCodegenImpl(
 
         generateNonPartClassDeclarations(file, partContext)
 
-        if (!state.generateDeclaredClassFilter.shouldGeneratePackagePart(file) || !file.hasDeclarationsForPartClass()) return
+        if (!state.generationFilter.shouldGeneratePackagePart(file) || !file.hasDeclarationsForPartClass()) return
 
         val partInternalName = partType.internalName
         packagePartRegistry.addPart(partInternalName.substring(partInternalName.lastIndexOf('/') + 1))
@@ -236,11 +236,11 @@ class MultifileClassCodegenImpl(
         for (declaration in file.declarations) {
             when (declaration) {
                 is KtClassOrObject ->
-                    if (state.generateDeclaredClassFilter.shouldGenerateClass(declaration)) {
+                    if (state.generationFilter.shouldGenerateClass(declaration)) {
                         generateClassOrObject(declaration, partContext)
                     }
                 is KtScript ->
-                    if (state.generateDeclaredClassFilter.shouldGenerateScript(declaration)) {
+                    if (state.generationFilter.shouldGenerateScript(declaration)) {
                         ScriptCodegen.createScriptCodegen(declaration, state, partContext).generate()
                     }
             }

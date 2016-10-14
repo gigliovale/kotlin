@@ -62,7 +62,7 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
     abstract fun getContext(files: Collection<KtFile>): LightClassConstructionContext
     abstract fun createLightClassData(javaFileStub: PsiJavaFileStub, bindingContext: BindingContext, extraDiagnostics: Diagnostics): T
 
-    abstract val generateClassFilter: GenerationState.GenerateClassFilter
+    abstract val generationFilter: GenerationState.GenerationFilter
     abstract fun generate(state: GenerationState, files: Collection<KtFile>)
     abstract val isLocal: Boolean
 
@@ -98,7 +98,7 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
                     context.bindingContext,
                     files.toMutableList(),
                     CompilerConfiguration.EMPTY,
-                    generateClassFilter,
+                    generationFilter,
                     wantsDiagnostics = false
             )
             state.beforeCompile()
@@ -200,8 +200,8 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
     override val packageFqName: FqName
         get() = file.packageFqName
 
-    override val generateClassFilter: GenerationState.GenerateClassFilter
-        get() = object : GenerationState.GenerateClassFilter() {
+    override val generationFilter: GenerationState.GenerationFilter
+        get() = object : GenerationState.GenerationFilter() {
 
             override fun shouldGeneratePackagePart(jetFile: KtFile): Boolean {
                 return true
@@ -283,8 +283,8 @@ sealed class LightClassDataProviderForFileFacade private constructor(
         return KotlinFacadeLightClassData(javaFileStub, extraDiagnostics)
     }
 
-    override val generateClassFilter: GenerationState.GenerateClassFilter
-        get() = object : GenerationState.GenerateClassFilter() {
+    override val generationFilter: GenerationState.GenerationFilter
+        get() = object : GenerationState.GenerationFilter() {
             override fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean {
                 return shouldGenerateClass(processingClassOrObject)
             }

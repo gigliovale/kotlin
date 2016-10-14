@@ -105,21 +105,21 @@ public class PackageCodegenImpl implements PackageCodegen {
             }
             else if (declaration instanceof KtClassOrObject) {
                 KtClassOrObject classOrObject = (KtClassOrObject) declaration;
-                if (state.getGenerateDeclaredClassFilter().shouldGenerateClass(classOrObject)) {
+                if (state.getGenerationFilter().shouldGenerateClass(classOrObject)) {
                     classOrObjects.add(classOrObject);
                 }
             }
             else if (declaration instanceof KtScript) {
                 KtScript script = (KtScript) declaration;
 
-                if (state.getGenerateDeclaredClassFilter().shouldGenerateScript(script)) {
+                if (state.getGenerationFilter().shouldGenerateScript(script)) {
                     ScriptCodegen.createScriptCodegen(script, state, packagePartContext).generate();
                 }
             }
         }
         generateClassesAndObjectsInFile(classOrObjects, packagePartContext);
 
-        if (!generatePackagePart || !state.getGenerateDeclaredClassFilter().shouldGeneratePackagePart(file)) return;
+        if (!generatePackagePart || !state.getGenerationFilter().shouldGeneratePackagePart(file)) return;
 
         String name = fileClassType.getInternalName();
         packagePartRegistry.addPart(name.substring(name.lastIndexOf('/') + 1));

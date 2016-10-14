@@ -60,7 +60,7 @@ class GenerationState @JvmOverloads constructor(
         bindingContext: BindingContext,
         val files: List<KtFile>,
         val configuration: CompilerConfiguration,
-        val generateDeclaredClassFilter: GenerateClassFilter = GenerationState.GenerateClassFilter.GENERATE_ALL,
+        val generationFilter: GenerationFilter = GenerationState.GenerationFilter.GENERATE_ALL,
         // For incremental compilation
         val targetId: TargetId? = null,
         moduleName: String? = configuration.get(CommonConfigurationKeys.MODULE_NAME),
@@ -72,14 +72,14 @@ class GenerationState @JvmOverloads constructor(
         val codegenFactory: CodegenFactory = if (configuration.getBoolean(JVMConfigurationKeys.IR)) JvmIrCodegenFactory else DefaultCodegenFactory,
         wantsDiagnostics: Boolean = true
 ) {
-    abstract class GenerateClassFilter {
+    abstract class GenerationFilter {
         abstract fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean
         abstract fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean
         abstract fun shouldGeneratePackagePart(jetFile: KtFile): Boolean
         abstract fun shouldGenerateScript(script: KtScript): Boolean
 
         companion object {
-            @JvmField val GENERATE_ALL: GenerateClassFilter = object : GenerateClassFilter() {
+            @JvmField val GENERATE_ALL: GenerationFilter = object : GenerationFilter() {
                 override fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean = true
 
                 override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean = true

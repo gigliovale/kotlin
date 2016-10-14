@@ -404,7 +404,7 @@ object KotlinToJVMBytecodeCompiler {
                 result.bindingContext,
                 sourceFiles,
                 configuration,
-                GenerationState.GenerateClassFilter.GENERATE_ALL,
+                GenerationState.GenerationFilter.GENERATE_ALL,
                 module?.let(::TargetId),
                 module?.let(Module::getModuleName),
                 module?.let { File(it.getOutputDirectory()) },

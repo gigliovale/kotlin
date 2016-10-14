@@ -666,6 +666,20 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
         }
     }
 
+
+    private fun PolyadicExpression(operands: List<Expression>, operators: List<Operator>): Expression {
+        val op = operators.sortedBy { it.precedence }.lastOrNull()
+        if (op == null)
+            return operands.first()
+        else {
+            val index = operators.indexOf(op)
+            val left = PolyadicExpression(operands.subList(0, index + 1), operators.subList(0, index))
+            val right = PolyadicExpression(operands.subList(index + 1, operands.size),
+                                           operators.subList(index + 1, operators.size))
+            return BinaryExpression(left, right, op).assignNoPrototype()
+        }
+    }
+
     override fun visitPolyadicExpression(expression: PsiPolyadicExpression) {
         val args = expression.operands.map {
             codeConverter.convertExpression(it, expression.type).assignPrototype(it, CommentsAndSpacesInheritance.LINE_BREAKS)

@@ -1,0 +1,1 @@
+5 shl 16 or (0 shl 8) or 0

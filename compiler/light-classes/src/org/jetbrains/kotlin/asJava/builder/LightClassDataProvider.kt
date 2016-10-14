@@ -27,6 +27,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
 import com.intellij.psi.impl.java.stubs.impl.PsiJavaFileStubImpl
 import com.intellij.psi.search.GlobalSearchScope
@@ -44,15 +45,13 @@ import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fileClasses.NoResolveFileClassesProvider
 import org.jetbrains.kotlin.fileClasses.getFileClassType
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtPsiUtil
-import org.jetbrains.kotlin.psi.KtScript
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils.descriptorToDeclaration
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 
-abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
+abstract class LightClassDataProvider<T>(
         private val project: Project
 ) : CachedValueProvider<T> {
 
@@ -161,8 +160,8 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
     }
 }
 
-class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassOrObject) :
-        LightClassDataProvider<WithFileStubAndExtraDiagnostics>(classOrObject.project) {
+abstract class AbstractLightClassDataProviderForDeclaration<T>(protected val classOrObject: KtClassOrObject)
+    : LightClassDataProvider<T>(classOrObject.project) {
 
     private val file: KtFile
         get() = classOrObject.getContainingKtFile()
@@ -173,6 +172,80 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
         return LightClassGenerationSupport.getInstance(classOrObject.project).getContextForClassOrObject(classOrObject)
     }
 
+    override val files: Collection<KtFile>
+        get() = listOf(file)
+
+    override val packageFqName: FqName
+        get() = file.packageFqName
+
+    open class ClassOrObjectGenerationFilter(val classOrObject: KtClassOrObject) : GenerationState.GenerationFilter() {
+        override fun shouldGeneratePackagePart(jetFile: KtFile): Boolean {
+            return true
+        }
+
+        override fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean {
+            return shouldGenerateClass(processingClassOrObject)
+        }
+
+        override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean {
+            // Trivial: generate and analyze class we are interested in.
+            if (classOrObject === processingClassOrObject) return true
+
+            // Process all parent classes as they are context for current class
+            // Process child classes because they probably affect members (heuristic)
+
+            if (PsiTreeUtil.isAncestor(classOrObject, processingClassOrObject, true) ||
+                PsiTreeUtil.isAncestor(processingClassOrObject, classOrObject, true)) {
+                return true
+            }
+
+            // Local classes should be process by CodegenAnnotatingVisitor to
+            // decide what class they should be placed in.
+            //
+            // Example:
+            // class A
+            // fun foo() {
+            //     trait Z: A {}
+            //     fun bar() {
+            //         class <caret>O2: Z {}
+            //     }
+            // }
+            // TODO: current method will process local classes in irrelevant declarations, it should be fixed.
+            // We generate all enclosing classes
+
+            if (classOrObject.isLocal() && processingClassOrObject.isLocal()) {
+                val commonParent = PsiTreeUtil.findCommonParent(classOrObject, processingClassOrObject)
+                return commonParent != null && commonParent !is PsiFile
+            }
+
+            return false
+        }
+
+        override fun shouldGenerateScript(script: KtScript): Boolean {
+            return PsiTreeUtil.isAncestor(script, classOrObject, false)
+        }
+    }
+
+    override val generationFilter: GenerationState.GenerationFilter
+        get() = ClassOrObjectGenerationFilter(classOrObject)
+
+    override fun generate(state: GenerationState, files: Collection<KtFile>) {
+        val packageCodegen = state.factory.forPackage(packageFqName, files)
+        val file = classOrObject.getContainingKtFile()
+        val packagePartType = state.fileClassesProvider.getFileClassType(file)
+        val context = state.rootContext.intoPackagePart(packageCodegen.packageFragment, packagePartType, file)
+        packageCodegen.generateClassOrObject(classOrObject, context)
+        state.factory.asList()
+    }
+
+    override fun toString(): String {
+        return this.javaClass.name + " for " + classOrObject.name
+    }
+}
+
+class LightClassDataProviderForClassOrObject(classOrObject: KtClassOrObject)
+      : AbstractLightClassDataProviderForDeclaration<WithFileStubAndExtraDiagnostics>(classOrObject)
+{
     override fun createLightClassData(
             javaFileStub: PsiJavaFileStub,
             bindingContext: BindingContext,
@@ -193,76 +266,44 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
                 classOrObject,
                 innerClassesMap)
     }
+}
 
-    override val files: Collection<KtFile>
-        get() = listOf(file)
+class LightClassDataProviderForMember(val member: KtCallableDeclaration)
+     : AbstractLightClassDataProviderForDeclaration<ClsMethodImpl?>(member.containingClassOrObject!!) {
+    override fun createLightClassData(javaFileStub: PsiJavaFileStub,
+                                      bindingContext: BindingContext,
+                                      extraDiagnostics: Diagnostics): ClsMethodImpl? {
+        val topLevelClass = javaFileStub.classes[0]
+        val result = topLevelClass.methods.firstOrNull {
+            ClsWrapperStubPsiFactory.getMemberOrigin(it).isOriginOf(member)
+        } as ClsMethodImpl?
+        if (result == null) {
+            return null
+        }
+        return result
+    }
 
-    override val packageFqName: FqName
-        get() = file.packageFqName
+    private fun LightMemberOriginForDeclaration?.isOriginOf(member: KtCallableDeclaration): Boolean {
+        if (this == null) return false
+        if (originalElement == member) return true
+        if (member is KtProperty && originalElement is KtPropertyAccessor) {
+            return originalElement.parent == member
+        }
+        return false
+    }
 
     override val generationFilter: GenerationState.GenerationFilter
-        get() = object : GenerationState.GenerationFilter() {
-
-            override fun shouldGeneratePackagePart(jetFile: KtFile): Boolean {
-                return true
-            }
-
-            override fun shouldAnnotateClass(processingClassOrObject: KtClassOrObject): Boolean {
-                return shouldGenerateClass(processingClassOrObject)
-            }
-
-            override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean {
-                // Trivial: generate and analyze class we are interested in.
-                if (classOrObject === processingClassOrObject) return true
-
-                // Process all parent classes as they are context for current class
-                // Process child classes because they probably affect members (heuristic)
-
-                if (PsiTreeUtil.isAncestor(classOrObject, processingClassOrObject, true) ||
-                    PsiTreeUtil.isAncestor(processingClassOrObject, classOrObject, true)) {
-                    return true
-                }
-
-                // Local classes should be process by CodegenAnnotatingVisitor to
-                // decide what class they should be placed in.
-                //
-                // Example:
-                // class A
-                // fun foo() {
-                //     trait Z: A {}
-                //     fun bar() {
-                //         class <caret>O2: Z {}
-                //     }
-                // }
-                // TODO: current method will process local classes in irrelevant declarations, it should be fixed.
-                // We generate all enclosing classes
-
-                if (classOrObject.isLocal() && processingClassOrObject.isLocal()) {
-                    val commonParent = PsiTreeUtil.findCommonParent(classOrObject, processingClassOrObject)
-                    return commonParent != null && commonParent !is PsiFile
-                }
-
-                return false
-            }
-
-            override fun shouldGenerateScript(script: KtScript): Boolean {
-                return PsiTreeUtil.isAncestor(script, classOrObject, false)
+        get() = object : ClassOrObjectGenerationFilter(classOrObject) {
+            override fun shouldGenerateMember(member: KtDeclaration): Boolean {
+                return member == this@LightClassDataProviderForMember.member
             }
         }
 
-    override fun generate(state: GenerationState, files: Collection<KtFile>) {
-        val packageCodegen = state.factory.forPackage(packageFqName, files)
-        val file = classOrObject.getContainingKtFile()
-        val packagePartType = state.fileClassesProvider.getFileClassType(file)
-        val context = state.rootContext.intoPackagePart(packageCodegen.packageFragment, packagePartType, file)
-        packageCodegen.generateClassOrObject(classOrObject, context)
-        state.factory.asList()
-    }
-
     override fun toString(): String {
-        return this.javaClass.name + " for " + classOrObject.name
+        return "${javaClass.name} for ${member.name} in ${classOrObject.name}"
     }
 }
+
 
 sealed class LightClassDataProviderForFileFacade private constructor(
         protected val project: Project, protected val facadeFqName: FqName

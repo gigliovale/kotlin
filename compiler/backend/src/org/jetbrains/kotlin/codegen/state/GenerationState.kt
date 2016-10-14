@@ -42,6 +42,7 @@ import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCache
 import org.jetbrains.kotlin.modules.TargetId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -77,6 +78,7 @@ class GenerationState @JvmOverloads constructor(
         abstract fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean
         abstract fun shouldGeneratePackagePart(jetFile: KtFile): Boolean
         abstract fun shouldGenerateScript(script: KtScript): Boolean
+        open fun shouldGenerateMember(member: KtDeclaration): Boolean = true
 
         companion object {
             @JvmField val GENERATE_ALL: GenerationFilter = object : GenerationFilter() {

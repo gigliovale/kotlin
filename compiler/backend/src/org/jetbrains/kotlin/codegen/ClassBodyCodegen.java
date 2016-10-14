@@ -120,6 +120,10 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtClassOrObject> {
     }
 
     protected void generateDeclaration(KtDeclaration declaration) {
+        if (!state.getGenerationFilter().shouldGenerateMember(declaration)) {
+            return;
+        }
+
         if (declaration instanceof KtProperty || declaration instanceof KtNamedFunction || declaration instanceof KtTypeAlias) {
             genSimpleMember(declaration);
         }
@@ -136,6 +140,9 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtClassOrObject> {
         boolean isAnnotation = descriptor.getKind() == ClassKind.ANNOTATION_CLASS;
         for (KtParameter p : getPrimaryConstructorParameters()) {
             if (p.hasValOrVar()) {
+                if (!state.getGenerationFilter().shouldGenerateMember(p)) {
+                    return;
+                }
                 PropertyDescriptor propertyDescriptor = bindingContext.get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, p);
                 if (propertyDescriptor != null) {
                     if (!isAnnotation) {

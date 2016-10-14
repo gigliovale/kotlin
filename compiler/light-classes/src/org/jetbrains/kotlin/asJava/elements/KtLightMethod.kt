@@ -22,11 +22,11 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.impl.compiled.ClsTypeElementImpl
 import com.intellij.psi.impl.light.LightMethod
-import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.*
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.asJava.LightClassUtil
+import org.jetbrains.kotlin.asJava.builder.LightClassDataProviderForMember
 import org.jetbrains.kotlin.asJava.builder.LightMemberOrigin
 import org.jetbrains.kotlin.asJava.builder.LightMemberOriginForDeclaration
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.asJava.propertyNameByAccessor
 import org.jetbrains.kotlin.asJava.unwrapped
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.jvm.KotlinJavaPsiFacade
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKind
@@ -54,6 +55,10 @@ sealed class KtLightMethodImpl(
     private val returnTypeElem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val delegateTypeElement = clsDelegate.returnTypeElement as? ClsTypeElementImpl
         delegateTypeElement?.let { ClsTypeElementImpl(this, it.canonicalText, /*ClsTypeElementImpl.VARIANCE_NONE */ 0.toChar()) }
+    }
+
+    private val fullDelegate by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        generateFullDelegate()
     }
 
     private val calculatingReturnType = ThreadLocal<Boolean>()
@@ -142,14 +147,17 @@ sealed class KtLightMethodImpl(
     }
 
     private val _modifierList by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        regenerateDelegate()
         if (lightMethodOrigin is LightMemberOriginForDeclaration)
-            KtLightModifierList(clsDelegate.modifierList, this)
+            KtLightModifierList(fullDelegate.modifierList, this)
         else clsDelegate.modifierList
     }
 
-    private fun regenerateDelegate() {
-
+    private fun generateFullDelegate(): PsiMethod {
+        val origin = kotlinOrigin
+        if (origin is KtCallableDeclaration && origin.containingClassOrObject != null) {
+            return LightClassDataProviderForMember(origin).compute()?.value ?: clsDelegate
+        }
+        return clsDelegate
     }
 
     override fun getModifierList(): PsiModifierList {

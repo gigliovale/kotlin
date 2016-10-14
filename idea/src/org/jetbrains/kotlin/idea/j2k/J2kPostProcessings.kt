@@ -247,7 +247,7 @@ object J2KPostProcessingRegistrar {
         override fun createAction(element: KtElement, diagnostics: Diagnostics): (() -> Unit)? {
             if (element !is KtBinaryExpression ||
                 element.operationToken != KtTokens.PLUS ||
-                !diagnostics.forElement(element.operationReference).any { it.factory == Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER })
+                diagnostics.forElement(element.operationReference).none { it.factory == Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER })
                 return null
 
             val bindingContext = element.analyzeAndGetResult().bindingContext
@@ -257,8 +257,9 @@ object J2KPostProcessingRegistrar {
                 return {
                     val factory = KtPsiFactory(element)
                     element.left!!.replace(factory.buildExpression {
+                        appendFixedText("(")
                         appendExpression(element.left)
-                        appendFixedText(".toString()")
+                        appendFixedText(").toString()")
                     })
                 }
             }

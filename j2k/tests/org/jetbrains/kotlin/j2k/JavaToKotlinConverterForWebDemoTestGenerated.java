@@ -418,6 +418,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("bitOperationPriority.java")
+        public void testBitOperationPriority() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/bitOperationPriority.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("divideAssign.java")
         public void testDivideAssign() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/divideAssign.java");

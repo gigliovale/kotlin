@@ -145,20 +145,6 @@ class QualifiedExpression(val qualifier: Expression, val identifier: Expression,
     }
 }
 
-class PolyadicExpression(val expressions: List<Expression>, val operators: List<Operator>) : Expression() {
-    override fun generateCode(builder: CodeBuilder) {
-        assert(expressions.size == operators.size + 1)
-        for ((i, expression) in expressions.withIndex()) {
-            builder.append(expression)
-            if (i < operators.size) {
-                builder.append(" ")
-                builder.append(operators[i])
-                builder.append(" ")
-            }
-        }
-    }
-}
-
 open class Operator(val operatorType: IElementType): Expression() {
     override fun generateCode(builder: CodeBuilder) {
         builder.append(asString(operatorType))
@@ -175,6 +161,19 @@ open class Operator(val operatorType: IElementType): Expression() {
             else -> false
         }
     }
+
+    val precedence: Int
+        get() = when (this.asString()) {
+            "*", "/", "%" -> 3
+            "+", "-" -> 4
+            "?:" -> 7
+            ">", "<", ">=", "<=" -> 9
+            "==", "!=", "===", "!===" -> 10
+            "&&" -> 11
+            "||" -> 12
+            "ushr", "shr", "shl" -> 7
+            else -> 6 /* simple name */
+        }
 
     private fun asString(tokenType: IElementType): String {
         return when(tokenType) {

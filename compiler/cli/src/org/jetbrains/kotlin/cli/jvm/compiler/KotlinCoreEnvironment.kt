@@ -329,8 +329,6 @@ class KotlinCoreEnvironment private constructor(
     }
 
     companion object {
-        private val ideaCompatibleBuildNumber = "171.9999"
-
         init {
             setCompatibleBuild()
         }
@@ -367,8 +365,7 @@ class KotlinCoreEnvironment private constructor(
 
         @JvmStatic
         private fun setCompatibleBuild() {
-            PluginManagerCore.BUILD_NUMBER = ideaCompatibleBuildNumber
-            System.getProperties().setProperty("idea.plugins.compatible.build", ideaCompatibleBuildNumber)
+            System.getProperties().setProperty("idea.plugins.compatible.build", "163.9999")
         }
 
         @TestOnly

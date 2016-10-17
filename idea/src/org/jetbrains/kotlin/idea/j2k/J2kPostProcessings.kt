@@ -251,7 +251,10 @@ object J2KPostProcessingRegistrar {
         override fun createAction(element: KtElement, diagnostics: Diagnostics): (() -> Unit)? {
             if (element !is KtBinaryExpression ||
                 element.operationToken != KtTokens.PLUS ||
-                diagnostics.forElement(element.operationReference).none { it.factory == Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER })
+                diagnostics.forElement(element.operationReference).none {
+                    it.factory == Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER
+                    || it.factory  == Errors.NONE_APPLICABLE
+                })
                 return null
 
             val bindingContext = element.analyzeAndGetResult().bindingContext

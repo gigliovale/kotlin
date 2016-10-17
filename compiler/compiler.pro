@@ -41,6 +41,11 @@ messages/**)
 -dontwarn com.sun.jna.NativeString
 -dontwarn com.sun.jna.WString
 -dontwarn com.intellij.psi.util.PsiClassUtil
+-dontwarn org.apache.hadoop.io.compress.*
+-dontwarn com.google.j2objc.annotations.Weak
+-dontwarn org.iq80.snappy.HadoopSnappyCodec$SnappyCompressionInputStream
+-dontwarn org.iq80.snappy.HadoopSnappyCodec$SnappyCompressionOutputStream
+-dontwarn com.google.common.util.concurrent.*
 
 -libraryjars '<rtjar>'
 -libraryjars '<jssejar>'
@@ -168,3 +173,4 @@ messages/**)
 
 # for kotlin-android-extensions in maven
 -keep class com.intellij.openapi.module.ModuleServiceManager { public *; }
+

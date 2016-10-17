@@ -163,20 +163,20 @@ open class Operator(val operatorType: IElementType): Expression() {
     }
 
     val precedence: Int
-        get() = when (this.asString()) {
-            "*", "/", "%" -> 3
-            "+", "-" -> 4
-            "?:" -> 7
-            ">", "<", ">=", "<=" -> 9
-            "==", "!=", "===", "!===" -> 10
-            "&&" -> 11
-            "||" -> 12
-            "ushr", "shr", "shl" -> 7
+        get() = when (this.operatorType) {
+            JavaTokenType.ASTERISK, JavaTokenType.DIV, JavaTokenType.PERC -> 3
+            JavaTokenType.PLUS, JavaTokenType.MINUS -> 4
+            KtTokens.ELVIS -> 7
+            JavaTokenType.GT, JavaTokenType.LT, JavaTokenType.GE, JavaTokenType.LE -> 9
+            JavaTokenType.EQEQ, JavaTokenType.NE, KtTokens.EQEQEQ, KtTokens.EXCLEQEQEQ -> 10
+            JavaTokenType.ANDAND -> 11
+            JavaTokenType.OROR -> 12
+            JavaTokenType.GTGTGT, JavaTokenType.GTGT, JavaTokenType.LTLT -> 7
             else -> 6 /* simple name */
         }
 
     private fun asString(tokenType: IElementType): String {
-        return when(tokenType) {
+        return when (tokenType) {
             JavaTokenType.EQ -> "="
             JavaTokenType.EQEQ -> "=="
             JavaTokenType.NE -> "!="

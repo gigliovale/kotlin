@@ -667,15 +667,21 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
     }
 
 
-    private fun PolyadicExpression(operands: List<Expression>, operators: List<Operator>): Expression {
-        val op = operators.sortedBy { it.precedence }.lastOrNull()
-        if (op == null)
+    private fun polyadicExpressionToBinaryExpressions(operands: List<Expression>, operators: List<Operator>): Expression {
+        if (operators.isEmpty())
             return operands.first()
         else {
-            val index = operators.indexOf(op)
-            val left = PolyadicExpression(operands.subList(0, index + 1), operators.subList(0, index))
-            val right = PolyadicExpression(operands.subList(index + 1, operands.size),
-                                           operators.subList(index + 1, operators.size))
+            var op: Operator = operators.first()
+            var index = 0
+            operators.asSequence()
+                    .filter { it.precedence >= op.precedence }
+                    .forEachIndexed { i, it ->
+                        op = it
+                        index = i
+                    }
+            val left = polyadicExpressionToBinaryExpressions(operands.subList(0, index + 1), operators.subList(0, index))
+            val right = polyadicExpressionToBinaryExpressions(operands.subList(index + 1, operands.size),
+                                                              operators.subList(index + 1, operators.size))
             return BinaryExpression(left, right, op).assignNoPrototype()
         }
     }
@@ -691,8 +697,7 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
                 operator.assignPrototype(it, commentsAndSpacesInheritance)
             }
         }
-
-        result = PolyadicExpression(args, operators).assignPrototype(expression)
+        result = polyadicExpressionToBinaryExpressions(args, operators).assignPrototype(expression)
     }
 
     private fun convertArguments(expression: PsiCallExpression, isExtension: Boolean = false): ArgumentList {

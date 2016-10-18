@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.builtins.ReflectionTypes
+import org.jetbrains.kotlin.backend.jvm.JvmIrCodegenFactory
 import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.`when`.MappingsClassesForWhenByEnum
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding
@@ -69,6 +70,7 @@ class GenerationState @JvmOverloads constructor(
         // TODO: get rid of it with the proper module infrastructure
         val outDirectory: File? = null,
         private val onIndependentPartCompilationEnd: GenerationStateEventCallback = GenerationStateEventCallback.DO_NOTHING,
+        val codegenFactory: CodegenFactory = if (configuration.getBoolean(JVMConfigurationKeys.IR)) JvmIrCodegenFactory else DefaultCodegenFactory,
         wantsDiagnostics: Boolean = true
 ) {
     abstract class GenerateClassFilter {

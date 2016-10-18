@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.fileClasses.FileClasses;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassInfo;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassesProvider;
+import org.jetbrains.kotlin.ir.descriptors.IrBuiltinsPackageFragmentDescriptor;
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature;
 import org.jetbrains.kotlin.load.java.BuiltinMethodsWithSpecialGenericSignature.SpecialSignatureInfo;
 import org.jetbrains.kotlin.load.java.JvmAbi;
@@ -194,6 +195,10 @@ public class KotlinTypeMapper {
         if (directMember instanceof DeserializedCallableMemberDescriptor) {
             String facadeFqName = getPackageMemberOwnerInternalName((DeserializedCallableMemberDescriptor) directMember, publicFacade);
             if (facadeFqName != null) return facadeFqName;
+        }
+
+        if (descriptor.getContainingDeclaration() instanceof IrBuiltinsPackageFragmentDescriptor) {
+            return descriptor.getContainingDeclaration().getName().asString();
         }
 
         throw new RuntimeException("Could not find package member for " + descriptor +
@@ -1241,7 +1246,8 @@ public class KotlinTypeMapper {
         }
 
         ClassDescriptor containingDeclaration = descriptor.getContainingDeclaration();
-        if (containingDeclaration.getKind() == ClassKind.ENUM_CLASS || containingDeclaration.getKind() == ClassKind.ENUM_ENTRY) {
+        if (descriptor.getKind() != CallableMemberDescriptor.Kind.SYNTHESIZED &&
+            (containingDeclaration.getKind() == ClassKind.ENUM_CLASS || containingDeclaration.getKind() == ClassKind.ENUM_ENTRY)) {
             writeParameter(
                     sw, JvmMethodParameterKind.ENUM_NAME_OR_ORDINAL, DescriptorUtilsKt.getBuiltIns(descriptor).getStringType(), descriptor);
             writeParameter(

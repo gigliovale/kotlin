@@ -1,0 +1,57 @@
+FILE /multipleImplicitReceivers.kt
+  CLASS OBJECT A
+    CONSTRUCTOR private constructor A()
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='A'
+  CLASS OBJECT B
+    CONSTRUCTOR private constructor B()
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='B'
+  CLASS INTERFACE IFoo
+    PROPERTY public open val A.foo: B
+      FUN public open fun A.<get-foo>(): B
+        BLOCK_BODY
+          RETURN type=kotlin.Nothing from='<get-foo>() on A: B'
+            GET_OBJECT 'B' type=B
+  CLASS INTERFACE IInvoke
+    FUN public open operator fun B.invoke(): kotlin.Int
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='invoke() on B: Int'
+          CONST Int type=kotlin.Int value='42'
+  FUN public fun test(fooImpl: IFoo, invokeImpl: IInvoke): kotlin.Unit
+    BLOCK_BODY
+      TYPE_OP origin=IMPLICIT_COERCION_TO_UNIT typeOperand=kotlin.Unit
+        CALL 'with(A, A.() -> Int): Int' type=kotlin.Int origin=null
+          <T>: A
+          <R>: Int
+          receiver: GET_OBJECT 'A' type=A
+          block: BLOCK type=A.() -> kotlin.Int origin=LAMBDA
+            FUN LOCAL_FUNCTION_FOR_LAMBDA local final fun A.<anonymous>(): kotlin.Int
+              BLOCK_BODY
+                RETURN type=kotlin.Nothing from='<anonymous>() on A: Int'
+                  CALL 'with(IFoo, IFoo.() -> Int): Int' type=kotlin.Int origin=null
+                    <T>: IFoo
+                    <R>: Int
+                    receiver: GET_VAR 'value-parameter fooImpl: IFoo' type=IFoo origin=null
+                    block: BLOCK type=IFoo.() -> kotlin.Int origin=LAMBDA
+                      FUN LOCAL_FUNCTION_FOR_LAMBDA local final fun IFoo.<anonymous>(): kotlin.Int
+                        BLOCK_BODY
+                          RETURN type=kotlin.Nothing from='<anonymous>() on IFoo: Int'
+                            CALL 'with(IInvoke, IInvoke.() -> Int): Int' type=kotlin.Int origin=null
+                              <T>: IInvoke
+                              <R>: Int
+                              receiver: GET_VAR 'value-parameter invokeImpl: IInvoke' type=IInvoke origin=null
+                              block: BLOCK type=IInvoke.() -> kotlin.Int origin=LAMBDA
+                                FUN LOCAL_FUNCTION_FOR_LAMBDA local final fun IInvoke.<anonymous>(): kotlin.Int
+                                  BLOCK_BODY
+                                    RETURN type=kotlin.Nothing from='<anonymous>() on IInvoke: Int'
+                                      CALL 'invoke() on B: Int' type=kotlin.Int origin=INVOKE
+                                        $this: GET_VAR '<receiver: <anonymous>() on IInvoke: Int>' type=IInvoke origin=null
+                                        $receiver: CALL '<get-foo>() on A: B' type=B origin=GET_PROPERTY
+                                          $this: GET_VAR '<receiver: <anonymous>() on IFoo: Int>' type=IFoo origin=null
+                                          $receiver: GET_VAR '<receiver: <anonymous>() on A: Int>' type=A origin=null
+                                CALLABLE_REFERENCE '<anonymous>() on IInvoke: Int' type=IInvoke.() -> kotlin.Int origin=LAMBDA
+                      CALLABLE_REFERENCE '<anonymous>() on IFoo: Int' type=IFoo.() -> kotlin.Int origin=LAMBDA
+            CALLABLE_REFERENCE '<anonymous>() on A: Int' type=A.() -> kotlin.Int origin=LAMBDA

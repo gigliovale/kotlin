@@ -1,0 +1,12 @@
+FILE /localClasses.kt
+  FUN public fun outer(): kotlin.Unit
+    BLOCK_BODY
+      CLASS CLASS LocalClass
+        CONSTRUCTOR public constructor LocalClass()
+          BLOCK_BODY
+            DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+            INSTANCE_INITIALIZER_CALL classDescriptor='LocalClass'
+        FUN public final fun foo(): kotlin.Unit
+          BLOCK_BODY
+      CALL 'foo(): Unit' type=kotlin.Unit origin=null
+        $this: CALL 'constructor LocalClass()' type=outer.LocalClass origin=null

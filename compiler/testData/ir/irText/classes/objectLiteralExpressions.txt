@@ -1,0 +1,75 @@
+FILE /objectLiteralExpressions.kt
+  CLASS INTERFACE IFoo
+    FUN public abstract fun foo(): kotlin.Unit
+  PROPERTY public val test1: kotlin.Any
+    FIELD PROPERTY_BACKING_FIELD public val test1: kotlin.Any
+      EXPRESSION_BODY
+        BLOCK type=test1.<no name provided> origin=OBJECT_LITERAL
+          CLASS CLASS <no name provided>
+            CONSTRUCTOR public constructor <no name provided>()
+              BLOCK_BODY
+                DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+                INSTANCE_INITIALIZER_CALL classDescriptor='<no name provided>'
+          CALL 'constructor <no name provided>()' type=test1.<no name provided> origin=OBJECT_LITERAL
+    FUN DEFAULT_PROPERTY_ACCESSOR public fun <get-test1>(): kotlin.Any
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='<get-test1>(): Any'
+          GET_FIELD 'test1: Any' type=kotlin.Any origin=null
+  PROPERTY public val test2: IFoo
+    FIELD PROPERTY_BACKING_FIELD public val test2: IFoo
+      EXPRESSION_BODY
+        BLOCK type=test2.<no name provided> origin=OBJECT_LITERAL
+          CLASS CLASS <no name provided>
+            CONSTRUCTOR public constructor <no name provided>()
+              BLOCK_BODY
+                DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+                INSTANCE_INITIALIZER_CALL classDescriptor='<no name provided>'
+            FUN public open override fun foo(): kotlin.Unit
+              BLOCK_BODY
+                CALL 'println(Any?): Unit' type=kotlin.Unit origin=null
+                  message: CONST String type=kotlin.String value='foo'
+          CALL 'constructor <no name provided>()' type=test2.<no name provided> origin=OBJECT_LITERAL
+    FUN DEFAULT_PROPERTY_ACCESSOR public fun <get-test2>(): IFoo
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='<get-test2>(): IFoo'
+          GET_FIELD 'test2: IFoo' type=IFoo origin=null
+  CLASS CLASS Outer
+    CONSTRUCTOR public constructor Outer()
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='Outer'
+    CLASS CLASS Inner
+      CONSTRUCTOR public constructor Inner()
+        BLOCK_BODY
+          DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+          INSTANCE_INITIALIZER_CALL classDescriptor='Inner'
+    FUN public final fun test3(): Outer.Inner
+      BLOCK_BODY
+        RETURN type=kotlin.Nothing from='test3(): Outer.Inner'
+          BLOCK type=Outer.test3.<no name provided> origin=OBJECT_LITERAL
+            CLASS CLASS <no name provided>
+              CONSTRUCTOR public constructor <no name provided>()
+                BLOCK_BODY
+                  DELEGATING_CONSTRUCTOR_CALL 'constructor Inner()'
+                    $this: GET_VAR '<receiver: Outer>' type=Outer origin=null
+                  INSTANCE_INITIALIZER_CALL classDescriptor='<no name provided>'
+              FUN public open override fun foo(): kotlin.Unit
+                BLOCK_BODY
+                  CALL 'println(Any?): Unit' type=kotlin.Unit origin=null
+                    message: CONST String type=kotlin.String value='foo'
+            CALL 'constructor <no name provided>()' type=Outer.test3.<no name provided> origin=OBJECT_LITERAL
+  FUN public fun Outer.test4(): Outer.Inner
+    BLOCK_BODY
+      RETURN type=kotlin.Nothing from='test4() on Outer: Outer.Inner'
+        BLOCK type=test4.<no name provided> origin=OBJECT_LITERAL
+          CLASS CLASS <no name provided>
+            CONSTRUCTOR public constructor <no name provided>()
+              BLOCK_BODY
+                DELEGATING_CONSTRUCTOR_CALL 'constructor Inner()'
+                  $this: GET_VAR '<receiver: test4() on Outer: Outer.Inner>' type=Outer origin=null
+                INSTANCE_INITIALIZER_CALL classDescriptor='<no name provided>'
+            FUN public open override fun foo(): kotlin.Unit
+              BLOCK_BODY
+                CALL 'println(Any?): Unit' type=kotlin.Unit origin=null
+                  message: CONST String type=kotlin.String value='foo'
+          CALL 'constructor <no name provided>()' type=test4.<no name provided> origin=OBJECT_LITERAL

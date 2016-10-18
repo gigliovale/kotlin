@@ -73,7 +73,7 @@ import static org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin.
 import static org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt.Synthetic;
 import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
-public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclarationContainer*/> {
+public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclarationContainer*/> implements InnerClassConsumer {
     protected final GenerationState state;
     protected final T element;
     protected final FieldOwnerContext context;
@@ -270,7 +270,7 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
         new ImplementationBodyCodegen(aClass, classContext, classBuilder, state, parentCodegen, false).generate();
     }
 
-    private static void badDescriptor(ClassDescriptor descriptor, ClassBuilderMode mode) {
+    public static void badDescriptor(ClassDescriptor descriptor, ClassBuilderMode mode) {
         if (mode.generateBodies) {
             throw new IllegalStateException("Generating bad descriptor in ClassBuilderMode = " + mode + ": " + descriptor);
         }
@@ -304,6 +304,7 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
 
     // It's necessary for proper recovering of classId by plain string JVM descriptor when loading annotations
     // See FileBasedKotlinClass.convertAnnotationVisitor
+    @Override
     public void addInnerClassInfoFromAnnotation(@NotNull ClassDescriptor classDescriptor) {
         DeclarationDescriptor current = classDescriptor;
         while (current != null && !isTopLevelDeclaration(current)) {
@@ -315,6 +316,10 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
     }
 
     private void writeInnerClass(@NotNull ClassDescriptor innerClass) {
+        writeInnerClass(innerClass, typeMapper, v);
+    }
+
+    public static void writeInnerClass(@NotNull ClassDescriptor innerClass, @NotNull KotlinTypeMapper typeMapper, @NotNull ClassBuilder v) {
         DeclarationDescriptor containing = innerClass.getContainingDeclaration();
         String outerClassInternalName = null;
         if (containing instanceof ClassDescriptor) {

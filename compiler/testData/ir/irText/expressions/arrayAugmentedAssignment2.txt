@@ -1,0 +1,21 @@
+FILE /arrayAugmentedAssignment2.kt
+  CLASS INTERFACE IA
+    FUN public abstract operator fun get(index: kotlin.String): kotlin.Int
+  CLASS INTERFACE IB
+    FUN public abstract operator fun IA.set(index: kotlin.String, value: kotlin.Int): kotlin.Unit
+  FUN public fun IB.test(a: IA): kotlin.Unit
+    BLOCK_BODY
+      BLOCK type=kotlin.Unit origin=PLUSEQ
+        VAR IR_TEMPORARY_VARIABLE val tmp0_array: IA
+          GET_VAR 'value-parameter a: IA' type=IA origin=null
+        VAR IR_TEMPORARY_VARIABLE val tmp1_index0: kotlin.String
+          CONST String type=kotlin.String value=''
+        CALL 'set(String, Int) on IA: Unit' type=kotlin.Unit origin=PLUSEQ
+          $this: GET_VAR '<receiver: test(IA) on IB: Unit>' type=IB origin=null
+          $receiver: GET_VAR 'tmp0_array: IA' type=IA origin=null
+          index: GET_VAR 'tmp1_index0: String' type=kotlin.String origin=null
+          value: CALL 'plus(Int): Int' type=kotlin.Int origin=PLUSEQ
+            $this: CALL 'get(String): Int' type=kotlin.Int origin=PLUSEQ
+              $this: GET_VAR 'tmp0_array: IA' type=IA origin=null
+              index: GET_VAR 'tmp1_index0: String' type=kotlin.String origin=null
+            other: CONST Int type=kotlin.Int value='42'

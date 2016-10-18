@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.cli.AbstractCliTest
 import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.defaultConstructor.AbstractDefaultArgumentsReflectionTest
 import org.jetbrains.kotlin.codegen.flags.AbstractWriteFlagsTest
+import org.jetbrains.kotlin.codegen.ir.AbstractIrBlackBoxCodegenTest
 import org.jetbrains.kotlin.findUsages.AbstractFindUsagesTest
 import org.jetbrains.kotlin.findUsages.AbstractKotlinFindUsagesWithLibraryTest
 import org.jetbrains.kotlin.formatter.AbstractFormatterTest
@@ -121,6 +122,7 @@ import org.jetbrains.kotlin.idea.stubs.AbstractMultiFileHighlightingTest
 import org.jetbrains.kotlin.idea.stubs.AbstractResolveByStubTest
 import org.jetbrains.kotlin.idea.stubs.AbstractStubBuilderTest
 import org.jetbrains.kotlin.integration.AbstractAntTaskTest
+import org.jetbrains.kotlin.ir.*
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterForWebDemoTest
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterMultiFileTest
 import org.jetbrains.kotlin.j2k.AbstractJavaToKotlinConverterSingleFileTest
@@ -219,6 +221,10 @@ fun main(args: Array<String>) {
             model("codegen/box", targetBackend = TargetBackend.JVM)
         }
 
+        testClass<AbstractIrBlackBoxCodegenTest>("IrOnlyBoxCodegenTestGenerated") {
+            model("ir/box", targetBackend = TargetBackend.JVM)
+        }
+
         testClass<AbstractBlackBoxInlineCodegenTest>("BlackBoxInlineCodegenTestGenerated") {
             model("codegen/boxInline")
         }
@@ -237,6 +243,14 @@ fun main(args: Array<String>) {
 
         testClass<AbstractBytecodeTextTest>() {
             model("codegen/bytecodeText")
+        }
+
+        testClass<AbstractIrTextTestCase>() {
+            model("ir/irText")
+        }
+
+        testClass<AbstractIrCfgTestCase>() {
+            model("ir/irCfg")
         }
 
         testClass<AbstractBytecodeListingTest>() {
@@ -362,6 +376,12 @@ fun main(args: Array<String>) {
 
         testClass<AbstractKDocLexerTest> {
             model("kdoc/lexer")
+        }
+    }
+
+    testGroup("compiler/tests-ir-jvm/tests", "compiler/testData") {
+        testClass<AbstractIrBlackBoxCodegenTest>() {
+            model("codegen/box", targetBackend = TargetBackend.JVM)
         }
     }
 

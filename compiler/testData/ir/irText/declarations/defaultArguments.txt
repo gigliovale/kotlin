@@ -1,0 +1,7 @@
+FILE /defaultArguments.kt
+  FUN public fun test1(x: kotlin.Int, y: kotlin.Int = ..., z: kotlin.String = ...): kotlin.Unit
+    y: EXPRESSION_BODY
+      CONST Int type=kotlin.Int value='0'
+    z: EXPRESSION_BODY
+      CONST String type=kotlin.String value='abc'
+    BLOCK_BODY

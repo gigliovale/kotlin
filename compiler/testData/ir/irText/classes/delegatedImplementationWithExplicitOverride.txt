@@ -1,0 +1,27 @@
+FILE /delegatedImplementationWithExplicitOverride.kt
+  CLASS INTERFACE IFooBar
+    FUN public abstract fun foo(): kotlin.Unit
+    FUN public abstract fun bar(): kotlin.Unit
+  CLASS OBJECT FooBarImpl
+    CONSTRUCTOR private constructor FooBarImpl()
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='FooBarImpl'
+    FUN public open override fun foo(): kotlin.Unit
+      BLOCK_BODY
+    FUN public open override fun bar(): kotlin.Unit
+      BLOCK_BODY
+  CLASS CLASS C
+    CONSTRUCTOR public constructor C()
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='C'
+    FIELD DELEGATE val `C$IFooBar$delegate`: FooBarImpl
+      EXPRESSION_BODY
+        GET_OBJECT 'FooBarImpl' type=FooBarImpl
+    FUN DELEGATED_MEMBER public open override fun foo(): kotlin.Unit
+      BLOCK_BODY
+        CALL 'foo(): Unit' type=kotlin.Unit origin=null
+          $this: GET_VAR '`C$IFooBar$delegate`: FooBarImpl' type=FooBarImpl origin=null
+    FUN public open override fun bar(): kotlin.Unit
+      BLOCK_BODY

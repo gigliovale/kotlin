@@ -1792,6 +1792,12 @@ public class JvmBasicCompletionTestGenerated extends AbstractJvmBasicCompletionT
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/idea-completion/testData/basic/common/namedArguments"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
             }
 
+            @TestMetadata("BooleanArgumentExpected.kt")
+            public void testBooleanArgumentExpected() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/namedArguments/BooleanArgumentExpected.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("CompactTypeNames.kt")
             public void testCompactTypeNames() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/basic/common/namedArguments/CompactTypeNames.kt");

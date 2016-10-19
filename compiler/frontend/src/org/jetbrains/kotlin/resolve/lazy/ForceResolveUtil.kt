@@ -28,8 +28,16 @@ import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.asFlexibleType
 import org.jetbrains.kotlin.types.isFlexible
 
-fun <T : Any> forceResolveAllContents(descriptor: T): T {
-    doForceResolveAllContents(descriptor)
+class ForceResolveFilter(val resolveAnnotations: Boolean) {
+    companion object {
+        val ALL = ForceResolveFilter(true)
+        val LIGHT_CLASSES = ForceResolveFilter(false)
+    }
+}
+
+@JvmOverloads
+fun <T : Any> forceResolveAllContents(descriptor: T, filter: ForceResolveFilter = ForceResolveFilter.ALL): T {
+    doForceResolveAllContents(descriptor, filter)
     return descriptor
 }
 
@@ -49,18 +57,20 @@ fun forceResolveAllContents(types: Collection<KotlinType>) {
     }
 }
 
-fun forceResolveAllContents(typeConstructor: TypeConstructor) {
-    doForceResolveAllContents(typeConstructor)
+@JvmOverloads
+fun forceResolveAllContents(typeConstructor: TypeConstructor, filter: ForceResolveFilter = ForceResolveFilter.ALL) {
+    doForceResolveAllContents(typeConstructor, filter)
 }
 
-fun forceResolveAllContents(annotations: Annotations) {
-    doForceResolveAllContents(annotations)
+fun forceResolveAllContents(annotations: Annotations, filter: ForceResolveFilter = ForceResolveFilter.ALL) {
+    if (!filter.resolveAnnotations) return
+    doForceResolveAllContents(annotations, filter)
     for (annotationWithTarget in annotations.getAllAnnotations()) {
-        doForceResolveAllContents(annotationWithTarget.annotation)
+        doForceResolveAllContents(annotationWithTarget.annotation, filter)
     }
 }
 
-private fun doForceResolveAllContents(obj: Any) {
+private fun doForceResolveAllContents(obj: Any, filter: ForceResolveFilter) {
     if (obj is LazyEntity) {
         obj.forceResolveAllContents()
     }
@@ -78,18 +88,23 @@ private fun doForceResolveAllContents(obj: Any) {
         for (typeParameterDescriptor in obj.typeParameters) {
             forceResolveAllContents(typeParameterDescriptor.upperBounds)
         }
-        forceResolveAllContents(obj.returnType)
-        forceResolveAllContents(obj.annotations)
+        forceResolveAllContents(obj.returnType, filter)
+        if (filter.resolveAnnotations) {
+            forceResolveAllContents(obj.annotations)
+        }
     }
     else if (obj is TypeAliasDescriptor) {
         forceResolveAllContents(obj.underlyingType)
     }
 }
 
-fun forceResolveAllContents(type: KotlinType?): KotlinType? {
+@JvmOverloads
+fun forceResolveAllContents(type: KotlinType?, filter: ForceResolveFilter = ForceResolveFilter.ALL): KotlinType? {
     if (type == null) return null
 
-    forceResolveAllContents(type.annotations)
+    if (filter.resolveAnnotations) {
+        forceResolveAllContents(type.annotations)
+    }
     if (type.isFlexible()) {
         forceResolveAllContents(type.asFlexibleType().lowerBound)
         forceResolveAllContents(type.asFlexibleType().upperBound)

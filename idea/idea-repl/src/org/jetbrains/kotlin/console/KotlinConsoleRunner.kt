@@ -64,8 +64,8 @@ import org.jetbrains.kotlin.parsing.KotlinParserDefinition
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.psi.moduleInfo
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyScriptDescriptor
+import org.jetbrains.kotlin.resolve.lazy.forceResolveAllContents
 import org.jetbrains.kotlin.resolve.repl.ReplState
 import org.jetbrains.kotlin.script.KotlinScriptDefinition
 import org.jetbrains.kotlin.script.KotlinScriptDefinitionProvider
@@ -274,7 +274,7 @@ class KotlinConsoleRunner(
             replState.submitLine(psiFile)
             psiFile.moduleInfo = ModuleTestSourceInfo(module)
             val scriptDescriptor = psiFile.script!!.resolveToDescriptor() as? LazyScriptDescriptor ?: error("Failed to analyze line:\n$text")
-            ForceResolveUtil.forceResolveAllContents(scriptDescriptor)
+            forceResolveAllContents(scriptDescriptor)
             replState.lineSuccess(psiFile, scriptDescriptor)
 
             replState.submitLine(consoleFile) // reset file scope customizer

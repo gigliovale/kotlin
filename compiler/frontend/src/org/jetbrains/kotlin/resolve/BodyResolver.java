@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtilKt;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.types.*;
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices;
@@ -141,7 +141,7 @@ public class BodyResolver {
             @NotNull final ClassConstructorDescriptor descriptor,
             @NotNull LexicalScope declaringScope
     ) {
-        ForceResolveUtil.forceResolveAllContents(descriptor.getAnnotations());
+        ForceResolveUtilKt.forceResolveAllContents(descriptor.getAnnotations());
 
         resolveFunctionBody(outerDataFlowInfo, trace, constructor, descriptor, declaringScope,
                             new Function1<LexicalScope, DataFlowInfo>() {
@@ -573,7 +573,7 @@ public class BodyResolver {
             ClassDescriptorWithResolutionScopes classDescriptor = entry.getValue();
             ConstructorDescriptor unsubstitutedPrimaryConstructor = classDescriptor.getUnsubstitutedPrimaryConstructor();
             if (unsubstitutedPrimaryConstructor != null) {
-                ForceResolveUtil.forceResolveAllContents(unsubstitutedPrimaryConstructor.getAnnotations());
+                ForceResolveUtilKt.forceResolveAllContents(unsubstitutedPrimaryConstructor.getAnnotations());
 
                 LexicalScope parameterScope = getPrimaryConstructorParametersScope(classDescriptor.getScopeForConstructorHeaderResolution(),
                                                                                    unsubstitutedPrimaryConstructor);
@@ -676,7 +676,7 @@ public class BodyResolver {
         PropertyGetterDescriptor getterDescriptor = propertyDescriptor.getGetter();
         if (getter != null && getterDescriptor != null) {
             LexicalScope accessorScope = makeScopeForPropertyAccessor(c, getter, propertyDescriptor);
-            ForceResolveUtil.forceResolveAllContents(getterDescriptor.getAnnotations());
+            ForceResolveUtilKt.forceResolveAllContents(getterDescriptor.getAnnotations());
             resolveFunctionBody(c.getOuterDataFlowInfo(), fieldAccessTrackingTrace, getter, getterDescriptor, accessorScope);
         }
 
@@ -684,7 +684,7 @@ public class BodyResolver {
         PropertySetterDescriptor setterDescriptor = propertyDescriptor.getSetter();
         if (setter != null && setterDescriptor != null) {
             LexicalScope accessorScope = makeScopeForPropertyAccessor(c, setter, propertyDescriptor);
-            ForceResolveUtil.forceResolveAllContents(setterDescriptor.getAnnotations());
+            ForceResolveUtilKt.forceResolveAllContents(setterDescriptor.getAnnotations());
             resolveFunctionBody(c.getOuterDataFlowInfo(), fieldAccessTrackingTrace, setter, setterDescriptor, accessorScope);
         }
     }

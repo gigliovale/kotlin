@@ -38,7 +38,7 @@ import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
 import org.jetbrains.kotlin.resolve.*;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtilKt;
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.lazy.data.KtClassInfoUtil;
@@ -517,19 +517,19 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         resolveMemberHeaders();
         ClassDescriptor companionObjectDescriptor = getCompanionObjectDescriptor();
         if (companionObjectDescriptor != null) {
-            ForceResolveUtil.forceResolveAllContents(companionObjectDescriptor);
+            ForceResolveUtilKt.forceResolveAllContents(companionObjectDescriptor);
         }
 
-        ForceResolveUtil.forceResolveAllContents(getConstructors());
-        ForceResolveUtil.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
-        ForceResolveUtil.forceResolveAllContents(getUnsubstitutedMemberScope());
-        ForceResolveUtil.forceResolveAllContents(getTypeConstructor());
+        ForceResolveUtilKt.forceResolveAllContents(getConstructors());
+        ForceResolveUtilKt.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
+        ForceResolveUtilKt.forceResolveAllContents(getUnsubstitutedMemberScope());
+        ForceResolveUtilKt.forceResolveAllContents(getTypeConstructor());
     }
 
     // Note: headers of member classes' members are not resolved
     public void resolveMemberHeaders() {
-        ForceResolveUtil.forceResolveAllContents(getAnnotations());
-        ForceResolveUtil.forceResolveAllContents(getDanglingAnnotations());
+        ForceResolveUtilKt.forceResolveAllContents(getAnnotations());
+        ForceResolveUtilKt.forceResolveAllContents(getDanglingAnnotations());
 
         getCompanionObjectDescriptor();
 

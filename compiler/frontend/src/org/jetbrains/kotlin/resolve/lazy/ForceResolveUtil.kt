@@ -14,107 +14,93 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve.lazy;
+package org.jetbrains.kotlin.resolve.lazy
 
-import com.intellij.openapi.diagnostic.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.annotations.AnnotationWithTarget;
-import org.jetbrains.kotlin.descriptors.annotations.Annotations;
-import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl;
-import org.jetbrains.kotlin.resolve.DescriptorUtils;
-import org.jetbrains.kotlin.resolve.scopes.MemberScope;
-import org.jetbrains.kotlin.types.FlexibleTypesKt;
-import org.jetbrains.kotlin.types.KotlinType;
-import org.jetbrains.kotlin.types.TypeConstructor;
-import org.jetbrains.kotlin.types.TypeProjection;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
+import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.TypeConstructor
+import org.jetbrains.kotlin.types.asFlexibleType
+import org.jetbrains.kotlin.types.isFlexible
 
-import java.util.Collection;
+fun <T : Any> forceResolveAllContents(descriptor: T): T {
+    doForceResolveAllContents(descriptor)
+    return descriptor
+}
 
-public class ForceResolveUtil {
-    private static final Logger LOG = Logger.getInstance(ForceResolveUtil.class);
+fun forceResolveAllContents(scope: MemberScope) {
+    forceResolveAllContents(DescriptorUtils.getAllDescriptors(scope))
+}
 
-    private ForceResolveUtil() {}
-
-    public static <T> T forceResolveAllContents(@NotNull T descriptor) {
-        doForceResolveAllContents(descriptor);
-        return descriptor;
+fun forceResolveAllContents(descriptors: Iterable<DeclarationDescriptor>) {
+    for (descriptor in descriptors) {
+        forceResolveAllContents(descriptor)
     }
+}
 
-    public static void forceResolveAllContents(@NotNull MemberScope scope) {
-        forceResolveAllContents(DescriptorUtils.getAllDescriptors(scope));
+fun forceResolveAllContents(types: Collection<KotlinType>) {
+    for (type in types) {
+        forceResolveAllContents(type)
     }
+}
 
-    public static void forceResolveAllContents(@NotNull Iterable<? extends DeclarationDescriptor> descriptors) {
-        for (DeclarationDescriptor descriptor : descriptors) {
-            forceResolveAllContents(descriptor);
-        }
+fun forceResolveAllContents(typeConstructor: TypeConstructor) {
+    doForceResolveAllContents(typeConstructor)
+}
+
+fun forceResolveAllContents(annotations: Annotations) {
+    doForceResolveAllContents(annotations)
+    for (annotationWithTarget in annotations.getAllAnnotations()) {
+        doForceResolveAllContents(annotationWithTarget.annotation)
     }
+}
 
-    public static void forceResolveAllContents(@NotNull Collection<KotlinType> types) {
-        for (KotlinType type : types) {
-            forceResolveAllContents(type);
-        }
+private fun doForceResolveAllContents(obj: Any) {
+    if (obj is LazyEntity) {
+        obj.forceResolveAllContents()
     }
-
-    public static void forceResolveAllContents(@NotNull TypeConstructor typeConstructor) {
-        doForceResolveAllContents(typeConstructor);
+    else if (obj is ValueParameterDescriptorImpl.WithDestructuringDeclaration) {
+        obj.destructuringVariables
     }
-
-    public static void forceResolveAllContents(@NotNull Annotations annotations) {
-        doForceResolveAllContents(annotations);
-        for (AnnotationWithTarget annotationWithTarget : annotations.getAllAnnotations()) {
-            doForceResolveAllContents(annotationWithTarget.getAnnotation());
+    else if (obj is CallableDescriptor) {
+        val parameter = obj.extensionReceiverParameter
+        if (parameter != null) {
+            forceResolveAllContents(parameter.type)
         }
+        for (parameterDescriptor in obj.valueParameters) {
+            forceResolveAllContents(parameterDescriptor)
+        }
+        for (typeParameterDescriptor in obj.typeParameters) {
+            forceResolveAllContents(typeParameterDescriptor.upperBounds)
+        }
+        forceResolveAllContents(obj.returnType)
+        forceResolveAllContents(obj.annotations)
     }
-
-    private static void doForceResolveAllContents(Object object) {
-        if (object instanceof LazyEntity) {
-            LazyEntity lazyEntity = (LazyEntity) object;
-            lazyEntity.forceResolveAllContents();
-        }
-        else if (object instanceof ValueParameterDescriptorImpl.WithDestructuringDeclaration) {
-            ((ValueParameterDescriptorImpl.WithDestructuringDeclaration) object).getDestructuringVariables();
-        }
-        else if (object instanceof CallableDescriptor) {
-            CallableDescriptor callableDescriptor = (CallableDescriptor) object;
-            ReceiverParameterDescriptor parameter = callableDescriptor.getExtensionReceiverParameter();
-            if (parameter != null) {
-                forceResolveAllContents(parameter.getType());
-            }
-            for (ValueParameterDescriptor parameterDescriptor : callableDescriptor.getValueParameters()) {
-                forceResolveAllContents(parameterDescriptor);
-            }
-            for (TypeParameterDescriptor typeParameterDescriptor : callableDescriptor.getTypeParameters()) {
-                forceResolveAllContents(typeParameterDescriptor.getUpperBounds());
-            }
-            forceResolveAllContents(callableDescriptor.getReturnType());
-            forceResolveAllContents(callableDescriptor.getAnnotations());
-        }
-        else if (object instanceof TypeAliasDescriptor) {
-            TypeAliasDescriptor typeAliasDescriptor = (TypeAliasDescriptor) object;
-            forceResolveAllContents(typeAliasDescriptor.getUnderlyingType());
-        }
+    else if (obj is TypeAliasDescriptor) {
+        forceResolveAllContents(obj.underlyingType)
     }
+}
 
-    @Nullable
-    public static KotlinType forceResolveAllContents(@Nullable KotlinType type) {
-        if (type == null) return null;
+fun forceResolveAllContents(type: KotlinType?): KotlinType? {
+    if (type == null) return null
 
-        forceResolveAllContents(type.getAnnotations());
-        if (FlexibleTypesKt.isFlexible(type)) {
-            forceResolveAllContents(FlexibleTypesKt.asFlexibleType(type).getLowerBound());
-            forceResolveAllContents(FlexibleTypesKt.asFlexibleType(type).getUpperBound());
-        }
-        else {
-            forceResolveAllContents(type.getConstructor());
-            for (TypeProjection projection : type.getArguments()) {
-                if (!projection.isStarProjection()) {
-                    forceResolveAllContents(projection.getType());
-                }
+    forceResolveAllContents(type.annotations)
+    if (type.isFlexible()) {
+        forceResolveAllContents(type.asFlexibleType().lowerBound)
+        forceResolveAllContents(type.asFlexibleType().upperBound)
+    }
+    else {
+        forceResolveAllContents(type.constructor)
+        for (projection in type.arguments) {
+            if (!projection.isStarProjection) {
+                forceResolveAllContents(projection.type)
             }
         }
-        return type;
     }
+    return type
 }

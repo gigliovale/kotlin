@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResultsUtil;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValue;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtilKt;
 import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -116,7 +116,7 @@ public class ExpressionTypingVisitorForStatements extends ExpressionTypingVisito
         TypeAliasDescriptor typeAliasDescriptor = components.descriptorResolver.resolveTypeAliasDescriptor(
                 context.scope.getOwnerDescriptor(), context.scope, typeAlias, context.trace);
         scope.addClassifierDescriptor(typeAliasDescriptor);
-        ForceResolveUtil.forceResolveAllContents(typeAliasDescriptor);
+        ForceResolveUtilKt.forceResolveAllContents(typeAliasDescriptor);
 
         facade.getComponents().declarationsCheckerBuilder.withTrace(context.trace).checkLocalTypeAliasDeclaration(typeAlias, typeAliasDescriptor);
 

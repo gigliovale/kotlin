@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.psi.psiUtil.PsiUtilsKt;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo;
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfoFactory;
 import org.jetbrains.kotlin.resolve.calls.util.UnderscoreUtilKt;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtilKt;
 import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyTypeAliasDescriptor;
 import org.jetbrains.kotlin.resolve.scopes.*;
 import org.jetbrains.kotlin.resolve.scopes.receivers.TransientReceiver;
@@ -668,7 +668,7 @@ public class DescriptorResolver {
         );
         trace.record(BindingContext.VALUE_PARAMETER, parameter, variableDescriptor);
         // Type annotations also should be resolved
-        ForceResolveUtil.forceResolveAllContents(type.getAnnotations());
+        ForceResolveUtilKt.forceResolveAllContents(type.getAnnotations());
         return variableDescriptor;
     }
 

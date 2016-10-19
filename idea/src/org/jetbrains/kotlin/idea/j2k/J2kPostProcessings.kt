@@ -50,7 +50,11 @@ object J2KPostProcessingRegistrar {
     val processings: Collection<J2kPostProcessing>
         get() = _processings
 
-    val processingsToPriorityMap = HashMap<J2kPostProcessing, Int>()
+    private val processingsToPriorityMap = HashMap<J2kPostProcessing, Int>()
+
+    fun priority(processing: J2kPostProcessing): Int {
+        return processingsToPriorityMap[processing]!!
+    }
 
     init {
         _processings.add(RemoveExplicitTypeArgumentsProcessing())

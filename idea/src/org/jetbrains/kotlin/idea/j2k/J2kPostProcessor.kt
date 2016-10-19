@@ -78,12 +78,12 @@ class J2kPostProcessor(private val formatCode: Boolean) : PostProcessor {
         }
     }
 
-    private data class ActionData(val element: KtElement, val action: () -> Unit, val processing: J2kPostProcessing)
+    private data class ActionData(val element: KtElement, val action: () -> Unit, val priority: Int)
 
     private fun collectAvailableActions(file: KtFile, rangeMarker: RangeMarker?): List<ActionData> {
         val diagnostics = analyzeFileRange(file, rangeMarker)
 
-        val elementToActions = ArrayList<ActionData>()
+        val availableActions = ArrayList<ActionData>()
 
         file.accept(object : PsiRecursiveElementVisitor() {
             override fun visitElement(element: PsiElement) {
@@ -97,15 +97,15 @@ class J2kPostProcessor(private val formatCode: Boolean) : PostProcessor {
                         J2KPostProcessingRegistrar.processings.forEach { processing ->
                             val action = processing.createAction(element, diagnostics)
                             if (action != null) {
-                                elementToActions.add(ActionData(element, action, processing))
+                                availableActions.add(ActionData(element, action, J2KPostProcessingRegistrar.priority(processing)))
                             }
                         }
                     }
                 }
             }
         })
-        elementToActions.sortBy { J2KPostProcessingRegistrar.processingsToPriorityMap[it.processing] }
-        return elementToActions
+        availableActions.sortBy { it.priority }
+        return availableActions
     }
 
     private fun analyzeFileRange(file: KtFile, rangeMarker: RangeMarker?): Diagnostics {

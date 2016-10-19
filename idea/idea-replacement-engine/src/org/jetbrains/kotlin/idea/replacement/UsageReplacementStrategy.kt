@@ -44,19 +44,20 @@ private val LOG = Logger.getInstance(UsageReplacementStrategy::class.java)
 fun UsageReplacementStrategy.replaceUsagesInWholeProject(
         targetPsiElement: PsiElement,
         progressTitle: String,
-        commandName: String
+        commandName: String,
+        postAction: () -> Unit = {}
 ) {
     val project = targetPsiElement.project
     ProgressManager.getInstance().run(
             object : Task.Modal(project, progressTitle, true) {
                 override fun run(indicator: ProgressIndicator) {
                     val usages = runReadAction {
-                        val searchScope = KotlinSourceFilterScope.projectSources(GlobalSearchScope.projectScope(project), project)
+                        val searchScope = KotlinSourceFilterScope.sources(GlobalSearchScope.projectScope(project), project)
                         ReferencesSearch.search(targetPsiElement, searchScope)
                                 .filterIsInstance<KtSimpleNameReference>()
                                 .map { ref -> ref.expression }
                     }
-                    this@replaceUsagesInWholeProject.replaceUsages(usages, project, commandName)
+                    this@replaceUsagesInWholeProject.replaceUsages(usages, project, commandName, postAction)
                 }
             })
 }
@@ -64,7 +65,8 @@ fun UsageReplacementStrategy.replaceUsagesInWholeProject(
 private fun UsageReplacementStrategy.replaceUsages(
         usages: Collection<KtSimpleNameExpression>,
         project: Project,
-        commandName: String
+        commandName: String,
+        postAction: () -> Unit
 ) {
     UIUtil.invokeLaterIfNeeded {
         project.executeWriteCommand(commandName) {
@@ -92,6 +94,8 @@ private fun UsageReplacementStrategy.replaceUsages(
             }
 
             importsToDelete.forEach { it.delete() }
+
+            postAction()
         }
     }
 }

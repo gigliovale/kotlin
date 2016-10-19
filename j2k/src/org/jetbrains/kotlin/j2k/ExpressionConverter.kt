@@ -673,12 +673,12 @@ class DefaultExpressionConverter : JavaElementVisitor(), ExpressionConverter {
         else {
             var op: Operator = operators.first()
             var index = 0
-            operators.asSequence()
-                    .filter { it.precedence >= op.precedence }
-                    .forEachIndexed { i, it ->
-                        op = it
-                        index = i
-                    }
+            operators.forEachIndexed { i, operator ->
+                if(operator.precedence >= op.precedence) {
+                    op = operator
+                    index = i
+                }
+            }
             val left = polyadicExpressionToBinaryExpressions(operands.subList(0, index + 1), operators.subList(0, index))
             val right = polyadicExpressionToBinaryExpressions(operands.subList(index + 1, operands.size),
                                                               operators.subList(index + 1, operators.size))

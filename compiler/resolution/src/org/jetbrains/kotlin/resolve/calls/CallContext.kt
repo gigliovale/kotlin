@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.resolve.calls
 
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.components.ArgumentsToParametersMapper
@@ -97,6 +96,7 @@ enum class ASTCallKind(vararg resolutionPart: ResolutionPart) {
             CheckReceivers
     ),
     FUNCTION(
+            CheckInstantiationOfAbstractClass,
             CheckVisibility,
             MapTypeArguments,
             MapArguments,

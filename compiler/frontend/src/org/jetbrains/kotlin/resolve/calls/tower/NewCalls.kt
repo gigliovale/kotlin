@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.resolve.calls.ASTCallKind
 import org.jetbrains.kotlin.resolve.calls.CallTransformer
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isConventionCall
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isInfixCall
+import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isSupertypeConstructorCall
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.tasks.TracingStrategy
@@ -59,6 +60,7 @@ class ASTCallImpl(
 ) : PSIASTCall() {
     override val isInfixCall: Boolean get() = isInfixCall(psiCall)
     override val isOperatorCall: Boolean get() = isConventionCall(psiCall)
+    override val isSupertypeConstructorCall: Boolean get() = isSupertypeConstructorCall(psiCall)
 }
 
 class CallForVariable(
@@ -79,7 +81,7 @@ class CallForVariable(
 
     override val isInfixCall: Boolean get() = false
     override val isOperatorCall: Boolean get() = false
-
+    override val isSupertypeConstructorCall: Boolean get() = false
     init {
         psiCall = CallTransformer.stripCallArguments(baseCall.psiCall).let {
             if (explicitReceiver == null) CallTransformer.stripReceiver(it) else it
@@ -105,6 +107,7 @@ class CallForInvoke(
 
     override val isInfixCall: Boolean get() = false
     override val isOperatorCall: Boolean get() = true
+    override val isSupertypeConstructorCall: Boolean get() = false
 
     init {
         val variableReceiver = dispatchReceiverForInvokeExtension ?: explicitReceiver

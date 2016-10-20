@@ -38,6 +38,7 @@ interface ASTCall {
 
     val isInfixCall: Boolean
     val isOperatorCall: Boolean
+    val isSupertypeConstructorCall: Boolean
 }
 
 private fun SimpleCallArgument.checkReceiverInvariants() {

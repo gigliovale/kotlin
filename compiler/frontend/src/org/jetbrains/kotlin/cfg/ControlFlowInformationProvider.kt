@@ -461,7 +461,8 @@ class ControlFlowInformationProvider private constructor(
             }
             if (!hasReassignMethodReturningUnit) {
                 if (!isThisOrNoDispatchReceiver || !varWithValReassignErrorGenerated.contains(variableDescriptor)) {
-                    if (captured && !mayBeInitializedNotHere && hasBackingField && isThisOrNoDispatchReceiver) {
+                    val definitelyInitializedNotHere = ctxt.enterInitState?.definitelyInitialized() ?: false
+                    if (captured && !definitelyInitializedNotHere && hasBackingField && isThisOrNoDispatchReceiver) {
                         report(Errors.CAPTURED_VAL_INITIALIZATION.on(expression, variableDescriptor), ctxt)
                     }
                     else {

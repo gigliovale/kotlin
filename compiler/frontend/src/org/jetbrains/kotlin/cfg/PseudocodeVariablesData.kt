@@ -117,24 +117,32 @@ class PseudocodeVariablesData(val pseudocode: Pseudocode, private val bindingCon
                 }
             }
         }
-        if (instruction !is WriteValueInstruction && instruction !is VariableDeclarationInstruction) {
-            return enterInstructionData
-        }
-        val variable = PseudocodeUtil.extractVariableDescriptorIfAny(instruction, bindingContext) ?: return enterInstructionData
         var exitInstructionData = enterInstructionData
+        val owner = instruction.owner
+        if (owner.parent != null && owner.enterInstruction === instruction) {
+            for ((key, value) in enterInstructionData) {
+                if (!value.mayBeInitialized()) {
+                    exitInstructionData = exitInstructionData.put(key, VariableControlFlowState.create(InitState.UNKNOWN, value.isDeclared))
+                }
+            }
+        }
+        if (instruction !is WriteValueInstruction && instruction !is VariableDeclarationInstruction) {
+            return exitInstructionData
+        }
+        val variable = PseudocodeUtil.extractVariableDescriptorIfAny(instruction, bindingContext) ?: return exitInstructionData
         if (instruction is WriteValueInstruction) {
             // if writing to already initialized object
             if (!PseudocodeUtil.isThisOrNoDispatchReceiver(instruction, bindingContext)) {
-                return enterInstructionData
+                return exitInstructionData
             }
 
-            val enterInitState = enterInstructionData.getOrNull(variable)
+            val enterInitState = exitInstructionData.getOrNull(variable)
             val initializationAtThisElement = VariableControlFlowState.create(instruction.element is KtProperty, enterInitState)
             exitInstructionData = exitInstructionData.put(variable, initializationAtThisElement, enterInitState)
         }
         else {
-            // instruction instanceof VariableDeclarationInstruction
-            var enterInitState: VariableControlFlowState? = enterInstructionData.getOrNull(variable)
+            // instruction is VariableDeclarationInstruction
+            var enterInitState = exitInstructionData.getOrNull(variable)
             if (enterInitState == null) {
                 enterInitState = getDefaultValueForInitializers(variable, instruction, blockScopeVariableInfo)
             }
@@ -203,7 +211,8 @@ class PseudocodeVariablesData(val pseudocode: Pseudocode, private val bindingCon
             val declaredOutsideThisDeclaration =
                     declaredIn == null //declared outside this pseudocode
                     || declaredIn.blockScopeForContainingDeclaration != instruction.blockScope.blockScopeForContainingDeclaration
-            return VariableControlFlowState.create(isInitialized = declaredOutsideThisDeclaration)
+            return VariableControlFlowState.create(
+                    if (declaredOutsideThisDeclaration) InitState.UNKNOWN else InitState.NOT_INITIALIZED, isDeclared = false)
         }
 
         private val EMPTY_INIT_CONTROL_FLOW_INFO = InitControlFlowInfo()

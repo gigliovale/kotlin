@@ -3,7 +3,7 @@ fun println(obj: Any?) = obj
 class Demo0 {
     private val some = object {
         fun foo() {
-            println(state)
+            println(<!UNINITIALIZED_VARIABLE!>state<!>)
         }
     }
 
@@ -13,10 +13,10 @@ class Demo0 {
 class Demo1 {
     private val some = object {
         fun foo() {
-            if (state)
+            if (<!UNINITIALIZED_VARIABLE!>state<!>)
                 state = true
 
-            println(state)
+            println(<!UNINITIALIZED_VARIABLE!>state<!>)
         }
     }
 
@@ -37,7 +37,7 @@ class Demo1A {
 class Demo2 {
     private val some = object {
         fun foo() {
-            if (state)
+            if (<!UNINITIALIZED_VARIABLE!>state<!>)
                 state = true
             else
                 state = false
@@ -51,6 +51,8 @@ class Demo2 {
 
 class Demo3 {
     private val some = run {
+        // Error is not reported here because we have here dispatch receiver that is an ExtensionReceiver
+        // (but should be "this" or "none" ==> see isThisOrNoDispatchReceiver)
         if (state)
             state = true
 
@@ -64,10 +66,10 @@ fun <T> exec(f: () -> T): T = f()
 
 class Demo4 {
     private val some = exec {
-        if (state)
+        if (<!UNINITIALIZED_VARIABLE!>state<!>)
             state = true
 
-        println(state)
+        println(<!UNINITIALIZED_VARIABLE!>state<!>)
     }
 
     private var state: Boolean = true

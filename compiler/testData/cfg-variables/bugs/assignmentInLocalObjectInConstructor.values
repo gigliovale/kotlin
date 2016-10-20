@@ -1,0 +1,68 @@
+== Test ==
+class Test {
+    val a: String
+
+    init {
+        val t = object {
+            fun some() {
+                a = "12"
+            }
+        }
+
+        a = "2"
+        t.some()
+    }
+}
+---------------------
+                                                                  <v1>: Test                 NEW: magic[IMPLICIT_RECEIVER](a) -> <v1>
+object { fun some() { a = "12" } }                                <v0>: <no name provided>   NEW: r(object { fun some() { a = "12" } }) -> <v0>
+"2"                                                               <v2>: String               NEW: r("2") -> <v2>
+t                                                                 <v3>: <no name provided>   NEW: r(t) -> <v3>
+some()                                                            <v4>: *                    NEW: call(some(), some|<v3>) -> <v4>
+t.some()                                                          <v4>: *                    COPY
+{ val t = object { fun some() { a = "12" } } a = "2" t.some() }   <v4>: *                    COPY
+=====================
+== some ==
+fun some() {
+                a = "12"
+            }
+---------------------
+               <v0>: Test     NEW: magic[IMPLICIT_RECEIVER](a) -> <v0>
+"12"           <v1>: String   NEW: r("12") -> <v1>
+a = "12"       !<v2>: *
+{ a = "12" }   !<v2>: *       COPY
+=====================
+== Test2 ==
+class Test2 {
+    init {
+        val t = object {
+            fun some() {
+                a = "12"
+            }
+        }
+
+        a = "2"
+        t.some()
+    }
+
+    val a: String
+}
+---------------------
+                                                                  <v1>: Test2                NEW: magic[IMPLICIT_RECEIVER](a) -> <v1>
+object { fun some() { a = "12" } }                                <v0>: <no name provided>   NEW: r(object { fun some() { a = "12" } }) -> <v0>
+"2"                                                               <v2>: String               NEW: r("2") -> <v2>
+t                                                                 <v3>: <no name provided>   NEW: r(t) -> <v3>
+some()                                                            <v4>: *                    NEW: call(some(), some|<v3>) -> <v4>
+t.some()                                                          <v4>: *                    COPY
+{ val t = object { fun some() { a = "12" } } a = "2" t.some() }   <v4>: *                    COPY
+=====================
+== some ==
+fun some() {
+                a = "12"
+            }
+---------------------
+               <v0>: Test2    NEW: magic[IMPLICIT_RECEIVER](a) -> <v0>
+"12"           <v1>: String   NEW: r("12") -> <v1>
+a = "12"       !<v2>: *
+{ a = "12" }   !<v2>: *       COPY
+=====================

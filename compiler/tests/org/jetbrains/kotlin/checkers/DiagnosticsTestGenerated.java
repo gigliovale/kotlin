@@ -3664,6 +3664,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("assignmentInLocalsInConstructor.kt")
+            public void testAssignmentInLocalsInConstructor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/assignmentInLocalsInConstructor.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("backingFieldInsideGetter.kt")
             public void testBackingFieldInsideGetter() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/controlFlowAnalysis/backingFieldInsideGetter.kt");

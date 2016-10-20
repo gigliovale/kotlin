@@ -1,0 +1,122 @@
+== Test ==
+class Test {
+    val a: String
+
+    init {
+        val t = object {
+            fun some() {
+                a = "12"
+            }
+        }
+
+        a = "2"
+        t.some()
+    }
+}
+---------------------
+L0:
+  1 <START>                                                                  INIT: in: {} out: {}
+    v(val a: String)                                                         INIT: in: {} out: {a=D}                     USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+  2 mark({ val t = object { fun some() { a = "12" } } a = "2" t.some() })    INIT: in: {a=D} out: {a=D}
+    v(val t = object { fun some() { a = "12" } })                            INIT: in: {a=D} out: {a=D, t=D}
+    mark(object { fun some() { a = "12" } })                                 INIT: in: {a=D, t=D} out: {a=D, t=D}
+    jmp?(L2)                                                                                                             USE: in: {a=ONLY_WRITTEN_NEVER_READ, t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    d(fun some() { a = "12" })                                               INIT: in: {a=I?, t=I?} out: {a=I?, t=I?}    USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+L2 [after local declaration]:
+    r(object { fun some() { a = "12" } }) -> <v0>                            INIT: in: {a=D, t=D} out: {a=D, t=D}
+    w(t|<v0>)                                                                INIT: in: {a=D, t=D} out: {a=D, t=ID}
+    magic[IMPLICIT_RECEIVER](a) -> <v1>                                      INIT: in: {a=D, t=ID} out: {a=D, t=ID}
+    mark("2")
+    r("2") -> <v2>                                                                                                       USE: in: {a=ONLY_WRITTEN_NEVER_READ, t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    w(a|<v1>, <v2>)                                                          INIT: in: {a=D, t=ID} out: {a=ID, t=ID}     USE: in: {t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    mark(t.some())                                                           INIT: in: {a=ID, t=ID} out: {a=ID, t=ID}    USE: in: {t=READ} out: {t=READ}
+    r(t) -> <v3>                                                                                                         USE: in: {} out: {t=READ}
+    mark(some())
+    call(some(), some|<v3>) -> <v4>
+L1:
+  1 <END>                                                                    INIT: in: {a=ID} out: {a=ID}
+error:
+    <ERROR>                                                                  INIT: in: {} out: {}
+sink:
+    <SINK>                                                                   INIT: in: {a=I?} out: {a=I?}                USE: in: {} out: {}
+=====================
+== some ==
+fun some() {
+                a = "12"
+            }
+---------------------
+L3:
+  3 <START>                                INIT: in: {a=D, t=D} out: {a=I?D, t=I?D}
+  4 mark({ a = "12" })                     INIT: in: {a=I?D, t=I?D} out: {a=I?D, t=I?D}
+    magic[IMPLICIT_RECEIVER](a) -> <v0>
+    mark("12")
+    r("12") -> <v1>                                                                        USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+    w(a|<v0>, <v1>)                        INIT: in: {a=I?D, t=I?D} out: {a=ID, t=I?D}     USE: in: {} out: {a=ONLY_WRITTEN_NEVER_READ}
+L4:
+  3 <END>                                  INIT: in: {a=ID, t=I?D} out: {a=ID, t=I?D}
+error:
+    <ERROR>                                INIT: in: {} out: {}
+sink:
+    <SINK>                                 INIT: in: {a=I?, t=I?} out: {a=I?, t=I?}        USE: in: {} out: {}
+=====================
+== Test2 ==
+class Test2 {
+    init {
+        val t = object {
+            fun some() {
+                a = "12"
+            }
+        }
+
+        a = "2"
+        t.some()
+    }
+
+    val a: String
+}
+---------------------
+L0:
+  1 <START>                                                                  INIT: in: {} out: {}                        USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+  2 mark({ val t = object { fun some() { a = "12" } } a = "2" t.some() })
+    v(val t = object { fun some() { a = "12" } })                            INIT: in: {} out: {t=D}
+    mark(object { fun some() { a = "12" } })                                 INIT: in: {t=D} out: {t=D}
+    jmp?(L2)                                                                                                             USE: in: {a=ONLY_WRITTEN_NEVER_READ, t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    d(fun some() { a = "12" })                                               INIT: in: {a=I?, t=I?} out: {a=I?, t=I?}    USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+L2 [after local declaration]:
+    r(object { fun some() { a = "12" } }) -> <v0>                            INIT: in: {t=D} out: {t=D}
+    w(t|<v0>)                                                                INIT: in: {t=D} out: {t=ID}
+    magic[IMPLICIT_RECEIVER](a) -> <v1>                                      INIT: in: {t=ID} out: {t=ID}
+    mark("2")
+    r("2") -> <v2>                                                                                                       USE: in: {a=ONLY_WRITTEN_NEVER_READ, t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    w(a|<v1>, <v2>)                                                          INIT: in: {t=ID} out: {a=I, t=ID}           USE: in: {t=READ} out: {a=ONLY_WRITTEN_NEVER_READ, t=READ}
+    mark(t.some())                                                           INIT: in: {a=I, t=ID} out: {a=I, t=ID}      USE: in: {t=READ} out: {t=READ}
+    r(t) -> <v3>                                                                                                         USE: in: {} out: {t=READ}
+    mark(some())
+    call(some(), some|<v3>) -> <v4>
+  1 v(val a: String)                                                         INIT: in: {a=I} out: {a=ID}
+L1:
+    <END>                                                                    INIT: in: {a=ID} out: {a=ID}
+error:
+    <ERROR>                                                                  INIT: in: {} out: {}
+sink:
+    <SINK>                                                                   INIT: in: {a=I?} out: {a=I?}                USE: in: {} out: {}
+=====================
+== some ==
+fun some() {
+                a = "12"
+            }
+---------------------
+L3:
+  3 <START>                                INIT: in: {t=D} out: {t=I?D}
+  4 mark({ a = "12" })                     INIT: in: {t=I?D} out: {t=I?D}
+    magic[IMPLICIT_RECEIVER](a) -> <v0>
+    mark("12")
+    r("12") -> <v1>                                                                    USE: in: {a=ONLY_WRITTEN_NEVER_READ} out: {a=ONLY_WRITTEN_NEVER_READ}
+    w(a|<v0>, <v1>)                        INIT: in: {t=I?D} out: {a=I, t=I?D}         USE: in: {} out: {a=ONLY_WRITTEN_NEVER_READ}
+L4:
+  3 <END>                                  INIT: in: {a=I, t=I?D} out: {a=I, t=I?D}
+error:
+    <ERROR>                                INIT: in: {} out: {}
+sink:
+    <SINK>                                 INIT: in: {a=I?, t=I?} out: {a=I?, t=I?}    USE: in: {} out: {}
+=====================

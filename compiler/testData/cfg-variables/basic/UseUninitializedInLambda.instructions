@@ -45,10 +45,10 @@ sink:
 { v.hashCode() }
 ---------------------
 L3:
-  3 <START>                                    INIT: in: {v=D} out: {v=D}
-  4 mark(v.hashCode())
-    mark(v.hashCode())                                                         USE: in: {v=READ} out: {v=READ}
-    r(v) -> <v0>                                                               USE: in: {} out: {v=READ}
+  3 <START>                                    INIT: in: {v=D} out: {v=I?D}
+  4 mark(v.hashCode())                         INIT: in: {v=I?D} out: {v=I?D}
+    mark(v.hashCode())                                                           USE: in: {v=READ} out: {v=READ}
+    r(v) -> <v0>                                                                 USE: in: {} out: {v=READ}
     mark(hashCode())
     call(hashCode(), hashCode|<v0>) -> <v1>
 L4:
@@ -56,5 +56,5 @@ L4:
 error:
     <ERROR>                                    INIT: in: {} out: {}
 sink:
-    <SINK>                                     INIT: in: {v=I?} out: {v=I?}    USE: in: {} out: {}
+    <SINK>                                     INIT: in: {v=I?} out: {v=I?}      USE: in: {} out: {}
 =====================

@@ -433,7 +433,7 @@ class PSICallResolver(
             val newDataFlowInfo = (lhsResult as? DoubleColonLHS.Expression)?.dataFlowInfo ?: startDataFlowInfo
 
             // todo ChosenCallableReferenceDescriptor
-            val argument = CallableReferenceArgumentImpl(valueArgument, newDataFlowInfo,
+            val argument = CallableReferenceArgumentImpl(valueArgument, startDataFlowInfo, newDataFlowInfo,
                                                          ktExpression, argumentName, (lhsResult as? DoubleColonLHS.Type)?.type?.unwrap(),
                                                          ConstraintStorage.Empty) // todo
 

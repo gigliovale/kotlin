@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.diagnostics.Errors.BadNamedArgumentsTarget.*
 import org.jetbrains.kotlin.psi.Call
+import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.components.*
@@ -108,7 +109,8 @@ class DiagnosticReporterByTrackingStrategy(
     private fun reportSmartCast(smartCastDiagnostic: SmartCastDiagnostic) {
         val expressionArgument = smartCastDiagnostic.expressionArgument
         if (expressionArgument is ExpressionArgumentImpl) {
-            val argumentExpression = expressionArgument.valueArgument.getArgumentExpression()
+            val context = context.replaceDataFlowInfo(expressionArgument.dataFlowInfoBeforeThisArgument)
+            val argumentExpression = KtPsiUtil.getLastElementDeparenthesized(expressionArgument.valueArgument.getArgumentExpression (), context.statementFilter)
             val dataFlowValue = DataFlowValueFactory.createDataFlowValue(expressionArgument.receiver.receiverValue, context)
             SmartCastManager.checkAndRecordPossibleCast(
                     dataFlowValue, smartCastDiagnostic.smartCastType, argumentExpression, context, call,

@@ -43,6 +43,7 @@ class SimpleTypeArgumentImpl(
 // But receivers is not, because for them there is no corresponding valueArgument
 abstract class PSICallArgument: CallArgument {
     abstract val valueArgument: ValueArgument
+    abstract val dataFlowInfoBeforeThisArgument: DataFlowInfo
     abstract val dataFlowInfoAfterThisArgument: DataFlowInfo
 
     override fun toString() = valueArgument.getArgumentExpression()?.text?.replace('\n', ' ') ?: valueArgument.toString()
@@ -75,30 +76,40 @@ class ParseErrorArgument(
 
     override val isSpread: Boolean get() = valueArgument.getSpreadElement() != null
     override val argumentName: Name? get() = valueArgument.getArgumentName()?.asName
+
+    override val dataFlowInfoBeforeThisArgument: DataFlowInfo
+        get() = dataFlowInfoAfterThisArgument
 }
 
 class LambdaArgumentIml(
         val outerCallContext: BasicCallResolutionContext,
         override val valueArgument: ValueArgument,
-        override val dataFlowInfoAfterThisArgument: DataFlowInfo,
+        override val dataFlowInfoBeforeThisArgument: DataFlowInfo,
         val ktLambdaExpression: KtLambdaExpression,
         override val argumentName: Name?,
         override val parametersTypes: Array<UnwrappedType?>?
-) : LambdaArgument, PSICallArgument()
+) : LambdaArgument, PSICallArgument() {
+    override val dataFlowInfoAfterThisArgument: DataFlowInfo
+        get() = dataFlowInfoBeforeThisArgument
+}
 
 class FunctionExpressionImpl(
         val outerCallContext: BasicCallResolutionContext,
         override val valueArgument: ValueArgument,
-        override val dataFlowInfoAfterThisArgument: DataFlowInfo,
+        override val dataFlowInfoBeforeThisArgument: DataFlowInfo,
         val ktFunction: KtNamedFunction,
         override val argumentName: Name?,
         override val receiverType: UnwrappedType?,
         override val parametersTypes: Array<UnwrappedType?>,
         override val returnType: UnwrappedType?
-) : FunctionExpression, PSICallArgument()
+) : FunctionExpression, PSICallArgument() {
+    override val dataFlowInfoAfterThisArgument: DataFlowInfo
+        get() = dataFlowInfoBeforeThisArgument
+}
 
 class CallableReferenceArgumentImpl(
         override val valueArgument: ValueArgument,
+        override val dataFlowInfoBeforeThisArgument: DataFlowInfo,
         override val dataFlowInfoAfterThisArgument: DataFlowInfo,
         val ktCallableReferenceExpression: KtCallableReferenceExpression,
         override val argumentName: Name?,
@@ -108,6 +119,7 @@ class CallableReferenceArgumentImpl(
 
 class SubCallArgumentImpl(
         override val valueArgument: ValueArgument,
+        override val dataFlowInfoBeforeThisArgument: DataFlowInfo,
         override val dataFlowInfoAfterThisArgument: DataFlowInfo,
         override val receiver: ReceiverValueWithSmartCastInfo,
         override val resolvedCall: BaseResolvedCall.OnlyResolvedCall
@@ -119,6 +131,7 @@ class SubCallArgumentImpl(
 
 class ExpressionArgumentImpl(
         override val valueArgument: ValueArgument,
+        override val dataFlowInfoBeforeThisArgument: DataFlowInfo,
         override val dataFlowInfoAfterThisArgument: DataFlowInfo,
         override val receiver: ReceiverValueWithSmartCastInfo
 ): PSICallArgument(), ExpressionArgument {
@@ -156,10 +169,10 @@ internal fun createSimplePSICallArgument(
     )
 
     return if (onlyResolvedCall == null) {
-        ExpressionArgumentImpl(valueArgument, typeInfo.dataFlowInfo, receiverToCast)
+        ExpressionArgumentImpl(valueArgument, context.dataFlowInfo, typeInfo.dataFlowInfo, receiverToCast)
     }
     else {
-        SubCallArgumentImpl(valueArgument, typeInfo.dataFlowInfo, receiverToCast, onlyResolvedCall)
+        SubCallArgumentImpl(valueArgument, context.dataFlowInfo, typeInfo.dataFlowInfo, receiverToCast, onlyResolvedCall)
     }
 
 }

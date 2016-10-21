@@ -48,12 +48,13 @@ interface LambdaAnalyzer {
 
 sealed class CompletedCall {
     abstract val lastCall: Simple
+    abstract val resolutionStatus: ResolutionCandidateStatus
 
     class Simple(
             val astCall: ASTCall,
             val candidateDescriptor: CallableDescriptor,
             val resultingDescriptor: CallableDescriptor,
-            val resolutionStatus: ResolutionCandidateStatus,
+            override val resolutionStatus: ResolutionCandidateStatus,
             val explicitReceiverKind: ExplicitReceiverKind,
             val dispatchReceiver: ReceiverValueWithSmartCastInfo?,
             val extensionReceiver: ReceiverValueWithSmartCastInfo?,
@@ -69,6 +70,9 @@ sealed class CompletedCall {
             val invokeCall: Simple
     ): CompletedCall() {
         override val lastCall: Simple get() = invokeCall
+
+        override val resolutionStatus: ResolutionCandidateStatus =
+                ResolutionCandidateStatus(variableCall.resolutionStatus.diagnostics + invokeCall.resolutionStatus.diagnostics)
     }
 }
 

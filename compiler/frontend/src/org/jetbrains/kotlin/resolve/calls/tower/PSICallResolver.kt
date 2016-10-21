@@ -146,17 +146,29 @@ class PSICallResolver(
             }
             else -> {
                 val resolvedCalls = result.map { astToResolvedCallTransformer.transformAndReport<D>(it, context, trace = null) }
-                tracingStrategy.recordAmbiguity(trace, resolvedCalls)
-                if(resolvedCalls.first().status == ResolutionStatus.INCOMPLETE_TYPE_INFERENCE) {
-                    tracingStrategy.cannotCompleteResolve(trace, resolvedCalls)
+                if (result.areAllCompletedAndFailed()) {
+                    tracingStrategy.noneApplicable(trace, resolvedCalls)
+                    tracingStrategy.recordAmbiguity(trace, resolvedCalls)
                 }
                 else {
-                    tracingStrategy.ambiguity(trace, resolvedCalls)
+                    tracingStrategy.recordAmbiguity(trace, resolvedCalls)
+                    if (resolvedCalls.first().status == ResolutionStatus.INCOMPLETE_TYPE_INFERENCE) {
+                        tracingStrategy.cannotCompleteResolve(trace, resolvedCalls)
+                    }
+                    else {
+                        tracingStrategy.ambiguity(trace, resolvedCalls)
+                    }
                 }
                 return ManyCandidates(resolvedCalls)
             }
         }
     }
+
+    private fun Collection<BaseResolvedCall>.areAllCompletedAndFailed() =
+            all {
+                it is BaseResolvedCall.CompletedResolvedCall &&
+                !it.completedCall.resolutionStatus.resultingApplicability.isSuccess
+            }
 
     // true if we found something
     private fun reportAdditionalDiagnosticIfNoCandidates(

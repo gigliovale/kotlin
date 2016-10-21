@@ -38,6 +38,10 @@ object JarUserDataManager {
     val fileAttributeService: FileAttributeService? = ServiceManager.getService(FileAttributeService::class.java)
 
     fun register(counter: JarBooleanPropertyCounter) {
+        println("register: ${counter.key}")
+        if (fileAttributeService == null) {
+            println("!!! fileAttributeService == null !!!")
+        }
         fileAttributeService?.register(counter.key.toString(), version)
     }
 

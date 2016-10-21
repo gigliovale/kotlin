@@ -37,6 +37,7 @@ import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.results.ResolutionStatus
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
+import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -50,7 +51,8 @@ class ASTToResolvedCallTransformer(
         private val callCheckers: Iterable<CallChecker>,
         private val languageFeatureSettings: LanguageVersionSettings,
         private val dataFlowAnalyzer: DataFlowAnalyzer,
-        private val argumentTypeResolver: ArgumentTypeResolver
+        private val argumentTypeResolver: ArgumentTypeResolver,
+        private val constantExpressionEvaluator: ConstantExpressionEvaluator
 ) {
 
     fun <D : CallableDescriptor> transformAndReport(
@@ -179,7 +181,8 @@ class ASTToResolvedCallTransformer(
             trace: BindingTrace,
             completedCall: CompletedCall.Simple
     ) {
-        val diagnosticReporter = DiagnosticReporterByTrackingStrategy(context, trace, completedCall.astCall.psiAstCall)
+        val diagnosticReporter = DiagnosticReporterByTrackingStrategy(constantExpressionEvaluator, context, trace,
+                                                                      completedCall.astCall.psiAstCall)
         for (diagnostic in completedCall.resolutionStatus.diagnostics) {
             diagnostic.report(diagnosticReporter)
         }

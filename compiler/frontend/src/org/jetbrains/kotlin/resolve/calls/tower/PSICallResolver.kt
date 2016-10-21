@@ -359,11 +359,10 @@ class PSICallResolver(
 
     private fun resolveTypeArguments(context: BasicCallResolutionContext, typeArguments: List<KtTypeProjection>): List<TypeArgument> =
             typeArguments.map { projection ->
-                ModifierCheckerCore.check(projection, context.trace, null, languageVersionSettings)
-
-                if (projection.projectionKind == KtProjectionKind.STAR) {
+                if (projection.projectionKind != KtProjectionKind.NONE) {
                     context.trace.report(Errors.PROJECTION_ON_NON_CLASS_TYPE_ARGUMENT.on(projection))
                 }
+                ModifierCheckerCore.check(projection, context.trace, null, languageVersionSettings)
 
                 resolveType(context, projection.typeReference)?.let { SimpleTypeArgumentImpl(projection.typeReference!!, it) }  ?: TypeArgumentPlaceholder
             }

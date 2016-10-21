@@ -224,7 +224,7 @@ class ASTCallCompleter(
     // true if we should complete this call
     private fun SimpleResolutionCandidate.prepareForCompletion(expectedType: UnwrappedType?): Boolean {
         val returnType = descriptorWithFreshTypes.returnType?.unwrap() ?: return false
-        if (expectedType != null && expectedType !== TypeUtils.NO_EXPECTED_TYPE) {
+        if (expectedType != null && !TypeUtils.noExpectedType(expectedType)) {
             csBuilder.addSubtypeConstraint(returnType, expectedType, ExpectedTypeConstraintPosition(astCall))
         }
 

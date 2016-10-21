@@ -16,21 +16,17 @@
 
 package org.jetbrains.kotlin.resolve
 
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.composeContainer
 import org.jetbrains.kotlin.container.useInstance
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
 import org.jetbrains.kotlin.resolve.calls.checkers.*
 import org.jetbrains.kotlin.resolve.calls.results.TypeSpecificityComparator
 import org.jetbrains.kotlin.resolve.checkers.*
 import org.jetbrains.kotlin.resolve.scopes.SyntheticConstructorsProvider
 import org.jetbrains.kotlin.resolve.scopes.SyntheticScopes
-import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.DynamicTypesSettings
+import java.util.*
 
 abstract class TargetPlatform(val platformName: String) {
     override fun toString() = platformName
@@ -39,7 +35,15 @@ abstract class TargetPlatform(val platformName: String) {
     abstract val defaultImports: List<ImportPath>
 
     object Default : TargetPlatform("Default") {
-        override val defaultImports = emptyList<ImportPath>()
+        override val defaultImports: List<ImportPath> = ArrayList<ImportPath>().apply {
+            add(ImportPath("kotlin.*"))
+            add(ImportPath("kotlin.annotation.*"))
+            add(ImportPath("kotlin.collections.*"))
+            add(ImportPath("kotlin.ranges.*"))
+            add(ImportPath("kotlin.sequences.*"))
+            add(ImportPath("kotlin.text.*"))
+        }
+
         override val platformConfigurator =
                 object : PlatformConfigurator(DynamicTypesSettings(), listOf(), listOf(), listOf(), listOf(), listOf(),
                                               IdentifierChecker.DEFAULT, OverloadFilter.DEFAULT, PlatformToKotlinClassMap.EMPTY) {
@@ -103,15 +107,6 @@ abstract class PlatformConfigurator(
         useInstance(platformToKotlinClassMap)
     }
 }
-
-@JvmOverloads
-fun TargetPlatform.createModule(
-        name: Name,
-        storageManager: StorageManager,
-        builtIns: KotlinBuiltIns,
-        capabilities: Map<ModuleDescriptor.Capability<*>, Any?> = emptyMap()
-) = ModuleDescriptorImpl(name, storageManager, defaultImports, builtIns, capabilities)
-
 
 fun createContainer(id: String, platform: TargetPlatform, init: StorageComponentContainer.() -> Unit)
         = composeContainer(id, platform.platformConfigurator.platformSpecificContainer, init)

@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.descriptors.impl.TypeParameterDescriptorImpl;
 import org.jetbrains.kotlin.incremental.components.LookupLocation;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
-import org.jetbrains.kotlin.resolve.ImportPath;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter;
 import org.jetbrains.kotlin.resolve.scopes.MemberScope;
@@ -58,27 +57,13 @@ public class ErrorUtils {
 
             @NotNull
             @Override
-            public List<ImportPath> getDefaultImports() {
-                return emptyList();
-            }
-
-            @NotNull
-            @Override
-            public List<FqName> getEffectivelyExcludedImports() {
-                return emptyList();
-            }
-
-            @NotNull
-            @Override
             public Annotations getAnnotations() {
                 return Annotations.Companion.getEMPTY();
             }
 
             @NotNull
             @Override
-            public Collection<FqName> getSubPackagesOf(
-                    @NotNull FqName fqName, @NotNull Function1<? super Name, Boolean> nameFilter
-            ) {
+            public Collection<FqName> getSubPackagesOf(@NotNull FqName fqName, @NotNull Function1<? super Name, Boolean> nameFilter) {
                 return emptyList();
             }
 
@@ -92,6 +77,12 @@ public class ErrorUtils {
             @Override
             public PackageViewDescriptor getPackage(@NotNull FqName fqName) {
                 throw new IllegalStateException("Should not be called!");
+            }
+
+            @NotNull
+            @Override
+            public List<ModuleDescriptor> getAllDependentModules() {
+                return emptyList();
             }
 
             @Override

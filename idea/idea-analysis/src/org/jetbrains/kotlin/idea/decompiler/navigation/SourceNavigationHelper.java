@@ -57,7 +57,6 @@ import org.jetbrains.kotlin.platform.JavaToKotlinClassMap;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingTraceContext;
 import org.jetbrains.kotlin.resolve.TargetPlatform;
-import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform;
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory;
@@ -237,7 +236,7 @@ public class SourceNavigationHelper {
             @NotNull Project project
     ) {
         MutableModuleContext newModuleContext = ContextKt.ContextForNewModule(
-                project, Name.special("<library module>"), JvmPlatform.INSTANCE.getDefaultImports(), DefaultBuiltIns.getInstance()
+                ContextKt.ProjectContext(project), Name.special("<library module>"), DefaultBuiltIns.getInstance()
         );
 
         newModuleContext.setDependencies(newModuleContext.getModule(), newModuleContext.getModule().getBuiltIns().getBuiltInsModule());

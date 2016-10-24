@@ -5308,6 +5308,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/destructuringDeclarations/SingleDeclForLoop.kt");
                     doTest(fileName);
                 }
+
+                @TestMetadata("underscore.kt")
+                public void testUnderscore() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/declarationChecks/destructuringDeclarations/underscore.kt");
+                    doTest(fileName);
+                }
             }
 
             @TestMetadata("compiler/testData/diagnostics/tests/declarationChecks/finiteBoundRestriction")
@@ -7662,6 +7668,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("underscopeParameters.kt")
+            public void testUnderscopeParameters() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/underscopeParameters.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("unusedLiteral.kt")
             public void testUnusedLiteral() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/unusedLiteral.kt");
@@ -7724,9 +7736,21 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("underscore.kt")
+                public void testUnderscore() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/destructuringInLambdas/underscore.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("unsupportedFeature.kt")
                 public void testUnsupportedFeature() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/destructuringInLambdas/unsupportedFeature.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("unusedParameters.kt")
+                public void testUnusedParameters() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/destructuringInLambdas/unusedParameters.kt");
                     doTest(fileName);
                 }
             }

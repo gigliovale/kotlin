@@ -18,9 +18,11 @@ package org.jetbrains.kotlin.idea.intentions.loopToCallChain
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.UserDataHolderBase
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
+import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
 import org.jetbrains.kotlin.diagnostics.Severity
 import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
@@ -230,7 +232,7 @@ fun canChangeLocalVariableType(variable: KtProperty, newTypeText: String, loop: 
 
 fun <TExpression : KtExpression> tryChangeAndCheckErrors(
         expressionToChange: TExpression,
-        scopeToExclude: KtElement,
+        scopeToExclude: KtElement? = null,
         performChange: (TExpression) -> Unit
 ): Boolean {
     val bindingContext = expressionToChange.analyze(BodyResolveMode.FULL)
@@ -244,21 +246,30 @@ fun <TExpression : KtExpression> tryChangeAndCheckErrors(
     // we declare these keys locally to avoid possible race-condition problems if this code is executed in 2 threads simultaneously
     val EXPRESSION = Key<Unit>("EXPRESSION")
     val SCOPE_TO_EXCLUDE = Key<Unit>("SCOPE_TO_EXCLUDE")
+    val ERRORS_BEFORE = Key<Collection<DiagnosticFactory<*>>>("ERRORS_BEFORE")
 
     expressionToChange.putCopyableUserData(EXPRESSION, Unit)
-    scopeToExclude.putCopyableUserData(SCOPE_TO_EXCLUDE, Unit)
+    scopeToExclude?.putCopyableUserData(SCOPE_TO_EXCLUDE, Unit)
+
+    block.forEachDescendantOfType<PsiElement> { element ->
+        val errors = bindingContext.diagnostics.forElement(element)
+                .filter { it.severity == Severity.ERROR }
+        if (errors.isNotEmpty()) {
+            element.putCopyableUserData(ERRORS_BEFORE, errors.map { it.factory })
+        }
+    }
 
     val blockCopy = block.copied()
     val expressionCopy: TExpression
-    val scopeToExcludeCopy: KtElement
+    val scopeToExcludeCopy: KtElement?
     @Suppress("UNCHECKED_CAST")
     try {
         expressionCopy = blockCopy.findDescendantOfType<KtExpression> { it.getCopyableUserData(EXPRESSION) != null } as TExpression
-        scopeToExcludeCopy = blockCopy.findDescendantOfType<KtElement> { it.getCopyableUserData(SCOPE_TO_EXCLUDE) != null }!!
+        scopeToExcludeCopy = blockCopy.findDescendantOfType<KtElement> { it.getCopyableUserData(SCOPE_TO_EXCLUDE) != null }
     }
     finally {
         expressionToChange.putCopyableUserData(EXPRESSION, null)
-        scopeToExclude.putCopyableUserData(SCOPE_TO_EXCLUDE, null)
+        scopeToExclude?.putCopyableUserData(SCOPE_TO_EXCLUDE, null)
     }
 
     performChange(expressionCopy)
@@ -268,8 +279,11 @@ fun <TExpression : KtExpression> tryChangeAndCheckErrors(
                                                        contextExpression = block,
                                                        dataFlowInfo = bindingContext.getDataFlowInfo(block),
                                                        trace = DelegatingBindingTrace(bindingContext, "Temporary trace"))
-    //TODO: what if there were errors before?
-    return newBindingContext.diagnostics.none { it.severity == Severity.ERROR && !scopeToExcludeCopy.isAncestor(it.psiElement) }
+    return newBindingContext.diagnostics.none {
+        it.severity == Severity.ERROR
+            && !scopeToExcludeCopy.isAncestor(it.psiElement)
+            && it.factory !in (it.psiElement.getCopyableUserData(ERRORS_BEFORE) ?: emptyList())
+    }
 }
 
 private val NO_SIDE_EFFECT_STANDARD_CLASSES = setOf(

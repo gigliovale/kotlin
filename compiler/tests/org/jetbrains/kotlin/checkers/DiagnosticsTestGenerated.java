@@ -655,6 +655,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("SingleUnderscoreUnsupported.kt")
+        public void testSingleUnderscoreUnsupported() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/SingleUnderscoreUnsupported.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("StarsInFunctionCalls.kt")
         public void testStarsInFunctionCalls() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/StarsInFunctionCalls.kt");
@@ -7709,6 +7715,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("inferredFunctionalType.kt")
                 public void testInferredFunctionalType() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/destructuringInLambdas/inferredFunctionalType.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("modifiers.kt")
+                public void testModifiers() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/functionLiterals/destructuringInLambdas/modifiers.kt");
                     doTest(fileName);
                 }
 

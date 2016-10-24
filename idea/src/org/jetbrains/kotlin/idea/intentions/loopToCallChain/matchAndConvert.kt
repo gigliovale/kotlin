@@ -48,7 +48,7 @@ object MatcherRegistrar {
             SumTransformationBase.Matcher,
             MaxOrMinTransformation.Matcher,
             IntroduceIndexMatcher,
-            FilterTransformation.Matcher,
+            FilterTransformationBase.Matcher,
             MapTransformation.Matcher,
             FlatMapTransformation.Matcher,
             ForEachTransformation.Matcher
@@ -293,8 +293,8 @@ private fun checkSmartCastsPreserved(loop: KtForExpression, matchResult: MatchRe
         if (preservedSmartCastCount == smartCastCount) return true
 
         // not all smart cast expressions has been found in the result or have the same type after conversion, perform more expensive check
-        val expressionToBeReplaced = matchResult.transformationMatch.resultTransformation.expressionToBeReplacedByResultCallChain
-        if (!tryChangeAndCheckErrors(expressionToBeReplaced, loop) { it.replace(callChain) }) return false
+        val expression = matchResult.transformationMatch.resultTransformation.generateExpressionToReplaceLoopAndCheckErrors(callChain)
+        if (!tryChangeAndCheckErrors(loop) { it.replace(expression) }) return false
 
         return true
     }

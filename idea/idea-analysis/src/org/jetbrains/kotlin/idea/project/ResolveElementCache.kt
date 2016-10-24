@@ -217,7 +217,9 @@ class ResolveElementCache(
                 contextElements
                         .map { it.getNonStrictParentOfType<KtDeclaration>() }
                         .filterNotNull()
-                        .filterTo(declarationsToResolve) { it !is KtAnonymousInitializer }
+                        .filterTo(declarationsToResolve) {
+                            it !is KtAnonymousInitializer && it !is KtDestructuringDeclaration && it !is KtDestructuringDeclarationEntry
+                        }
                 addResolveSessionBindingContext = true
             }
         }

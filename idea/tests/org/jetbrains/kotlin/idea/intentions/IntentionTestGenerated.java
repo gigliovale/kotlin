@@ -2768,6 +2768,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("destructuringPropertyException.kt")
+            public void testDestructuringPropertyException() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/changeVisibility/public/destructuringPropertyException.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("primaryConstructor.kt")
             public void testPrimaryConstructor() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/changeVisibility/public/primaryConstructor.kt");
@@ -6281,6 +6287,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("DeclarationInside.kt")
         public void testDeclarationInside() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/deprecatedCallableAddReplaceWith/DeclarationInside.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("ExceptionInPropertyDestructuringEntry.kt")
+        public void testExceptionInPropertyDestructuringEntry() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/deprecatedCallableAddReplaceWith/ExceptionInPropertyDestructuringEntry.kt");
             doTest(fileName);
         }
 
@@ -11161,6 +11173,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceArrayEqualityOpWithArraysEquals/arrayEQEQ.kt");
             doTest(fileName);
         }
+
+        @TestMetadata("primitiveArrayEQEQ.kt")
+        public void testPrimitiveArrayEQEQ() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceArrayEqualityOpWithArraysEquals/primitiveArrayEQEQ.kt");
+            doTest(fileName);
+        }
     }
 
     @TestMetadata("idea/testData/intentions/replaceExplicitFunctionLiteralParamWithIt")
@@ -11555,6 +11573,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("collection.kt")
+        public void testCollection() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/collection.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("gt.kt")
         public void testGt() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/gt.kt");
@@ -11591,6 +11615,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("map.kt")
+        public void testMap() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/map.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("oppositeSign.kt")
         public void testOppositeSign() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/oppositeSign.kt");
@@ -11600,6 +11630,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("oppositeSign2.kt")
         public void testOppositeSign2() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/oppositeSign2.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("primitiveArray.kt")
+        public void testPrimitiveArray() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/replaceSizeCheckWithIsNotEmpty/primitiveArray.kt");
             doTest(fileName);
         }
 

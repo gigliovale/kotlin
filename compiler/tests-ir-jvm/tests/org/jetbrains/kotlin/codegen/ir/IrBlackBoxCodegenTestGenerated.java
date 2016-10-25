@@ -13846,6 +13846,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             doTest(fileName);
         }
 
+        @TestMetadata("hashCodeNPE.kt")
+        public void testHashCodeNPE() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/regressions/hashCodeNPE.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("internalTopLevelOtherPackage.kt")
         public void testInternalTopLevelOtherPackage() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/regressions/internalTopLevelOtherPackage.kt");
@@ -13891,6 +13897,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
         @TestMetadata("kt1406.kt")
         public void testKt1406() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/regressions/kt1406.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("kt14447.kt")
+        public void testKt14447() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/regressions/kt14447.kt");
             doTest(fileName);
         }
 

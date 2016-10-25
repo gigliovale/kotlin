@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.builtins.functions
 
+import org.jetbrains.kotlin.builtins.BuiltInsPackageFragment
 import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor.Kind
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -79,8 +80,14 @@ class BuiltInFictitiousFunctionClassFactory(
         val packageFqName = classId.packageFqName
         val (kind, arity) = parseClassName(className, packageFqName) ?: return null
 
-        val containingPackageFragment = module.getPackage(packageFqName).fragments.single()
+        val containingPackageFragment = module.getPackage(packageFqName).fragments.filterIsInstance<BuiltInsPackageFragment>().single()
 
         return FunctionClassDescriptor(storageManager, containingPackageFragment, kind, arity)
+    }
+
+    override fun getAllContributedClassesIfPossible(packageFqName: FqName): Collection<ClassDescriptor> {
+        // We don't want to return 256 classes here since it would cause them to appear in every import list of every file
+        // and likely slow down compilation very much
+        return emptySet()
     }
 }

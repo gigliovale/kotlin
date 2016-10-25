@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.builtins;
 
-import kotlin.collections.SetsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +31,7 @@ import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.scopes.MemberScope;
 import org.jetbrains.kotlin.serialization.deserialization.AdditionalClassPartsProvider;
+import org.jetbrains.kotlin.serialization.deserialization.ClassDescriptorFactory;
 import org.jetbrains.kotlin.serialization.deserialization.PlatformDependentDeclarationFilter;
 import org.jetbrains.kotlin.storage.StorageManager;
 import org.jetbrains.kotlin.types.*;
@@ -67,7 +67,6 @@ public abstract class KotlinBuiltIns {
     private final ModuleDescriptorImpl builtInsModule;
     private final PackageFragmentDescriptor builtInsPackageFragment;
     private final PackageFragmentDescriptor collectionsPackageFragment;
-    private final PackageFragmentDescriptor rangesPackageFragment;
     private final PackageFragmentDescriptor annotationPackageFragment;
 
     private final Set<PackageFragmentDescriptor> builtInsPackageFragments;
@@ -86,7 +85,7 @@ public abstract class KotlinBuiltIns {
 
         PackageFragmentProvider packageFragmentProvider = BuiltInsPackageFragmentProviderKt.createBuiltInPackageFragmentProvider(
                 storageManager, builtInsModule, BUILT_INS_PACKAGE_FQ_NAMES,
-                new BuiltInFictitiousFunctionClassFactory(storageManager, builtInsModule),
+                getClassDescriptorFactories(),
                 getPlatformDependentDeclarationFilter(),
                 getAdditionalClassPartsProvider(),
                 new Function1<String, InputStream>() {
@@ -105,7 +104,7 @@ public abstract class KotlinBuiltIns {
 
         builtInsPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, BUILT_INS_PACKAGE_FQ_NAME);
         collectionsPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, COLLECTIONS_PACKAGE_FQ_NAME);
-        rangesPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, RANGES_PACKAGE_FQ_NAME);
+        createPackage(packageFragmentProvider, packageNameToPackageFragment, RANGES_PACKAGE_FQ_NAME);
         annotationPackageFragment = createPackage(packageFragmentProvider, packageNameToPackageFragment, ANNOTATION_PACKAGE_FQ_NAME);
         createPackage(packageFragmentProvider, packageNameToPackageFragment, COROUTINES_PACKAGE_FQ_NAME);
 
@@ -127,6 +126,11 @@ public abstract class KotlinBuiltIns {
     @NotNull
     protected PlatformDependentDeclarationFilter getPlatformDependentDeclarationFilter() {
         return PlatformDependentDeclarationFilter.NoPlatformDependent.INSTANCE;
+    }
+
+    @NotNull
+    protected Iterable<ClassDescriptorFactory> getClassDescriptorFactories() {
+        return Collections.<ClassDescriptorFactory>singletonList(new BuiltInFictitiousFunctionClassFactory(storageManager, builtInsModule));
     }
 
     private void makePrimitive(@NotNull PrimitiveType primitiveType) {
@@ -182,6 +186,10 @@ public abstract class KotlinBuiltIns {
 
         public final FqName throwable = fqName("Throwable");
         public final FqName comparable = fqName("Comparable");
+
+        public final FqNameUnsafe charRange = rangesFqName("CharRange");
+        public final FqNameUnsafe intRange = rangesFqName("IntRange");
+        public final FqNameUnsafe longRange = rangesFqName("LongRange");
 
         public final FqName deprecated = fqName("Deprecated");
         public final FqName deprecationLevel = fqName("DeprecationLevel");
@@ -247,6 +255,11 @@ public abstract class KotlinBuiltIns {
         @NotNull
         private static FqName collectionsFqName(@NotNull String simpleName) {
             return COLLECTIONS_PACKAGE_FQ_NAME.child(Name.identifier(simpleName));
+        }
+
+        @NotNull
+        private static FqNameUnsafe rangesFqName(@NotNull String simpleName) {
+            return RANGES_PACKAGE_FQ_NAME.child(Name.identifier(simpleName)).toUnsafe();
         }
 
         @NotNull
@@ -395,15 +408,6 @@ public abstract class KotlinBuiltIns {
     }
 
     @NotNull
-    public Set<DeclarationDescriptor> getIntegralRanges() {
-        return SetsKt.<DeclarationDescriptor>setOf(
-                getBuiltInClassByName("CharRange", rangesPackageFragment),
-                getBuiltInClassByName("IntRange", rangesPackageFragment),
-                getBuiltInClassByName("LongRange", rangesPackageFragment)
-        );
-    }
-
-    @NotNull
     public ClassDescriptor getArray() {
         return getBuiltInClassByName("Array");
     }
@@ -429,8 +433,8 @@ public abstract class KotlinBuiltIns {
     }
 
     @NotNull
-    public static FqName getFunctionFqName(int parameterCount) {
-        return BUILT_INS_PACKAGE_FQ_NAME.child(Name.identifier(getFunctionName(parameterCount)));
+    public static ClassId getFunctionClassId(int parameterCount) {
+        return new ClassId(BUILT_INS_PACKAGE_FQ_NAME, Name.identifier(getFunctionName(parameterCount)));
     }
 
     @NotNull
@@ -441,11 +445,6 @@ public abstract class KotlinBuiltIns {
     @NotNull
     public ClassDescriptor getThrowable() {
         return getBuiltInClassByName("Throwable");
-    }
-
-    @NotNull
-    public ClassDescriptor getCloneable() {
-        return getBuiltInClassByName("Cloneable");
     }
 
     @NotNull

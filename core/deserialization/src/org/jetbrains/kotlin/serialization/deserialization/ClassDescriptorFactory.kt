@@ -26,9 +26,6 @@ interface ClassDescriptorFactory {
 
     fun createClass(classId: ClassId): ClassDescriptor?
 
-    object EMPTY : ClassDescriptorFactory {
-        override fun shouldCreateClass(packageFqName: FqName, name: Name): Boolean = false
-
-        override fun createClass(classId: ClassId): ClassDescriptor? = null
-    }
+    // Note: do not rely on this function to return _all_ classes. Some factories can not enumerate all classes that they're able to create
+    fun getAllContributedClassesIfPossible(packageFqName: FqName): Collection<ClassDescriptor>
 }

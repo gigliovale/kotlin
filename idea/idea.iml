@@ -54,6 +54,6 @@
     <orderEntry type="library" name="java-decompiler-plugin" level="project" />
     <orderEntry type="module" module-name="formatter" />
     <orderEntry type="module" module-name="idea-maven" />
-    <orderEntry type="module" module-name="idea-replacement-engine" />
+    <orderEntry type="module" module-name="idea-code-inliner" />
   </component>
 </module>

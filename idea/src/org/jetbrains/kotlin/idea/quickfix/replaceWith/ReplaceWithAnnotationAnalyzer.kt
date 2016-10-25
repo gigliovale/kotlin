@@ -21,8 +21,8 @@ import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.idea.references.mainReference
-import org.jetbrains.kotlin.idea.replacement.ReplacementBuilder
-import org.jetbrains.kotlin.idea.replacement.ReplacementCode
+import org.jetbrains.kotlin.idea.inliner.CodeToInlineBuilder
+import org.jetbrains.kotlin.idea.inliner.CodeToInline
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.FqNameUnsafe
@@ -48,7 +48,7 @@ object ReplaceWithAnnotationAnalyzer {
             annotation: ReplaceWith,
             symbolDescriptor: CallableDescriptor,
             resolutionFacade: ResolutionFacade
-    ): ReplacementCode? {
+    ): CodeToInline? {
         val originalDescriptor = (if (symbolDescriptor is CallableMemberDescriptor)
             DescriptorUtils.unwrapFakeOverride(symbolDescriptor)
         else
@@ -60,7 +60,7 @@ object ReplaceWithAnnotationAnalyzer {
             annotation: ReplaceWith,
             symbolDescriptor: CallableDescriptor,
             resolutionFacade: ResolutionFacade
-    ): ReplacementCode? {
+    ): CodeToInline? {
         val psiFactory = KtPsiFactory(resolutionFacade.project)
         val expression = try {
             psiFactory.createExpression(annotation.pattern)
@@ -87,8 +87,8 @@ object ReplaceWithAnnotationAnalyzer {
             return expression.analyzeInContext(scope, expressionTypingServices = expressionTypingServices)
         }
 
-        return ReplacementBuilder(symbolDescriptor, resolutionFacade)
-                .buildReplacementCode(expression, emptyList(), ::analyzeExpression, importFqNames = importFqNames(annotation))
+        return CodeToInlineBuilder(symbolDescriptor, resolutionFacade)
+                .prepareCodeToInline(expression, emptyList(), ::analyzeExpression, importFqNames = importFqNames(annotation))
     }
 
     fun analyzeClassReplacement(

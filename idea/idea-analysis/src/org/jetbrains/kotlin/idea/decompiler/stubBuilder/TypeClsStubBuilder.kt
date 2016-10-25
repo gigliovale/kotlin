@@ -55,20 +55,23 @@ class TypeClsStubBuilder(private val c: ClsStubBuilderContext) {
             isTopLevelClass && it.asSingleFqName() in ANNOTATIONS_NOT_LOADED_FOR_TYPES
         }
 
-        val effectiveParent =
-                if (type.nullable) KotlinPlaceHolderStubImpl<KtNullableType>(typeReference, KtStubElementTypes.NULLABLE_TYPE)
-                else typeReference
-
-        fun createTypeParameterStub(name: Name) {
-            createTypeAnnotationStubs(effectiveParent, annotations)
-            createStubForTypeName(ClassId.topLevel(FqName.topLevel(name)), effectiveParent)
-        }
-
         when {
-            type.hasClassName() || type.hasTypeAliasName() -> createClassReferenceTypeStub(effectiveParent, type, annotations)
-            type.hasTypeParameter() -> createTypeParameterStub(c.typeParameters[type.typeParameter])
-            type.hasTypeParameterName() -> createTypeParameterStub(c.nameResolver.getName(type.typeParameterName))
+            type.hasClassName() || type.hasTypeAliasName() ->
+                createClassReferenceTypeStub(typeReference, type, annotations)
+            type.hasTypeParameter() ->
+                createTypeParameterStub(typeReference, type, c.typeParameters[type.typeParameter], annotations)
+            type.hasTypeParameterName() ->
+                createTypeParameterStub(typeReference, type, c.nameResolver.getName(type.typeParameterName), annotations)
         }
+    }
+
+    private fun nullableTypeParent(parent: KotlinStubBaseImpl<*>, type: Type): KotlinStubBaseImpl<*> =
+            if (type.nullable) KotlinPlaceHolderStubImpl<KtNullableType>(parent, KtStubElementTypes.NULLABLE_TYPE)
+            else parent
+
+    private fun createTypeParameterStub(parent: KotlinStubBaseImpl<*>, type: Type, name: Name, annotations: List<ClassId>) {
+        createTypeAnnotationStubs(parent, annotations)
+        createStubForTypeName(ClassId.topLevel(FqName.topLevel(name)), nullableTypeParent(parent, type))
     }
 
     private fun createClassReferenceTypeStub(parent: KotlinStubBaseImpl<*>, type: Type, annotations: List<ClassId>) {
@@ -76,7 +79,7 @@ class TypeClsStubBuilder(private val c: ClsStubBuilderContext) {
             val id = c.nameResolver.getString(type.flexibleTypeCapabilitiesId)
 
             if (id == DynamicTypeDeserializer.id) {
-                KotlinPlaceHolderStubImpl<KtDynamicType>(parent, KtStubElementTypes.DYNAMIC_TYPE)
+                KotlinPlaceHolderStubImpl<KtDynamicType>(nullableTypeParent(parent, type), KtStubElementTypes.DYNAMIC_TYPE)
                 return
             }
         }
@@ -89,16 +92,23 @@ class TypeClsStubBuilder(private val c: ClsStubBuilderContext) {
         val shouldBuildAsFunctionType = isNumberedFunctionClassFqName(classId.asSingleFqName().toUnsafe())
                                         && type.argumentList.none { it.projection == Projection.STAR }
         if (shouldBuildAsFunctionType) {
-            val extension = annotations.any { annotation ->
-                annotation.asSingleFqName() == KotlinBuiltIns.FQ_NAMES.extensionFunctionType
-            }
-            createFunctionTypeStub(parent, type, extension)
+            val (extensionAnnotations, notExtensionAnnotations) =
+                    annotations.partition { it.asSingleFqName() == KotlinBuiltIns.FQ_NAMES.extensionFunctionType }
+
+
+            createTypeAnnotationStubs(parent, notExtensionAnnotations)
+
+            val isExtension = extensionAnnotations.isNotEmpty()
+            createFunctionTypeStub(nullableTypeParent(parent, type), type, isExtension)
+
             return
         }
+
         createTypeAnnotationStubs(parent, annotations)
+
         val outerTypeChain = generateSequence(type) { it.outerType(c.typeTable) }.toList()
 
-        createStubForTypeName(classId, parent) {
+        createStubForTypeName(classId, nullableTypeParent(parent, type)) {
             userTypeStub, index ->
             outerTypeChain.getOrNull(index)?.let { createTypeArgumentListStub(userTypeStub, it.argumentList) }
         }
@@ -247,6 +257,8 @@ class TypeClsStubBuilder(private val c: ClsStubBuilderContext) {
         when (typeParameterProto.variance) {
             Variance.IN -> modifiers.add(KtTokens.IN_KEYWORD)
             Variance.OUT -> modifiers.add(KtTokens.OUT_KEYWORD)
+            Variance.INV -> { /* do nothing */ }
+            null ->  { /* do nothing */ }
         }
         if (typeParameterProto.reified) {
             modifiers.add(KtTokens.REIFIED_KEYWORD)

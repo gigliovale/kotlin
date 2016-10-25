@@ -1302,6 +1302,18 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("isCheckWithSelector.kt")
+            public void testIsCheckWithSelector() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/isCheckWithSelector.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("isCheckWithSelectorChain.kt")
+            public void testIsCheckWithSelectorChain() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/isCheckWithSelectorChain.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("lhsEqualsNull.kt")
             public void testLhsEqualsNull() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/lhsEqualsNull.kt");
@@ -1371,6 +1383,24 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             @TestMetadata("nullBranchAlsoNull.kt")
             public void testNullBranchAlsoNull() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/nullBranchAlsoNull.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nullCheckWithSelector.kt")
+            public void testNullCheckWithSelector() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/nullCheckWithSelector.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nullCheckWithSelectorCall.kt")
+            public void testNullCheckWithSelectorCall() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/nullCheckWithSelectorCall.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("nullCheckWithSelectorCallChain.kt")
+            public void testNullCheckWithSelectorCallChain() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/nullCheckWithSelectorCallChain.kt");
                 doTest(fileName);
             }
 
@@ -4093,6 +4123,18 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("nestedLambda.kt")
+        public void testNestedLambda() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/nestedLambda.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("nestedLambdaWithReceiver.kt")
+        public void testNestedLambdaWithReceiver() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/nestedLambdaWithReceiver.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("nullable.kt")
         public void testNullable() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/nullable.kt");
@@ -4102,6 +4144,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("object.kt")
         public void testObject() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/object.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("platformType.kt")
+        public void testPlatformType() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/platformType.kt");
             doTest(fileName);
         }
 
@@ -4486,6 +4534,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("initAndParams.kt")
         public void testInitAndParams() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertPrimaryConstructorToSecondary/initAndParams.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("initWithoutAssignments.kt")
+        public void testInitWithoutAssignments() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertPrimaryConstructorToSecondary/initWithoutAssignments.kt");
             doTest(fileName);
         }
 
@@ -10067,6 +10121,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("SamAdapterNeededBecauseOfLabeledReturn.kt")
         public void testSamAdapterNeededBecauseOfLabeledReturn() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/objectLiteralToLambda/SamAdapterNeededBecauseOfLabeledReturn.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("ShortGenericArgument.kt")
+        public void testShortGenericArgument() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/objectLiteralToLambda/ShortGenericArgument.kt");
             doTest(fileName);
         }
 

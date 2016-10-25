@@ -17,7 +17,6 @@
 package org.jetbrains.kotlin.idea.intentions
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.kotlin.builtins.getReturnTypeFromFunctionType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
@@ -30,9 +29,7 @@ import org.jetbrains.kotlin.idea.inspections.IntentionBasedInspection
 import org.jetbrains.kotlin.idea.util.IdeDescriptorRenderers
 import org.jetbrains.kotlin.idea.util.approximateFlexibleTypes
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.endOffset
-import org.jetbrains.kotlin.psi.psiUtil.getStartOffsetIn
-import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.resolve.BindingContext.FUNCTION
 import org.jetbrains.kotlin.resolve.BindingContext.REFERENCE_TARGET
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasDefaultValue
 import org.jetbrains.kotlin.synthetic.SyntheticJavaPropertyDescriptor
@@ -109,10 +106,14 @@ class ConvertLambdaToReferenceIntention : SelfTargetingOffsetIndependentIntentio
             val receiverShift = if (callHasReceiver) 1 else 0
             val parametersCount = if (hasSpecification) lambdaExpression.valueParameters.size else 1
             if (parametersCount != callableArgumentsCount + receiverShift) return false
+            val lambdaValueParameters = context[FUNCTION, lambdaExpression.functionLiteral]?.valueParameters ?: return false
             if (explicitReceiver != null) {
                 if (explicitReceiver !is KtNameReferenceExpression) return false
-                val callReceiverDescriptor = context[REFERENCE_TARGET, explicitReceiver] as? ParameterDescriptor ?: return false
-                val receiverType = callReceiverDescriptor.type
+                if (lambdaValueParameters.isEmpty()) return false
+                val explicitReceiverTarget = context[REFERENCE_TARGET, explicitReceiver] as? ParameterDescriptor ?: return false
+                if (explicitReceiverTarget != lambdaValueParameters[0]) return false
+
+                val receiverType = explicitReceiverTarget.type
                 // No exotic receiver types
                 if (receiverType.isTypeParameter() || receiverType.isError || receiverType.isDynamic() ||
                     !receiverType.constructor.isDenotable || receiverType.isFunctionType) return false
@@ -125,16 +126,14 @@ class ConvertLambdaToReferenceIntention : SelfTargetingOffsetIndependentIntentio
                             explicitReceiver, null, context, explicitReceiver.getResolutionFacade()
                     )) return false
                 }
-
-                val parameterName = if (hasSpecification) lambdaExpression.valueParameters[0].name else "it"
-                if (explicitReceiver.getReferencedName() != parameterName) return false
             }
             // Same lambda / references function parameter order
             if (callableExpression is KtCallExpression) {
+                if (lambdaValueParameters.size < receiverShift + callableExpression.valueArguments.size) return false
                 callableExpression.valueArguments.forEachIndexed { i, argument ->
                     val argumentExpression = argument.getArgumentExpression() as? KtNameReferenceExpression ?: return false
-                    val parameterName = if (hasSpecification) lambdaExpression.valueParameters[i + receiverShift].name else "it"
-                    if (argumentExpression.getReferencedName() != parameterName) return false
+                    val argumentTarget = context[REFERENCE_TARGET, argumentExpression] as? ValueParameterDescriptor ?: return false
+                    if (argumentTarget != lambdaValueParameters[i + receiverShift]) return false
                 }
             }
             return true
@@ -227,7 +226,7 @@ class ConvertLambdaToReferenceIntention : SelfTargetingOffsetIndependentIntentio
                     val context = receiver.analyze()
                     val receiverDescriptor = context[REFERENCE_TARGET, receiver] as? ParameterDescriptor ?: return null
                     val originalReceiverType = receiverDescriptor.type
-                    val receiverType = originalReceiverType.approximateFlexibleTypes()
+                    val receiverType = originalReceiverType.approximateFlexibleTypes(preferNotNull = true)
                     if (shortTypes) {
                         "${IdeDescriptorRenderers.SOURCE_CODE_SHORT_NAMES_IN_TYPES.renderType(receiverType)}::$selectorReferenceName"
                     }

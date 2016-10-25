@@ -50,6 +50,18 @@ public class InlineTestGenerated extends AbstractInlineTest {
             doTest(fileName);
         }
 
+        @TestMetadata("MultipleReturns.kt")
+        public void testMultipleReturns() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/inline/function/MultipleReturns.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("ReturnNotInTheEnd.kt")
+        public void testReturnNotInTheEnd() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/inline/function/ReturnNotInTheEnd.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("UnitReturnType.kt")
         public void testUnitReturnType() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/inline/function/UnitReturnType.kt");
@@ -148,6 +160,12 @@ public class InlineTestGenerated extends AbstractInlineTest {
             @TestMetadata("MultipleStatements.kt")
             public void testMultipleStatements() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/inline/function/returnAtEnd/MultipleStatements.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("ReturnFromLambda.kt")
+            public void testReturnFromLambda() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/refactoring/inline/function/returnAtEnd/ReturnFromLambda.kt");
                 doTest(fileName);
             }
 

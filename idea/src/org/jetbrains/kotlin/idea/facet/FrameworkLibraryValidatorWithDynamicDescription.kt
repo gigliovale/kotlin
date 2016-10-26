@@ -25,6 +25,8 @@ import com.intellij.ide.IdeBundle
 import com.intellij.openapi.roots.ui.configuration.libraries.AddCustomLibraryDialog
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.libraries.LibraryPresentationManager
+import org.jetbrains.kotlin.idea.framework.JSLibraryStdDescription
+import org.jetbrains.kotlin.idea.framework.JavaRuntimeLibraryDescription
 import javax.swing.JComponent
 
 // Based on com.intellij.facet.impl.ui.libraries.FrameworkLibraryValidatorImpl
@@ -32,10 +34,25 @@ class FrameworkLibraryValidatorWithDynamicDescription(
         private val context: LibrariesValidatorContext,
         private val validatorsManager: FacetValidatorsManager,
         private val libraryCategoryName: String,
-        private val getLibraryDescription: () -> CustomLibraryDescription
+        private val getTargetPlatform: () -> TargetPlatformKind<*>
 ) : FrameworkLibraryValidator() {
+    private val TargetPlatformKind<*>.libraryDescription: CustomLibraryDescription
+        get() {
+            val project = context.module.project
+            return when (this) {
+                is JVMPlatform -> JavaRuntimeLibraryDescription(project)
+                is JSPlatform -> JSLibraryStdDescription(project)
+            }
+        }
+
     override fun check(): ValidationResult {
-        val libraryDescription = getLibraryDescription()
+        val targetPlatform = getTargetPlatform()
+
+        if (KotlinVersionInfoProvider.EP_NAME.extensions.any { it.getLibraryVersions(context.module, targetPlatform).isNotEmpty() }) {
+            return ValidationResult.OK
+        }
+
+        val libraryDescription = targetPlatform.libraryDescription
         val libraryKinds = libraryDescription.suitableLibraryKinds
         var found = false
         val presentationManager = LibraryPresentationManager.getInstance()

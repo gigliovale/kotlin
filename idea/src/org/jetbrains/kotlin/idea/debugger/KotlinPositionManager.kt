@@ -101,37 +101,40 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
             throw NoDataException.INSTANCE
         }
 
-        val lineNumber = try {
+        val sourceLineNumber = try {
             location.lineNumber() - 1
         }
         catch (e: InternalError) {
             -1
         }
 
-        if (lineNumber < 0) {
+        if (sourceLineNumber < 0) {
             throw NoDataException.INSTANCE
         }
 
-        val lambdaOrFunIfInside = getLambdaOrFunIfInside(location, psiFile as KtFile, lineNumber)
+        val lambdaOrFunIfInside = getLambdaOrFunIfInside(location, psiFile as KtFile, sourceLineNumber)
         if (lambdaOrFunIfInside != null) {
             return SourcePosition.createFromElement(lambdaOrFunIfInside.bodyExpression!!)
         }
-        val property = getParameterIfInConstructor(location, psiFile, lineNumber)
+        val property = getParameterIfInConstructor(location, psiFile, sourceLineNumber)
         if (property != null) {
             return SourcePosition.createFromElement(property)
         }
 
-        if (lineNumber > psiFile.getLineCount() && myDebugProcess.isDexDebug()) {
-            val inlinePosition = getOriginalPositionOfInlinedLine(
-                    location.lineNumber(), FqName(location.declaringType().name()), location.sourceName(),
-                    myDebugProcess.project, GlobalSearchScope.allScope(myDebugProcess.project))
+        if (sourceLineNumber > psiFile.getLineCount() && myDebugProcess.isDexDebug()) {
+            val thisFunLine = getLastLineNumberForLocation(location, myDebugProcess.project)
+            if (thisFunLine != null && thisFunLine != location.lineNumber()) {
+                return SourcePosition.createFromLine(psiFile, thisFunLine - 1)
+            }
+
+            val inlinePosition = getOriginalPositionOfInlinedLine(location, myDebugProcess.project)
 
             if (inlinePosition != null) {
                 return SourcePosition.createFromLine(inlinePosition.first, inlinePosition.second)
             }
         }
 
-        return SourcePosition.createFromLine(psiFile, lineNumber)
+        return SourcePosition.createFromLine(psiFile, sourceLineNumber)
     }
 
     private fun getParameterIfInConstructor(location: Location, file: KtFile, lineNumber: Int): KtParameter? {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 
 @file:JvmVersion
-package kotlin.jvm.internal.unsafe
+package kotlin.jvm
 
-private fun monitorEnter(@Suppress("UNUSED_PARAMETER") monitor: Any): Unit = throw UnsupportedOperationException("This function can only be used privately")
-
-private fun monitorExit(@Suppress("UNUSED_PARAMETER") monitor: Any): Unit = throw UnsupportedOperationException("This function can only be used privately")
+@Target(AnnotationTarget.FILE, AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.SOURCE)
+internal annotation class JvmVersion(public val minimum: Int = 6, public val maximum: Int = 100)

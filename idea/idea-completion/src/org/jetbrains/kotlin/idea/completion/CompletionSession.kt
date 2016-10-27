@@ -117,7 +117,7 @@ abstract class CompletionSession(
             parameters.position.containingFile,
             parameters.offset,
             kotlinIdentifierPartPattern or singleCharPattern('@'),
-            kotlinIdentifierStartPattern)
+            kotlinIdentifierStartPattern)!!
 
     protected val prefixMatcher = CamelHumpMatcher(prefix)
 
@@ -304,6 +304,14 @@ abstract class CompletionSession(
             nameExpression: KtSimpleNameExpression,
             runtimeReceiver: ExpressionReceiver? = null
     ): ReferenceVariants {
+        val completeExtensionsFromIndices = descriptorKindFilter.kindMask.and(DescriptorKindFilter.CALLABLES_MASK) != 0
+                                            && callTypeAndReceiver !is CallTypeAndReceiver.IMPORT_DIRECTIVE
+        @Suppress("NAME_SHADOWING")
+        val descriptorKindFilter = if (completeExtensionsFromIndices)
+            descriptorKindFilter exclude TopLevelExtensionsExclude // handled via indices
+        else
+            descriptorKindFilter
+
         fun getReferenceVariants(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean): Collection<DeclarationDescriptor> {
             return referenceVariantsHelper.getReferenceVariants(
                     nameExpression,
@@ -328,7 +336,7 @@ abstract class CompletionSession(
         }
 
         var notImportedExtensions: Collection<CallableDescriptor> = emptyList()
-        if (callTypeAndReceiver.shouldCompleteCallableExtensions()) {
+        if (completeExtensionsFromIndices) {
             val indicesHelper = indicesHelper(true)
             val nameFilter = if (additionalPropertyNameFilter != null)
                 descriptorNameFilter or additionalPropertyNameFilter
@@ -433,11 +441,6 @@ abstract class CompletionSession(
                 processor(it)
             }
         }
-    }
-
-    protected fun CallTypeAndReceiver<*, *>.shouldCompleteCallableExtensions(): Boolean {
-        return callType.descriptorKindFilter.kindMask.and(DescriptorKindFilter.CALLABLES_MASK) != 0
-               && this !is CallTypeAndReceiver.IMPORT_DIRECTIVE
     }
 
     protected fun withCollectRequiredContextVariableTypes(action: (LookupElementFactory) -> Unit): Collection<FuzzyType> {

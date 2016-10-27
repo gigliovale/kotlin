@@ -164,10 +164,6 @@ class BasicCompletionSession(
                 filter = filter.exclude(DescriptorKindExclude.TopLevelPackages)
             }
 
-            if (callTypeAndReceiver.shouldCompleteCallableExtensions()) {
-                filter = filter.exclude(TopLevelExtensionsExclude) // completed via indices
-            }
-
             filter
         }
 

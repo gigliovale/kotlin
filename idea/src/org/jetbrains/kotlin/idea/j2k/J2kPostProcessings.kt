@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.idea.j2k
 
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
 import org.jetbrains.kotlin.diagnostics.Errors
@@ -36,7 +37,9 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifierType
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.calls.callUtil.getType
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
+import org.jetbrains.kotlin.utils.mapToIndex
 import java.util.*
 
 interface J2kPostProcessing {
@@ -49,10 +52,17 @@ object J2KPostProcessingRegistrar {
     val processings: Collection<J2kPostProcessing>
         get() = _processings
 
+    private val processingsToPriorityMap = HashMap<J2kPostProcessing, Int>()
+
+    fun priority(processing: J2kPostProcessing): Int {
+        return processingsToPriorityMap[processing]!!
+    }
+
     init {
         _processings.add(RemoveExplicitTypeArgumentsProcessing())
         _processings.add(RemoveRedundantOverrideVisibilityProcessing())
         _processings.add(MoveLambdaOutsideParenthesesProcessing())
+        _processings.add(FixObjectStringConcatenationProcessing())
         _processings.add(ConvertToStringTemplateProcessing())
         _processings.add(UsePropertyAccessSyntaxProcessing())
         _processings.add(RemoveRedundantSamAdaptersProcessing())
@@ -111,18 +121,13 @@ object J2KPostProcessingRegistrar {
                 }
             }
         }
-    }
 
-    private inline fun <reified TElement : KtElement, TIntention: SelfTargetingRangeIntention<TElement>> registerIntentionBasedProcessing(
-            intention: TIntention
-    ) {
-        //TODO: replace with optional argument when supported for inline functions
-        return registerIntentionBasedProcessing<TElement, TIntention>(intention, { true })
+        processingsToPriorityMap.putAll(_processings.mapToIndex())
     }
 
     private inline fun <reified TElement : KtElement, TIntention: SelfTargetingRangeIntention<TElement>> registerIntentionBasedProcessing(
             intention: TIntention,
-            noinline additionalChecker: (TElement) -> Boolean
+            noinline additionalChecker: (TElement) -> Boolean = { true }
     ) {
         _processings.add(object : J2kPostProcessing {
             override fun createAction(element: KtElement, diagnostics: Diagnostics): (() -> Unit)? {
@@ -238,6 +243,33 @@ object J2KPostProcessingRegistrar {
                 }
             }
 
+            return null
+        }
+    }
+
+    private class FixObjectStringConcatenationProcessing : J2kPostProcessing {
+        override fun createAction(element: KtElement, diagnostics: Diagnostics): (() -> Unit)? {
+            if (element !is KtBinaryExpression ||
+                element.operationToken != KtTokens.PLUS ||
+                diagnostics.forElement(element.operationReference).none {
+                    it.factory == Errors.UNRESOLVED_REFERENCE_WRONG_RECEIVER
+                    || it.factory  == Errors.NONE_APPLICABLE
+                })
+                return null
+
+            val bindingContext = element.analyzeAndGetResult().bindingContext
+            val rightType = element.right?.getType(bindingContext) ?: return null
+
+            if (KotlinBuiltIns.isString(rightType)) {
+                return {
+                    val factory = KtPsiFactory(element)
+                    element.left!!.replace(factory.buildExpression {
+                        appendFixedText("(")
+                        appendExpression(element.left)
+                        appendFixedText(").toString()")
+                    })
+                }
+            }
             return null
         }
     }

@@ -418,6 +418,18 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("bitOperationPriority.java")
+        public void testBitOperationPriority() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/bitOperationPriority.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("bitOperationPriorityComments.java")
+        public void testBitOperationPriorityComments() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/bitOperationPriorityComments.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("divideAssign.java")
         public void testDivideAssign() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/assignmentExpression/divideAssign.java");
@@ -550,6 +562,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
         @TestMetadata("lessThanEqual.java")
         public void testLessThanEqual() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/binaryExpression/lessThanEqual.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("lhsObjectPlusString.java")
+        public void testLhsObjectPlusString() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/binaryExpression/lhsObjectPlusString.java");
             doTest(fileName);
         }
 
@@ -1789,6 +1807,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
             doTest(fileName);
         }
 
+        @TestMetadata("primaryConstructorDoc.java")
+        public void testPrimaryConstructorDoc() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/primaryConstructorDoc.java");
+            doTest(fileName);
+        }
+
         @TestMetadata("quoted.java")
         public void testQuoted() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/docComments/quoted.java");
@@ -2839,6 +2863,12 @@ public class JavaToKotlinConverterForWebDemoTestGenerated extends AbstractJavaTo
         @TestMetadata("kt-1074.java")
         public void testKt_1074() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/issues/kt-1074.java");
+            doTest(fileName);
+        }
+
+        @TestMetadata("kt-14248.java")
+        public void testKt_14248() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("j2k/testData/fileOrElement/issues/kt-14248.java");
             doTest(fileName);
         }
 

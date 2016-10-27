@@ -175,7 +175,7 @@ class Converter private constructor(
         val implementsTypes = convertToNotNullableTypes(psiClass.implementsListTypes)
         val name = psiClass.declarationIdentifier()
 
-        return when {
+        val converted = when {
             psiClass.isInterface -> {
                 val classBody = ClassBodyConverter(psiClass, ClassKind.INTERFACE, this).convertBody()
                 Interface(name, annotations, modifiers, typeParameters, extendsTypes, implementsTypes, classBody)
@@ -208,6 +208,18 @@ class Converter private constructor(
                 }
             }
         }.assignPrototype(psiClass)
+
+        if (converted.body.primaryConstructorSignature == null)
+            addPostUnfoldDeferredElementsAction {
+                val primaryConstructor = converted.body.primaryConstructor
+                if (primaryConstructor != null) {
+                    if (primaryConstructor.initializer.isEmpty)
+                        converted.prototypes = converted.prototypes!! + primaryConstructor.prototypes!!
+                    else
+                        primaryConstructor.initializer.assignPrototypesFrom(primaryConstructor, CommentsAndSpacesInheritance.NO_SPACES)
+                }
+            }
+        return converted
     }
 
     fun needOpenModifier(psiClass: PsiClass): Boolean {
@@ -285,7 +297,7 @@ class Converter private constructor(
 
         // to convert fields and nested types - they are not allowed in Kotlin but we convert them and let user refactor code
         var classBody = ClassBodyConverter(psiClass, ClassKind.ANNOTATION_CLASS, this).convertBody()
-        classBody = ClassBody(constructorSignature, classBody.baseClassParams, classBody.members,
+        classBody = ClassBody(null, constructorSignature, classBody.baseClassParams, classBody.members,
                               classBody.companionObjectMembers, classBody.lBrace, classBody.rBrace, classBody.classKind)
 
         return Class(psiClass.declarationIdentifier(),
@@ -660,7 +672,7 @@ class Converter private constructor(
                 result = Identifier.toKotlin(codeRefElement.referenceName!!) + "." + result
                 qualifier = codeRefElement.qualifier
             }
-            return ReferenceElement(Identifier.withNoPrototype(result), typeArgs).assignPrototype(element)
+            return ReferenceElement(Identifier.withNoPrototype(result), typeArgs).assignPrototype(element, CommentsAndSpacesInheritance.NO_SPACES)
         }
         else {
             if (!hasExternalQualifier) {
@@ -668,12 +680,12 @@ class Converter private constructor(
                 if (targetClass != null) {
                     val identifier = constructNestedClassReferenceIdentifier(targetClass, specialContext ?: element)
                     if (identifier != null) {
-                        return ReferenceElement(identifier, typeArgs).assignPrototype(element)
+                        return ReferenceElement(identifier, typeArgs).assignPrototype(element, CommentsAndSpacesInheritance.NO_SPACES)
                     }
                 }
             }
 
-            return ReferenceElement(Identifier.withNoPrototype(element.referenceName!!), typeArgs).assignPrototype(element)
+            return ReferenceElement(Identifier.withNoPrototype(element.referenceName!!), typeArgs).assignPrototype(element, CommentsAndSpacesInheritance.NO_SPACES)
         }
     }
 

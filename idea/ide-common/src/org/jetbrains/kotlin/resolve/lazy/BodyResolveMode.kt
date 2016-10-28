@@ -18,11 +18,14 @@ package org.jetbrains.kotlin.resolve.lazy
 
 import org.jetbrains.kotlin.resolve.BindingTraceFilter
 
-enum class BodyResolveMode(val bindingTraceFilter: BindingTraceFilter) {
-    FULL(BindingTraceFilter.ACCEPT_ALL),
-    PARTIAL_FOR_COMPLETION(BindingTraceFilter.NO_DIAGNOSTICS),
-    PARTIAL_WITH_DIAGNOSTICS(BindingTraceFilter.ACCEPT_ALL),
-    PARTIAL(BindingTraceFilter.NO_DIAGNOSTICS)
+enum class BodyResolveMode(
+        val bindingTraceFilter: BindingTraceFilter,
+        val needControlFlowInformation: Boolean
+) {
+    FULL(BindingTraceFilter.ACCEPT_ALL, needControlFlowInformation = true),
+    PARTIAL_FOR_COMPLETION(BindingTraceFilter.NO_DIAGNOSTICS, needControlFlowInformation = false),
+    PARTIAL_WITH_DIAGNOSTICS(BindingTraceFilter.ACCEPT_ALL, needControlFlowInformation = true),
+    PARTIAL(BindingTraceFilter.NO_DIAGNOSTICS, needControlFlowInformation = false)
 
     ;
 

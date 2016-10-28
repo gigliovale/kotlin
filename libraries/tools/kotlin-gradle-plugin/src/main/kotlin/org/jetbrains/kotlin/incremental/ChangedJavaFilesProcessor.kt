@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.gradle.tasks
+package org.jetbrains.kotlin.incremental
 
 import org.gradle.api.logging.Logging
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles
@@ -26,8 +26,7 @@ import org.jetbrains.kotlin.com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.com.intellij.psi.PsiFileFactory
 import org.jetbrains.kotlin.com.intellij.psi.PsiJavaFile
 import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.incremental.LookupSymbol
-import org.jetbrains.kotlin.incremental.snapshots.FileCollectionDiff
+import org.jetbrains.kotlin.gradle.plugin.kotlinDebug
 import java.io.File
 import java.util.*
 
@@ -46,14 +45,17 @@ internal class ChangedJavaFilesProcessor {
     val allChangedSymbols: Collection<LookupSymbol>
             get() = allSymbols
 
-    fun process(filesDiff: FileCollectionDiff): ChangesEither {
-        if (filesDiff.removed.any()) {
-            log.kotlinDebug { "Some java files are removed: [${filesDiff.removed.joinToString()}]" }
+    fun process(filesDiff: ChangedFiles.Known): ChangesEither {
+        val modifiedJava = filesDiff.modified.filter(File::isJavaFile)
+        val removedJava = filesDiff.removed.filter(File::isJavaFile)
+
+        if (removedJava.any()) {
+            log.kotlinDebug { "Some java files are removed: [${removedJava.joinToString()}]" }
             return ChangesEither.Unknown()
         }
 
         val symbols = HashSet<LookupSymbol>()
-        for (javaFile in filesDiff.newOrModified) {
+        for (javaFile in modifiedJava) {
             assert(javaFile.extension.equals("java", ignoreCase = true))
 
             val psiFile = javaFile.psiFile()

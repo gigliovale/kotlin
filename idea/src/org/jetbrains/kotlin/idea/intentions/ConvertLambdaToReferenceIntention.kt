@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.idea.util.approximateFlexibleTypes
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext.FUNCTION
 import org.jetbrains.kotlin.resolve.BindingContext.REFERENCE_TARGET
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasDefaultValue
 import org.jetbrains.kotlin.synthetic.SyntheticJavaPropertyDescriptor
 import org.jetbrains.kotlin.types.isDynamic
@@ -93,7 +94,7 @@ class ConvertLambdaToReferenceIntention : SelfTargetingOffsetIndependentIntentio
             }
             val callHasReceiver = explicitReceiver != null
             if (descriptorHasReceiver != callHasReceiver) return false
-            val callableArgumentsCount = if (callableExpression is KtCallExpression) callableExpression.valueArguments.size else 0
+            val callableArgumentsCount = (callableExpression as? KtCallExpression)?.valueArguments?.size ?: 0
             if (calleeDescriptor.valueParameters.size != callableArgumentsCount) return false
             if (lambdaMustReturnUnit) {
                 calleeDescriptor.returnType.let {
@@ -130,10 +131,13 @@ class ConvertLambdaToReferenceIntention : SelfTargetingOffsetIndependentIntentio
             // Same lambda / references function parameter order
             if (callableExpression is KtCallExpression) {
                 if (lambdaValueParameters.size < receiverShift + callableExpression.valueArguments.size) return false
-                callableExpression.valueArguments.forEachIndexed { i, argument ->
-                    val argumentExpression = argument.getArgumentExpression() as? KtNameReferenceExpression ?: return false
+                val resolvedCall = callableExpression.getResolvedCall(context) ?: return false
+                resolvedCall.valueArguments.entries.forEach { (valueParameter, resolvedArgument) ->
+                    val argumentExpression =
+                            resolvedArgument.arguments.singleOrNull()?.getArgumentExpression() as? KtNameReferenceExpression
+                            ?: return false
                     val argumentTarget = context[REFERENCE_TARGET, argumentExpression] as? ValueParameterDescriptor ?: return false
-                    if (argumentTarget != lambdaValueParameters[i + receiverShift]) return false
+                    if (argumentTarget != lambdaValueParameters[valueParameter.index + receiverShift]) return false
                 }
             }
             return true

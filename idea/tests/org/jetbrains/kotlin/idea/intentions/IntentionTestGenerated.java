@@ -1302,6 +1302,18 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("isCheckForNullableType.kt")
+            public void testIsCheckForNullableType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/isCheckForNullableType.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("isCheckForUnrelatedType.kt")
+            public void testIsCheckForUnrelatedType() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/isCheckForUnrelatedType.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("isCheckWithSelector.kt")
             public void testIsCheckWithSelector() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/isCheckWithSelector.kt");
@@ -1404,6 +1416,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("nullableThen.kt")
+            public void testNullableThen() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/nullableThen.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("otherBlockHasMoreThanOneStatement.kt")
             public void testOtherBlockHasMoreThanOneStatement() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/otherBlockHasMoreThanOneStatement.kt");
@@ -1431,6 +1449,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             @TestMetadata("throwsNPEwithArgument.kt")
             public void testThrowsNPEwithArgument() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/throwsNPEwithArgument.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("unitResult.kt")
+            public void testUnitResult() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/branched/ifThenToElvis/unitResult.kt");
                 doTest(fileName);
             }
 
@@ -4087,6 +4111,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("goodNamedOrder.kt")
+        public void testGoodNamedOrder() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/goodNamedOrder.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("inner.kt")
         public void testInner() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/inner.kt");
@@ -4210,6 +4240,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("unwrap.kt")
         public void testUnwrap() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/unwrap.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("wrongNamedOrder.kt")
+        public void testWrongNamedOrder() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/convertLambdaToReference/wrongNamedOrder.kt");
             doTest(fileName);
         }
 

@@ -103,6 +103,7 @@ fun createContainerForLazyLocalClassifierAnalyzer(
         platform: TargetPlatform,
         lookupTracker: LookupTracker,
         languageVersionSettings: LanguageVersionSettings,
+        statementFilter: StatementFilter,
         localClassDescriptorHolder: LocalClassDescriptorHolder
 ): StorageComponentContainer = createContainer("LocalClassifierAnalyzer") {
     configureModule(moduleContext, platform, bindingTrace)
@@ -122,6 +123,7 @@ fun createContainerForLazyLocalClassifierAnalyzer(
     useImpl<LocalLazyDeclarationResolver>()
 
     useInstance(languageVersionSettings)
+    useInstance(statementFilter)
 }
 
 fun createContainerForLazyResolve(

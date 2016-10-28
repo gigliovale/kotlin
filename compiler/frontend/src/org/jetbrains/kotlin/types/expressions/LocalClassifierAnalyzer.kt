@@ -54,7 +54,7 @@ class LocalClassifierAnalyzer(
         private val globalContext: GlobalContext,
         private val storageManager: StorageManager,
         private val descriptorResolver: DescriptorResolver,
-        private val funcionDescriptorResolver: FunctionDescriptorResolver,
+        private val functionDescriptorResolver: FunctionDescriptorResolver,
         private val typeResolver: TypeResolver,
         private val annotationResolver: AnnotationResolver,
         private val platform: TargetPlatform,
@@ -76,6 +76,7 @@ class LocalClassifierAnalyzer(
                 platform,
                 lookupTracker,
                 languageVersionSettings,
+                context.statementFilter,
                 LocalClassDescriptorHolder(
                         scope,
                         classOrObject,
@@ -84,7 +85,7 @@ class LocalClassifierAnalyzer(
                         context,
                         module,
                         descriptorResolver,
-                        funcionDescriptorResolver,
+                        functionDescriptorResolver,
                         typeResolver,
                         annotationResolver,
                         supertypeLoopChecker

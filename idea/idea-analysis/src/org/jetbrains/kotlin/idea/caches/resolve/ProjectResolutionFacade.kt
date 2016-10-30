@@ -32,8 +32,10 @@ import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.CompositeBindingContext
+import org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 
@@ -117,9 +119,16 @@ internal class ResolutionFacadeImpl(
     override fun analyzeFullyAndGetResult(elements: Collection<KtElement>): AnalysisResult
             = projectFacade.getAnalysisResultsForElements(elements)
 
-    override fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        val resolveSession = projectFacade.resolverForModuleInfo(declaration.getModuleInfo()).componentProvider.get<ResolveSession>()
-        return resolveSession.resolveToDescriptor(declaration)
+    override fun resolveToDescriptor(declaration: KtDeclaration, bodyResolveMode: BodyResolveMode): DeclarationDescriptor {
+        if (KtPsiUtil.isLocal(declaration)) {
+            val bindingContext = analyze(declaration, bodyResolveMode)
+            return bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, declaration]
+                   ?: getFrontendService(moduleInfo, AbsentDescriptorHandler::class.java).diagnoseDescriptorNotFound(declaration)
+        }
+        else {
+            val resolveSession = projectFacade.resolverForModuleInfo(declaration.getModuleInfo()).componentProvider.get<ResolveSession>()
+            return resolveSession.resolveToDescriptor(declaration)
+        }
     }
 
     override fun <T : Any> getFrontendService(serviceClass: Class<T>): T  = getFrontendService(moduleInfo, serviceClass)

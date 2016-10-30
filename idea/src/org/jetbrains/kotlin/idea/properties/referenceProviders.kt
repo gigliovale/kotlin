@@ -64,7 +64,7 @@ private fun KtExpression.getBundleNameByContext(): String? {
     val expression = KtPsiUtil.safeDeparenthesize(this)
     val parent = expression.parent
 
-    (parent as? KtProperty)?.let { return it.resolveToDescriptor().getBundleNameByAnnotation() }
+    (parent as? KtProperty)?.let { return it.resolveToDescriptor(BodyResolveMode.PARTIAL).getBundleNameByAnnotation() }
 
     val bindingContext = expression.analyze(BodyResolveMode.PARTIAL)
     val resolvedCall =

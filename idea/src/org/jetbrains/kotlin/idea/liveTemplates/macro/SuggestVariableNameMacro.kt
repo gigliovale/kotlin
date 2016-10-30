@@ -71,7 +71,7 @@ class SuggestVariableNameMacro : Macro() {
             suggestIterationVariableName(parent, nameValidator)?.let { return it }
         }
 
-        val descriptor = declaration.resolveToDescriptor() as? VariableDescriptor ?: return emptyList()
+        val descriptor = declaration.resolveToDescriptor(BodyResolveMode.PARTIAL) as? VariableDescriptor ?: return emptyList()
         return KotlinNameSuggester.suggestNamesByType(descriptor.type, nameValidator, null)
     }
 

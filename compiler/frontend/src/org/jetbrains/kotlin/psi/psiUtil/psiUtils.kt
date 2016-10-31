@@ -25,6 +25,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFileAnnotationList
+import org.jetbrains.kotlin.psi.KtPsiUtil
 import java.util.*
 
 // NOTE: in this file we collect only LANGUAGE INDEPENDENT methods working with PSI and not modifying it

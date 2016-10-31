@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 
 class ConcatenatedStringGenerator {
     fun create(element: KtBinaryExpression): String {
-        val binaryExpression = KtPsiUtil.getTopmostParentOfTypes(element, KtBinaryExpression::class.java) as? KtBinaryExpression ?: element
+        val binaryExpression = element.getTopmostParentOfType <KtBinaryExpression>() ?: element
         val stringBuilder = StringBuilder()
         binaryExpression.appendTo(stringBuilder)
         return stringBuilder.toString()

@@ -1034,6 +1034,10 @@ fun main(args: Array<String>) {
         testClass<AbstractJava8BasicCompletionTest> {
             model("basic/java8")
         }
+
+        testClass<AbstractCompletionIncrementalResolveTest>() {
+            model("incrementalResolve")
+        }
     }
 
     //TODO: move these tests into idea-completion module

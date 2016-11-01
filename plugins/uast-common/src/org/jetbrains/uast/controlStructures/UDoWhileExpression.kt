@@ -15,6 +15,8 @@
  */
 package org.jetbrains.uast
 
+import org.jetbrains.uast.internal.acceptList
+import org.jetbrains.uast.internal.log
 import org.jetbrains.uast.visitor.UastVisitor
 
 /**
@@ -32,18 +34,29 @@ interface UDoWhileExpression : ULoopExpression {
      */
     val condition: UExpression
 
+    /**
+     * Returns an identifier for the 'do' keyword.
+     */
+    val doIdentifier: UIdentifier
+
+    /**
+     * Returns an identifier for the 'while' keyword.
+     */
+    val whileIdentifier: UIdentifier
+
     override fun accept(visitor: UastVisitor) {
         if (visitor.visitDoWhileExpression(this)) return
+        annotations.acceptList(visitor)
         condition.accept(visitor)
         body.accept(visitor)
         visitor.afterVisitDoWhileExpression(this)
     }
 
-    override fun renderString() = buildString {
+    override fun asRenderString() = buildString {
         append("do ")
-        append(body.renderString())
-        appendln("while (${condition.renderString()})")
+        append(body.asRenderString())
+        appendln("while (${condition.asRenderString()})")
     }
 
-    override fun logString() = log("UDoWhileExpression", condition, body)
+    override fun asLogString() = log("UDoWhileExpression", condition, body)
 }

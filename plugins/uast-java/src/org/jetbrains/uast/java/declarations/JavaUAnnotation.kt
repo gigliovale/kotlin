@@ -1,42 +1,52 @@
-/*
- * Copyright 2000-2016 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.jetbrains.uast.java
 
 import com.intellij.psi.PsiAnnotation
-import org.jetbrains.uast.UAnnotation
-import org.jetbrains.uast.UClass
-import org.jetbrains.uast.UElement
-import org.jetbrains.uast.UastContext
-import org.jetbrains.uast.psi.PsiElementBacked
+import com.intellij.psi.PsiClass
+import org.jetbrains.uast.*
 
 class JavaUAnnotation(
         override val psi: PsiAnnotation,
-        override val parent: UElement
-) : JavaAbstractUElement(), UAnnotation, PsiElementBacked {
-    override val name: String
-        get() = psi.nameReferenceElement?.referenceName.orAnonymous()
-
-    override val fqName: String?
+        override val containingElement: UElement?
+) : UAnnotation {
+    override val qualifiedName: String?
         get() = psi.qualifiedName
 
-    override val valueArguments by lz {
-        psi.parameterList.attributes.map {
-            JavaConverter.convert(it, this)
+    override val attributeValues: List<UNamedExpression> by lz {
+        val context = getUastContext()
+        val attributes = psi.parameterList.attributes
+
+        attributes.map { attribute ->
+            UNamedExpression(attribute.name ?: "", this).apply {
+                val value = attribute.value?.let { context.convertElement(it, this, null) } as? UExpression
+                expression = value ?: UastEmptyExpression
+            }
         }
     }
 
-    override fun resolve(context: UastContext) = context.convert(psi.reference?.resolve()) as? UClass
+    override fun resolve(): PsiClass? = psi.nameReferenceElement?.resolve() as? PsiClass
+
+    override fun findAttributeValue(name: String?): UNamedExpression? {
+        val context = getUastContext()
+        val attributeValue = psi.findAttributeValue(name) ?: return null
+        val value = context.convertElement(attributeValue, this, null)
+        return UNamedExpression(name ?: "", value)
+    }
+
+    override fun findDeclaredAttributeValue(name: String?): UNamedExpression? {
+        val context = getUastContext()
+        val attributeValue = psi.findDeclaredAttributeValue(name) ?: return null
+        val value = context.convertElement(attributeValue, this, null)
+        return UNamedExpression(name ?: "", value)
+    }
+
+    companion object {
+        @JvmStatic
+        fun wrap(annotation: PsiAnnotation): UAnnotation = JavaUAnnotation(annotation, null)
+
+        @JvmStatic
+        fun wrap(annotations: List<PsiAnnotation>): List<UAnnotation> = annotations.map { JavaUAnnotation(it, null) }
+
+        @JvmStatic
+        fun wrap(annotations: Array<PsiAnnotation>): List<UAnnotation> = annotations.map { JavaUAnnotation(it, null) }
+    }
 }

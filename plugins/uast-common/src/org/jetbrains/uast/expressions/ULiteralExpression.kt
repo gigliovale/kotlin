@@ -15,6 +15,7 @@
  */
 package org.jetbrains.uast
 
+import org.jetbrains.uast.internal.acceptList
 import org.jetbrains.uast.visitor.UastVisitor
 
 /**
@@ -30,7 +31,7 @@ interface ULiteralExpression : UExpression {
     /**
      * Returns true if the literal is a `null`-literal, false otherwise.
      */
-    open val isNull: Boolean
+    val isNull: Boolean
         get() = value == null
 
     /**
@@ -46,11 +47,12 @@ interface ULiteralExpression : UExpression {
         get() = evaluate() is Boolean
 
     override fun accept(visitor: UastVisitor) {
-        visitor.visitLiteralExpression(this)
+        if (visitor.visitLiteralExpression(this)) return
+        annotations.acceptList(visitor)
         visitor.afterVisitLiteralExpression(this)
     }
 
-    override fun renderString(): String {
+    override fun asRenderString(): String {
         val value = value
         return when (value) {
             null -> "null"
@@ -63,5 +65,5 @@ interface ULiteralExpression : UExpression {
         }
     }
 
-    override fun logString() = "ULiteralExpression (${renderString()})"
+    override fun asLogString() = "ULiteralExpression (${asRenderString()})"
 }

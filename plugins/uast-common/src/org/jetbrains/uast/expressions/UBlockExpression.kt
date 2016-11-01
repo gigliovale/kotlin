@@ -15,6 +15,8 @@
  */
 package org.jetbrains.uast
 
+import org.jetbrains.uast.internal.acceptList
+import org.jetbrains.uast.internal.log
 import org.jetbrains.uast.visitor.UastVisitor
 
 /**
@@ -28,15 +30,16 @@ interface UBlockExpression : UExpression {
 
     override fun accept(visitor: UastVisitor) {
         if (visitor.visitBlockExpression(this)) return
+        annotations.acceptList(visitor)
         expressions.acceptList(visitor)
         visitor.afterVisitBlockExpression(this)
     }
 
-    override fun logString() = log("UBlockExpression", expressions)
+    override fun asLogString() = log("UBlockExpression", expressions)
 
-    override fun renderString() = buildString {
+    override fun asRenderString() = buildString {
         appendln("{")
-        expressions.forEach { appendln(it.renderString().withMargin) }
+        expressions.forEach { appendln(it.asRenderString().withMargin) }
         appendln("}")
     }
 }

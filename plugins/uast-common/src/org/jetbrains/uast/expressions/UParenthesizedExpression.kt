@@ -15,6 +15,8 @@
  */
 package org.jetbrains.uast
 
+import org.jetbrains.uast.internal.acceptList
+import org.jetbrains.uast.internal.log
 import org.jetbrains.uast.visitor.UastVisitor
 
 /**
@@ -28,12 +30,13 @@ interface UParenthesizedExpression : UExpression {
 
     override fun accept(visitor: UastVisitor) {
         if (visitor.visitParenthesizedExpression(this)) return
+        annotations.acceptList(visitor)
         expression.accept(visitor)
         visitor.afterVisitParenthesizedExpression(this)
     }
 
     override fun evaluate() = expression.evaluate()
 
-    override fun logString() = log("UParenthesizedExpression", expression)
-    override fun renderString() = '(' + expression.renderString() + ')'
+    override fun asLogString() = log("UParenthesizedExpression", expression)
+    override fun asRenderString() = '(' + expression.asRenderString() + ')'
 }

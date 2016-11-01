@@ -15,6 +15,8 @@
  */
 package org.jetbrains.uast
 
+import org.jetbrains.uast.internal.acceptList
+import org.jetbrains.uast.internal.log
 import org.jetbrains.uast.visitor.UastVisitor
 
 /**
@@ -42,8 +44,14 @@ interface UForExpression : ULoopExpression {
      */
     val update: UExpression?
 
+    /**
+     * Returns the identifier for the 'for' keyword.
+     */
+    val forIdentifier: UIdentifier
+
     override fun accept(visitor: UastVisitor) {
         if (visitor.visitForExpression(this)) return
+        annotations.acceptList(visitor)
         declaration?.accept(visitor)
         condition?.accept(visitor)
         update?.accept(visitor)
@@ -51,16 +59,16 @@ interface UForExpression : ULoopExpression {
         visitor.afterVisitForExpression(this)
     }
 
-    override fun renderString() = buildString {
+    override fun asRenderString() = buildString {
         append("for (")
-        declaration?.let { append(it.renderString()) }
+        declaration?.let { append(it.asRenderString()) }
         append("; ")
-        condition?.let { append(it.renderString()) }
+        condition?.let { append(it.asRenderString()) }
         append("; ")
-        update?.let { append(it.renderString()) }
+        update?.let { append(it.asRenderString()) }
         append(") ")
-        append(body.renderString())
+        append(body.asRenderString())
     }
 
-    override fun logString() = log("UForExpression", declaration, condition, update, body)
+    override fun asLogString() = log("UForExpression", declaration, condition, update, body)
 }

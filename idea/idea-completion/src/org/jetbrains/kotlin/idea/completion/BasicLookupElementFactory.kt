@@ -119,6 +119,7 @@ class BasicLookupElementFactory(
         val declarationLazyHolder = DeclarationLazy(descriptor, project)
         fun declarationLazy() = declarationLazyHolder.declaration
 
+        //TODO: try JavaClassDescriptor?
         if (descriptor is ClassifierDescriptor &&
             declarationLazy() is PsiClass &&
             declarationLazy() !is KtLightClass) {

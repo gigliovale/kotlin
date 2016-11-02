@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.typeUtil.makeNotNullable
@@ -292,7 +293,7 @@ class SmartCompletion(
         if (declaration != null) {
             val originalDeclaration = toFromOriginalFileMapper.toOriginalFile(declaration)
             if (originalDeclaration != null) {
-                val originalDescriptor = originalDeclaration.resolveToDescriptor() as? CallableDescriptor
+                val originalDescriptor = originalDeclaration.resolveToDescriptor(BodyResolveMode.PARTIAL) as? CallableDescriptor
                 val returnType = originalDescriptor?.returnType
                 if (returnType != null && !returnType.isError) {
                     return listOf(ExpectedInfo(returnType, declaration.name, null))

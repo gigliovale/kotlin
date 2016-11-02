@@ -16,19 +16,19 @@
 
 package org.jetbrains.kotlin
 
-import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.idea.completion.renderDataFlowValue
-import org.jetbrains.kotlin.test.KotlinTestUtils
 import com.intellij.openapi.util.io.FileUtil
-import java.io.File
-import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import com.intellij.testFramework.LightProjectDescriptor
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
-import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.idea.completion.renderDataFlowValue
+import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
+import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
+import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfoAfter
+import org.jetbrains.kotlin.test.KotlinTestUtils
+import java.io.File
 
 abstract class AbstractDataFlowValueRenderingTest: KotlinLightCodeInsightFixtureTestCase() {
     override fun getTestDataPath() : String {
@@ -46,7 +46,7 @@ abstract class AbstractDataFlowValueRenderingTest: KotlinLightCodeInsightFixture
         val jetFile = fixture.file as KtFile
         val element = jetFile.findElementAt(fixture.caretOffset)!!
         val expression = element.getStrictParentOfType<KtExpression>()!!
-        val info = expression.analyze().getDataFlowInfo(expression)
+        val info = expression.analyze().getDataFlowInfoAfter(expression)
 
         val allValues = (info.completeTypeInfo.keySet() + info.completeNullabilityInfo.keys).toSet()
         val actual = allValues.mapNotNull { renderDataFlowValue(it) }.sorted().joinToString("\n")

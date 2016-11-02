@@ -26,7 +26,8 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfoAfter
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfoBefore
 import org.jetbrains.kotlin.resolve.calls.smartcasts.SmartCastManager
 import org.jetbrains.kotlin.resolve.isHiddenInResolution
 import org.jetbrains.kotlin.resolve.scopes.*
@@ -163,7 +164,7 @@ class ReferenceVariantsHelper(
         }
 
         val resolutionScope = contextElement.getResolutionScope(bindingContext, resolutionFacade)
-        val dataFlowInfo = bindingContext.getDataFlowInfo(contextElement)
+        val dataFlowInfo = bindingContext.getDataFlowInfoBefore(contextElement)
         val containingDeclaration = resolutionScope.ownerDescriptor
 
         val smartCastManager = resolutionFacade.frontendService<SmartCastManager>()

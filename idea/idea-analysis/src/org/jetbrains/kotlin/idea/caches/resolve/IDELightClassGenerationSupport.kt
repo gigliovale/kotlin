@@ -53,7 +53,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ForceResolve
-import org.jetbrains.kotlin.resolve.lazy.ForceResolve.Depth.*
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve.Depth.Shallow
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -65,11 +65,18 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     private val psiManager: PsiManager = PsiManager.getInstance(project)
 
     override fun getContextForClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
-        if (classOrObject.isLocal()) {
-            return getContextForLocalClassOrObject(classOrObject)
+        val countAtStart = ForceResolve.LAZY_ENTITIES_RESOLVED.get()
+        try {
+            if (classOrObject.isLocal()) {
+                return getContextForLocalClassOrObject(classOrObject)
+            }
+            else {
+                return getContextForNonLocalClassOrObject(classOrObject)
+            }
         }
-        else {
-            return getContextForNonLocalClassOrObject(classOrObject)
+        finally {
+            val countAtEnd = ForceResolve.LAZY_ENTITIES_RESOLVED.get()
+            LOG.warn("Preparing light class for ${classOrObject.fqName} resolved ${countAtEnd - countAtStart} lazy entities")
         }
     }
 

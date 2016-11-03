@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.asFlexibleType
 import org.jetbrains.kotlin.types.isFlexible
+import java.util.concurrent.atomic.AtomicInteger
 
 
 interface LazyEntity {
@@ -35,6 +36,8 @@ interface LazyEntity {
 }
 
 object ForceResolve {
+
+    val LAZY_ENTITIES_RESOLVED = AtomicInteger()
 
     enum class Depth {
         Deep, Shallow
@@ -86,7 +89,11 @@ object ForceResolve {
     }
 
     private fun doForceResolveAllContents(obj: Any, depth: Depth) {
-        (obj as? LazyEntity)?.forceResolveAllContents(depth)
+        val lazyEntity = obj as? LazyEntity
+        if (lazyEntity != null) {
+            lazyEntity.forceResolveAllContents(depth)
+            LAZY_ENTITIES_RESOLVED.incrementAndGet()
+        }
         (obj as? ValueParameterDescriptorImpl.WithDestructuringDeclaration)?.destructuringVariables
         if (obj is CallableDescriptor) {
             val callableDescriptor = obj

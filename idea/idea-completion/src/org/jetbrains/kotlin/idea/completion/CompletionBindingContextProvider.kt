@@ -58,7 +58,6 @@ class CompletionBindingContextProvider(project: Project) {
     }
 
     private class CompletionData(
-            val inStatement: KtExpression,
             val block: KtBlockExpression,
             val prevStatement: KtExpression?,
             val psiElementsBeforeAndAfter: List<PsiElementData>,
@@ -122,13 +121,14 @@ class CompletionBindingContextProvider(project: Project) {
                                                                 dataFlowInfo = prevCompletionData.statementDataFlowInfo,
                                                                 isStatement = true,
                                                                 contextDependency = ContextDependency.DEPENDENT)
-            CompositeBindingContext.create(listOf(statementContext, prevCompletionData.bindingContext)) //TODO: too many CompositeBindingContext's - may be performance problem
+            // we do not update prevCompletionDataCache because the same data should work
+            return CompositeBindingContext.create(listOf(statementContext, prevCompletionData.bindingContext))
         }
 
         prevCompletionDataCache.value.data = if (block != null && modificationScope != null) {
             val resolutionScope = inStatement.getResolutionScope(bindingContext, resolutionFacade)
             val dataFlowInfo = bindingContext.getDataFlowInfoBefore(inStatement)
-            CompletionData(inStatement, block, prevStatement, psiElementsBeforeAndAfter!!, bindingContext, resolutionScope, dataFlowInfo)
+            CompletionData(block, prevStatement, psiElementsBeforeAndAfter!!, bindingContext, resolutionScope, dataFlowInfo)
         }
         else {
             null

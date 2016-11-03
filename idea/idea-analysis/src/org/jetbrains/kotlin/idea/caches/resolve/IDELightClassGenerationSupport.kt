@@ -64,11 +64,18 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     private val psiManager: PsiManager = PsiManager.getInstance(project)
 
     override fun getContextForClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
-        if (classOrObject.isLocal()) {
-            return getContextForLocalClassOrObject(classOrObject)
+        val countAtStart = ForceResolveUtil.RESOLVED_LAZY_ENTITIES.get()
+        try {
+            if (classOrObject.isLocal()) {
+                return getContextForLocalClassOrObject(classOrObject)
+            }
+            else {
+                return getContextForNonLocalClassOrObject(classOrObject)
+            }
         }
-        else {
-            return getContextForNonLocalClassOrObject(classOrObject)
+        finally {
+            val countAtEnd = ForceResolveUtil.RESOLVED_LAZY_ENTITIES.get()
+            LOG.info("Preparing light class for ${classOrObject.fqName} resolved ${countAtEnd - countAtStart} lazy entities")
         }
     }
 

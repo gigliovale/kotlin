@@ -31,6 +31,7 @@ import org.jetbrains.kotlin.types.TypeConstructor;
 import org.jetbrains.kotlin.types.TypeProjection;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ForceResolveUtil {
     private static final Logger LOG = Logger.getInstance(ForceResolveUtil.class);
@@ -72,6 +73,7 @@ public class ForceResolveUtil {
     private static void doForceResolveAllContents(Object object) {
         if (object instanceof LazyEntity) {
             LazyEntity lazyEntity = (LazyEntity) object;
+            RESOLVED_LAZY_ENTITIES.incrementAndGet();
             lazyEntity.forceResolveAllContents();
         }
         else if (object instanceof ValueParameterDescriptorImpl.WithDestructuringDeclaration) {
@@ -117,4 +119,6 @@ public class ForceResolveUtil {
         }
         return type;
     }
+
+    public static AtomicInteger RESOLVED_LAZY_ENTITIES = new AtomicInteger(0);
 }

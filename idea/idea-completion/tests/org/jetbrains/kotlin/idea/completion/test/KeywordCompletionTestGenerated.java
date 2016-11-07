@@ -137,6 +137,18 @@ public class KeywordCompletionTestGenerated extends AbstractKeywordCompletionTes
         doTest(fileName);
     }
 
+    @TestMetadata("Else1.kt")
+    public void testElse1() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/Else1.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("Else2.kt")
+    public void testElse2() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/Else2.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("FileKeyword.kt")
     public void testFileKeyword() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/FileKeyword.kt");
@@ -146,6 +158,18 @@ public class KeywordCompletionTestGenerated extends AbstractKeywordCompletionTes
     @TestMetadata("GlobalPropertyAccessors.kt")
     public void testGlobalPropertyAccessors() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/GlobalPropertyAccessors.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("IfTry.kt")
+    public void testIfTry() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/IfTry.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("IfTryCatch.kt")
+    public void testIfTryCatch() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/keywords/IfTryCatch.kt");
         doTest(fileName);
     }
 

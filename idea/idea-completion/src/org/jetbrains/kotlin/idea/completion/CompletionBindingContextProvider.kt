@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.idea.util.getResolutionScope
 import org.jetbrains.kotlin.psi.KtBlockExpression
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.psi.psiUtil.siblings
@@ -112,6 +113,10 @@ class CompletionBindingContextProvider(project: Project) {
             TEST_LOG?.append("PSI-tree has changed inside current scope\n")
             doNonCachedResolve()
         }
+        else if (inStatement.isTooComplex()) {
+            TEST_LOG?.append("Current statement is too complex to use optimization\n")
+            doNonCachedResolve()
+        }
         else {
             TEST_LOG?.append("Statement position is the same - analyzing only one statement:\n${inStatement.text.prependIndent("    ")}\n")
 
@@ -155,5 +160,9 @@ class CompletionBindingContextProvider(project: Project) {
 
     private fun PsiElement.findStatementInBlock(): KtExpression? {
         return parents.filterIsInstance<KtExpression>().firstOrNull { it.parent is KtBlockExpression }
+    }
+
+    private fun KtExpression.isTooComplex(): Boolean {
+        return anyDescendantOfType<KtBlockExpression> { it.statements.size > 1 }
     }
 }

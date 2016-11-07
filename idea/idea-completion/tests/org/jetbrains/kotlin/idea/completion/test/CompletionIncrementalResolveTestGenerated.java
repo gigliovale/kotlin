@@ -59,6 +59,12 @@ public class CompletionIncrementalResolveTestGenerated extends AbstractCompletio
         doTest(fileName);
     }
 
+    @TestMetadata("doNotAnalyzeComplexStatement.kt")
+    public void testDoNotAnalyzeComplexStatement() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/incrementalResolve/doNotAnalyzeComplexStatement.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("noDataFlowFromOldStatement.kt")
     public void testNoDataFlowFromOldStatement() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/idea-completion/testData/incrementalResolve/noDataFlowFromOldStatement.kt");

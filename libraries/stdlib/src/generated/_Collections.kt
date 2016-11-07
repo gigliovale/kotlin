@@ -11,8 +11,6 @@ package kotlin.collections
 import kotlin.comparisons.*
 import java.util.*
 
-import java.util.Collections // TODO: it's temporary while we have java.util.Collections in js
-
 /**
  * Returns 1st *element* from the collection.
  */
@@ -786,6 +784,7 @@ public inline fun <T> Iterable<T>.takeWhile(predicate: (T) -> Boolean): List<T> 
 /**
  * Reverses elements in the list in-place.
  */
+@kotlin.jvm.JvmVersion
 public fun <T> MutableList<T>.reverse(): Unit {
     java.util.Collections.reverse(this)
 }
@@ -796,7 +795,7 @@ public fun <T> MutableList<T>.reverse(): Unit {
 public fun <T> Iterable<T>.reversed(): List<T> {
     if (this is Collection && size <= 1) return toList()
     val list = toMutableList()
-    Collections.reverse(list)
+    list.reverse()
     return list
 }
 

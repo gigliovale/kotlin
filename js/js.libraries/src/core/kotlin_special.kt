@@ -7,8 +7,6 @@ package kotlin.collections
 
 import java.util.*
 
-import java.util.Collections // TODO: it's temporary while we have java.util.Collections in js
-
 /**
  * Returns a [List] that wraps the original array.
  */
@@ -499,7 +497,7 @@ public inline fun <T> Array<out T>.plusElement(element: T): Array<T> {
  */
 @library("primitiveArraySort")
 public fun ByteArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -507,7 +505,7 @@ public fun ByteArray.sort(): Unit {
  */
 @library("primitiveArraySort")
 public fun CharArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -515,7 +513,7 @@ public fun CharArray.sort(): Unit {
  */
 @library("primitiveArraySort")
 public fun DoubleArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -523,7 +521,7 @@ public fun DoubleArray.sort(): Unit {
  */
 @library("primitiveArraySort")
 public fun FloatArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -531,7 +529,7 @@ public fun FloatArray.sort(): Unit {
  */
 @library("primitiveArraySort")
 public fun IntArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -539,7 +537,7 @@ public fun IntArray.sort(): Unit {
  */
 @library("primitiveArraySort")
 public fun ShortArray.sort(): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -563,7 +561,7 @@ public fun LongArray.sort(): Unit {
  */
 @native
 public fun <T> Array<out T>.sort(comparison: (T, T) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -571,7 +569,7 @@ public fun <T> Array<out T>.sort(comparison: (T, T) -> Int): Unit {
  */
 @native
 public fun ByteArray.sort(comparison: (Byte, Byte) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -579,7 +577,7 @@ public fun ByteArray.sort(comparison: (Byte, Byte) -> Int): Unit {
  */
 @native
 public fun CharArray.sort(comparison: (Char, Char) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -587,7 +585,7 @@ public fun CharArray.sort(comparison: (Char, Char) -> Int): Unit {
  */
 @native
 public fun DoubleArray.sort(comparison: (Double, Double) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -595,7 +593,7 @@ public fun DoubleArray.sort(comparison: (Double, Double) -> Int): Unit {
  */
 @native
 public fun FloatArray.sort(comparison: (Float, Float) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -603,7 +601,7 @@ public fun FloatArray.sort(comparison: (Float, Float) -> Int): Unit {
  */
 @native
 public fun IntArray.sort(comparison: (Int, Int) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -611,7 +609,7 @@ public fun IntArray.sort(comparison: (Int, Int) -> Int): Unit {
  */
 @native
 public fun LongArray.sort(comparison: (Long, Long) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**
@@ -619,7 +617,7 @@ public fun LongArray.sort(comparison: (Long, Long) -> Int): Unit {
  */
 @native
 public fun ShortArray.sort(comparison: (Short, Short) -> Int): Unit {
-    return noImpl
+    noImpl
 }
 
 /**

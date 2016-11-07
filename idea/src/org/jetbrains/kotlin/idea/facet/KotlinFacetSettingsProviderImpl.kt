@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.util
+package org.jetbrains.kotlin.idea.facet
 
-interface DescriptionAware {
-    val description: String
+import com.intellij.openapi.module.Module
+import org.jetbrains.kotlin.config.KotlinFacetSettings
+import org.jetbrains.kotlin.config.KotlinFacetSettingsProvider
+
+class KotlinFacetSettingsProviderImpl : KotlinFacetSettingsProvider {
+    override fun getSettings(module: Module): KotlinFacetSettings {
+        val settings = KotlinFacet.get(module)?.configuration?.state ?: KotlinFacetSettings()
+        settings.initializeIfNeeded(module, null)
+        return settings
+    }
 }

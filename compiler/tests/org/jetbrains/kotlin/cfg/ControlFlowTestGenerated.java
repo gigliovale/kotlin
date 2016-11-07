@@ -156,6 +156,18 @@ public class ControlFlowTestGenerated extends AbstractControlFlowTest {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/cfg/bugs/kt7761.kt");
             doTest(fileName);
         }
+
+        @TestMetadata("setWithTypeMismatch.kt")
+        public void testSetWithTypeMismatch() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/cfg/bugs/setWithTypeMismatch.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("unresolvedInvokeOnResolvedVar.kt")
+        public void testUnresolvedInvokeOnResolvedVar() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/cfg/bugs/unresolvedInvokeOnResolvedVar.kt");
+            doTest(fileName);
+        }
     }
 
     @TestMetadata("compiler/testData/cfg/controlStructures")

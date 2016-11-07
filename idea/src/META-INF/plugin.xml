@@ -294,6 +294,12 @@
     <projectService serviceInterface="org.jetbrains.kotlin.console.KotlinConsoleKeeper"
                     serviceImplementation="org.jetbrains.kotlin.console.KotlinConsoleKeeper"/>
 
+    <projectService serviceInterface="org.jetbrains.kotlin.analyzer.LanguageVersionSettingsProvider"
+                    serviceImplementation="org.jetbrains.kotlin.idea.compiler.LanguageVersionSettingsProviderImpl"/>
+
+    <projectService serviceInterface="org.jetbrains.kotlin.config.KotlinFacetSettingsProvider"
+                    serviceImplementation="org.jetbrains.kotlin.idea.facet.KotlinFacetSettingsProviderImpl"/>
+
     <errorHandler implementation="org.jetbrains.kotlin.idea.reporter.KotlinReportSubmitter"/>
 
     <internalFileTemplate name="Kotlin File"/>
@@ -408,6 +414,7 @@
     <completion.confidence language="kotlin"
                            implementationClass="org.jetbrains.kotlin.idea.completion.confidence.UnfocusedPossibleFunctionParameter"/>
     <completion.confidence language="kotlin" implementationClass="com.intellij.codeInsight.completion.AlwaysFocusLookup" order="last"/>
+    <completion.confidence language="kotlin" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
 
     <lookup.charFilter implementation="org.jetbrains.kotlin.idea.completion.KotlinCompletionCharFilter"/>
     <lookup.actionProvider implementation="org.jetbrains.kotlin.idea.completion.KotlinExcludeFromCompletionLookupActionProvider"/>

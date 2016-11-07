@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.idea.facet
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.JavaSdkVersion
@@ -24,11 +23,11 @@ import com.intellij.openapi.roots.LibraryOrderEntry
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModel
 import com.intellij.util.text.VersionComparatorUtil
-import org.jetbrains.kotlin.config.CompilerSettings
+import org.jetbrains.kotlin.cli.common.arguments.copyBean
+import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.idea.compiler.configuration.Kotlin2JsCompilerArgumentsHolder
 import org.jetbrains.kotlin.idea.compiler.configuration.KotlinCommonCompilerArgumentsHolder
 import org.jetbrains.kotlin.idea.compiler.configuration.KotlinCompilerSettings
-import org.jetbrains.kotlin.idea.compiler.configuration.KotlinCompilerWorkspaceSettings
 import org.jetbrains.kotlin.idea.framework.JSLibraryStdPresentationProvider
 import org.jetbrains.kotlin.idea.framework.JavaRuntimePresentationProvider
 import org.jetbrains.kotlin.idea.framework.getLibraryProperties
@@ -68,23 +67,23 @@ private fun getDefaultTargetPlatform(module: Module, rootModel: ModuleRootModel?
     val sdk = ((rootModel ?: ModuleRootManager.getInstance(module))).sdk
     val sdkVersion = (sdk?.sdkType as? JavaSdk)?.getVersion(sdk!!)
     return when {
-        sdkVersion != null && sdkVersion <= JavaSdkVersion.JDK_1_6 -> JVMPlatform[JVMVersion.JVM_1_6]
-        else -> JVMPlatform[JVMVersion.JVM_1_8]
+        sdkVersion != null && sdkVersion <= JavaSdkVersion.JDK_1_6 -> JVMPlatform[JvmTarget.JVM_1_6]
+        else -> JVMPlatform[JvmTarget.JVM_1_8]
     }
 }
 
 private fun getDefaultLanguageLevel(
         module: Module,
         explicitVersion: String? = null
-): LanguageLevel {
+): LanguageVersion {
     val libVersion = explicitVersion
                      ?: KotlinVersionInfoProvider.EP_NAME.extensions
                              .mapNotNull { it.getCompilerVersion(module) }
                              .minWith(VersionComparatorUtil.COMPARATOR)
                      ?: bundledRuntimeVersion()
     return when {
-        libVersion.startsWith("1.0") -> LanguageLevel.KOTLIN_1_0
-        else -> LanguageLevel.KOTLIN_1_1
+        libVersion.startsWith("1.0") -> LanguageVersion.KOTLIN_1_0
+        else -> LanguageVersion.KOTLIN_1_1
     }
 }
 
@@ -92,13 +91,13 @@ internal fun getLibraryLanguageLevel(
         module: Module,
         rootModel: ModuleRootModel?,
         targetPlatform: TargetPlatformKind<*>?
-): LanguageLevel {
-    val minVersion = getRuntimeLibraryVersions(module, rootModel, targetPlatform ?: JVMPlatform[JVMVersion.JVM_1_8])
+): LanguageVersion {
+    val minVersion = getRuntimeLibraryVersions(module, rootModel, targetPlatform ?: JVMPlatform[JvmTarget.JVM_1_8])
             .minWith(VersionComparatorUtil.COMPARATOR)
     return getDefaultLanguageLevel(module, minVersion)
 }
 
-internal fun KotlinFacetConfiguration.Settings.initializeIfNeeded(module: Module, rootModel: ModuleRootModel?) {
+internal fun KotlinFacetSettings.initializeIfNeeded(module: Module, rootModel: ModuleRootModel?) {
     val project = module.project
 
     with(versionInfo) {
@@ -117,23 +116,17 @@ internal fun KotlinFacetConfiguration.Settings.initializeIfNeeded(module: Module
 
     with(compilerInfo) {
         if (commonCompilerArguments == null) {
-            commonCompilerArguments = KotlinCommonCompilerArgumentsHolder.getInstance(project).settings.copy()
+            commonCompilerArguments = copyBean(KotlinCommonCompilerArgumentsHolder.getInstance(project).settings)
         }
 
         if (compilerSettings == null) {
-            compilerSettings = CompilerSettings(KotlinCompilerSettings.getInstance(project).settings)
+            compilerSettings = copyBean(KotlinCompilerSettings.getInstance(project).settings)
         }
 
         if (k2jsCompilerArguments == null) {
-            k2jsCompilerArguments = Kotlin2JsCompilerArgumentsHolder.getInstance (project).settings.copy()
+            k2jsCompilerArguments = copyBean(Kotlin2JsCompilerArgumentsHolder.getInstance(project).settings)
         }
     }
-}
-
-internal fun Module.getKotlinSettings(rootModel: ModuleRootModel? = null): KotlinFacetConfiguration.Settings {
-    val settings = KotlinFacet.get(this)?.configuration?.state ?: KotlinFacetConfiguration.Settings()
-    settings.initializeIfNeeded(this, rootModel)
-    return settings
 }
 
 val TargetPlatformKind<*>.mavenLibraryId: String

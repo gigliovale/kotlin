@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.lexer.KtTokens.*
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedElementSelector
 import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.isAncestor
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingContextUtils
 import org.jetbrains.kotlin.resolve.BindingTrace
@@ -459,9 +460,7 @@ class ControlFlowProcessor(private val trace: BindingTrace) {
             val rhsArgument = valueArguments.lastOrNull()
             var argumentValues = SmartFMap.emptyMap<PseudoValue, ValueParameterDescriptor>()
             for (valueArgument in valueArguments) {
-                val argumentMapping = setResolvedCall.getArgumentMapping(valueArgument)
-                if (argumentMapping.isError() || argumentMapping !is ArgumentMatch) continue
-
+                val argumentMapping = setResolvedCall.getArgumentMapping(valueArgument) as? ArgumentMatch ?: continue
                 val parameterDescriptor = argumentMapping.valueParameter
                 if (valueArgument !== rhsArgument) {
                     argumentValues = generateValueArgument(valueArgument, parameterDescriptor, argumentValues)
@@ -1468,7 +1467,10 @@ class ControlFlowProcessor(private val trace: BindingTrace) {
         }
 
         private fun generateCall(callElement: KtElement): Boolean {
-            return checkAndGenerateCall(callElement.getResolvedCall(trace.bindingContext))
+            val resolvedCall = callElement.getResolvedCall(trace.bindingContext)
+            val callElementFromResolvedCall = resolvedCall?.call?.callElement ?: return false
+            if (callElement.isAncestor(callElementFromResolvedCall, true)) return false
+            return checkAndGenerateCall(resolvedCall)
         }
 
         private fun checkAndGenerateCall(resolvedCall: ResolvedCall<*>?): Boolean {

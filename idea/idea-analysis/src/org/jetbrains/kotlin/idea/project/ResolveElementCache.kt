@@ -23,7 +23,6 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.cfg.ControlFlowInformationProvider
-import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
 import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.SimpleGlobalContext
 import org.jetbrains.kotlin.context.withModule
@@ -300,7 +299,7 @@ class ResolveElementCache(
 
             is KtAnonymousInitializer -> initializerAdditionalResolve(resolveSession, resolveElement, file, createStatementFilter(), bodyResolveMode.bindingTraceFilter)
 
-            is KtPrimaryConstructor -> constructorAdditionalResolve(resolveSession, resolveElement.parent as KtClass, file, bodyResolveMode.bindingTraceFilter)
+            is KtPrimaryConstructor -> constructorAdditionalResolve(resolveSession, resolveElement.parent as KtClassOrObject, file, bodyResolveMode.bindingTraceFilter)
 
             is KtSecondaryConstructor -> secondaryConstructorAdditionalResolve(resolveSession, resolveElement, file, createStatementFilter(), bodyResolveMode.bindingTraceFilter)
 
@@ -523,7 +522,7 @@ class ResolveElementCache(
         return trace
     }
 
-    private fun constructorAdditionalResolve(resolveSession: ResolveSession, klass: KtClass, file: KtFile, filter : BindingTraceFilter): BindingTrace {
+    private fun constructorAdditionalResolve(resolveSession: ResolveSession, klass: KtClassOrObject, file: KtFile, filter : BindingTraceFilter): BindingTrace {
         val trace = createDelegatingTrace(klass, filter)
         val scope = resolveSession.declarationScopeProvider.getResolutionScopeForDeclaration(klass)
 
@@ -588,7 +587,7 @@ class ResolveElementCache(
                 trace,
                 targetPlatform,
                 statementFilter,
-                LanguageVersionSettingsImpl.DEFAULT // TODO: see KT-12410
+                file.languageVersionSettings
         ).get<BodyResolver>()
     }
 

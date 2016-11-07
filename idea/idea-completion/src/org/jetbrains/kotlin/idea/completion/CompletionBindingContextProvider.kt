@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.completion
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
@@ -50,6 +51,8 @@ import java.lang.ref.SoftReference
 import java.util.*
 
 class CompletionBindingContextProvider(project: Project) {
+    private val LOG = Logger.getInstance(CompletionBindingContextProvider::class.java)
+
     @TestOnly
     internal var TEST_LOG: StringBuilder? = null
 
@@ -98,27 +101,27 @@ class CompletionBindingContextProvider(project: Project) {
 
         val prevCompletionData = prevCompletionDataCache.value.data
         val bindingContext = if (prevCompletionData == null) {
-            TEST_LOG?.append("No up-to-date data from previous completion\n")
+            log("No up-to-date data from previous completion\n")
             doNonCachedResolve()
         }
         else if (block != prevCompletionData.block) {
-            TEST_LOG?.append("Not in the same block\n")
+            log("Not in the same block\n")
             doNonCachedResolve()
         }
         else if (prevStatement != prevCompletionData.prevStatement) {
-            TEST_LOG?.append("Previous statement is not the same\n")
+            log("Previous statement is not the same\n")
             doNonCachedResolve()
         }
         else if (psiElementsBeforeAndAfter != prevCompletionData.psiElementsBeforeAndAfter) {
-            TEST_LOG?.append("PSI-tree has changed inside current scope\n")
+            log("PSI-tree has changed inside current scope\n")
             doNonCachedResolve()
         }
         else if (inStatement.isTooComplex()) {
-            TEST_LOG?.append("Current statement is too complex to use optimization\n")
+            log("Current statement is too complex to use optimization\n")
             doNonCachedResolve()
         }
         else {
-            TEST_LOG?.append("Statement position is the same - analyzing only one statement:\n${inStatement.text.prependIndent("    ")}\n")
+            log("Statement position is the same - analyzing only one statement:\n${inStatement.text.prependIndent("    ")}\n")
 
             //TODO: expected type?
             val statementContext = inStatement.analyzeInContext(scope = prevCompletionData.statementResolutionScope,
@@ -140,6 +143,11 @@ class CompletionBindingContextProvider(project: Project) {
         }
 
         return bindingContext
+    }
+
+    private fun log(message: String) {
+        TEST_LOG?.append(message)
+        LOG.debug(message)
     }
 
     private fun collectPsiElementsBeforeAndAfter(scope: PsiElement, statement: KtExpression): List<PsiElementData> {

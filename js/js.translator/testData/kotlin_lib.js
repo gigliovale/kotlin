@@ -86,7 +86,7 @@
             return "null";
         }
         else if (Array.isArray(o)) {
-            return Kotlin.arrayToString(o);
+            return "[...]";
         }
         else {
             return o.toString();
@@ -95,6 +95,21 @@
 
     Kotlin.arrayToString = function (a) {
         return "[" + a.map(Kotlin.toString).join(", ") + "]";
+    };
+
+    Kotlin.arrayDeepToString = function (a, visited) {
+        visited = visited || [a];
+        return "[" + a.map(function(e) {
+            if (Array.isArray(e) && visited.indexOf(e) < 0) {
+                visited.push(e);
+                var result = Kotlin.arrayDeepToString(e, visited);
+                visited.pop();
+                return result;
+            }
+            else {
+                return Kotlin.toString(e);
+            }
+        }).join(", ") + "]";
     };
 
     Kotlin.compareTo = function (a, b) {
@@ -365,6 +380,44 @@
         }
         return true;
     };
+
+    Kotlin.arrayDeepEquals = function (a, b) {
+        if (a === b) {
+            return true;
+        }
+        if (!Array.isArray(b) || a.length !== b.length) {
+            return false;
+        }
+
+        for (var i = 0, n = a.length; i < n; i++) {
+            if (Array.isArray(a[i])) {
+                if (!Kotlin.arrayDeepEquals(a[i], b[i])) {
+                    return false;
+                }
+            } else if (!Kotlin.equals(a[i], b[i])) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    Kotlin.arrayHashCode = function (arr) {
+        var result = 1;
+        for (var i = 0, n = arr.length; i < n; i++) {
+            result = ((31 * result | 0) + Kotlin.hashCode(arr[i])) | 0;
+        }
+        return result;
+    };
+
+    Kotlin.arrayDeepHashCode = function (arr) {
+        var result = 1;
+        for (var i = 0, n = arr.length; i < n; i++) {
+            var e = arr[i];
+            result = ((31 * result | 0) + (Array.isArray(e) ? Kotlin.arrayDeepHashCode(e) : Kotlin.hashCode(e))) | 0;
+        }
+        return result;
+    };
+
 
     var BaseOutput = Kotlin.createClassNow(null, null, {
             println: function (a) {

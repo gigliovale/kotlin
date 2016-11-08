@@ -23,18 +23,22 @@ import kotlin.test.*
 import org.junit.Test as test
 import kotlin.comparisons.*
 
-fun <T> assertArrayNotSameButEquals(expected: Array<out T>, actual: Array<out T>, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: IntArray, actual: IntArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: LongArray, actual: LongArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: ShortArray, actual: ShortArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: ByteArray, actual: ByteArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: DoubleArray, actual: DoubleArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: FloatArray, actual: FloatArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: CharArray, actual: CharArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
-fun assertArrayNotSameButEquals(expected: BooleanArray, actual: BooleanArray, message: String = "") { assertTrue(expected !== actual, message); assertEquals(expected.toList(), actual.toList(), message) }
+fun <T> assertArrayNotSameButEquals(expected: Array<out T>, actual: Array<out T>, message: String = "") { assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: IntArray, actual: IntArray, message: String = "") {             assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: LongArray, actual: LongArray, message: String = "") {           assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: ShortArray, actual: ShortArray, message: String = "") {         assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: ByteArray, actual: ByteArray, message: String = "") {           assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: DoubleArray, actual: DoubleArray, message: String = "") {       assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: FloatArray, actual: FloatArray, message: String = "") {         assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: CharArray, actual: CharArray, message: String = "") {           assertTrue(expected !== actual && expected contentEquals actual, message) }
+fun assertArrayNotSameButEquals(expected: BooleanArray, actual: BooleanArray, message: String = "") {     assertTrue(expected !== actual && expected contentEquals actual, message) }
 
 
 class ArraysTest {
+
+    data class Value(val value: Int) {
+        override fun hashCode(): Int = value
+    }
 
     @test fun orEmptyNull() {
         val x: Array<String>? = null
@@ -202,6 +206,59 @@ class ArraysTest {
         assertEquals(true, arr[0])
         assertEquals(false, arr[1])
     }
+
+    @test fun contentEquals() {
+        val arr1 = arrayOf("a", 1, null)
+        val arr2 = arrayOf(*arr1)
+        assertTrue(arr1 contentEquals arr2)
+        val arr3 = arr2.reversedArray()
+        assertFalse(arr1 contentEquals arr3)
+    }
+
+    @test fun contentDeepEquals() {
+        val arr1 = arrayOf("a", 1, intArrayOf(2))
+        val arr2 = arrayOf("a", 1, intArrayOf(2))
+        assertFalse(arr1 contentEquals arr2)
+        assertTrue(arr1 contentDeepEquals arr2)
+        arr2[2] = arr1
+        assertFalse(arr1 contentDeepEquals arr2)
+    }
+
+    @test fun contentToString() {
+        val arr = arrayOf("a", 1, null)
+        assertEquals(arr.asList().toString(), arr.contentToString())
+    }
+
+    @test fun contentDeepToString() {
+        val arr = arrayOf("aa", 1, null, charArrayOf('d'))
+        assertEquals("[aa, 1, null, [d]]", arr.contentDeepToString())
+    }
+
+    @test fun contentDeepToStringNoRecursion() {
+        // a[b[a, b]]
+        val b = arrayOfNulls<Any>(2)
+        val a = arrayOf(b)
+        b[0] = a
+        b[1] = b
+        a.toString()
+        assertTrue(true, "toString does not cycle")
+        a.contentToString()
+        assertTrue(true, "contentToString does not cycle")
+        val result = a.contentDeepToString()
+        assertEquals("[[[...], [...]]]", result)
+    }
+
+    @test fun contentHashCode() {
+        val arr = arrayOf("a", 1, null, Value(5))
+        assertEquals(listOf(*arr).hashCode(), arr.contentHashCode())
+        assertEquals((1*31 + 2)*31 + 3, arrayOf(Value(2), Value(3)).contentHashCode())
+    }
+
+    @test fun contentDeepHashCode() {
+        val arr = arrayOf(null, Value(2), arrayOf(Value(3)))
+        assertEquals(((1*31 + 0)*31 + 2) * 31 + (1 * 31 + 3), arr.contentDeepHashCode())
+    }
+
 
     @test fun min() {
         expect(null, { arrayOf<Int>().min() })

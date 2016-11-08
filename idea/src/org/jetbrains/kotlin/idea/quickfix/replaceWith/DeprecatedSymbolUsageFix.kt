@@ -21,10 +21,11 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.diagnostics.Diagnostic
+import org.jetbrains.kotlin.idea.core.moveCaret
 import org.jetbrains.kotlin.idea.core.targetDescriptors
 import org.jetbrains.kotlin.idea.quickfix.CleanupFix
 import org.jetbrains.kotlin.idea.quickfix.KotlinSingleIntentionActionFactory
-import org.jetbrains.kotlin.idea.core.moveCaret
+import org.jetbrains.kotlin.idea.codeInliner.UsageReplacementStrategy
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
 import org.jetbrains.kotlin.resolve.calls.callUtil.getCalleeExpressionIfAny
@@ -41,8 +42,10 @@ class DeprecatedSymbolUsageFix(
     override fun invoke(replacementStrategy: UsageReplacementStrategy, project: Project, editor: Editor?) {
         val element = element ?: return
         val result = replacementStrategy.createReplacer(element)!!.invoke()
-        val offset = (result.getCalleeExpressionIfAny() ?: result).textOffset
-        editor?.moveCaret(offset)
+        if (result != null) {
+            val offset = (result.getCalleeExpressionIfAny() ?: result).textOffset
+            editor?.moveCaret(offset)
+        }
     }
 
     companion object : KotlinSingleIntentionActionFactory() {

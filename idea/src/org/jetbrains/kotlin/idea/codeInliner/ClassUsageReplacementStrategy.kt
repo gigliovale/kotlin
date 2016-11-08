@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.quickfix.replaceWith
+package org.jetbrains.kotlin.idea.codeInliner
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.idea.core.ShortenReferences
@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.utils.addToStdlib.check
 
 class ClassUsageReplacementStrategy(
         typeReplacement: KtUserType?,
-        constructorReplacement: ReplaceWithAnnotationAnalyzer.ReplacementExpression?,
+        constructorReplacement: CodeToInline?,
         project: Project
 ) : UsageReplacementStrategy {
 
@@ -36,7 +36,7 @@ class ClassUsageReplacementStrategy(
 
     private val constructorReplacementStrategy = constructorReplacement?.let(::CallableUsageReplacementStrategy)
 
-    override fun createReplacer(usage: KtSimpleNameExpression): (() -> KtElement)? {
+    override fun createReplacer(usage: KtSimpleNameExpression): (() -> KtElement?)? {
         if (usage !is KtNameReferenceExpression) return null
 
         constructorReplacementStrategy?.createReplacer(usage)?.let { return it }

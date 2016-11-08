@@ -22,7 +22,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.idea.analysis.analyzeInContext
+import org.jetbrains.kotlin.idea.analysis.analyzeAsReplacement
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.core.ShortenReferences.Options
 import org.jetbrains.kotlin.idea.imports.canBeReferencedViaImport
@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.idea.util.ImportInsertHelper
 import org.jetbrains.kotlin.idea.util.getResolutionScope
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForReceiver
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -292,7 +293,7 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
         }
 
         /**
-         * This method is invoked for all qualified elements added by [addQualifiedElementToAnalyze]
+         * This method is invoked for all qualified elements added by [CollectElementsVisitor.addQualifiedElementToAnalyze]
          */
         protected abstract fun analyzeQualifiedElement(element: TElement, bindingContext: BindingContext): AnalyzeQualifiedElementResult
 
@@ -432,9 +433,7 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
             val varAsFunResolvedCall = callee.getResolvedCall(bindingContext) as? VariableAsFunctionResolvedCall
             if (targets.isEmpty()) return Skip
 
-            val scope = element.getResolutionScope(bindingContext, resolutionFacade)
-            val selectorCopy = selector.copy() as KtReferenceExpression
-            val newContext = selectorCopy.analyzeInContext(scope, selector)
+            val (newContext, selectorCopy) = copyAndAnalyzeSelector(element, bindingContext)
             val newCallee = selectorCopy.getCalleeExpressionIfAny() as KtReferenceExpression
             val targetsWhenShort = newCallee.targets(newContext)
             val varAsFunResolvedCallWhenShort = newCallee.getResolvedCall(newContext) as? VariableAsFunctionResolvedCall
@@ -463,6 +462,22 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
                 targetsWhenShort.any { it !is ClassDescriptor && it !is PackageViewDescriptor } -> Skip
 
                 else -> ImportDescriptors(targets)
+            }
+        }
+
+        private fun copyAndAnalyzeSelector(element: KtDotQualifiedExpression, bindingContext: BindingContext): Pair<BindingContext, KtExpression> {
+            val selector = element.selectorExpression!!
+            val qualifiedAbove = element.getQualifiedExpressionForReceiver()
+            if (qualifiedAbove == null) {
+                val copied = selector.copied()
+                val newBindingContext = copied.analyzeAsReplacement(element, bindingContext, resolutionFacade)
+                return newBindingContext to copied
+            }
+            else {
+                val qualifiedAboveCopy = qualifiedAbove.copied()
+                qualifiedAboveCopy.receiverExpression.replace(selector)
+                val newBindingContext = qualifiedAboveCopy.analyzeAsReplacement(qualifiedAbove, bindingContext, resolutionFacade)
+                return newBindingContext to qualifiedAboveCopy.receiverExpression
             }
         }
 
@@ -505,8 +520,7 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
 
         override fun analyzeQualifiedElement(element: KtThisExpression, bindingContext: BindingContext): AnalyzeQualifiedElementResult {
             val targetBefore = element.instanceReference.targets(bindingContext).singleOrNull() ?: return Skip
-            val scope = element.getResolutionScope(bindingContext, resolutionFacade)
-            val newContext = simpleThis.analyzeInContext(scope, element)
+            val newContext = simpleThis.analyzeAsReplacement(element, bindingContext, resolutionFacade)
             val targetAfter = simpleThis.instanceReference.targets(newContext).singleOrNull()
             return if (targetBefore == targetAfter) ShortenNow else Skip
         }
@@ -533,8 +547,7 @@ class ShortenReferences(val options: (KtElement) -> Options = { Options.DEFAULT 
                     element,
                     KtImportDirective::class.java, KtPackageDirective::class.java) != null) return Skip
 
-            val receiverTarget = receiver.singleTarget(bindingContext) ?: return Skip
-            if (receiverTarget !is ClassDescriptor) return Skip
+            val receiverTarget = receiver.singleTarget(bindingContext) as? ClassDescriptor ?: return Skip
 
             val selectorExpression = element.selectorExpression ?: return Skip
             val selectorTarget = selectorExpression.singleTarget(bindingContext) ?: return Skip

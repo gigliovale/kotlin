@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
 import org.jetbrains.kotlin.diagnostics.Severity
+import org.jetbrains.kotlin.idea.analysis.analyzeAsReplacement
 import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
@@ -38,7 +39,7 @@ import org.jetbrains.kotlin.psi.KtPsiUtil.isOrdinaryAssignment
 import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
-import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfo
+import org.jetbrains.kotlin.resolve.bindingContextUtil.getDataFlowInfoBefore
 import org.jetbrains.kotlin.resolve.bindingContextUtil.isUsedAsExpression
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
@@ -275,11 +276,7 @@ fun <TExpression : KtExpression> tryChangeAndCheckErrors(
 
     performChange(expressionCopy)
 
-    val resolutionScope = block.getResolutionScope(bindingContext, block.getResolutionFacade())
-    val newBindingContext = blockCopy.analyzeInContext(scope = resolutionScope,
-                                                       contextExpression = block,
-                                                       dataFlowInfo = bindingContext.getDataFlowInfo(block),
-                                                       trace = DelegatingBindingTrace(bindingContext, "Temporary trace"))
+    val newBindingContext = blockCopy.analyzeAsReplacement(block, bindingContext)
     return newBindingContext.diagnostics.none {
         it.severity == Severity.ERROR
             && !scopeToExcludeCopy.isAncestor(it.psiElement)

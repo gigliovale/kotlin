@@ -43,6 +43,7 @@ class JvmRuntimeTypes(module: ModuleDescriptor) {
     private val functionReference: ClassDescriptor by klass("FunctionReference")
     private val localVariableReference: ClassDescriptor by klass("LocalVariableReference")
     private val mutableLocalVariableReference: ClassDescriptor by klass("MutableLocalVariableReference")
+    private val coroutineImplClass by klass("CoroutineImpl")
 
     private val propertyReferences: List<ClassDescriptor> by lazy {
         (0..2).map { i -> createClass(kotlinJvmInternalPackage, "PropertyReference$i") }
@@ -52,17 +53,13 @@ class JvmRuntimeTypes(module: ModuleDescriptor) {
         (0..2).map { i -> createClass(kotlinJvmInternalPackage, "MutablePropertyReference$i") }
     }
 
-    private val defaultContinuationSupertype: KotlinType by lazy { createNullableAnyContinuation(module) }
+    val continuationOfAny: KotlinType by lazy { createNullableAnyContinuation(module) }
 
     /**
      * @return `Continuation<Any?>` type
      */
     private fun createNullableAnyContinuation(module: ModuleDescriptor): KotlinType {
-        // TODO: create a synthesized class descriptor here instead of looking at the classpath, or report a proper diagnostic
-        // This code will throw when compiling with "-no-stdlib" because no built-ins would be found in the classpath either
-        val classDescriptor = module.resolveTopLevelClass(
-                DescriptorUtils.CONTINUATION_INTERFACE_FQ_NAME, NoLookupLocation.FROM_BACKEND
-        ) ?: throw AssertionError("${DescriptorUtils.CONTINUATION_INTERFACE_FQ_NAME} was not found in built-ins")
+        val classDescriptor = module.builtIns.getBuiltInClassByFqName(DescriptorUtils.CONTINUATION_INTERFACE_FQ_NAME)
 
         return TypeConstructorSubstitution.createByParametersMap(
                 mapOf(classDescriptor.declaredTypeParameters.single() to TypeProjectionImpl(module.builtIns.nullableAnyType))
@@ -89,7 +86,7 @@ class JvmRuntimeTypes(module: ModuleDescriptor) {
 
         val coroutineControllerType = descriptor.controllerTypeIfCoroutine
         if (coroutineControllerType != null) {
-            return listOf(lambda.defaultType, functionType, /*coroutineType,*/ defaultContinuationSupertype)
+            return listOf(coroutineImplClass.defaultType, functionType)
         }
 
         return listOf(lambda.defaultType, functionType)

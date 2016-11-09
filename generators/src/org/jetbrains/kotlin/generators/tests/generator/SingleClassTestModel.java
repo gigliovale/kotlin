@@ -24,6 +24,7 @@ import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
+import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.utils.Printer;
 
 import java.io.File;
@@ -32,8 +33,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import static org.jetbrains.kotlin.generators.tests.generator.TestGenerator.TargetBackend;
 
 public class SingleClassTestModel implements TestClassModel {
     @NotNull
@@ -145,8 +144,9 @@ public class SingleClassTestModel implements TestClassModel {
         @Override
         public void generateBody(@NotNull Printer p) {
             String assertTestsPresentStr = String.format(
-                    "KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File(\"%s\"), Pattern.compile(\"%s\"));",
-                    KotlinTestUtils.getFilePath(rootFile), StringUtil.escapeStringCharacters(filenamePattern.pattern())
+                    "KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File(\"%s\"), Pattern.compile(\"%s\"), %s.%s);",
+                    KotlinTestUtils.getFilePath(rootFile), StringUtil.escapeStringCharacters(filenamePattern.pattern()),
+                    TargetBackend.class.getSimpleName(), targetBackend.toString()
             );
             p.println(assertTestsPresentStr);
         }
@@ -159,6 +159,11 @@ public class SingleClassTestModel implements TestClassModel {
         @Override
         public void generateSignature(@NotNull Printer p) {
             TestMethodModel.DefaultImpls.generateSignature(this, p);
+        }
+
+        @Override
+        public boolean shouldBeGenerated() {
+            return true;
         }
     }
 }

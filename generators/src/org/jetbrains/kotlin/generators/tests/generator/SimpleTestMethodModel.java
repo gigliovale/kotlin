@@ -22,18 +22,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.test.InTextDirectivesUtils;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
+import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.utils.Printer;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.jetbrains.kotlin.generators.tests.generator.TestGenerator.TargetBackend;
+import static org.jetbrains.kotlin.test.InTextDirectivesUtils.isIgnoredTarget;
+import static org.jetbrains.kotlin.test.InTextDirectivesUtils.isIgnoredTargetWithoutCheck;
 
 public class SimpleTestMethodModel implements TestMethodModel {
-    private static final String DIRECTIVES_FILE_NAME = "directives.txt";
 
     @NotNull
     private final File rootDir;
@@ -75,7 +74,21 @@ public class SimpleTestMethodModel implements TestMethodModel {
     public void generateBody(@NotNull Printer p) {
         String filePath = KotlinTestUtils.getFilePath(file) + (file.isDirectory() ? "/" : "");
         p.println("String fileName = KotlinTestUtils.navigationMetadata(\"", filePath, "\");");
+
+        if (isIgnoredTarget(targetBackend, file)) {
+            p.println("try {");
+            p.pushIndent();
+        }
+
         p.println(doTestMethodName, "(fileName);");
+
+        if (isIgnoredTarget(targetBackend, file)) {
+            p.println("throw new AssertionError(\"Looks like this test can be unmuted. Remove IGNORE_BACKEND directive for that.\");");
+            p.popIndent();
+            p.println("}");
+            p.println("catch (Throwable ignore) {");
+            p.println("}");
+        }
     }
 
     @Override
@@ -85,26 +98,9 @@ public class SimpleTestMethodModel implements TestMethodModel {
         return KotlinTestUtils.getFilePath(new File(path));
     }
 
-    private boolean isIgnored() {
-        if (targetBackend == TargetBackend.ANY) return false;
-
-        try {
-            String fileText;
-            if (file.isDirectory()) {
-                File directivesFile = new File(file, DIRECTIVES_FILE_NAME);
-                if (!directivesFile.exists()) return false;
-
-                fileText = FileUtil.loadFile(directivesFile);
-            }
-            else {
-                fileText = FileUtil.loadFile(file);
-            }
-            List<String> backends = InTextDirectivesUtils.findLinesWithPrefixesRemoved(fileText, "// TARGET_BACKEND: ");
-            List<String> ignoredBackends = InTextDirectivesUtils.findLinesWithPrefixesRemoved(fileText, "// IGNORE_BACKEND: ");
-            return (!backends.isEmpty() && !backends.contains(targetBackend.name())) || ignoredBackends.contains(targetBackend.name());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public boolean shouldBeGenerated() {
+        return InTextDirectivesUtils.isCompatibleTarget(targetBackend, file);
     }
 
     @NotNull
@@ -125,7 +121,7 @@ public class SimpleTestMethodModel implements TestMethodModel {
             String relativePath = FileUtil.getRelativePath(rootDir, file.getParentFile());
             unescapedName = relativePath + "-" + StringUtil.capitalize(extractedName);
         }
-        return (isIgnored() ? "ignored" : "test") + StringUtil.capitalize(TestGeneratorUtil.escapeForJavaIdentifier(unescapedName));
+        return (isIgnoredTargetWithoutCheck(targetBackend, file) ? "ignore" : "test") + StringUtil.capitalize(TestGeneratorUtil.escapeForJavaIdentifier(unescapedName));
     }
 
     @Override

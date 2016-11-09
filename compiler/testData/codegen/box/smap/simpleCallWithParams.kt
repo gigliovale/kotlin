@@ -1,3 +1,4 @@
+// TARGET_BACKEND: JVM
 // WITH_RUNTIME
 // FULL_JDK
 package test
@@ -10,7 +11,7 @@ fun testProperLineNumberAfterInline(): String {
     catch(e: AssertionError) {
         val entry = (e as java.lang.Throwable).getStackTrace()!!.get(1)
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:7" != actual) {
+        if ("simpleCallWithParams.kt:8" != actual) {
             return "fail 1: ${actual}"
         }
         exceptionCount++
@@ -23,7 +24,7 @@ fun testProperLineNumberAfterInline(): String {
     catch(e: AssertionError) {
         val entry = e.stackTrace!![1]
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:20" != actual) {
+        if ("simpleCallWithParams.kt:21" != actual) {
             return "fail 2: ${actual}"
         }
         exceptionCount++
@@ -41,7 +42,7 @@ fun testProperLineForOtherParameters(): String {
     catch(e: AssertionError) {
         val entry = e.stackTrace!![1]
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:38" != actual) {
+        if ("simpleCallWithParams.kt:39" != actual) {
             return "fail 3: ${actual}"
         }
         exceptionCount++
@@ -55,7 +56,7 @@ fun testProperLineForOtherParameters(): String {
     catch(e: AssertionError) {
         val entry = e.stackTrace!![1]
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:52" != actual) {
+        if ("simpleCallWithParams.kt:53" != actual) {
             return "fail 4: ${actual}"
         }
         exceptionCount++
@@ -67,7 +68,7 @@ fun testProperLineForOtherParameters(): String {
     catch(e: AssertionError) {
         val entry = e.stackTrace!![1]
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:65" != actual) {
+        if ("simpleCallWithParams.kt:66" != actual) {
             return "fail 5: ${actual}"
         }
         exceptionCount++
@@ -79,7 +80,7 @@ fun testProperLineForOtherParameters(): String {
     catch(e: AssertionError) {
         val entry = e.stackTrace!![1]
         val actual = "${entry.getFileName()}:${entry.getLineNumber()}"
-        if ("simpleCallWithParams.kt:77" != actual) {
+        if ("simpleCallWithParams.kt:78" != actual) {
             return "fail 6: ${actual}"
         }
         exceptionCount++

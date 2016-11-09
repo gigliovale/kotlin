@@ -23,13 +23,12 @@ import com.intellij.util.Processor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
+import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.utils.Printer;
 
 import java.io.File;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import static org.jetbrains.kotlin.generators.tests.generator.TestGenerator.TargetBackend;
 
 public class SimpleTestClassModel implements TestClassModel {
     private static final Comparator<TestEntityModel> BY_NAME = new Comparator<TestEntityModel>() {
@@ -219,8 +218,8 @@ public class SimpleTestClassModel implements TestClassModel {
                 exclude.append("\"");
             }
             String assertTestsPresentStr = String.format(
-                    "KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File(\"%s\"), Pattern.compile(\"%s\"), %s%s);",
-                    KotlinTestUtils.getFilePath(rootFile), StringUtil.escapeStringCharacters(filenamePattern.pattern()), recursive, exclude
+                    "KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File(\"%s\"), Pattern.compile(\"%s\"), %s.%s, %s%s);",
+                    KotlinTestUtils.getFilePath(rootFile), StringUtil.escapeStringCharacters(filenamePattern.pattern()), TargetBackend.class.getSimpleName(), targetBackend.toString(), recursive, exclude
             );
             p.println(assertTestsPresentStr);
         }
@@ -233,6 +232,11 @@ public class SimpleTestClassModel implements TestClassModel {
         @Override
         public void generateSignature(@NotNull Printer p) {
             TestMethodModel.DefaultImpls.generateSignature(this, p);
+        }
+
+        @Override
+        public boolean shouldBeGenerated() {
+            return true;
         }
     }
 }

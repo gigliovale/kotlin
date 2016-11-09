@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.decompiler.textBuilder;
 import com.intellij.testFramework.TestDataPath;
 import org.jetbrains.kotlin.test.JUnit3RunnerWithInners;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
+import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.test.TestMetadata;
 import org.junit.runner.RunWith;
 
@@ -31,26 +32,20 @@ import java.util.regex.Pattern;
 @TestDataPath("$PROJECT_ROOT")
 @RunWith(JUnit3RunnerWithInners.class)
 public class CommonDecompiledTextFromJsMetadataTestGenerated extends AbstractCommonDecompiledTextFromJsMetadataTest {
-    @TestMetadata("FlexibleTypes")
-    public void ignoredFlexibleTypes() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/decompiler/decompiledText/FlexibleTypes/");
-        doTest(fileName);
-    }
-
     @TestMetadata("LocalClassAsTypeWithArgument")
-    public void ignoredLocalClassAsTypeWithArgument() throws Exception {
+    public void ignoreLocalClassAsTypeWithArgument() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/decompiler/decompiledText/LocalClassAsTypeWithArgument/");
         doTest(fileName);
     }
 
     @TestMetadata("SecondaryConstructors")
-    public void ignoredSecondaryConstructors() throws Exception {
+    public void ignoreSecondaryConstructors() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/decompiler/decompiledText/SecondaryConstructors/");
         doTest(fileName);
     }
 
     public void testAllFilesPresentInDecompiledText() throws Exception {
-        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/decompiler/decompiledText"), Pattern.compile("^([^\\.]+)$"), true);
+        KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/decompiler/decompiledText"), Pattern.compile("^([^\\.]+)$"), TargetBackend.JS, true);
     }
 
     @TestMetadata("AnnotatedEnumEntry")

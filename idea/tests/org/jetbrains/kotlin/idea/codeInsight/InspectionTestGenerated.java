@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.codeInsight;
 import com.intellij.testFramework.TestDataPath;
 import org.jetbrains.kotlin.test.JUnit3RunnerWithInners;
 import org.jetbrains.kotlin.test.KotlinTestUtils;
+import org.jetbrains.kotlin.test.TargetBackend;
 import org.jetbrains.kotlin.test.TestMetadata;
 import org.junit.runner.RunWith;
 
@@ -34,7 +35,7 @@ public class InspectionTestGenerated extends AbstractInspectionTest {
     @RunWith(JUnit3RunnerWithInners.class)
     public static class Intentions extends AbstractInspectionTest {
         public void testAllFilesPresentInIntentions() throws Exception {
-            KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File("idea/testData/intentions"), Pattern.compile("^(inspections\\.test)$"));
+            KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File("idea/testData/intentions"), Pattern.compile("^(inspections\\.test)$"), TargetBackend.ANY);
         }
 
         @TestMetadata("branched/ifThenToElvis/inspectionData/inspections.test")
@@ -115,7 +116,7 @@ public class InspectionTestGenerated extends AbstractInspectionTest {
         }
 
         public void testAllFilesPresentInInspections() throws Exception {
-            KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File("idea/testData/inspections"), Pattern.compile("^(inspections\\.test)$"));
+            KotlinTestUtils.assertAllTestsPresentInSingleGeneratedClass(this.getClass(), new File("idea/testData/inspections"), Pattern.compile("^(inspections\\.test)$"), TargetBackend.ANY);
         }
 
         @TestMetadata("androidIllegalIdentifiers/inspectionData/inspections.test")

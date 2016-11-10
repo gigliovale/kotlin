@@ -198,25 +198,28 @@ class CodeInliner<TCallElement : KtElement>(
                 psiFactory.createType(IdeDescriptorRenderers.SOURCE_CODE.renderType(type)).typeElement!!
             }
 
+            // for class literal ("X::class") we need type arguments only for kotlin.Array
             val typeClassifier = type.constructor.declarationDescriptor
+            val classLiteralTypeElement = if (typeElement is KtUserType && typeElement.typeArgumentList == null || typeClassifier == null || KotlinBuiltIns.isArray(type)) {
+                typeElement
+            }
+            else {
+                psiFactory.createType(IdeDescriptorRenderers.SOURCE_CODE.renderClassifierName(typeClassifier)).typeElement!!
+            }
 
             for (usage in usages) {
                 val parent = usage.parent
-                if (parent is KtClassLiteralExpression && typeClassifier != null) {
-                    // for class literal ("X::class") we need type arguments only for kotlin.Array
-                    val arguments =
-                            if (typeElement is KtUserType && KotlinBuiltIns.isArray(type)) typeElement.typeArgumentList?.text.orEmpty()
-                            else ""
-                    codeToInline.replaceExpression(usage, psiFactory.createExpression(
-                            IdeDescriptorRenderers.SOURCE_CODE.renderClassifierName(typeClassifier) + arguments
-                    ))
-                }
-                else if (parent is KtUserType) {
-                    parent.replace(typeElement)
+                if (parent is KtUserType) {
+                    if (parent.parent is KtTypeReference && parent.parent.parent is KtClassLiteralExpression) {
+                        parent.replace(classLiteralTypeElement)
+                    }
+                    else {
+                        parent.replace(typeElement)
+                    }
                 }
                 else {
                     //TODO: tests for this?
-                    codeToInline.replaceExpression(usage, psiFactory.createExpression(typeElement.text))
+                    codeToInline.replaceExpression(usage, KtPsiFactory(usage).createExpression(typeElement.text))
                 }
             }
         }

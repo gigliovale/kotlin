@@ -38,22 +38,18 @@ import org.jetbrains.kotlin.resolve.calls.inference.*
 import org.jetbrains.kotlin.resolve.calls.inference.TypeBounds.Bound
 import org.jetbrains.kotlin.resolve.calls.inference.TypeBounds.BoundKind.LOWER_BOUND
 import org.jetbrains.kotlin.resolve.calls.inference.TypeBounds.BoundKind.UPPER_BOUND
-import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ValidityConstraintForConstituentType
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.ConstraintPositionKind.*
+import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.derivedFrom
 import org.jetbrains.kotlin.resolve.calls.inference.constraintPosition.getValidityConstraintForConstituentType
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
-import org.jetbrains.kotlin.types.KotlinType
-import org.jetbrains.kotlin.types.TypeIntersector
-import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.lang.AssertionError
-import java.util.*
 
 object Renderers {
 
@@ -119,7 +115,7 @@ object Renderers {
         if (classOrObject is KtClass) "Class" + name else "Object" + name
     }
 
-    @JvmField val RENDER_CLASS_OR_OBJECT_NAME = Renderer<ClassDescriptor> { it.renderKindWithName() }
+    @JvmField val RENDER_CLASS_OR_OBJECT_NAME = Renderer<ClassifierDescriptorWithTypeParameters> { it.renderKindWithName() }
 
     @JvmField val RENDER_TYPE = SmartTypeRenderer(DescriptorRenderer.FQ_NAMES_IN_TYPES.withOptions { parameterNamesInFunctionalTypes = false })
 
@@ -271,14 +267,16 @@ object Renderers {
         LOG.assertTrue(status.hasViolatedUpperBound(),
                        debugMessage("Upper bound violated renderer is applied for incorrect status", inferenceErrorData))
 
-        val systemWithoutWeakConstraints = constraintSystem.filterConstraintsOut(ConstraintPositionKind.TYPE_BOUND_POSITION)
+        val systemWithoutWeakConstraints = constraintSystem.filterConstraintsOut(TYPE_BOUND_POSITION)
         val typeParameterDescriptor = inferenceErrorData.descriptor.typeParameters.firstOrNull {
             !ConstraintsUtil.checkUpperBoundIsSatisfied(systemWithoutWeakConstraints, it, inferenceErrorData.call, true)
         }
 
         if (typeParameterDescriptor == null) {
             if (inferenceErrorData.descriptor is TypeAliasConstructorDescriptor) {
-                renderUpperBoundViolatedInferenceErrorForTypeAliasConstructor(inferenceErrorData, result, systemWithoutWeakConstraints)?.let {
+                renderUpperBoundViolatedInferenceErrorForTypeAliasConstructor(
+                        inferenceErrorData, result, systemWithoutWeakConstraints
+                )?.let {
                     return it
                 }
             }
@@ -343,11 +341,20 @@ object Renderers {
             return result
         }
 
-        val inferredTypeSubstitutor = systemWithoutWeakConstraints.resultingSubstitutor
+        val inferredTypesForTypeParameters = descriptor.typeParameters.map {
+            val typeVariable = systemWithoutWeakConstraints.descriptorToVariable(inferenceErrorData.call.toHandle(), it)
+            systemWithoutWeakConstraints.getTypeBounds(typeVariable).value
+        }
+        val inferredTypeSubstitutor = TypeSubstitutor.create(object : TypeConstructorSubstitution() {
+            override fun get(key: TypeConstructor): TypeProjection? {
+                val typeDescriptor = key.declarationDescriptor as? TypeParameterDescriptor ?: return null
+                if (typeDescriptor.containingDeclaration != descriptor.typeAliasDescriptor) return null
+                return inferredTypesForTypeParameters[typeDescriptor.index]?.let { TypeProjectionImpl(it) }
+            }
+        })
 
         for (constraintError in inferenceErrorData.constraintSystem.status.constraintErrors) {
             val constraintInfo = constraintError.constraintPosition.getValidityConstraintForConstituentType() ?: continue
-            if (constraintInfo.typeParameter.variance == Variance.IN_VARIANCE) continue
 
             val violatedUpperBound = inferredTypeSubstitutor.safeSubstitute(constraintInfo.bound, Variance.INVARIANT)
             val violatingInferredType = inferredTypeSubstitutor.safeSubstitute(constraintInfo.typeArgument, Variance.INVARIANT)

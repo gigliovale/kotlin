@@ -20878,6 +20878,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("kt14641.kt")
+            public void testKt14641() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/kt14641.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("localTypeAlias.kt")
             public void testLocalTypeAlias() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/localTypeAlias.kt");
@@ -21049,6 +21055,24 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             @TestMetadata("typeAliasConstructorTypeArgumentsInference.kt")
             public void testTypeAliasConstructorTypeArgumentsInference() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasConstructorTypeArgumentsInference.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasConstructorTypeArgumentsInferenceWithNestedCalls.kt")
+            public void testTypeAliasConstructorTypeArgumentsInferenceWithNestedCalls() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasConstructorTypeArgumentsInferenceWithNestedCalls.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasConstructorTypeArgumentsInferenceWithNestedCalls2.kt")
+            public void testTypeAliasConstructorTypeArgumentsInferenceWithNestedCalls2() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasConstructorTypeArgumentsInferenceWithNestedCalls2.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("typeAliasConstructorTypeArgumentsInferenceWithPhantomTypes.kt")
+            public void testTypeAliasConstructorTypeArgumentsInferenceWithPhantomTypes() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/typealias/typeAliasConstructorTypeArgumentsInferenceWithPhantomTypes.kt");
                 doTest(fileName);
             }
 

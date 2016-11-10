@@ -106,21 +106,26 @@ class BasicLookupElementFactory(
         return element.withIconFromLookupObject()
     }
 
+    private class DeclarationLazy(descriptor: DeclarationDescriptor, project: Project) {
+        val declaration by lazy { DescriptorToSourceUtilsIde.getAnyDeclaration(project, descriptor) }
+    }
+
     private fun createLookupElementUnwrappedDescriptor(
             descriptor: DeclarationDescriptor,
             qualifyNestedClasses: Boolean,
             includeClassTypeArguments: Boolean,
             parametersAndTypeGrayed: Boolean
     ): LookupElement {
-        val declarationLazy by lazy { DescriptorToSourceUtilsIde.getAnyDeclaration(project, descriptor) }
+        val declarationLazyHolder = DeclarationLazy(descriptor, project)
+        fun declarationLazy() = declarationLazyHolder.declaration
 
         if (descriptor is ClassifierDescriptor &&
-            declarationLazy is PsiClass &&
-            declarationLazy !is KtLightClass) {
+            declarationLazy() is PsiClass &&
+            declarationLazy() !is KtLightClass) {
             // for java classes we create special lookup elements
             // because they must be equal to ones created in TypesCompletion
             // otherwise we may have duplicates
-            return createLookupElementForJavaClass(declarationLazy, qualifyNestedClasses, includeClassTypeArguments)
+            return createLookupElementForJavaClass(declarationLazy() as PsiClass, qualifyNestedClasses, includeClassTypeArguments)
         }
 
         if (descriptor is PackageViewDescriptor) {
@@ -151,7 +156,7 @@ class BasicLookupElementFactory(
         else {
             lookupObject = object : DeclarationLookupObjectImpl(descriptor) {
                 override val psiElement: PsiElement?
-                    get() = declarationLazy
+                    get() = declarationLazy()
                 override fun getIcon(flags: Int) = KotlinDescriptorIconProvider.getIcon(descriptor, psiElement, flags)
             }
             name = descriptor.name.asString()

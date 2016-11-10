@@ -67,7 +67,8 @@ class CompletionBindingContextProvider(project: Project) {
             val psiElementsBeforeAndAfter: List<PsiElementData>,
             val bindingContext: BindingContext,
             val statementResolutionScope: LexicalScope,
-            val statementDataFlowInfo: DataFlowInfo
+            val statementDataFlowInfo: DataFlowInfo,
+            val debugText: String
     )
 
     private data class PsiElementData(val element: PsiElement, val level: Int)
@@ -122,6 +123,7 @@ class CompletionBindingContextProvider(project: Project) {
         }
         else {
             log("Statement position is the same - analyzing only one statement:\n${inStatement.text.prependIndent("    ")}\n")
+            LOG.debug("Reusing data from completion of \"${prevCompletionData.debugText}\"")
 
             //TODO: expected type?
             val statementContext = inStatement.analyzeInContext(scope = prevCompletionData.statementResolutionScope,
@@ -136,7 +138,8 @@ class CompletionBindingContextProvider(project: Project) {
         prevCompletionDataCache.value.data = if (block != null && modificationScope != null) {
             val resolutionScope = inStatement.getResolutionScope(bindingContext, resolutionFacade)
             val dataFlowInfo = bindingContext.getDataFlowInfoBefore(inStatement)
-            CompletionData(block, prevStatement, psiElementsBeforeAndAfter!!, bindingContext, resolutionScope, dataFlowInfo)
+            CompletionData(block, prevStatement, psiElementsBeforeAndAfter!!, bindingContext, resolutionScope, dataFlowInfo,
+                           debugText = position.text)
         }
         else {
             null

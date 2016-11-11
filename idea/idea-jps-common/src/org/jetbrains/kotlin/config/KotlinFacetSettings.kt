@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2010-2016 JetBrains s.r.o.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.jetbrains.kotlin.config
 
 import com.intellij.openapi.components.ServiceManager
@@ -47,8 +31,18 @@ sealed class TargetPlatformKind<out Version : DescriptionAware>(
 ) : DescriptionAware {
     override val description = "$name ${version.description}"
 
+    class Jvm(version: JvmTarget) : TargetPlatformKind<JvmTarget>(version, "JVM") {
+        companion object {
+            val JVM_PLATFORMS by lazy { JvmTarget.values().map(::Jvm) }
+
+            operator fun get(version: JvmTarget) = JVM_PLATFORMS[version.ordinal]
+        }
+    }
+
+    object JavaScript : TargetPlatformKind<NoVersion>(NoVersion, "JavaScript")
+
     companion object {
-        val ALL_PLATFORMS: List<TargetPlatformKind<*>> by lazy { JVMPlatform.JVM_PLATFORMS + JSPlatform }
+        val ALL_PLATFORMS: List<TargetPlatformKind<*>> by lazy { Jvm.JVM_PLATFORMS + JavaScript }
     }
 }
 
@@ -56,26 +50,16 @@ object NoVersion : DescriptionAware {
     override val description = ""
 }
 
-class JVMPlatform(version: JvmTarget) : TargetPlatformKind<JvmTarget>(version, "JVM") {
-    companion object {
-        val JVM_PLATFORMS by lazy { JvmTarget.values().map(::JVMPlatform) }
-
-        operator fun get(version: JvmTarget) = JVM_PLATFORMS[version.ordinal]
-    }
-}
-
-object JSPlatform : TargetPlatformKind<NoVersion>(NoVersion, "JavaScript")
-
 data class KotlinVersionInfo(
         var languageLevel: LanguageVersion? = null,
         var apiLevel: LanguageVersion? = null,
-        @get:Transient var targetPlatformKindKind: TargetPlatformKind<*>? = null
+        @get:Transient var targetPlatformKind: TargetPlatformKind<*>? = null
 ) {
     // To be serialized
     var targetPlatformName: String
-        get() = targetPlatformKindKind?.description ?: ""
+        get() = targetPlatformKind?.description ?: ""
         set(value) {
-            targetPlatformKindKind = TargetPlatformKind.ALL_PLATFORMS.firstOrNull { it.description == value }
+            targetPlatformKind = TargetPlatformKind.ALL_PLATFORMS.firstOrNull { it.description == value }
         }
 }
 

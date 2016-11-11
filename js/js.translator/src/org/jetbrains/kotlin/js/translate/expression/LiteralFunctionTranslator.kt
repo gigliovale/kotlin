@@ -58,18 +58,29 @@ class LiteralFunctionTranslator(context: TranslationContext) : AbstractTranslato
 
         val isRecursive = tracker.isCaptured(descriptor)
 
-        if (isRecursive) {
-            lambda.name = tracker.getNameForCapturedDescriptor(descriptor)
+        lambda.name = if (isRecursive) {
+            tracker.getNameForCapturedDescriptor(descriptor)
+        }
+        else {
+            invokingContext.getInnerNameForDescriptor(descriptor)
         }
 
         if (tracker.hasCapturedExceptContaining()) {
             val lambdaCreator = simpleReturnFunction(invokingContext.scope(), lambda)
+            lambdaCreator.name = invokingContext.getInnerNameForDescriptor(descriptor)
             lambdaCreator.isLocal = true
-            return lambdaCreator.withCapturedParameters(functionContext, invokingContext, descriptor)
+            if (!isRecursive) {
+                lambda.name = null
+            }
+            lambdaCreator.name.staticRef = lambdaCreator
+            return lambdaCreator.withCapturedParameters(descriptor, functionContext, invokingContext)
         }
 
         lambda.isLocal = true
-        return invokingContext.define(descriptor, lambda).apply { sideEffects = SideEffectKind.PURE }
+
+        invokingContext.addDeclarationStatement(lambda.makeStmt())
+        lambda.name.staticRef = lambda
+        return getReferenceToLambda(invokingContext, descriptor, lambda.name)
     }
 
     fun ValueParameterDescriptorImpl.WithDestructuringDeclaration.translate(context: TranslationContext): JsVars {
@@ -82,8 +93,13 @@ class LiteralFunctionTranslator(context: TranslationContext) : AbstractTranslato
     }
 }
 
-fun JsFunction.withCapturedParameters(context: TranslationContext, invokingContext: TranslationContext, descriptor: MemberDescriptor): JsExpression {
-    val ref = invokingContext.define(descriptor, this).apply { sideEffects = SideEffectKind.PURE }
+fun JsFunction.withCapturedParameters(
+        descriptor: CallableMemberDescriptor,
+        context: TranslationContext,
+        invokingContext: TranslationContext
+): JsExpression {
+    context.addDeclarationStatement(makeStmt())
+    val ref = getReferenceToLambda(invokingContext, descriptor, name)
     val invocation = JsInvocation(ref).apply { sideEffects = SideEffectKind.PURE }
 
     val invocationArguments = invocation.arguments
@@ -114,6 +130,19 @@ fun JsFunction.withCapturedParameters(context: TranslationContext, invokingConte
     }
 
     return invocation
+}
+
+private fun getReferenceToLambda(context: TranslationContext, descriptor: CallableMemberDescriptor, name: JsName): JsExpression {
+    return if (context.isPublicInlineFunction) {
+        val fqn = context.getQualifiedReference(descriptor)
+        if (fqn is JsNameRef) {
+            fqn.name?.let { it.staticRef = name.staticRef }
+        }
+        fqn
+    }
+    else {
+        JsAstUtils.pureFqn(name, null)
+    }
 }
 
 private data class CapturedArgsParams(val arguments: List<JsExpression> = listOf(), val parameters: List<JsParameter> = listOf())

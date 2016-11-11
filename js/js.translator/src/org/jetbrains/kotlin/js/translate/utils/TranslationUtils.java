@@ -17,15 +17,14 @@
 package org.jetbrains.kotlin.js.translate.utils;
 
 import com.google.dart.compiler.backend.js.ast.*;
+import com.google.dart.compiler.backend.js.ast.JsBinaryOperator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor;
-import org.jetbrains.kotlin.js.translate.context.Namer;
-import org.jetbrains.kotlin.js.translate.context.StaticContext;
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableAccessorDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor;
+import org.jetbrains.kotlin.js.translate.context.Namer;
 import org.jetbrains.kotlin.js.translate.context.TemporaryConstVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.Translation;
@@ -41,7 +40,6 @@ import static com.google.dart.compiler.backend.js.ast.JsBinaryOperator.*;
 import static org.jetbrains.kotlin.js.translate.utils.BindingUtils.getCallableDescriptorForOperationExpression;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.assignment;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.createDataDescriptor;
-import static org.jetbrains.kotlin.resolve.DescriptorUtils.isAnonymousObject;
 
 public final class TranslationUtils {
 
@@ -54,7 +52,7 @@ public final class TranslationUtils {
             @NotNull TranslationContext context) {
         if (DescriptorUtils.isExtension(descriptor) ||
             descriptor instanceof PropertyAccessorDescriptor &&
-            shouldGenerateAccessors(((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty())
+            shouldAccessViaFunctions(((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty())
         ) {
             return translateExtensionFunctionAsEcma5DataDescriptor(function, descriptor, context);
         }
@@ -84,8 +82,9 @@ public final class TranslationUtils {
 
     @NotNull
     public static JsExpression translateExclForBinaryEqualLikeExpr(@NotNull JsBinaryOperation baseBinaryExpression) {
-        return new JsBinaryOperation(notOperator(baseBinaryExpression.getOperator()), baseBinaryExpression.getArg1(),
-                                     baseBinaryExpression.getArg2());
+        JsBinaryOperator negatedOperator = notOperator(baseBinaryExpression.getOperator());
+        assert negatedOperator != null : "Can't negate operator: " + baseBinaryExpression.getOperator();
+        return new JsBinaryOperation(negatedOperator, baseBinaryExpression.getArg1(), baseBinaryExpression.getArg2());
     }
 
     public static boolean isEqualLikeOperator(@NotNull JsBinaryOperator operator) {
@@ -146,19 +145,19 @@ public final class TranslationUtils {
     }
 
     @NotNull
-    public static JsNameRef backingFieldReference(@NotNull TranslationContext context,
-            @NotNull PropertyDescriptor descriptor) {
-        JsName backingFieldName = context.getNameForDescriptor(descriptor);
-        if(!JsDescriptorUtils.isSimpleFinalProperty(descriptor)) {
-            JsName backingFieldMangledName = context.getNameForBackingField(descriptor);
-            backingFieldName = context.declarePropertyOrPropertyAccessorName(descriptor, backingFieldMangledName.getIdent(), false);
+    public static JsNameRef backingFieldReference(@NotNull TranslationContext context, @NotNull PropertyDescriptor descriptor) {
+        DeclarationDescriptor containingDescriptor = descriptor.getContainingDeclaration();
+        JsName backingFieldName = containingDescriptor instanceof PackageFragmentDescriptor ?
+                                  context.getInnerNameForDescriptor(descriptor) :
+                                  context.getNameForDescriptor(descriptor);
+
+        if (!JsDescriptorUtils.isSimpleFinalProperty(descriptor) && !(containingDescriptor instanceof PackageFragmentDescriptor)) {
+            backingFieldName = context.getNameForBackingField(descriptor);
         }
 
-        DeclarationDescriptor containingDescriptor = descriptor.getContainingDeclaration();
         JsExpression receiver;
         if (containingDescriptor instanceof PackageFragmentDescriptor) {
-            // used inside package initializer
-            receiver = JsLiteral.THIS;
+            receiver = null;
         }
         else {
             receiver = context.getDispatchReceiver(JsDescriptorUtils.getReceiverParameterForDeclaration(containingDescriptor));
@@ -263,31 +262,6 @@ public final class TranslationUtils {
         return ensureNotNull;
     }
 
-    @NotNull
-    public static String getSuggestedNameForInnerDeclaration(StaticContext context, DeclarationDescriptor descriptor) {
-        String suggestedName = "";
-        DeclarationDescriptor containingDeclaration = descriptor.getContainingDeclaration();
-        //noinspection ConstantConditions
-        if (containingDeclaration != null &&
-            !(containingDeclaration instanceof ClassOrPackageFragmentDescriptor) &&
-            !(containingDeclaration instanceof AnonymousFunctionDescriptor) &&
-            !(containingDeclaration instanceof ConstructorDescriptor && isAnonymousObject(containingDeclaration.getContainingDeclaration()))) {
-            suggestedName = context.getNameForDescriptor(containingDeclaration).getIdent();
-        }
-
-        if (!suggestedName.isEmpty() && !suggestedName.endsWith("$")) {
-            suggestedName += "$";
-        }
-
-        if (descriptor.getName().isSpecial()) {
-            suggestedName += "f";
-        }
-        else {
-            suggestedName += context.getNameForDescriptor(descriptor).getIdent();
-        }
-        return suggestedName;
-    }
-
     public static boolean isSimpleNameExpressionNotDelegatedLocalVar(@Nullable KtExpression expression, @NotNull TranslationContext context) {
         if (!(expression instanceof KtSimpleNameExpression)) {
             return false;
@@ -296,22 +270,22 @@ public final class TranslationUtils {
         return !(descriptor instanceof LocalVariableDescriptor) || !((LocalVariableDescriptor) descriptor).isDelegated();
     }
 
-    public static boolean shouldGenerateAccessors(@NotNull CallableDescriptor descriptor) {
+    public static boolean shouldAccessViaFunctions(@NotNull CallableDescriptor descriptor) {
         if (descriptor instanceof PropertyDescriptor) {
-            return shouldGenerateAccessors((PropertyDescriptor) descriptor);
+            return shouldAccessViaFunctions((PropertyDescriptor) descriptor);
         }
         else if (descriptor instanceof PropertyAccessorDescriptor) {
-            return shouldGenerateAccessors(((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty());
+            return shouldAccessViaFunctions(((PropertyAccessorDescriptor) descriptor).getCorrespondingProperty());
         }
         else {
             return false;
         }
     }
 
-    private static boolean shouldGenerateAccessors(@NotNull PropertyDescriptor property) {
+    private static boolean shouldAccessViaFunctions(@NotNull PropertyDescriptor property) {
         if (AnnotationsUtils.hasJsNameInAccessors(property)) return true;
         for (PropertyDescriptor overriddenProperty : property.getOverriddenDescriptors()) {
-            if (shouldGenerateAccessors(overriddenProperty)) return true;
+            if (shouldAccessViaFunctions(overriddenProperty)) return true;
         }
         return false;
     }

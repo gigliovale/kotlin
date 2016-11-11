@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-(function (Kotlin) {
-    'use strict';
-
+(function () {
     function toArray(obj) {
         var array;
         if (obj == null) {
@@ -343,17 +341,42 @@
     };
 
     Kotlin.callGetter = function (thisObject, klass, propertyName) {
-        return klass.$metadata$.properties[propertyName].get.call(thisObject);
+        var propertyDescriptor = Object.getOwnPropertyDescriptor(klass, propertyName);
+        if (propertyDescriptor != null) {
+            if (propertyDescriptor.get != null) {
+                return propertyDescriptor.get.call(thisObject);
+            }
+            else if ("value" in propertyDescriptor) {
+                return propertyDescriptor.value;
+            }
+        }
+        else {
+            return Kotlin.callGetter(thisObject, Object.getPrototypeOf(klass), propertyName);
+        }
+        return null;
     };
 
     Kotlin.callSetter = function (thisObject, klass, propertyName, value) {
-        klass.$metadata$.properties[propertyName].set.call(thisObject, value);
+        var propertyDescriptor = Object.getOwnPropertyDescriptor(klass, propertyName);
+        if (propertyDescriptor != null) {
+            if (propertyDescriptor.set != null) {
+                propertyDescriptor.set.call(thisObject, value);
+            }
+            else if ("value" in propertyDescriptor) {
+                throw new Error("Assertion failed: Kotlin compiler should not generate simple JavaScript properties for overridable " +
+                                "Kotlin properties.");
+            }
+        }
+        else {
+            return Kotlin.callSetter(thisObject, Object.getPrototypeOf(klass), propertyName, value);
+        }
     };
 
     function isInheritanceFromTrait(metadata, trait) {
-        if (metadata == null || metadata.classIndex < trait.$metadata$.classIndex) {
+        // TODO: return this optimization
+        /*if (metadata == null || metadata.classIndex < trait.$metadata$.classIndex) {
             return false;
-        }
+        }*/
         var baseClasses = metadata.baseClasses;
         var i;
         for (i = 0; i < baseClasses.length; i++) {
@@ -380,8 +403,8 @@
             return false;
         }
 
-        if (typeof klass === "function") {
-            return object instanceof klass;
+        if (typeof klass === "function" && object instanceof klass) {
+            return true;
         }
 
         var proto = Object.getPrototypeOf(klass);
@@ -398,12 +421,20 @@
             return object instanceof klass;
         }
 
-        if (object.constructor != null) {
-            return isInheritanceFromTrait(object.constructor.$metadata$, klass);
+        if (isTrait(klass) && object.constructor != null) {
+            metadata = object.constructor.$metadata$;
+            if (metadata != null) {
+                return isInheritanceFromTrait(metadata, klass);
+            }
         }
 
         return false;
     };
+
+    function isTrait(klass) {
+        var metadata = klass.$metadata$;
+        return metadata != null && metadata.type === Kotlin.TYPE.TRAIT;
+    }
 
     // TODO Store callable references for members in class
     Kotlin.getCallableRefForMemberFunction = function (klass, memberName) {
@@ -438,10 +469,9 @@
         };
     };
 
-    Kotlin.getCallableRefForTopLevelProperty = function(packageName, name, isVar) {
-        var getFun = Function("p", "return function " + name + "() { return p['" + name + "']; }")(packageName);
-        var setFun = isVar ? function(value) { packageName[name] = value; } : null;
-        return getPropertyRefClass(getFun, "get", setFun, "set_za3rmp$", propertyRefClassMetadataCache.zeroArg);
+    Kotlin.getCallableRefForTopLevelProperty = function(getter, setter, name) {
+        var getFun = Function("getter", "return function " + name + "() { return getter(); }")(getter, setter);
+        return getPropertyRefClass(getFun, "get", setter, "set_za3rmp$", propertyRefClassMetadataCache.zeroArg);
     };
 
     Kotlin.getCallableRefForMemberProperty = function(name, isVar) {
@@ -582,9 +612,6 @@
      * @param {Object} declaration
      */
     Kotlin.defineModule = function (id, declaration) {
-        if (typeof declaration.$initializer$ === "function") {
-            declaration.$initializer$.call(declaration); // TODO: temporary hack
-        }
         Kotlin.modules[id] = declaration;
     };
 
@@ -625,4 +652,4 @@
     Kotlin.kotlinModuleMetadata = function (abiVersion, moduleName, data) {
     };
 
-})(Kotlin);
+})();

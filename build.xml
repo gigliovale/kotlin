@@ -367,22 +367,49 @@
             </sources>
 
             <sources dir="${js.stdlib.output.dir}">
+                <file name="builtins.js"/>
                 <file name="${compiled.stdlib.js}"/>
-            </sources>
-
-            <sources dir="${stdlib.js.dir}">
-                <file name="merge.js"/>
             </sources>
 
             <externs dir="${stdlib.js.dir}">
                 <file name="externs.js"/>
             </externs>
         </closure-compiler>
+
+        <!--
+         Few hacks to compose one kotlin.js from several smaller files:
+           1. Wrapper function takes Kotlin and _, whereas they are already defined above (see closure-wrapper.txt), so delete these
+              parameters.
+           2. Since we deleted parameters, we can get rid or arguments passed to wrapper function.
+              They are module.exports and require("Kotlin"), accordingly to CommonJS spec.
+           3. We can omit return _, since it's already exported by the code in UMD wrapper.
+        -->
+        <replaceregexp file="${js.stdlib.output.dir}/kotlin.js"
+                       match="module.exports,\s*require\([^)]+\)"
+                       replace=""
+                       byline="true" encoding="UTF-8" />
+        <replaceregexp file="${js.stdlib.output.dir}/kotlin.js"
+                       match="function\s*\(_,\s*Kotlin\)"
+                       replace="function()"
+                       byline="true" encoding="UTF-8" />
+        <replaceregexp file="${js.stdlib.output.dir}/kotlin.js"
+                       match="return\s+_;"
+                       replace=""
+                       byline="true" encoding="UTF-8" />
     </target>
 
     <target name="js-stdlib">
         <property environment="env"/>
         <kotlin-pp src="libraries/stdlib/src" output="${intermediate-sources}/stdlib/js" profile="JS" />
+
+        <!-- We don't want descriptors for built-ins to be serialized, so we compile these files separately. -->
+        <new-kotlin2js output="${js.stdlib.output.dir}/tmp-builtins/kotlin.js">
+            <src>
+                <union>
+                    <resources refid="kotlin.builtin.native.files"/>
+                </union>
+            </src>
+        </new-kotlin2js>
 
         <new-kotlin2js output="${js.stdlib.output.dir}/tmp/kotlin.js">
             <src>
@@ -392,6 +419,7 @@
                 </union>
             </src>
         </new-kotlin2js>
+        <move file="${js.stdlib.output.dir}/tmp-builtins/kotlin.js" tofile="${js.stdlib.output.dir}/builtins.js" />
         <move file="${js.stdlib.output.dir}/tmp/kotlin.js" tofile="${js.stdlib.output.dir}/${compiled.stdlib.js}" />
         <move file="${js.stdlib.output.dir}/tmp/kotlin" todir="${js.stdlib.output.dir}" />
         <move file="${js.stdlib.output.dir}/tmp/${compiled.stdlib.meta.js}" tofile="${js.stdlib.output.dir}/${compiled.stdlib.meta.js}" />

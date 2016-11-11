@@ -19,15 +19,13 @@ package org.jetbrains.kotlin.js.translate.callTranslator
 import com.google.dart.compiler.backend.js.ast.*
 import org.jetbrains.kotlin.builtins.functions.FunctionInvokeDescriptor
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.ClassConstructorDescriptor
-import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
-import org.jetbrains.kotlin.descriptors.Visibilities
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.js.PredefinedAnnotation
 import org.jetbrains.kotlin.js.translate.context.Namer
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.operation.OperatorTable
 import org.jetbrains.kotlin.js.translate.reference.CallArgumentTranslator
+import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator
 import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils.pureFqn
@@ -79,11 +77,8 @@ object DefaultFunctionCallCase : FunctionCallCase() {
             val functionCallRef = Namer.getFunctionApplyRef(JsNameRef(context.getNameForDescriptor(callableDescriptor)))
             return JsInvocation(functionCallRef, argumentsInfo.translateArguments)
         }
-        if (isNative) {
-            return JsInvocation(JsNameRef(context.getNameForDescriptor(callableDescriptor)), argumentsInfo.translateArguments)
-        }
 
-        val functionRef = context.aliasOrValue(callableDescriptor) { context.getQualifiedReference(it) }
+        val functionRef = ReferenceTranslator.translateAsValueReference(callableDescriptor, context)
         return JsInvocation(functionRef, argumentsInfo.translateArguments)
     }
 
@@ -103,7 +98,7 @@ object DefaultFunctionCallCase : FunctionCallCase() {
             return JsInvocation(JsNameRef(functionName, extensionReceiver), argumentsInfo.translateArguments)
         }
 
-        val functionRef = context.aliasOrValue(callableDescriptor) { context.getQualifiedReference(it) }
+        val functionRef = ReferenceTranslator.translateAsValueReference(callableDescriptor, context)
 
         val referenceToCall =
                 if (callableDescriptor.visibility == Visibilities.LOCAL) {
@@ -214,9 +209,7 @@ object ConstructorCallCase : FunctionCallCase() {
     private inline fun FunctionCallInfo.doTranslate(
             getArguments: CallArgumentTranslator.ArgumentsInfo.() -> List<JsExpression>
     ): JsExpression {
-        val fqName = context.getQualifiedReference(callableDescriptor)
-        val functionRef = if (isNative()) fqName else context.aliasOrValue(callableDescriptor) { fqName }
-
+        val functionRef = ReferenceTranslator.translateAsValueReference(callableDescriptor, context)
         val invocationArguments = mutableListOf<JsExpression>()
 
         val constructorDescriptor = callableDescriptor as ClassConstructorDescriptor
@@ -245,7 +238,7 @@ object SuperCallCase : FunctionCallCase() {
 
     override fun FunctionCallInfo.dispatchReceiver(): JsExpression {
         // TODO: spread operator
-        val prototypeClass = pureFqn(Namer.getPrototypeName(), calleeOwner)
+        val prototypeClass = JsAstUtils.prototypeOf(calleeOwner)
         val functionRef = Namer.getFunctionCallRef(JsNameRef(functionName, prototypeClass))
         return JsInvocation(functionRef, argumentsInfo.argsWithReceiver(dispatchReceiver!!))
     }

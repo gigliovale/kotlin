@@ -18,10 +18,9 @@ package org.jetbrains.kotlin.js.inline.util
 
 import com.google.dart.compiler.backend.js.ast.*
 import com.google.dart.compiler.backend.js.ast.metadata.staticRef
-
 import org.jetbrains.kotlin.js.inline.util.collectors.InstanceCollector
-import org.jetbrains.kotlin.js.inline.util.collectors.PropertyCollector
-import org.jetbrains.kotlin.js.translate.expression.*
+import org.jetbrains.kotlin.js.translate.expression.InlineMetadata
+import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import java.util.*
 
 fun collectFunctionReferencesInside(scope: JsNode): List<JsName> =
@@ -127,25 +126,54 @@ fun JsFunction.collectFreeVariables() = collectUsedNames(body) - collectDefinedN
 
 fun JsFunction.collectLocalVariables() = collectDefinedNames(body) + parameters.map { it.name }
 
-fun collectJsProperties(scope: JsNode): IdentityHashMap<JsName, JsExpression> {
-    val collector = PropertyCollector()
-    collector.accept(scope)
-    return collector.properties
-}
+fun collectNamedFunctions(scope: JsNode) = collectNamedFunctionsAndMetadata(scope).mapValues { it.value.first }
 
-fun collectNamedFunctions(scope: JsNode): IdentityHashMap<JsName, JsFunction> {
-    val namedFunctions = IdentityHashMap<JsName, JsFunction>()
+fun collectNamedFunctionsOrMetadata(scope: JsNode) = collectNamedFunctionsAndMetadata(scope).mapValues { it.value.second }
 
-    for ((name, value) in collectJsProperties(scope)) {
-        val function: JsFunction? = when (value) {
-            is JsFunction -> value
-            else -> InlineMetadata.decompose(value)?.function
+fun collectNamedFunctionsAndMetadata(scope: JsNode): Map<JsName, Pair<JsFunction, JsExpression>> {
+    val namedFunctions = mutableMapOf<JsName, Pair<JsFunction, JsExpression>>()
+
+    scope.accept(object : RecursiveJsVisitor() {
+        override fun visitBinaryExpression(x: JsBinaryOperation) {
+            val assignment = JsAstUtils.decomposeAssignment(x)
+            if (assignment != null) {
+                val (left, right) = assignment
+                if (left is JsNameRef) {
+                    val name = left.name
+                    val function = extractFunction(right)
+                    if (function != null && name != null) {
+                        namedFunctions[name] = Pair(function, right)
+                    }
+                }
+            }
+            super.visitBinaryExpression(x)
         }
 
-        if (function != null) {
-            namedFunctions[name] = function
+        override fun visit(x: JsVars.JsVar) {
+            val initializer = x.initExpression
+            val name = x.name
+            if (initializer != null && name != null) {
+                val function = extractFunction(initializer)
+                if (function != null) {
+                    namedFunctions[name] = Pair(function, initializer)
+                }
+            }
+            super.visit(x)
         }
-    }
+
+        override fun visitFunction(x: JsFunction) {
+            val name = x.name
+            if (name != null) {
+                namedFunctions[name] = Pair(x, x)
+            }
+            super.visitFunction(x)
+        }
+
+        private fun extractFunction(expression: JsExpression) = when (expression) {
+            is JsFunction -> expression
+            else -> InlineMetadata.decompose(expression)?.function
+        }
+    })
 
     return namedFunctions
 }

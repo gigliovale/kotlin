@@ -43,11 +43,9 @@ public final class FunctionIntrinsics {
         register(LongOperationFIF.INSTANCE);
         register(PrimitiveUnaryOperationFIF.INSTANCE);
         register(PrimitiveBinaryOperationFIF.INSTANCE);
-        register(StringOperationFIF.INSTANCE);
         register(ArrayFIF.INSTANCE);
         register(TopLevelFIF.INSTANCE);
         register(NumberAndCharConversionFIF.INSTANCE);
-        register(ProgressionCompanionFIF.INSTANCE);
     }
 
     private void register(@NotNull FunctionIntrinsicFactory instance) {

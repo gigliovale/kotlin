@@ -191,4 +191,10 @@ public class QuickDocProviderTestGenerated extends AbstractQuickDocProviderTest 
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/TopLevelMethodFromJava.java");
         doTest(fileName);
     }
+
+    @TestMetadata("TypeOfLocalAnonymousObject.kt")
+    public void testTypeOfLocalAnonymousObject() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/TypeOfLocalAnonymousObject.kt");
+        doTest(fileName);
+    }
 }

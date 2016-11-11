@@ -856,7 +856,7 @@ public class DescriptorResolver {
             @NotNull BindingTrace trace
     ) {
         ClassifierDescriptor classifier = type.getConstructor().getDeclarationDescriptor();
-        if (classifier == null || !DescriptorUtils.isAnonymousObject(classifier) || DescriptorUtils.isLocal(descriptor)) {
+        if (classifier == null || !DescriptorUtils.isAnonymousObject(classifier)) {
             return type;
         }
 

@@ -93,7 +93,7 @@ class VariableTypeResolver(
             else -> {
                 val initializerType = resolveInitializerType(scopeForInitializer, variable.initializer!!, dataFlowInfo, trace)
                 setConstantForVariableIfNeeded(variableDescriptor, scopeForInitializer, variable, dataFlowInfo, initializerType, trace)
-                return initializerType
+                return transformAnonymousTypeIfNeeded(variableDescriptor, variable, initializerType, trace) ?: initializerType
             }
         }
     }

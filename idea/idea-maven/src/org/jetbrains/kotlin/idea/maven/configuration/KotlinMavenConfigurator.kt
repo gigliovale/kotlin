@@ -40,38 +40,41 @@ import org.jetbrains.kotlin.idea.configuration.*
 import org.jetbrains.kotlin.idea.framework.ui.ConfigureDialogWithModulesAndVersion
 import org.jetbrains.kotlin.idea.maven.PomFile
 import org.jetbrains.kotlin.idea.maven.excludeMavenChildrenModules
+import org.jetbrains.kotlin.idea.maven.kotlinPluginId
 
-abstract class KotlinMavenConfigurator protected constructor(private val stdlibArtifactId: String, private val testArtifactId: String?, private val addJunit: Boolean, private val name: String, private val presentableText: String) : KotlinProjectConfigurator {
+abstract class KotlinMavenConfigurator
+        protected constructor(private val stdlibArtifactId: String,
+                              private val testArtifactId: String?,
+                              private val addJunit: Boolean,
+                              override val name: String,
+                              override val presentableText: String) : KotlinProjectConfigurator {
 
-    override fun isApplicable(module: Module): Boolean {
-        return KotlinPluginUtil.isMavenModule(module)
-    }
-
-    override fun getPresentableText() = presentableText
-
-    override fun getName(): String {
-        return name
-    }
-
-    override fun isConfigured(module: Module): Boolean {
-        if (!isKotlinModule(module)) {
-            return false
-        }
+    override fun getStatus(module: Module): ConfigureKotlinStatus {
+        if (!KotlinPluginUtil.isMavenModule(module))
+            return ConfigureKotlinStatus.NON_APPLICABLE
 
         val psi = findModulePomFile(module)
         if (psi == null
             || !psi.isValid
             || psi !is XmlFile
-            || psi.virtualFile == null
-            || MavenDomUtil.getMavenDomProjectModel(module.project, psi.virtualFile) == null) {
-            return false
+            || psi.virtualFile == null) {
+            return ConfigureKotlinStatus.BROKEN
         }
 
-        val mavenProject = MavenProjectsManager.getInstance(module.project).findProject(module) ?: return false
+        val pom = PomFile(psi)
 
-        val plugin = mavenProject.findPlugin(GROUP_ID, MAVEN_PLUGIN_ID) ?: return false
+        if (isKotlinModule(module) && hasKotlinPlugin(pom)) {
+            return ConfigureKotlinStatus.CONFIGURED
+        }
+        return ConfigureKotlinStatus.CAN_BE_CONFIGURED
+    }
 
-        return plugin.executions?.any { it.goals?.any { it != null && isRelevantGoal(it) } ?: false } ?: false
+    private fun hasKotlinPlugin(pom: PomFile): Boolean {
+        val plugin = pom.findPlugin(kotlinPluginId(null)) ?: return false
+
+        return plugin.executions.executions.any {
+            it.goals.goals.any { isRelevantGoal(it.stringValue ?: "") }
+        }
     }
 
     override fun configure(project: Project, excludeModules: Collection<Module>) {

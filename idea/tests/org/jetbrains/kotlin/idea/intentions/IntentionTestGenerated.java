@@ -11030,6 +11030,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
             doTest(fileName);
         }
 
+        @TestMetadata("propertyTypeFromGetter.kt")
+        public void testPropertyTypeFromGetter() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeExplicitType/propertyTypeFromGetter.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("removeUnresolvedType.kt")
         public void testRemoveUnresolvedType() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/removeExplicitType/removeUnresolvedType.kt");
@@ -12913,6 +12919,12 @@ public class IntentionTestGenerated extends AbstractIntentionTest {
         @TestMetadata("loopParameter.kt")
         public void testLoopParameter() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/specifyTypeExplicitly/loopParameter.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("propertyTypeFromGetter.kt")
+        public void testPropertyTypeFromGetter() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/intentions/specifyTypeExplicitly/propertyTypeFromGetter.kt");
             doTest(fileName);
         }
 

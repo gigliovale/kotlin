@@ -36,69 +36,69 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
 import org.jetbrains.kotlin.types.expressions.PreliminaryDeclarationVisitor
 
-class VariableTypeResolver(
+class VariableTypeAndInitializerResolver(
         private val storageManager: StorageManager,
         private val expressionTypingServices: ExpressionTypingServices,
         private val typeResolver: TypeResolver,
         private val constantExpressionEvaluator: ConstantExpressionEvaluator,
         private val delegatedPropertyResolver: DelegatedPropertyResolver
 ) {
+    companion object {
+        @JvmField
+        val STUB_FOR_PROPERTY_WITHOUT_TYPE = ErrorUtils.createErrorType("No type, no body")
+    }
 
-    fun process(
+    fun resolveType(
             variableDescriptor: VariableDescriptorWithInitializerImpl,
             scopeForInitializer: LexicalScope,
             variable: KtVariableDeclaration,
             dataFlowInfo: DataFlowInfo,
-            notLocal: Boolean,
-            trace: BindingTrace
+            trace: BindingTrace,
+            local: Boolean
     ): KotlinType {
-        val propertyTypeRef = variable.typeReference
+        resolveTypeNullable(variableDescriptor, scopeForInitializer, variable, dataFlowInfo, trace, local)?.let { return it }
 
-        val hasDelegate = variable is KtProperty && variable.hasDelegateExpression()
-        when {
-            propertyTypeRef != null -> {
-                val type = typeResolver.resolveType(scopeForInitializer, propertyTypeRef, trace, true)
-                setConstantForVariableIfNeeded(variableDescriptor, scopeForInitializer, variable, dataFlowInfo, type, trace)
-                return type
-            }
-            !variable.hasInitializer() -> {
-                if (hasDelegate && variableDescriptor is VariableDescriptorWithAccessors) {
-                    val property = variable as KtProperty
-                    if (property.hasDelegateExpression()) {
-                        return DeferredType.createRecursionIntolerant(
-                                storageManager,
-                                trace
-                        ) {
-                            resolveDelegatedPropertyType(property, variableDescriptor, scopeForInitializer,
-                                                         property.delegateExpression!!, dataFlowInfo, trace)
-                        }
+        if (local) {
+            trace.report(VARIABLE_WITH_NO_TYPE_NO_INITIALIZER.on(variable))
+        }
+
+        return STUB_FOR_PROPERTY_WITHOUT_TYPE
+    }
+
+    fun resolveTypeNullable(
+            variableDescriptor: VariableDescriptorWithInitializerImpl,
+            scopeForInitializer: LexicalScope,
+            variable: KtVariableDeclaration,
+            dataFlowInfo: DataFlowInfo,
+            trace: BindingTrace,
+            local: Boolean
+    ): KotlinType? {
+        val propertyTypeRef = variable.typeReference
+        return when {
+            propertyTypeRef != null -> typeResolver.resolveType(scopeForInitializer, propertyTypeRef, trace, true)
+
+            !variable.hasInitializer() && variable is KtProperty && variableDescriptor is VariableDescriptorWithAccessors &&
+                 variable.hasDelegateExpression() ->
+                    resolveDelegatedPropertyType(variable, variableDescriptor, scopeForInitializer, dataFlowInfo, trace)
+
+            variable.hasInitializer() -> when {
+                !local ->
+                    DeferredType.createRecursionIntolerant(
+                            storageManager,
+                            trace
+                    ) {
+                        PreliminaryDeclarationVisitor.createForDeclaration(variable, trace)
+                        val initializerType = resolveInitializerType(scopeForInitializer, variable.initializer!!, dataFlowInfo, trace)
+                        transformAnonymousTypeIfNeeded(variableDescriptor, variable, initializerType, trace)
                     }
-                }
-                if (!notLocal) {
-                    trace.report(VARIABLE_WITH_NO_TYPE_NO_INITIALIZER.on(variable))
-                }
-                return ErrorUtils.createErrorType("No type, no body")
+
+                else -> resolveInitializerType(scopeForInitializer, variable.initializer!!, dataFlowInfo, trace)
             }
-            notLocal -> {
-                return DeferredType.createRecursionIntolerant(
-                        storageManager,
-                        trace
-                ) {
-                    PreliminaryDeclarationVisitor.createForDeclaration(variable, trace)
-                    val initializerType = resolveInitializerType(scopeForInitializer, variable.initializer!!, dataFlowInfo, trace)
-                    setConstantForVariableIfNeeded(variableDescriptor, scopeForInitializer, variable, dataFlowInfo, initializerType, trace)
-                    transformAnonymousTypeIfNeeded(variableDescriptor, variable, initializerType, trace)
-                }
-            }
-            else -> {
-                val initializerType = resolveInitializerType(scopeForInitializer, variable.initializer!!, dataFlowInfo, trace)
-                setConstantForVariableIfNeeded(variableDescriptor, scopeForInitializer, variable, dataFlowInfo, initializerType, trace)
-                return initializerType
-            }
+            else -> null
         }
     }
 
-    private fun setConstantForVariableIfNeeded(
+    fun setConstantForVariableIfNeeded(
             variableDescriptor: VariableDescriptorWithInitializerImpl,
             scope: LexicalScope,
             variable: KtVariableDeclaration,
@@ -106,17 +106,16 @@ class VariableTypeResolver(
             variableType: KotlinType,
             trace: BindingTrace
     ) {
-        if (!DescriptorUtils.shouldRecordInitializerForProperty(variableDescriptor, variableType)) return
-
-        if (!variable.hasInitializer()) return
-
+        if (!variable.hasInitializer() || variable.isVar) return
         variableDescriptor.setCompileTimeInitializer(
                 storageManager.createRecursionTolerantNullableLazyValue(
-                        {
+                        computeInitializer@{
+                            if (!DescriptorUtils.shouldRecordInitializerForProperty(variableDescriptor, variableType)) return@computeInitializer null
+
                             val initializer = variable.initializer
                             val initializerType = expressionTypingServices.safeGetType(scope, initializer!!, variableType, dataFlowInfo, trace)
                             val constant = constantExpressionEvaluator.evaluateExpression(initializer, trace, initializerType)
-                                           ?: return@createRecursionTolerantNullableLazyValue null
+                                           ?: return@computeInitializer null
 
                             if (constant.usesNonConstValAsConstant && variableDescriptor.isConst) {
                                 trace.report(Errors.NON_CONST_VAL_USED_IN_CONSTANT_EXPRESSION.on(initializer))
@@ -133,10 +132,10 @@ class VariableTypeResolver(
             property: KtProperty,
             variableDescriptor: VariableDescriptorWithAccessors,
             scopeForInitializer: LexicalScope,
-            delegateExpression: KtExpression,
             dataFlowInfo: DataFlowInfo,
             trace: BindingTrace
-    ): KotlinType {
+    ) = DeferredType.createRecursionIntolerant(storageManager, trace) {
+        val delegateExpression = property.delegateExpression!!
         val type = delegatedPropertyResolver.resolveDelegateExpression(
                 delegateExpression, property, variableDescriptor, scopeForInitializer, trace, dataFlowInfo)
 
@@ -144,10 +143,8 @@ class VariableTypeResolver(
         val getterReturnType = delegatedPropertyResolver.getDelegatedPropertyGetMethodReturnType(
                 variableDescriptor, delegateExpression, type, trace, delegateFunctionsScope, dataFlowInfo
         )
-        if (getterReturnType != null) {
-            return getterReturnType
-        }
-        return ErrorUtils.createErrorType("Type from delegate")
+
+        getterReturnType ?: ErrorUtils.createErrorType("Type from delegate")
     }
 
     private fun resolveInitializerType(

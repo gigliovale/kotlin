@@ -4517,6 +4517,12 @@ public class BoxJsTestGenerated extends AbstractBoxJsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("test.kt")
+        public void testTest() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("js/js.translator/testData/box/inlineMultiModule/test.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("typealiases.kt")
         public void testTypealiases() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("js/js.translator/testData/box/inlineMultiModule/typealiases.kt");

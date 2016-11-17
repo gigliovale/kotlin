@@ -82,9 +82,11 @@ public final class K2JSTranslator {
         ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
         if (hasError(diagnostics)) return new TranslationResult.Fail(diagnostics);
 
-        JsProgram program = JsInliner.process(context);
-        ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
-        if (hasError(diagnostics)) return new TranslationResult.Fail(diagnostics);
+        //JsProgram program = JsInliner.process(context);
+        //ProgressIndicatorAndCompilationCanceledStatus.checkCanceled();
+        //if (hasError(diagnostics)) return new TranslationResult.Fail(diagnostics);
+
+        JsProgram program = context.program();
 
         CoroutineTransformer coroutineTransformer = new CoroutineTransformer(program);
         coroutineTransformer.accept(program);

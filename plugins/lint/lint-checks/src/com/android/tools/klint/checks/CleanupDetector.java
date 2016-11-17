@@ -19,7 +19,6 @@ package com.android.tools.klint.checks;
 import static com.android.SdkConstants.CLASS_CONTENTPROVIDER;
 import static com.android.SdkConstants.CLASS_CONTEXT;
 import static com.android.tools.klint.detector.api.LintUtils.skipParentheses;
-import static com.intellij.psi.util.PsiTreeUtil.getParentOfType;
 import static org.jetbrains.uast.UastUtils.getOutermostQualified;
 import static org.jetbrains.uast.UastUtils.getParentOfType;
 import static org.jetbrains.uast.UastUtils.getQualifiedChain;
@@ -47,6 +46,7 @@ import com.intellij.psi.PsiType;
 import com.intellij.psi.PsiVariable;
 
 import com.intellij.psi.util.InheritanceUtil;
+import com.intellij.util.containers.Predicate;
 import org.jetbrains.uast.UBinaryExpression;
 import org.jetbrains.uast.UCallExpression;
 import org.jetbrains.uast.UDoWhileExpression;
@@ -141,6 +141,7 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
     private static final String QUERY_WITH_FACTORY = "queryWithFactory";              //$NON-NLS-1$
     private static final String RAW_QUERY_WITH_FACTORY = "rawQueryWithFactory";       //$NON-NLS-1$
     private static final String CLOSE = "close";                                      //$NON-NLS-1$
+    private static final String USE = "use";                                          //$NON-NLS-1$
     private static final String EDIT = "edit";                                        //$NON-NLS-1$
 
     private static final String MOTION_EVENT_CLS = "android.view.MotionEvent";        //$NON-NLS-1$
@@ -173,6 +174,8 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
             "android.content.SharedPreferences"; //$NON-NLS-1$
     private static final String ANDROID_CONTENT_SHARED_PREFERENCES_EDITOR =
             "android.content.SharedPreferences.Editor"; //$NON-NLS-1$
+    private static final String CLOSABLE = "java.io.Closeable"; //$NON-NLS-1$
+
 
     /** Constructs a new {@link CleanupDetector} */
     public CleanupDetector() {
@@ -289,53 +292,11 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
             //    android.provider.DocumentsProvider#querySearchDocuments
             //    android.provider.MediaStore$Images$Media#query
             //    android.widget.FilterQueryProvider#runQuery
-            checkRecycled(context, node, CURSOR_CLS, CLOSE);
+            checkClosedOrUsed(context, node, CURSOR_CLS);
         }
     }
 
-    private static void checkRecycled(@NonNull final JavaContext context, @NonNull UCallExpression node,
-            @NonNull final String recycleType, @NonNull final String recycleName) {
-        PsiVariable boundVariable = getVariableElement(node);
-        if (boundVariable == null) {
-            return;
-        }
-
-        UMethod method = getParentOfType(node, UMethod.class, true);
-        if (method == null) {
-            return;
-        }
-        FinishVisitor visitor = new FinishVisitor(context, boundVariable) {
-            @Override
-            protected boolean isCleanupCall(@NonNull UCallExpression call) {
-                String methodName = call.getMethodName();
-                if (!recycleName.equals(methodName)) {
-                    return false;
-                }
-                PsiMethod method = call.resolve();
-                if (method != null) {
-                    PsiClass containingClass = method.getContainingClass();
-                    if (InheritanceUtil.isInheritor(containingClass, false, recycleType)) {
-                        // Yes, called the right recycle() method; now make sure
-                        // we're calling it on the right variable
-                        UExpression operand = call.getReceiver();
-                        if (operand instanceof UReferenceExpression) {
-                            PsiElement resolved = ((UReferenceExpression) operand).resolve();
-                            //noinspection SuspiciousMethodCalls
-                            if (resolved != null && mVariables.contains(resolved)) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-                return false;
-            }
-        };
-
-        method.accept(visitor);
-        if (visitor.isCleanedUp() || visitor.variableEscapes()) {
-            return;
-        }
-
+    private static void reportRecycleResource(JavaContext context, String recycleType, String recycleName, @NonNull UCallExpression node) {
         String className = recycleType.substring(recycleType.lastIndexOf('.') + 1);
         String message;
         if (RECYCLE.equals(recycleName)) {
@@ -355,14 +316,156 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
         context.report(RECYCLE_RESOURCE, node, location, message);
     }
 
+    private static void checkClosedOrUsed(@NonNull final JavaContext context, @NonNull UCallExpression node,
+            @NonNull final String recycleType) {
+
+        if (isCleanedUpInChain(node, new Predicate<UCallExpression>() {
+            @Override
+            public boolean apply(@org.jetbrains.annotations.Nullable UCallExpression call) {
+                return isCloseMethodCall(call) || isUseMethodCall(call);
+            }
+        })) {
+            return;
+        }
+
+        PsiVariable boundVariable = getVariableElement(node);
+        if (boundVariable == null) {
+            reportRecycleResource(context, recycleType, CLOSE, node);
+            return;
+        }
+
+        UMethod method = getParentOfType(node, UMethod.class, true);
+        if (method == null) {
+            return;
+        }
+
+        FinishVisitor visitor = new FinishVisitor(context, boundVariable) {
+            @Override
+            protected boolean isCleanupCall(@NonNull UCallExpression call) {
+                if (isUseMethodCall(call) || isCloseMethodCall(call)) {
+                    UExpression receiver = call.getReceiver();
+                    if (receiver instanceof UReferenceExpression) {
+                        PsiElement resolved = ((UReferenceExpression) receiver).resolve();
+                        //noinspection SuspiciousMethodCalls
+                        if (resolved != null && mVariables.contains(resolved)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+
+        method.accept(visitor);
+        if (visitor.isCleanedUp() || visitor.variableEscapes()) {
+            return;
+        }
+
+        reportRecycleResource(context, recycleType, CLOSE, node);
+    }
+
+    private static boolean isCloseMethodCall(UCallExpression call) {
+        return isValidCleanupMethodCall(call, CLOSE, CLOSABLE);
+    }
+
+    private static boolean isUseMethodCall(UCallExpression call) {
+        return USE.equals(call.getMethodName());
+    }
+
+    private static boolean isValidCleanupMethodCall(@NonNull UCallExpression call, @NonNull String methodName, @NonNull String className) {
+        if (!methodName.equals(call.getMethodName())) {
+            return false;
+        }
+
+        PsiMethod method = call.resolve();
+        if (method == null) {
+            return false;
+        }
+
+        return InheritanceUtil.isInheritor(method.getContainingClass(), false, className);
+    }
+
+    private static boolean isCleanedUpInChain(UExpression expression, Predicate<UCallExpression> isCleanupCallPredicate) {
+        List<UExpression> chain = getQualifiedChain(getOutermostQualified(expression));
+        boolean skip = true;
+        for (UExpression e : chain) {
+            if (e == expression) {
+                skip = false;
+                continue;
+            }
+
+            if (skip) {
+                continue;
+            }
+
+            if (e instanceof UCallExpression) {
+                UCallExpression call = (UCallExpression) e;
+                if (isCleanupCallPredicate.apply(call)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static void checkRecycled(@NonNull final JavaContext context, @NonNull UCallExpression node,
+            @NonNull final String recycleType, @NonNull final String recycleName) {
+
+        if (isCleanedUpInChain(node, new Predicate<UCallExpression>() {
+            @Override
+            public boolean apply(@org.jetbrains.annotations.Nullable UCallExpression call) {
+                return isValidCleanupMethodCall(call, recycleName, recycleType);
+            }
+        })) {
+            return;
+        }
+
+        PsiVariable boundVariable = getVariableElement(node);
+        if (boundVariable == null) {
+            reportRecycleResource(context, recycleType, recycleName, node);
+            return;
+        }
+
+        UMethod method = getParentOfType(node, UMethod.class, true);
+        if (method == null) {
+            return;
+        }
+
+        FinishVisitor visitor = new FinishVisitor(context, boundVariable) {
+            @Override
+            protected boolean isCleanupCall(@NonNull UCallExpression call) {
+                if (isValidCleanupMethodCall(call, recycleName, recycleType)) {
+                    // Yes, called the right recycle() method; now make sure
+                    // we're calling it on the right variable
+                    UExpression operand = call.getReceiver();
+                    if (operand instanceof UReferenceExpression) {
+                        PsiElement resolved = ((UReferenceExpression) operand).resolve();
+                        //noinspection SuspiciousMethodCalls
+                        if (resolved != null && mVariables.contains(resolved)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        };
+
+        method.accept(visitor);
+        if (visitor.isCleanedUp() || visitor.variableEscapes()) {
+            return;
+        }
+
+        reportRecycleResource(context, recycleType, recycleName, node);
+    }
+
     private static void checkTransactionCommits(@NonNull JavaContext context,
             @NonNull UCallExpression node, @NonNull PsiMethod calledMethod) {
         if (isBeginTransaction(context, calledMethod)) {
-            PsiVariable boundVariable = getVariableElement(node, true);
-            if (boundVariable == null && isCommittedInChainedCalls(context, node)) {
+            if (isCommittedInChainedCalls(context, node)) {
                 return;
             }
 
+            PsiVariable boundVariable = getVariableElement(node, true);
             if (boundVariable != null) {
                 UMethod method = getParentOfType(node, UMethod.class, true);
                 if (method == null) {
@@ -428,26 +531,20 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
         }
     }
 
-    private static boolean isCommittedInChainedCalls(@NonNull JavaContext context,
+    private static boolean isCommittedInChainedCalls(@NonNull final JavaContext context,
             @NonNull UCallExpression node) {
         // Look for chained calls since the FragmentManager methods all return "this"
         // to allow constructor chaining, e.g.
         //    getFragmentManager().beginTransaction().addToBackStack("test")
         //            .disallowAddToBackStack().hide(mFragment2).setBreadCrumbShortTitle("test")
         //            .show(mFragment2).setCustomAnimations(0, 0).commit();
-        List<UExpression> chain = getQualifiedChain(getOutermostQualified(node));
-        if (!chain.isEmpty()) {
-            UExpression lastExpression = chain.get(chain.size() - 1);
-            if (lastExpression instanceof UCallExpression) {
-                UCallExpression methodInvocation = (UCallExpression) lastExpression;
-                if (isTransactionCommitMethodCall(context, methodInvocation)
-                        || isShowFragmentMethodCall(context, methodInvocation)) {
-                    return true;
-                }
-            }
-        }
 
-        return false;
+        return isCleanedUpInChain(node, new Predicate<UCallExpression>() {
+            @Override
+            public boolean apply(@org.jetbrains.annotations.Nullable UCallExpression call) {
+                return isTransactionCommitMethodCall(context, call) || isShowFragmentMethodCall(context, call);
+            }
+        });
     }
 
     private static boolean isTransactionCommitMethodCall(@NonNull JavaContext context,
@@ -569,21 +666,14 @@ public class CleanupDetector extends Detector implements Detector.UastScanner {
         return false;
     }
 
-    private static boolean isEditorCommittedInChainedCalls(@NonNull JavaContext context,
+    private static boolean isEditorCommittedInChainedCalls(@NonNull final JavaContext context,
             @NonNull UCallExpression node) {
-        List<UExpression> chain = getQualifiedChain(getOutermostQualified(node));
-        if (!chain.isEmpty()) {
-            UExpression lastExpression = chain.get(chain.size() - 1);
-            if (lastExpression instanceof UCallExpression) {
-                UCallExpression methodInvocation = (UCallExpression) lastExpression;
-                if (isEditorCommitMethodCall(context, methodInvocation)
-                        || isEditorApplyMethodCall(context, methodInvocation)) {
-                    return true;
-                }
+        return isCleanedUpInChain(node, new Predicate<UCallExpression>() {
+            @Override
+            public boolean apply(@org.jetbrains.annotations.Nullable UCallExpression call) {
+                return isEditorCommitMethodCall(context, call) || isEditorApplyMethodCall(context, call);
             }
-        }
-        
-        return false;
+        });
     }
 
     private static boolean isEditorCommitMethodCall(@NonNull JavaContext context,

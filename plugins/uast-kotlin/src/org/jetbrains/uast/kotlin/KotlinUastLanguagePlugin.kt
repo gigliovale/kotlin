@@ -187,6 +187,9 @@ internal object KotlinConverter {
             is KtCatchClause -> el<UCatchClause> { KotlinUCatchClause(element, parent) }
             is KtExpression -> KotlinConverter.convertExpression(element, parent, requiredType)
             is KtLambdaArgument -> KotlinConverter.convertExpression(element.getLambdaExpression(), parent, requiredType)
+            is KtContainerNodeForControlStructureBody -> element.expression?.let {
+                KotlinConverter.convertExpression(it, parent, requiredType)
+            } ?: UastEmptyExpression
             else -> {
                 if (element is LeafPsiElement && element.elementType == KtTokens.IDENTIFIER) {
                     el<UIdentifier> { UIdentifier(element, parent) }

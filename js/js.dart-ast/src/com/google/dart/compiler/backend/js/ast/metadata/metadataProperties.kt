@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package com.google.dart.compiler.backend.js.ast.metadata
 import com.google.dart.compiler.backend.js.ast.*
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.resolve.inline.InlineStrategy
 
@@ -31,6 +32,12 @@ var JsInvocation.inlineStrategy: InlineStrategy? by MetadataProperty(default = n
 var JsInvocation.descriptor: CallableDescriptor? by MetadataProperty(default = null)
 
 var JsInvocation.psiElement: PsiElement? by MetadataProperty(default = null)
+
+var JsNameRef.inlineStrategy: InlineStrategy? by MetadataProperty(default = null)
+
+var JsNameRef.descriptor: CallableDescriptor? by MetadataProperty(default = null)
+
+var JsNameRef.psiElement: PsiElement? by MetadataProperty(default = null)
 
 var JsFunction.isLocal: Boolean by MetadataProperty(default = false)
 
@@ -56,6 +63,47 @@ var JsReturn.returnTarget: FunctionDescriptor? by MetadataProperty(default = nul
 var HasMetadata.synthetic: Boolean by MetadataProperty(default = false)
 
 var HasMetadata.sideEffects: SideEffectKind by MetadataProperty(default = SideEffectKind.AFFECTS_STATE)
+
+var JsFunction.coroutineType: ClassDescriptor? by MetadataProperty(default = null)
+
+var JsFunction.controllerType: ClassDescriptor? by MetadataProperty(default = null)
+
+/**
+ * Denotes a suspension call-site that is to be processed by coroutine transformer.
+ * More clearly, denotes invocation that should immediately return from coroutine state machine
+ */
+var JsInvocation.isSuspend: Boolean by MetadataProperty(default = false)
+
+/**
+ * Denotes a pre-suspend call-site that is to be processed by coroutine transformer.
+ * For normal suspend call-sites both [isSuspend] and [isPreSuspend] present.
+ * For inlined suspend calls fake calls are generated before and after inlined function body.
+ */
+var JsInvocation.isPreSuspend: Boolean by MetadataProperty(default = false)
+
+/**
+ * Denotes a fake suspend call for inlining purposes.
+ */
+var JsInvocation.isFakeSuspend: Boolean by MetadataProperty(default = false)
+
+/**
+ * Denotes a call to coroutine's controller `handleResult` function.
+ * See coroutine spec for explanation.
+ */
+var JsInvocation.isHandleResult: Boolean by MetadataProperty(default = false)
+
+/**
+ * Denotes a reference to coroutine's `result` field that contains result of
+ * last suspended invocation.
+ */
+var JsNameRef.coroutineResult by MetadataProperty(default = false)
+
+/**
+ * Denotes a reference to coroutine's `controller` field that contains coroutines's controller
+ */
+var JsNameRef.coroutineController by MetadataProperty(default = false)
+
+var JsFunction.continuationInterfaceRef: JsExpression? by MetadataProperty(default = null)
 
 enum class TypeCheck {
     TYPEOF,

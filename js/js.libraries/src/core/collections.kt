@@ -16,11 +16,10 @@
 
 package kotlin.collections
 
-import java.util.Comparator
 import kotlin.comparisons.naturalOrder
 
 @library("copyToArray")
-public fun <reified T> Collection<T>.toTypedArray(): Array<T> = noImpl
+public fun <T> Collection<T>.toTypedArray(): Array<T> = noImpl
 
 
 @library("copyToArrayImpl")

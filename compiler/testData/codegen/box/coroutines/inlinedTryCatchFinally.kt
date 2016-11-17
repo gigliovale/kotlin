@@ -1,11 +1,8 @@
-// TODO: muted automatically, investigate should it be ran for JS or not
-// IGNORE_BACKEND: JS
-
 // WITH_RUNTIME
 var globalResult = ""
 var wasCalled = false
 class Controller {
-    val postponedActions = java.util.ArrayList<() -> Unit>()
+    val postponedActions = mutableListOf<() -> Unit>()
 
     suspend fun suspendWithValue(v: String, x: Continuation<String>) {
         postponedActions.add {
@@ -65,14 +62,14 @@ fun commonThrow(t: Throwable) {
 inline fun tryCatch(t: () -> String, onException: (Exception) -> String) =
         try {
             t()
-        } catch (e: java.lang.RuntimeException) {
+        } catch (e: RuntimeException) {
             onException(e)
         }
 
 inline fun tryCatchFinally(t: () -> String, onException: (Exception) -> String, f: () -> Unit) =
         try {
             t()
-        } catch (e: java.lang.RuntimeException) {
+        } catch (e: RuntimeException) {
             onException(e)
         } finally {
             f()

@@ -1,6 +1,3 @@
-// TODO: muted automatically, investigate should it be ran for JS or not
-// IGNORE_BACKEND: JS
-
 var result = 0
 
 class Controller {
@@ -19,7 +16,7 @@ fun box(): String {
 
     for (i in 1..3) {
         builder {
-            if (suspendHere() != "OK") throw java.lang.RuntimeException("fail 1")
+            if (suspendHere() != "OK") throw RuntimeException("fail 1")
         }
     }
 

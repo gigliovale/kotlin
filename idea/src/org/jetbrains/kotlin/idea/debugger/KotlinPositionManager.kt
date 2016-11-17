@@ -50,9 +50,9 @@ import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.resolve.inline.InlineUtil
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
 import java.util.*
@@ -101,51 +101,53 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
             throw NoDataException.INSTANCE
         }
 
-        val lineNumber = try {
+        val sourceLineNumber = try {
             location.lineNumber() - 1
         }
         catch (e: InternalError) {
             -1
         }
 
-        if (lineNumber < 0) {
+        if (sourceLineNumber < 0) {
             throw NoDataException.INSTANCE
         }
 
-        val lambdaOrFunIfInside = getLambdaOrFunIfInside(location, psiFile as KtFile, lineNumber)
+        val lambdaOrFunIfInside = getLambdaOrFunIfInside(location, psiFile as KtFile, sourceLineNumber)
         if (lambdaOrFunIfInside != null) {
             return SourcePosition.createFromElement(lambdaOrFunIfInside.bodyExpression!!)
         }
-        val property = getParameterIfInConstructor(location, psiFile, lineNumber)
-        if (property != null) {
-            return SourcePosition.createFromElement(property)
+        val elementInDeclaration = getElementForDeclarationLine(location, psiFile, sourceLineNumber)
+        if (elementInDeclaration != null) {
+            return SourcePosition.createFromElement(elementInDeclaration)
         }
 
-        if (lineNumber > psiFile.getLineCount() && myDebugProcess.isDexDebug()) {
-            val inlinePosition = getOriginalPositionOfInlinedLine(
-                    location.lineNumber(), FqName(location.declaringType().name()), location.sourceName(),
-                    myDebugProcess.project, GlobalSearchScope.allScope(myDebugProcess.project))
-
-            if (inlinePosition != null) {
-                return SourcePosition.createFromLine(inlinePosition.first, inlinePosition.second)
-            }
+        if (sourceLineNumber > psiFile.getLineCount() && myDebugProcess.isDexDebug()) {
+            val (line, ktFile) = ktLocationInfo(location, true, myDebugProcess.project, false, psiFile)
+            return SourcePosition.createFromLine(ktFile ?: psiFile, line - 1)
         }
 
-        return SourcePosition.createFromLine(psiFile, lineNumber)
+        return SourcePosition.createFromLine(psiFile, sourceLineNumber)
     }
 
-    private fun getParameterIfInConstructor(location: Location, file: KtFile, lineNumber: Int): KtParameter? {
+    // Returns a property or a constructor if debugger stops at class declaration
+    private fun getElementForDeclarationLine(location: Location, file: KtFile, lineNumber: Int): KtElement? {
         val lineStartOffset = file.getLineStartOffset(lineNumber) ?: return null
         val elementAt = file.findElementAt(lineStartOffset)
         val contextElement = KotlinCodeFragmentFactory.getContextElement(elementAt)
+
+        if (contextElement !is KtClass) return null
+
         val methodName = location.method().name()
-        if (contextElement is KtClass && JvmAbi.isGetterName(methodName)) {
-            val parameterForGetter = contextElement.getPrimaryConstructor()?.valueParameters?.firstOrNull() {
-                it.hasValOrVar() && it.name != null && JvmAbi.getterName(it.name!!) == methodName
-            } ?: return null
-            return parameterForGetter
+        return when {
+            JvmAbi.isGetterName(methodName) -> {
+                val parameterForGetter = contextElement.getPrimaryConstructor()?.valueParameters?.firstOrNull() {
+                    it.hasValOrVar() && it.name != null && JvmAbi.getterName(it.name!!) == methodName
+                } ?: return null
+                parameterForGetter
+            }
+            methodName == "<init>" -> contextElement.getPrimaryConstructor()
+            else -> null
         }
-        return null
     }
 
     private fun getLambdaOrFunIfInside(location: Location, file: KtFile, lineNumber: Int): KtFunction? {
@@ -254,7 +256,7 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
         }
         try {
             if (myDebugProcess.isDexDebug()) {
-                val inlineLocations = getLocationsOfInlinedLine(type, position, myDebugProcess.searchScope)
+                val inlineLocations = runReadAction { getLocationsOfInlinedLine(type, position, myDebugProcess.searchScope) }
                 if (!inlineLocations.isEmpty()) {
                     return inlineLocations
                 }

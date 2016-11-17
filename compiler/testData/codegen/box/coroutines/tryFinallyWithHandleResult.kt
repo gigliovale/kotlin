@@ -1,11 +1,8 @@
-// TODO: muted automatically, investigate should it be ran for JS or not
-// IGNORE_BACKEND: JS
-
 // WITH_RUNTIME
 var globalResult = ""
 var wasCalled = false
 class Controller {
-    val postponedActions = java.util.ArrayList<() -> Unit>()
+    val postponedActions = mutableListOf<() -> Unit>()
 
     suspend fun suspendWithValue(v: String, x: Continuation<String>) {
         postponedActions.add {
@@ -74,7 +71,7 @@ fun box(): String {
 
     builder(expectException = true) {
         try {
-            suspendWithException(java.lang.RuntimeException("OK"))
+            suspendWithException(RuntimeException("OK"))
         } finally {
             if (suspendWithValue("G") != "G") throw RuntimeException("fail 2")
             wasCalled = true

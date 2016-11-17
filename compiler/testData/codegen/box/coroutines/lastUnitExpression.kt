@@ -1,6 +1,3 @@
-// TODO: muted automatically, investigate should it be ran for JS or not
-// IGNORE_BACKEND: JS
-
 class Controller {
     var ok = false
     var v  = "fail"
@@ -17,7 +14,7 @@ class Controller {
 fun builder(coroutine c: Controller.() -> Continuation<Unit>): String {
     val controller = Controller()
     c(controller).resume(Unit)
-    if (!controller.ok) throw java.lang.RuntimeException("Fail 1")
+    if (!controller.ok) throw RuntimeException("Fail 1")
     return controller.v
 }
 

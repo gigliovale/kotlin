@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import java.util.*;
 
 import static org.jetbrains.kotlin.js.config.LibrarySourcesConfig.UNKNOWN_EXTERNAL_MODULE_NAME;
+import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.getNameForAnnotatedObject;
 import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.isLibraryObject;
 import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.isNativeObject;
 import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.pureFqn;
@@ -239,9 +240,6 @@ public final class StaticContext {
             if (KotlinBuiltIns.isAny(classDescriptor)) {
                 return pureFqn("Object", null);
             }
-            if (DescriptorUtils.getFqName(classDescriptor).asString().equals("kotlin.Throwable")) {
-                return pureFqn("Error", null);
-            }
         }
 
         SuggestedName suggested = nameSuggestion.suggest(descriptor);
@@ -423,6 +421,12 @@ public final class StaticContext {
                 @Nullable
                 @Override
                 public JsName apply(@NotNull DeclarationDescriptor descriptor) {
+                    if (descriptor instanceof FunctionDescriptor) {
+                        FunctionDescriptor initialDescriptor = ((FunctionDescriptor) descriptor).getInitialSignatureDescriptor();
+                        if (initialDescriptor != null) {
+                            return getInnerNameForDescriptor(initialDescriptor);
+                        }
+                    }
                     if (descriptor instanceof ModuleDescriptor) {
                         return getModuleInnerName(descriptor);
                     }
@@ -673,8 +677,9 @@ public final class StaticContext {
     }
 
     private void addClassPrototypes(@NotNull ClassDescriptor cls, @NotNull Set<ClassDescriptor> visited) {
-        if (DescriptorUtilsKt.getModule(cls) != currentModule) return;
         if (!visited.add(cls)) return;
+        if (DescriptorUtilsKt.getModule(cls) != currentModule) return;
+        if (isNativeObject(cls) || isLibraryObject(cls)) return;
 
         ClassDescriptor superclass = DescriptorUtilsKt.getSuperClassNotAny(cls);
         if (superclass != null) {
@@ -682,7 +687,15 @@ public final class StaticContext {
 
             List<JsStatement> statements = rootFunction.getBody().getStatements();
 
-            JsExpression superPrototype = JsAstUtils.prototypeOf(new JsNameRef(getInnerNameForDescriptor(superclass)));
+            JsNameRef superclassRef;
+            if (isNativeObject(superclass) || isLibraryObject(superclass)) {
+                superclassRef = getQualifiedReference(superclass);
+            }
+            else {
+                superclassRef = getInnerNameForDescriptor(superclass).makeRef();
+            }
+
+            JsExpression superPrototype = JsAstUtils.prototypeOf(superclassRef);
             JsExpression superPrototypeInstance = new JsInvocation(new JsNameRef("create", "Object"), superPrototype);
             JsExpression classRef = new JsNameRef(getInnerNameForDescriptor(cls));
             JsExpression prototype = JsAstUtils.prototypeOf(classRef);

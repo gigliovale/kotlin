@@ -29,6 +29,7 @@ import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.sun.jdi.AbsentInformationException
 import com.sun.jdi.LocalVariable
 import com.sun.jdi.Location
+import com.sun.jdi.Method
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.codegen.inline.KOTLIN_STRATA_NAME
@@ -40,6 +41,13 @@ import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.codeInsight.CodeInsightUtils
 import org.jetbrains.kotlin.idea.debugger.DebuggerUtils
+import org.jetbrains.kotlin.idea.debugger.ktLocationInfo
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.GOTO
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.MOVE
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.RETURN
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.RETURN_VOID
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.RETURN_OBJECT
+import org.jetbrains.kotlin.idea.debugger.stepping.DexBytecode.RETURN_WIDE
 import org.jetbrains.kotlin.idea.refactoring.getLineEndOffset
 import org.jetbrains.kotlin.idea.refactoring.getLineNumber
 import org.jetbrains.kotlin.idea.refactoring.getLineStartOffset
@@ -54,6 +62,7 @@ import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCallImpl
 import org.jetbrains.kotlin.resolve.inline.InlineUtil
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
+import org.jetbrains.kotlin.utils.keysToMap
 
 class KotlinSteppingCommandProvider : JvmSteppingCommandProvider() {
     override fun getStepOverCommand(
@@ -264,16 +273,12 @@ private fun findCallsOnPosition(sourcePosition: SourcePosition, filter: (KtCallE
     }
 }
 
-
 sealed class Action(val position: XSourcePositionImpl? = null,
-                    val lineNumber: Int? = null,
-                    val stepOverLines: Set<Int>? = null,
-                    val inlineRangeVariables: List<LocalVariable>? = null) {
+                    val stepOverInlineData: StepOverFilterData? = null) {
     class STEP_OVER : Action()
     class STEP_OUT : Action()
     class RUN_TO_CURSOR(position: XSourcePositionImpl) : Action(position)
-    class STEP_OVER_INLINED(lineNumber: Int, stepOverLines: Set<Int>, inlineVariables: List<LocalVariable>) : Action(
-            lineNumber = lineNumber, stepOverLines = stepOverLines, inlineRangeVariables = inlineVariables)
+    class STEP_OVER_INLINED(stepOverInlineData: StepOverFilterData) : Action(stepOverInlineData = stepOverInlineData)
 
     fun apply(debugProcess: DebugProcessImpl,
               suspendContext: SuspendContextImpl,
@@ -287,44 +292,63 @@ sealed class Action(val position: XSourcePositionImpl? = null,
             is Action.STEP_OUT -> debugProcess.createStepOutCommand(suspendContext).contextAction(suspendContext)
             is Action.STEP_OVER -> debugProcess.createStepOverCommand(suspendContext, ignoreBreakpoints).contextAction(suspendContext)
             is Action.STEP_OVER_INLINED -> KotlinStepActionFactory(debugProcess).createKotlinStepOverInlineAction(
-                    KotlinStepOverInlineFilter(stepOverLines!!, lineNumber ?: -1, inlineRangeVariables!!)).contextAction(suspendContext)
+                    KotlinStepOverInlineFilter(debugProcess.project, stepOverInlineData!!)).contextAction(suspendContext)
         }
     }
 }
 
-interface KotlinMethodFilter: MethodFilter {
+interface KotlinMethodFilter : MethodFilter {
     fun locationMatches(context: SuspendContextImpl, location: Location): Boolean
 }
 
 fun getStepOverAction(
         location: Location,
         kotlinSourcePosition: KotlinSteppingCommandProvider.KotlinSourcePosition,
-        frameProxy: StackFrameProxyImpl
+        frameProxy: StackFrameProxyImpl,
+        isDexDebug: Boolean
 ): Action {
     val inlineArgumentsToSkip = runReadAction {
         getInlineCallFunctionArgumentsIfAny(kotlinSourcePosition.sourcePosition)
     }
 
     return getStepOverAction(location, kotlinSourcePosition.file, kotlinSourcePosition.linesRange,
-                             inlineArgumentsToSkip, frameProxy)
+                             inlineArgumentsToSkip, frameProxy, isDexDebug)
 }
 
 fun getStepOverAction(
         location: Location,
-        file: KtFile,
+        sourceFile: KtFile,
         range: IntRange,
         inlineFunctionArguments: List<KtElement>,
-        frameProxy: StackFrameProxyImpl
+        frameProxy: StackFrameProxyImpl,
+        isDexDebug: Boolean
 ): Action {
-    val computedReferenceType = location.declaringType() ?: return Action.STEP_OVER()
+    location.declaringType() ?: return Action.STEP_OVER()
+
+    val project = sourceFile.project
+
+    val methodLocations = location.method().allLineLocations()
+    val locationsLineAndFile = methodLocations.keysToMap { ktLocationInfo(it, isDexDebug, project, true) }
+
+    fun Location.ktLineNumber(): Int = (locationsLineAndFile[this] ?: ktLocationInfo(this, isDexDebug, project, true)).first
+    fun Location.ktFileName(): String {
+        val ktFile = (locationsLineAndFile[this] ?: ktLocationInfo(this, isDexDebug, project, true)).second
+        // File is not null only for inlined locations. Get file name from debugger information otherwise.
+        return ktFile?.name ?: this.sourceName(KOTLIN_STRATA_NAME)
+    }
 
     fun isLocationSuitable(nextLocation: Location): Boolean {
-        if (nextLocation.method() != location.method() || nextLocation.lineNumber() !in range) {
+        if (nextLocation.method() != location.method()) {
             return false
         }
 
-        return try {
-            nextLocation.sourceName(KOTLIN_STRATA_NAME) == file.name
+        val ktLineNumber = nextLocation.ktLineNumber()
+        if (ktLineNumber !in range) {
+            return false
+        }
+
+        try {
+            return nextLocation.ktFileName() == sourceFile.name
         }
         catch(e: AbsentInformationException) {
             return true
@@ -332,25 +356,27 @@ fun getStepOverAction(
     }
 
     fun isBackEdgeLocation(): Boolean {
-        val previousSuitableLocation = computedReferenceType.allLineLocations().reversed()
+        val previousSuitableLocation = methodLocations.reversed()
                 .dropWhile { it != location }
                 .drop(1)
                 .filter(::isLocationSuitable)
-                .dropWhile { it.lineNumber() == location.lineNumber() }
+                .dropWhile { it.ktLineNumber() == location.ktLineNumber() }
                 .firstOrNull()
 
-        return previousSuitableLocation != null && previousSuitableLocation.lineNumber() > location.lineNumber()
+        return previousSuitableLocation != null && previousSuitableLocation.ktLineNumber() > location.ktLineNumber()
     }
 
     val patchedLocation = if (isBackEdgeLocation()) {
-        // Pretend we had already did a backing step
-        computedReferenceType.allLineLocations()
+        // Pretend we had already done a backing step
+        methodLocations
                 .filter(::isLocationSuitable)
-                .first { it.lineNumber() == location.lineNumber() }
+                .firstOrNull { it.ktLineNumber() == location.ktLineNumber() } ?: location
     }
     else {
         location
     }
+
+    val patchedLineNumber = patchedLocation.ktLineNumber()
 
     val lambdaArgumentRanges = runReadAction {
         inlineFunctionArguments.filterIsInstance<KtElement>().map {
@@ -367,21 +393,42 @@ fun getStepOverAction(
     // - Lines from other files and from functions that are not in range of current one are definitely inlined
     // - Lines in function arguments of inlined functions are inlined too as we found them starting from the position of inlined call.
     //
-    // This heuristic doesn't work for DEX, because of missing strata information (https://code.google.com/p/android/issues/detail?id=82972)
-    //
     // It also thinks that too many lines are inlined when there's a call of function argument or other
     // inline function in last statement of inline function. The list of inlineRangeVariables is used to overcome it.
-    val probablyInlinedLocations = computedReferenceType.allLineLocations()
+    val probablyInlinedLocations = methodLocations
             .dropWhile { it != patchedLocation }
             .drop(1)
-            .dropWhile { it.lineNumber() == patchedLocation.lineNumber() }
-            .takeWhile { locationAtLine ->
-                !isLocationSuitable(locationAtLine) || lambdaArgumentRanges.any { locationAtLine.lineNumber() in it }
+            .dropWhile { it.ktLineNumber() == patchedLineNumber }
+            .takeWhile { location ->
+                !isLocationSuitable(location) || lambdaArgumentRanges.any { location.ktLineNumber() in it }
             }
-            .dropWhile { it.lineNumber() == patchedLocation.lineNumber() }
+            .dropWhile { it.ktLineNumber() == patchedLineNumber }
 
     if (!probablyInlinedLocations.isEmpty()) {
-        return Action.STEP_OVER_INLINED(patchedLocation.lineNumber(), probablyInlinedLocations.map { it.lineNumber() }.toSet(), inlineRangeVariables)
+        // Some Kotlin inlined methods with 'for' (and maybe others) generates bytecode that after dexing have a strange artifact.
+        // GOTO instructions are moved to the end of method and as they don't have proper line, line is obtained from the previous
+        // instruction. It might be method return or previous GOTO from the inlining. Simple stepping over such function is really
+        // terrible. On each iteration position jumps to the method end or some previous inline call and then returns back. To prevent
+        // this filter locations with too big code indexes manually
+        val returnCodeIndex: Long = if (isDexDebug) {
+            val method = location.method()
+            val locationsOfLine = method.locationsOfLine(range.last)
+            if (locationsOfLine.isNotEmpty()) {
+                locationsOfLine.map { it.codeIndex() }.max() ?: -1L
+            }
+            else {
+                findReturnFromDexBytecode(location.method())
+            }
+        }
+        else -1L
+
+        return Action.STEP_OVER_INLINED(StepOverFilterData(
+                patchedLineNumber,
+                probablyInlinedLocations.map { it.ktLineNumber() }.toSet(),
+                inlineRangeVariables,
+                isDexDebug,
+                returnCodeIndex
+        ))
     }
 
     return Action.STEP_OVER()
@@ -484,4 +531,57 @@ private fun getInlineArgumentIfAny(elementAt: PsiElement?): KtFunctionLiteral? {
     if (!InlineUtil.isInlinedArgument(functionLiteralExpression.functionLiteral, context, false)) return null
 
     return functionLiteralExpression.functionLiteral
+}
+
+private fun findReturnFromDexBytecode(method: Method): Long {
+    val methodLocations = method.allLineLocations()
+    if (methodLocations.isEmpty())  return -1L
+
+    var lastMethodCodeIndex = methodLocations.last().codeIndex()
+    // Continue while it's possible to get location
+    while (true) {
+        if (method.locationOfCodeIndex(lastMethodCodeIndex + 1) != null) {
+            lastMethodCodeIndex++
+        }
+        else {
+            break
+        }
+    }
+
+    var returnIndex = lastMethodCodeIndex + 1
+
+    val bytecode = method.bytecodes()
+    var i = bytecode.size
+
+    while (i >= 2) {
+        // Can step only through two-byte instructions and abort on any unknown one
+        i -= 2
+        returnIndex -= 1
+
+        val instruction = bytecode[i].toInt()
+
+        if (instruction == RETURN_VOID || instruction == RETURN || instruction == RETURN_WIDE || instruction == RETURN_OBJECT) {
+            // Instruction found
+            return returnIndex
+        }
+        else if (instruction == MOVE || instruction == GOTO) {
+            // proceed
+        }
+        else {
+            // Don't know the instruction and it's length. Abort.
+            break
+        }
+    }
+
+    return -1L
+}
+
+object DexBytecode {
+    val RETURN_VOID = 0x0e
+    val RETURN = 0x0f
+    val RETURN_WIDE = 0x10
+    val RETURN_OBJECT = 0x11
+
+    val GOTO = 0x28
+    val MOVE = 0x01
 }

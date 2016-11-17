@@ -53,8 +53,9 @@ public final class JsAstUtils {
         assert (jsNode instanceof JsExpression) || (jsNode instanceof JsStatement)
                 : "Unexpected node of type: " + jsNode.getClass().toString();
         if (jsNode instanceof JsExpression) {
-            JsExpressionStatement statement = new JsExpressionStatement((JsExpression) jsNode);
-            if (jsNode instanceof JsNullLiteral) {
+            JsExpression expression = (JsExpression) jsNode;
+            JsExpressionStatement statement = new JsExpressionStatement(expression);
+            if (expression instanceof JsNullLiteral || MetadataProperties.getSynthetic(expression)) {
                 MetadataProperties.setSynthetic(statement, true);
             }
             return statement;
@@ -208,12 +209,7 @@ public final class JsAstUtils {
     }
 
     @NotNull
-    public static JsPrefixOperation negated(@NotNull JsExpression expression) {
-        return new JsPrefixOperation(JsUnaryOperator.NOT, expression);
-    }
-
-    @NotNull
-    public static JsExpression negatedOptimized(@NotNull JsExpression expression) {
+    public static JsExpression notOptimized(@NotNull JsExpression expression) {
         if (expression instanceof JsUnaryOperation) {
             JsUnaryOperation unary = (JsUnaryOperation) expression;
             if (unary.getOperator() == JsUnaryOperator.NOT) return unary.getArg();
@@ -222,9 +218,9 @@ public final class JsAstUtils {
             JsBinaryOperation binary = (JsBinaryOperation) expression;
             switch (binary.getOperator()) {
                 case AND:
-                    return or(negatedOptimized(binary.getArg1()), negatedOptimized(binary.getArg2()));
+                    return or(notOptimized(binary.getArg1()), notOptimized(binary.getArg2()));
                 case OR:
-                    return and(negatedOptimized(binary.getArg1()), negatedOptimized(binary.getArg2()));
+                    return and(notOptimized(binary.getArg1()), notOptimized(binary.getArg2()));
                 case EQ:
                     return new JsBinaryOperation(JsBinaryOperator.NEQ, binary.getArg1(), binary.getArg2());
                 case NEQ:
@@ -246,7 +242,7 @@ public final class JsAstUtils {
             }
         }
 
-        return negated(expression);
+        return not(expression);
     }
 
     @NotNull

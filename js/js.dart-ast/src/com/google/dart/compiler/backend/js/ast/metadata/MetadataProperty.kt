@@ -18,7 +18,7 @@ package com.google.dart.compiler.backend.js.ast.metadata
 
 import kotlin.reflect.KProperty
 
-internal class MetadataProperty<in T : HasMetadata, R>(val default: R) {
+class MetadataProperty<in T : HasMetadata, R>(val default: R) {
     operator fun getValue(thisRef: T, desc: KProperty<*>): R {
         if (!thisRef.hasData(desc.name)) return default
         return thisRef.getData<R>(desc.name)

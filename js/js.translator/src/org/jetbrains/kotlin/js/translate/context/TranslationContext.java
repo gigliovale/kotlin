@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.js.translate.context;
 
 import com.google.dart.compiler.backend.js.ast.*;
+import com.google.dart.compiler.backend.js.ast.metadata.MetadataProperties;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,10 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExtensionReceiver;
 
 import java.util.*;
 
+import static org.jetbrains.kotlin.js.descriptorUtils.DescriptorUtilsKt.isCoroutineLambda;
 import static org.jetbrains.kotlin.js.translate.context.UsageTrackerKt.getNameForCapturedDescriptor;
+import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.isLibraryObject;
+import static org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils.isNativeObject;
 import static org.jetbrains.kotlin.js.translate.utils.BindingUtils.getDescriptorForElement;
 
 /**
@@ -230,6 +234,10 @@ public class TranslationContext {
 
     @NotNull
     public JsNameRef getInnerReference(@NotNull DeclarationDescriptor descriptor) {
+        if (isNativeObject(descriptor) || isLibraryObject(descriptor)) {
+            return getQualifiedReference(descriptor);
+        }
+
         return JsAstUtils.pureFqn(getInnerNameForDescriptor(descriptor), null);
     }
 
@@ -356,6 +364,12 @@ public class TranslationContext {
         if (alias != null) {
             return alias;
         }
+        if (isCoroutineLambda(descriptor.getContainingDeclaration())) {
+            JsNameRef result = new JsNameRef("$$controller$$", JsLiteral.THIS);
+            MetadataProperties.setCoroutineController(result, true);
+            return result;
+        }
+
         if (DescriptorUtils.isObject(descriptor.getContainingDeclaration())) {
             if (isConstructorOrDirectScope(descriptor.getContainingDeclaration())) {
                 return JsLiteral.THIS;
@@ -500,6 +514,9 @@ public class TranslationContext {
         if (alias != null) return alias;
         if (descriptor instanceof ReceiverParameterDescriptor) {
             return getDispatchReceiver((ReceiverParameterDescriptor) descriptor);
+        }
+        if (isCoroutineLambda(descriptor)) {
+            return JsLiteral.THIS;
         }
         return getNameForDescriptor(descriptor).makeRef();
     }

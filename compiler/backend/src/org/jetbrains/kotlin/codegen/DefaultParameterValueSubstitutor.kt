@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.codegen
 
+import org.jetbrains.kotlin.codegen.JvmCodegenUtil.getDispatchReceiverParameterForConstructorCall
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.descriptors.*
@@ -24,7 +25,7 @@ import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasDefaultValue
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes
-import org.jetbrains.kotlin.resolve.jvm.annotations.hasJvmOverloadsAnnotation
+import org.jetbrains.kotlin.resolve.jvm.annotations.findJvmOverloadsAnnotation
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.OtherOrigin
 import org.jetbrains.org.objectweb.asm.Label
 import org.jetbrains.org.objectweb.asm.Opcodes
@@ -82,9 +83,7 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
             classBuilder: ClassBuilder,
             memberCodegen: MemberCodegen<*>
     ): Boolean {
-        if (!functionDescriptor.hasJvmOverloadsAnnotation()) {
-            return false
-        }
+        functionDescriptor.findJvmOverloadsAnnotation() ?: return false
 
         val count = functionDescriptor.countDefaultParameters()
 
@@ -122,7 +121,10 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
     ) {
         val typeMapper = state.typeMapper
         val isStatic = AsmUtil.isStaticMethod(contextKind, functionDescriptor)
-        val flags = AsmUtil.getVisibilityAccessFlag(functionDescriptor) or (if (isStatic) Opcodes.ACC_STATIC else 0)
+        val flags = AsmUtil.getCommonCallableFlags(functionDescriptor) or
+                (if (isStatic) Opcodes.ACC_STATIC else 0) or
+                (if (functionDescriptor.modality == Modality.FINAL && functionDescriptor !is ConstructorDescriptor) Opcodes.ACC_FINAL else 0)
+
         val remainingParameters = getRemainingParameters(functionDescriptor.original, substituteCount)
         val signature = typeMapper.mapSignature(functionDescriptor, contextKind, remainingParameters, false)
         val mv = classBuilder.newMethod(OtherOrigin(methodElement, functionDescriptor), flags,
@@ -155,6 +157,15 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
         if (!isStatic) {
             val thisIndex = frameMap.enterTemp(AsmTypes.OBJECT_TYPE)
             v.load(thisIndex, methodOwner) // Load this on stack
+
+            if (functionDescriptor is ConstructorDescriptor) {
+                val closure = state.bindingContext.get(CodegenBinding.CLOSURE, functionDescriptor.constructedClass)
+                val captureThis = getDispatchReceiverParameterForConstructorCall(functionDescriptor, closure)
+                if (captureThis != null) {
+                    val outerIndex = frameMap.enterTemp(AsmTypes.OBJECT_TYPE)
+                    v.load(outerIndex, typeMapper.mapType(captureThis))
+                }
+            }
         }
         else {
             val delegateOwner = delegateFunctionDescriptor.containingDeclaration
@@ -234,7 +245,7 @@ class DefaultParameterValueSubstitutor(val state: GenerationState) {
 
         if (CodegenBinding.canHaveOuter(state.bindingContext, classDescriptor)) return false
 
-        if (Visibilities.isPrivate(classDescriptor.visibility) || Visibilities.isPrivate(constructorDescriptor.visibility))
+        if (Visibilities.isPrivate(constructorDescriptor.visibility))
             return false
 
         if (constructorDescriptor.valueParameters.isEmpty()) return false

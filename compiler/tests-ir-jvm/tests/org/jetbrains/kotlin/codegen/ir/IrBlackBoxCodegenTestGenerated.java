@@ -8591,6 +8591,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             doTest(fileName);
         }
 
+        @TestMetadata("innerClass.kt")
+        public void testInnerClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/innerClass.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("multipleDefaultParameters.kt")
         public void testMultipleDefaultParameters() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/multipleDefaultParameters.kt");
@@ -8609,6 +8615,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
             doTest(fileName);
         }
 
+        @TestMetadata("privateClass.kt")
+        public void testPrivateClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/privateClass.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("secondaryConstructor.kt")
         public void testSecondaryConstructor() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/secondaryConstructor.kt");
@@ -8624,6 +8636,12 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
         @TestMetadata("simpleJavaCall.kt")
         public void testSimpleJavaCall() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/simpleJavaCall.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("varargs.kt")
+        public void testVarargs() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/jvmOverloads/varargs.kt");
             doTest(fileName);
         }
     }

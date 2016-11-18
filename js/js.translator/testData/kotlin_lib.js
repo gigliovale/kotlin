@@ -383,22 +383,6 @@ Kotlin.print = function (s) {
     Kotlin.out.print(s);
 };
 
-Kotlin.collectionsMax = function (c, comp) {
-    if (c.isEmpty()) {
-        //TODO: which exception?
-        throw new Error();
-    }
-    var it = c.iterator();
-    var max = it.next();
-    while (it.hasNext()) {
-        var el = it.next();
-        if (comp.compare(max, el) < 0) {
-            max = el;
-        }
-    }
-    return max;
-};
-
 Kotlin.collectionsSort = function (mutableList, comparator) {
     var boundComparator = void 0;
     if (comparator !== void 0) {
@@ -406,7 +390,7 @@ Kotlin.collectionsSort = function (mutableList, comparator) {
     }
 
     if (mutableList.size > 1) {
-        var array = Kotlin.copyToArray(mutableList);
+        var array = _.kotlin.collections.copyToArray(mutableList);
 
         array.sort(boundComparator);
 
@@ -418,21 +402,6 @@ Kotlin.collectionsSort = function (mutableList, comparator) {
 
 Kotlin.primitiveArraySort = function(array) {
     array.sort(Kotlin.primitiveCompareTo)
-};
-
-Kotlin.copyToArray = function (collection) {
-    if (typeof collection.toArray !== "undefined") return collection.toArray();
-    return Kotlin.copyToArrayImpl(collection);
-};
-
-Kotlin.copyToArrayImpl = function (collection) {
-    var array = [];
-    var it = collection.iterator();
-    while (it.hasNext()) {
-        array.push(it.next());
-    }
-
-    return array;
 };
 
 Kotlin.splitString = function (str, regex, limit) {

@@ -1167,7 +1167,7 @@
             </jar-content>
         </pack-runtime-jar>
     </target>
-    
+
     <target name="js-kotlin-test">
         <java classname="org.jetbrains.kotlin.preloading.Preloader" failonerror="true" fork="true" maxmemory="${max.heap.size.for.forked.jvm}">
             <classpath>
@@ -1353,6 +1353,9 @@
                 <fileset dir="${basedir}/core/reflection.jvm/src" includes="**/*"/>
                 <fileset dir="${basedir}/core/runtime.jvm/src" includes="**/*"/>
                 <fileset dir="${basedir}/libraries/stdlib/src" includes="**/*"/>
+                <fileset dir="${basedir}/plugins/kotlin-serialization/kotlin-serialization-runtime/src">
+                    <include name="**/*" if="kotlin-serialization"/>
+                </fileset>
                 <fileset dir="${output}/core.src" includes="**/*"/>
             </jar-content>
         </pack-runtime-jar>
@@ -1394,11 +1397,11 @@
             depends="builtins,stdlib,kotlin-test,core,reflection,pack-runtime,pack-runtime-sources,script-runtime,mock-runtime-for-test"/>
 
     <target name="dist"
-            depends="clean,init,prepare-dist,preloader,runner,serialize-builtins,compiler,compiler-sources,ant-tools,runtime,kotlin-js-stdlib,android-extensions-compiler,allopen-compiler-plugin,noarg-compiler-plugin,sam-with-receiver-compiler-plugin,source-sections-compiler-plugin,annotation-processing-under-jdk8,daemon-client,compiler-client-embeddable,kotlin-build-common-test"
+            depends="clean,init,prepare-dist,preloader,runner,serialize-builtins,compiler,compiler-sources,ant-tools,runtime,kotlin-js-stdlib,android-extensions-compiler,allopen-compiler-plugin,noarg-compiler-plugin,sam-with-receiver-compiler-plugin,source-sections-compiler-plugin,kotlin-serialization,annotation-processing-under-jdk8,daemon-client,compiler-client-embeddable,kotlin-build-common-test"
             description="Builds redistributables from sources"/>
 
     <target name="dist-quick"
-            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler-quick,ant-tools,runtime,kotlin-js-stdlib,android-extensions-compiler,allopen-compiler-plugin,noarg-compiler-plugin,sam-with-receiver-compiler-plugin,source-sections-compiler-plugin,annotation-processing-under-jdk8"
+            depends="clean,init,prepare-dist,preloader,serialize-builtins,compiler-quick,ant-tools,runtime,kotlin-js-stdlib,android-extensions-compiler,allopen-compiler-plugin,noarg-compiler-plugin,sam-with-receiver-compiler-plugin,source-sections-compiler-plugin,kotlin-serialization,annotation-processing-under-jdk8"
             description="Builds everything, but classes are reused from project out dir, doesn't run proguard and javadoc"/>
 
     <target name="dist-quick-compiler-only"
@@ -1455,4 +1458,86 @@
     <target name="build-bootstrap-artifacts" depends="dist,zip-compiler"/>
 
     <target name="build-artifacts" depends="dist,zip-compiler,zip-test-data"/>
+
+    <!-- ********************** kotlin-serialization ********************** -->
+    <!-- Define system property kotlin-serialization=true to enable -->
+
+    <target name="kotlin-serialization" depends="kotlin-serialization-compiler,kotlin-serialization-runtime" if="kotlin-serialization"/>
+
+    <target name="kotlin-serialization-compiler">
+        <cleandir dir="${output}/classes/kotlin-serialization/kotlin-serialization-compiler"/>
+        <javac2 destdir="${output}/classes/kotlin-serialization/kotlin-serialization-compiler" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false">
+            <withKotlin modulename="kotlin-serialization-compiler">
+                <compilerarg value="-version"/>
+            </withKotlin>
+            <skip pattern="kotlin/Metadata"/>
+            <src>
+                <pathelement path="plugins/kotlin-serialization/kotlin-serialization-compiler/src"/>
+            </src>
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement path="${kotlin-home}/lib/kotlin-compiler.jar"/>
+            </classpath>
+        </javac2>
+
+        <jar destfile="${kotlin-home}/lib/kotlin-serialization-compiler.jar">
+            <fileset dir="${output}/classes/kotlin-serialization/kotlin-serialization-compiler"/>
+            <zipfileset file="${kotlin-home}/build.txt" prefix="META-INF"/>
+            <fileset dir="${basedir}/plugins/kotlin-serialization/kotlin-serialization-compiler/src" includes="META-INF/services/**"/>
+        </jar>
+    </target>
+
+    <target name="kotlin-serialization-runtime">
+        <cleandir dir="${output}/classes/kotlin-serialization/kotlin-serialization-runtime"/>
+        <new-kotlinc output="${output}/classes/kotlin-serialization/kotlin-serialization-runtime" moduleName="kotlin-serialization-runtime">
+            <src>
+                <include name="plugins/kotlin-serialization/kotlin-serialization-runtime/src"/>
+            </src>
+            <class-path>
+                <pathelement path="${output}/classes/builtins"/>
+                <pathelement path="${output}/builtins"/>
+                <pathelement path="${output}/classes/reflection"/>
+                <pathelement path="${output}/classes/stdlib"/>
+            </class-path>
+        </new-kotlinc>
+        <jar destfile="${kotlin-home}/lib/kotlin-serialization-runtime.jar">
+            <fileset dir="${output}/classes/kotlin-serialization/kotlin-serialization-runtime"/>
+            <zipfileset file="${kotlin-home}/build.txt" prefix="META-INF"/>
+        </jar>
+    </target>
+
+    <target name="kotlin-serialization-test">
+        <cleandir dir="${output}/classes/kotlin-serialization/kotlin-serialization-test"/>
+        <new-kotlinc output="${output}/classes/kotlin-serialization/kotlin-serialization-test" moduleName="kotlin-serialization-test"
+                additionalOptions="-Xplugin ${kotlin-home}/lib/kotlin-serialization-compiler.jar">
+            <src>
+                <include name="plugins/kotlin-serialization/kotlin-serialization-runtime/test"/>
+            </src>
+            <class-path>
+                <pathelement path="${output}/classes/builtins"/>
+                <pathelement path="${output}/builtins"/>
+                <pathelement path="${output}/classes/reflection"/>
+                <pathelement path="${output}/classes/stdlib"/>
+                <pathelement path="${output}/classes/kotlin-serialization/kotlin-serialization-runtime"/>
+                <pathelement path="${idea.sdk}/lib/junit-4.12.jar"/>
+            </class-path>
+        </new-kotlinc>
+        <mkdir dir="out/test/kotlin-serialization-test"/>
+        <junit printsummary="on">
+            <classpath>
+                <pathelement path="${kotlin-home}/lib/kotlin-runtime.jar"/>
+                <pathelement path="${kotlin-home}/lib/kotlin-reflect.jar"/>
+                <pathelement path="${kotlin-home}/lib/kotlin-serialization-runtime.jar"/>
+                <pathelement path="${idea.sdk}/lib/junit-4.12.jar"/>
+                <pathelement path="${idea.sdk}/lib/hamcrest-core-1.3.jar"/>
+                <pathelement path="${output}/classes/kotlin-serialization/kotlin-serialization-test"/>
+            </classpath>
+            <formatter type="plain"/>
+            <batchtest todir="out/test/kotlin-serialization-test">
+                <fileset dir="${output}/classes/kotlin-serialization/kotlin-serialization-test">
+                    <include name="**/*Test.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
 </project>

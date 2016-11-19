@@ -85,7 +85,7 @@ public class KotlinJsModuleConfigurator extends KotlinWithLibraryConfigurator {
         KotlinPaths paths = PathUtil.getKotlinPathsForIdeaPlugin();
         return new RuntimeLibraryFiles(
                 assertFileExists(paths.getJsStdLibJarPath()),
-                null,
+                null, null,
                 assertFileExists(paths.getJsStdLibSrcJarPath())
         );
     }

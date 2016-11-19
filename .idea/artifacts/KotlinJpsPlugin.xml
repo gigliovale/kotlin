@@ -10,6 +10,9 @@
     <root id="archive" name="kotlin-jps-plugin.jar">
       <element id="directory" name="META-INF">
         <element id="dir-copy" path="$PROJECT_DIR$/jps-plugin/src/META-INF" />
+        <element id="directory" name="services">
+          <element id="file-copy" path="$PROJECT_DIR$/plugins/kotlin-serialization/kotlin-serialization-jps/src/META-INF/services/org.jetbrains.kotlin.jps.build.KotlinJpsCompilerArgumentsProvider" />
+        </element>
       </element>
       <element id="module-output" name="cli-common" />
       <element id="module-output" name="idea-jps-common" />
@@ -25,6 +28,7 @@
       <element id="module-output" name="android-extensions-jps" />
       <element id="module-output" name="build-common" />
       <element id="module-output" name="compiler-runner" />
+      <element id="module-output" name="kotlin-serialization-jps" />
     </root>
   </artifact>
 </component>

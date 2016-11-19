@@ -55,6 +55,11 @@ fun getReflectJar(library: Library): VirtualFile? {
     return LibraryUtils.getJarFile(Arrays.asList(*library.getFiles(OrderRootType.CLASSES)), PathUtil.KOTLIN_JAVA_REFLECT_JAR)
 }
 
+fun getSerializationRuntimeJar(library: Library): VirtualFile? {
+    if (isExternalLibrary(library)) return null
+    return LibraryUtils.getJarFile(Arrays.asList(*library.getFiles(OrderRootType.CLASSES)), PathUtil.KOTLIN_SERIALIZATION_RUNTIME_JAR)
+}
+
 fun getRuntimeSrcJar(library: Library): VirtualFile? {
     if (isExternalLibrary(library)) return null
     return getRuntimeSrcJar(Arrays.asList(*library.getFiles(OrderRootType.SOURCES)))

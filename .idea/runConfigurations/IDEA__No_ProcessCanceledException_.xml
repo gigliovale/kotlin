@@ -21,9 +21,7 @@
     <ConfigurationWrapper RunnerId="Debug" />
     <ConfigurationWrapper RunnerId="Run" />
     <method>
-      <option name="BuildArtifacts" enabled="true">
-        <artifact name="KotlinPlugin" />
-      </option>
+      <option name="BuildArtifacts" enabled="true" />
       <option name="BuildArtifacts" enabled="true" />
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/idea-runner/runner.xml" target="force-enable-kotlin-plugin" />
     </method>

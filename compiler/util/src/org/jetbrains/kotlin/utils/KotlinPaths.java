@@ -34,6 +34,9 @@ public interface KotlinPaths {
     File getReflectPath();
 
     @NotNull
+    File getSerializationRuntimePath();
+
+    @NotNull
     File getScriptRuntimePath();
 
     @NotNull

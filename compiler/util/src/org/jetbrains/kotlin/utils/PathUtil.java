@@ -37,6 +37,7 @@ public class PathUtil {
     public static final String KOTLIN_JAVA_RUNTIME_JAR = "kotlin-runtime.jar";
     public static final String KOTLIN_JAVA_STDLIB_JAR = "kotlin-stdlib.jar";
     public static final String KOTLIN_JAVA_REFLECT_JAR = "kotlin-reflect.jar";
+    public static final String KOTLIN_SERIALIZATION_RUNTIME_JAR = "kotlin-serialization-runtime.jar";
     public static final String KOTLIN_JAVA_SCRIPT_RUNTIME_JAR = "kotlin-script-runtime.jar";
     public static final String KOTLIN_TEST_JAR = "kotlin-test.jar";
     public static final String KOTLIN_TEST_JS_JAR = "kotlin-test-js.jar";

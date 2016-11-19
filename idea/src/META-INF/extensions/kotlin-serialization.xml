@@ -1,0 +1,8 @@
+<idea-plugin>
+    <id>org.jetbrains.kotlin</id>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <expressionCodegenExtension implementation="org.jetbrains.kotlin.kserialization.extensions.SerializationCodegenExtension"/>
+        <syntheticResolveExtension implementation="org.jetbrains.kotlin.kserialization.extensions.SerializationResolveExtension"/>
+    </extensions>
+</idea-plugin>

@@ -21,15 +21,19 @@ import java.io.File
 class RuntimeLibraryFiles(
         val runtimeJar: File,
         val reflectJar: File?,
+        val serializationRuntimeJar: File?,
         val runtimeSourcesJar: File
 ) {
-    fun getAllJars(): List<File> = listOfNotNull(runtimeJar, reflectJar, runtimeSourcesJar)
+    fun getAllJars(): List<File> = listOfNotNull(runtimeJar, reflectJar, serializationRuntimeJar, runtimeSourcesJar)
 
     fun getRuntimeDestination(dirToCopyJar: String): File =
             File(dirToCopyJar + "/" + runtimeJar.name)
 
     fun getReflectDestination(dirToCopyJar: String): File? =
             if (reflectJar != null) File(dirToCopyJar + "/" + reflectJar.name) else null
+
+    fun getSerializationRuntimeDestination(dirToCopyJar: String): File? =
+            if (serializationRuntimeJar != null) File(dirToCopyJar + "/" + serializationRuntimeJar.name) else null
 
     fun getRuntimeSourcesDestination(dirToCopyJar: String): File =
             File(dirToCopyJar + "/" + runtimeSourcesJar.name)

@@ -52,6 +52,12 @@ public class KotlinPathsFromHomeDir implements KotlinPaths {
         return getLibraryFile(PathUtil.KOTLIN_JAVA_REFLECT_JAR);
     }
 
+    @NotNull
+    @Override
+    public File getSerializationRuntimePath() {
+        return getLibraryFile(PathUtil.KOTLIN_SERIALIZATION_RUNTIME_JAR);
+    }
+
     @Override
     @NotNull
     public File getScriptRuntimePath() {

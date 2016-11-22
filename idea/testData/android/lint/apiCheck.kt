@@ -4,6 +4,7 @@
 // INSPECTION_CLASS3: org.jetbrains.android.inspections.klint.AndroidLintInspectionToolProvider$AndroidKLintOverrideInspection
 
 import android.animation.RectEvaluator
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import org.w3c.dom.DOMError
 import org.w3c.dom.DOMErrorHandler
@@ -22,7 +23,7 @@ import android.widget.*
 import dalvik.bytecode.OpcodeInfo
 
 import android.os.Build.VERSION
-import android.os.Build.VERSION.SDK_INT
+import <warning descr="Field requires API level 4 (current min is 1): `android.os.Build.VERSION#SDK_INT`">android.os.Build.VERSION.SDK_INT</warning>
 import android.os.Build.VERSION_CODES
 import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH
 import android.os.Build.VERSION_CODES.JELLY_BEAN
@@ -40,7 +41,7 @@ class ApiCallTest: Activity() {
         Bundle().getInt("")
 
         // Ok, this constant is inlined
-        View.<warning descr="Field requires API level 16 (current min is 1): android.view.View#SYSTEM_UI_FLAG_FULLSCREEN">SYSTEM_UI_FLAG_FULLSCREEN</warning>
+        View.<warning descr="Field requires API level 16 (current min is 1): `android.view.View#SYSTEM_UI_FLAG_FULLSCREEN`">SYSTEM_UI_FLAG_FULLSCREEN</warning>
 
         // Virtual call
         <error descr="Call requires API level 11 (current min is 1): android.app.Activity#getActionBar">getActionBar</error>() // API 11
@@ -59,18 +60,18 @@ class ApiCallTest: Activity() {
         GridLayout::class
 
         // Field access
-        val field = OpcodeInfo.<warning descr="Field requires API level 11 (current min is 1): dalvik.bytecode.OpcodeInfo#MAXIMUM_VALUE">MAXIMUM_VALUE</warning> // API 11
+        val field = OpcodeInfo.<warning descr="Field requires API level 11 (current min is 1): `dalvik.bytecode.OpcodeInfo#MAXIMUM_VALUE`">MAXIMUM_VALUE</warning> // API 11
 
 
         val fillParent = LayoutParams.FILL_PARENT // API 1
         // This is a final int, which means it gets inlined
         val matchParent = LayoutParams.MATCH_PARENT // API 8
         // Field access: non final
-        val batteryInfo = report!!.<error descr="Field requires API level 14 (current min is 1): android.app.ApplicationErrorReport#batteryInfo">batteryInfo</error>
+        val batteryInfo = report!!.<error descr="Field requires API level 14 (current min is 1): `android.app.ApplicationErrorReport#batteryInfo`">batteryInfo</error>
 
         // Enum access
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-            val mode = PorterDuff.Mode.<error descr="Field requires API level 11 (current min is 1): android.graphics.PorterDuff.Mode#OVERLAY">OVERLAY</error> // API 11
+            val mode = PorterDuff.Mode.<error descr="Field requires API level 11 (current min is 1): `android.graphics.PorterDuff.Mode#OVERLAY`">OVERLAY</error> // API 11
         }
     }
 
@@ -267,8 +268,29 @@ class ApiCallTest: Activity() {
         }
     }
 
+    fun testWithoutAnnotation(textView: TextView) {
+        if (textView.<error descr="Call requires API level 14 (current min is 1): android.widget.TextView#isSuggestionsEnabled">isSuggestionsEnabled</error>()) {
+
+        }
+
+        if (textView.<error descr="Call requires API level 14 (current min is 1): android.widget.TextView#isSuggestionsEnabled">isSuggestionsEnabled</error>) {
+
+        }
+    }
+
     @TargetApi(JELLY_BEAN)
-    fun testWithAnnotation(textView: TextView) {
+    fun testWithTargetApiAnnotation(textView: TextView) {
+        if (textView.isSuggestionsEnabled()) {
+            //NO ERROR, annotation
+        }
+
+        if (textView.isSuggestionsEnabled) {
+            //NO ERROR, annotation
+        }
+    }
+
+    @SuppressLint("NewApi")
+    fun testWithSuppressLintAnnotation(textView: TextView) {
         if (textView.isSuggestionsEnabled()) {
             //NO ERROR, annotation
         }

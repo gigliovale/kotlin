@@ -21,11 +21,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
 import org.jetbrains.kotlin.builtins.ReflectionTypes;
+import org.jetbrains.kotlin.coroutines.CoroutineUtilKt;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.name.SpecialNames;
 import org.jetbrains.kotlin.psi.*;
+import org.jetbrains.kotlin.resolve.BindingContextUtils;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace;
 import org.jetbrains.kotlin.resolve.TypeResolver;
@@ -73,6 +75,7 @@ public class ArgumentTypeResolver {
     @NotNull private final FunctionPlaceholders functionPlaceholders;
 
     private ExpressionTypingServices expressionTypingServices;
+    private FakeCallResolver fakeCallResolver;
 
     public ArgumentTypeResolver(
             @NotNull TypeResolver typeResolver,
@@ -94,6 +97,12 @@ public class ArgumentTypeResolver {
     @Inject
     public void setExpressionTypingServices(@NotNull ExpressionTypingServices expressionTypingServices) {
         this.expressionTypingServices = expressionTypingServices;
+    }
+
+    // component dependency cycle
+    @Inject
+    public void setFakeCallResolver(@NotNull FakeCallResolver fakeCallResolver) {
+        this.fakeCallResolver = fakeCallResolver;
     }
 
     public static boolean isSubtypeOfForArgumentType(
@@ -287,8 +296,17 @@ public class ArgumentTypeResolver {
             KotlinType type = getShapeTypeOfFunctionLiteral(functionLiteral, context.scope, context.trace, true);
             return TypeInfoFactoryKt.createTypeInfo(type, context);
         }
-        return expressionTypingServices.getTypeInfo(expression, context.replaceContextDependency(INDEPENDENT));
+        KotlinTypeInfo recordedTypeInfo = BindingContextUtils.getRecordedTypeInfo(expression, context.trace.getBindingContext());
+
+        KotlinTypeInfo result = expressionTypingServices.getTypeInfo(expression, context.replaceContextDependency(INDEPENDENT));
+
+        if (recordedTypeInfo == null) {
+            // we should run this only one time for every lambda expression
+            CoroutineUtilKt.resolveHandleResultCallForCoroutineLambdaExpressions(fakeCallResolver, context, functionLiteral);
+        }
+        return result;
     }
+
 
     @Nullable
     public KotlinType getShapeTypeOfFunctionLiteral(

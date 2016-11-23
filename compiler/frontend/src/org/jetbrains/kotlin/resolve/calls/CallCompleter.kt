@@ -101,34 +101,12 @@ class CallCompleter(
                 }
             }
 
-            resolveHandleResultCallForCoroutineLambdaExpressions(context, resolvedCall)
         }
 
         if (results.isSingleResult && results.resultingCall.status.isSuccess) {
             return results.changeStatusToSuccess()
         }
         return results
-    }
-
-    private fun <D : CallableDescriptor> resolveHandleResultCallForCoroutineLambdaExpressions(
-            context: BasicCallResolutionContext,
-            resolvedCall: ResolvedCall<D>
-    ) {
-        resolvedCall.valueArguments.values
-                .flatMap { it.arguments.map { it.getArgumentExpression() } }
-                .filterIsInstance<KtLambdaExpression>()
-                .forEach {
-                    val function = context.trace.bindingContext[BindingContext.FUNCTION, it.functionLiteral] ?: return@forEach
-
-                    function.controllerTypeIfCoroutine ?: return@forEach
-
-                    val lastBlockStatement = it.functionLiteral.bodyExpression?.statements?.lastOrNull()
-
-                    // Already resolved
-                    if (lastBlockStatement is KtReturnExpression) return@forEach
-
-                    fakeCallResolver.resolveCoroutineHandleResultCallIfNeeded(it.functionLiteral, lastBlockStatement, function, context)
-                }
     }
 
     private fun <D : CallableDescriptor> completeAllCandidates(

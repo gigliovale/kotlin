@@ -23,9 +23,14 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
 import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtFunctionLiteral
+import org.jetbrains.kotlin.psi.KtReturnExpression
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
+import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
+import org.jetbrains.kotlin.resolve.calls.context.CallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
@@ -103,3 +108,20 @@ fun FakeCallResolver.resolveCoroutineHandleResultCallIfNeeded(
 
 fun KotlinType.isValidContinuation() =
         (constructor.declarationDescriptor as? ClassDescriptor)?.fqNameUnsafe == DescriptorUtils.CONTINUATION_INTERFACE_FQ_NAME.toUnsafe()
+
+fun FakeCallResolver.resolveHandleResultCallForCoroutineLambdaExpressions(
+        context: CallResolutionContext<*>,
+        functionLiteral: KtFunction
+) {
+    if (functionLiteral !is KtFunctionLiteral) return
+    val function = context.trace.bindingContext[BindingContext.FUNCTION, functionLiteral] ?: return
+
+    function.controllerTypeIfCoroutine ?: return
+
+    val lastBlockStatement = functionLiteral.bodyExpression?.statements?.lastOrNull()
+
+    // Already resolved
+    if (lastBlockStatement is KtReturnExpression) return
+
+    resolveCoroutineHandleResultCallIfNeeded(functionLiteral, lastBlockStatement, function, context)
+}

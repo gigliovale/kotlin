@@ -55,6 +55,7 @@ interface UBinaryExpressionWithType : UExpression {
         if (visitor.visitBinaryExpressionWithType(this)) return
         annotations.acceptList(visitor)
         operand.accept(visitor)
+        typeReference?.accept(visitor)
         visitor.afterVisitBinaryExpressionWithType(this)
     }
 }

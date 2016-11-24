@@ -1,0 +1,10 @@
+// "Replace with 'StringList'" "true"
+
+@Deprecated("", ReplaceWith("StringList"))
+typealias TypeAlias = List<String>
+
+class StringList
+
+fun foo(): StringList? {
+    return null
+}

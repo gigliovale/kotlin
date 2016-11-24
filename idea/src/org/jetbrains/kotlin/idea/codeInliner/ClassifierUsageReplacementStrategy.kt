@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForSelectorOrThis
 import org.jetbrains.kotlin.utils.addToStdlib.check
 
-class ClassUsageReplacementStrategy(
+class ClassifierUsageReplacementStrategy(
         typeReplacement: KtUserType?,
         constructorReplacement: CodeToInline?,
         project: Project

@@ -19,10 +19,10 @@ package org.jetbrains.kotlin.idea.quickfix.replaceWith
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.analysis.analyzeInContext
 import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
+import org.jetbrains.kotlin.idea.codeInliner.CodeToInline
+import org.jetbrains.kotlin.idea.codeInliner.CodeToInlineBuilder
 import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
 import org.jetbrains.kotlin.idea.references.mainReference
-import org.jetbrains.kotlin.idea.codeInliner.CodeToInlineBuilder
-import org.jetbrains.kotlin.idea.codeInliner.CodeToInline
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.resolve.frontendService
 import org.jetbrains.kotlin.name.FqName
@@ -32,7 +32,6 @@ import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
 import org.jetbrains.kotlin.resolve.*
-import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.module
 import org.jetbrains.kotlin.resolve.lazy.DefaultImportProvider
@@ -42,7 +41,6 @@ import org.jetbrains.kotlin.resolve.scopes.utils.chainImportingScopes
 import org.jetbrains.kotlin.resolve.scopes.utils.memberScopeAsImportingScope
 import org.jetbrains.kotlin.storage.LockBasedStorageManager
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
-import org.jetbrains.kotlin.types.expressions.PreliminaryDeclarationVisitor
 import java.util.*
 
 data class ReplaceWith(val pattern: String, val imports: List<String>)
@@ -89,9 +87,9 @@ object ReplaceWithAnnotationAnalyzer {
                 .prepareCodeToInline(expression, emptyList(), ::analyzeExpression, importFqNames = importFqNames(annotation))
     }
 
-    fun analyzeClassReplacement(
+    fun analyzeClassifierReplacement(
             annotation: ReplaceWith,
-            symbolDescriptor: ClassDescriptor,
+            symbolDescriptor: ClassifierDescriptor,
             resolutionFacade: ResolutionFacade
     ): KtUserType? {
         val psiFactory = KtPsiFactory(resolutionFacade.project)
@@ -183,6 +181,8 @@ object ReplaceWithAnnotationAnalyzer {
                 val propertyHeader = ScopeUtils.makeScopeForPropertyHeader(outerScope, descriptor)
                 LexicalScopeImpl(propertyHeader, descriptor, false, descriptor.extensionReceiverParameter, LexicalScopeKind.PROPERTY_ACCESSOR_BODY)
             }
+
+            is TypeAliasDescriptor -> return getResolutionScope(descriptor.containingDeclaration, ownerDescriptor, additionalScopes)
 
             else -> return null // something local, should not work with ReplaceWith
         }

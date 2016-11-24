@@ -19,21 +19,18 @@ package org.jetbrains.kotlin.idea.quickfix.replaceWith
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.codeInliner.CallableUsageReplacementStrategy
+import org.jetbrains.kotlin.idea.codeInliner.ClassifierUsageReplacementStrategy
+import org.jetbrains.kotlin.idea.codeInliner.UsageReplacementStrategy
 import org.jetbrains.kotlin.idea.core.OptionalParametersHelper
 import org.jetbrains.kotlin.idea.quickfix.KotlinQuickFixAction
 import org.jetbrains.kotlin.idea.references.mainReference
-import org.jetbrains.kotlin.idea.codeInliner.CallableUsageReplacementStrategy
-import org.jetbrains.kotlin.idea.codeInliner.ClassUsageReplacementStrategy
-import org.jetbrains.kotlin.idea.codeInliner.UsageReplacementStrategy
 import org.jetbrains.kotlin.psi.KtConstructorCalleeExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
@@ -140,15 +137,20 @@ abstract class DeprecatedSymbolUsageFixBase(
                 }
 
                 is ClassDescriptor -> {
-                    val replacementType = ReplaceWithAnnotationAnalyzer.analyzeClassReplacement(replaceWith, target, resolutionFacade)
+                    val replacementType = ReplaceWithAnnotationAnalyzer.analyzeClassifierReplacement(replaceWith, target, resolutionFacade)
                     if (replacementType != null) { //TODO: check that it's really resolved and is not an object otherwise it can be expression as well
-                        return ClassUsageReplacementStrategy(replacementType, null, element.project)
+                        return ClassifierUsageReplacementStrategy(replacementType, null, element.project)
                     }
                     else {
                         val constructor = target.unsubstitutedPrimaryConstructor ?: return null
                         val replacementExpression = ReplaceWithAnnotationAnalyzer.analyzeCallableReplacement(replaceWith, constructor, resolutionFacade) ?: return null
-                        return ClassUsageReplacementStrategy(null, replacementExpression, element.project)
+                        return ClassifierUsageReplacementStrategy(null, replacementExpression, element.project)
                     }
+                }
+
+                is TypeAliasDescriptor -> {
+                    val replacementType = ReplaceWithAnnotationAnalyzer.analyzeClassifierReplacement(replaceWith, target, resolutionFacade)
+                    return replacementType?.let { ClassifierUsageReplacementStrategy(it, null, element.project) }
                 }
 
                 else -> return null

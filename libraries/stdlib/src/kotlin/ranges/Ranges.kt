@@ -22,7 +22,12 @@ private open class ComparableRange<T: Comparable<T>> (
     override fun toString(): String = "$start..$endInclusive"
 }
 
-private class DoubleRange (
+/**
+ * A closed range of values of type `Double`.
+ *
+ * Numbers are compared with the ends of this range according to IEEE-754.
+ */
+public class ClosedDoubleRange (
         start: Double,
         endInclusive: Double
 ): ClosedRange<Double> {
@@ -35,7 +40,7 @@ private class DoubleRange (
     override fun isEmpty(): Boolean = !(_start <= _endInclusive)
 
     override fun equals(other: Any?): Boolean {
-        return other is DoubleRange && (isEmpty() && other.isEmpty() ||
+        return other is ClosedDoubleRange && (isEmpty() && other.isEmpty() ||
                 _start == other._start && _endInclusive == other._endInclusive)
     }
 
@@ -45,8 +50,14 @@ private class DoubleRange (
     override fun toString(): String = "$_start..$_endInclusive"
 }
 
+/**
+ * A closed range of values of type `Float`.
+ *
+ * Numbers are compared with the ends of this range according to IEEE-754.
+
+ */
 @JvmVersion
-private class FloatRange (
+public class ClosedFloatRange (
         start: Float,
         endInclusive: Float
 ): ClosedRange<Float> {
@@ -59,7 +70,7 @@ private class FloatRange (
     override fun isEmpty(): Boolean = !(_start <= _endInclusive)
 
     override fun equals(other: Any?): Boolean {
-        return other is FloatRange && (isEmpty() && other.isEmpty() ||
+        return other is ClosedFloatRange && (isEmpty() && other.isEmpty() ||
                 _start == other._start && _endInclusive == other._endInclusive)
     }
 
@@ -80,14 +91,14 @@ public operator fun <T: Comparable<T>> T.rangeTo(that: T): ClosedRange<T> = Comp
  * Creates a range from this [Double] value to the specified [other] value.
  */
 @SinceKotlin("1.1")
-public operator fun Double.rangeTo(that: Double): ClosedRange<Double> = DoubleRange(this, that)
+public operator fun Double.rangeTo(that: Double): ClosedDoubleRange = ClosedDoubleRange(this, that)
 
 /**
  * Creates a range from this [Float] value to the specified [other] value.
  */
 @JvmVersion
 @SinceKotlin("1.1")
-public operator fun Float.rangeTo(that: Float): ClosedRange<Float> = FloatRange(this, that)
+public operator fun Float.rangeTo(that: Float): ClosedFloatRange = ClosedFloatRange(this, that)
 
 
 internal fun checkStepIsPositive(isPositive: Boolean, step: Number) {

@@ -12,7 +12,12 @@ class ComparablePair<T : Comparable<T>>(val first: T, val second: T) : Comparabl
 
 fun <T : Comparable<T>> genericRangeTo(start: T, endInclusive: T) = start..endInclusive
 operator fun Double.rangeTo(other: Double) = genericRangeTo(this, other)
-operator fun Float.rangeTo(other: Float) = ClosedFloatRange(this, other)
+// some weird inverted range
+operator fun Float.rangeTo(other: Float) = object : ClosedRange<Float> {
+    override val start: Float = other
+    override val endInclusive: Float = this@rangeTo
+    override fun lessThanOrEquals(a: Float, b: Float): Boolean = a >= b
+}
 
 fun check(x: Double, left: Double, right: Double): Boolean {
     val result = x in left..right
@@ -38,7 +43,7 @@ fun box(): String {
     assert(!check(-0.0, 0.0, 0.0))
     assert(check(Double.NaN, Double.NaN, Double.NaN))
 
-    assert(check(-0.0f, 0.0f, 0.0f))
+    assert(check(-0.0f, 0.0f, 1.0f))
     assert(!check(Float.NaN, Float.NaN, Float.NaN))
 
     return "OK"

@@ -200,11 +200,13 @@ public class RangeTest {
         val specialRange = 0.0..-0.0
         assertFalse(specialRange.isEmpty())
         assertTrue(-0.0 in specialRange)
+        assertTrue(-0.0F in specialRange)
         val normalSpecialRange = -0.0..0.0
         assertEquals(specialRange, normalSpecialRange)
         assertEquals(specialRange.hashCode(), normalSpecialRange.hashCode())
         val nanRange = 0.0..Double.NaN
         assertFalse(Double.NaN in nanRange)
+        assertFalse(Float.NaN in nanRange)
         assertTrue(nanRange.isEmpty())
 
         val halfInfRange = 0.0..Double.POSITIVE_INFINITY

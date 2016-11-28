@@ -60,6 +60,8 @@ public class $range(start: $t, endInclusive: $t) : ${t}Progression(start, endInc
 
     override fun isEmpty(): Boolean = first > last
 
+    override fun lessThanOrEquals(a: $t, b: $t): Boolean = a <= b
+
     override fun equals(other: Any?): Boolean =
         other is $range && (isEmpty() && other.isEmpty() ||
         ${compare("first")} && ${compare("last")})

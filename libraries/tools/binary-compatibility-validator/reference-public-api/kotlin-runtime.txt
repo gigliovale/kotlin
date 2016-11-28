@@ -1023,6 +1023,8 @@ public final class kotlin/ranges/CharRange : kotlin/ranges/CharProgression, kotl
 	public synthetic fun getStart ()Ljava/lang/Comparable;
 	public fun hashCode ()I
 	public fun isEmpty ()Z
+	public fun lessThanOrEquals (CC)Z
+	public synthetic fun lessThanOrEquals (Ljava/lang/Comparable;Ljava/lang/Comparable;)Z
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1035,11 +1037,13 @@ public abstract interface class kotlin/ranges/ClosedRange {
 	public abstract fun getEndInclusive ()Ljava/lang/Comparable;
 	public abstract fun getStart ()Ljava/lang/Comparable;
 	public abstract fun isEmpty ()Z
+	public abstract fun lessThanOrEquals (Ljava/lang/Comparable;Ljava/lang/Comparable;)Z
 }
 
 public final class kotlin/ranges/ClosedRange$DefaultImpls {
 	public static fun contains (Lkotlin/ranges/ClosedRange;Ljava/lang/Comparable;)Z
 	public static fun isEmpty (Lkotlin/ranges/ClosedRange;)Z
+	public static fun lessThanOrEquals (Lkotlin/ranges/ClosedRange;Ljava/lang/Comparable;Ljava/lang/Comparable;)Z
 }
 
 public class kotlin/ranges/IntProgression : java/lang/Iterable, kotlin/jvm/internal/markers/KMappedMarker {
@@ -1071,6 +1075,8 @@ public final class kotlin/ranges/IntRange : kotlin/ranges/IntProgression, kotlin
 	public fun getStart ()Ljava/lang/Integer;
 	public fun hashCode ()I
 	public fun isEmpty ()Z
+	public fun lessThanOrEquals (II)Z
+	public synthetic fun lessThanOrEquals (Ljava/lang/Comparable;Ljava/lang/Comparable;)Z
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1107,6 +1113,8 @@ public final class kotlin/ranges/LongRange : kotlin/ranges/LongProgression, kotl
 	public fun getStart ()Ljava/lang/Long;
 	public fun hashCode ()I
 	public fun isEmpty ()Z
+	public fun lessThanOrEquals (JJ)Z
+	public synthetic fun lessThanOrEquals (Ljava/lang/Comparable;Ljava/lang/Comparable;)Z
 	public fun toString ()Ljava/lang/String;
 }
 

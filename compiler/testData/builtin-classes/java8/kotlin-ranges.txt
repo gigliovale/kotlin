@@ -53,6 +53,7 @@ public final class CharRange : kotlin.ranges.CharProgression, kotlin.ranges.Clos
     public open override /*1*/ /*fake_override*/ fun forEach(/*0*/ p0: java.util.function.Consumer<in kotlin.Char!>!): kotlin.Unit
     public open override /*2*/ fun isEmpty(): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun iterator(): kotlin.collections.CharIterator
+    public open override /*1*/ fun lessThanOrEquals(/*0*/ a: kotlin.Char, /*1*/ b: kotlin.Char): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun spliterator(): java.util.Spliterator<kotlin.Char!>!
 
     public companion object Companion {
@@ -69,6 +70,7 @@ public interface ClosedRange</*0*/ T : kotlin.Comparable<T>> {
         public abstract fun <get-start>(): T
     public open operator fun contains(/*0*/ value: T): kotlin.Boolean
     public open fun isEmpty(): kotlin.Boolean
+    public open fun lessThanOrEquals(/*0*/ a: T, /*1*/ b: T): kotlin.Boolean
 }
 
 public open class IntProgression : kotlin.collections.Iterable<kotlin.Int> {
@@ -124,6 +126,7 @@ public final class IntRange : kotlin.ranges.IntProgression, kotlin.ranges.Closed
     public open override /*1*/ /*fake_override*/ fun forEach(/*0*/ p0: java.util.function.Consumer<in kotlin.Int!>!): kotlin.Unit
     public open override /*2*/ fun isEmpty(): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun iterator(): kotlin.collections.IntIterator
+    public open override /*1*/ fun lessThanOrEquals(/*0*/ a: kotlin.Int, /*1*/ b: kotlin.Int): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun spliterator(): java.util.Spliterator<kotlin.Int!>!
 
     public companion object Companion {
@@ -186,6 +189,7 @@ public final class LongRange : kotlin.ranges.LongProgression, kotlin.ranges.Clos
     public open override /*1*/ /*fake_override*/ fun forEach(/*0*/ p0: java.util.function.Consumer<in kotlin.Long!>!): kotlin.Unit
     public open override /*2*/ fun isEmpty(): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun iterator(): kotlin.collections.LongIterator
+    public open override /*1*/ fun lessThanOrEquals(/*0*/ a: kotlin.Long, /*1*/ b: kotlin.Long): kotlin.Boolean
     public open override /*1*/ /*fake_override*/ fun spliterator(): java.util.Spliterator<kotlin.Long!>!
 
     public companion object Companion {

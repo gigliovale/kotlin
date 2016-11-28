@@ -29,6 +29,8 @@ public class CharRange(start: Char, endInclusive: Char) : CharProgression(start,
 
     override fun isEmpty(): Boolean = first > last
 
+    override fun lessThanOrEquals(a: Char, b: Char): Boolean = a <= b
+
     override fun equals(other: Any?): Boolean =
         other is CharRange && (isEmpty() && other.isEmpty() ||
         first == other.first && last == other.last)
@@ -55,6 +57,8 @@ public class IntRange(start: Int, endInclusive: Int) : IntProgression(start, end
 
     override fun isEmpty(): Boolean = first > last
 
+    override fun lessThanOrEquals(a: Int, b: Int): Boolean = a <= b
+
     override fun equals(other: Any?): Boolean =
         other is IntRange && (isEmpty() && other.isEmpty() ||
         first == other.first && last == other.last)
@@ -80,6 +84,8 @@ public class LongRange(start: Long, endInclusive: Long) : LongProgression(start,
     override fun contains(value: Long): Boolean = first <= value && value <= last
 
     override fun isEmpty(): Boolean = first > last
+
+    override fun lessThanOrEquals(a: Long, b: Long): Boolean = a <= b
 
     override fun equals(other: Any?): Boolean =
         other is LongRange && (isEmpty() && other.isEmpty() ||

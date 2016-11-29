@@ -866,30 +866,55 @@ public fun Double.coerceIn(minimumValue: Double, maximumValue: Double): Double {
 /**
  * Ensures that this value lies in the specified [range].
  * 
- * @return this value if it's in the [range], or range.start if this value is less than range.start, or range.end if this value is greater than range.end.
+ * @return this value if it's in the [range], or `range.start` if this value is less than `range.start`, or `range.endInclusive` if this value is greater than `range.endInclusive`.
  */
 public fun <T: Comparable<T>> T.coerceIn(range: ClosedRange<T>): T {
     if (range.isEmpty()) throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
-    return if (this < range.start) range.start else if (this > range.endInclusive) range.endInclusive else this
+    ignoreAbstractMethodError {
+        return when {
+            !range.lessThanOrEquals(range.start, this) -> range.start
+            !range.lessThanOrEquals(this, range.endInclusive) -> range.endInclusive
+            else -> this
+        }
+    }
+    return when {
+        this < range.start -> range.start
+        this > range.endInclusive -> range.endInclusive
+        else -> this
+    }
 }
 
 /**
  * Ensures that this value lies in the specified [range].
  * 
- * @return this value if it's in the [range], or range.start if this value is less than range.start, or range.end if this value is greater than range.end.
+ * @return this value if it's in the [range], or `range.start` if this value is less than `range.start`, or `range.endInclusive` if this value is greater than `range.endInclusive`.
  */
 public fun Int.coerceIn(range: ClosedRange<Int>): Int {
-    if (range.isEmpty()) throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
-    return if (this < range.start) range.start else if (this > range.endInclusive) range.endInclusive else this
+    if (range is IntRange) {
+        return when {
+            range.isEmpty() -> throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
+            this < range.start -> range.start
+            this > range.endInclusive -> range.endInclusive
+            else -> this
+        }
+    }
+    return this.coerceIn<Int>(range)
 }
 
 /**
  * Ensures that this value lies in the specified [range].
  * 
- * @return this value if it's in the [range], or range.start if this value is less than range.start, or range.end if this value is greater than range.end.
+ * @return this value if it's in the [range], or `range.start` if this value is less than `range.start`, or `range.endInclusive` if this value is greater than `range.endInclusive`.
  */
 public fun Long.coerceIn(range: ClosedRange<Long>): Long {
-    if (range.isEmpty()) throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
-    return if (this < range.start) range.start else if (this > range.endInclusive) range.endInclusive else this
+    if (range is LongRange) {
+        return when {
+            range.isEmpty() -> throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
+            this < range.start -> range.start
+            this > range.endInclusive -> range.endInclusive
+            else -> this
+        }
+    }
+    return this.coerceIn<Long>(range)
 }
 

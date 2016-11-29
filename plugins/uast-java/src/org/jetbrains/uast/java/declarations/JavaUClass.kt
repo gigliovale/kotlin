@@ -19,6 +19,7 @@ package org.jetbrains.uast.java
 import com.intellij.psi.PsiAnonymousClass
 import com.intellij.psi.PsiClass
 import org.jetbrains.uast.*
+import org.jetbrains.uast.expressions.UTypeReferenceExpression
 import org.jetbrains.uast.java.internal.JavaUElementWithComments
 
 abstract class AbstractJavaUClass : UClass, JavaUElementWithComments {
@@ -30,6 +31,9 @@ abstract class AbstractJavaUClass : UClass, JavaUElementWithComments {
             addAll(uastNestedClasses)
         }
     }
+
+    override val uastSuperTypes: List<UTypeReferenceExpression>
+        get() = TODO("not implemented")
 
     override val uastAnchor: UElement?
         get() = UIdentifier(psi.nameIdentifier, this)

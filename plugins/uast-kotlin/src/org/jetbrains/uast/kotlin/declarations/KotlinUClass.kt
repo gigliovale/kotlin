@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.asJava.toLightMethods
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.uast.*
+import org.jetbrains.uast.expressions.UTypeReferenceExpression
 import org.jetbrains.uast.java.AbstractJavaUClass
 import org.jetbrains.uast.kotlin.declarations.KotlinUMethod
 
@@ -32,6 +33,11 @@ class KotlinUClass private constructor(
 ) : AbstractJavaUClass(), PsiClass by psi {
     val ktClass = psi.kotlinOrigin
     override val psi = unwrap<UClass, PsiClass>(psi)
+
+    override val uastSuperTypes: List<UTypeReferenceExpression>
+        get() = ktClass?.getSuperTypeListEntries()?.map {
+            KotlinUTypeReferenceExpression(it.typeReference.toPsiType(this), it.typeReference, this)
+        }.orEmpty()
 
     override val uastAnchor: UElement
         get() = UIdentifier(psi.nameIdentifier, this)

@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.config.LanguageVersion
 import org.jetbrains.kotlin.config.LanguageVersionSettings
-import org.jetbrains.kotlin.utils.SmartList
 import java.util.*
 import java.util.jar.Manifest
 
@@ -49,12 +48,17 @@ object JvmRuntimeVersionsConsistencyChecker {
 
     private const val MANIFEST_KOTLIN_VERSION_ATTRIBUTE = "manifest.impl.attribute.kotlin.version"
     private const val MANIFEST_KOTLIN_VERSION_VALUE = "manifest.impl.value.kotlin.version"
+    private const val MANIFEST_KOTLIN_RUNTIME_COMPONENT = "manifest.impl.attribute.kotlin.runtime.component"
+    private const val MANIFEST_KOTLIN_RUNTIME_COMPONENT_CORE = "manifest.impl.value.kotlin.runtime.component.core"
 
     private const val KOTLIN_STDLIB_MODULE = "$META_INF/kotlin-stdlib.kotlin_module"
     private const val KOTLIN_REFLECT_MODULE = "$META_INF/kotlin-reflection.kotlin_module"
 
     private val KOTLIN_VERSION_ATTRIBUTE: String
     private val CURRENT_COMPILER_VERSION: LanguageVersion
+
+    private val KOTLIN_RUNTIME_COMPONENT_ATTRIBUTE: String
+    private val KOTLIN_RUNTIME_COMPONENT_CORE: String
 
     init {
         val manifestProperties: Properties = try {
@@ -81,19 +85,22 @@ object JvmRuntimeVersionsConsistencyChecker {
         if (CURRENT_COMPILER_VERSION != LanguageVersion.LATEST) {
             fatal("Kotlin compiler version $CURRENT_COMPILER_VERSION in kotlinManifest.properties doesn't match ${LanguageVersion.LATEST}")
         }
+
+        KOTLIN_RUNTIME_COMPONENT_ATTRIBUTE = manifestProperties.getProperty(MANIFEST_KOTLIN_RUNTIME_COMPONENT)
+                .assertNotNull { "$MANIFEST_KOTLIN_RUNTIME_COMPONENT not found in kotlinManifest.properties" }
+        KOTLIN_RUNTIME_COMPONENT_CORE = manifestProperties.getProperty(MANIFEST_KOTLIN_RUNTIME_COMPONENT_CORE)
+                .assertNotNull { "$MANIFEST_KOTLIN_RUNTIME_COMPONENT_CORE not found in kotlinManifest.properties" }
     }
 
-    class FileWithLanguageVersion(val file: VirtualFile, val version: LanguageVersion) {
+    class FileWithLanguageVersion(val component: String, val file: VirtualFile, val version: LanguageVersion) {
         override fun toString(): String =
-                "${file.canonicalPath}:$version"
+                "${file.name}:$version ($component)"
     }
 
     class RuntimeJarsInfo(
-            val kotlinStdlibJars: List<FileWithLanguageVersion>,
-            val kotlinReflectJars: List<FileWithLanguageVersion>
+            val coreJars: List<FileWithLanguageVersion>
     ) {
-        val hasAnyJarsToCheck: Boolean
-            get() = !(kotlinStdlibJars.isEmpty() && kotlinReflectJars.isEmpty())
+        val hasAnyJarsToCheck: Boolean get() = coreJars.isNotEmpty()
     }
 
     fun checkCompilerClasspathConsistency(
@@ -107,37 +114,35 @@ object JvmRuntimeVersionsConsistencyChecker {
         val languageVersion = languageVersionSettings?.languageVersion ?: CURRENT_COMPILER_VERSION
 
         // Even if language version option was explicitly specified, the JAR files SHOULD NOT be newer than the compiler.
-        checkNotNewerThanCompiler(messageCollector, runtimeJarsInfo.kotlinStdlibJars)
-        checkNotNewerThanCompiler(messageCollector, runtimeJarsInfo.kotlinReflectJars)
+        runtimeJarsInfo.coreJars.forEach {
+            checkNotNewerThanCompiler(messageCollector, it)
+        }
 
-        checkCompatibleWithLanguageVersion(messageCollector, runtimeJarsInfo.kotlinStdlibJars, languageVersion)
-        checkCompatibleWithLanguageVersion(messageCollector, runtimeJarsInfo.kotlinReflectJars, languageVersion)
+        runtimeJarsInfo.coreJars.forEach {
+            checkCompatibleWithLanguageVersion(messageCollector, it, languageVersion)
+        }
 
-        checkRuntimeAndReflectCompatibility(messageCollector, runtimeJarsInfo)
+        checkMatchingVersions(messageCollector, runtimeJarsInfo)
     }
 
-    private fun checkNotNewerThanCompiler(messageCollector: MessageCollector, jars: List<FileWithLanguageVersion>) {
-        for (jar in jars) {
-            if (jar.version > CURRENT_COMPILER_VERSION) {
-                messageCollector.issue("Run-time JAR file $jar is newer than compiler version $CURRENT_COMPILER_VERSION")
-            }
+    private fun checkNotNewerThanCompiler(messageCollector: MessageCollector, jar: FileWithLanguageVersion) {
+        if (jar.version > CURRENT_COMPILER_VERSION) {
+            messageCollector.issue("Run-time JAR file $jar is newer than compiler version $CURRENT_COMPILER_VERSION")
         }
     }
 
-    private fun checkCompatibleWithLanguageVersion(messageCollector: MessageCollector, jars: List<FileWithLanguageVersion>, languageVersion: LanguageVersion) {
-        for (jar in jars) {
-            if (jar.version < languageVersion) {
-                messageCollector.issue("Run-time JAR file $jar is older than required for language version $languageVersion")
-            }
+    private fun checkCompatibleWithLanguageVersion(messageCollector: MessageCollector, jar: FileWithLanguageVersion, languageVersion: LanguageVersion) {
+        if (jar.version < languageVersion) {
+            messageCollector.issue("Run-time JAR file $jar is older than required for language version $languageVersion")
         }
     }
 
-    private fun checkRuntimeAndReflectCompatibility(messageCollector: MessageCollector, runtimeJarsInfo: RuntimeJarsInfo) {
-        val oldestStdlibJar = runtimeJarsInfo.kotlinStdlibJars.minBy { it.version } ?: return
-        val newestReflectJar = runtimeJarsInfo.kotlinReflectJars.maxBy { it.version } ?: return
+    private fun checkMatchingVersions(messageCollector: MessageCollector, runtimeJarsInfo: RuntimeJarsInfo) {
+        val oldestCoreJar = runtimeJarsInfo.coreJars.minBy { it.version } ?: return
+        val newestCoreJar = runtimeJarsInfo.coreJars.maxBy { it.version } ?: return
 
-        if (oldestStdlibJar.version != newestReflectJar.version) {
-            messageCollector.issue("Run-time JAR file $oldestStdlibJar is not compatible with reflection JAR file $newestReflectJar")
+        if (oldestCoreJar.version != newestCoreJar.version) {
+            messageCollector.issue("Run-time JAR file $oldestCoreJar is not compatible with JAR file $newestCoreJar")
         }
     }
 
@@ -146,29 +151,35 @@ object JvmRuntimeVersionsConsistencyChecker {
     }
 
     private fun collectRuntimeJarsInfo(classpathJars: List<VirtualFile>): RuntimeJarsInfo {
-        val kotlinStdlibJars: MutableList<FileWithLanguageVersion> = SmartList()
-        val kotlinReflectJars: MutableList<FileWithLanguageVersion> = SmartList()
+        val kotlinCoreJars = ArrayList<FileWithLanguageVersion>(2)
 
         for (jar in classpathJars) {
-            val manifestFile = jar.findFileByRelativePath(MANIFEST_MF) ?: continue
-
-            val containsKotlinStdlib = jar.findFileByRelativePath(KOTLIN_STDLIB_MODULE) != null
-            val containsKotlinReflect = jar.findFileByRelativePath(KOTLIN_REFLECT_MODULE) != null
-            if (!(containsKotlinStdlib || containsKotlinReflect)) continue
-
             val manifest = try {
+                val manifestFile = jar.findFileByRelativePath(MANIFEST_MF) ?: continue
                 Manifest(manifestFile.inputStream)
             }
             catch (e: Exception) {
                 continue
             }
+
+            val runtimeComponent = getKotlinRuntimeComponent(jar, manifest) ?: continue
             val version = manifest.getKotlinLanguageVersion()
 
-            if (containsKotlinStdlib) kotlinStdlibJars.add(FileWithLanguageVersion(jar, version))
-            if (containsKotlinReflect) kotlinReflectJars.add(FileWithLanguageVersion(jar, version))
+            if (runtimeComponent == KOTLIN_RUNTIME_COMPONENT_CORE) {
+                kotlinCoreJars.add(FileWithLanguageVersion(runtimeComponent, jar, version))
+            }
         }
 
-        return RuntimeJarsInfo(kotlinStdlibJars, kotlinReflectJars)
+        return RuntimeJarsInfo(kotlinCoreJars)
+    }
+
+    private fun getKotlinRuntimeComponent(jar: VirtualFile, manifest: Manifest): String? {
+        manifest.mainAttributes.getValue(KOTLIN_RUNTIME_COMPONENT_ATTRIBUTE)?.let { return it }
+
+        if (jar.findFileByRelativePath(KOTLIN_STDLIB_MODULE) != null) return KOTLIN_RUNTIME_COMPONENT_CORE
+        if (jar.findFileByRelativePath(KOTLIN_REFLECT_MODULE) != null) return KOTLIN_RUNTIME_COMPONENT_CORE
+
+        return null
     }
 
     private fun Manifest.getKotlinLanguageVersion(): LanguageVersion =

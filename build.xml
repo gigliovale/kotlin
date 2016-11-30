@@ -409,6 +409,7 @@
 
             <manifest>
                 <attribute name="Built-By" value="${manifest.impl.vendor}"/>
+                <attribute name="${manifest.impl.attribute.kotlin.version}" value="${manifest.impl.value.kotlin.version}"/>
 
                 <attribute name="Implementation-Vendor" value="${manifest.impl.vendor}"/>
                 <attribute name="Implementation-Title" value="${manifest.impl.title.kotlin.javascript.stdlib}"/>
@@ -425,6 +426,7 @@
 
             <manifest>
                 <attribute name="Built-By" value="${manifest.impl.vendor}"/>
+                <attribute name="${manifest.impl.attribute.kotlin.version}" value="${manifest.impl.value.kotlin.version}"/>
 
                 <attribute name="Implementation-Vendor" value="${manifest.impl.vendor}"/>
                 <attribute name="Implementation-Title" value="${manifest.impl.title.kotlin.jvm.runtime.sources}"/>
@@ -1064,6 +1066,7 @@
 
                 <manifest>
                     <attribute name="Built-By" value="${manifest.impl.vendor}"/>
+                    <attribute name="${manifest.impl.attribute.kotlin.version}" value="${manifest.impl.value.kotlin.version}"/>
                     <attribute name="Implementation-Vendor" value="${manifest.impl.vendor}"/>
                     <attribute name="Implementation-Title" value="@{implementation-title}"/>
                     <attribute name="Implementation-Version" value="${build.number}"/>

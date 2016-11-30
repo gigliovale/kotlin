@@ -115,7 +115,7 @@ class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
             return ExitCode.OK
         }
 
-       if (arguments.skipMetadataVersionCheck) {
+        if (arguments.skipMetadataVersionCheck) {
             JvmMetadataVersion.skipCheck = true
         }
 

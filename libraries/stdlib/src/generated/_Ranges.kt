@@ -870,6 +870,7 @@ public fun Double.coerceIn(minimumValue: Double, maximumValue: Double): Double {
  */
 public fun <T: Comparable<T>> T.coerceIn(range: ClosedRange<T>): T {
     if (range.isEmpty()) throw IllegalArgumentException("Cannot coerce value to an empty range: $range.")
+    @Suppress("INVISIBLE_MEMBER")
     ignoreAbstractMethodError {
         return when {
             !range.lessThanOrEquals(range.start, this) -> range.start

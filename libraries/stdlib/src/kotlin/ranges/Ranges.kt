@@ -109,7 +109,3 @@ internal fun checkStepIsPositive(isPositive: Boolean, step: Number) {
     if (!isPositive) throw IllegalArgumentException("Step must be positive, was: $step.")
 }
 
-@JvmVersion
-internal inline fun ignoreAbstractMethodError(f: () -> Unit) =
-    try { f() } catch (e: AbstractMethodError) {}
-

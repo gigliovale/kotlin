@@ -43,5 +43,9 @@ object SignatureBuildingComponents {
     fun jvmDescriptor(name: String, parameters: List<String>, ret: String = "V") =
             "$name(${parameters.joinToString("") { escapeClassName(it) }})${escapeClassName(internalName = ret)}"
 
-    private fun escapeClassName(internalName: String) = if (internalName.length > 1) "L$internalName;" else internalName
+    private fun escapeClassName(internalName: String): String = when {
+        internalName.length <= 1 -> internalName
+        internalName.startsWith("[") -> "[" + escapeClassName(internalName.drop(1))
+        else -> "L$internalName;"
+    }
 }

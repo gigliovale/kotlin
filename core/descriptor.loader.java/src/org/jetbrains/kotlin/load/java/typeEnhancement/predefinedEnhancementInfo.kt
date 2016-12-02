@@ -39,6 +39,7 @@ private val NOT_NULLABLE = JavaTypeQualifiers(NullabilityQualifier.NOT_NULL, nul
 
 val PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE = signatures {
     val JLObject = javaLang("Object")
+    val JLString = javaLang("String")
     val JFPredicate = javaFunction("Predicate")
     val JFFunction = javaFunction("Function")
     val JFConsumer = javaFunction("Consumer")
@@ -47,6 +48,7 @@ val PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE = signatures {
     val JFUnaryOperator = javaFunction("UnaryOperator")
     val JUStream = javaUtil("stream/Stream")
     val JUOptional = javaUtil("Optional")
+    val JIFile = "java/io/File"
 
     enhancement {
         forClass(javaUtil("Iterator")) {
@@ -190,6 +192,56 @@ val PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE = signatures {
         forClass(javaFunction("Supplier")) {
             function("get") {
                 returns(JLObject, NOT_PLATFORM)
+            }
+        }
+
+        forClass(JIFile) {
+            function("getName") {
+                returns(JLString, NOT_NULLABLE)
+            }
+            function("getPath") {
+                returns(JLString, NOT_NULLABLE)
+            }
+            function("getAbsolutePath") {
+                returns(JLString, NOT_NULLABLE)
+            }
+            function("getCanonicalPath") {
+                returns(JLString, NOT_NULLABLE)
+            }
+/* breaking
+            function("getParent") {
+                returns(JLString, NULLABLE)
+            }
+            function("getParentFile") {
+                returns(JIFile, NULLABLE)
+            }
+*/
+            function("getCanonicalFile") {
+                returns(JIFile, NOT_NULLABLE)
+            }
+            function("toURI") {
+                returns("java/net/URI", NOT_NULLABLE)
+            }
+            function("list") {
+                returns("[$JLString", 1 to NOT_NULLABLE) // array is still platform
+            }
+            function("list") {
+                parameter("java/io/FilenameFilter", NULLABLE)
+                returns("[$JLString", 1 to NOT_NULLABLE) // array is still platform
+            }
+            function("listFiles") {
+                returns("[$JIFile", 1 to NOT_NULLABLE) // array is still platform
+            }
+            function("listFiles") {
+                parameter("java/io/FilenameFilter", NULLABLE)
+                returns("[$JIFile", 1 to NOT_NULLABLE) // array is still platform
+            }
+            function("listFiles") {
+                parameter("java/io/FileFilter", NULLABLE)
+                returns("[$JIFile", 1 to NOT_NULLABLE) // array is still platform
+            }
+            function("listRoots") {
+                returns("[$JIFile", 1 to NOT_NULLABLE) // array is still platform
             }
         }
     }

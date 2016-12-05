@@ -19,7 +19,7 @@ package org.jetbrains.kotlin.config
 import org.jetbrains.kotlin.config.LanguageVersion.KOTLIN_1_1
 import org.jetbrains.kotlin.utils.DescriptionAware
 
-enum class LanguageFeature(val sinceVersion: LanguageVersion?) {
+enum class LanguageFeature(val sinceVersion: LanguageVersion?, private val predefinedText: String? = null) {
     // Note: names of these entries are also used in diagnostic tests and in user-visible messages (see presentableText below)
     TypeAliases(KOTLIN_1_1),
     BoundCallableReferences(KOTLIN_1_1),
@@ -33,6 +33,7 @@ enum class LanguageFeature(val sinceVersion: LanguageVersion?) {
     SingleUnderscoreForParameterName(KOTLIN_1_1),
     DslMarkersSupport(KOTLIN_1_1),
     UnderscoresInNumericLiterals(KOTLIN_1_1),
+    OperatorCreateDelegate(KOTLIN_1_1, "operator createDelegate"),
 
     // Experimental features
     MultiPlatformProjects(null),
@@ -41,7 +42,7 @@ enum class LanguageFeature(val sinceVersion: LanguageVersion?) {
 
     val presentableText: String
         // E.g. "DestructuringLambdaParameters" -> ["Destructuring", "Lambda", "Parameters"] -> "destructuring lambda parameters"
-        get() = name.split("(?<!^)(?=[A-Z])".toRegex()).joinToString(separator = " ", transform = String::toLowerCase)
+        get() = predefinedText ?: name.split("(?<!^)(?=[A-Z])".toRegex()).joinToString(separator = " ", transform = String::toLowerCase)
 
     companion object {
         @JvmStatic

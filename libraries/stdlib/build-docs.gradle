@@ -1,0 +1,35 @@
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+    dependencies {
+        classpath files(dokka_gradle_plugin)
+    }
+}
+
+apply plugin: 'java'
+
+apply plugin: 'org.jetbrains.dokka'
+
+
+task stdlib_docs(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    moduleName = 'stdlib'
+    outputDirectory = "$buildDir/stdlib-docs"
+    outputFormat = System.getProperty("experimental_samples") == "true" ? 'kotlin-website-samples' : 'kotlin-website'
+    processConfigurations = ['compile']
+    includes = ['src/Module.md']
+    samples = ['test/', 'samples/test']
+    linkMapping {
+        dir = "."
+        url = "https://github.com/JetBrains/kotlin/blob/master/libraries/stdlib"
+        suffix = "#L"
+    }
+    sourceDirs = files('../../core/builtins', 'src', '../../core/reflection.jvm')
+}
+
+task stdlib_docs_zip(type: Zip) {
+    from "$buildDir/stdlib-docs"
+    baseName = 'stdlib-docs'
+}
+
+stdlib_docs_zip.dependsOn stdlib_docs

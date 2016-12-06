@@ -61,8 +61,8 @@ object OperatorModifierChecker {
             when (functionDescriptor.name) {
                 in COROUTINE_OPERATOR_NAMES ->
                     checkSupportsFeature(LanguageFeature.Coroutines, languageVersionSettings, diagnosticHolder, modifier)
-                OperatorNameConventions.CREATE_DELEGATE ->
-                    checkSupportsFeature(LanguageFeature.OperatorCreateDelegate, languageVersionSettings, diagnosticHolder, modifier)
+                OperatorNameConventions.TO_DELEGATE_FOR ->
+                    checkSupportsFeature(LanguageFeature.OperatorToDelegateFor, languageVersionSettings, diagnosticHolder, modifier)
             }
             return
         }

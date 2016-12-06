@@ -5980,6 +5980,45 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 doTest(fileName);
             }
         }
+
+        @TestMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor")
+        @TestDataPath("$PROJECT_ROOT")
+        @RunWith(JUnit3RunnerWithInners.class)
+        public static class ToDelegateFor extends AbstractBlackBoxCodegenTest {
+            public void testAllFilesPresentInToDelegateFor() throws Exception {
+                KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/delegatedProperty/toDelegateFor"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
+            }
+
+            @TestMetadata("evaluationOrder.kt")
+            public void testEvaluationOrder() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor/evaluationOrder.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("inClass.kt")
+            public void testInClass() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor/inClass.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("inlineToDelegateFor.kt")
+            public void testInlineToDelegateFor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor/inlineToDelegateFor.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("jvmStaticInObject.kt")
+            public void testJvmStaticInObject() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor/jvmStaticInObject.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("memberExtension.kt")
+            public void testMemberExtension() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/toDelegateFor/memberExtension.kt");
+                doTest(fileName);
+            }
+        }
     }
 
     @TestMetadata("compiler/testData/codegen/box/delegation")

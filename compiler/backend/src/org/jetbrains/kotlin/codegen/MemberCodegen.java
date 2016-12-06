@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.codegen.inline.*;
 import org.jetbrains.kotlin.codegen.serialization.JvmSerializerExtension;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
-import org.jetbrains.kotlin.config.LanguageVersionSettings;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.annotations.Annotations;
 import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl;
@@ -45,6 +44,7 @@ import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.BindingContextUtils;
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils;
+import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes;
@@ -57,6 +57,7 @@ import org.jetbrains.kotlin.storage.LockBasedStorageManager;
 import org.jetbrains.kotlin.storage.NotNullLazyValue;
 import org.jetbrains.kotlin.types.ErrorUtils;
 import org.jetbrains.kotlin.types.KotlinType;
+import org.jetbrains.kotlin.util.OperatorNameConventions;
 import org.jetbrains.org.objectweb.asm.*;
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 import org.jetbrains.org.objectweb.asm.commons.Method;
@@ -65,6 +66,7 @@ import java.util.*;
 
 import static org.jetbrains.kotlin.codegen.AsmUtil.*;
 import static org.jetbrains.kotlin.descriptors.CallableMemberDescriptor.Kind.SYNTHESIZED;
+import static org.jetbrains.kotlin.resolve.BindingContext.TO_DELEGATE_FOR_RESOLVED_CALL;
 import static org.jetbrains.kotlin.resolve.BindingContext.TYPE_ALIAS;
 import static org.jetbrains.kotlin.resolve.BindingContext.VARIABLE;
 import static org.jetbrains.kotlin.resolve.DescriptorUtils.*;
@@ -442,10 +444,29 @@ public abstract class MemberCodegen<T extends KtElement/* TODO: & JetDeclaration
         KtExpression initializer = property.getDelegateExpressionOrInitializer();
         assert initializer != null : "shouldInitializeProperty must return false if initializer is null";
 
-        StackValue.Property propValue = codegen.intermediateValueForProperty(propertyDescriptor, true, false, null, true, StackValue.LOCAL_0,
-                                                                             null);
+        StackValue.Property propValue = codegen.intermediateValueForProperty(
+                propertyDescriptor, true, false, null, true, StackValue.LOCAL_0, null);
 
-        propValue.store(codegen.gen(initializer), codegen.v);
+        ResolvedCall<FunctionDescriptor> toDelegateForResolvedCall = bindingContext.get(TO_DELEGATE_FOR_RESOLVED_CALL, propertyDescriptor);
+        if (toDelegateForResolvedCall == null) {
+            propValue.store(codegen.gen(initializer), codegen.v);
+            return;
+        }
+
+        StackValue toDelegateForReceiver = codegen.gen(initializer);
+
+        int indexOfDelegatedProperty = PropertyCodegen.indexOfDelegatedProperty(property);
+
+        List<? extends ValueArgument> arguments = toDelegateForResolvedCall.getCall().getValueArguments();
+        assert arguments.size() == 2 :
+                "Resolved call for '" + OperatorNameConventions.TO_DELEGATE_FOR.asString() + "' should have exactly 2 value parameters";
+        codegen.tempVariables.put(arguments.get(0).asElement(), StackValue.LOCAL_0);
+
+        StackValue delegateValue = PropertyCodegen.invokeDelegatedPropertyConventionMethodWithReceiver(
+                codegen, typeMapper, toDelegateForResolvedCall, indexOfDelegatedProperty, 1, toDelegateForReceiver);
+
+        propValue.store(delegateValue, codegen.v);
+
     }
 
     protected boolean shouldInitializeProperty(@NotNull KtProperty property) {

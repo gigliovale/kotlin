@@ -5841,6 +5841,42 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                     doTest(fileName);
                 }
 
+                @TestMetadata("hostAndReceiver1.kt")
+                public void testHostAndReceiver1() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver1.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("hostAndReceiver2.kt")
+                public void testHostAndReceiver2() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver2.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("hostAndReceiver3.kt")
+                public void testHostAndReceiver3() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver3.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("hostAndReceiver4.kt")
+                public void testHostAndReceiver4() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver4.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("hostAndReceiver5.kt")
+                public void testHostAndReceiver5() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver5.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("hostAndReceiver6.kt")
+                public void testHostAndReceiver6() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/hostAndReceiver6.kt");
+                    doTest(fileName);
+                }
+
                 @TestMetadata("localDelegatedProperty.kt")
                 public void testLocalDelegatedProperty() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/localDelegatedProperty.kt");
@@ -5850,6 +5886,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 @TestMetadata("noOperatorModifierOnToDelegateFor.kt")
                 public void testNoOperatorModifierOnToDelegateFor() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/noOperatorModifierOnToDelegateFor.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("setValue.kt")
+                public void testSetValue() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/delegatedProperty/toDelegateFor/setValue.kt");
                     doTest(fileName);
                 }
 

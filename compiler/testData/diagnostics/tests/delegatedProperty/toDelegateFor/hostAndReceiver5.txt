@@ -1,0 +1,19 @@
+package
+
+public object T5 {
+    private constructor T5()
+    public final val test1: kotlin.String
+    public final val test2: kotlin.String
+    public final fun </*0*/ T> delegate(): T5.Foo<T>
+    public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+    public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+    public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    public final operator fun </*0*/ T> T5.Foo<T>.getValue(/*0*/ receiver: T5, /*1*/ p: kotlin.Any?): kotlin.String
+    public final operator fun </*0*/ T> T5.Foo<T>.toDelegateFor(/*0*/ host: T, /*1*/ p: kotlin.Any?): T5.Foo<T>
+
+    public interface Foo</*0*/ T> {
+        public open override /*1*/ /*fake_override*/ fun equals(/*0*/ other: kotlin.Any?): kotlin.Boolean
+        public open override /*1*/ /*fake_override*/ fun hashCode(): kotlin.Int
+        public open override /*1*/ /*fake_override*/ fun toString(): kotlin.String
+    }
+}

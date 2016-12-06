@@ -15,10 +15,10 @@ apply plugin: 'org.jetbrains.dokka'
 task stdlib_docs(type: org.jetbrains.dokka.gradle.DokkaTask) {
     moduleName = 'stdlib'
     outputDirectory = "$buildDir/stdlib-docs"
-    outputFormat = System.getProperty("experimental_samples") == "true" ? 'kotlin-website-samples' : 'kotlin-website'
+    outputFormat = experimental_samples == "true" ? 'kotlin-website-samples' : 'kotlin-website'
     processConfigurations = ['compile']
     includes = ['src/Module.md']
-    samples = ['test/', 'samples/test']
+    samples = ['test/', 'samples/test/']
     linkMapping {
         dir = "."
         url = "https://github.com/JetBrains/kotlin/blob/master/libraries/stdlib"

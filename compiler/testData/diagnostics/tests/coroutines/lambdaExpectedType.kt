@@ -38,7 +38,7 @@ fun foo() {
     var i: Int = 1
     i = genericBuilder({ 1 })
     i = genericBuilder { 1 }
-    <!TYPE_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>genericBuilder<!> { 1 }
+    genericBuilder { 1 }
     genericBuilder<Int> { 1 }
     genericBuilder<Int> { <!TYPE_MISMATCH!>""<!> }
 
@@ -50,7 +50,7 @@ fun foo() {
     unitBuilder({})
     unitBuilder({ <!UNUSED_EXPRESSION!>1<!> })
 
-    <!TYPE_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>manyArgumentsBuilder<!>({}, { "" }) { 1 }
+    manyArgumentsBuilder({}, { "" }) { 1 }
 
     val s: String = manyArgumentsBuilder({}, { "" }) { 1 }
 

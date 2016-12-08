@@ -4348,6 +4348,63 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("compiler/testData/diagnostics/tests/coroutines/inference")
+            @TestDataPath("$PROJECT_ROOT")
+            @RunWith(JUnit3RunnerWithInners.class)
+            public static class Inference extends AbstractDiagnosticsTest {
+                public void testAllFilesPresentInInference() throws Exception {
+                    KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/tests/coroutines/inference"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+                }
+
+                @TestMetadata("correctMember.kt")
+                public void testCorrectMember() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/correctMember.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("extensionPriority.kt")
+                public void testExtensionPriority() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/extensionPriority.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("extensionSuspend.kt")
+                public void testExtensionSuspend() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/extensionSuspend.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("incorrectCalls.kt")
+                public void testIncorrectCalls() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/incorrectCalls.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("recursiveGenerators.kt")
+                public void testRecursiveGenerators() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/recursiveGenerators.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("recursiveGenerators2.kt")
+                public void testRecursiveGenerators2() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/recursiveGenerators2.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("simpleGenerator.kt")
+                public void testSimpleGenerator() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/simpleGenerator.kt");
+                    doTest(fileName);
+                }
+
+                @TestMetadata("typeFromReceiver.kt")
+                public void testTypeFromReceiver() throws Exception {
+                    String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/coroutines/inference/typeFromReceiver.kt");
+                    doTest(fileName);
+                }
+            }
+
             @TestMetadata("compiler/testData/diagnostics/tests/coroutines/tailCalls")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)

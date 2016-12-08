@@ -172,10 +172,7 @@ fun getEffectiveExpectedType(parameterDescriptor: ValueParameterDescriptor, argu
         return varargElementType
     }
 
-    if (parameterDescriptor.isCoroutine &&
-            argument.getArgumentExpression() is KtLambdaExpression &&
-            parameterDescriptor.type.isExtensionFunctionType
-    ) {
+    if (isCoroutineCall(parameterDescriptor, argument)) {
         val receiverType = parameterDescriptor.type.getReceiverTypeFromFunctionType()!!
 
         val newExpectedLambdaReturnType =
@@ -198,6 +195,11 @@ fun getEffectiveExpectedType(parameterDescriptor: ValueParameterDescriptor, argu
 
     return parameterDescriptor.type
 }
+
+fun isCoroutineCall(parameterDescriptor: ValueParameterDescriptor, argument: ValueArgument) =
+        parameterDescriptor.isCoroutine &&
+        argument.getArgumentExpression() is KtLambdaExpression &&
+        parameterDescriptor.type.isExtensionFunctionType
 
 fun createResolutionCandidatesForConstructors(
         lexicalScope: LexicalScope,

@@ -33,7 +33,7 @@ public interface ResumeInterceptor {
      * Intercepts [Continuation.resumeWithException] invocation.
      * This function must either return `false` or return `true` and invoke `continuation.resumeWithException(exception)` asynchronously.
      */
-    public fun interceptResume(exception: Throwable, continuation: Continuation<*>): Boolean = false
+    public fun interceptResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean = false
 }
 
 /**
@@ -109,7 +109,7 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
     }
 
     /**
-     * Starts running this coroutine via [ResumeInterceptor.interceptResume] function of the
+     * Starts running this coroutine via [ResumeInterceptor.interceptResumeWithException] function of the
      * installed interceptor. Interceptor may shift initial execution into another execution frame.
      */
     public fun interceptAndStart() {

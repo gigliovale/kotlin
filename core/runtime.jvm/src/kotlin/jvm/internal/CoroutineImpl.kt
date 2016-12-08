@@ -18,36 +18,156 @@ package kotlin.jvm.internal
 
 import kotlin.coroutines.*
 
-abstract class CoroutineImpl(arity: Int) : Lambda(arity), InterceptableContinuation<Any?> {
-    @JvmField
-    protected var _resultContinuation: Continuation<*>? = null
+private const val INTERCEPT_BIT_SET = 1 shl 31
+private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
-    @JvmField
-    protected var _resumeInterceptor: ResumeInterceptor? = null
+abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuation<Any?> {
+    private val _resumeInterceptor: ResumeInterceptor?
 
     override val resumeInterceptor: ResumeInterceptor?
         get() = _resumeInterceptor
 
-    // invoked from a coroutine-compiler-generated code after a new instance is created with the corresponding result continuation
-    protected fun setResultContinuation(resultContinuation: Continuation<*>) {
-        _resultContinuation = resultContinuation
-        _resumeInterceptor = (resultContinuation as? InterceptableContinuation<*>)?.resumeInterceptor
-
+    // this constructor is used to create initial "factory" lambda object
+    constructor(arity: Int) : super(arity) {
+        _resumeInterceptor = null
     }
 
-    // Any label state less then zero indicates that coroutine is not run and can't be resumed in any way.
-    // Specific values do not matter by now, but currently -2 used for uninitialized coroutine (no controller is assigned),
-    // and -1 will mean that coroutine execution is over (does not work yet).
-    @JvmField
-    protected var label: Int = -2
+    // this constructor is used to create a continuation instance for coroutine
+    constructor(arity: Int, resultContinuation: Continuation<Any?>?) : super(arity, resultContinuation) {
+        _resumeInterceptor = (resultContinuation as? InterceptableContinuation<*>)?.resumeInterceptor
+    }
 
     override fun resume(data: Any?) {
-        doResume(data, null)
+        if (_resumeInterceptor != null) {
+            if (label and INTERCEPT_BIT_SET == 0) {
+                label = label or INTERCEPT_BIT_SET
+                if (_resumeInterceptor.interceptResume(data, this)) return
+            }
+            label = label and INTERCEPT_BIT_CLEAR
+        }
+        super.resume(data)
     }
 
     override fun resumeWithException(exception: Throwable) {
+        if (_resumeInterceptor != null) {
+            if (label and INTERCEPT_BIT_SET == 0) {
+                label = label or INTERCEPT_BIT_SET
+                if (_resumeInterceptor.interceptResumeWithException(exception, this)) return
+            }
+            label = label and INTERCEPT_BIT_CLEAR
+        }
         doResume(null, exception)
     }
-
-    protected abstract fun doResume(data: Any?, exception: Throwable?)
 }
+
+abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
+    @JvmField
+    protected val resultContinuation: Continuation<Any?>?
+
+    // label == -1 when coroutine cannot be started (it is just a factory object) or has already finished execution
+    // label == 0 in initial part of the coroutine
+    @JvmField
+    protected var label: Int
+
+    // this constructor is used to create initial "factory" lambda object
+    constructor(arity: Int) : super(arity) {
+        resultContinuation = null
+        label = -1 // don't use this object as coroutine
+    }
+
+    // this constructor is used to create a continuation instance for coroutine
+    constructor(arity: Int, resultContinuation: Continuation<Any?>?) : super(arity) {
+        this.resultContinuation = resultContinuation
+        label = 0
+    }
+
+    override fun resume(data: Any?) {
+        try {
+            val result = doResume(data, null)
+            if (result != Suspend)
+                resultContinuation!!.resume(result)
+        } catch (e: Throwable) {
+            resultContinuation!!.resumeWithException(e)
+        }
+    }
+
+    override fun resumeWithException(exception: Throwable) {
+        try {
+            val result = doResume(null, exception)
+            if (result != Suspend)
+                resultContinuation!!.resume(result)
+        } catch (e: Throwable) {
+            resultContinuation!!.resumeWithException(e)
+        }
+    }
+
+    protected abstract fun doResume(data: Any?, exception: Throwable?): Any?
+}
+
+/*
+===========================================================================================================================
+Showcase of coroutine compilation strategy.
+
+Given this following "sample" suspend function code:
+
+---------------------------------------------------------------------------------------------
+@RestrictSuspension
+class Receiver {
+    suspend fun yield(): SomeResult
+}
+
+suspend fun Receiver.sample(): String {
+    doSomethingBefore()
+    val yieldResult = yield() // suspension point
+    doSomethingAfter(yieldResult)
+    return "Done"
+}
+---------------------------------------------------------------------------------------------
+
+The compiler emits the class with the following logic:
+
+---------------------------------------------------------------------------------------------
+class XXXCoroutine : RestrictedCoroutineImpl, Function2<Receiver, Continuation<*>, Any?> {
+    //               ^^^^^^^^^^^^^^^^^^^^^^^
+    //          Replace with CoroutineImpl if the coroutine is non-restricted
+
+    val receiver: Receiver?
+    //  ^^^^^^^^^^^^^^^^^^^
+    //    receiver is just a part of the captured scope
+
+    // this constructor is used to create initial "factory" lambda object
+    constructor() : super(2, null) {
+        this.receiver = null
+    }
+
+    // this constructor is used to create a continuation instance for coroutine
+    constructor(receiver: Receiver, resultContinuation: Continuation<Any?>) : super(2, resultContinuation) {
+        this.receiver = receiver
+    }
+
+    // coroutine factory implementation of Kotlin type: suspend Receiver.() -> String
+    override fun invoke(receiver: Receiver, resultContinuation: Continuation<*>): Any? {
+        val coroutine = XXXCoroutine(receiver, resultContinuation) // create the actual instance
+        return coroutine.doResume(Unit, null) // and run it until first suspension
+    }
+
+    override fun doResume(data: Any?, exception: Throwable?): Any? {
+        var supensionResult = data
+        switch (label) {
+        default:
+            throw IllegalStateException()
+        case 0:
+            doSomethingBefore()
+            label = 1 // set next label before calling suspend function
+            supensionResult = receiver.yield(this)
+            if (supensionResult == Suspend) return Suspend
+            // falls through with yeild result if it is available
+        case 1:
+            doSomethingAfter(supensionResult)
+            label = -1 // execution is over
+            return "Done" // we have result of execution
+        }
+    }
+}
+---------------------------------------------------------------------------------------------
+*/

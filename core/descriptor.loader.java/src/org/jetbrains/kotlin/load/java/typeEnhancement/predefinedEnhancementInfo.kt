@@ -51,34 +51,34 @@ val PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE = signatures {
     enhancement {
         forClass(javaUtil("Iterator")) {
             function("forEachRemaining") {
-                parameter(JFConsumer, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFConsumer, NOT_NULLABLE, NOT_PLATFORM)
             }
         }
         forClass(javaLang("Iterable")) {
             function("spliterator") {
-                returns(javaUtil("Spliterator"), NOT_PLATFORM, NOT_PLATFORM)
+                returns(javaUtil("Spliterator"), NOT_NULLABLE, NOT_PLATFORM)
             }
         }
         forClass(javaUtil("Collection")) {
             function("removeIf") {
-                parameter(JFPredicate, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFPredicate, NOT_NULLABLE, NOT_PLATFORM)
                 returns(BOOLEAN)
             }
             function("stream") {
-                returns(JUStream, NOT_PLATFORM, NOT_PLATFORM)
+                returns(JUStream, NOT_NULLABLE, NOT_PLATFORM)
             }
             function("parallelStream") {
-                returns(JUStream, NOT_PLATFORM, NOT_PLATFORM)
+                returns(JUStream, NOT_NULLABLE, NOT_PLATFORM)
             }
         }
         forClass(javaUtil("List")) {
             function("replaceAll") {
-                parameter(JFUnaryOperator, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFUnaryOperator, NOT_NULLABLE, NOT_PLATFORM)
             }
         }
         forClass(javaUtil("Map")) {
             function("forEach") {
-                parameter(JFBiConsumer, NOT_PLATFORM, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFBiConsumer, NOT_NULLABLE, NOT_PLATFORM, NOT_PLATFORM)
             }
             function("putIfAbsent") {
                 parameter(JLObject, NOT_PLATFORM)
@@ -98,49 +98,49 @@ val PREDEFINED_FUNCTION_ENHANCEMENT_INFO_BY_SIGNATURE = signatures {
                 returns(BOOLEAN)
             }
             function("replaceAll") {
-                parameter(JFBiFunction, NOT_PLATFORM, NOT_PLATFORM, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFBiFunction, NOT_NULLABLE, NOT_PLATFORM, NOT_PLATFORM, NOT_PLATFORM)
             }
             function("compute") {
                 parameter(JLObject, NOT_PLATFORM)
-                parameter(JFBiFunction, NOT_PLATFORM, NOT_PLATFORM, NULLABLE, NULLABLE)
+                parameter(JFBiFunction, NOT_NULLABLE, NOT_PLATFORM, NULLABLE, NULLABLE)
                 returns(JLObject, NULLABLE)
             }
             // while it is possible to return nullable value from lambda in computeIfAbsent,
             // we deliberately make it just NOT_PLATFORM V in order to have the return type V and not V?
             function("computeIfAbsent") {
                 parameter(JLObject, NOT_PLATFORM)
-                parameter(JFFunction, NOT_PLATFORM, NOT_PLATFORM, NOT_PLATFORM)
+                parameter(JFFunction, NOT_NULLABLE, NOT_PLATFORM, NOT_PLATFORM)
                 returns(JLObject, NOT_PLATFORM)
             }
             function("computeIfPresent") {
                 parameter(JLObject, NOT_PLATFORM)
-                parameter(JFBiFunction, NOT_PLATFORM, NOT_PLATFORM, NOT_NULLABLE, NULLABLE)
+                parameter(JFBiFunction, NOT_NULLABLE, NOT_PLATFORM, NOT_NULLABLE, NULLABLE)
                 returns(JLObject, NULLABLE)
             }
             function("merge") {
                 parameter(JLObject, NOT_PLATFORM)
                 parameter(JLObject, NOT_NULLABLE)
-                parameter(JFBiFunction, NOT_PLATFORM, NOT_NULLABLE, NOT_NULLABLE, NULLABLE)
+                parameter(JFBiFunction, NOT_NULLABLE, NOT_NULLABLE, NOT_NULLABLE, NULLABLE)
                 returns(JLObject, NULLABLE)
             }
         }
         forClass(JUOptional) {
             function("empty") {
-                returns(JUOptional, NOT_PLATFORM, NOT_NULLABLE)
+                returns(JUOptional, NOT_NULLABLE, NOT_NULLABLE)
             }
             function("of") {
                 parameter(JLObject, NOT_NULLABLE)
-                returns(JUOptional, NOT_PLATFORM, NOT_NULLABLE)
+                returns(JUOptional, NOT_NULLABLE, NOT_NULLABLE)
             }
             function("ofNullable") {
                 parameter(JLObject, NULLABLE)
-                returns(JUOptional, NOT_PLATFORM, NOT_NULLABLE)
+                returns(JUOptional, NOT_NULLABLE, NOT_NULLABLE)
             }
             function("get") {
                 returns(JLObject, NOT_NULLABLE)
             }
             function("ifPresent") {
-                parameter(JFConsumer, NOT_PLATFORM, NOT_NULLABLE)
+                parameter(JFConsumer, NOT_NULLABLE, NOT_NULLABLE)
             }
         }
 

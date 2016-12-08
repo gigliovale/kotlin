@@ -56,7 +56,7 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuatio
             }
             label = label and INTERCEPT_BIT_CLEAR
         }
-        doResume(null, exception)
+        super.resumeWithException(exception)
     }
 }
 

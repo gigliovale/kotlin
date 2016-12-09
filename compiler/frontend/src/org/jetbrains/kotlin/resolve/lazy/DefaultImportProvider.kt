@@ -23,13 +23,55 @@ import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.isChildOf
 import org.jetbrains.kotlin.name.isSubpackageOf
-import org.jetbrains.kotlin.resolve.ImportPath
-import org.jetbrains.kotlin.resolve.TargetPlatform
-import org.jetbrains.kotlin.resolve.checkSinceKotlinVersionAccessibility
+import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
+import org.jetbrains.kotlin.psi.KtImportsFactory
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.storage.getValue
+
+class DefaultImportScopeProvider(
+        private val topLevelDescriptorProvider: TopLevelDescriptorProvider,
+        private val storageManager: StorageManager,
+        private val moduleDescriptor: ModuleDescriptor,
+        private val qualifiedExpressionResolver: QualifiedExpressionResolver,
+        private val bindingTrace: BindingTrace,
+        private val ktImportsFactory: KtImportsFactory,
+        private val platformToKotlinClassMap: PlatformToKotlinClassMap,
+        private val defaultImportProvider: DefaultImportProvider,
+        private val languageVersionSettings: LanguageVersionSettings
+) {
+    private val defaultImports by storageManager.createLazyValue {
+        ktImportsFactory.createImportDirectives(defaultImportProvider.defaultImports)
+    }
+
+    private val tempTrace = TemporaryBindingTrace.create(bindingTrace, "Transient trace for default imports lazy resolve", false)
+    private val defaultExplicitImportResolver = createImportResolver(ExplicitImportsIndexed(defaultImports), tempTrace)
+    private val defaultAllUnderImportResolver = createImportResolver(AllUnderImportsIndexed(defaultImports), tempTrace, defaultImportProvider.excludedImports)
+
+    val defaultAllUnderImportInvisibleScope = LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.INVISIBLE_CLASSES,
+                                                               "Default all under imports (invisible classes only)")
+
+    val defaultAllUnderImportVisibleScope = LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.VISIBLE_CLASSES,
+                                                            "Default all under imports (visible classes)")
+
+    val defaultExplicitImportScope = LazyImportScope(null, defaultExplicitImportResolver, LazyImportScope.FilteringKind.ALL,
+                                                     "Default explicit imports")
+
+    private fun createImportResolver(indexedImports: IndexedImports, trace: BindingTrace, excludedImports: List<FqName> = emptyList()) =
+            LazyImportResolver(
+                    storageManager,
+                    qualifiedExpressionResolver,
+                    moduleDescriptor,
+                    platformToKotlinClassMap,
+                    languageVersionSettings,
+                    indexedImports,
+                    excludedImports,
+                    trace,
+                    null
+            )
+}
 
 class DefaultImportProvider(
         storageManager: StorageManager,

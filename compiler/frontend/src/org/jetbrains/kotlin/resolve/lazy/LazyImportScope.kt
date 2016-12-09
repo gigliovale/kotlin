@@ -81,7 +81,7 @@ class LazyImportResolver(
         val indexedImports: IndexedImports,
         excludedImportNames: Collection<FqName>,
         private val traceForImportResolve: BindingTrace,
-        private val packageFragment: PackageFragmentDescriptor
+        private val packageFragment: PackageFragmentDescriptor?
 ) : ImportResolver {
     private val importedScopesProvider = storageManager.createMemoizedFunctionWithNullableValues {
         directive: KtImportDirective ->

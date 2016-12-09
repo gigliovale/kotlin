@@ -49,3 +49,12 @@ public annotation class AllowSuspendExtensions
  */
 @SinceKotlin("1.1")
 public object Suspend
+
+
+/**
+ * Classes and interfaces marked with this annotation are restricted when used as receivers for extension
+ * `suspend` functions. These `suspend` extensions can only invoke other member or extension `suspend` functions on this parcitular
+ * receiver only and are restricted from calling arbitrary suspension functions.
+ */
+@SinceKotlin("1.1")
+public annotation class RestrictSuspension

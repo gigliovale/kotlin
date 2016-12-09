@@ -26,6 +26,7 @@ package kotlin.coroutines
  *     await(...) // calls another suspend function
  * }
  */
+@SinceKotlin("1.1")
 suspend fun <T> suspendable(/*suspend*/ lambda: () -> T): T = suspendWithCurrentContinuation<T> { c ->
     @Suppress("UNCHECKED_CAST")
     (lambda as Function1<Continuation<T>, Any?>).invoke(c)

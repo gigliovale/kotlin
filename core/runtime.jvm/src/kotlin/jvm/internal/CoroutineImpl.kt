@@ -21,6 +21,7 @@ import kotlin.coroutines.*
 private const val INTERCEPT_BIT_SET = 1 shl 31
 private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
+@SinceKotlin("1.1")
 abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuation<Any?> {
     private val _resumeInterceptor: ResumeInterceptor?
 
@@ -60,6 +61,7 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuatio
     }
 }
 
+@SinceKotlin("1.1")
 abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     @JvmField
     protected val resultContinuation: Continuation<Any?>?

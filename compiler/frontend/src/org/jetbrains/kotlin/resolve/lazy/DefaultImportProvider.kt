@@ -46,18 +46,32 @@ class DefaultImportScopeProvider(
         ktImportsFactory.createImportDirectives(defaultImportProvider.defaultImports)
     }
 
-    private val tempTrace = TemporaryBindingTrace.create(bindingTrace, "Transient trace for default imports lazy resolve", false)
-    private val defaultExplicitImportResolver = createImportResolver(ExplicitImportsIndexed(defaultImports), tempTrace)
-    private val defaultAllUnderImportResolver = createImportResolver(AllUnderImportsIndexed(defaultImports), tempTrace, defaultImportProvider.excludedImports)
+    private val tempTrace  by storageManager.createLazyValue {
+        TemporaryBindingTrace.create(bindingTrace, "Transient trace for default imports lazy resolve", false)
+    }
 
-    val defaultAllUnderImportInvisibleScope = LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.INVISIBLE_CLASSES,
-                                                               "Default all under imports (invisible classes only)")
+    private val defaultExplicitImportResolver by storageManager.createLazyValue {
+        createImportResolver(ExplicitImportsIndexed(defaultImports), tempTrace)
+    }
 
-    val defaultAllUnderImportVisibleScope = LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.VISIBLE_CLASSES,
-                                                            "Default all under imports (visible classes)")
+    private val defaultAllUnderImportResolver by storageManager.createLazyValue {
+        createImportResolver(AllUnderImportsIndexed(defaultImports), tempTrace, defaultImportProvider.excludedImports)
+    }
 
-    val defaultExplicitImportScope = LazyImportScope(null, defaultExplicitImportResolver, LazyImportScope.FilteringKind.ALL,
-                                                     "Default explicit imports")
+    val defaultAllUnderImportInvisibleScope by storageManager.createLazyValue {
+        LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.INVISIBLE_CLASSES,
+                        "Default all under imports (invisible classes only)")
+    }
+
+    val defaultAllUnderImportVisibleScope by storageManager.createLazyValue {
+        LazyImportScope(null, defaultAllUnderImportResolver, LazyImportScope.FilteringKind.VISIBLE_CLASSES,
+                        "Default all under imports (visible classes)")
+    }
+
+    val defaultExplicitImportScope by storageManager.createLazyValue {
+        LazyImportScope(null, defaultExplicitImportResolver, LazyImportScope.FilteringKind.ALL,
+                        "Default explicit imports")
+    }
 
     private fun createImportResolver(indexedImports: IndexedImports, trace: BindingTrace, excludedImports: List<FqName> = emptyList()) =
             LazyImportResolver(

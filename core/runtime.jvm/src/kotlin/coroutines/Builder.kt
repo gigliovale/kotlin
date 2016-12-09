@@ -51,7 +51,7 @@ public inline fun <T> coroutine(
 
 /**
  * Creates restricted coroutine for receiver type `R` with result type `T` from a callable reference to `suspend` lambda.
- * Use [RestrictedCoroutine.start] to start running the resulting coroutine until its first suspension point.
+ * Use [Coroutine.start] to start running the resulting coroutine until its first suspension point.
  */
 @SinceKotlin("1.1")
 public inline fun <R, T> coroutine(
@@ -60,6 +60,28 @@ public inline fun <R, T> coroutine(
     val coroutine = RestrictedCoroutine(lambda)
     coroutine.builder()
     return coroutine
+}
+
+
+/**
+ * Creates and starts coroutine for receiver type `R` with result type `T` using a callable reference to `suspend` lambda.
+ * This function does not create any intermediate objects, but has less flexible interface than [coroutine] builder function.
+ * The result of the coroutine is provide via invocation of [resultContinuation].
+ */
+@SinceKotlin("1.1")
+@Suppress("UNCHECKED_CAST")
+public fun <R, T> coroutineStart(
+        lambda: /*suspend*/ R.() -> T,
+        receiver: R,
+        resultContinuation: Continuation<T>
+) {
+    try {
+        val result = (lambda as Function2<R, Continuation<T>, Any?>).invoke(receiver, resultContinuation)
+        if (result == Suspend) return
+        resultContinuation.resume(result as T)
+    } catch (e: Throwable) {
+        resultContinuation.resumeWithException(e)
+    }
 }
 
 /**
@@ -151,13 +173,7 @@ public class RestrictedCoroutine<R, T>(private val lambda: /*suspend*/ R.() -> T
      */
     @Suppress("UNCHECKED_CAST")
     public fun start(receiver: R) {
-        try {
-            val result = (lambda as Function2<R, Continuation<*>, Any?>).invoke(receiver, delimiter)
-            if (result == Suspend) return // coroutine had suspended and will provide its result via delimiter.resume
-            delimiter.resume(result as T)
-        } catch (exception: Throwable) {
-            delimiter.resumeWithException(exception)
-        }
+        coroutineStart(lambda, receiver, delimiter)
     }
 }
 

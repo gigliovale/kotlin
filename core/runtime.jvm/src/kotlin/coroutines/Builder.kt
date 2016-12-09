@@ -64,13 +64,12 @@ public inline fun <R, T> coroutine(
 
 
 /**
- * Creates and starts coroutine for receiver type `R` with result type `T` using a callable reference to `suspend` lambda.
- * This function does not create any intermediate objects, but has less flexible interface than [coroutine] builder function.
- * The result of the coroutine is provide via invocation of [resultContinuation].
+ * Creates and starts coroutine for receiver type `R` with result type `T` using a callable reference to `suspend` [lambda].
+ * The result of the coroutine's execution is provided via invocation of [resultContinuation].
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
-public fun <R, T> coroutineStart(
+public fun <R, T> startCoroutine(
         lambda: /*suspend*/ R.() -> T,
         receiver: R,
         resultContinuation: Continuation<T>
@@ -85,19 +84,44 @@ public fun <R, T> coroutineStart(
 }
 
 /**
+ * Creates and starts coroutine with result type `T` using a callable reference to `suspend` [lambda].
+ * The result of the coroutine's execution is provided via invocation of [resultContinuation].
+ * An optional [resumeInterceptor] may be specified to intercept resumes at suspension points inside the coroutine.
+ */
+@SinceKotlin("1.1")
+@Suppress("UNCHECKED_CAST")
+public fun <T> startCoroutine(
+        lambda: /*suspend*/ () -> T,
+        resultContinuation: Continuation<T>,
+        resumeInterceptor: ResumeInterceptor? = null
+) {
+    val adapter = if (resumeInterceptor == null) resultContinuation else
+        object : InterceptableContinuation<T>, Continuation<T> by resultContinuation {
+            override val resumeInterceptor: ResumeInterceptor? = resumeInterceptor
+        }
+    try {
+        val result = (lambda as Function1<Continuation<T>, Any?>).invoke(adapter)
+        if (result == Suspend) return
+        resultContinuation.resume(result as T)
+    } catch (e: Throwable) {
+        resultContinuation.resumeWithException(e)
+    }
+}
+
+/**
  * Coroutine is a suspendable computation instance.
  * You can use [coroutine] builder function to create one in a more convenient way.
  */
 @SinceKotlin("1.1")
 public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
-    private val delimiter = CoroutineDelimiter<T>()
+    private val adapter = CoroutineAdapter<T>()
 
     /**
      * Installs handler for the final result of this coroutine.
      * The previously installed handler is replaced.
      */
     public fun handleResult(resultHandler: (T) -> Unit) {
-        delimiter.resultHandler = resultHandler
+        adapter.resultHandler = resultHandler
     }
 
     /**
@@ -105,7 +129,7 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
      * The previously installed handler is replaced.
      */
     public fun handleException(exceptionHandler: ((Throwable) -> Unit)) {
-        delimiter.exceptionHandler = exceptionHandler
+        adapter.exceptionHandler = exceptionHandler
     }
 
     /**
@@ -113,7 +137,7 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
      * The previously installed handler is replaced.
      */
     public fun interceptResume(resumeInterceptor: ResumeInterceptor) {
-        delimiter.resumeInterceptor = resumeInterceptor
+        adapter.resumeInterceptor = resumeInterceptor
     }
 
     /**
@@ -122,11 +146,11 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
     @Suppress("UNCHECKED_CAST")
     public fun start() {
         try {
-            val result = (lambda as Function1<Continuation<*>, Any?>).invoke(delimiter)
-            if (result == Suspend) return // coroutine had suspended and will provide its result via delimiter.resume
-            delimiter.resume(result as T)
+            val result = (lambda as Function1<Continuation<*>, Any?>).invoke(adapter)
+            if (result == Suspend) return // coroutine had suspended and will provide its result via adapter.resume
+            adapter.resume(result as T)
         } catch (exception: Throwable) {
-            delimiter.resumeWithException(exception)
+            adapter.resumeWithException(exception)
         }
     }
 
@@ -136,7 +160,7 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
      */
     public fun interceptAndStart() {
         // this is just a convenience method
-        if (!(delimiter.resumeInterceptor?.interceptResume(Unit, object : Continuation<Unit> {
+        if (!(adapter.resumeInterceptor?.interceptResume(Unit, object : Continuation<Unit> {
             override fun resume(data: Unit) = start()
             override fun resumeWithException(exception: Throwable) {}
         }) ?: false))
@@ -150,14 +174,14 @@ public class Coroutine<out T>(private val lambda: /*suspend*/ () -> T) {
  */
 @SinceKotlin("1.1")
 public class RestrictedCoroutine<R, T>(private val lambda: /*suspend*/ R.() -> T) {
-    private val delimiter = CoroutineDelimiter<T>()
+    private val adapter = CoroutineAdapter<T>()
 
     /**
      * Installs handler for the final result of this coroutine.
      * The previously installed handler is replaced.
      */
     public fun handleResult(resultHandler: (T) -> Unit) {
-        delimiter.resultHandler = resultHandler
+        adapter.resultHandler = resultHandler
     }
 
     /**
@@ -165,7 +189,7 @@ public class RestrictedCoroutine<R, T>(private val lambda: /*suspend*/ R.() -> T
      * The previously installed handler is replaced.
      */
     public fun handleException(exceptionHandler: ((Throwable) -> Unit)) {
-        delimiter.exceptionHandler = exceptionHandler
+        adapter.exceptionHandler = exceptionHandler
     }
 
     /**
@@ -173,7 +197,7 @@ public class RestrictedCoroutine<R, T>(private val lambda: /*suspend*/ R.() -> T
      */
     @Suppress("UNCHECKED_CAST")
     public fun start(receiver: R) {
-        coroutineStart(lambda, receiver, delimiter)
+        startCoroutine(lambda, receiver, adapter)
     }
 }
 
@@ -183,13 +207,13 @@ internal interface InterceptableContinuation<P> : Continuation<P> {
     val resumeInterceptor: ResumeInterceptor?
 }
 
-// Delimiter for suspendable computation frame
-private class CoroutineDelimiter<R> : InterceptableContinuation<R> {
+// adapter for suspendable computation frame
+private class CoroutineAdapter<T>(
+    internal var resultHandler: ((T) -> Unit)? = null,
+    internal var exceptionHandler: ((Throwable) -> Unit)? = null,
     override var resumeInterceptor: ResumeInterceptor? = null
-    internal var resultHandler: ((R) -> Unit)? = null
-    internal var exceptionHandler: ((Throwable) -> Unit)? = null
-
-    override fun resume(data: R) {
+) : InterceptableContinuation<T> {
+    override fun resume(data: T) {
         resultHandler?.invoke(data)
     }
 

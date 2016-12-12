@@ -86,7 +86,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resume(data: Any?) {
         try {
             val result = doResume(data, null)
-            if (result != Suspend)
+            if (result != SUSPEND)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)
@@ -96,7 +96,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resumeWithException(exception: Throwable) {
         try {
             val result = doResume(null, exception)
-            if (result != Suspend)
+            if (result != SUSPEND)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)
@@ -154,15 +154,15 @@ class XXXCoroutine : RestrictedCoroutineImpl, Function2<Receiver, Continuation<*
     }
 
     override fun doResume(data: Any?, exception: Throwable?): Any? {
-        var supensionResult = data
+        var suspensionResult = data
         switch (label) {
         default:
             throw IllegalStateException()
         case 0:
             doSomethingBefore()
             label = 1 // set next label before calling suspend function
-            supensionResult = receiver.yield(this)
-            if (supensionResult == Suspend) return Suspend
+            suspensionResult = receiver.yield(this)
+            if (suspensionResult == SUSPEND) return SUSPEND
             // falls through with yeild result if it is available
         case 1:
             doSomethingAfter(supensionResult)

@@ -37,6 +37,28 @@ public interface ResumeInterceptor {
 }
 
 /**
+ * Creates coroutine with receiver type [R] and result type [T].
+ * This function creates a new, fresh instance of suspendable computation every time it is invoked.
+ * To start executing the created coroutine, invoke `resume(Unit)` on the returned [Continuation] instance.
+ * The result of the coroutine's execution is provided via invocation of [resultHandler].
+ */
+@SinceKotlin("1.1")
+@Suppress("UNCHECKED_CAST")
+public fun <R, T> (/*suspend*/ R.() -> T).createsCoroutine(
+        receiver: R,
+        resultHandler: Continuation<T>
+): Continuation<Unit> {
+    try {
+        val result = (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, resultHandler)
+        // todo:
+        if (result == SUSPEND) return
+        resultHandler.resume(result as T)
+    } catch (e: Throwable) {
+        resultHandler.resumeWithException(e)
+    }
+}
+
+/**
  * Starts coroutine with receiver type [R] and result type [T].
  * This function creates and start a new, fresh instance of suspendable computation every time it is invoked.
  * The result of the coroutine's execution is provided via invocation of [resultHandler].

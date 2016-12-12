@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.resolve.IdentifierChecker
 import org.jetbrains.kotlin.resolve.OverloadFilter
 import org.jetbrains.kotlin.resolve.PlatformConfigurator
 import org.jetbrains.kotlin.resolve.calls.checkers.ReifiedTypeParameterSubstitutionChecker
-import org.jetbrains.kotlin.resolve.checkers.PlatformImplDeclarationChecker
+import org.jetbrains.kotlin.resolve.checkers.HeaderImplDeclarationChecker
 import org.jetbrains.kotlin.resolve.scopes.SyntheticConstructorsProvider
 import org.jetbrains.kotlin.resolve.scopes.SyntheticScopes
 import org.jetbrains.kotlin.types.DynamicTypesAllowed
@@ -35,7 +35,7 @@ object JsPlatformConfigurator : PlatformConfigurator(
         additionalDeclarationCheckers = listOf(
                 NativeInvokeChecker(), NativeGetterChecker(), NativeSetterChecker(),
                 JsNameChecker, JsModuleChecker,
-                PlatformImplDeclarationChecker(),
+                HeaderImplDeclarationChecker(),
                 JsExternalChecker()
         ),
         additionalCallCheckers = listOf(ReifiedTypeParameterSubstitutionChecker(), JsModuleCallChecker, JsDynamicCallChecker),

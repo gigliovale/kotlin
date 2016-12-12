@@ -16,6 +16,9 @@
 
 package kotlin.coroutines
 
+import kotlin.jvm.internal.CoroutineImpl
+import kotlin.jvm.internal.RestrictedCoroutineImpl
+
 /**
  * A strategy to intercept resumptions inside coroutine.
  * Interceptor may shift resumption into another execution frame by scheduling asynchronous execution
@@ -44,17 +47,22 @@ public interface ResumeInterceptor {
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
-public fun <R, T> (/*suspend*/ R.() -> T).createsCoroutine(
+public fun <R, T> (/*suspend*/ R.() -> T).createCoroutine(
         receiver: R,
         resultHandler: Continuation<T>
 ): Continuation<Unit> {
-    try {
-        val result = (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, resultHandler)
-        // todo:
-        if (result == SUSPEND) return
-        resultHandler.resume(result as T)
-    } catch (e: Throwable) {
-        resultHandler.resumeWithException(e)
+    // check if the RestrictedCoroutineImpl was passed and do efficient creation
+    if (this is RestrictedCoroutineImpl)
+        return doCreateInternal(receiver, resultHandler)
+    // otherwise, it is just a callable reference to some suspend function
+    return object : Continuation<Unit> {
+        override fun resume(data: Unit) {
+            startCoroutine(receiver, resultHandler)
+        }
+
+        override fun resumeWithException(exception: Throwable) {
+            resultHandler.resumeWithException(exception)
+        }
     }
 }
 
@@ -71,7 +79,7 @@ public fun <R, T> (/*suspend*/ R.() -> T).startCoroutine(
 ) {
     try {
         val result = (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, resultHandler)
-        if (result == SUSPEND) return
+        if (result == SUSPENDED) return
         resultHandler.resume(result as T)
     } catch (e: Throwable) {
         resultHandler.resumeWithException(e)
@@ -79,7 +87,35 @@ public fun <R, T> (/*suspend*/ R.() -> T).startCoroutine(
 }
 
 /**
- * Starts coroutine with result type [T].
+ * Creates coroutine without receiver and with result type [T].
+ * This function creates a new, fresh instance of suspendable computation every time it is invoked.
+ * To start executing the created coroutine, invoke `resume(Unit)` on the returned [Continuation] instance.
+ * The result of the coroutine's execution is provided via invocation of [resultHandler].
+ * An optional [resumeInterceptor] may be specified to intercept resumes at suspension points inside the coroutine.
+ */
+@SinceKotlin("1.1")
+@Suppress("UNCHECKED_CAST")
+public fun <T> (/*suspend*/ () -> T).createCoroutine(
+        resultHandler: Continuation<T>,
+        resumeInterceptor: ResumeInterceptor? = null
+): Continuation<Unit> {
+    // check if the CoroutineImpl was passed and do efficient creation
+    if (this is CoroutineImpl)
+        return doCreateInternal(null, withInterceptor(resultHandler, resumeInterceptor))
+    // otherwise, it is just a callable reference to some suspend function
+    return object : Continuation<Unit> {
+        override fun resume(data: Unit) {
+            startCoroutine(resultHandler, resumeInterceptor)
+        }
+
+        override fun resumeWithException(exception: Throwable) {
+            resultHandler.resumeWithException(exception)
+        }
+    }
+}
+
+/**
+ * Starts coroutine without receiver and with result type [T].
  * This function creates and start a new, fresh instance of suspendable computation every time it is invoked.
  * The result of the coroutine's execution is provided via invocation of [resultHandler].
  * An optional [resumeInterceptor] may be specified to intercept resumes at suspension points inside the coroutine.
@@ -90,13 +126,9 @@ public fun <T> (/*suspend*/ () -> T).startCoroutine(
         resultHandler: Continuation<T>,
         resumeInterceptor: ResumeInterceptor? = null
 ) {
-    val adapter = if (resumeInterceptor == null) resultHandler else
-        object : InterceptableContinuation<T>, Continuation<T> by resultHandler {
-            override val resumeInterceptor: ResumeInterceptor? = resumeInterceptor
-        }
     try {
-        val result = (this as Function1<Continuation<T>, Any?>).invoke(adapter)
-        if (result == SUSPEND) return
+        val result = (this as Function1<Continuation<T>, Any?>).invoke(withInterceptor(resultHandler, resumeInterceptor))
+        if (result == SUSPENDED) return
         resultHandler.resume(result as T)
     } catch (e: Throwable) {
         resultHandler.resumeWithException(e)
@@ -109,18 +141,9 @@ internal interface InterceptableContinuation<P> : Continuation<P> {
     val resumeInterceptor: ResumeInterceptor?
 }
 
-// adapter for suspendable computation frame
-private class CoroutineAdapter<T>(
-    internal var resultHandler: ((T) -> Unit)? = null,
-    internal var exceptionHandler: ((Throwable) -> Unit)? = null,
-    override var resumeInterceptor: ResumeInterceptor? = null
-) : InterceptableContinuation<T> {
-    override fun resume(data: T) {
-        resultHandler?.invoke(data)
-    }
-
-    override fun resumeWithException(exception: Throwable) {
-        exceptionHandler?.invoke(exception) ?: throw exception
-    }
+private fun <T> withInterceptor(resultHandler: Continuation<T>, resumeInterceptor: ResumeInterceptor?): Continuation<T> {
+    return if (resumeInterceptor == null) resultHandler else
+        object : InterceptableContinuation<T>, Continuation<T> by resultHandler {
+            override val resumeInterceptor: ResumeInterceptor? = resumeInterceptor
+        }
 }
-

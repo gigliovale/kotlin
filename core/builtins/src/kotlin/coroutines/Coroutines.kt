@@ -44,10 +44,10 @@ public annotation class AllowSuspendExtensions
 
 /**
  * This value can be used as a return value of [kotlin.coroutines.maySuspendWithCurrentContinuation] `body` argument to state that
- * the execution has suspended and will not return any result immediately.
+ * the execution was suspended and will not return any result immediately.
  */
 @SinceKotlin("1.1")
-public val SUSPEND: Any? = Any()
+public val SUSPENDED: Any? = Any()
 
 /**
  * Classes and interfaces marked with this annotation are restricted when used as receivers for extension

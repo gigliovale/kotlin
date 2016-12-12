@@ -38,6 +38,13 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuatio
         _resumeInterceptor = (resultContinuation as? InterceptableContinuation<*>)?.resumeInterceptor
     }
 
+    // coroutine factory implementation for unrestricted coroutines, it will implement Function1.invoke
+    // in the actual coroutine implementation
+    fun invoke(resultContinuation: Continuation<*>): Any? {
+        // create and run it until first suspension
+        return (doCreate(null, resultContinuation) as CoroutineImpl).doResume(Unit, null)
+    }
+
     override fun resume(data: Any?) {
         if (_resumeInterceptor != null) {
             if (label and INTERCEPT_BIT_SET == 0) {
@@ -83,10 +90,22 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
         label = 0
     }
 
+    // coroutine factory implementation for restricted coroutines, it will implement Function2.invoke
+    // in the actual restricted coroutine implementation
+    fun invoke(receiver: Any, resultContinuation: Continuation<*>): Any? {
+        // create and run it until first suspension
+        return (doCreate(receiver, resultContinuation) as RestrictedCoroutineImpl).doResume(Unit, null)
+    }
+
+    protected abstract fun doCreate(receiver: Any?, resultContinuation: Continuation<*>): Continuation<Unit>
+
+    internal fun doCreateInternal(receiver: Any?, resultContinuation: Continuation<*>) =
+            doCreate(receiver, resultContinuation)
+
     override fun resume(data: Any?) {
         try {
             val result = doResume(data, null)
-            if (result != SUSPEND)
+            if (result != SUSPENDED)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)
@@ -96,7 +115,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resumeWithException(exception: Throwable) {
         try {
             val result = doResume(null, exception)
-            if (result != SUSPEND)
+            if (result != SUSPENDED)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)
@@ -129,13 +148,14 @@ suspend fun Receiver.sample(): String {
 The compiler emits the class with the following logic:
 
 ---------------------------------------------------------------------------------------------
+
 class XXXCoroutine : RestrictedCoroutineImpl, Function2<Receiver, Continuation<*>, Any?> {
     //               ^^^^^^^^^^^^^^^^^^^^^^^
     //          Replace with CoroutineImpl if the coroutine is non-restricted
 
     val receiver: Receiver?
     //  ^^^^^^^^^^^^^^^^^^^
-    //    receiver is just a part of the captured scope
+    //    receiver is just a part of the captured scope and is only declared here is coroutine has it
 
     // this constructor is used to create initial "factory" lambda object
     constructor() : super(2, null) {
@@ -144,13 +164,16 @@ class XXXCoroutine : RestrictedCoroutineImpl, Function2<Receiver, Continuation<*
 
     // this constructor is used to create a continuation instance for coroutine
     constructor(receiver: Receiver, resultContinuation: Continuation<Any?>) : super(2, resultContinuation) {
+    //         ^^^^^^^^^^^^^^^^^^^^
+    // no receiver parameter when compiling coroutine that does not have one
         this.receiver = receiver
     }
 
-    // coroutine factory implementation of Kotlin type: suspend Receiver.() -> String
-    override fun invoke(receiver: Receiver, resultContinuation: Continuation<*>): Any? {
-        val coroutine = XXXCoroutine(receiver, resultContinuation) // create the actual instance
-        return coroutine.doResume(Unit, null) // and run it until first suspension
+    override fun doCreate(receiver: Any, resultContinuation: Continuation<*>): Continuation<Unit> {
+        return XXXCoroutine(receiver as Receiver, resultContinuation) // create the actual instance
+    //                      ^^^^^^^^^^^^^^^^^^^^
+    // ignore receiver parameter when compiling coroutine that does not have one,
+    // check that it is not null as check its proper type for coroutine that has a receiver
     }
 
     override fun doResume(data: Any?, exception: Throwable?): Any? {
@@ -162,7 +185,7 @@ class XXXCoroutine : RestrictedCoroutineImpl, Function2<Receiver, Continuation<*
             doSomethingBefore()
             label = 1 // set next label before calling suspend function
             suspensionResult = receiver.yield(this)
-            if (suspensionResult == SUSPEND) return SUSPEND
+            if (suspensionResult == SUSPENDED) return SUSPENDED
             // falls through with yeild result if it is available
         case 1:
             doSomethingAfter(supensionResult)

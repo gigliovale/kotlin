@@ -132,7 +132,3 @@ abstract class BaseImportingScope(parent: ImportingScope?) : BaseHierarchicalSco
 
     override fun getContributedPackage(name: Name): PackageViewDescriptor? = null
 }
-
-class DelegationImportingScope(val _parent: ImportingScope?, delegate: ImportingScope) : ImportingScope by delegate {
-    override val parent: ImportingScope? get() = _parent
-}

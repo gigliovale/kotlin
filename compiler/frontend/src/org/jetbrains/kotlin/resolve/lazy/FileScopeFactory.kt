@@ -30,7 +30,11 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver
 import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
-import org.jetbrains.kotlin.resolve.scopes.*
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
+import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
+import org.jetbrains.kotlin.resolve.scopes.ImportingScope
+import org.jetbrains.kotlin.resolve.scopes.LexicalScope
+import org.jetbrains.kotlin.resolve.scopes.SubpackagesImportingScope
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.script.getScriptExternalDependencies
 import org.jetbrains.kotlin.storage.StorageManager
@@ -138,7 +142,8 @@ class FileScopeFactory(
             var scope: ImportingScope
 
             val debugName = "LazyFileScope for file " + file.name
-            scope = DelegationImportingScope(existingImports, defaultImportScopeProvider.defaultAllUnderImportInvisibleScope)
+            scope = createDelegateImportingScope(
+                existingImports, defaultImportScopeProvider.defaultAllUnderImportInvisibleScope, aliasedImportFqNames)
 
         if (extraImportsFiltered.isNotEmpty()) {
             scope = LazyImportScope(scope, extraAllUnderImportResolver, LazyImportScope.FilteringKind.INVISIBLE_CLASSES,
@@ -150,7 +155,8 @@ class FileScopeFactory(
 
             scope = currentPackageScope(packageView, aliasedImportFqNames, dummyContainerDescriptor, FilteringKind.INVISIBLE_CLASSES, scope)
 
-        scope = DelegationImportingScope(scope, defaultImportScopeProvider.defaultAllUnderImportVisibleScope)
+        scope = createDelegateImportingScope(
+                scope, defaultImportScopeProvider.defaultAllUnderImportVisibleScope, aliasedImportFqNames)
 
         if (extraImportsFiltered.isNotEmpty()) {scope = LazyImportScope(scope, extraAllUnderImportResolver, LazyImportScope.FilteringKind.VISIBLE_CLASSES,
                                 "Default all under imports in $debugName (visible classes)")}
@@ -158,7 +164,8 @@ class FileScopeFactory(
             scope = LazyImportScope(scope, allUnderImportResolver, LazyImportScope.FilteringKind.VISIBLE_CLASSES,
                                     "All under imports in $debugName (visible classes)")
 
-        scope = DelegationImportingScope(scope, defaultImportScopeProvider.defaultExplicitImportScope)
+        scope = createDelegateImportingScope(
+                scope, defaultImportScopeProvider.defaultExplicitImportScope, aliasedImportFqNames)
 
         if (extraImportsFiltered.isNotEmpty()) {scope = LazyImportScope(scope, extraExplicitImportResolver, LazyImportScope.FilteringKind.ALL,
                                 "Default explicit imports in $debugName")}
@@ -172,6 +179,47 @@ class FileScopeFactory(
 
         private infix fun <T> Collection<T>.concat(other: Collection<T>?) =
                 if (other == null || other.isEmpty()) this else this + other
+    }
+
+    private fun createDelegateImportingScope(
+            parent: ImportingScope?,
+            delegate: ImportingScope,
+            filteredFqNames: Set<FqName>): ImportingScope {
+        if (filteredFqNames.isEmpty()) {
+            return DelegationImportingScope(parent, delegate)
+        }
+
+        return FilteredDelegationImportingScope(parent, delegate, filteredFqNames)
+    }
+
+    private class DelegationImportingScope(val _parent: ImportingScope?, delegate: ImportingScope) : ImportingScope by delegate {
+        override val parent: ImportingScope? get() = _parent
+    }
+
+    private class FilteredDelegationImportingScope(
+            override val parent: ImportingScope?,
+            val delegate: ImportingScope,
+            val filteredFqNames: Set<FqName>) : ImportingScope {
+        private fun isFiltered(descriptor: DeclarationDescriptor) = descriptor.fqNameSafe in filteredFqNames
+
+        override fun printStructure(p: Printer) = delegate.printStructure(p)
+
+        override fun getContributedClassifier(name: Name, location: LookupLocation): ClassifierDescriptor? {
+            val classifier = delegate.getContributedClassifier(name, location) ?: return null
+            if (isFiltered(classifier)) return null
+            return classifier
+        }
+
+        override fun getContributedVariables(name: Name, location: LookupLocation) =
+                delegate.getContributedVariables(name, location).filterNot { isFiltered(it) }
+
+        override fun getContributedFunctions(name: Name, location: LookupLocation) =
+                delegate.getContributedFunctions(name, location).filterNot { isFiltered(it) }
+
+        override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean) =
+                delegate.getContributedDescriptors(kindFilter, nameFilter).filterNot { isFiltered(it) }
+
+        override fun getContributedPackage(name: Name) = delegate.getContributedPackage(name)
     }
 
     private enum class FilteringKind {

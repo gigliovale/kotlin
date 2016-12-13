@@ -37,4 +37,42 @@ package kotlin.coroutines
  * Use [runWithCurrentContinuation] as a safer way to obtain current continuation instance.
  */
 @SinceKotlin("1.1")
-public inline suspend fun <T> maySuspendWithCurrentContinuation(body: (Continuation<T>) -> Any?): T
+public inline suspend fun <T> maySuspendWithCurrentContinuation(crossinline body: (Continuation<T>) -> Any?): T
+
+/*
+===========================================================================================================================
+Implementation details:
+
+Inside the restricted suspend function this function if effectively desugared into the following one:
+
+---------------------------------------------------------------------------------------------
+inline fun <T> maySuspendWithCurrentContinuation(body: (Continuation<T>) -> Any?, c: Continuation<T>): T {
+    return body(c)
+}
+---------------------------------------------------------------------------------------------
+
+Inside the general suspend function (that may have an installed interceptor) this function if effectively desugared into the
+following one:
+*/
+
+internal fun <T> maySuspendWithCurrentContinuationInterceptable(body: (Continuation<T>) -> Any?) =
+    maySuspendWithCurrentContinuation<T> { c ->
+        // fast path return -- no interceptor
+        val interceptor = (c as? InterceptableContinuation<T>)?.interceptor ?: return body(c)
+        // slow path -- intercept
+        interceptSuspend(body, c, interceptor)
+    }
+
+internal fun <T> interceptSuspend(body: (Continuation<T>) -> Any?, c: Continuation<T>, interceptor: SuspendInterceptor) {
+    val wrapper = interceptor.interceptSuspend(c)
+    try {
+        val result = body(wrapper)
+        if (result == SUSPENDED) return // coroutine machine will intercept resume
+        if (!interceptor.interceptResume(result as T, wrapper))
+            return result // interceptor declined to intercept, return normally
+    }
+    catch (ex: Throwable) {
+        if (!interceptor.interceptResumeWithException(ex, wrapper))
+            throw ex // interceptor declined to intercept -- rethrow
+    }
+}

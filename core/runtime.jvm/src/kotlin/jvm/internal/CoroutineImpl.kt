@@ -23,19 +23,19 @@ private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
 @SinceKotlin("1.1")
 abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuation<Any?> {
-    private val _resumeInterceptor: ResumeInterceptor?
+    private val _interceptor: SuspendInterceptor?
 
-    override val resumeInterceptor: ResumeInterceptor?
-        get() = _resumeInterceptor
+    override val interceptor: SuspendInterceptor?
+        get() = _interceptor
 
     // this constructor is used to create initial "factory" lambda object
     constructor(arity: Int) : super(arity) {
-        _resumeInterceptor = null
+        _interceptor = null
     }
 
     // this constructor is used to create a continuation instance for coroutine
     constructor(arity: Int, resultContinuation: Continuation<Any?>?) : super(arity, resultContinuation) {
-        _resumeInterceptor = (resultContinuation as? InterceptableContinuation<*>)?.resumeInterceptor
+        _interceptor = (resultContinuation as? InterceptableContinuation<*>)?.interceptor
     }
 
     // coroutine factory implementation for unrestricted coroutines, it will implement Function1.invoke
@@ -46,10 +46,10 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuatio
     }
 
     override fun resume(data: Any?) {
-        if (_resumeInterceptor != null) {
+        if (_interceptor != null) {
             if (label and INTERCEPT_BIT_SET == 0) {
                 label = label or INTERCEPT_BIT_SET
-                if (_resumeInterceptor.interceptResume(data, this)) return
+                if (_interceptor.interceptResume(data, this)) return
             }
             label = label and INTERCEPT_BIT_CLEAR
         }
@@ -57,10 +57,10 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuatio
     }
 
     override fun resumeWithException(exception: Throwable) {
-        if (_resumeInterceptor != null) {
+        if (_interceptor != null) {
             if (label and INTERCEPT_BIT_SET == 0) {
                 label = label or INTERCEPT_BIT_SET
-                if (_resumeInterceptor.interceptResumeWithException(exception, this)) return
+                if (_interceptor.interceptResumeWithException(exception, this)) return
             }
             label = label and INTERCEPT_BIT_CLEAR
         }

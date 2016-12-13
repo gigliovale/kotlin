@@ -69,6 +69,7 @@ private val DEFAULT_DECLARATION_CHECKERS = listOf(
         ReifiedTypeParameterAnnotationChecker()
 )
 
+
 private val DEFAULT_CALL_CHECKERS = listOf(
         CapturingInClosureChecker(), InlineCheckerWrapper(), SafeCallChecker(),
         DeprecatedCallChecker, CallReturnsArrayOfNothingChecker(), InfixCallChecker(), OperatorCallChecker(),

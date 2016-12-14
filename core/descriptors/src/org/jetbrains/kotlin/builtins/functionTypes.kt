@@ -17,6 +17,9 @@
 package org.jetbrains.kotlin.builtins
 
 import org.jetbrains.kotlin.builtins.functions.BuiltInFictitiousFunctionClassFactory
+import org.jetbrains.kotlin.builtins.functions.FunctionClassDescriptor
+import org.jetbrains.kotlin.descriptors.ClassDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptorImpl
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationsImpl
 import org.jetbrains.kotlin.name.FqNameUnsafe
@@ -52,16 +55,23 @@ val KotlinType.isFunctionTypeOrSubtype: Boolean
     )
 
 val KotlinType.isFunctionType: Boolean
+    get() = constructor.declarationDescriptor?.getFunctionalClassKind() == FunctionClassDescriptor.Kind.Function
+
+val KotlinType.isSuspendFunctionType: Boolean
+    get() = constructor.declarationDescriptor?.getFunctionalClassKind() == FunctionClassDescriptor.Kind.SuspendFunction
+
+val KotlinType.isBuiltinFunctionalType: Boolean
     get() {
-        val descriptor = constructor.declarationDescriptor
-        return descriptor != null && isNumberedFunctionClassFqName(descriptor.fqNameUnsafe)
+        val kind = constructor.declarationDescriptor?.getFunctionalClassKind()
+        return kind == FunctionClassDescriptor.Kind.Function ||
+               kind == FunctionClassDescriptor.Kind.SuspendFunction
     }
 
 val KotlinType.isNonExtensionFunctionType: Boolean
-    get() = isFunctionType && !isTypeAnnotatedWithExtensionFunctionType
+    get() = isBuiltinFunctionalType && !isTypeAnnotatedWithExtensionFunctionType
 
 val KotlinType.isExtensionFunctionType: Boolean
-    get() = isFunctionType && isTypeAnnotatedWithExtensionFunctionType
+    get() = isBuiltinFunctionalType && isTypeAnnotatedWithExtensionFunctionType
 
 private val KotlinType.isTypeAnnotatedWithExtensionFunctionType: Boolean
     get() = annotations.findAnnotation(KotlinBuiltIns.FQ_NAMES.extensionFunctionType) != null
@@ -80,18 +90,29 @@ fun isNumberedFunctionClassFqName(fqName: FqNameUnsafe): Boolean {
     return BuiltInFictitiousFunctionClassFactory.isFunctionClassName(shortName, KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME)
 }
 
+fun DeclarationDescriptor.getFunctionalClassKind(): FunctionClassDescriptor.Kind? {
+    if (this !is ClassDescriptor) return null
+
+    val fqNameUnsafe = this.fqNameUnsafe
+    if (!fqNameUnsafe.isSafe || fqNameUnsafe.isRoot) return null
+    val fqName = fqNameUnsafe.toSafe()
+
+    return BuiltInFictitiousFunctionClassFactory.getFunctionalClassKind(fqName.shortName().asString(), fqName.parent())
+}
+
+
 fun KotlinType.getReceiverTypeFromFunctionType(): KotlinType? {
-    assert(isFunctionType) { "Not a function type: ${this}" }
+    assert(isBuiltinFunctionalType) { "Not a function type: ${this}" }
     return if (isTypeAnnotatedWithExtensionFunctionType) arguments.first().type else null
 }
 
 fun KotlinType.getReturnTypeFromFunctionType(): KotlinType {
-    assert(isFunctionType) { "Not a function type: ${this}" }
+    assert(isBuiltinFunctionalType) { "Not a function type: ${this}" }
     return arguments.last().type
 }
 
 fun KotlinType.getValueParameterTypesFromFunctionType(): List<TypeProjection> {
-    assert(isFunctionType) { "Not a function type: ${this}" }
+    assert(isBuiltinFunctionalType) { "Not a function type: ${this}" }
     val arguments = arguments
     val first = if (isExtensionFunctionType) 1 else 0
     val last = arguments.size - 1

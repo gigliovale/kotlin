@@ -46,17 +46,20 @@ fun createValueParametersForInvokeInFunctionType(
     }
 }
 
+@JvmOverloads
 fun createFunctionType(
         builtIns: KotlinBuiltIns,
         annotations: Annotations,
         receiverType: KotlinType?,
         parameterTypes: List<KotlinType>,
         parameterNames: List<Name>?,
-        returnType: KotlinType
+        returnType: KotlinType,
+        suspendFunction: Boolean = false
 ): SimpleType {
     val arguments = getFunctionTypeArgumentProjections(receiverType, parameterTypes, parameterNames, returnType, builtIns)
     val size = parameterTypes.size
-    val classDescriptor = builtIns.getFunction(if (receiverType == null) size else size + 1)
+    val parameterCount = if (receiverType == null) size else size + 1
+    val classDescriptor = if (suspendFunction) builtIns.getSuspendFunction(parameterCount) else builtIns.getFunction(parameterCount)
 
     val typeAnnotations =
             if (receiverType == null || annotations.findAnnotation(KotlinBuiltIns.FQ_NAMES.extensionFunctionType) != null) {

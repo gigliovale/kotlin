@@ -1,4 +1,6 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER -NOTHING_TO_INLINE
+import kotlin.coroutines.*
+
 class Controller
 
 class A(coroutine c: Controller.() -> Continuation<Unit>, y: Int) {

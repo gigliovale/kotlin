@@ -1,5 +1,6 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER
 // !LANGUAGE: -Coroutines
+import kotlin.coroutines.*
 
 class Controller {
     <!UNSUPPORTED_FEATURE!>suspend<!> fun suspendHere(): String = "OK"

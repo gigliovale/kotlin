@@ -1,6 +1,7 @@
 // MODULE: controller
 // FILE: controller.kt
 package lib
+import kotlin.coroutines.*
 
 @AllowSuspendExtensions
 class Controller {
@@ -21,6 +22,7 @@ inline suspend fun Controller.inlineSuspendExtension(v: String) = v.inlineSuspen
 // MODULE: main(controller)
 // FILE: main.kt
 import lib.*
+import kotlin.coroutines.*
 
 suspend fun Controller.localSuspendExtension(v: String) = v.suspendHere()
 

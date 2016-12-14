@@ -5,6 +5,8 @@
 // TODO: fix the bug and enable for JVM backend
 // TARGET_BACKEND: JS
 
+import kotlin.coroutines.*
+
 class Controller {
     var result = ""
 

@@ -1,5 +1,7 @@
 // NO_INTERCEPT_RESUME_TESTS
 
+import kotlin.coroutines.*
+
 class Controller {
     var log = ""
     var resumeIndex = 0

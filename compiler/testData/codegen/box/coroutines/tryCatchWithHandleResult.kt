@@ -1,4 +1,6 @@
 // WITH_RUNTIME
+import kotlin.coroutines.*
+
 var globalResult = ""
 var wasCalled = false
 class Controller {

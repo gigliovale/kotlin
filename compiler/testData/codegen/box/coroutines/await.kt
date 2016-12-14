@@ -1,6 +1,8 @@
 // WITH_RUNTIME
 // NO_INTERCEPT_RESUME_TESTS
 // FILE: promise.kt
+import kotlin.coroutines.*
+
 class Promise<T>(private val executor: ((T) -> Unit) -> Unit) {
     private var value: Any? = null
     private var thenList: MutableList<(T) -> Unit>? = mutableListOf()
@@ -46,6 +48,8 @@ fun processQueue() {
 }
 
 // FILE: await.kt
+import kotlin.coroutines.*
+
 private var log = ""
 
 class Controller<T>(private val resolve: (T) -> Unit) {

@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     var res = 0
     suspend fun suspendHere(): String = suspendWithCurrentContinuation { x ->

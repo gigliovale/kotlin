@@ -1,4 +1,6 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER
+import kotlin.coroutines.*
+
 class A1 {
     <!INAPPLICABLE_OPERATOR_MODIFIER!>operator<!> fun handleResult(x: Int) {
     }

@@ -1,4 +1,6 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER
+import kotlin.coroutines.*
+
 interface A {
     operator fun handleResult(x: Int, y: Continuation<Nothing>) {}
 }

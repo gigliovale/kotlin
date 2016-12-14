@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     var wasHandleResultCalled = false
     suspend fun suspendHere(): String = suspendWithCurrentContinuation { x ->

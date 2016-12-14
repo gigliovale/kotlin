@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 var result = 0
 
 class Controller {

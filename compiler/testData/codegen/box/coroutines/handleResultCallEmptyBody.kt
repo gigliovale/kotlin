@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     var ok = false
 

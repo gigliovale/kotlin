@@ -1,4 +1,5 @@
 // WITH_RUNTIME
+import kotlin.coroutines.*
 
 class Controller {
     var cResult = 0

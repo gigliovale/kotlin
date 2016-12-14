@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     var result = "fail"
     operator fun handleResult(u: Unit, c: Continuation<Nothing>) {

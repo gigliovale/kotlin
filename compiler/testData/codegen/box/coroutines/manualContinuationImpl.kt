@@ -1,5 +1,7 @@
 // IGNORE_BACKEND: JS
 // WITH_RUNTIME
+import kotlin.coroutines.*
+
 class Controller {
     suspend fun suspendHere(): String = suspendWithCurrentContinuation { x ->
         x.resume("OK")

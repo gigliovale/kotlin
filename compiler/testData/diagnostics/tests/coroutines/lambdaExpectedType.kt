@@ -1,5 +1,7 @@
 // !CHECK_TYPE
 // !DIAGNOSTICS: -UNUSED_PARAMETER -ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE -UNUSED_VALUE -UNUSED_VARIABLE
+import kotlin.coroutines.*
+
 class IntController {
     operator fun handleResult(x: Int, c: Continuation<Nothing>) { }
 }

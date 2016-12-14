@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     var res = 0
     operator fun handleResult(x: Int, y: Continuation<Nothing>) {

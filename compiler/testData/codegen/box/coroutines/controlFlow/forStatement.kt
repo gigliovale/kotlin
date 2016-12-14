@@ -1,6 +1,8 @@
 // WITH_RUNTIME
 // NO_INTERCEPT_RESUME_TESTS
 
+import kotlin.coroutines.*
+
 class Controller {
     var result = ""
 

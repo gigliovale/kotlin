@@ -1,3 +1,5 @@
+import kotlin.coroutines.*
+
 class Controller {
     suspend fun <T> suspendHere(v: T): T = suspendWithCurrentContinuation { x ->
         x.resume(v)

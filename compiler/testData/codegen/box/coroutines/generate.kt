@@ -1,5 +1,6 @@
 // WITH_RUNTIME
 // FULL_JDK
+import kotlin.coroutines.*
 
 fun box(): String {
     val x = gen().joinToString()

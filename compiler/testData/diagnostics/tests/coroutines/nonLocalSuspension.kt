@@ -1,4 +1,5 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER
+import kotlin.coroutines.*
 
 class Controller<T> {
     suspend fun suspendHere() = 1

@@ -1,4 +1,6 @@
 // !DIAGNOSTICS: -UNUSED_PARAMETER -ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE -UNUSED_VALUE -UNUSED_VARIABLE
+import kotlin.coroutines.*
+
 class GenericController<T> {
     operator fun handleResult(x: T, c: Continuation<Nothing>) { }
     suspend fun <V> await(f: V): V = f

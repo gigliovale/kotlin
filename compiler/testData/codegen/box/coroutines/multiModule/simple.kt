@@ -2,6 +2,8 @@
 // FILE: controller.kt
 package lib
 
+import kotlin.coroutines.*
+
 class Controller {
     suspend fun suspendHere(): String = suspendWithCurrentContinuation { x ->
         x.resume("OK")
@@ -14,6 +16,7 @@ class Controller {
 // MODULE: main(controller)
 // FILE: main.kt
 import lib.*
+import kotlin.coroutines.*
 
 fun builder(coroutine c: Controller.() -> Continuation<Unit>) {
     c(Controller()).resume(Unit)

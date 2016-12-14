@@ -21,6 +21,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.builtins.ReflectionTypes
 import org.jetbrains.kotlin.builtins.getReceiverTypeFromFunctionType
 import org.jetbrains.kotlin.builtins.isExtensionFunctionType
+import org.jetbrains.kotlin.builtins.isSuspendFunctionType
 import org.jetbrains.kotlin.coroutines.getExpectedTypeForCoroutineControllerHandleResult
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptorImpl
@@ -57,19 +58,19 @@ enum class ResolveArgumentsMode {
 
 
 fun hasUnknownFunctionParameter(type: KotlinType): Boolean {
-    assert(ReflectionTypes.isCallableType(type)) { "type $type is not a function or property" }
+    assert(ReflectionTypes.isCallableType(type) || type.isSuspendFunctionType) { "type $type is not a function or property" }
     return getParameterArgumentsOfCallableType(type).any {
         it.type.contains { TypeUtils.isDontCarePlaceholder(it) } || ErrorUtils.containsUninferredParameter(it.type)
     }
 }
 
 fun hasUnknownReturnType(type: KotlinType): Boolean {
-    assert(ReflectionTypes.isCallableType(type)) { "type $type is not a function or property" }
+    assert(ReflectionTypes.isCallableType(type) || type.isSuspendFunctionType) { "type $type is not a function or property" }
     return ErrorUtils.containsErrorType(getReturnTypeForCallable(type))
 }
 
 fun replaceReturnTypeForCallable(type: KotlinType, given: KotlinType): KotlinType {
-    assert(ReflectionTypes.isCallableType(type)) { "type $type is not a function or property" }
+    assert(ReflectionTypes.isCallableType(type) || type.isSuspendFunctionType) { "type $type is not a function or property" }
     val newArguments = Lists.newArrayList<TypeProjection>()
     newArguments.addAll(getParameterArgumentsOfCallableType(type))
     newArguments.add(TypeProjectionImpl(Variance.INVARIANT, given))

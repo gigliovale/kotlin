@@ -15,6 +15,7 @@
  */
 
 package kotlin.jvm.internal
+import kotlin.coroutines.*
 
 abstract class CoroutineImpl(arity: Int) : Lambda(arity), Continuation<Any?> {
     @JvmField

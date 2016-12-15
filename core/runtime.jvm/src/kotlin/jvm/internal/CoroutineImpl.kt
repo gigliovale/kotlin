@@ -22,33 +22,33 @@ private const val INTERCEPT_BIT_SET = 1 shl 31
 private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
 @SinceKotlin("1.1")
-abstract class CoroutineImpl : RestrictedCoroutineImpl, InterceptableContinuation<Any?> {
-    private val _resumeInterceptor: ResumeInterceptor?
+abstract class CoroutineImpl : RestrictedCoroutineImpl, DispatchedContinuation<Any?> {
+    private val _dispatcher: ContinuationDispatcher?
 
-    override val resumeInterceptor: ResumeInterceptor?
-        get() = _resumeInterceptor
+    override val dispatcher: ContinuationDispatcher?
+        get() = _dispatcher
 
     // this constructor is used to create a continuation instance for coroutine
-    constructor(arity: Int, resultContinuation: Continuation<Any?>?) : super(arity, resultContinuation) {
-        _resumeInterceptor = (resultContinuation as? InterceptableContinuation<*>)?.resumeInterceptor
+    constructor(arity: Int, completion: Continuation<Any?>?) : super(arity, completion) {
+        _dispatcher = (completion as? DispatchedContinuation<*>)?.dispatcher
     }
 
-    override fun resume(data: Any?) {
-        if (_resumeInterceptor != null) {
+    override fun resume(value: Any?) {
+        if (_dispatcher != null) {
             if (label and INTERCEPT_BIT_SET == 0) {
                 label = label or INTERCEPT_BIT_SET
-                if (_resumeInterceptor.interceptResume(data, this)) return
+                if (_dispatcher.interceptResume(value, this)) return
             }
             label = label and INTERCEPT_BIT_CLEAR
         }
-        super.resume(data)
+        super.resume(value)
     }
 
     override fun resumeWithException(exception: Throwable) {
-        if (_resumeInterceptor != null) {
+        if (_dispatcher != null) {
             if (label and INTERCEPT_BIT_SET == 0) {
                 label = label or INTERCEPT_BIT_SET
-                if (_resumeInterceptor.interceptResumeWithException(exception, this)) return
+                if (_dispatcher.interceptResumeWithException(exception, this)) return
             }
             label = label and INTERCEPT_BIT_CLEAR
         }
@@ -72,9 +72,9 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
         label = if (resultContinuation != null) 0 else -1
     }
 
-    override fun resume(data: Any?) {
+    override fun resume(value: Any?) {
         try {
-            val result = doResume(data, null)
+            val result = doResume(value, null)
             if (result != SUSPENDED)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
@@ -102,7 +102,7 @@ Showcase of coroutine compilation strategy.
 Given this following "sample" suspend function code:
 
 ---------------------------------------------------------------------------------------------
-@RestrictSuspension
+@RestrictsSuspendExtensions
 class Receiver {
     suspend fun yield(): SomeResult
 }

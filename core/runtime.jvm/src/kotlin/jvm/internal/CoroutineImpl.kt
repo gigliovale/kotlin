@@ -17,12 +17,10 @@
 package kotlin.jvm.internal
 
 import kotlin.coroutines.*
-import kotlin.coroutines.CoroutineIntrinsics.SUSPENDED
 
 private const val INTERCEPT_BIT_SET = 1 shl 31
 private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
-@SinceKotlin("1.1")
 abstract class CoroutineImpl : RestrictedCoroutineImpl, DispatchedContinuation<Any?> {
     private val _dispatcher: ContinuationDispatcher?
 
@@ -57,7 +55,6 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, DispatchedContinuation<A
     }
 }
 
-@SinceKotlin("1.1")
 abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     @JvmField
     protected var completion: Continuation<Any?>?
@@ -76,7 +73,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resume(value: Any?) {
         try {
             val result = doResume(value, null)
-            if (result != SUSPENDED)
+            if (result != CoroutineIntrinsics.SUSPENDED)
                 completion!!.resume(result)
         } catch (e: Throwable) {
             completion!!.resumeWithException(e)
@@ -86,7 +83,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resumeWithException(exception: Throwable) {
         try {
             val result = doResume(null, exception)
-            if (result != SUSPENDED)
+            if (result != CoroutineIntrinsics.SUSPENDED)
                 completion!!.resume(result)
         } catch (e: Throwable) {
             completion!!.resumeWithException(e)
@@ -94,4 +91,8 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     }
 
     protected abstract fun doResume(data: Any?, exception: Throwable?): Any?
+}
+
+internal interface DispatchedContinuation<in T> : Continuation<T> {
+    val dispatcher: ContinuationDispatcher?
 }

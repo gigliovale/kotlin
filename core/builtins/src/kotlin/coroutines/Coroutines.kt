@@ -34,6 +34,24 @@ public interface Continuation<in T> {
 }
 
 /**
+ * An interface to customise dispatch of continuations.
+ */
+@SinceKotlin("1.1")
+public interface ContinuationDispatcher {
+    /**
+     * Dispatches [Continuation.resume] invocation.
+     * This function must either return `false` or return `true` and invoke `continuation.resume(value)` asynchronously.
+     */
+    public fun <T> dispatchResume(value: T, continuation: Continuation<T>): Boolean = false
+
+    /**
+     * Dispatches [Continuation.resumeWithException] invocation.
+     * This function must either return `false` or return `true` and invoke `continuation.resumeWithException(exception)` asynchronously.
+     */
+    public fun dispatchResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean = false
+}
+
+/**
  * Classes and interfaces marked with this annotation are restricted when used as receivers for extension
  * `suspend` functions. These `suspend` extensions can only invoke other member or extension `suspend` functions on this particular
  * receiver only and are restricted from calling arbitrary suspension functions.
@@ -46,6 +64,7 @@ public annotation class RestrictsSuspendExtensions
 /**
  * Contains intrinsic functions for coroutines.
  */
+@SinceKotlin("1.1")
 public object CoroutineIntrinsics {
     /**
      * Obtains the current continuation instance inside suspend functions and either suspend
@@ -65,7 +84,8 @@ public object CoroutineIntrinsics {
      * continuation instance.
      */
     public inline suspend fun <T> suspendCoroutineOrReturn(
-            block: (Continuation<T>) -> Any?): T = suspendWithCurrentContinuation(block)
+            block: (Continuation<T>) -> Any?
+    ): T = suspendWithCurrentContinuation(block)
 
     /**
      * This value is used as a return value of [suspendCoroutineOrReturn] `block` argument to state that
@@ -74,3 +94,6 @@ public object CoroutineIntrinsics {
     @SinceKotlin("1.1")
     public val SUSPENDED: Any = Any()
 }
+
+@PublishedApi
+internal inline suspend fun <T> suspendWithCurrentContinuation(body: (Continuation<T>) -> Any?): T = null!!

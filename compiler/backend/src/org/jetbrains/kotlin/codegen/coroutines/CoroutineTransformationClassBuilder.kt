@@ -347,7 +347,7 @@ class CoroutineTransformerMethodVisitor(
                 ifacmpne(continuationLabelAfterLoadedResult.label)
 
                 // Exit
-                loadSuspendMarker()
+                load(suspendMarkerVarIndex, AsmTypes.OBJECT_TYPE)
                 areturn(AsmTypes.OBJECT_TYPE)
                 // Mark place for continuation
                 visitLabel(continuationLabel.label)

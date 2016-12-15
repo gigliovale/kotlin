@@ -9,7 +9,6 @@ fun builder(c: suspend () -> Unit) {
 
     c.createCoroutine(object : Continuation<Unit> {
         override fun resume(data: Unit) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
 
         override fun resumeWithException(e: Throwable) {

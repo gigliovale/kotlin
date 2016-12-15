@@ -26,8 +26,15 @@ fun noinlineRun(block: () -> Unit) {
 
 fun box(): String {
     builder {
+        if (suspendHere() != "OK") {
+            throw RuntimeException("fail 1")
+        }
         noinlineRun {
             foo()
+        }
+
+        if (suspendHere() != "OK") {
+            throw RuntimeException("fail 2")
         }
     }
 

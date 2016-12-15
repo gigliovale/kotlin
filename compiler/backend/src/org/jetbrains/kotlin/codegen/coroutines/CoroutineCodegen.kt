@@ -138,7 +138,7 @@ class CoroutineCodegen(
             iv.iconst(calculateArity())
             iv.load(argTypes.map { it.size }.sum(), AsmTypes.OBJECT_TYPE)
 
-            val superClassConstructorDescriptor = "(I${AsmTypes.CONTINUATION.descriptor})V"
+            val superClassConstructorDescriptor = Type.getMethodDescriptor(Type.VOID_TYPE, Type.INT_TYPE, AsmTypes.CONTINUATION)
             iv.invokespecial(superClassAsmType.internalName, "<init>", superClassConstructorDescriptor, false)
 
             iv.visitInsn(Opcodes.RETURN)
@@ -166,7 +166,7 @@ class CoroutineCodegen(
             }
 
             // load resultContinuation
-            load(allLambdaParameters().size + 1, AsmTypes.OBJECT_TYPE)
+            load(allLambdaParameters().map { typeMapper.mapType(it.type).size }.sum() + 1, AsmTypes.OBJECT_TYPE)
 
             invokespecial(owner.internalName, constructorToUseFromInvoke.name, constructorToUseFromInvoke.descriptor, false)
 
@@ -181,8 +181,6 @@ class CoroutineCodegen(
                 AsmUtil.genAssignInstanceFieldFromParam(fieldInfoForCoroutineLambdaParameter, index, this, cloneIndex)
                 index += fieldInfoForCoroutineLambdaParameter.fieldType.size
             }
-
-            setLabelValue(cloneIndex, LABEL_VALUE_BEFORE_FIRST_SUSPENSION)
 
             load(cloneIndex, AsmTypes.OBJECT_TYPE)
             areturn(AsmTypes.OBJECT_TYPE)
@@ -200,7 +198,7 @@ class CoroutineCodegen(
     }
 
     private fun allLambdaParameters() =
-            coroutineLambdaDescriptor.extensionReceiverParameter.singletonOrEmptyList() + coroutineLambdaDescriptor.valueParameters
+            coroutineLambdaDescriptor.extensionReceiverParameter.singletonOrEmptyList()
 
     private fun ExpressionCodegen.generateLoadField(fieldInfo: FieldInfo) {
         StackValue.field(fieldInfo, generateThisOrOuter(context.thisDescriptor, false)).put(fieldInfo.fieldType, v)
@@ -230,14 +228,7 @@ class CoroutineCodegen(
         )
     }
 
-    private fun InstructionAdapter.setLabelValue(varIndex: Int, value: Int) {
-        load(varIndex, AsmTypes.OBJECT_TYPE)
-        iconst(value)
-        putfield(AsmTypes.RESTRICTED_COROUTINE_IMPL.internalName, COROUTINE_LABEL_FIELD_NAME, Type.INT_TYPE.descriptor)
-    }
-
     companion object {
-        private const val LABEL_VALUE_BEFORE_FIRST_SUSPENSION = 0
 
         @JvmStatic
         fun create(

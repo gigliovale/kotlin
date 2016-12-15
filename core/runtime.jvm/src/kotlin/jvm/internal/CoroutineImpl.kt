@@ -75,7 +75,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resume(data: Any?) {
         try {
             val result = doResume(data, null)
-            if (result != CoroutineIntrinsics.SUSPENDED)
+            if (result != SUSPENDED)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)
@@ -85,7 +85,7 @@ abstract class RestrictedCoroutineImpl : Lambda, Continuation<Any?> {
     override fun resumeWithException(exception: Throwable) {
         try {
             val result = doResume(null, exception)
-            if (result != CoroutineIntrinsics.SUSPENDED)
+            if (result != SUSPENDED)
                 resultContinuation!!.resume(result)
         } catch (e: Throwable) {
             resultContinuation!!.resumeWithException(e)

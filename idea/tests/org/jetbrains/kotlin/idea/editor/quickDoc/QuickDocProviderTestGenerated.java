@@ -42,6 +42,18 @@ public class QuickDocProviderTestGenerated extends AbstractQuickDocProviderTest 
         doTest(fileName);
     }
 
+    @TestMetadata("AtEnumValueOfFunction.kt")
+    public void testAtEnumValueOfFunction() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtEnumValueOfFunction.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("AtEnumValuesFunction.kt")
+    public void testAtEnumValuesFunction() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtEnumValuesFunction.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("AtFunctionParameter.kt")
     public void testAtFunctionParameter() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtFunctionParameter.kt");

@@ -17,92 +17,92 @@
 package kotlin.coroutines
 
 /**
- * A strategy to intercept resumptions inside coroutine.
- * Interceptor may shift resumption into another execution frame by scheduling asynchronous execution
- * in this or another thread.
+ * An interface to customise dispatch of continuations.
  */
 @SinceKotlin("1.1")
-public interface ResumeInterceptor {
+public interface ContinuationDispatcher {
     /**
-     * Intercepts [Continuation.resume] invocation.
-     * This function must either return `false` or return `true` and invoke `continuation.resume(data)` asynchronously.
+     * Dispatches [Continuation.resume] invocation.
+     * This function must either return `false` or return `true` and invoke `continuation.resume(value)` asynchronously.
      */
-    public fun <P> interceptResume(data: P, continuation: Continuation<P>): Boolean = false
+    public fun <T> dispatchResume(value: T, continuation: Continuation<T>): Boolean = false
 
     /**
-     * Intercepts [Continuation.resumeWithException] invocation.
+     * Dispatches [Continuation.resumeWithException] invocation.
      * This function must either return `false` or return `true` and invoke `continuation.resumeWithException(exception)` asynchronously.
      */
-    public fun interceptResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean = false
+    public fun dispatchResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean = false
 }
 
 /**
  * Creates coroutine with receiver type [R] and result type [T].
  * This function creates a new, fresh instance of suspendable computation every time it is invoked.
  * To start executing the created coroutine, invoke `resume(Unit)` on the returned [Continuation] instance.
- * The result of the coroutine's execution is provided via invocation of [resultHandler].
+ * The [completion] continuation is invoked when coroutine completes with result of exception.
+ * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
 public fun <R, T> (suspend R.() -> T).createCoroutine(
         receiver: R,
-        resultHandler: Continuation<T>,
-        resumeInterceptor: ResumeInterceptor? = null
-): Continuation<Unit> = (this as (R, Continuation<T>) -> Continuation<Unit>).invoke(receiver, withInterceptor(resultHandler, resumeInterceptor))
+        completion: Continuation<T>,
+        dispatcher: ContinuationDispatcher? = null
+): Continuation<Unit> = (this as (R, Continuation<T>) -> Continuation<Unit>).invoke(receiver, withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine with receiver type [R] and result type [T].
  * This function creates and start a new, fresh instance of suspendable computation every time it is invoked.
- * The result of the coroutine's execution is provided via invocation of [resultHandler].
+ * The [completion] continuation is invoked when coroutine completes with result of exception.
+ * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
 public fun <R, T> (suspend R.() -> T).startCoroutine(
         receiver: R,
-        resultHandler: Continuation<T>,
-        resumeInterceptor: ResumeInterceptor? = null
+        completion: Continuation<T>,
+        dispatcher: ContinuationDispatcher? = null
 ) {
-    createCoroutine(receiver, resultHandler, resumeInterceptor).resume(Unit)
+    createCoroutine(receiver, completion, dispatcher).resume(Unit)
 }
 
 /**
  * Creates coroutine without receiver and with result type [T].
  * This function creates a new, fresh instance of suspendable computation every time it is invoked.
  * To start executing the created coroutine, invoke `resume(Unit)` on the returned [Continuation] instance.
- * The result of the coroutine's execution is provided via invocation of [resultHandler].
- * An optional [resumeInterceptor] may be specified to intercept resumes at suspension points inside the coroutine.
+ * The [completion] continuation is invoked when coroutine completes with result of exception.
+ * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
 public fun <T> (suspend () -> T).createCoroutine(
-        resultHandler: Continuation<T>,
-        resumeInterceptor: ResumeInterceptor? = null
-): Continuation<Unit> = (this as (Continuation<T>) -> Continuation<Unit>).invoke(withInterceptor(resultHandler, resumeInterceptor))
+        completion: Continuation<T>,
+        dispatcher: ContinuationDispatcher? = null
+): Continuation<Unit> = (this as (Continuation<T>) -> Continuation<Unit>).invoke(withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine without receiver and with result type [T].
  * This function creates and start a new, fresh instance of suspendable computation every time it is invoked.
- * The result of the coroutine's execution is provided via invocation of [resultHandler].
- * An optional [resumeInterceptor] may be specified to intercept resumes at suspension points inside the coroutine.
+ * The [completion] continuation is invoked when coroutine completes with result of exception.
+ * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
 @Suppress("UNCHECKED_CAST")
 public fun <T> (suspend  () -> T).startCoroutine(
-        resultHandler: Continuation<T>,
-        resumeInterceptor: ResumeInterceptor? = null
+        completion: Continuation<T>,
+        dispatcher: ContinuationDispatcher? = null
 ) {
-    createCoroutine(resultHandler, resumeInterceptor).resume(Unit)
+    createCoroutine(completion, dispatcher).resume(Unit)
 }
 
 // ------- internal stuff -------
 
-internal interface InterceptableContinuation<P> : Continuation<P> {
-    val resumeInterceptor: ResumeInterceptor?
+internal interface DispatchedContinuation<T> : Continuation<T> {
+    val dispatcher: ContinuationDispatcher?
 }
 
-private fun <T> withInterceptor(resultHandler: Continuation<T>, resumeInterceptor: ResumeInterceptor?): Continuation<T> {
-    return if (resumeInterceptor == null) resultHandler else
-        object : InterceptableContinuation<T>, Continuation<T> by resultHandler {
-            override val resumeInterceptor: ResumeInterceptor? = resumeInterceptor
+private fun <T> withDispatcher(completion: Continuation<T>, dispatcher: ContinuationDispatcher?): Continuation<T> {
+    return if (dispatcher == null) completion else
+        object : DispatchedContinuation<T>, Continuation<T> by completion {
+            override val dispatcher: ContinuationDispatcher? = dispatcher
         }
 }

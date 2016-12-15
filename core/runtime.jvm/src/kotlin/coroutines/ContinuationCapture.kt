@@ -77,13 +77,13 @@ internal class SafeContinuation<T> @PublishedApi internal constructor(private va
     private fun cas(expect: Any?, update: Any?): Boolean =
         RESULT_UPDATER.compareAndSet(this, expect, update)
 
-    override fun resume(data: T) {
+    override fun resume(value: T) {
         while (true) { // lock-free loop
             val result = this.result // atomic read
             when (result) {
-                UNDECIDED -> if (cas(UNDECIDED, data)) return
+                UNDECIDED -> if (cas(UNDECIDED, value)) return
                 SUSPENDED -> if (cas(SUSPENDED, RESUMED)) {
-                    delegate.resume(data)
+                    delegate.resume(value)
                     return
                 }
                 else -> throw IllegalStateException("Already resumed")

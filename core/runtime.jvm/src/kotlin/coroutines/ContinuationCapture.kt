@@ -18,49 +18,28 @@ package kotlin.coroutines
 
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater
+import kotlin.coroutines.CoroutineIntrinsics.SUSPENDED
+import kotlin.coroutines.CoroutineIntrinsics.suspendCoroutineOrReturn
 
 /**
- * This function allows to obtain the current continuation instance inside suspend functions and suspend
+ * Obtains the current continuation instance inside suspend functions and suspends
  * currently running coroutine.
- * This function can be used in a tail-call position as the return value of another suspend function.
- *
- * Note that it is not recommended to call either [Continuation.resume] nor [Continuation.resumeWithException] functions synchronously in
- * the same stackframe where suspension function is run. They should be called asynchronously either later in the same thread or
- * from a different thread of execution.
- * In practise, this restriction means that only _asynchronous_ promises and callbacks can be used to resume the continuation
- * in this function.
- * Repeated invocation of any resume function on continuation produces unspecified behavior.
- * Use [runWithCurrentContinuation] as a safer way to obtain current continuation instance.
- */
-//@SinceKotlin("1.1")
-//public inline suspend fun <T> suspendWithCurrentContinuation(crossinline body: (Continuation<T>) -> Unit): T =
-//    maySuspendWithCurrentContinuation<T> { c: Continuation<T> ->
-//        body(c)
-//        SUSPENDED
-//    }
-
-/**
- * This function allows to safely obtain the current continuation instance inside suspend functions and suspend
- * currently running coroutine.
- * This function can be used in a tail-call position as the return value of another suspend function.
  *
  * In this function both [Continuation.resume] and [Continuation.resumeWithException] can be used either synchronously in
- * the same stackframe where suspension function is run or asynchronously later in the same thread or
- * from a different thread of execution.
- * Repeated invocation of any resume function produces [IllegalStateException].
+ * the same stack-frame where suspension function is run or asynchronously later in the same thread or
+ * from a different thread of execution. Repeated invocation of any resume function produces [IllegalStateException].
  */
 @SinceKotlin("1.1")
-public inline suspend fun <T> runWithCurrentContinuation(crossinline body: (Continuation<T>) -> Unit): T =
-    suspendWithCurrentContinuation { c: Continuation<T> ->
+public inline suspend fun <T> suspendCoroutine(crossinline block: (Continuation<T>) -> Unit): T =
+    suspendCoroutineOrReturn { c: Continuation<T> ->
         val safe = SafeContinuation(c)
-        body(safe)
+        block(safe)
         safe.getResult()
     }
 
 private val UNDECIDED: Any? = Any()
 private val RESUMED: Any? = Any()
 private class Fail(val exception: Throwable)
-
 
 @PublishedApi
 internal class SafeContinuation<T> @PublishedApi internal constructor(private val delegate: Continuation<T>) : Continuation<T> {

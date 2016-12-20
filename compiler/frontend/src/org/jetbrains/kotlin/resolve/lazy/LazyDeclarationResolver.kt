@@ -14,269 +14,226 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.resolve.lazy;
+package org.jetbrains.kotlin.resolve.lazy
 
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.util.PsiTreeUtil;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.context.GlobalContext;
-import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.incremental.KotlinLookupLocation;
-import org.jetbrains.kotlin.incremental.components.LookupLocation;
-import org.jetbrains.kotlin.incremental.components.NoLookupLocation;
-import org.jetbrains.kotlin.name.FqName;
-import org.jetbrains.kotlin.name.Name;
-import org.jetbrains.kotlin.psi.*;
-import org.jetbrains.kotlin.psi.psiUtil.PsiUtilsKt;
-import org.jetbrains.kotlin.renderer.DescriptorRenderer;
-import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.BindingTrace;
-import org.jetbrains.kotlin.resolve.lazy.descriptors.LazyPackageDescriptor;
-import org.jetbrains.kotlin.resolve.scopes.MemberScope;
-import org.jetbrains.kotlin.storage.LockBasedLazyResolveStorageManager;
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.context.GlobalContext
+import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.incremental.KotlinLookupLocation
+import org.jetbrains.kotlin.incremental.components.LookupLocation
+import org.jetbrains.kotlin.incremental.components.NoLookupLocation
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
+import org.jetbrains.kotlin.renderer.DescriptorRenderer
+import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.BindingTrace
+import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.storage.LockBasedLazyResolveStorageManager
+import javax.inject.Inject
 
-import javax.inject.Inject;
-import java.util.List;
+open class LazyDeclarationResolver
+@Deprecated("")
+constructor(
+        globalContext: GlobalContext,
+        delegationTrace: BindingTrace,
+        private val topLevelDescriptorProvider: TopLevelDescriptorProvider,
+        private val absentDescriptorHandler: AbsentDescriptorHandler
+) {
+    private val trace: BindingTrace
 
-public class LazyDeclarationResolver {
-
-    @NotNull private final TopLevelDescriptorProvider topLevelDescriptorProvider;
-    @NotNull private final AbsentDescriptorHandler absentDescriptorHandler;
-    @NotNull private final BindingTrace trace;
-
-    protected DeclarationScopeProvider scopeProvider;
+    protected lateinit var scopeProvider: DeclarationScopeProvider
 
     // component dependency cycle
     @Inject
-    public void setDeclarationScopeProvider(@NotNull DeclarationScopeProviderImpl scopeProvider) {
-        this.scopeProvider = scopeProvider;
+    fun setDeclarationScopeProvider(scopeProvider: DeclarationScopeProviderImpl) {
+        this.scopeProvider = scopeProvider
     }
 
-    @Deprecated
-    public LazyDeclarationResolver(
-            @NotNull GlobalContext globalContext,
-            @NotNull BindingTrace delegationTrace,
-            @NotNull TopLevelDescriptorProvider topLevelDescriptorProvider,
-            @NotNull AbsentDescriptorHandler absentDescriptorHandler
-    ) {
-        this.topLevelDescriptorProvider = topLevelDescriptorProvider;
-        this.absentDescriptorHandler = absentDescriptorHandler;
-        LockBasedLazyResolveStorageManager lockBasedLazyResolveStorageManager =
-                new LockBasedLazyResolveStorageManager(globalContext.getStorageManager());
+    init {
+        val lockBasedLazyResolveStorageManager = LockBasedLazyResolveStorageManager(globalContext.storageManager)
 
-        this.trace = lockBasedLazyResolveStorageManager.createSafeTrace(delegationTrace);
+        this.trace = lockBasedLazyResolveStorageManager.createSafeTrace(delegationTrace)
     }
 
-    @NotNull
-    public ClassDescriptor getClassDescriptor(@NotNull KtClassOrObject classOrObject, @NotNull LookupLocation location) {
-        return findClassDescriptor(classOrObject, location);
+    open fun getClassDescriptor(classOrObject: KtClassOrObject, location: LookupLocation): ClassDescriptor {
+        return findClassDescriptor(classOrObject, location)
     }
 
-    @NotNull
-    public ScriptDescriptor getScriptDescriptor(@NotNull KtScript script, @NotNull LookupLocation location) {
-        return (ScriptDescriptor) findClassDescriptor(script, location);
+    fun getScriptDescriptor(script: KtScript, location: LookupLocation): ScriptDescriptor {
+        return findClassDescriptor(script, location) as ScriptDescriptor
     }
 
-    @NotNull
-    private ClassDescriptor findClassDescriptor(
-            @NotNull KtNamedDeclaration classObjectOrScript,
-            @NotNull LookupLocation location
-    ) {
-        MemberScope scope = getMemberScopeDeclaredIn(classObjectOrScript, location);
+    private fun findClassDescriptor(
+            classObjectOrScript: KtNamedDeclaration,
+            location: LookupLocation
+    ): ClassDescriptor {
+        val scope = getMemberScopeDeclaredIn(classObjectOrScript, location)
 
         // Why not use the result here. Because it may be that there is a redeclaration:
         //     class A {} class A { fun foo(): A<completion here>}
         // and if we find the class by name only, we may b-not get the right one.
         // This call is only needed to make sure the classes are written to trace
-        ClassifierDescriptor scopeDescriptor = scope.getContributedClassifier(classObjectOrScript.getNameAsSafeName(), location);
-        DeclarationDescriptor descriptor = getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript);
+        val scopeDescriptor = scope.getContributedClassifier(classObjectOrScript.nameAsSafeName, location)
+        val descriptor = bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript) ?: throw IllegalArgumentException(
+                String.format("Could not find a classifier for %s.\n" + "Found descriptor: %s (%s).\n",
+                              classObjectOrScript.getElementTextWithContext(),
+                              if (scopeDescriptor != null) DescriptorRenderer.DEBUG_TEXT.render(scopeDescriptor) else "null",
+                              if (scopeDescriptor != null) scopeDescriptor.containingDeclaration.javaClass else null))
 
-        if (descriptor == null) {
-            throw new IllegalArgumentException(
-                    String.format("Could not find a classifier for %s.\n" +
-                                  "Found descriptor: %s (%s).\n",
-                                  PsiUtilsKt.getElementTextWithContext(classObjectOrScript),
-                                  scopeDescriptor != null ? DescriptorRenderer.DEBUG_TEXT.render(scopeDescriptor) : "null",
-                                  scopeDescriptor != null ? (scopeDescriptor.getContainingDeclaration().getClass()) : null));
-        }
-
-        return (ClassDescriptor) descriptor;
+        return descriptor as ClassDescriptor
     }
 
-    @NotNull
-    private BindingContext getBindingContext() {
-        return trace.getBindingContext();
+    private val bindingContext: BindingContext
+        get() = trace.bindingContext
+
+    fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
+        return resolveToDescriptor(declaration, /*track =*/true)
     }
 
-    @NotNull
-    public DeclarationDescriptor resolveToDescriptor(@NotNull KtDeclaration declaration) {
-        return resolveToDescriptor(declaration, /*track =*/true);
-    }
-
-    @NotNull
-    private DeclarationDescriptor resolveToDescriptor(@NotNull KtDeclaration declaration, final boolean track) {
-        DeclarationDescriptor result = declaration.accept(new KtVisitor<DeclarationDescriptor, Void>() {
-            @NotNull
-            private LookupLocation lookupLocationFor(@NotNull KtDeclaration declaration, boolean isTopLevel) {
-                return isTopLevel && track ? new KotlinLookupLocation(declaration) : NoLookupLocation.WHEN_RESOLVE_DECLARATION;
+    private fun resolveToDescriptor(declaration: KtDeclaration, track: Boolean): DeclarationDescriptor {
+        val result = declaration.accept(object : KtVisitor<DeclarationDescriptor?, Nothing?>() {
+            private fun lookupLocationFor(declaration: KtDeclaration, isTopLevel: Boolean): LookupLocation {
+                return if (isTopLevel && track) KotlinLookupLocation(declaration) else NoLookupLocation.WHEN_RESOLVE_DECLARATION
             }
 
-            @Override
-            public DeclarationDescriptor visitClass(@NotNull KtClass klass, Void data) {
-                return getClassDescriptor(klass, lookupLocationFor(klass, klass.isTopLevel()));
+            override fun visitClass(klass: KtClass, data: Nothing?): DeclarationDescriptor {
+                return getClassDescriptor(klass, lookupLocationFor(klass, klass.isTopLevel()))
             }
 
-            @Override
-            public DeclarationDescriptor visitObjectDeclaration(@NotNull KtObjectDeclaration declaration, Void data) {
-                return getClassDescriptor(declaration, lookupLocationFor(declaration, declaration.isTopLevel()));
+            override fun visitObjectDeclaration(declaration: KtObjectDeclaration, data: Nothing?): DeclarationDescriptor {
+                return getClassDescriptor(declaration, lookupLocationFor(declaration, declaration.isTopLevel()))
             }
 
-            @Override
-            public DeclarationDescriptor visitTypeParameter(@NotNull KtTypeParameter parameter, Void data) {
-                KtTypeParameterListOwner ownerElement = PsiTreeUtil.getParentOfType(parameter, KtTypeParameterListOwner.class);
-                assert ownerElement != null : "Owner not found for type parameter: " + parameter.getText();
-                DeclarationDescriptor ownerDescriptor = resolveToDescriptor(ownerElement, /*track =*/false);
+            override fun visitTypeParameter(parameter: KtTypeParameter, data: Nothing?): DeclarationDescriptor {
+                val ownerElement = PsiTreeUtil.getParentOfType(parameter, KtTypeParameterListOwner::class.java) ?: error("Owner not found for type parameter: " + parameter.text)
+                val ownerDescriptor = resolveToDescriptor(ownerElement, /*track =*/false)
 
-                List<TypeParameterDescriptor> typeParameters;
-                if (ownerDescriptor instanceof CallableDescriptor) {
-                    CallableDescriptor callableDescriptor = (CallableDescriptor) ownerDescriptor;
-                    typeParameters = callableDescriptor.getTypeParameters();
+                val typeParameters: List<TypeParameterDescriptor>
+                if (ownerDescriptor is CallableDescriptor) {
+                    typeParameters = ownerDescriptor.typeParameters
                 }
-                else if (ownerDescriptor instanceof ClassifierDescriptorWithTypeParameters) {
-                    ClassifierDescriptorWithTypeParameters classifierDescriptor = (ClassifierDescriptorWithTypeParameters) ownerDescriptor;
-                    typeParameters = classifierDescriptor.getTypeConstructor().getParameters();
+                else if (ownerDescriptor is ClassifierDescriptorWithTypeParameters) {
+                    typeParameters = ownerDescriptor.typeConstructor.parameters
                 }
                 else {
-                    throw new IllegalStateException("Unknown owner kind for a type parameter: " + ownerDescriptor);
+                    throw IllegalStateException("Unknown owner kind for a type parameter: " + ownerDescriptor)
                 }
 
-                Name name = parameter.getNameAsSafeName();
-                for (TypeParameterDescriptor typeParameterDescriptor : typeParameters) {
-                    if (typeParameterDescriptor.getName().equals(name)) {
-                        return typeParameterDescriptor;
+                val name = parameter.nameAsSafeName
+                for (typeParameterDescriptor in typeParameters) {
+                    if (typeParameterDescriptor.name == name) {
+                        return typeParameterDescriptor
                     }
                 }
 
-                throw new IllegalStateException("Type parameter " + name + " not found for " + ownerDescriptor);
+                throw IllegalStateException("Type parameter $name not found for $ownerDescriptor")
             }
 
-            @Override
-            public DeclarationDescriptor visitNamedFunction(@NotNull KtNamedFunction function, Void data) {
-                LookupLocation location = lookupLocationFor(function, function.isTopLevel());
-                MemberScope scopeForDeclaration = getMemberScopeDeclaredIn(function, location);
-                scopeForDeclaration.getContributedFunctions(function.getNameAsSafeName(), location);
-                return getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, function);
+            override fun visitNamedFunction(function: KtNamedFunction, data: Nothing?): DeclarationDescriptor? {
+                val location = lookupLocationFor(function, function.isTopLevel)
+                val scopeForDeclaration = getMemberScopeDeclaredIn(function, location)
+                scopeForDeclaration.getContributedFunctions(function.nameAsSafeName, location)
+                return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, function)
             }
 
-            @Override
-            public DeclarationDescriptor visitParameter(@NotNull KtParameter parameter, Void data) {
-                PsiElement grandFather = parameter.getParent().getParent();
-                if (grandFather instanceof KtPrimaryConstructor) {
-                    KtClassOrObject jetClass = ((KtPrimaryConstructor) grandFather).getContainingClassOrObject();
+            override fun visitParameter(parameter: KtParameter, data: Nothing?): DeclarationDescriptor? {
+                val grandFather = parameter.parent.parent
+                if (grandFather is KtPrimaryConstructor) {
+                    val jetClass = grandFather.getContainingClassOrObject()
                     // This is a primary constructor parameter
-                    ClassDescriptor classDescriptor = getClassDescriptor(jetClass, lookupLocationFor(jetClass, false));
+                    val classDescriptor = getClassDescriptor(jetClass, lookupLocationFor(jetClass, false))
                     if (parameter.hasValOrVar()) {
-                        classDescriptor.getDefaultType().getMemberScope().getContributedVariables(parameter.getNameAsSafeName(), lookupLocationFor(parameter, false));
-                        return getBindingContext().get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, parameter);
+                        classDescriptor.defaultType.memberScope.getContributedVariables(parameter.nameAsSafeName, lookupLocationFor(parameter, false))
+                        return bindingContext.get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, parameter)
                     }
                     else {
-                        ConstructorDescriptor constructor = classDescriptor.getUnsubstitutedPrimaryConstructor();
-                        assert constructor != null: "There are constructor parameters found, so a constructor should also exist";
-                        constructor.getValueParameters();
-                        return getBindingContext().get(BindingContext.VALUE_PARAMETER, parameter);
+                        val constructor = classDescriptor.unsubstitutedPrimaryConstructor ?: error("There are constructor parameters found, so a constructor should also exist")
+                        constructor.valueParameters
+                        return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
                     }
                 }
-                else if (grandFather instanceof KtNamedFunction) {
-                    FunctionDescriptor function = (FunctionDescriptor) visitNamedFunction((KtNamedFunction) grandFather, data);
-                    function.getValueParameters();
-                    return getBindingContext().get(BindingContext.VALUE_PARAMETER, parameter);
+                else if (grandFather is KtNamedFunction) {
+                    val function = visitNamedFunction(grandFather, data) as FunctionDescriptor
+                    function.valueParameters
+                    return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
                 }
-                else if (grandFather instanceof KtSecondaryConstructor) {
-                    ConstructorDescriptor constructorDescriptor = (ConstructorDescriptor) visitSecondaryConstructor(
-                            (KtSecondaryConstructor) grandFather, data
-                    );
-                    constructorDescriptor.getValueParameters();
-                    return getBindingContext().get(BindingContext.VALUE_PARAMETER, parameter);
+                else if (grandFather is KtSecondaryConstructor) {
+                    val constructorDescriptor = visitSecondaryConstructor(
+                            grandFather, data
+                    ) as ConstructorDescriptor
+                    constructorDescriptor.valueParameters
+                    return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
                 }
                 else {
                     //TODO: support parameters in accessors and other places(?)
-                    return super.visitParameter(parameter, data);
+                    return super.visitParameter(parameter, data)
                 }
             }
 
-            @Override
-            public DeclarationDescriptor visitSecondaryConstructor(@NotNull KtSecondaryConstructor constructor, Void data) {
-                getClassDescriptor((KtClassOrObject) constructor.getParent().getParent(), lookupLocationFor(constructor, false)).getConstructors();
-                return getBindingContext().get(BindingContext.CONSTRUCTOR, constructor);
+            override fun visitSecondaryConstructor(constructor: KtSecondaryConstructor, data: Nothing?): DeclarationDescriptor? {
+                getClassDescriptor(constructor.parent.parent as KtClassOrObject, lookupLocationFor(constructor, false)).constructors
+                return bindingContext.get(BindingContext.CONSTRUCTOR, constructor)
             }
 
-            @Override
-            public DeclarationDescriptor visitPrimaryConstructor(@NotNull KtPrimaryConstructor constructor, Void data) {
-                getClassDescriptor(constructor.getContainingClassOrObject(), lookupLocationFor(constructor, false)).getConstructors();
-                return getBindingContext().get(BindingContext.CONSTRUCTOR, constructor);
+            override fun visitPrimaryConstructor(constructor: KtPrimaryConstructor, data: Nothing?): DeclarationDescriptor? {
+                getClassDescriptor(constructor.getContainingClassOrObject(), lookupLocationFor(constructor, false)).constructors
+                return bindingContext.get(BindingContext.CONSTRUCTOR, constructor)
             }
 
-            @Override
-            public DeclarationDescriptor visitProperty(@NotNull KtProperty property, Void data) {
-                LookupLocation location = lookupLocationFor(property, property.isTopLevel());
-                MemberScope scopeForDeclaration = getMemberScopeDeclaredIn(property, location);
-                scopeForDeclaration.getContributedVariables(property.getNameAsSafeName(), location);
-                return getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, property);
+            override fun visitProperty(property: KtProperty, data: Nothing?): DeclarationDescriptor? {
+                val location = lookupLocationFor(property, property.isTopLevel)
+                val scopeForDeclaration = getMemberScopeDeclaredIn(property, location)
+                scopeForDeclaration.getContributedVariables(property.nameAsSafeName, location)
+                return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, property)
             }
 
-            @Override
-            public DeclarationDescriptor visitTypeAlias(@NotNull KtTypeAlias typeAlias, Void data) {
-                LookupLocation location = lookupLocationFor(typeAlias, typeAlias.isTopLevel());
-                MemberScope scopeForDeclaration = getMemberScopeDeclaredIn(typeAlias, location);
-                scopeForDeclaration.getContributedClassifier(typeAlias.getNameAsSafeName(), location);
-                return getBindingContext().get(BindingContext.DECLARATION_TO_DESCRIPTOR, typeAlias);
+            override fun visitTypeAlias(typeAlias: KtTypeAlias, data: Nothing?): DeclarationDescriptor? {
+                val location = lookupLocationFor(typeAlias, typeAlias.isTopLevel())
+                val scopeForDeclaration = getMemberScopeDeclaredIn(typeAlias, location)
+                scopeForDeclaration.getContributedClassifier(typeAlias.nameAsSafeName, location)
+                return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, typeAlias)
             }
 
-            @Override
-            public DeclarationDescriptor visitScript(@NotNull KtScript script, Void data) {
-                return getScriptDescriptor(script, lookupLocationFor(script, true));
+            override fun visitScript(script: KtScript, data: Nothing?): DeclarationDescriptor {
+                return getScriptDescriptor(script, lookupLocationFor(script, true))
             }
 
-            @Override
-            public DeclarationDescriptor visitKtElement(@NotNull KtElement element, Void data) {
-                throw new IllegalArgumentException("Unsupported declaration type: " + element + " " +
-                                                   PsiUtilsKt.getElementTextWithContext(element));
+            override fun visitKtElement(element: KtElement, data: Nothing?): DeclarationDescriptor {
+                throw IllegalArgumentException("Unsupported declaration type: " + element + " " +
+                                               element.getElementTextWithContext())
             }
-        }, null);
-        if (result == null) {
-            return absentDescriptorHandler.diagnoseDescriptorNotFound(declaration);
-        }
-        return result;
+        }, null) ?: return absentDescriptorHandler.diagnoseDescriptorNotFound(declaration)
+        return result
     }
 
-    @NotNull
-    /*package*/ MemberScope getMemberScopeDeclaredIn(@NotNull KtDeclaration declaration, @NotNull LookupLocation location) {
-        KtDeclaration parentDeclaration = KtStubbedPsiUtil.getContainingDeclaration(declaration);
-        boolean isTopLevel = parentDeclaration == null;
+    internal fun getMemberScopeDeclaredIn(declaration: KtDeclaration, location: LookupLocation):
+            /*package*/ MemberScope {
+        val parentDeclaration = KtStubbedPsiUtil.getContainingDeclaration(declaration)
+        val isTopLevel = parentDeclaration == null
         if (isTopLevel) { // for top level declarations we search directly in package because of possible conflicts with imports
-            KtFile ktFile = (KtFile) declaration.getContainingFile();
-            FqName fqName = ktFile.getPackageFqName();
-            LazyPackageDescriptor packageDescriptor = topLevelDescriptorProvider.getPackageFragment(fqName);
+            val ktFile = declaration.containingFile as KtFile
+            val fqName = ktFile.packageFqName
+            val packageDescriptor = topLevelDescriptorProvider.getPackageFragment(fqName)
             if (packageDescriptor == null) {
-                if (topLevelDescriptorProvider instanceof LazyClassContext) {
-                    ((LazyClassContext) topLevelDescriptorProvider).getDeclarationProviderFactory().diagnoseMissingPackageFragment(ktFile);
+                if (topLevelDescriptorProvider is LazyClassContext) {
+                    topLevelDescriptorProvider.declarationProviderFactory.diagnoseMissingPackageFragment(ktFile)
                 }
                 else {
-                    throw new IllegalStateException("Cannot find package fragment for file " + ktFile.getName() + " with package " + fqName);
+                    throw IllegalStateException("Cannot find package fragment for file " + ktFile.name + " with package " + fqName)
                 }
             }
-            return packageDescriptor.getMemberScope();
+            return packageDescriptor!!.getMemberScope()
         }
         else {
-            if (parentDeclaration instanceof KtClassOrObject) {
-                return getClassDescriptor((KtClassOrObject) parentDeclaration, location).getUnsubstitutedMemberScope();
+            if (parentDeclaration is KtClassOrObject) {
+                return getClassDescriptor((parentDeclaration as KtClassOrObject?)!!, location).unsubstitutedMemberScope
             }
-            else if (parentDeclaration instanceof KtScript) {
-                return getScriptDescriptor((KtScript) parentDeclaration, location).getUnsubstitutedMemberScope();
+            else if (parentDeclaration is KtScript) {
+                return getScriptDescriptor((parentDeclaration as KtScript?)!!, location).unsubstitutedMemberScope
             }
             else {
-                throw new IllegalStateException("Don't call this method for local declarations: " + declaration + "\n" +
-                                                PsiUtilsKt.getElementTextWithContext(declaration));
+                throw IllegalStateException("Don't call this method for local declarations: " + declaration + "\n" +
+                                            declaration.getElementTextWithContext())
             }
         }
     }

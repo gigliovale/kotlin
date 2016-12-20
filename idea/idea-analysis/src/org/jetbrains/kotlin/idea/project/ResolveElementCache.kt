@@ -214,7 +214,7 @@ class ResolveElementCache(
             }
         }
 
-        declarationsToResolve.forEach { resolveSession.resolveToDescriptor(it) }
+        declarationsToResolve.forEach { resolveSession.resolveToDescriptorIfAny(it) }
         if (addResolveSessionBindingContext) {
             bindingContexts.add(resolveSession.bindingContext)
         }

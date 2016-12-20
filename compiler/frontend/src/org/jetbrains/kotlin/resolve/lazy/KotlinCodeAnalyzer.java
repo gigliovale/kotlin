@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.lazy;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
@@ -39,6 +40,9 @@ public interface KotlinCodeAnalyzer extends TopLevelDescriptorProvider {
 
     @NotNull
     DeclarationDescriptor resolveToDescriptor(@NotNull KtDeclaration declaration);
+
+    @Nullable
+    DeclarationDescriptor resolveToDescriptorIfAny(@NotNull KtDeclaration declaration);
 
     @NotNull
     DeclarationScopeProvider getDeclarationScopeProvider();

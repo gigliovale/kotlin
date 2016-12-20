@@ -340,6 +340,21 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
         return localDescriptorResolver.resolveLocalDeclaration(declaration);
     }
 
+    @Override
+    @Nullable
+    public DeclarationDescriptor resolveToDescriptorIfAny(@NotNull KtDeclaration declaration) {
+        if (!areDescriptorsCreatedForDeclaration(declaration)) {
+            throw new IllegalStateException(
+                    "No descriptors are created for declarations of type " + declaration.getClass().getSimpleName()
+                    + "\n. Change the caller accordingly"
+            );
+        }
+        if (!KtPsiUtil.isLocal(declaration)) {
+            return lazyDeclarationResolver.resolveToDescriptorIfAny(declaration);
+        }
+        return localDescriptorResolver.resolveLocalDeclaration(declaration);
+    }
+
     public static boolean areDescriptorsCreatedForDeclaration(@NotNull KtDeclaration declaration) {
         return !(declaration instanceof KtAnonymousInitializer || declaration instanceof KtDestructuringDeclaration);
     }

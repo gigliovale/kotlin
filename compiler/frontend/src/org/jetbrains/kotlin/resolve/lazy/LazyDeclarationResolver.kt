@@ -101,10 +101,12 @@ constructor(
         get() = trace.bindingContext
 
     fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        return resolveToDescriptor(declaration, track = true)
+        return resolveToDescriptor(declaration, track = true) ?: absentDescriptorHandler.diagnoseDescriptorNotFound(declaration)
     }
 
-    private fun resolveToDescriptor(declaration: KtDeclaration, track: Boolean): DeclarationDescriptor {
+    fun resolveToDescriptorIfAny(declaration: KtDeclaration) = resolveToDescriptor(declaration, track = true)
+
+    private fun resolveToDescriptor(declaration: KtDeclaration, track: Boolean): DeclarationDescriptor? {
         val result = declaration.accept(object : KtVisitor<DeclarationDescriptor?, Nothing?>() {
             private fun lookupLocationFor(declaration: KtDeclaration, isTopLevel: Boolean): LookupLocation {
                 return if (isTopLevel && track) KotlinLookupLocation(declaration) else NoLookupLocation.WHEN_RESOLVE_DECLARATION
@@ -217,7 +219,7 @@ constructor(
                 throw IllegalArgumentException("Unsupported declaration type: " + element + " " +
                                                element.getElementTextWithContext())
             }
-        }, null) ?: return absentDescriptorHandler.diagnoseDescriptorNotFound(declaration)
+        }, null)
         return result
     }
 

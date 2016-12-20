@@ -23,10 +23,7 @@ import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.context.GlobalContext
 import org.jetbrains.kotlin.context.withModule
 import org.jetbrains.kotlin.context.withProject
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.SupertypeLoopChecker
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyLocalClassifierAnalyzer
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.incremental.components.LookupTracker
@@ -34,6 +31,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
@@ -191,8 +189,14 @@ class LocalLazyDeclarationResolver(
         }
         return super.getClassDescriptor(classOrObject, location)
     }
-}
 
+    override fun getClassDescriptorIfAny(classOrObject: KtClassOrObject, location: LookupLocation): ClassDescriptor? {
+        if (localClassDescriptorManager.isMyClass(classOrObject)) {
+            return localClassDescriptorManager.getClassDescriptor(classOrObject, scopeProvider)
+        }
+        return super.getClassDescriptorIfAny(classOrObject, location)
+    }
+}
 
 class DeclarationScopeProviderForLocalClassifierAnalyzer(
         lazyDeclarationResolver: LazyDeclarationResolver,

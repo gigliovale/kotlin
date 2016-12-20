@@ -57,34 +57,51 @@ constructor(
 
     open fun getClassDescriptor(classOrObject: KtClassOrObject, location: LookupLocation) = findClassDescriptor(classOrObject, location)
 
+    open protected fun getClassDescriptorIfAny(classOrObject: KtClassOrObject, location: LookupLocation) =
+            findClassDescriptorIfAny(classOrObject, location)
+
     fun getScriptDescriptor(script: KtScript, location: LookupLocation) = findClassDescriptor(script, location) as ScriptDescriptor
 
-    private fun findClassDescriptor(
-            classObjectOrScript: KtNamedDeclaration,
-            location: LookupLocation
-    ): ClassDescriptor {
-        val scope = getMemberScopeDeclaredIn(classObjectOrScript, location)
+    private fun getScriptDescriptorIfAny(script: KtScript, location: LookupLocation) =
+            findClassDescriptorIfAny(script, location) as? ScriptDescriptor
+
+    private fun KtNamedDeclaration.findScopeDescriptor(location: LookupLocation): ClassifierDescriptor? {
+        val scope = getMemberScopeDeclaredIn(this, location)
 
         // Why not use the result here. Because it may be that there is a redeclaration:
         //     class A {} class A { fun foo(): A<completion here>}
         // and if we find the class by name only, we may b-not get the right one.
         // This call is only needed to make sure the classes are written to trace
-        val scopeDescriptor = scope.getContributedClassifier(classObjectOrScript.nameAsSafeName, location)
-        val descriptor = bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript)
-                         ?: throw IllegalArgumentException(
-                String.format("Could not find a classifier for %s.\n" + "Found descriptor: %s (%s).\n",
-                              classObjectOrScript.getElementTextWithContext(),
-                              scopeDescriptor?.let { DescriptorRenderer.DEBUG_TEXT.render(it) } ?: "null",
-                              scopeDescriptor?.containingDeclaration?.javaClass))
+        return scope?.getContributedClassifier(nameAsSafeName, location)
+    }
 
-        return descriptor as ClassDescriptor
+    private fun findClassDescriptorIfAny(
+            classObjectOrScript: KtNamedDeclaration,
+            location: LookupLocation
+    ): ClassDescriptor? {
+        classObjectOrScript.findScopeDescriptor(location)
+        return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript) as? ClassDescriptor
+    }
+
+    private fun findClassDescriptor(
+            classObjectOrScript: KtNamedDeclaration,
+            location: LookupLocation
+    ): ClassDescriptor {
+        return findClassDescriptorIfAny(classObjectOrScript, location) ?: run {
+            val scopeDescriptor = classObjectOrScript.findScopeDescriptor(location)
+            throw IllegalArgumentException(
+                    String.format("Could not find a classifier for %s.\n" + "Found descriptor: %s (%s).\n",
+                                  classObjectOrScript.getElementTextWithContext(),
+                                  scopeDescriptor?.let { DescriptorRenderer.DEBUG_TEXT.render(it) } ?: "null",
+                                  scopeDescriptor?.containingDeclaration?.javaClass))
+        }
     }
 
     private val bindingContext: BindingContext
         get() = trace.bindingContext
 
     fun resolveToDescriptor(declaration: KtDeclaration): DeclarationDescriptor {
-        return resolveToDescriptor(declaration, /*track =*/true)
+        return resolveToDescriptor(declaration, track = true)
     }
 
     private fun resolveToDescriptor(declaration: KtDeclaration, track: Boolean): DeclarationDescriptor {
@@ -93,12 +110,12 @@ constructor(
                 return if (isTopLevel && track) KotlinLookupLocation(declaration) else NoLookupLocation.WHEN_RESOLVE_DECLARATION
             }
 
-            override fun visitClass(klass: KtClass, data: Nothing?): DeclarationDescriptor {
-                return getClassDescriptor(klass, lookupLocationFor(klass, klass.isTopLevel()))
+            override fun visitClass(klass: KtClass, data: Nothing?): DeclarationDescriptor? {
+                return getClassDescriptorIfAny(klass, lookupLocationFor(klass, klass.isTopLevel()))
             }
 
-            override fun visitObjectDeclaration(declaration: KtObjectDeclaration, data: Nothing?): DeclarationDescriptor {
-                return getClassDescriptor(declaration, lookupLocationFor(declaration, declaration.isTopLevel()))
+            override fun visitObjectDeclaration(declaration: KtObjectDeclaration, data: Nothing?): DeclarationDescriptor? {
+                return getClassDescriptorIfAny(declaration, lookupLocationFor(declaration, declaration.isTopLevel()))
             }
 
             override fun visitTypeParameter(parameter: KtTypeParameter, data: Nothing?): DeclarationDescriptor {
@@ -125,7 +142,7 @@ constructor(
             override fun visitNamedFunction(function: KtNamedFunction, data: Nothing?): DeclarationDescriptor? {
                 val location = lookupLocationFor(function, function.isTopLevel)
                 val scopeForDeclaration = getMemberScopeDeclaredIn(function, location)
-                scopeForDeclaration.getContributedFunctions(function.nameAsSafeName, location)
+                scopeForDeclaration?.getContributedFunctions(function.nameAsSafeName, location)
                 return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, function)
             }
 
@@ -135,13 +152,14 @@ constructor(
                     is KtPrimaryConstructor -> {
                         val jetClass = grandFather.getContainingClassOrObject()
                         // This is a primary constructor parameter
-                        val classDescriptor = getClassDescriptor(jetClass, lookupLocationFor(jetClass, false))
+                        val classDescriptor = getClassDescriptorIfAny(jetClass, lookupLocationFor(jetClass, false)) ?: return null
                         if (parameter.hasValOrVar()) {
                             classDescriptor.defaultType.memberScope.getContributedVariables(parameter.nameAsSafeName, lookupLocationFor(parameter, false))
                             return bindingContext.get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, parameter)
                         }
                         else {
-                            val constructor = classDescriptor.unsubstitutedPrimaryConstructor ?: error("There are constructor parameters found, so a constructor should also exist")
+                            val constructor = classDescriptor.unsubstitutedPrimaryConstructor
+                                              ?: error("There are constructor parameters found, so a constructor should also exist")
                             constructor.valueParameters
                             return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
                         }
@@ -164,31 +182,35 @@ constructor(
             }
 
             override fun visitSecondaryConstructor(constructor: KtSecondaryConstructor, data: Nothing?): DeclarationDescriptor? {
-                getClassDescriptor(constructor.parent.parent as KtClassOrObject, lookupLocationFor(constructor, false)).constructors
+                getClassDescriptorIfAny(
+                        constructor.parent.parent as KtClassOrObject, lookupLocationFor(constructor, false)
+                )?.constructors
                 return bindingContext.get(BindingContext.CONSTRUCTOR, constructor)
             }
 
             override fun visitPrimaryConstructor(constructor: KtPrimaryConstructor, data: Nothing?): DeclarationDescriptor? {
-                getClassDescriptor(constructor.getContainingClassOrObject(), lookupLocationFor(constructor, false)).constructors
+                getClassDescriptorIfAny(
+                        constructor.getContainingClassOrObject(), lookupLocationFor(constructor, false)
+                )?.constructors
                 return bindingContext.get(BindingContext.CONSTRUCTOR, constructor)
             }
 
             override fun visitProperty(property: KtProperty, data: Nothing?): DeclarationDescriptor? {
                 val location = lookupLocationFor(property, property.isTopLevel)
                 val scopeForDeclaration = getMemberScopeDeclaredIn(property, location)
-                scopeForDeclaration.getContributedVariables(property.nameAsSafeName, location)
+                scopeForDeclaration?.getContributedVariables(property.nameAsSafeName, location)
                 return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, property)
             }
 
             override fun visitTypeAlias(typeAlias: KtTypeAlias, data: Nothing?): DeclarationDescriptor? {
                 val location = lookupLocationFor(typeAlias, typeAlias.isTopLevel())
                 val scopeForDeclaration = getMemberScopeDeclaredIn(typeAlias, location)
-                scopeForDeclaration.getContributedClassifier(typeAlias.nameAsSafeName, location)
+                scopeForDeclaration?.getContributedClassifier(typeAlias.nameAsSafeName, location)
                 return bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, typeAlias)
             }
 
-            override fun visitScript(script: KtScript, data: Nothing?): DeclarationDescriptor {
-                return getScriptDescriptor(script, lookupLocationFor(script, true))
+            override fun visitScript(script: KtScript, data: Nothing?): DeclarationDescriptor? {
+                return getScriptDescriptorIfAny(script, lookupLocationFor(script, true))
             }
 
             override fun visitKtElement(element: KtElement, data: Nothing?): DeclarationDescriptor {
@@ -199,8 +221,7 @@ constructor(
         return result
     }
 
-    internal fun getMemberScopeDeclaredIn(declaration: KtDeclaration, location: LookupLocation):
-            /*package*/ MemberScope {
+    internal fun getMemberScopeDeclaredIn(declaration: KtDeclaration, location: LookupLocation): MemberScope? {
         val parentDeclaration = KtStubbedPsiUtil.getContainingDeclaration(declaration)
         val isTopLevel = parentDeclaration == null
         if (isTopLevel) { // for top level declarations we search directly in package because of possible conflicts with imports
@@ -219,8 +240,8 @@ constructor(
         }
         else {
             when (parentDeclaration) {
-                is KtClassOrObject -> return getClassDescriptor((parentDeclaration as KtClassOrObject?)!!, location).unsubstitutedMemberScope
-                is KtScript -> return getScriptDescriptor((parentDeclaration as KtScript?)!!, location).unsubstitutedMemberScope
+                is KtClassOrObject -> return getClassDescriptorIfAny(parentDeclaration, location)?.unsubstitutedMemberScope
+                is KtScript -> return getScriptDescriptorIfAny(parentDeclaration, location)?.unsubstitutedMemberScope
                 else -> throw IllegalStateException("Don't call this method for local declarations: " + declaration + "\n" +
                                                     declaration.getElementTextWithContext())
             }

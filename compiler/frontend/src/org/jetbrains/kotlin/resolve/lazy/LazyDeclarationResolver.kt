@@ -55,13 +55,9 @@ constructor(
         this.trace = lockBasedLazyResolveStorageManager.createSafeTrace(delegationTrace)
     }
 
-    open fun getClassDescriptor(classOrObject: KtClassOrObject, location: LookupLocation): ClassDescriptor {
-        return findClassDescriptor(classOrObject, location)
-    }
+    open fun getClassDescriptor(classOrObject: KtClassOrObject, location: LookupLocation) = findClassDescriptor(classOrObject, location)
 
-    fun getScriptDescriptor(script: KtScript, location: LookupLocation): ScriptDescriptor {
-        return findClassDescriptor(script, location) as ScriptDescriptor
-    }
+    fun getScriptDescriptor(script: KtScript, location: LookupLocation) = findClassDescriptor(script, location) as ScriptDescriptor
 
     private fun findClassDescriptor(
             classObjectOrScript: KtNamedDeclaration,
@@ -74,11 +70,12 @@ constructor(
         // and if we find the class by name only, we may b-not get the right one.
         // This call is only needed to make sure the classes are written to trace
         val scopeDescriptor = scope.getContributedClassifier(classObjectOrScript.nameAsSafeName, location)
-        val descriptor = bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript) ?: throw IllegalArgumentException(
+        val descriptor = bindingContext.get(BindingContext.DECLARATION_TO_DESCRIPTOR, classObjectOrScript)
+                         ?: throw IllegalArgumentException(
                 String.format("Could not find a classifier for %s.\n" + "Found descriptor: %s (%s).\n",
                               classObjectOrScript.getElementTextWithContext(),
-                              if (scopeDescriptor != null) DescriptorRenderer.DEBUG_TEXT.render(scopeDescriptor) else "null",
-                              if (scopeDescriptor != null) scopeDescriptor.containingDeclaration.javaClass else null))
+                              scopeDescriptor?.let { DescriptorRenderer.DEBUG_TEXT.render(it) } ?: "null",
+                              scopeDescriptor?.containingDeclaration?.javaClass))
 
         return descriptor as ClassDescriptor
     }
@@ -109,14 +106,10 @@ constructor(
                 val ownerDescriptor = resolveToDescriptor(ownerElement, /*track =*/false)
 
                 val typeParameters: List<TypeParameterDescriptor>
-                if (ownerDescriptor is CallableDescriptor) {
-                    typeParameters = ownerDescriptor.typeParameters
-                }
-                else if (ownerDescriptor is ClassifierDescriptorWithTypeParameters) {
-                    typeParameters = ownerDescriptor.typeConstructor.parameters
-                }
-                else {
-                    throw IllegalStateException("Unknown owner kind for a type parameter: " + ownerDescriptor)
+                when (ownerDescriptor) {
+                    is CallableDescriptor -> typeParameters = ownerDescriptor.typeParameters
+                    is ClassifierDescriptorWithTypeParameters -> typeParameters = ownerDescriptor.typeConstructor.parameters
+                    else -> throw IllegalStateException("Unknown owner kind for a type parameter: " + ownerDescriptor)
                 }
 
                 val name = parameter.nameAsSafeName
@@ -138,35 +131,35 @@ constructor(
 
             override fun visitParameter(parameter: KtParameter, data: Nothing?): DeclarationDescriptor? {
                 val grandFather = parameter.parent.parent
-                if (grandFather is KtPrimaryConstructor) {
-                    val jetClass = grandFather.getContainingClassOrObject()
-                    // This is a primary constructor parameter
-                    val classDescriptor = getClassDescriptor(jetClass, lookupLocationFor(jetClass, false))
-                    if (parameter.hasValOrVar()) {
-                        classDescriptor.defaultType.memberScope.getContributedVariables(parameter.nameAsSafeName, lookupLocationFor(parameter, false))
-                        return bindingContext.get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, parameter)
+                when (grandFather) {
+                    is KtPrimaryConstructor -> {
+                        val jetClass = grandFather.getContainingClassOrObject()
+                        // This is a primary constructor parameter
+                        val classDescriptor = getClassDescriptor(jetClass, lookupLocationFor(jetClass, false))
+                        if (parameter.hasValOrVar()) {
+                            classDescriptor.defaultType.memberScope.getContributedVariables(parameter.nameAsSafeName, lookupLocationFor(parameter, false))
+                            return bindingContext.get(BindingContext.PRIMARY_CONSTRUCTOR_PARAMETER, parameter)
+                        }
+                        else {
+                            val constructor = classDescriptor.unsubstitutedPrimaryConstructor ?: error("There are constructor parameters found, so a constructor should also exist")
+                            constructor.valueParameters
+                            return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
+                        }
                     }
-                    else {
-                        val constructor = classDescriptor.unsubstitutedPrimaryConstructor ?: error("There are constructor parameters found, so a constructor should also exist")
-                        constructor.valueParameters
+                    is KtNamedFunction -> {
+                        val function = visitNamedFunction(grandFather, data) as FunctionDescriptor
+                        function.valueParameters
                         return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
                     }
-                }
-                else if (grandFather is KtNamedFunction) {
-                    val function = visitNamedFunction(grandFather, data) as FunctionDescriptor
-                    function.valueParameters
-                    return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
-                }
-                else if (grandFather is KtSecondaryConstructor) {
-                    val constructorDescriptor = visitSecondaryConstructor(
-                            grandFather, data
-                    ) as ConstructorDescriptor
-                    constructorDescriptor.valueParameters
-                    return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
-                }
-                else {
-                    //TODO: support parameters in accessors and other places(?)
-                    return super.visitParameter(parameter, data)
+                    is KtSecondaryConstructor -> {
+                        val constructorDescriptor = visitSecondaryConstructor(
+                                grandFather, data
+                        ) as ConstructorDescriptor
+                        constructorDescriptor.valueParameters
+                        return bindingContext.get(BindingContext.VALUE_PARAMETER, parameter)
+                    }
+                    else -> //TODO: support parameters in accessors and other places(?)
+                        return super.visitParameter(parameter, data)
                 }
             }
 
@@ -225,15 +218,11 @@ constructor(
             return packageDescriptor!!.getMemberScope()
         }
         else {
-            if (parentDeclaration is KtClassOrObject) {
-                return getClassDescriptor((parentDeclaration as KtClassOrObject?)!!, location).unsubstitutedMemberScope
-            }
-            else if (parentDeclaration is KtScript) {
-                return getScriptDescriptor((parentDeclaration as KtScript?)!!, location).unsubstitutedMemberScope
-            }
-            else {
-                throw IllegalStateException("Don't call this method for local declarations: " + declaration + "\n" +
-                                            declaration.getElementTextWithContext())
+            when (parentDeclaration) {
+                is KtClassOrObject -> return getClassDescriptor((parentDeclaration as KtClassOrObject?)!!, location).unsubstitutedMemberScope
+                is KtScript -> return getScriptDescriptor((parentDeclaration as KtScript?)!!, location).unsubstitutedMemberScope
+                else -> throw IllegalStateException("Don't call this method for local declarations: " + declaration + "\n" +
+                                                    declaration.getElementTextWithContext())
             }
         }
     }

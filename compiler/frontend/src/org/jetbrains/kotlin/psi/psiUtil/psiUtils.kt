@@ -333,7 +333,7 @@ fun PsiElement.getElementTextWithContext(): String {
     val isInjected = containingFile is VirtualFileWindow
     return StringBuilder(topLevelElement.text)
             .insert(inFileParentOffset, "<caret>")
-            .insert(0, "File name: ${containingFile.name} Physical: ${containingFile.isPhysical} Injected: $isInjected\n")
+            .insert(0, "File name: ${containingFile.name} Physical: ${containingFile.isPhysical} Valid: $isValid Injected: $isInjected\n")
             .toString()
 }
 

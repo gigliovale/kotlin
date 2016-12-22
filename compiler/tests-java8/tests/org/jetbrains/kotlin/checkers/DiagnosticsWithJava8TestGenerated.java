@@ -229,9 +229,21 @@ public class DiagnosticsWithJava8TestGenerated extends AbstractDiagnosticsWithFu
                 doTest(fileName);
             }
 
+            @TestMetadata("fillInStackTrace.kt")
+            public void testFillInStackTrace() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithJava8/targetedBuiltIns/backwardCompatibility/fillInStackTrace.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("finalize.kt")
             public void testFinalize() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithJava8/targetedBuiltIns/backwardCompatibility/finalize.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("hashMapGetOrDefault.kt")
+            public void testHashMapGetOrDefault() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithJava8/targetedBuiltIns/backwardCompatibility/hashMapGetOrDefault.kt");
                 doTest(fileName);
             }
         }

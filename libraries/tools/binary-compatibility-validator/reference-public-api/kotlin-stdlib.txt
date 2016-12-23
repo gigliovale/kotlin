@@ -1725,6 +1725,7 @@ public final class kotlin/coroutines/CoroutinesLibraryKt {
 	public static synthetic fun startCoroutine$default (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;Lkotlin/coroutines/ContinuationDispatcher;ILjava/lang/Object;)V
 	public static synthetic fun startCoroutine$default (Lkotlin/jvm/functions/Function2;Ljava/lang/Object;Lkotlin/coroutines/Continuation;Lkotlin/coroutines/ContinuationDispatcher;ILjava/lang/Object;)V
 	public static final fun suspendCoroutine (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun suspendDispatchedCoroutine (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class kotlin/coroutines/SafeContinuation : kotlin/coroutines/Continuation {

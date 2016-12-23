@@ -14,12 +14,13 @@ import kotlin.coroutines.CoroutineIntrinsics.SUSPENDED
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER")
 public fun <R, T> (suspend R.() -> T).createCoroutine(
         receiver: R,
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction1<R, T>).create(receiver, withDispatcher(completion, dispatcher))
+): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction1<R, T>)
+        .create(receiver, kotlin.internal.withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine with receiver type [R] and result type [T].
@@ -28,13 +29,13 @@ public fun <R, T> (suspend R.() -> T).createCoroutine(
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER")
 public fun <R, T> (suspend R.() -> T).startCoroutine(
         receiver: R,
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
 ) {
-    (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, withDispatcher(completion, dispatcher))
+    (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, kotlin.internal.withDispatcher(completion, dispatcher))
 }
 
 /**
@@ -45,11 +46,11 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER")
 public fun <T> (suspend () -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction0<T>).create(withDispatcher(completion, dispatcher))
+): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction0<T>).create(kotlin.internal.withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine without receiver and with result type [T].
@@ -58,16 +59,16 @@ public fun <T> (suspend () -> T).createCoroutine(
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "INVISIBLE_MEMBER")
 public fun <T> (suspend  () -> T).startCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
 ) {
-    (this as Function1<Continuation<T>, Any?>).invoke(withDispatcher(completion, dispatcher))
+    (this as Function1<Continuation<T>, Any?>).invoke(kotlin.internal.withDispatcher(completion, dispatcher))
 }
 
 /**
- * Obtains the current continuation instance inside suspend functions and suspends
+ * Obtains the current continuation instance inside suspending functions and suspends
  * currently running coroutine.
  *
  * In this function both [Continuation.resume] and [Continuation.resumeWithException] can be used either synchronously in
@@ -82,15 +83,23 @@ public inline suspend fun <T> suspendCoroutine(crossinline block: (Continuation<
             safe.getResult()
         }
 
-// INTERNAL DECLARATIONS
-
-@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
-private fun <T> withDispatcher(completion: Continuation<T>, dispatcher: ContinuationDispatcher?): Continuation<T> {
-    return if (dispatcher == null) completion else
-        object : kotlin.jvm.internal.DispatchedContinuation<T>, Continuation<T> by completion {
-            override val dispatcher: ContinuationDispatcher? = dispatcher
+/**
+ * Obtains the current continuation instance and dispatcher inside suspending functions and suspends
+ * currently running coroutine.
+ *
+ * See [suspendCoroutine] for all the details. The only difference in this function is that it also
+ * provides a reference to the dispatcher of the coroutine that is was invoked from or `null` the coroutine
+ * was running without dispatcher.
+ */
+@SinceKotlin("1.1")
+public inline suspend fun <T> suspendDispatchedCoroutine(crossinline block: (Continuation<T>, ContinuationDispatcher?) -> Unit): T =
+        CoroutineIntrinsics.suspendDispatchedCoroutineOrReturn { c: Continuation<T>, d: ContinuationDispatcher? ->
+            val safe = SafeContinuation(c)
+            block(safe, d)
+            safe.getResult()
         }
-}
+
+// INTERNAL DECLARATIONS
 
 private val UNDECIDED: Any? = Any()
 private val RESUMED: Any? = Any()

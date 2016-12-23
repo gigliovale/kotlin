@@ -25,11 +25,12 @@ package kotlin.coroutines
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
+@Suppress("INVISIBLE_MEMBER")
 public fun <R, T> (suspend R.() -> T).createCoroutine(
         receiver: R,
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = this.asDynamic().call(receiver, withDispatcher(completion, dispatcher)).facade
+): Continuation<Unit> = this.asDynamic().call(receiver, kotlin.internal.withDispatcher(completion, dispatcher)).facade
 
 /**
  * Starts coroutine with receiver type [R] and result type [T].
@@ -54,10 +55,11 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
+@Suppress("INVISIBLE_MEMBER")
 public fun <T> (suspend () -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = this.asDynamic()(withDispatcher(completion, dispatcher)).facade
+): Continuation<Unit> = this.asDynamic()(kotlin.internal.withDispatcher(completion, dispatcher)).facade
 
 /**
  * Starts coroutine without receiver and with result type [T].
@@ -74,7 +76,7 @@ public fun <T> (suspend  () -> T).startCoroutine(
 }
 
 /**
- * Obtains the current continuation instance inside suspend functions and suspends
+ * Obtains the current continuation instance inside suspending functions and suspends
  * currently running coroutine.
  *
  * In this function both [Continuation.resume] and [Continuation.resumeWithException] can be used either synchronously in
@@ -82,28 +84,30 @@ public fun <T> (suspend  () -> T).startCoroutine(
  * from a different thread of execution. Repeated invocation of any resume function produces [IllegalStateException].
  */
 @SinceKotlin("1.1")
-public suspend fun <T> suspendCoroutine(block: (Continuation<T>) -> Unit): T = CoroutineIntrinsics.suspendCoroutineOrReturn { c ->
-    val safe = SafeContinuation(c)
-    block(safe)
-    safe.getResult()
-}
+public inline suspend fun <T> suspendCoroutine(crossinline block: (Continuation<T>) -> Unit): T =
+        CoroutineIntrinsics.suspendCoroutineOrReturn { c: Continuation<T> ->
+            val safe = SafeContinuation(c)
+            block(safe)
+            safe.getResult()
+        }
+
+/**
+ * Obtains the current continuation instance and dispatcher inside suspending functions and suspends
+ * currently running coroutine.
+ *
+ * See [suspendCoroutine] for all the details. The only difference in this function is that it also
+ * provides a reference to the dispatcher of the coroutine that is was invoked from or `null` the coroutine
+ * was running without dispatcher.
+ */
+@SinceKotlin("1.1")
+public inline suspend fun <T> suspendDispatchedCoroutine(crossinline block: (Continuation<T>, ContinuationDispatcher?) -> Unit): T =
+        CoroutineIntrinsics.suspendDispatchedCoroutineOrReturn { c: Continuation<T>, d: ContinuationDispatcher? ->
+            val safe = SafeContinuation(c)
+            block(safe, d)
+            safe.getResult()
+        }
 
 // ------- internal stuff -------
-
-internal interface DispatchedContinuation {
-    val dispatcher: ContinuationDispatcher?
-}
-
-private fun <T> withDispatcher(completion: Continuation<T>, dispatcher: ContinuationDispatcher?): Continuation<T> {
-    return if (dispatcher == null) {
-        completion
-    }
-    else {
-        object : Continuation<T> by completion, DispatchedContinuation {
-            override val dispatcher = dispatcher
-        }
-    }
-}
 
 @JsName("CoroutineImpl")
 internal abstract class CoroutineImpl(private val resultContinuation: Continuation<Any?>) : Continuation<Any?> {
@@ -112,10 +116,11 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
     protected var result: Any? = null
     protected var exception: Throwable? = null
     protected var finallyPath: Array<Int>? = null
-    private val continuationDispatcher = (resultContinuation as? DispatchedContinuation)?.dispatcher
     val facade: Continuation<Any?>
 
     init {
+        @Suppress("INVISIBLE_MEMBER")
+        val continuationDispatcher = kotlin.internal.getDispatcher(resultContinuation)
         facade = if (continuationDispatcher != null) {
             ContinuationFacade(this, continuationDispatcher)
         }
@@ -154,7 +159,11 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
     protected abstract fun doResume(): Any?
 }
 
-private class ContinuationFacade(val innerContinuation: Continuation<Any?>, val dispatcher: ContinuationDispatcher) : Continuation<Any?> {
+@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
+private class ContinuationFacade(
+    val innerContinuation: Continuation<Any?>,
+    override val dispatcher: ContinuationDispatcher
+) : Continuation<Any?>, kotlin.internal.DispatchedContinuation<Any?> {
     override fun resume(value: Any?) {
         if (!dispatcher.dispatchResume(value, innerContinuation)) {
             innerContinuation.resume(value)
@@ -172,7 +181,8 @@ private val UNDECIDED: Any? = Any()
 private val RESUMED: Any? = Any()
 private class Fail(val exception: Throwable)
 
-internal class SafeContinuation<in T> internal constructor(private val delegate: Continuation<T>) : Continuation<T> {
+// @PublishedApi not supported yet by JS BE, so made it public
+class SafeContinuation<in T> constructor(private val delegate: Continuation<T>) : Continuation<T> {
     private var result: Any? = UNDECIDED
 
     override fun resume(value: T) {
@@ -205,7 +215,8 @@ internal class SafeContinuation<in T> internal constructor(private val delegate:
         }
     }
 
-    internal fun getResult(): Any? {
+    // @PublishedApi not supported yet by JS BE, so made it public
+    fun getResult(): Any? {
         if (result == UNDECIDED) {
             result = CoroutineIntrinsics.SUSPENDED
         }

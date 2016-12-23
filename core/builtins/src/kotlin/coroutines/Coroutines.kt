@@ -42,13 +42,13 @@ public interface ContinuationDispatcher {
      * Dispatches [Continuation.resume] invocation.
      * This function must either return `false` or return `true` and invoke `continuation.resume(value)` asynchronously.
      */
-    public fun <T> dispatchResume(value: T, continuation: Continuation<T>): Boolean = false
+    public fun <T> dispatchResume(value: T, continuation: Continuation<T>): Boolean
 
     /**
      * Dispatches [Continuation.resumeWithException] invocation.
      * This function must either return `false` or return `true` and invoke `continuation.resumeWithException(exception)` asynchronously.
      */
-    public fun dispatchResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean = false
+    public fun dispatchResumeWithException(exception: Throwable, continuation: Continuation<*>): Boolean
 }
 
 /**
@@ -83,17 +83,30 @@ public object CoroutineIntrinsics {
      * in the same stackframe where suspension function is run. Use [suspendCoroutine] as a safer way to obtain current
      * continuation instance.
      */
+    @Suppress("INVISIBLE_MEMBER")
     public inline suspend fun <T> suspendCoroutineOrReturn(
             block: (Continuation<T>) -> Any?
     ): T = suspendWithCurrentContinuation(block)
 
     /**
+     * Obtains the current continuation and dispatcher instances inside suspend functions and either suspend
+     * currently running coroutine or return result immediately without suspension.
+     *
+     * See [suspendCoroutineOrReturn] for all the details. The only difference in this function is that it also
+     * provides a reference to the dispatcher of the coroutine that is was invoked from or `null` the coroutine
+     * was running without dispatcher.
+     */
+    @Suppress("INVISIBLE_MEMBER")
+    public inline suspend fun <T> suspendDispatchedCoroutineOrReturn(
+            block: (Continuation<T>, ContinuationDispatcher?) -> Any?
+    ): T = suspendWithCurrentContinuation { c ->
+        block(c, kotlin.internal.getDispatcher(c))
+    }
+
+    /**
      * This value is used as a return value of [suspendCoroutineOrReturn] `block` argument to state that
      * the execution was suspended and will not return any result immediately.
      */
-    @SinceKotlin("1.1")
     public val SUSPENDED: Any = Any()
 }
 
-@PublishedApi
-internal inline suspend fun <T> suspendWithCurrentContinuation(body: (Continuation<T>) -> Any?): T = null!!

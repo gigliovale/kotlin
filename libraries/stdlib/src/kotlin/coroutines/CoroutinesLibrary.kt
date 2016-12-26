@@ -1,9 +1,8 @@
-@file:kotlin.jvm.JvmName("CoroutinesLibraryKt")
+@file:kotlin.jvm.JvmName("CoroutinesKt")
 @file:kotlin.jvm.JvmVersion
 package kotlin.coroutines
 
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater
-import java.lang.IllegalStateException
 import kotlin.coroutines.CoroutineIntrinsics.SUSPENDED
 
 /**
@@ -20,7 +19,7 @@ public fun <R, T> (suspend R.() -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
 ): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction1<R, T>)
-        .create(receiver, kotlin.internal.withDispatcher(completion, dispatcher))
+        .create(receiver, kotlin.coroutines.internal.withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine with receiver type [R] and result type [T].
@@ -35,7 +34,7 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
 ) {
-    (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, kotlin.internal.withDispatcher(completion, dispatcher))
+    (this as Function2<R, Continuation<T>, Any?>).invoke(receiver, kotlin.coroutines.internal.withDispatcher(completion, dispatcher))
 }
 
 /**
@@ -50,7 +49,8 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
 public fun <T> (suspend () -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction0<T>).create(kotlin.internal.withDispatcher(completion, dispatcher))
+): Continuation<Unit> = (this as kotlin.jvm.internal.SuspendFunction0<T>)
+        .create(kotlin.coroutines.internal.withDispatcher(completion, dispatcher))
 
 /**
  * Starts coroutine without receiver and with result type [T].
@@ -64,7 +64,7 @@ public fun <T> (suspend  () -> T).startCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
 ) {
-    (this as Function1<Continuation<T>, Any?>).invoke(kotlin.internal.withDispatcher(completion, dispatcher))
+    (this as Function1<Continuation<T>, Any?>).invoke(kotlin.coroutines.internal.withDispatcher(completion, dispatcher))
 }
 
 /**
@@ -106,7 +106,7 @@ private val RESUMED: Any? = Any()
 private class Fail(val exception: Throwable)
 
 @PublishedApi
-internal class SafeContinuation<in T> @PublishedApi internal constructor(private val delegate: Continuation<T>) : Continuation<T> {
+internal class SafeContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T> {
     @Volatile
     private var result: Any? = UNDECIDED
 

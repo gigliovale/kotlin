@@ -16,6 +16,8 @@
 
 package kotlin.coroutines
 
+import kotlin.coroutines.internal.getDispatcher
+
 /**
  * Interface representing a continuation after a suspension point that returns value of type `T`.
  */
@@ -100,7 +102,7 @@ public object CoroutineIntrinsics {
     public inline suspend fun <T> suspendDispatchedCoroutineOrReturn(
             block: (Continuation<T>, ContinuationDispatcher?) -> Any?
     ): T = suspendWithCurrentContinuation { c ->
-        block(c, kotlin.internal.getDispatcher(c))
+        block(c, getDispatcher(c))
     }
 
     /**

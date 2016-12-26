@@ -16,5 +16,5 @@
 
 package kotlin.coroutines
 
-// This is an intrinsic function. It is not compiled into the runtime code. We can safely leave it "public"
-inline suspend fun <T> suspendWithCurrentContinuation(body: (Continuation<T>) -> Any?): T = null!!
+@PublishedApi
+internal inline suspend fun <T> suspendWithCurrentContinuation(body: (Continuation<T>) -> Any?): T

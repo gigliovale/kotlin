@@ -199,11 +199,11 @@ public final class kotlin/coroutines/CoroutineIntrinsics {
 public abstract interface annotation class kotlin/coroutines/RestrictsSuspension : java/lang/annotation/Annotation {
 }
 
-public abstract interface class kotlin/internal/DispatchedContinuation : kotlin/coroutines/Continuation {
+public abstract interface class kotlin/coroutines/internal/DispatchedContinuation : kotlin/coroutines/Continuation {
 	public abstract fun getDispatcher ()Lkotlin/coroutines/ContinuationDispatcher;
 }
 
-public final class kotlin/internal/DispatchedContinuationKt {
+public final class kotlin/coroutines/internal/DispatchedContinuationKt {
 	public static final fun getDispatcher (Lkotlin/coroutines/Continuation;)Lkotlin/coroutines/ContinuationDispatcher;
 }
 
@@ -473,7 +473,7 @@ public class kotlin/jvm/internal/CollectionToArray {
 	public static fun toArray (Ljava/util/Collection;[Ljava/lang/Object;)[Ljava/lang/Object;
 }
 
-public abstract class kotlin/jvm/internal/CoroutineImpl : kotlin/jvm/internal/RestrictedCoroutineImpl, kotlin/internal/DispatchedContinuation {
+public abstract class kotlin/jvm/internal/CoroutineImpl : kotlin/jvm/internal/RestrictedCoroutineImpl, kotlin/coroutines/internal/DispatchedContinuation {
 	public fun <init> (ILkotlin/coroutines/Continuation;)V
 	public fun getDispatcher ()Lkotlin/coroutines/ContinuationDispatcher;
 	public fun resume (Ljava/lang/Object;)V

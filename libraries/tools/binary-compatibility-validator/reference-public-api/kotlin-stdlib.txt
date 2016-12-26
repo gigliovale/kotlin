@@ -1715,7 +1715,7 @@ public final class kotlin/concurrent/TimersKt {
 	public static final fun timer (Ljava/lang/String;Z)Ljava/util/Timer;
 }
 
-public final class kotlin/coroutines/CoroutinesLibraryKt {
+public final class kotlin/coroutines/CoroutinesKt {
 	public static final fun createCoroutine (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;Lkotlin/coroutines/ContinuationDispatcher;)Lkotlin/coroutines/Continuation;
 	public static final fun createCoroutine (Lkotlin/jvm/functions/Function2;Ljava/lang/Object;Lkotlin/coroutines/Continuation;Lkotlin/coroutines/ContinuationDispatcher;)Lkotlin/coroutines/Continuation;
 	public static synthetic fun createCoroutine$default (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;Lkotlin/coroutines/ContinuationDispatcher;ILjava/lang/Object;)Lkotlin/coroutines/Continuation;

@@ -17,12 +17,13 @@
 package kotlin.jvm.internal
 
 import kotlin.coroutines.*
+import kotlin.coroutines.internal.DispatchedContinuation
+import kotlin.coroutines.internal.getDispatcher
 
 private const val INTERCEPT_BIT_SET = 1 shl 31
 private const val INTERCEPT_BIT_CLEAR = INTERCEPT_BIT_SET.inv()
 
-@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
-abstract class CoroutineImpl : RestrictedCoroutineImpl, kotlin.internal.DispatchedContinuation<Any?> {
+abstract class CoroutineImpl : RestrictedCoroutineImpl, DispatchedContinuation<Any?> {
     private val _dispatcher: ContinuationDispatcher?
 
     override val dispatcher: ContinuationDispatcher?
@@ -30,7 +31,7 @@ abstract class CoroutineImpl : RestrictedCoroutineImpl, kotlin.internal.Dispatch
 
     // this constructor is used to create a continuation instance for coroutine
     constructor(arity: Int, completion: Continuation<Any?>?) : super(arity, completion) {
-        _dispatcher = kotlin.internal.getDispatcher(completion)
+        _dispatcher = getDispatcher(completion)
     }
 
     override fun resume(value: Any?) {

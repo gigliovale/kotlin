@@ -30,7 +30,7 @@ public fun <R, T> (suspend R.() -> T).createCoroutine(
         receiver: R,
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = this.asDynamic().call(receiver, kotlin.internal.withDispatcher(completion, dispatcher)).facade
+): Continuation<Unit> = this.asDynamic().call(receiver, kotlin.coroutines.internal.withDispatcher(completion, dispatcher)).facade
 
 /**
  * Starts coroutine with receiver type [R] and result type [T].
@@ -59,7 +59,7 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
 public fun <T> (suspend () -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
-): Continuation<Unit> = this.asDynamic()(kotlin.internal.withDispatcher(completion, dispatcher)).facade
+): Continuation<Unit> = this.asDynamic()(kotlin.coroutines.internal.withDispatcher(completion, dispatcher)).facade
 
 /**
  * Starts coroutine without receiver and with result type [T].
@@ -120,7 +120,7 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
 
     init {
         @Suppress("INVISIBLE_MEMBER")
-        val continuationDispatcher = kotlin.internal.getDispatcher(resultContinuation)
+        val continuationDispatcher = kotlin.coroutines.internal.getDispatcher(resultContinuation)
         facade = if (continuationDispatcher != null) {
             ContinuationFacade(this, continuationDispatcher)
         }
@@ -163,7 +163,7 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
 private class ContinuationFacade(
     val innerContinuation: Continuation<Any?>,
     override val dispatcher: ContinuationDispatcher
-) : Continuation<Any?>, kotlin.internal.DispatchedContinuation<Any?> {
+) : Continuation<Any?>, kotlin.coroutines.internal.DispatchedContinuation<Any?> {
     override fun resume(value: Any?) {
         if (!dispatcher.dispatchResume(value, innerContinuation)) {
             innerContinuation.resume(value)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package kotlin.internal
+package kotlin.coroutines.internal
 
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.ContinuationDispatcher
@@ -33,7 +33,7 @@ internal interface DispatchedContinuation<in T> : Continuation<T> {
 @PublishedApi
 @SinceKotlin("1.1")
 internal fun <T> getDispatcher(continuation: Continuation<T>?): ContinuationDispatcher? =
-    (continuation as? DispatchedContinuation<*>)?.dispatcher
+        (continuation as? DispatchedContinuation<*>)?.dispatcher
 
 internal fun <T> withDispatcher(completion: Continuation<T>, dispatcher: ContinuationDispatcher?): Continuation<T> {
     val oldDispatcher = getDispatcher(completion)

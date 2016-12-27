@@ -4,6 +4,10 @@ class A
 
 fun box(): String {
 
+    assertEquals(true, 'A' is Char)
+
+    // ---
+
     assertEquals(false, ('A' as Any) is Int)
     assertEquals(false, ('A' as Any) is Short)
     assertEquals(false, ('A' as Any) is Byte)

@@ -149,7 +149,22 @@ public final class JsAstUtils {
 
     @NotNull
     public static JsExpression charToInt(@NotNull JsExpression expression) {
-        return invokeMethod(expression, "charCodeAt", JsNumberLiteral.ZERO);
+        return toInt32(expression);
+    }
+
+    @NotNull
+    public static JsExpression charToString(@NotNull JsExpression expression) {
+        return new JsInvocation(new JsNameRef("fromCharCode", new JsNameRef("String")), expression);
+    }
+
+    @NotNull
+    public static JsExpression charToBoxedChar(@NotNull JsExpression expression) {
+        return invokeKotlinFunction("toBoxedChar", expression);
+    }
+
+    @NotNull
+    public static JsExpression boxedCharToChar(@NotNull JsExpression expression) {
+        return invokeKotlinFunction("unboxChar", expression);
     }
 
     @NotNull

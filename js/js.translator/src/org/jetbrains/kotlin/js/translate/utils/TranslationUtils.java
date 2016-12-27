@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
+import org.jetbrains.kotlin.resolve.BindingContextUtils;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
@@ -196,6 +197,13 @@ public final class TranslationUtils {
         KtExpression initializer = declaration.getInitializer();
         if (initializer != null) {
             jsInitExpression = Translation.translateAsExpression(initializer, context);
+
+            KotlinType propertyType = BindingContextUtils.getNotNull(context.bindingContext(), BindingContext.VARIABLE, declaration).getType();
+            KotlinType initType = context.bindingContext().getType(initializer);
+
+            if (initType != null && KotlinBuiltIns.isCharOrNullableChar(initType) && !KotlinBuiltIns.isCharOrNullableChar(propertyType)) {
+                jsInitExpression = JsAstUtils.charToBoxedChar(jsInitExpression);
+            }
         }
         return jsInitExpression;
     }

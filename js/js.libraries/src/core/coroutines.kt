@@ -181,8 +181,8 @@ private val UNDECIDED: Any? = Any()
 private val RESUMED: Any? = Any()
 private class Fail(val exception: Throwable)
 
-// @PublishedApi not supported yet by JS BE, so made it public
-class SafeContinuation<in T> constructor(private val delegate: Continuation<T>) : Continuation<T> {
+@PublishedApi
+internal class SafeContinuation<in T>(private val delegate: Continuation<T>) : Continuation<T> {
     private var result: Any? = UNDECIDED
 
     override fun resume(value: T) {
@@ -215,8 +215,8 @@ class SafeContinuation<in T> constructor(private val delegate: Continuation<T>) 
         }
     }
 
-    // @PublishedApi not supported yet by JS BE, so made it public
-    fun getResult(): Any? {
+    @PublishedApi
+    internal fun getResult(): Any? {
         if (result == UNDECIDED) {
             result = CoroutineIntrinsics.SUSPENDED
         }

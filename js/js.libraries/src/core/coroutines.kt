@@ -25,7 +25,6 @@ package kotlin.coroutines
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("INVISIBLE_MEMBER")
 public fun <R, T> (suspend R.() -> T).createCoroutine(
         receiver: R,
         completion: Continuation<T>,
@@ -55,7 +54,6 @@ public fun <R, T> (suspend R.() -> T).startCoroutine(
  * An optional [dispatcher] may be specified to customise dispatch of continuations between suspension points inside the coroutine.
  */
 @SinceKotlin("1.1")
-@Suppress("INVISIBLE_MEMBER")
 public fun <T> (suspend () -> T).createCoroutine(
         completion: Continuation<T>,
         dispatcher: ContinuationDispatcher? = null
@@ -119,7 +117,6 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
     val facade: Continuation<Any?>
 
     init {
-        @Suppress("INVISIBLE_MEMBER")
         val continuationDispatcher = kotlin.coroutines.internal.getDispatcher(resultContinuation)
         facade = if (continuationDispatcher != null) {
             ContinuationFacade(this, continuationDispatcher)
@@ -159,7 +156,6 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
     protected abstract fun doResume(): Any?
 }
 
-@Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
 private class ContinuationFacade(
     val innerContinuation: Continuation<Any?>,
     override val dispatcher: ContinuationDispatcher

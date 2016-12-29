@@ -1529,6 +1529,48 @@ public inline fun <T, R : Comparable<R>> Iterable<T>.maxBy(selector: (T) -> R): 
     return maxElem
 }
 
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfDouble")
+public inline fun <T> Iterable<T>.maxOf(selector: (T) -> Double): Double? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var max = selector(iterator.next())
+    if (max.isNaN()) return max
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (e.isNaN()) return e
+        if (max < e) max = e
+    }
+    return max
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfFloat")
+public inline fun <T> Iterable<T>.maxOf(selector: (T) -> Float): Float? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var max = selector(iterator.next())
+    if (max.isNaN()) return max
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (e.isNaN()) return e
+        if (max < e) max = e
+    }
+    return max
+}
+
+@SinceKotlin("1.1")
+public inline fun <T, R : Comparable<R>> Iterable<T>.maxOf(selector: (T) -> R): R? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var max = selector(iterator.next())
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (max < e) max = e
+    }
+    return max
+}
+
 /**
  * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
  */
@@ -1608,6 +1650,48 @@ public inline fun <T, R : Comparable<R>> Iterable<T>.minBy(selector: (T) -> R): 
         }
     }
     return minElem
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfDouble")
+public inline fun <T> Iterable<T>.minOf(selector: (T) -> Double): Double? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var min = selector(iterator.next())
+    if (min.isNaN()) return min
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (e.isNaN()) return e
+        if (min > e) min = e
+    }
+    return min
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfFloat")
+public inline fun <T> Iterable<T>.minOf(selector: (T) -> Float): Float? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var min = selector(iterator.next())
+    if (min.isNaN()) return min
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (e.isNaN()) return e
+        if (min > e) min = e
+    }
+    return min
+}
+
+@SinceKotlin("1.1")
+public inline fun <T, R : Comparable<R>> Iterable<T>.minOf(selector: (T) -> R): R? {
+    val iterator = iterator()
+    if (!iterator.hasNext()) return null
+    var min = selector(iterator.next())
+    while (iterator.hasNext()) {
+        val e = selector(iterator.next())
+        if (min > e) min = e
+    }
+    return min
 }
 
 /**

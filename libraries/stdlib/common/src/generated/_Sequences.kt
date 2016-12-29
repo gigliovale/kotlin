@@ -514,6 +514,17 @@ public header fun <T : Comparable<T>> Sequence<T>.max(): T?
  */
 public header inline fun <T, R : Comparable<R>> Sequence<T>.maxBy(selector: (T) -> R): T?
 
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfDouble")
+public header inline fun <T> Sequence<T>.maxOf(selector: (T) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfFloat")
+public header inline fun <T> Sequence<T>.maxOf(selector: (T) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <T, R : Comparable<R>> Sequence<T>.maxOf(selector: (T) -> R): R?
+
 /**
  * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
  */
@@ -540,6 +551,17 @@ public header fun <T : Comparable<T>> Sequence<T>.min(): T?
  * Returns the first element yielding the smallest value of the given function or `null` if there are no elements.
  */
 public header inline fun <T, R : Comparable<R>> Sequence<T>.minBy(selector: (T) -> R): T?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfDouble")
+public header inline fun <T> Sequence<T>.minOf(selector: (T) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfFloat")
+public header inline fun <T> Sequence<T>.minOf(selector: (T) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <T, R : Comparable<R>> Sequence<T>.minOf(selector: (T) -> R): R?
 
 /**
  * Returns the first element having the smallest value according to the provided [comparator] or `null` if there are no elements.

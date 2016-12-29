@@ -176,4 +176,15 @@ class OrderingTest {
         assertEquals(v1, minOf(v1, v2, v3, compareBy { it.rating }))
     }
 
+    @Test fun minOfProperty() {
+        assertEquals(9, listOf(v1, v2, v3).minOf<Item, Int> { it.rating })
+        assertEquals(-9.0, listOf(v1, v2, v3).minOf<Item, Double> { it.rating.toDouble() / (it.rating - 10) })
+        assertEquals(Double.NaN, listOf(v1, v2, v3).minOf<Item, Double> { (it.rating - 9).toDouble().let { it / it } })
+    }
+
+    @Test fun maxOfProperty() {
+        assertEquals(20, listOf(v1, v2, v3).maxOf<Item, Int> { it.rating })
+        assertEquals(Double.POSITIVE_INFINITY, listOf(v1, v2, v3).maxOf<Item, Double> { it.rating.toDouble() / (it.rating - 10) })
+    }
+
 }

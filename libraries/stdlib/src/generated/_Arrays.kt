@@ -10105,6 +10105,45 @@ public inline fun <R : Comparable<R>> CharArray.maxBy(selector: (Char) -> R): Ch
     return maxElem
 }
 
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfDouble")
+public inline fun <T> Array<out T>.maxOf(selector: (T) -> Double): Double? {
+    if (isEmpty()) return null
+    var max = selector(this[0])
+    if (max.isNaN()) return max
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (e.isNaN()) return e
+        if (max < e) max = e
+    }
+    return max
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfFloat")
+public inline fun <T> Array<out T>.maxOf(selector: (T) -> Float): Float? {
+    if (isEmpty()) return null
+    var max = selector(this[0])
+    if (max.isNaN()) return max
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (e.isNaN()) return e
+        if (max < e) max = e
+    }
+    return max
+}
+
+@SinceKotlin("1.1")
+public inline fun <T, R : Comparable<R>> Array<out T>.maxOf(selector: (T) -> R): R? {
+    if (isEmpty()) return null
+    var max = selector(this[0])
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (max < e) max = e
+    }
+    return max
+}
+
 /**
  * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
  */
@@ -10522,6 +10561,45 @@ public inline fun <R : Comparable<R>> CharArray.minBy(selector: (Char) -> R): Ch
         }
     }
     return minElem
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfDouble")
+public inline fun <T> Array<out T>.minOf(selector: (T) -> Double): Double? {
+    if (isEmpty()) return null
+    var min = selector(this[0])
+    if (min.isNaN()) return min
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (e.isNaN()) return e
+        if (min > e) min = e
+    }
+    return min
+}
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfFloat")
+public inline fun <T> Array<out T>.minOf(selector: (T) -> Float): Float? {
+    if (isEmpty()) return null
+    var min = selector(this[0])
+    if (min.isNaN()) return min
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (e.isNaN()) return e
+        if (min > e) min = e
+    }
+    return min
+}
+
+@SinceKotlin("1.1")
+public inline fun <T, R : Comparable<R>> Array<out T>.minOf(selector: (T) -> R): R? {
+    if (isEmpty()) return null
+    var min = selector(this[0])
+    for (i in 1..lastIndex) {
+        val e = selector(this[i])
+        if (min > e) min = e
+    }
+    return min
 }
 
 /**

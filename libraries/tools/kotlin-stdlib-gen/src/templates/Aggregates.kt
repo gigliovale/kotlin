@@ -197,6 +197,71 @@ fun aggregates(): List<GenericFunction> {
         }}
     }.flatten()
 
+    templates addAll listOf("min", "max").flatMap { op ->
+        val genericSpecializations = PrimitiveType.numericPrimitives.filterNot { it.isIntegral() } + listOf(null)
+
+        listOf(
+                Iterables to genericSpecializations,
+                Sequences to genericSpecializations,
+                ArraysOfObjects to genericSpecializations,
+                Maps to genericSpecializations
+                //ArraysOfPrimitives to (PrimitiveType.defaultPrimitives - PrimitiveType.Boolean),
+                //CharSequences to setOf(null)
+        ).map { (f, primitives) -> primitives.map { primitive ->
+            val R = primitive?.toString() ?: "R"
+            f("${op}Of(selector: (T) -> $R)") {
+                val isFloat = primitive?.isIntegral() == false
+                val isGeneric = f in listOf(Iterables, Sequences, ArraysOfObjects, Maps)
+
+                since("1.1")
+                only(f)
+                inline(true)
+
+                if (primitive != null) {
+                    if (isGeneric) {
+                        // platformName won't work without specialization
+                        annotations("@kotlin.jvm.JvmName(\"${op}Of$primitive\")")
+                    }
+                } else {
+                    typeParam("R : Comparable<R>")
+                }
+
+                returns("$R?")
+                body {
+                    if (f == ArraysOfObjects || f == ArraysOfPrimitives || f == CharSequences) {
+                        """
+                        if (isEmpty()) return null
+                        var $op = selector(this[0])
+                        ${if (isFloat) "if ($op.isNaN()) return $op" else "\\"}
+
+                        for (i in 1..lastIndex) {
+                            val e = selector(this[i])
+                            ${if (isFloat) "if (e.isNaN()) return e" else "\\"}
+                            if ($op ${if (op == "max") "<" else ">"} e) $op = e
+                        }
+                        return $op
+                        """
+                    }
+                    else {
+                        """
+                        val iterator = iterator()
+                        if (!iterator.hasNext()) return null
+                        var $op = selector(iterator.next())
+                        ${if (isFloat) "if ($op.isNaN()) return $op" else "\\"}
+
+                        while (iterator.hasNext()) {
+                            val e = selector(iterator.next())
+                            ${if (isFloat) "if (e.isNaN()) return e" else "\\"}
+                            if ($op ${if (op == "max") "<" else ">"} e) $op = e
+                        }
+                        return $op
+                        """
+                    }.replace(Regex("""^\s+\\\n""", RegexOption.MULTILINE), "") // trim lines ending with \
+                }
+            }
+        }}
+    }.flatten()
+
     templates add f("minBy(selector: (T) -> R)") {
         inline(true)
 

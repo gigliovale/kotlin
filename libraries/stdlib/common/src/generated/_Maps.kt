@@ -87,6 +87,17 @@ public header inline fun <K, V> Map<out K, V>.forEach(action: (Map.Entry<K, V>) 
 @kotlin.internal.InlineOnly
 public header inline fun <K, V, R : Comparable<R>> Map<out K, V>.maxBy(selector: (Map.Entry<K, V>) -> R): Map.Entry<K, V>?
 
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfDouble")
+public header inline fun <K, V> Map<out K, V>.maxOf(selector: (Map.Entry<K, V>) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfFloat")
+public header inline fun <K, V> Map<out K, V>.maxOf(selector: (Map.Entry<K, V>) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <K, V, R : Comparable<R>> Map<out K, V>.maxOf(selector: (Map.Entry<K, V>) -> R): R?
+
 /**
  * Returns the first entry having the largest value according to the provided [comparator] or `null` if there are no entries.
  */
@@ -97,6 +108,17 @@ public header inline fun <K, V> Map<out K, V>.maxWith(comparator: Comparator<in 
  * Returns the first entry yielding the smallest value of the given function or `null` if there are no entries.
  */
 public header inline fun <K, V, R : Comparable<R>> Map<out K, V>.minBy(selector: (Map.Entry<K, V>) -> R): Map.Entry<K, V>?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfDouble")
+public header inline fun <K, V> Map<out K, V>.minOf(selector: (Map.Entry<K, V>) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfFloat")
+public header inline fun <K, V> Map<out K, V>.minOf(selector: (Map.Entry<K, V>) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <K, V, R : Comparable<R>> Map<out K, V>.minOf(selector: (Map.Entry<K, V>) -> R): R?
 
 /**
  * Returns the first entry having the smallest value according to the provided [comparator] or `null` if there are no entries.

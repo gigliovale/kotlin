@@ -5848,6 +5848,17 @@ public header inline fun <R : Comparable<R>> BooleanArray.maxBy(selector: (Boole
  */
 public header inline fun <R : Comparable<R>> CharArray.maxBy(selector: (Char) -> R): Char?
 
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfDouble")
+public header inline fun <T> Array<out T>.maxOf(selector: (T) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("maxOfFloat")
+public header inline fun <T> Array<out T>.maxOf(selector: (T) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <T, R : Comparable<R>> Array<out T>.maxOf(selector: (T) -> R): R?
+
 /**
  * Returns the first element having the largest value according to the provided [comparator] or `null` if there are no elements.
  */
@@ -5989,6 +6000,17 @@ public header inline fun <R : Comparable<R>> BooleanArray.minBy(selector: (Boole
  * Returns the first element yielding the smallest value of the given function or `null` if there are no elements.
  */
 public header inline fun <R : Comparable<R>> CharArray.minBy(selector: (Char) -> R): Char?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfDouble")
+public header inline fun <T> Array<out T>.minOf(selector: (T) -> Double): Double?
+
+@SinceKotlin("1.1")
+@kotlin.jvm.JvmName("minOfFloat")
+public header inline fun <T> Array<out T>.minOf(selector: (T) -> Float): Float?
+
+@SinceKotlin("1.1")
+public header inline fun <T, R : Comparable<R>> Array<out T>.minOf(selector: (T) -> R): R?
 
 /**
  * Returns the first element having the smallest value according to the provided [comparator] or `null` if there are no elements.

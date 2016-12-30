@@ -151,7 +151,15 @@ public final class JsDescriptorUtils {
                isDefaultAccessor(propertyDescriptor.getGetter()) &&
                isDefaultAccessor(propertyDescriptor.getSetter()) &&
                !TranslationUtils.shouldAccessViaFunctions(propertyDescriptor) &&
-               !ModalityKt.isOverridableOrOverrides(propertyDescriptor);
+               overridesOnlyAbstractOrExternal(propertyDescriptor);
+    }
+
+    private static boolean overridesOnlyAbstractOrExternal(@NotNull CallableMemberDescriptor memberDescriptor) {
+        if (ModalityKt.isOverridable(memberDescriptor)) return false;
+        for (CallableMemberDescriptor overridden : memberDescriptor.getOverriddenDescriptors()) {
+            if (overridden.getModality() != Modality.ABSTRACT && !AnnotationsUtils.isNativeObject(overridden)) return false;
+        }
+        return true;
     }
 
     @Nullable

@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.getResolutionFacade
+import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.core.completion.DeclarationLookupObject
 import org.jetbrains.kotlin.idea.decompiler.navigation.SourceNavigationHelper
@@ -103,42 +104,48 @@ class KotlinQuickDocumentationProvider : AbstractDocumentationProvider() {
             renderCompanionObjectName = true
         }
 
-        private fun renderEnumSpecialFunction(element: KtClass, functionDescriptor: DeclarationDescriptor, quickNavigation: Boolean): String {
+        private fun renderEnumSpecialFunction(element: KtClass, functionDescriptor: FunctionDescriptor, quickNavigation: Boolean): String {
             var renderedDecl = DESCRIPTOR_RENDERER.render(functionDescriptor)
 
-            if (!quickNavigation) {
-                val declarationDescriptor = element.analyze(BodyResolveMode.PARTIAL)[BindingContext.DECLARATION_TO_DESCRIPTOR, element]
-                val enumDescriptor = (declarationDescriptor as ClassDescriptor).getSuperClassNotAny()!!
-                val enumSource = SourceNavigationHelper.getNavigationElement(
-                        DescriptorToSourceUtilsIde.getAnyDeclaration(element.project, enumDescriptor) as KtDeclaration
-                )
-                val functionName = (functionDescriptor as FunctionDescriptor).fqNameSafe.shortName().toString()
-                val kdoc = enumSource.findDescendantOfType<KDoc> {
-                    it.getChildrenOfType<KDocSection>().any { it.findTagByName(functionName) != null }
-                }
+            if (quickNavigation) return renderedDecl
 
-                if (kdoc != null) {
-                    val renderedComment = KDocRenderer.renderKDoc(kdoc.getDefaultSection())
-                    if (renderedComment.startsWith("<p>")) {
-                        renderedDecl += renderedComment
-                    }
-                    else {
-                        renderedDecl = "$renderedDecl<br/>$renderedComment"
-                    }
+            val declarationDescriptor = element.resolveToDescriptorIfAny()
+            val enumDescriptor = (declarationDescriptor as? ClassDescriptor)?.getSuperClassNotAny() ?: return renderedDecl
+
+            val enumDeclaration =
+                    DescriptorToSourceUtilsIde.getAnyDeclaration(element.project, enumDescriptor) as? KtDeclaration ?: return renderedDecl
+
+            val enumSource = SourceNavigationHelper.getNavigationElement(enumDeclaration)
+            val functionName = functionDescriptor.fqNameSafe.shortName().asString()
+            val kdoc = enumSource.findDescendantOfType<KDoc> {
+                it.getChildrenOfType<KDocSection>().any { it.findTagByName(functionName) != null }
+            }
+
+            if (kdoc != null) {
+                val renderedComment = KDocRenderer.renderKDoc(kdoc.getDefaultSection())
+                if (renderedComment.startsWith("<p>")) {
+                    renderedDecl += renderedComment
+                }
+                else {
+                    renderedDecl = "$renderedDecl<br/>$renderedComment"
                 }
             }
+
             return renderedDecl
         }
 
         private fun renderEnum(element: KtClass, originalElement: PsiElement?, quickNavigation: Boolean): String? {
             val referenceExpression = originalElement?.getNonStrictParentOfType<KtReferenceExpression>()
             if (referenceExpression != null) {
+                // When caret on special enum function (e.g SomeEnum.values<caret>())
+                // element is not an KtReferenceExpression, but KtClass of enum
+                // so reference extracted from originalElement
                 val context = referenceExpression.analyze(BodyResolveMode.PARTIAL)
                 (context[BindingContext.REFERENCE_TARGET, referenceExpression] ?:
                  context[BindingContext.REFERENCE_TARGET, referenceExpression.getChildOfType<KtReferenceExpression>()])?.let {
-                    return renderEnumSpecialFunction(element, it, quickNavigation)
+                    if (it is FunctionDescriptor) // To protect from Some<caret>Enum.values()
+                        return renderEnumSpecialFunction(element, it, quickNavigation)
                 }
-
             }
             return renderKotlinDeclaration(element, quickNavigation)
         }
@@ -146,6 +153,8 @@ class KotlinQuickDocumentationProvider : AbstractDocumentationProvider() {
         private fun getText(element: PsiElement, originalElement: PsiElement?, quickNavigation: Boolean): String? {
 
             if (element is KtClass && element.isEnum()) {
+                // When caret on special enum function (e.g SomeEnum.values<caret>())
+                // element is not an KtReferenceExpression, but KtClass of enum
                 return renderEnum(element, originalElement, quickNavigation)
             }
             else if (element is KtDeclaration) {

@@ -42,18 +42,6 @@ public class QuickDocProviderTestGenerated extends AbstractQuickDocProviderTest 
         doTest(fileName);
     }
 
-    @TestMetadata("AtEnumValueOfFunction.kt")
-    public void testAtEnumValueOfFunction() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtEnumValueOfFunction.kt");
-        doTest(fileName);
-    }
-
-    @TestMetadata("AtEnumValuesFunction.kt")
-    public void testAtEnumValuesFunction() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtEnumValuesFunction.kt");
-        doTest(fileName);
-    }
-
     @TestMetadata("AtFunctionParameter.kt")
     public void testAtFunctionParameter() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/AtFunctionParameter.kt");
@@ -153,6 +141,36 @@ public class QuickDocProviderTestGenerated extends AbstractQuickDocProviderTest 
     @TestMetadata("OnClassDeclarationWithNoPackage.kt")
     public void testOnClassDeclarationWithNoPackage() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnClassDeclarationWithNoPackage.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("OnEnumClassReference.kt")
+    public void testOnEnumClassReference() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnEnumClassReference.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("OnEnumDeclaration.kt")
+    public void testOnEnumDeclaration() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnEnumDeclaration.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("OnEnumUsage.kt")
+    public void testOnEnumUsage() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnEnumUsage.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("OnEnumValueOfFunction.kt")
+    public void testOnEnumValueOfFunction() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnEnumValueOfFunction.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("OnEnumValuesFunction.kt")
+    public void testOnEnumValuesFunction() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnEnumValuesFunction.kt");
         doTest(fileName);
     }
 

@@ -5126,6 +5126,12 @@ public class JsCodegenBoxTestGenerated extends AbstractJsCodegenBoxTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("pathologicalDoWhile.kt")
+            public void testPathologicalDoWhile() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/controlStructures/breakContinueInExpressions/pathologicalDoWhile.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("popSizes.kt")
             public void testPopSizes() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/controlStructures/breakContinueInExpressions/popSizes.kt");
@@ -8466,6 +8472,12 @@ public class JsCodegenBoxTestGenerated extends AbstractJsCodegenBoxTest {
         public static class Regressions extends AbstractJsCodegenBoxTest {
             public void testAllFilesPresentInRegressions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fullJdk/regressions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JS, true);
+            }
+
+            @TestMetadata("kt15112.kt")
+            public void testKt15112() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/fullJdk/regressions/kt15112.kt");
+                doTest(fileName);
             }
 
             @TestMetadata("kt1770.kt")

@@ -222,6 +222,12 @@ public class BytecodeTextTestGenerated extends AbstractBytecodeTextTest {
         doTest(fileName);
     }
 
+    @TestMetadata("kt15609.kt")
+    public void testKt15609() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/kt15609.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("kt2202.kt")
     public void testKt2202() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/kt2202.kt");
@@ -297,6 +303,12 @@ public class BytecodeTextTestGenerated extends AbstractBytecodeTextTest {
     @TestMetadata("noWrapperForMethodReturningPrimitive.kt")
     public void testNoWrapperForMethodReturningPrimitive() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/noWrapperForMethodReturningPrimitive.kt");
+        doTest(fileName);
+    }
+
+    @TestMetadata("nopsInDoWhile.kt")
+    public void testNopsInDoWhile() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/nopsInDoWhile.kt");
         doTest(fileName);
     }
 

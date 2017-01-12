@@ -59,8 +59,8 @@ class BlockInfo private constructor(val parent: BlockInfo?) {
 
     private val infos = Stack<ExpressionInfo>()
 
-    fun create() = BlockInfo(this).apply {
-        this@apply.infos.addAll(this@BlockInfo.infos)
+    fun create() = BlockInfo(this).also {
+        it.infos.addAll(infos)
     }
 
     fun addInfo(loop: ExpressionInfo) {
@@ -210,8 +210,8 @@ class ExpressionCodegen(
                 gen(receiver, callable.dispatchReceiverType!!, data)
             }
 
-            expression.extensionReceiver?.apply {
-                gen(this, callable.extensionReceiverType!!, data)
+            expression.extensionReceiver?.also {
+                gen(it, callable.extensionReceiverType!!, data)
             }
 
             val args = expression.descriptor.valueParameters.mapIndexed { i, valueParameterDescriptor ->
@@ -266,8 +266,8 @@ class ExpressionCodegen(
         val varType = typeMapper.mapType(declaration.descriptor)
         val index = frame.enter(declaration.descriptor, varType)
 
-        declaration.initializer?.apply {
-            StackValue.local(index, varType).store(gen(this, varType, data), mv)
+        declaration.initializer?.also {
+            StackValue.local(index, varType).store(gen(it, varType, data), mv)
         }
 
         val info = VariableInfo(
@@ -323,8 +323,8 @@ class ExpressionCodegen(
     }
 
     private fun findLocalIndex(descriptor: CallableDescriptor): Int {
-        val index = frame.getIndex(descriptor).apply {
-            if (this < 0) throw AssertionError("Non-mapped local variable descriptor: $descriptor")
+        val index = frame.getIndex(descriptor).also {
+            if (it < 0) throw AssertionError("Non-mapped local variable descriptor: $descriptor")
         }
         return index
     }
@@ -464,12 +464,12 @@ class ExpressionCodegen(
 
 
     fun markNewLabel(): Label {
-        return Label().apply { mv.visitLabel(this) }
+        return Label().also { mv.visitLabel(it) }
     }
 
     override fun visitReturn(expression: IrReturn, data: BlockInfo): StackValue {
-        val value = expression.value.apply {
-            gen(this, returnType, data)
+        val value = expression.value.also {
+            gen(it, returnType, data)
         }
 
         val afterReturnLabel = Label()
@@ -502,8 +502,8 @@ class ExpressionCodegen(
 
         val end = Label()
 
-        thenBranch.apply {
-            gen(this, type, data)
+        thenBranch.also {
+            gen(it, type, data)
             //coerceNotToUnit(this.asmType, type)
         }
 
@@ -583,8 +583,8 @@ class ExpressionCodegen(
 
         with(LoopInfo(loop, continueLabel, endLabel)) {
             data.addInfo(this)
-            loop.body?.apply {
-                gen(this, data)
+            loop.body?.also {
+                gen(it, data)
             }
             data.removeInfo(this)
         }
@@ -641,8 +641,8 @@ class ExpressionCodegen(
 
         with(LoopInfo(loop, continueLabel, endLabel)) {
             data.addInfo(this)
-            loop.body?.apply {
-                gen(this, data)
+            loop.body?.also {
+                gen(it, data)
             }
             data.removeInfo(this)
         }

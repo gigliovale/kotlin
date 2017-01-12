@@ -220,7 +220,7 @@ class RedundantCoercionToUnitTransformer : MethodTransformer() {
                 REPLACE_WITH_NOP
 
         private fun createRemovableNopInsn() =
-                InsnNode(Opcodes.NOP).apply { removableNops.add(this) }
+                InsnNode(Opcodes.NOP).also { removableNops.add(it) }
 
         private fun getInputTop(insn: AbstractInsnNode): SourceValue {
             val i = insnList.indexOf(insn)

@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.serialization.deserialization.DeserializationCompone
 import org.jetbrains.kotlin.serialization.deserialization.IncompatibleVersionErrorData
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
 import org.jetbrains.kotlin.serialization.jvm.JvmProtoBufUtil
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.ensureOrNull
 import javax.inject.Inject
 
 class DeserializedDescriptorResolver {
@@ -80,7 +80,7 @@ class DeserializedDescriptorResolver {
 
     internal fun readData(kotlinClass: KotlinJvmBinaryClass, expectedKinds: Set<KotlinClassHeader.Kind>): Array<String>? {
         val header = kotlinClass.classHeader
-        return (header.data ?: header.incompatibleData)?.check { header.kind in expectedKinds }
+        return (header.data ?: header.incompatibleData)?.ensureOrNull { header.kind in expectedKinds }
     }
 
     private inline fun <T : Any> parseProto(klass: KotlinJvmBinaryClass, block: () -> T): T? {

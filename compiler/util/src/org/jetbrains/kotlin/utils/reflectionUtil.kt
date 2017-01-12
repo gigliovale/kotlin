@@ -16,7 +16,7 @@
 
 package org.jetbrains.kotlin.utils
 
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.ensureOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import kotlin.reflect.*
 import kotlin.reflect.full.isSubclassOf
@@ -106,7 +106,7 @@ private fun <T> tryCreateCallableMapping(callable: KCallable<*>, args: Iterator<
             }
             ArgsTraversalState.NAMED -> {
                 assert(arg.name != null)
-                val parIdx = unboundParams.indexOfFirst { it.name == arg.name }.check { it >= 0 }
+                val parIdx = unboundParams.indexOfFirst { it.name == arg.name }.ensureOrNull { it >= 0 }
                     ?: return null // failed to match: no matching named parameter found
                 val par = unboundParams.removeAt(parIdx)
                 val cvtRes = converter.tryConvertSingle(par, arg)
@@ -184,7 +184,7 @@ private class StringArgsConverter : ArgsConverter<String> {
                     DoubleArray::class -> args.map { it?.toDoubleOrNull() }
                     BooleanArray::class -> args.map { it?.toBoolean() }
                     else -> null
-                }?.toList()?.check { list -> list.none { it == null } }?.toTypedArray()
+                }?.toList()?.ensureOrNull { list -> list.none { it == null } }?.toTypedArray()
 
         val parameterType = parameter.type
         if (parameterType.jvmErasure.java.isArray) {

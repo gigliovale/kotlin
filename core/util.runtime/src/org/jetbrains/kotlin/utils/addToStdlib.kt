@@ -76,7 +76,10 @@ fun <T> sequenceOfLazyValues(vararg elements: () -> T): Sequence<T> = elements.a
 
 fun <T1, T2> Pair<T1, T2>.swap(): Pair<T2, T1> = Pair(second, first)
 
-fun <T: Any> T.check(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
+fun <T> T.ensureOrNull(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
+
+@Deprecated("Use verifyOrNull instead", ReplaceWith("this.verifyOrNull(predicate)"))
+fun <T: Any> T.check(predicate: (T) -> Boolean): T? = ensureOrNull(predicate)
 
 inline fun <reified T : Any> Any?.safeAs(): T? = this as? T
 inline fun <reified T : Any> Any?.cast(): T = this as T

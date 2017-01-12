@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.PsiChildRange
 import org.jetbrains.kotlin.types.typeUtil.TypeNullability
 import org.jetbrains.kotlin.types.typeUtil.nullability
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.ensureOrNull
 
 /**
  * Matches:
@@ -361,8 +361,8 @@ object FindTransformationMatcher : TransformationMatcher {
         if (this !is KtBinaryExpression) return null
         if (operationToken != KtTokens.EQEQ) return null
         return when {
-            left.isVariableReference(inputVariable) -> right?.check { it.isStableInLoop(loop, false) }
-            right.isVariableReference(inputVariable) -> left?.check { it.isStableInLoop(loop, false) }
+            left.isVariableReference(inputVariable) -> right?.ensureOrNull { it.isStableInLoop(loop, false) }
+            right.isVariableReference(inputVariable) -> left?.ensureOrNull { it.isStableInLoop(loop, false) }
             else -> null
         }
     }

@@ -51,7 +51,7 @@ import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindExclude
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.util.supertypesWithAny
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.ensureOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import java.util.*
 
@@ -347,8 +347,8 @@ class BasicCompletionSession(
             if (userType != typeRef.typeElement) return null
             val parent = typeRef.parent
             return when (parent) {
-                is KtNamedFunction -> parent.check { typeRef == it.receiverTypeReference }
-                is KtProperty -> parent.check { typeRef == it.receiverTypeReference }
+                is KtNamedFunction -> parent.ensureOrNull { typeRef == it.receiverTypeReference }
+                is KtProperty -> parent.ensureOrNull { typeRef == it.receiverTypeReference }
                 else -> null
             }
         }

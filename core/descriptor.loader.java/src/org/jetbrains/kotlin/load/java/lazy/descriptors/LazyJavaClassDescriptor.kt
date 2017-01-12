@@ -48,7 +48,7 @@ import org.jetbrains.kotlin.serialization.deserialization.NotFoundClasses
 import org.jetbrains.kotlin.storage.getValue
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import org.jetbrains.kotlin.utils.toReadOnlyList
 import java.util.*
 
@@ -188,7 +188,7 @@ class LazyJavaClassDescriptor(
         }
 
         private fun getPurelyImplementedSupertype(): KotlinType? {
-            val annotatedPurelyImplementedFqName = getPurelyImplementsFqNameFromAnnotation()?.check {
+            val annotatedPurelyImplementedFqName = getPurelyImplementsFqNameFromAnnotation()?.takeIf {
                 !it.isRoot && it.toUnsafe().startsWith(KotlinBuiltIns.BUILT_INS_PACKAGE_NAME)
             }
 

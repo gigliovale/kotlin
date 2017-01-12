@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.typeUtil.*
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import org.jetbrains.kotlin.utils.addToStdlib.singletonOrEmptyList
 import java.util.*
 
@@ -582,7 +582,7 @@ class ExpectedInfos(
 
         val loopVar = forExpression.loopParameter
         val loopVarType = if (loopVar != null && loopVar.typeReference != null)
-            (bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, loopVar] as VariableDescriptor).type.check { !it.isError }
+            (bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, loopVar] as VariableDescriptor).type.takeIf { !it.isError }
         else
             null
 
@@ -624,7 +624,7 @@ class ExpectedInfos(
                             ?: property.dispatchReceiverParameter?.type?.toFuzzyType(emptyList())
                             ?: property.builtIns.nullableNothingType.toFuzzyType(emptyList())
 
-        val explicitPropertyType = property.fuzzyReturnType()?.check { propertyDeclaration.typeReference != null }
+        val explicitPropertyType = property.fuzzyReturnType()?.takeIf { propertyDeclaration.typeReference != null }
                                    ?: property.overriddenDescriptors.singleOrNull()?.fuzzyReturnType() // for override properties use super property type as explicit (if not specified)
         val typesWithGetDetector = TypesWithGetValueDetector(scope, indicesHelper, propertyOwnerType, explicitPropertyType)
         val typesWithSetDetector = if (property.isVar) TypesWithSetValueDetector(scope, indicesHelper, propertyOwnerType) else null

@@ -46,7 +46,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.resolve.jvm.JvmClassName
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import org.jetbrains.kotlin.utils.getOrPutNullable
 import org.jetbrains.org.objectweb.asm.*
 import java.io.File
@@ -174,7 +174,7 @@ private fun readClassFileImpl(project: Project,
 }
 
 private fun findClassFileByPath(packageName: String, className: String, outputDir: VirtualFile): File? {
-    val outDirFile = File(outputDir.path).check(File::exists) ?: return null
+    val outDirFile = File(outputDir.path).takeIf(File::exists) ?: return null
 
     val parentDirectory = File(outDirFile, packageName.replace(".", File.separator))
     if (!parentDirectory.exists()) return null

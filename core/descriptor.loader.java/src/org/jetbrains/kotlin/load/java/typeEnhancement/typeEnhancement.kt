@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.typeUtil.createProjection
 import org.jetbrains.kotlin.types.typeUtil.isTypeParameter
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import org.jetbrains.kotlin.utils.toReadOnlyList
 
 // The index in the lambda is the position of the type component:
@@ -52,7 +52,7 @@ private enum class TypeComponentPosition {
 }
 
 private open class Result(open val type: KotlinType, val subtreeSize: Int, val wereChanges: Boolean) {
-    val typeIfChanged: KotlinType? get() = type.check { wereChanges }
+    val typeIfChanged: KotlinType? get() = type.takeIf { wereChanges }
 }
 
 private class SimpleResult(override val type: SimpleType, subtreeSize: Int, wereChanges: Boolean): Result(type, subtreeSize, wereChanges)

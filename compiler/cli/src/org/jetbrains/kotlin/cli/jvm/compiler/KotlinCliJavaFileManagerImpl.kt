@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.KotlinCliJavaFileManager
 import org.jetbrains.kotlin.util.PerformanceCounter
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -50,7 +50,7 @@ class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJ
             val classNameWithInnerClasses = classId.relativeClassName.asString()
             index.findClass(classId) { dir, type ->
                 findClassGivenPackage(allScope, dir, classNameWithInnerClasses, type)
-            }?.check { it.containingFile.virtualFile in searchScope }
+            }?.takeIf { it.containingFile.virtualFile in searchScope }
         }
     }
 

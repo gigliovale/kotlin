@@ -39,7 +39,7 @@ import org.jetbrains.kotlin.idea.refactoring.getLineStartOffset
 import org.jetbrains.kotlin.idea.util.application.runReadAction
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.takeIf
 import java.util.*
 
 class KotlinFrameExtraVariablesProvider : FrameExtraVariablesProvider {
@@ -64,7 +64,7 @@ private fun findAdditionalExpressions(position: SourcePosition): Set<TextWithImp
         return emptySet()
     }
 
-    val offset = file.getLineStartOffset(line)?.check { it > 0 } ?: return emptySet()
+    val offset = file.getLineStartOffset(line)?.takeIf { it > 0 } ?: return emptySet()
 
     val elem = file.findElementAt(offset)
     val containingElement = getContainingElement(elem!!) ?: elem ?: return emptySet()

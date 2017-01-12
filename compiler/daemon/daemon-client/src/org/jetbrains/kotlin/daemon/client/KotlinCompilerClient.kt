@@ -21,7 +21,7 @@ import net.rubygrapefruit.platform.ProcessLauncher
 import org.jetbrains.kotlin.daemon.common.*
 import org.jetbrains.kotlin.load.kotlin.incremental.components.IncrementalCompilationComponents
 import org.jetbrains.kotlin.progress.CompilationCanceledStatus
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.passIf
 import java.io.File
 import java.io.OutputStream
 import java.io.PrintStream
@@ -54,9 +54,9 @@ object KotlinCompilerClient {
     ): CompileService? {
         val flagFile = System.getProperty(COMPILE_DAEMON_CLIENT_ALIVE_PATH_PROPERTY)
                      ?.let(String::trimQuotes)
-                     ?.check { !it.isBlank() }
+                     ?.passIf { !it.isBlank() }
                      ?.let(::File)
-                     ?.check(File::exists)
+                     ?.passIf(File::exists)
                      ?: makeAutodeletingFlagFile()
         return connectToCompileService(compilerId, flagFile, daemonJVMOptions, daemonOptions, reportingTargets, autostart)
     }
@@ -255,7 +255,7 @@ object KotlinCompilerClient {
                 .sortedWith(compareByDescending(DaemonJVMOptionsMemoryComparator(), { it.second.get() }))
         val optsCopy = daemonJVMOptions.copy()
         // if required options fit into fattest running daemon - return the daemon and required options with memory params set to actual ones in the daemon
-        return aliveWithOpts.firstOrNull()?.check { daemonJVMOptions memorywiseFitsInto it.second.get() }?.let {
+        return aliveWithOpts.firstOrNull()?.passIf { daemonJVMOptions memorywiseFitsInto it.second.get() }?.let {
                 Pair(it.first, optsCopy.updateMemoryUpperBounds(it.second.get()))
             }
             // else combine all options from running daemon to get fattest option for a new daemon to run

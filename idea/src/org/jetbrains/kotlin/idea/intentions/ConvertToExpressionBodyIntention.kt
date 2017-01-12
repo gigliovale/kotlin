@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.psi.psiUtil.anyDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.passIf
 
 class ConvertToExpressionBodyIntention(
         val convertEmptyToUnit: Boolean = true
@@ -62,7 +62,7 @@ class ConvertToExpressionBodyIntention(
         val deleteTypeHandler: (KtCallableDeclaration) -> Unit = {
             it.deleteChildRange(it.colon!!, it.typeReference!!)
         }
-        applyTo(declaration, deleteTypeHandler.check { canDeleteTypeRef })
+        applyTo(declaration, deleteTypeHandler.passIf { canDeleteTypeRef })
     }
 
     private fun applyTo(declaration: KtDeclarationWithBody, deleteTypeHandler: ((KtCallableDeclaration) -> Unit)?) {

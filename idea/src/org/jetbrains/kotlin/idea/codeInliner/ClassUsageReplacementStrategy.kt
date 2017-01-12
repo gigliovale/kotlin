@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.idea.core.ShortenReferences
 import org.jetbrains.kotlin.idea.core.replaced
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getQualifiedExpressionForSelectorOrThis
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.passIf
 
 class ClassUsageReplacementStrategy(
         typeReplacement: KtUserType?,
@@ -31,7 +31,7 @@ class ClassUsageReplacementStrategy(
 
     private val factory = KtPsiFactory(project)
 
-    private val typeReplacement = typeReplacement?.check { it.referenceExpression != null }
+    private val typeReplacement = typeReplacement?.passIf { it.referenceExpression != null }
     private val typeReplacementQualifierAsExpression = typeReplacement?.qualifier?.let { factory.createExpression(it.text) }
 
     private val constructorReplacementStrategy = constructorReplacement?.let(::CallableUsageReplacementStrategy)

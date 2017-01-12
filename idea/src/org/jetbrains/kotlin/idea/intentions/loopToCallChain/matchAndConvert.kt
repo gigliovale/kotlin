@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils.isSubtypeOfClass
 import org.jetbrains.kotlin.resolve.calls.smartcasts.ExplicitSmartCasts
 import org.jetbrains.kotlin.resolve.calls.smartcasts.ImplicitSmartCasts
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 
 object MatcherRegistrar {
     val matchers: Collection<TransformationMatcher> = listOf(
@@ -138,7 +138,7 @@ fun match(loop: KtForExpression, useLazySequence: Boolean): MatchResult? {
 
 
                         return MatchResult(sequenceExpression, result, state.initializationStatementsToDelete)
-                                .check { checkSmartCastsPreserved(loop, it) }
+                                .verifyOrNull { checkSmartCastsPreserved(loop, it) }
                     }
                 }
             }

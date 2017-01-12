@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.resolve.source.KotlinSourceElement
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.types.typeUtil.*
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 import java.util.*
 
 internal class DeclarationsCheckerBuilder(
@@ -182,7 +182,7 @@ class DeclarationsChecker(
     private fun getUsedTypeAliasParameters(type: KotlinType, typeAlias: TypeAliasDescriptor): Set<TypeParameterDescriptor> =
             type.constituentTypes().mapNotNullTo(HashSet()) {
                 val descriptor = it.constructor.declarationDescriptor as? TypeParameterDescriptor
-                descriptor?.check { it.containingDeclaration == typeAlias }
+                descriptor?.verifyOrNull { it.containingDeclaration == typeAlias }
             }
 
     private class TypeAliasDeclarationCheckingReportStrategy(

@@ -25,7 +25,7 @@ import org.jetbrains.kotlin.resolve.scopes.ImportingScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
 import org.jetbrains.kotlin.resolve.scopes.utils.parentsWithSelf
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 import java.util.*
 
 interface Candidate<out D : CallableDescriptor> {
@@ -235,11 +235,11 @@ class TowerResolver {
 
         override fun getSuccessfulCandidates(): Collection<C>? = getResolved()
 
-        fun getResolved() = currentCandidates.check { currentLevel == ResolutionCandidateApplicability.RESOLVED }
+        fun getResolved() = currentCandidates.verifyOrNull { currentLevel == ResolutionCandidateApplicability.RESOLVED }
 
-        fun getResolvedLowPriority() = currentCandidates.check { currentLevel == ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY }
+        fun getResolvedLowPriority() = currentCandidates.verifyOrNull { currentLevel == ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY }
 
-        fun getErrors() = currentCandidates.check {
+        fun getErrors() = currentCandidates.verifyOrNull {
             currentLevel == null || currentLevel!! > ResolutionCandidateApplicability.RESOLVED_LOW_PRIORITY
         }
 

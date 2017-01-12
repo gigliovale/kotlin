@@ -21,7 +21,7 @@ import com.intellij.psi.CommonClassNames.JAVA_LANG_OBJECT
 import com.intellij.psi.CommonClassNames.JAVA_LANG_STRING
 import com.intellij.psi.impl.PsiExpressionEvaluator
 import org.jetbrains.kotlin.j2k.ast.*
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 import java.io.PrintStream
 import java.util.*
 
@@ -346,7 +346,7 @@ enum class SpecialMethod(val qualifiedClassName: String?, val methodName: String
 
     STRING_GET_BYTES(JAVA_LANG_STRING, "getBytes", null) {
         override fun ConvertCallData.convertCall(): MethodCallExpression {
-            val charsetArg = arguments.lastOrNull()?.check { it.type?.canonicalText == JAVA_LANG_STRING }
+            val charsetArg = arguments.lastOrNull()?.verifyOrNull { it.type?.canonicalText == JAVA_LANG_STRING }
             val convertedArguments = codeConverter.convertExpressionsInList(arguments).map {
                 if (charsetArg != null && it.prototypes?.singleOrNull()?.element == charsetArg)
                     MethodCallExpression.buildNonNull(null, "charset", ArgumentList.withNoPrototype(it)).assignNoPrototype()
@@ -523,7 +523,7 @@ enum class SpecialMethod(val qualifiedClassName: String?, val methodName: String
             val candidates = valuesByName[method.name] ?: return null
             return candidates
                     .firstOrNull { it.matches(method, services.superMethodsSearcher) }
-                    ?.check { it.parameterCount == null || it.parameterCount == argumentCount } // if parameterCount is specified we should make sure that argument count is correct
+                    ?.verifyOrNull { it.parameterCount == null || it.parameterCount == argumentCount } // if parameterCount is specified we should make sure that argument count is correct
         }
     }
 }

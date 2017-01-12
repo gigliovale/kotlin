@@ -48,7 +48,7 @@ import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.types.expressions.OperatorConventions
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import org.jetbrains.kotlin.util.isValidOperator
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 import java.util.*
 
 abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
@@ -227,7 +227,7 @@ abstract class OperatorReferenceSearcher<TReferenceElement : KtElement>(
     }
 
     private fun extractReceiverType(): FuzzyType? {
-        val descriptor = resolveTargetToDescriptor()?.check { it.isValidOperator() } ?: return null
+        val descriptor = resolveTargetToDescriptor()?.verifyOrNull { it.isValidOperator() } ?: return null
 
         return if (descriptor.isExtension) {
             descriptor.fuzzyExtensionReceiverType()!!

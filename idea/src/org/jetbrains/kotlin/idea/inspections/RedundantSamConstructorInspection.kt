@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.resolve.scopes.SyntheticScopes
 import org.jetbrains.kotlin.resolve.scopes.collectSyntheticMemberFunctions
 import org.jetbrains.kotlin.synthetic.SamAdapterExtensionFunctionDescriptor
 import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.verifyOrNull
 import org.jetbrains.kotlin.utils.addToStdlib.singletonList
 
 class RedundantSamConstructorInspection : AbstractKotlinInspection() {
@@ -179,7 +179,7 @@ class RedundantSamConstructorInspection : AbstractKotlinInspection() {
             for (staticFunWithSameName in containingClass.staticScope.getContributedFunctions(functionResolvedCall.resultingDescriptor.name, NoLookupLocation.FROM_IDE)) {
                 if (staticFunWithSameName is SamAdapterDescriptor<*>) {
                     if (isSamAdapterSuitableForCall(staticFunWithSameName, originalFunctionDescriptor, samConstructorCallArguments.size)) {
-                        return samConstructorCallArguments.check { canBeReplaced(functionCall, it) } ?: emptyList()
+                        return samConstructorCallArguments.verifyOrNull { canBeReplaced(functionCall, it) } ?: emptyList()
                     }
                 }
             }
@@ -193,7 +193,7 @@ class RedundantSamConstructorInspection : AbstractKotlinInspection() {
             for (syntheticExtension in syntheticExtensions) {
                 val samAdapter = syntheticExtension as? SamAdapterExtensionFunctionDescriptor ?: continue
                 if (isSamAdapterSuitableForCall(samAdapter, originalFunctionDescriptor, samConstructorCallArguments.size)) {
-                    return samConstructorCallArguments.check { canBeReplaced(functionCall, it) } ?: emptyList()
+                    return samConstructorCallArguments.verifyOrNull { canBeReplaced(functionCall, it) } ?: emptyList()
                 }
             }
 
@@ -204,7 +204,7 @@ class RedundantSamConstructorInspection : AbstractKotlinInspection() {
                 = argument.toCallExpression()?.samConstructorValueArgument() != null
 
         private fun KtCallExpression.samConstructorValueArgument(): KtValueArgument? {
-            return valueArguments.singleOrNull()?.check { it.getArgumentExpression() is KtLambdaExpression }
+            return valueArguments.singleOrNull()?.verifyOrNull { it.getArgumentExpression() is KtLambdaExpression }
         }
 
         private fun ValueArgument.toCallExpression(): KtCallExpression? {

@@ -45,7 +45,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.setSingleOverridden
 import org.jetbrains.kotlin.resolve.findMemberWithMaxVisibility
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.types.typeUtil.supertypes
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.letIf
 import java.util.*
 
 /**
@@ -252,7 +252,7 @@ class ChangeMemberFunctionSignatureFix private constructor(
 
         object MatchNames : ParameterChooser {
             override fun choose(parameter: ValueParameterDescriptor, superParameter: ValueParameterDescriptor): ValueParameterDescriptor? {
-                return superParameter.check { parameter.name == superParameter.name }
+                return superParameter.letIf { parameter.name == superParameter.name }
             }
         }
 

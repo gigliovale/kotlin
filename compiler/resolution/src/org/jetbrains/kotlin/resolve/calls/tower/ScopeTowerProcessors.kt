@@ -24,14 +24,14 @@ import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
 import org.jetbrains.kotlin.resolve.scopes.receivers.DetailedReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.QualifierReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.letIf
 
 
 class KnownResultProcessor<out C>(
         val result: Collection<C>
 ): ScopeTowerProcessor<C> {
     override fun process(data: TowerData)
-            = if (data == TowerData.Empty) listOfNotNull(result.check { it.isNotEmpty() }) else emptyList()
+            = if (data == TowerData.Empty) listOfNotNull(result.letIf { it.isNotEmpty() }) else emptyList()
 }
 
 class CompositeScopeTowerProcessor<out C>(
@@ -46,7 +46,7 @@ internal abstract class AbstractSimpleScopeTowerProcessor<D : CallableDescriptor
 
     protected abstract fun simpleProcess(data: TowerData): Collection<C>
 
-    override fun process(data: TowerData): List<Collection<C>> = listOfNotNull(simpleProcess(data).check { it.isNotEmpty() })
+    override fun process(data: TowerData): List<Collection<C>> = listOfNotNull(simpleProcess(data).letIf { it.isNotEmpty() })
 }
 
 private typealias CandidatesCollector<D> =

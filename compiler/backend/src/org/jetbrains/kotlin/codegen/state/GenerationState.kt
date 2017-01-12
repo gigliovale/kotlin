@@ -176,7 +176,7 @@ class GenerationState @JvmOverloads constructor(
                     ::CoroutineTransformerClassBuilderFactory,
                     { BuilderFactoryForDuplicateSignatureDiagnostics(
                             it, this.bindingContext, diagnostics, fileClassesProvider, this.moduleName
-                      ).apply { duplicateSignatureFactory = this } },
+                      ).supply { duplicateSignatureFactory = it } },
                     { BuilderFactoryForDuplicateClassNameDiagnostics(it, diagnostics) },
                     { configuration.get(JVMConfigurationKeys.DECLARATIONS_JSON_PATH)
                               ?.let { destination -> SignatureDumpingBuilderFactory(it, File(destination)) } ?: it }

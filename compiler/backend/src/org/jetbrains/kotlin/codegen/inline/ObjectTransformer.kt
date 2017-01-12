@@ -82,8 +82,8 @@ class WhenMappingTransformer(
             override fun visitMethod(
                     access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?
             ): MethodVisitor? {
-                return MethodNode(access, name, desc, signature, exceptions).apply {
-                    methodNodes.add(this)
+                return MethodNode(access, name, desc, signature, exceptions).supply {
+                    methodNodes.add(it)
                 }
             }
         }, ClassReader.SKIP_FRAMES)

@@ -122,9 +122,9 @@ open class MetadataSerializer(private val dependOnOldBuiltIns: Boolean) {
         }
 
         val kotlinModuleFile = File(destDir, JvmCodegenUtil.getMappingFileName(JvmCodegenUtil.getModuleName(module)))
-        val packageTableBytes = JvmPackageTable.PackageTable.newBuilder().apply {
+        val packageTableBytes = JvmPackageTable.PackageTable.newBuilder().supply {
             for (table in packageTable.values) {
-                table.addTo(this)
+                table.addTo(it)
             }
         }.serializeToByteArray()
 

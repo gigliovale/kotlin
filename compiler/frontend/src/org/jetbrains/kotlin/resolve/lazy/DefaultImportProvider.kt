@@ -30,7 +30,7 @@ import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.storage.getValue
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.keepIf
 
 class DefaultImportProvider(
         storageManager: StorageManager,
@@ -56,7 +56,7 @@ class DefaultImportProvider(
                 defaultImports
                         .filter { it.isAllUnder }
                         .mapNotNull {
-                            it.fqnPart().check { !it.isSubpackageOf(KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME) }
+                            it.fqnPart().keepIf { !it.isSubpackageOf(KotlinBuiltIns.BUILT_INS_PACKAGE_FQ_NAME) }
                         }
         val nonKotlinAliasedTypeFqNames =
                 builtinTypeAliases

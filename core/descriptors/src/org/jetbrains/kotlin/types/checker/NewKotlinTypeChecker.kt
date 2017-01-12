@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.types.checker.TypeCheckerContext.SupertypesPolicy
 import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
 import org.jetbrains.kotlin.types.typeUtil.makeNullable
 import org.jetbrains.kotlin.utils.SmartList
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.keepIf
 
 object StrictEqualityTypeChecker {
     /**
@@ -102,7 +102,7 @@ object NewKotlinTypeChecker : KotlinTypeChecker {
 
     fun transformToNewType(type: SimpleType): SimpleType {
         if (type is CapturedType) {
-            val lowerType = type.typeProjection.check { it.projectionKind == Variance.IN_VARIANCE }?.type?.unwrap()
+            val lowerType = type.typeProjection.keepIf { it.projectionKind == Variance.IN_VARIANCE }?.type?.unwrap()
 
             // it is incorrect calculate this type directly because of recursive star projections
             if (type.constructor.newTypeConstructor == null) {
@@ -188,7 +188,7 @@ object NewKotlinTypeChecker : KotlinTypeChecker {
 
                 val newArguments = superConstructor.parameters.mapIndexed { index, parameterDescriptor ->
                     val allProjections = supertypesWithSameConstructor.map {
-                        it.arguments.getOrNull(index)?.check { it.projectionKind == Variance.INVARIANT }?.type?.unwrap()
+                        it.arguments.getOrNull(index)?.keepIf { it.projectionKind == Variance.INVARIANT }?.type?.unwrap()
                         ?: error("Incorrect type: $it, subType: $subType, superType: $superType")
                     }
 

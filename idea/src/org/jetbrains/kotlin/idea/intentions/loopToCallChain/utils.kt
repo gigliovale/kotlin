@@ -44,7 +44,7 @@ import org.jetbrains.kotlin.resolve.bindingContextUtil.isUsedAsExpression
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.keepIf
 import java.util.*
 
 fun generateLambda(inputVariable: KtCallableDeclaration, expression: KtExpression): KtLambdaExpression {
@@ -166,7 +166,7 @@ fun KtExpression?.findVariableInitializationBeforeLoop(
     for (statement in prevStatements) {
         val variableInitialization = extractVariableInitialization(statement, variable)
         if (variableInitialization != null) {
-            return variableInitialization.check {
+            return variableInitialization.keepIf {
                 statementsBetween.all { canSwapExecutionOrder(variableInitialization.initializationStatement, it) }
             }
         }

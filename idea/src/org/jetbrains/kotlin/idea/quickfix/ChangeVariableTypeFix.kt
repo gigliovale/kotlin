@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.utils.addToStdlib.keepIf
 import java.util.*
 
 open class ChangeVariableTypeFix(element: KtVariableDeclaration, type: KotlinType) : KotlinQuickFixAction<KtVariableDeclaration>(element) {
@@ -49,7 +49,7 @@ open class ChangeVariableTypeFix(element: KtVariableDeclaration, type: KotlinTyp
         val name = element.name
         if (name != null) {
             val container = element.resolveToDescriptor().containingDeclaration as? ClassDescriptor
-            val containerName = container?.name?.check { !it.isSpecial }?.asString()
+            val containerName = container?.name?.keepIf { !it.isSpecial }?.asString()
             return if (containerName != null) "'$containerName.$name'" else "'$name'"
         }
         else {

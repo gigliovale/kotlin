@@ -16,12 +16,12 @@
 
 package org.jetbrains.kotlin.js.translate.reference;
 
-import org.jetbrains.kotlin.js.backend.ast.JsBinaryOperation;
-import org.jetbrains.kotlin.js.backend.ast.JsExpression;
-import org.jetbrains.kotlin.js.backend.ast.JsNameRef;
+import org.jetbrains.kotlin.js.backend.ast.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.descriptors.*;
+import org.jetbrains.kotlin.js.backend.ast.metadata.MetadataProperties;
+import org.jetbrains.kotlin.js.backend.ast.metadata.SideEffectKind;
 import org.jetbrains.kotlin.js.translate.callTranslator.CallTranslator;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
@@ -80,6 +80,7 @@ public class VariableAccessTranslator extends AbstractTranslator implements Acce
                     setInlineCallMetadata(e, referenceExpression, getter, context());
                 }
             }
+            setAccessorSideEffectsToPure(e);
         }
         return e;
     }
@@ -99,8 +100,18 @@ public class VariableAccessTranslator extends AbstractTranslator implements Acce
                     setInlineCallMetadata(e, referenceExpression, setter, context());
                 }
             }
+            setAccessorSideEffectsToPure(e);
         }
         return e;
+    }
+
+    private static void setAccessorSideEffectsToPure(JsExpression e) {
+        if (e instanceof JsInvocation && ((JsInvocation)e).getQualifier() instanceof JsNameRef) {
+            JsName name = ((JsNameRef)(((JsInvocation)e).getQualifier())).getName();
+            if (name != null) {
+                MetadataProperties.setSideEffects(name, SideEffectKind.PURE);
+            }
+        }
     }
 
     @NotNull

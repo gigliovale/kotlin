@@ -18,11 +18,9 @@
 
 package org.jetbrains.kotlin.js.translate.utils
 
-import org.jetbrains.kotlin.js.backend.ast.metadata.descriptor
-import org.jetbrains.kotlin.js.backend.ast.metadata.inlineStrategy
-import org.jetbrains.kotlin.js.backend.ast.metadata.psiElement
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.js.backend.ast.*
+import org.jetbrains.kotlin.js.backend.ast.metadata.*
 import org.jetbrains.kotlin.js.inline.util.isCallInvocation
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.reference.CallExpressionTranslator
@@ -61,6 +59,7 @@ fun setInlineCallMetadata(
                 invocation.descriptor = descriptor
                 invocation.inlineStrategy = InlineStrategy.IN_PLACE
                 invocation.psiElement = psiElement
+                invocation.qualifier.name?.sideEffects = SideEffectKind.PURE
             }
         }
     }

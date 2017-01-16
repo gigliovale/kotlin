@@ -101,15 +101,7 @@ object DefaultFunctionCallCase : FunctionCallCase() {
 
         val functionRef = ReferenceTranslator.translateAsValueReference(callableDescriptor, context)
 
-        val referenceToCall =
-                if (callableDescriptor.visibility == Visibilities.LOCAL) {
-                    Namer.getFunctionCallRef(functionRef)
-                }
-                else {
-                    functionRef
-                }
-
-        return JsInvocation(referenceToCall, argumentsInfo.argsWithReceiver(extensionReceiver!!))
+        return JsInvocation(functionRef, argumentsInfo.argsWithReceiver(extensionReceiver!!))
     }
 
     override fun FunctionCallInfo.bothReceivers(): JsExpression {
@@ -170,14 +162,7 @@ object InvokeIntrinsic : FunctionCallCase() {
     }
 
     override fun FunctionCallInfo.dispatchReceiver(): JsExpression {
-        val receiver = resolvedCall.dispatchReceiver!!
-        val jsReceiver = if (receiver.type.isExtensionFunctionType) {
-            pureFqn(Namer.CALL_FUNCTION, dispatchReceiver)
-        }
-        else {
-            dispatchReceiver!!
-        }
-        return JsInvocation(jsReceiver, argumentsInfo.translateArguments)
+        return JsInvocation(dispatchReceiver!!, argumentsInfo.translateArguments)
     }
 
     /**
@@ -194,7 +179,7 @@ object InvokeIntrinsic : FunctionCallCase() {
      *      extLambda.call(obj, some, args)
      */
     override fun FunctionCallInfo.bothReceivers(): JsExpression {
-        return JsInvocation(Namer.getFunctionCallRef(dispatchReceiver!!), argumentsInfo.argsWithReceiver(extensionReceiver!!))
+        return JsInvocation(dispatchReceiver!!, argumentsInfo.argsWithReceiver(extensionReceiver!!))
     }
 }
 

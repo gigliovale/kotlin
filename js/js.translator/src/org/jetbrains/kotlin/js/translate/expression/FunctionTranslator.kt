@@ -77,7 +77,7 @@ private fun FunctionDescriptor.getCorrectTypeParameters() =
 
 
 private val FunctionDescriptor.requiresExtensionReceiverParameter
-    get() = DescriptorUtils.isExtension(this) && visibility != Visibilities.LOCAL
+    get() = DescriptorUtils.isExtension(this)
 
 fun TranslationContext.translateFunction(declaration: KtDeclarationWithBody, function: JsFunction) {
     val descriptor = BindingUtils.getFunctionDescriptor(bindingContext(), declaration)

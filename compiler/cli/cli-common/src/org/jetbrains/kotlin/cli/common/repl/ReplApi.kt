@@ -28,105 +28,173 @@ data class ReplCodeLine(val no: Int, val code: String) : Serializable {
     }
 }
 
-data class ClassWithInstance(val klass: KClass<*>, val instance: Any)
-
-// TODO: consider storing code hash where source is not needed
+data class CompiledReplCodeLine(val className: String, val source: ReplCodeLine) : Serializable {
+    companion object {
+        private val serialVersionUID: Long = 8228307678L
+    }
+}
 
 data class CompiledClassData(val path: String, val bytes: ByteArray) : Serializable {
     override fun equals(other: Any?): Boolean = (other as? CompiledClassData)?.let { path == it.path && Arrays.equals(bytes, it.bytes) } ?: false
     override fun hashCode(): Int = path.hashCode() + Arrays.hashCode(bytes)
+
     companion object {
         private val serialVersionUID: Long = 8228357578L
     }
 }
 
-sealed class ReplCheckResult(val updatedHistory: List<ReplCodeLine>) : Serializable {
-    class Ok(updatedHistory: List<ReplCodeLine>) : ReplCheckResult(updatedHistory)
-    class Incomplete(updatedHistory: List<ReplCodeLine>) : ReplCheckResult(updatedHistory)
-    class Error(updatedHistory: List<ReplCodeLine>,
-                val message: String,
-                val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION
-    ) : ReplCheckResult(updatedHistory)
-    {
+
+interface ReplCheckAction {
+    fun check(codeLine: ReplCodeLine): ReplCheckResponse
+}
+
+sealed class ReplCheckResponse : Serializable {
+    class Ok : ReplCheckResponse()
+
+    class Incomplete : ReplCheckResponse()
+
+    class Error(val message: String,
+                val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION) : ReplCheckResponse() {
         override fun toString(): String = "Error(message = \"$message\""
     }
+
     companion object {
-        private val serialVersionUID: Long = 8228357578L
+        private val serialVersionUID: Long = 8228307678L
     }
 }
 
-sealed class ReplCompileResult(val updatedHistory: List<ReplCodeLine>) : Serializable {
-    class CompiledClasses(updatedHistory: List<ReplCodeLine>,
+interface ReplResettableCodeLine {
+    fun resetToLine(lineNumber: Int): List<ReplCodeLine>
+
+    fun resetToLine(line: ReplCodeLine): List<ReplCodeLine> = resetToLine(line.no)
+}
+
+interface ReplCodeLineHistory {
+    val history: List<ReplCodeLine>
+}
+
+interface ReplCombinedHistory {
+    val compiledHistory: List<ReplCodeLine>
+    val evaluatedHistory: List<ReplCodeLine>
+}
+
+interface ReplCompileAction {
+    fun compile(codeLine: ReplCodeLine, verifyHistory: List<ReplCodeLine>? = null): ReplCompileResponse
+}
+
+sealed class ReplCompileResponse(val compiledHistory: List<ReplCodeLine>) : Serializable {
+    class CompiledClasses(compiledHistory: List<ReplCodeLine>,
+                          val compiledCodeLine: CompiledReplCodeLine,
+                          val generatedClassname: String,
                           val classes: List<CompiledClassData>,
                           val hasResult: Boolean,
-                          val classpathAddendum: List<File>
-    ) : ReplCompileResult(updatedHistory)
-    class Incomplete(updatedHistory: List<ReplCodeLine>) : ReplCompileResult(updatedHistory)
-    class HistoryMismatch(updatedHistory: List<ReplCodeLine>, val lineNo: Int): ReplCompileResult(updatedHistory)
-    class Error(updatedHistory: List<ReplCodeLine>,
+                          val classpathAddendum: List<File>) : ReplCompileResponse(compiledHistory)
+
+    class Incomplete(compiledHistory: List<ReplCodeLine>) : ReplCompileResponse(compiledHistory)
+
+    class HistoryMismatch(compiledHistory: List<ReplCodeLine>, val lineNo: Int) : ReplCompileResponse(compiledHistory)
+
+    class Error(compiledHistory: List<ReplCodeLine>,
                 val message: String,
-                val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION
-    ) : ReplCompileResult(updatedHistory)
-    {
+                val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION) : ReplCompileResponse(compiledHistory) {
         override fun toString(): String = "Error(message = \"$message\""
     }
+
     companion object {
-        private val serialVersionUID: Long = 8228357578L
+        private val serialVersionUID: Long = 8228307678L
     }
 }
 
-sealed class ReplEvalResult(val updatedHistory: List<ReplCodeLine>) : Serializable {
-    class ValueResult(updatedHistory: List<ReplCodeLine>, val value: Any?) : ReplEvalResult(updatedHistory) {
+interface ReplCompiler : ReplResettableCodeLine, ReplCodeLineHistory, ReplCompileAction, ReplCheckAction
+
+typealias EvalHistoryType = Pair<CompiledReplCodeLine, EvalClassWithInstanceAndLoader>
+
+interface ReplEvaluatorExposedInternalHistory {
+    val lastEvaluatedScripts: List<EvalHistoryType>
+}
+
+interface ReplClasspath {
+    val currentClasspath: List<File>
+}
+
+data class EvalClassWithInstanceAndLoader(val klass: KClass<*>, val instance: Any?, val classLoader: ClassLoader, val invokeWrapper: InvokeWrapper?)
+
+interface ReplEvalAction {
+    fun eval(compileResult: ReplCompileResponse.CompiledClasses,
+             scriptArgs: ScriptArgsWithTypes? = null,
+             invokeWrapper: InvokeWrapper? = null): ReplEvalResponse
+}
+
+sealed class ReplEvalResponse(val completedEvalHistory: List<ReplCodeLine>) : Serializable {
+    class ValueResult(completedEvalHistory: List<ReplCodeLine>, val value: Any?) : ReplEvalResponse(completedEvalHistory) {
         override fun toString(): String = "Result: $value"
     }
-    class UnitResult(updatedHistory: List<ReplCodeLine>) : ReplEvalResult(updatedHistory)
-    class Incomplete(updatedHistory: List<ReplCodeLine>) : ReplEvalResult(updatedHistory)
-    class HistoryMismatch(updatedHistory: List<ReplCodeLine>, val lineNo: Int): ReplEvalResult(updatedHistory)
-    sealed class Error(updatedHistory: List<ReplCodeLine>, val message: String) : ReplEvalResult(updatedHistory) {
-        class Runtime(updatedHistory: List<ReplCodeLine>, message: String, val cause: Exception? = null) : Error(updatedHistory, message)
-        class CompileTime(updatedHistory: List<ReplCodeLine>,
+
+    class UnitResult(completedEvalHistory: List<ReplCodeLine>) : ReplEvalResponse(completedEvalHistory)
+
+    class Incomplete(completedEvalHistory: List<ReplCodeLine>) : ReplEvalResponse(completedEvalHistory)
+
+    class HistoryMismatch(completedEvalHistory: List<ReplCodeLine>, val lineNo: Int) : ReplEvalResponse(completedEvalHistory)
+
+    sealed class Error(completedEvalHistory: List<ReplCodeLine>, val message: String) : ReplEvalResponse(completedEvalHistory) {
+        class Runtime(completedEvalHistory: List<ReplCodeLine>, message: String, val cause: Exception? = null) : Error(completedEvalHistory, message)
+
+        class CompileTime(completedEvalHistory: List<ReplCodeLine>,
                           message: String,
-                          val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION
-        ) : Error(updatedHistory, message)
+                          val location: CompilerMessageLocation = CompilerMessageLocation.NO_LOCATION) : Error(completedEvalHistory, message)
+
         override fun toString(): String = "${this::class.simpleName}Error(message = \"$message\""
     }
+
     companion object {
-        private val serialVersionUID: Long = 8228357578L
+        private val serialVersionUID: Long = 8228307678L
     }
 }
 
-interface ReplChecker {
-    fun check(codeLine: ReplCodeLine, history: List<ReplCodeLine>): ReplCheckResult
+interface ReplEvaluator : ReplResettableCodeLine, ReplCodeLineHistory, ReplEvaluatorExposedInternalHistory, ReplEvalAction, ReplClasspath
+
+interface ReplAtomicEvalAction {
+    fun compileAndEval(codeLine: ReplCodeLine,
+                       scriptArgs: ScriptArgsWithTypes? = null,
+                       verifyHistory: List<ReplCodeLine>? = null,
+                       invokeWrapper: InvokeWrapper? = null): ReplEvalResponse
 }
 
-interface ReplCompiler : ReplChecker {
-    fun compile(codeLine: ReplCodeLine, history: List<ReplCodeLine>): ReplCompileResult
+interface ReplAtomicEvaluator : ReplResettableCodeLine, ReplCombinedHistory, ReplEvaluatorExposedInternalHistory, ReplAtomicEvalAction, ReplCheckAction, ReplClasspath
+
+interface ReplDelayedEvalAction {
+    fun compileToEvaluable(codeLine: ReplCodeLine, defaultScriptArgs: ScriptArgsWithTypes? = null, verifyHistory: List<ReplCodeLine>?): Pair<ReplCompileResponse, Evaluable?>
 }
 
-interface ReplEvaluatorBase {
-    val lastEvaluatedScript: ClassWithInstance?
+interface Evaluable {
+    val compiledCode: ReplCompileResponse.CompiledClasses
+    fun eval(scriptArgs: ScriptArgsWithTypes? = null, invokeWrapper: InvokeWrapper? = null): ReplEvalResponse
 }
 
-interface ReplCompiledEvaluator : ReplEvaluatorBase {
+interface ReplFullEvaluator : ReplEvaluator, ReplAtomicEvaluator, ReplDelayedEvalAction, ReplCombinedHistory
 
-    fun eval(codeLine: ReplCodeLine,
-             history: List<ReplCodeLine>,
-             compiledClasses: List<CompiledClassData>,
-             hasResult: Boolean,
-             classpathAddendum: List<File>,
-             invokeWrapper: InvokeWrapper? = null
-    ): ReplEvalResult
+/**
+ * Keep args and arg types together, so as a whole they are present or absent
+ */
+class ScriptArgsWithTypes(val scriptArgs: Array<out Any?>, val scriptArgsTypes: Array<out KClass<out Any>>) : Serializable {
+    companion object {
+        private val serialVersionUID: Long = 8529357500L
+    }
 }
 
-
-interface ReplEvaluator : ReplChecker, ReplEvaluatorBase {
-
-    fun eval(codeLine: ReplCodeLine,
-             history: List<ReplCodeLine>,
-             invokeWrapper: InvokeWrapper? = null
-    ): ReplEvalResult
+interface ScriptTemplateEmptyArgsProvider {
+    val defaultEmptyArgs: ScriptArgsWithTypes?
 }
+
+class SimpleScriptTemplateEmptyArgsProvider(override val defaultEmptyArgs: ScriptArgsWithTypes? = null) : ScriptTemplateEmptyArgsProvider
+
+enum class ReplRepeatingMode {
+    NONE,
+    REPEAT_ONLY_MOST_RECENT,
+    REPEAT_ANY_PREVIOUS
+}
+
 
 interface InvokeWrapper {
-    operator fun<T> invoke(body: () -> T): T // e.g. for capturing io
+    operator fun <T> invoke(body: () -> T): T // e.g. for capturing io
 }

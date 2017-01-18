@@ -101,6 +101,37 @@ JetFile: annotationsOnNullableTypes.kt
       PsiElement(LBRACE)('{')
       PsiElement(RBRACE)('}')
   PsiWhiteSpace('\n\n')
+  FUN
+    PsiElement(fun)('fun')
+    PsiWhiteSpace(' ')
+    TYPE_REFERENCE
+      MODIFIER_LIST
+        ANNOTATION_ENTRY
+          PsiElement(AT)('@')
+          ANNOTATION_TARGET
+            PsiElement(receiver)('receiver')
+          PsiElement(COLON)(':')
+          CONSTRUCTOR_CALLEE
+            TYPE_REFERENCE
+              USER_TYPE
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('a')
+      PsiWhiteSpace(' ')
+      NULLABLE_TYPE
+        USER_TYPE
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('Int')
+        PsiElement(QUEST)('?')
+    PsiElement(DOT)('.')
+    PsiElement(IDENTIFIER)('bar')
+    VALUE_PARAMETER_LIST
+      PsiElement(LPAR)('(')
+      PsiElement(RPAR)(')')
+    PsiWhiteSpace(' ')
+    BLOCK
+      PsiElement(LBRACE)('{')
+      PsiElement(RBRACE)('}')
+  PsiWhiteSpace('\n\n')
   PROPERTY
     PsiElement(val)('val')
     PsiWhiteSpace(' ')
@@ -450,3 +481,56 @@ JetFile: annotationsOnNullableTypes.kt
           REFERENCE_EXPRESSION
             PsiElement(IDENTIFIER)('Int')
         PsiElement(QUEST)('?')
+  PsiWhiteSpace('\n\n')
+  PROPERTY
+    MODIFIER_LIST
+      ANNOTATION_ENTRY
+        PsiElement(AT)('@')
+        ANNOTATION_TARGET
+          PsiElement(receiver)('receiver')
+        PsiElement(COLON)(':')
+        CONSTRUCTOR_CALLEE
+          TYPE_REFERENCE
+            USER_TYPE
+              REFERENCE_EXPRESSION
+                PsiElement(IDENTIFIER)('a')
+    PsiWhiteSpace(' ')
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    PsiElement(IDENTIFIER)('qux')
+    PsiElement(COLON)(':')
+    PsiWhiteSpace(' ')
+    TYPE_REFERENCE
+      USER_TYPE
+        REFERENCE_EXPRESSION
+          PsiElement(IDENTIFIER)('Int')
+  PsiWhiteSpace('\n\n')
+  PROPERTY
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    TYPE_REFERENCE
+      MODIFIER_LIST
+        ANNOTATION_ENTRY
+          PsiElement(AT)('@')
+          ANNOTATION_TARGET
+            PsiElement(receiver)('receiver')
+          PsiElement(COLON)(':')
+          CONSTRUCTOR_CALLEE
+            TYPE_REFERENCE
+              USER_TYPE
+                REFERENCE_EXPRESSION
+                  PsiElement(IDENTIFIER)('a')
+      PsiWhiteSpace(' ')
+      NULLABLE_TYPE
+        USER_TYPE
+          REFERENCE_EXPRESSION
+            PsiElement(IDENTIFIER)('Int')
+        PsiElement(QUEST)('?')
+    PsiElement(DOT)('.')
+    PsiElement(IDENTIFIER)('qux')
+    PsiElement(COLON)(':')
+    PsiWhiteSpace(' ')
+    TYPE_REFERENCE
+      USER_TYPE
+        REFERENCE_EXPRESSION
+          PsiElement(IDENTIFIER)('Int')

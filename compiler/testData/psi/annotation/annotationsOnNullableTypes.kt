@@ -4,6 +4,8 @@ fun foo(l: List<@a Int?>) {}
 
 fun @a Int?.bar() {}
 
+fun @receiver:a Int?.bar() {}
+
 val baz: @a Int?
 
 
@@ -23,3 +25,7 @@ fun foo2(l: List<@[a b(1)] Int?>) {}
 fun @[a b(1)] Int?.bar2() {}
 
 val baz2: @[a b(1)] Int?
+
+@receiver:a val qux: Int
+
+val @receiver:a Int?.qux: Int

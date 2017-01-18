@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.context.TypeLazinessToken
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
-import org.jetbrains.kotlin.descriptors.annotations.composeAnnotations
+import org.jetbrains.kotlin.descriptors.annotations.CompositeAnnotations
 import org.jetbrains.kotlin.descriptors.impl.VariableDescriptorImpl
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Errors.*
@@ -155,7 +155,7 @@ class TypeResolver(
     private fun resolveTypeAnnotations(c: TypeResolutionContext, modifierListsOwner: KtElementImplStub<*>): Annotations {
         val modifierLists = modifierListsOwner.getAllModifierLists()
 
-        var result = Annotations.EMPTY
+        var result: Annotations = Annotations.EMPTY
         var isSplitModifierList = false
 
         for (modifierList in modifierLists) {
@@ -164,8 +164,7 @@ class TypeResolver(
             }
 
             val annotations = annotationResolver.resolveAnnotationsWithoutArguments(c.scope, modifierList.annotationEntries, c.trace)
-            result = composeAnnotations(result, annotations)
-
+            result = combineAllAnnotations(result, annotations)
             isSplitModifierList = true
         }
 
@@ -238,7 +237,8 @@ class TypeResolver(
                     c.trace.report(MODIFIER_LIST_NOT_ALLOWED.on(innerModifierList))
                 }
 
-                val innerAnnotations = composeAnnotations(annotations, resolveTypeAnnotations(c, nullableType))
+                val nullableTypeAnnotations = resolveTypeAnnotations(c, nullableType)
+                val innerAnnotations = combineAllAnnotations(annotations, nullableTypeAnnotations)
 
                 val innerType = nullableType.innerType
                 val baseType = resolveTypeElement(c, innerAnnotations, outerModifierList ?: innerModifierList, innerType)
@@ -349,6 +349,17 @@ class TypeResolver(
         })
 
         return result ?: type(ErrorUtils.createErrorType(typeElement?.getDebugText() ?: "No type element"))
+    }
+
+    private fun combineAllAnnotations(annotations: Annotations, nullableTypeAnnotations: Annotations): Annotations {
+        return when {
+            annotations.getAllAnnotations().isEmpty() ->
+                nullableTypeAnnotations
+            nullableTypeAnnotations.getAllAnnotations().isEmpty() ->
+                annotations
+            else ->
+                CompositeAnnotations(annotations, nullableTypeAnnotations)
+        }
     }
 
     private fun KtTypeElement?.canHaveFunctionTypeModifiers(): Boolean =

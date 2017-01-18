@@ -1469,6 +1469,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                         doTest(fileName);
                     }
 
+                    @TestMetadata("receiver.kt")
+                    public void testReceiver() throws Exception {
+                        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/receiver.kt");
+                        doTest(fileName);
+                    }
+
                     @TestMetadata("returntype.kt")
                     public void testReturntype() throws Exception {
                         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/annotations/options/targets/returntype.kt");

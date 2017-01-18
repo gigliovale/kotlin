@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.caches.resolve.KotlinCacheService
 import org.jetbrains.kotlin.codegen.*
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding
 import org.jetbrains.kotlin.codegen.state.GenerationState
+import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
@@ -369,6 +370,10 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
             }
         }
 
+        val configuration = CompilerConfiguration().apply {
+            put(CommonConfigurationKeys.DISABLE_INLINE, true) // Disabled since evaluation very slow in eval4j (KT-14845)
+        }
+
         private fun createClassFileFactory(
                 codeFragment: KtCodeFragment,
                 extractedFunction: KtNamedFunction,
@@ -396,7 +401,7 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                         moduleDescriptor,
                         bindingContext,
                         files,
-                        CompilerConfiguration.EMPTY,
+                        configuration,
                         generateClassFilter
                 )
 

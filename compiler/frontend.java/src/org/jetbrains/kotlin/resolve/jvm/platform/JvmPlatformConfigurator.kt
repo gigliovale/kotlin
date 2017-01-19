@@ -92,5 +92,6 @@ object JvmPlatformConfigurator : PlatformConfigurator(
         container.useImpl<JavaSyntheticScopes>()
         container.useInstance(JavaSyntheticConstructorsProvider)
         container.useInstance(JvmTypeSpecificityComparator)
+        container.useInstance(JvmOperatorKindResolver)
     }
 }

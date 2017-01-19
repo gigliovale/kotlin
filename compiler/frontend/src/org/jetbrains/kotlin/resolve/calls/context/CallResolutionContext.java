@@ -37,6 +37,8 @@ public abstract class CallResolutionContext<Context extends CallResolutionContex
     @NotNull
     public final MutableDataFlowInfoForArguments dataFlowInfoForArguments;
 
+    public final boolean inferredOperatorsAllowed;
+
     protected CallResolutionContext(
             @NotNull BindingTrace trace,
             @NotNull LexicalScope scope,
@@ -53,7 +55,8 @@ public abstract class CallResolutionContext<Context extends CallResolutionContex
             boolean isDebuggerContext,
             boolean collectAllCandidates,
             @NotNull CallPosition callPosition,
-            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider
+            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider,
+            boolean inferredOperatorsAllowed
     ) {
         super(trace, scope, expectedType, dataFlowInfo, contextDependency, resolutionResultsCache,
               statementFilter, isAnnotationContext, isDebuggerContext, collectAllCandidates, callPosition, expressionContextProvider);
@@ -68,5 +71,7 @@ public abstract class CallResolutionContext<Context extends CallResolutionContex
         else {
             this.dataFlowInfoForArguments = new MutableDataFlowInfoForArguments.WithoutArgumentsCheck(dataFlowInfo);
         }
+
+        this.inferredOperatorsAllowed = inferredOperatorsAllowed;
     }
 }

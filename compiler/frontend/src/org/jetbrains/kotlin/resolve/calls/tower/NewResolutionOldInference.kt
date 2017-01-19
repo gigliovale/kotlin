@@ -26,8 +26,7 @@ import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtReferenceExpression
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.CallTransformer
 import org.jetbrains.kotlin.resolve.calls.CandidateResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.isBinaryRemOperator
@@ -45,7 +44,6 @@ import org.jetbrains.kotlin.resolve.calls.results.ResolutionStatus
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowValueFactory
 import org.jetbrains.kotlin.resolve.calls.tasks.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.hasDynamicExtensionAnnotation
-import org.jetbrains.kotlin.resolve.isHiddenInResolution
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.resolve.scopes.SyntheticConstructorsProvider
@@ -69,7 +67,8 @@ class NewResolutionOldInference(
         private val syntheticScopes: SyntheticScopes,
         private val syntheticConstructorsProvider: SyntheticConstructorsProvider,
         private val languageVersionSettings: LanguageVersionSettings,
-        private val coroutineInferenceSupport: CoroutineInferenceSupport
+        private val coroutineInferenceSupport: CoroutineInferenceSupport,
+        private val operatorKindResolver: OperatorKindResolver
 ) {
     sealed class ResolutionKind<D : CallableDescriptor> {
         abstract internal fun createTowerProcessor(
@@ -159,7 +158,12 @@ class NewResolutionOldInference(
         val dynamicScope = dynamicCallableDescriptors.createDynamicDescriptorScope(context.call, context.scope.ownerDescriptor)
         val scopeTower = ImplicitScopeTowerImpl(context, dynamicScope, syntheticScopes, syntheticConstructorsProvider, context.call.createLookupLocation())
 
+        fun resolveUsingProcessor(processor: ScopeTowerProcessor<MyCandidate<D>>) =
+                towerResolver.runResolve(scopeTower, processor, useOrder = kind != ResolutionKind.CallableReference)
+
         val shouldUseOperatorRem = languageVersionSettings.supportsFeature(LanguageFeature.OperatorRem)
+        val extensionOperatorHidesInferredMember = languageVersionSettings.supportsFeature(LanguageFeature.ExtensionOperatorHidesInferredMember)
+
         val isBinaryRemOperator = isBinaryRemOperator(context.call)
         val nameToResolve = if (isBinaryRemOperator && !shouldUseOperatorRem)
             OperatorConventions.REM_TO_MOD_OPERATION_NAMES[name]!!
@@ -172,17 +176,24 @@ class NewResolutionOldInference(
             return allCandidatesResult(towerResolver.collectAllCandidates(scopeTower, processor))
         }
 
-        var candidates = towerResolver.runResolve(scopeTower, processor, useOrder = kind != ResolutionKind.CallableReference)
+        var candidates = resolveUsingProcessor(processor)
+
 
         // Temporary hack to resolve 'rem' as 'mod' if the first is do not present
-        val emptyOrInapplicableCandidates = candidates.isEmpty() ||
-                                            candidates.all {
-                                                it.candidateStatus.resultingApplicability == ResolutionCandidateApplicability.INAPPLICABLE
-                                            }
-        if (isBinaryRemOperator && shouldUseOperatorRem && emptyOrInapplicableCandidates) {
+        val emptyOrAllInapplicable = isEmptyOrAllInapplicable(candidates)
+        if (isBinaryRemOperator && shouldUseOperatorRem && emptyOrAllInapplicable) {
             val deprecatedName = OperatorConventions.REM_TO_MOD_OPERATION_NAMES[name]
             val processorForDeprecatedName = kind.createTowerProcessor(this, deprecatedName!!, tracing, scopeTower, detailedReceiver, context)
-            candidates = towerResolver.runResolve(scopeTower, processorForDeprecatedName, useOrder = kind != ResolutionKind.CallableReference)
+            candidates = resolveUsingProcessor(processorForDeprecatedName)
+        }
+
+        if (extensionOperatorHidesInferredMember && isConventionCall(context.call) && containsInferredOperator(candidates)) {
+            val processorForExplicitOperators = kind.createTowerProcessor(this, name, tracing, scopeTower, detailedReceiver,
+                                                                          context.createWithInferredOperatorNotAllowed())
+            val explicitOperatorCandidates = resolveUsingProcessor(processorForExplicitOperators)
+            if (!isEmptyOrAllInapplicable(explicitOperatorCandidates)) {
+                candidates = explicitOperatorCandidates
+            }
         }
 
         if (candidates.isEmpty()) {
@@ -195,6 +206,19 @@ class NewResolutionOldInference(
         coroutineInferenceSupport.checkCoroutineCalls(context, tracing, overloadResults)
         return overloadResults
     }
+
+    private fun <D : CallableDescriptor> containsInferredOperator(candidates: Collection<MyCandidate<D>>): Boolean =
+            candidates.any { candidate ->
+                candidate.descriptor.let { descriptor ->
+                    descriptor is FunctionDescriptor && operatorKindResolver.isInferredOperator(descriptor)
+                }
+            }
+
+    private fun <D : CallableDescriptor> isEmptyOrAllInapplicable(candidates: Collection<MyCandidate<D>>): Boolean =
+            candidates.isEmpty() ||
+            candidates.all {
+                it.candidateStatus.resultingApplicability == ResolutionCandidateApplicability.INAPPLICABLE
+            }
 
     fun <D : CallableDescriptor> runResolutionForGivenCandidates(
             basicCallContext: BasicCallResolutionContext,
@@ -394,8 +418,13 @@ class NewResolutionOldInference(
 
             val conventionError = if (isConventionCall(call) && !descriptor.isOperator) InvokeConventionCallNoOperatorModifier else null
             val infixError = if (isInfixCall(call) && !descriptor.isInfix) InfixCallNoInfixModifier else null
-            return listOfNotNull(conventionError, infixError)
+            val inferredOperatorError = if (isConventionCall(call) && isInferredOperatorNotAllowed(descriptor)) InferredOperatorNotAllowed else null
+            return listOfNotNull(conventionError, infixError, inferredOperatorError)
         }
+
+        private fun isInferredOperatorNotAllowed(descriptor: FunctionDescriptor) =
+                !basicCallContext.inferredOperatorsAllowed &&
+                operatorKindResolver.isInferredOperator(descriptor)
 
     }
 

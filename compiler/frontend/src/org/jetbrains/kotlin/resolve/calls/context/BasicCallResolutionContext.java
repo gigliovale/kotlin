@@ -44,11 +44,12 @@ public class BasicCallResolutionContext extends CallResolutionContext<BasicCallR
             boolean isDebuggerContext,
             boolean collectAllCandidates,
             @NotNull CallPosition callPosition,
-            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider
+            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider,
+            boolean inferredOperatorsAllowed
     ) {
         super(trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments, resolutionResultsCache,
               dataFlowInfoForArguments, statementFilter, isAnnotationContext, isDebuggerContext, collectAllCandidates,
-              callPosition, expressionContextProvider);
+              callPosition, expressionContextProvider, inferredOperatorsAllowed);
     }
 
     @NotNull
@@ -65,7 +66,7 @@ public class BasicCallResolutionContext extends CallResolutionContext<BasicCallR
         return new BasicCallResolutionContext(trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments,
                                               new ResolutionResultsCacheImpl(), null,
                                               StatementFilter.NONE, isAnnotationContext, false, false,
-                                              CallPosition.Unknown.INSTANCE, DEFAULT_EXPRESSION_CONTEXT_PROVIDER);
+                                              CallPosition.Unknown.INSTANCE, DEFAULT_EXPRESSION_CONTEXT_PROVIDER, true);
     }
 
     @NotNull
@@ -77,7 +78,7 @@ public class BasicCallResolutionContext extends CallResolutionContext<BasicCallR
                 context.trace, context.scope, call, context.expectedType, context.dataFlowInfo, context.contextDependency, checkArguments,
                 context.resolutionResultsCache, dataFlowInfoForArguments,
                 context.statementFilter, context.isAnnotationContext, context.isDebuggerContext, context.collectAllCandidates,
-                context.callPosition, context.expressionContextProvider);
+                context.callPosition, context.expressionContextProvider, true);
     }
 
     @NotNull
@@ -103,7 +104,7 @@ public class BasicCallResolutionContext extends CallResolutionContext<BasicCallR
         return new BasicCallResolutionContext(
                 trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments, resolutionResultsCache,
                 dataFlowInfoForArguments, statementFilter, isAnnotationContext, isDebuggerContext, collectAllCandidates,
-                callPosition, expressionContextProvider);
+                callPosition, expressionContextProvider, inferredOperatorsAllowed);
     }
 
     @NotNull
@@ -111,6 +112,15 @@ public class BasicCallResolutionContext extends CallResolutionContext<BasicCallR
         return new BasicCallResolutionContext(
                 trace, scope, newCall, expectedType, dataFlowInfo, contextDependency, checkArguments, resolutionResultsCache,
                 dataFlowInfoForArguments, statementFilter, isAnnotationContext, isDebuggerContext, collectAllCandidates,
-                callPosition, expressionContextProvider);
+                callPosition, expressionContextProvider, inferredOperatorsAllowed);
+    }
+
+    @NotNull
+    public BasicCallResolutionContext createWithInferredOperatorNotAllowed() {
+        return new BasicCallResolutionContext(
+                trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments, resolutionResultsCache,
+                dataFlowInfoForArguments, statementFilter, isAnnotationContext, isDebuggerContext, collectAllCandidates,
+                callPosition, expressionContextProvider, false
+        );
     }
 }

@@ -57,11 +57,12 @@ public final class CallCandidateResolutionContext<D extends CallableDescriptor> 
             boolean isDebuggerContext,
             boolean collectAllCandidates,
             @NotNull CallPosition callPosition,
-            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider
+            @NotNull Function1<KtExpression, KtExpression> expressionContextProvider,
+            boolean inferredOperatorsAllowed
     ) {
         super(trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments, resolutionResultsCache,
               dataFlowInfoForArguments, statementFilter, isAnnotationContext, isDebuggerContext,
-              collectAllCandidates, callPosition, expressionContextProvider);
+              collectAllCandidates, callPosition, expressionContextProvider, inferredOperatorsAllowed);
         this.candidateCall = candidateCall;
         this.tracing = tracing;
         this.candidateResolveMode = candidateResolveMode;
@@ -78,7 +79,7 @@ public final class CallCandidateResolutionContext<D extends CallableDescriptor> 
                 context.resolutionResultsCache, context.dataFlowInfoForArguments,
                 context.statementFilter,
                 candidateResolveMode, context.isAnnotationContext, context.isDebuggerContext, context.collectAllCandidates,
-                context.callPosition, context.expressionContextProvider);
+                context.callPosition, context.expressionContextProvider, context.inferredOperatorsAllowed);
     }
 
     @NotNull
@@ -90,7 +91,7 @@ public final class CallCandidateResolutionContext<D extends CallableDescriptor> 
                 context.dataFlowInfo, context.contextDependency, context.checkArguments, context.resolutionResultsCache,
                 context.dataFlowInfoForArguments, context.statementFilter,
                 CandidateResolveMode.FULLY, context.isAnnotationContext, context.isDebuggerContext, context.collectAllCandidates,
-                context.callPosition, context.expressionContextProvider);
+                context.callPosition, context.expressionContextProvider, context.inferredOperatorsAllowed);
     }
 
     @Override
@@ -109,6 +110,7 @@ public final class CallCandidateResolutionContext<D extends CallableDescriptor> 
         return new CallCandidateResolutionContext<D>(
                 candidateCall, tracing, trace, scope, call, expectedType, dataFlowInfo, contextDependency, checkArguments,
                 resolutionResultsCache, dataFlowInfoForArguments, statementFilter,
-                candidateResolveMode, isAnnotationContext, isDebuggerContext, collectAllCandidates, callPosition, expressionContextProvider);
+                candidateResolveMode, isAnnotationContext, isDebuggerContext, collectAllCandidates, callPosition, expressionContextProvider,
+                true);
     }
 }

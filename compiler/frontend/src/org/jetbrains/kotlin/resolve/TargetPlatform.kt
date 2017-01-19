@@ -58,6 +58,7 @@ abstract class TargetPlatform(val platformName: String) {
                         container.useInstance(SyntheticScopes.Empty)
                         container.useInstance(SyntheticConstructorsProvider.Empty)
                         container.useInstance(TypeSpecificityComparator.NONE)
+                        container.useInstance(OperatorKindResolver.DEFAULT)
                     }
                 }
 

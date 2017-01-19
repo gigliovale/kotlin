@@ -21,10 +21,7 @@ import org.jetbrains.kotlin.container.useImpl
 import org.jetbrains.kotlin.container.useInstance
 import org.jetbrains.kotlin.js.resolve.diagnostics.*
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
-import org.jetbrains.kotlin.resolve.IdentifierChecker
-import org.jetbrains.kotlin.resolve.OverloadFilter
-import org.jetbrains.kotlin.resolve.OverridesBackwardCompatibilityHelper
-import org.jetbrains.kotlin.resolve.PlatformConfigurator
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.checkers.ReifiedTypeParameterSubstitutionChecker
 import org.jetbrains.kotlin.resolve.checkers.HeaderImplDeclarationChecker
 import org.jetbrains.kotlin.resolve.lazy.DelegationFilter
@@ -67,5 +64,6 @@ object JsPlatformConfigurator : PlatformConfigurator(
         container.useImpl<JsReflectionAPICallChecker>()
         container.useImpl<JsNativeRttiChecker>()
         container.useImpl<JsReifiedNativeChecker>()
+        container.useInstance(OperatorKindResolver.DEFAULT)
     }
 }

@@ -370,7 +370,7 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
             }
         }
 
-        val configuration = CompilerConfiguration().apply {
+        val configurationNoInline = CompilerConfiguration().apply {
             put(CommonConfigurationKeys.DISABLE_INLINE, true) // Disabled since evaluation very slow in eval4j (KT-14845)
         }
 
@@ -394,6 +394,11 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                     override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject) = processingClassOrObject.containingKtFile == fileForDebugger
                     override fun shouldGenerateScript(script: KtScript) = false
                 }
+
+                val configuration = if (codeFragment.text.contains("//noinline"))
+                    configurationNoInline
+                else
+                    CompilerConfiguration.EMPTY
 
                 val state = GenerationState(
                         fileForDebugger.project,

@@ -157,7 +157,14 @@ public final class JsDescriptorUtils {
     private static boolean overridesOnlyAbstractOrExternal(@NotNull CallableMemberDescriptor memberDescriptor) {
         if (ModalityKt.isOverridable(memberDescriptor)) return false;
         for (CallableMemberDescriptor overridden : memberDescriptor.getOverriddenDescriptors()) {
-            if (overridden.getModality() != Modality.ABSTRACT && !AnnotationsUtils.isNativeObject(overridden)) return false;
+            ClassDescriptor superType = (ClassDescriptor) overridden.getContainingDeclaration();
+            if (superType.getKind() == ClassKind.INTERFACE &&
+                (memberDescriptor.getKind().isReal() || AnnotationsUtils.isNativeObject(overridden))
+            ) {
+                continue;
+            }
+
+            if (!overridden.getOverriddenDescriptors().isEmpty() || overridden.getModality() != Modality.ABSTRACT) return false;
         }
         return true;
     }

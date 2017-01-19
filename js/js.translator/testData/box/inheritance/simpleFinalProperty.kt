@@ -42,6 +42,70 @@ class G : J, K {
     override val y = 42
 }
 
+open class AC1 {
+    open var x: Int
+        get() = 55
+        set(value) {}
+}
+
+abstract class AC2 : AC1() {
+    override abstract var x: Int
+}
+
+class AC2Impl : AC2() {
+    override var x: Int = 2
+}
+
+abstract class AC3 {
+    abstract var x: Int
+}
+
+class AC3Impl : AC3() {
+    override var x: Int = 2
+}
+
+interface I1 {
+    open var x: Int
+        get() = 66
+        set(value) {}
+}
+
+class I1Impl : I1 {
+    override var x: Int = 3
+}
+
+class I1Impl2 : I1
+
+interface I2 : I1 {
+    override var x: Int
+}
+
+class I2Impl : I2 {
+    override var x: Int = 4
+}
+
+
+external open class EC1 {
+    open var x: Int
+        get() = noImpl
+        set(value) = noImpl
+}
+class EC1Impl : EC1() {
+    override var x: Int = 1
+}
+external abstract class EC2 : EC1 {
+    override abstract var x: Int
+}
+class EC2Impl : EC2() {
+    override var x: Int = 2
+}
+abstract class EC3 {
+    abstract var x: Int
+}
+class EC3Impl : EC3() {
+    override var x: Int = 3
+}
+
 fun box(): String {
     check(D()) {
         simple("x", 23)
@@ -55,8 +119,38 @@ fun box(): String {
         getSet("x", 23)
     }
     check(G()) {
-        getSet("x", 23)
+        simple("x", 23)
         simple("y", 42)
+    }
+
+    check(AC1()) {
+        getSet("x", 55)
+    }
+    check(AC2Impl()) {
+        getSet("x", 2)
+    }
+    check(AC3Impl()) {
+        simple("x", 2)
+    }
+
+    check(I1Impl()) {
+        simple("x", 3)
+    }
+    check(I1Impl2()) {
+        getSet("x", 66)
+    }
+    check(I2Impl()) {
+        simple("x", 4)
+    }
+
+    check(EC1Impl()) {
+        getSet("x", 1)
+    }
+    check(EC2Impl()) {
+        getSet("x", 2)
+    }
+    check(EC3Impl()) {
+        simple("x", 3)
     }
 
     return "OK"

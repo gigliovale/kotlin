@@ -14077,6 +14077,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("operatorExtensionHidesJavaMember.kt")
+            public void testOperatorExtensionHidesJavaMember() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/operatorsOverloading/operatorExtensionHidesJavaMember.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("plusAssignOnArray.kt")
             public void testPlusAssignOnArray() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/operatorsOverloading/plusAssignOnArray.kt");

@@ -85,7 +85,7 @@ object J2KPostProcessingRegistrar {
             val expression = RemoveUselessCastFix.invoke(element)
 
             val variable = expression.parent as? KtProperty
-            if (variable != null && expression == variable.initializer && variable.isLocal) {
+            if (variable != null && expression == variable.initializer && variable.isLocal && expression is KtSimpleNameExpression) {
                 val refs = ReferencesSearch.search(variable, LocalSearchScope(variable.containingFile)).findAll()
                 for (ref in refs) {
                     val usage = ref.element as? KtSimpleNameExpression ?: continue

@@ -48,3 +48,11 @@ Kotlin.imulEmulated = imul;
 function imul(a, b) {
     return ((a & 0xffff0000) * (b & 0xffff) + (a & 0xffff) * (b | 0)) | 0;
 }
+
+Kotlin.subSequence = function(value, startIndex, endIndex) {
+    if (typeof value === "string") {
+        return value.substring(startIndex, endIndex);
+    } else {
+        return value.subSequence_vux9f0$(startIndex, endIndex);
+    }
+};

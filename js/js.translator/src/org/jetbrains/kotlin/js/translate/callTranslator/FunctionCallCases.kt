@@ -105,7 +105,7 @@ object DefaultFunctionCallCase : FunctionCallCase() {
 
     override fun FunctionCallInfo.bothReceivers(): JsExpression {
         // TODO: think about crazy case: spreadOperator + native
-        val functionRef = JsNameRef(functionName, dispatchReceiver!!)
+        val functionRef = JsAstUtils.pureFqn(functionName, dispatchReceiver!!)
         return JsInvocation(functionRef, argumentsInfo.argsWithReceiver(extensionReceiver!!))
     }
 }

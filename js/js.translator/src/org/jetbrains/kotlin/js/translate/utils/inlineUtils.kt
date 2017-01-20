@@ -59,7 +59,6 @@ fun setInlineCallMetadata(
                 invocation.descriptor = descriptor
                 invocation.inlineStrategy = InlineStrategy.IN_PLACE
                 invocation.psiElement = psiElement
-                invocation.qualifier.name?.sideEffects = SideEffectKind.PURE
             }
         }
     }

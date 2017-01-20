@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.js.backend.ast.metadata.sideEffects
 import org.jetbrains.kotlin.js.backend.ast.metadata.staticRef
 import org.jetbrains.kotlin.js.backend.ast.metadata.synthetic
 import org.jetbrains.kotlin.js.inline.util.IdentitySet
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.inline.util.rewriters.ContinueReplacingVisitor
 import org.jetbrains.kotlin.js.translate.context.Namer
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils.*
@@ -316,7 +315,8 @@ internal class ExpressionDecomposer private constructor(
                     qualifier = Namer.getFunctionCallRef(qualifier)
                     arguments.add(0, receiverTmp)
                     matchedIndices = matchedIndices.map { it + 1 }
-                } else {
+                }
+                else {
                     qualifier = qualifier.extractToTemporary()
                 }
             }

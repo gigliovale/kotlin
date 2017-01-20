@@ -25,7 +25,6 @@ class FunctionPostProcessor(val root: JsFunction) {
         { WhileConditionFolding(root.body).apply() },
         { DoWhileGuardElimination(root.body).apply() },
         { TemporaryVariableElimination(root).apply() },
-        { RedundantBindElimination(root.body).apply() },
         { RedundantCallElimination(root.body).apply() },
         { IfStatementReduction(root.body).apply() },
         { DeadCodeElimination(root.body).apply() },

@@ -395,10 +395,10 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                     override fun shouldGenerateScript(script: KtScript) = false
                 }
 
-                val configuration = if (codeFragment.text.contains("//noinline"))
-                    configurationNoInline
-                else
+                val configuration = if (codeFragment.text.contains("//inline"))
                     CompilerConfiguration.EMPTY
+                else
+                    configurationNoInline
 
                 val state = GenerationState(
                         fileForDebugger.project,

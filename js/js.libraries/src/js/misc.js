@@ -50,8 +50,8 @@ function imul(a, b) {
 }
 
 Kotlin.subSequence = function(value, startIndex, endIndex) {
-    if (value.subSequence_vux9f0$) {
-        return value.subSequence_vux9f0$(startIndex, endIndex);
+    if (typeof value === "string") {
+        return value.subSequence(startIndex, endIndex);
     } else {
         return value.substring(startIndex, endIndex);
     }

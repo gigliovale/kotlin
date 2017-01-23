@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.cli.common.repl
 
-
 import java.io.File
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.write
@@ -26,19 +25,18 @@ class GenericReplCompilingEvaluator(val compiler: ReplCompiler,
                                     baseClassloader: ClassLoader?,
                                     protected val fallbackScriptArgs: ScriptArgsWithTypes? = null,
                                     repeatingMode: ReplRepeatingMode = ReplRepeatingMode.REPEAT_ONLY_MOST_RECENT,
-                                    protected val stateLock: ReentrantReadWriteLock = ReentrantReadWriteLock()) : ReplFullEvaluator {
+                                    protected val stateLock: ReentrantReadWriteLock = ReentrantReadWriteLock()
+) : ReplFullEvaluator {
     val evaluator = GenericReplEvaluator(baseClasspath, baseClassloader, fallbackScriptArgs, repeatingMode, stateLock)
 
     override fun compileAndEval(codeLine: ReplCodeLine, scriptArgs: ScriptArgsWithTypes?, verifyHistory: List<ReplCodeLine>?, invokeWrapper: InvokeWrapper?): ReplEvalResponse {
         return stateLock.write {
-            @Suppress("DEPRECATION")
             val compiled = compiler.compile(codeLine, verifyHistory)
             when (compiled) {
                 is ReplCompileResponse.Error -> ReplEvalResponse.Error.CompileTime(compiled.compiledHistory, compiled.message, compiled.location)
                 is ReplCompileResponse.HistoryMismatch -> ReplEvalResponse.HistoryMismatch(compiled.compiledHistory, compiled.lineNo)
                 is ReplCompileResponse.Incomplete -> ReplEvalResponse.Incomplete(compiled.compiledHistory)
                 is ReplCompileResponse.CompiledClasses -> {
-                    @Suppress("DEPRECATION")
                     val result = eval(compiled, scriptArgs, invokeWrapper)
                     when (result) {
                         is ReplEvalResponse.Error,
@@ -50,10 +48,10 @@ class GenericReplCompilingEvaluator(val compiler: ReplCompiler,
                         is ReplEvalResponse.ValueResult,
                         is ReplEvalResponse.UnitResult ->
                             result
-                        else -> throw IllegalStateException("Unknown evaluator result type ${compiled}")
+                        else -> throw IllegalStateException("Unknown evaluator result type $compiled")
                     }
                 }
-                else -> throw IllegalStateException("Unknown compiler result type ${compiled}")
+                else -> throw IllegalStateException("Unknown compiler result type $compiled")
             }
         }
     }
@@ -65,7 +63,7 @@ class GenericReplCompilingEvaluator(val compiler: ReplCompiler,
 
             removedCompiledLines.zip(removedEvaluatorLines).forEach {
                 if (it.first != it.second) {
-                    throw IllegalStateException("History mistmatch when resetting lines")
+                    throw IllegalStateException("History mismatch when resetting lines")
                 }
             }
 
@@ -75,7 +73,6 @@ class GenericReplCompilingEvaluator(val compiler: ReplCompiler,
 
     override fun resetToLine(line: ReplCodeLine): List<ReplCodeLine> = resetToLine(line.no)
 
-
     override val lastEvaluatedScripts: List<EvalHistoryType> get() = evaluator.lastEvaluatedScripts
     override val history: List<ReplCodeLine> get() = evaluator.history
     override val currentClasspath: List<File> get() = evaluator.currentClasspath
@@ -83,21 +80,16 @@ class GenericReplCompilingEvaluator(val compiler: ReplCompiler,
     override val compiledHistory: List<ReplCodeLine> get() = compiler.history
     override val evaluatedHistory: List<ReplCodeLine> get() = evaluator.history
 
-    override fun eval(compileResult: ReplCompileResponse.CompiledClasses, scriptArgs: ScriptArgsWithTypes?, invokeWrapper: InvokeWrapper?): ReplEvalResponse {
-        return evaluator.eval(compileResult, scriptArgs, invokeWrapper)
-    }
+    override fun eval(compileResult: ReplCompileResponse.CompiledClasses, scriptArgs: ScriptArgsWithTypes?, invokeWrapper: InvokeWrapper?): ReplEvalResponse =
+            evaluator.eval(compileResult, scriptArgs, invokeWrapper)
 
-    override fun check(codeLine: ReplCodeLine): ReplCheckResponse {
-        return compiler.check(codeLine)
-    }
+    override fun check(codeLine: ReplCodeLine): ReplCheckResponse = compiler.check(codeLine)
 
     override fun compileToEvaluable(codeLine: ReplCodeLine, defaultScriptArgs: ScriptArgsWithTypes?, verifyHistory: List<ReplCodeLine>?): Pair<ReplCompileResponse, Evaluable?> {
         val compiled = compiler.compile(codeLine, verifyHistory)
-        return if (compiled is ReplCompileResponse.CompiledClasses) {
-            Pair(compiled, DelayedEvaluation(compiled, stateLock, evaluator, defaultScriptArgs ?: fallbackScriptArgs))
-        }
-        else {
-            Pair(compiled, null)
+        return when (compiled) {
+            is ReplCompileResponse.CompiledClasses -> Pair(compiled, DelayedEvaluation(compiled, stateLock, evaluator, defaultScriptArgs ?: fallbackScriptArgs))
+            else -> Pair(compiled, null)
         }
     }
 

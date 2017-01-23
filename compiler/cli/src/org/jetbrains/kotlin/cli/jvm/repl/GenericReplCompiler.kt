@@ -125,7 +125,7 @@ open class GenericReplCompiler(disposable: Disposable,
                     setOf(psiFile.script!!.getContainingKtFile()),
                     org.jetbrains.kotlin.codegen.CompilationErrorHandler.THROW_EXCEPTION)
 
-            val generatedClassname = makeSriptBaseName(codeLine, currentGeneration)
+            val generatedClassname = makeScriptBaseName(codeLine, currentGeneration)
             val compiledCodeLine = CompiledReplCodeLine(generatedClassname, codeLine)
             descriptorsHistory.add(compiledCodeLine, scriptDescriptor)
 

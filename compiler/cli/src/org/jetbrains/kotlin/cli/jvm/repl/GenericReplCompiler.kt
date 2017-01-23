@@ -87,7 +87,7 @@ open class GenericReplCompiler(disposable: Disposable,
                     when (res) {
                         is ReplCheckResponse.Incomplete -> return@compile ReplCompileResponse.Incomplete(descriptorsHistory.copySources())
                         is ReplCheckResponse.Error -> return@compile ReplCompileResponse.Error(descriptorsHistory.copySources(), res.message, res.location)
-                        is ReplCheckResponse.Ok -> NO_ACTION()
+                        is ReplCheckResponse.Ok -> {} // continue
                     }
                 }
                 Pair(checker.lineState!!.psiFile, checker.lineState!!.errorHolder)

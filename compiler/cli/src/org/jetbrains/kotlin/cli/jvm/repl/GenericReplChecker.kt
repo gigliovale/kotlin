@@ -76,7 +76,7 @@ open class GenericReplChecker(
         stateLock.write {
             val scriptFileName = makeScriptBaseName(codeLine, generation)
             val virtualFile =
-                    LightVirtualFile("${scriptFileName}${KotlinParserDefinition.STD_SCRIPT_EXT}", KotlinLanguage.INSTANCE, codeLine.code).apply {
+                    LightVirtualFile("$scriptFileName${KotlinParserDefinition.STD_SCRIPT_EXT}", KotlinLanguage.INSTANCE, codeLine.code).apply {
                         charset = CharsetToolkit.UTF8_CHARSET
                     }
             val psiFile: KtFile = psiFileFactory.trySetupPsiForFile(virtualFile, KotlinLanguage.INSTANCE, true, false) as KtFile?

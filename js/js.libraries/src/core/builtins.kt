@@ -44,6 +44,6 @@ fun subSequence(c: CharSequence, startIndex: Int, endIndex: Int): CharSequence {
         return c.substring(startIndex, endIndex)
     }
     else {
-        return c.asDynamic().subSequence(startIndex, endIndex)
+        return c.asDynamic().`subSequence_vux9f0$`(startIndex, endIndex)
     }
 }

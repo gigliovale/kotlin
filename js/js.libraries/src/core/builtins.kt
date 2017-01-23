@@ -37,3 +37,13 @@ internal class PropertyMetadata(val name: String)
 
 @JsName("noWhenBranchMatched")
 internal fun noWhenBranchMatched(): Nothing = throw NoWhenBranchMatchedException()
+
+@JsName("subSequence")
+fun subSequence(c: CharSequence, startIndex: Int, endIndex: Int): CharSequence {
+    if (c is String) {
+        return c.substring(startIndex, endIndex)
+    }
+    else {
+        return c.asDynamic().subSequence(startIndex, endIndex)
+    }
+}

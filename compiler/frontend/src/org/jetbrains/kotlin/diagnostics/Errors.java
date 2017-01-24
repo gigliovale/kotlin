@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -245,7 +245,7 @@ public interface Errors {
     DiagnosticFactory0<KtSuperTypeEntry> SUPERTYPE_NOT_INITIALIZED = DiagnosticFactory0.create(ERROR);
 
     DiagnosticFactory0<KtTypeReference> DELEGATION_NOT_TO_INTERFACE = DiagnosticFactory0.create(ERROR);
-    DiagnosticFactory2<KtDeclaration, CallableMemberDescriptor, List<CallableMemberDescriptor>> DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE = DiagnosticFactory2.create(ERROR);
+    DiagnosticFactory2<KtDeclaration, CallableMemberDescriptor, List<CallableMemberDescriptor>> DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE = DiagnosticFactory2.create(WARNING);
     DiagnosticFactory0<KtTypeReference> SUPERTYPE_NOT_A_CLASS_OR_INTERFACE = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<KtTypeReference> SUPERTYPE_IS_EXTENSION_FUNCTION_TYPE = DiagnosticFactory0.create(ERROR);
     DiagnosticFactory0<KtTypeReference> SUPERTYPE_IS_SUSPEND_FUNCTION_TYPE = DiagnosticFactory0.create(ERROR);

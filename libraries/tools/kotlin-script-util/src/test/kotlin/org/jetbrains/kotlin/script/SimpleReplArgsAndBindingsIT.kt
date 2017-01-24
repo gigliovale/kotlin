@@ -23,7 +23,7 @@ import kotlin.script.templates.standard.ScriptTemplateWithBindings
 import kotlin.test.assertEquals
 
 
-class TestSimpleReplArgsAndBindings {
+class SimpleReplArgsAndBindingsIT {
     @Test
     fun testUsingArgsForScript() {
         val scriptArgs = ScriptArgsWithTypes(arrayOf(arrayOf("100")), arrayOf(Array<String>::class))

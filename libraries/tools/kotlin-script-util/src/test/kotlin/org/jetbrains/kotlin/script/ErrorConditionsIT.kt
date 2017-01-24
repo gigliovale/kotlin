@@ -23,7 +23,7 @@ import kotlin.test.assertTrue
 import kotlin.test.junit.JUnitAsserter
 
 
-class TestErrorConditions {
+class ErrorConditionsIT {
     @Test
     fun testBasicCompilerErrors() {
         SimplifiedRepl().use { repl ->

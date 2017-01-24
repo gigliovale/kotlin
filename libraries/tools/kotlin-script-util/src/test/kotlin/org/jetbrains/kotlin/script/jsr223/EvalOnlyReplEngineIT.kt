@@ -23,7 +23,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 
-class TestEvalOnlyReplEngine {
+class EvalOnlyReplEngineIT {
 
     @Test
     fun testJsr223BasicEvalOnlyEngine() {

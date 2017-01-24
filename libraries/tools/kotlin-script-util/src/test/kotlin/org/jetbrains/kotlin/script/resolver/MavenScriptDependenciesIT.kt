@@ -29,7 +29,7 @@ import kotlin.script.templates.standard.ScriptTemplateWithArgs
 import kotlin.test.assertEquals
 import kotlin.test.fail
 
-class TestMavenScriptDependencies {
+class MavenScriptDependenciesIT {
     private val EMPTY_SCRIPT_ARGS: Array<out Any?> = arrayOf(emptyArray<String>())
     private val EMPTY_SCRIPT_ARGS_TYPES: Array<out KClass<out Any>> = arrayOf(Array<String>::class)
 

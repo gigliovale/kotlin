@@ -24,7 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 
-class TestCompilableReplEngine {
+class CompilableReplEngineIT {
 
     @Test
     fun testJsr223CompilableEngineEvalOnlyParts() {

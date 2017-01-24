@@ -23,7 +23,7 @@ import javax.script.ScriptEngineManager
 import kotlin.test.assertEquals
 
 
-class TestInvocable {
+class InvocableIT {
     val engineNames = listOf(EvalOnlyJsr223ReplEngineFactory.jsr223EngineName, CompilableJsr223ReplEngineFactory.jsr223EngineName)
 
     @Test

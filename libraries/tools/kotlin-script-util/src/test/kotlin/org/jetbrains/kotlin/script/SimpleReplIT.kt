@@ -24,7 +24,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 
-class TestSimpleRepl {
+class SimpleReplIT {
     @Test
     fun testBasicScript() {
         SimplifiedRepl().use { repl ->

@@ -24,7 +24,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 
-class TestSimpleReplEngineRecursion {
+class SimpleReplEngineRecursionIT {
     @Test
     fun testRecursingScriptsDifferentEngines() {
         val extraClasspath = findClassJars(SimplifiedRepl::class) +

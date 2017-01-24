@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.junit.JUnitAsserter
 
-class TestSimpleReplResolversAndImports {
+class SimpleReplResolversAndImportsIT {
     private val EMPTY_SCRIPT_ARGS: Array<out Any?> = arrayOf(emptyArray<String>())
     private val EMPTY_SCRIPT_ARGS_TYPES: Array<out KClass<out Any>> = arrayOf(Array<String>::class)
 

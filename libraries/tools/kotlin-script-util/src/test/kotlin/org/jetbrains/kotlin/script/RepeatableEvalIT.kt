@@ -27,7 +27,7 @@ import kotlin.test.assertTrue
 import kotlin.test.junit.JUnitAsserter
 
 
-class TestRepeatableEval {
+class RepeatableEvalIT {
     @Test
     fun testRepeatableLastNotAllowed() {
         SimplifiedRepl(repeatingMode = ReplRepeatingMode.NONE).use { repl ->

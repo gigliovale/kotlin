@@ -36,10 +36,10 @@ abstract class AbstractReplScriptEngine(val _factory: ScriptEngineFactory,
     protected val extraClasspath: List<File> = findClassJars(SimplifiedRepl::class) +
                                                findKotlinCompilerJars(false)
     open protected val resolvers = listOf(JarFileScriptDependenciesResolver(), MavenScriptDependenciesResolver())
-    open protected val moduleName: String = "KeplinKotlinJsr223-${System.currentTimeMillis()}"
-    open protected val definitionName: String = "KeplinKotlinJsr223"
-    open protected val scriptTemplate: KClass<out Any> = KeplinKotlinJsr223ScriptTemplate::class
-    open protected val defaultEmptyArgs: ScriptArgsWithTypes = KeplinKotlinJsr223ScriptTemplateEmptyArgs
+    open protected val moduleName: String = "KotlinJsr223-${System.currentTimeMillis()}"
+    open protected val definitionName: String = "KotlinJsr223"
+    open protected val scriptTemplate: KClass<out Any> = KotlinJsr223ScriptTemplate::class
+    open protected val defaultEmptyArgs: ScriptArgsWithTypes = KotlinJsr223ScriptTemplateEmptyArgs
 
     protected val scriptDefinition: AnnotationTriggeredScriptDefinition by lazy {
         AnnotationTriggeredScriptDefinition(
@@ -60,7 +60,7 @@ abstract class AbstractReplScriptEngine(val _factory: ScriptEngineFactory,
     }
 
     open fun baseArgsForScriptTemplate(context: ScriptContext): ScriptArgsWithTypes? {
-        return ScriptArgsWithTypes(arrayOf<Any?>(engine, context), KeplinKotlinJsr223ScriptTemplateArgTypes)
+        return ScriptArgsWithTypes(arrayOf<Any?>(engine, context), KotlinJsr223ScriptTemplateArgTypes)
     }
 
     override fun eval(script: String, context: ScriptContext): Any? {

@@ -20,8 +20,8 @@ import org.jetbrains.kotlin.cli.common.repl.ScriptArgsWithTypes
 import org.jetbrains.kotlin.script.SimplifiedRepl
 import javax.script.ScriptContext
 
-abstract class KeplinKotlinJsr223ScriptTemplate(val kotlinScript: SimplifiedRepl, val context: ScriptContext)
+abstract class KotlinJsr223ScriptTemplate(val kotlinScript: SimplifiedRepl, val context: ScriptContext)
 
-val KeplinKotlinJsr223ScriptTemplateArgTypes = arrayOf(SimplifiedRepl::class, ScriptContext::class)
-val KeplinKotlinJsr223ScriptTemplateEmptyArgs
-        = ScriptArgsWithTypes(arrayOf<Any?>(null, null), KeplinKotlinJsr223ScriptTemplateArgTypes)
+val KotlinJsr223ScriptTemplateArgTypes = arrayOf(SimplifiedRepl::class, ScriptContext::class)
+val KotlinJsr223ScriptTemplateEmptyArgs
+        = ScriptArgsWithTypes(arrayOf<Any?>(null, null), KotlinJsr223ScriptTemplateArgTypes)

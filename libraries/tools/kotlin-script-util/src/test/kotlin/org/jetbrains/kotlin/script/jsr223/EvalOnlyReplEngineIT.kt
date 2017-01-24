@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.script.jsr223
 
+import org.junit.Ignore
 import org.junit.Test
 import java.io.StringWriter
 import javax.script.ScriptEngineManager
@@ -35,8 +36,6 @@ class EvalOnlyReplEngineIT {
 
         engine.put("z", 33)
 
-        engine.eval("""println("Hello keplin-kotin-eval-only engine")""")
-
         engine.eval("""val x = 10 + context.getAttribute("z") as Int""")
         engine.eval("""println(x)""")
         val result = engine.eval("""x + 20""")
@@ -48,8 +47,19 @@ class EvalOnlyReplEngineIT {
             put("boundValue", 100)
         })
         assertEquals(143, result2)
-
-        assertEquals("Hello keplin-kotin-eval-only engine\n43\n", capture.toString())
     }
 
+    @Ignore
+    @Test
+    fun testJsr223BasicEvalOnlyEngineWriterCapture() {
+        val factory = ScriptEngineManager()
+        val engine = factory.getEngineByName(EvalOnlyJsr223ReplEngineFactory.jsr223EngineName)
+
+        val capture = StringWriter()
+        engine.context.writer = capture
+
+        engine.eval("""println("Hello kotin-eval-only engine")""")
+
+        assertEquals("Hello kotin-eval-only engine\n43\n", capture.toString())
+    }
 }

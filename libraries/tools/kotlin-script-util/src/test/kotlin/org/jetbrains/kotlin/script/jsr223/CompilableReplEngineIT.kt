@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.script.jsr223
 
+import org.junit.Ignore
 import org.junit.Test
 import java.io.StringWriter
 import javax.script.Compilable
@@ -26,6 +27,20 @@ import kotlin.test.assertTrue
 
 class CompilableReplEngineIT {
 
+    @Ignore
+    @Test
+    fun testJsr223CompilableEngineWriterCapture() {
+        val factory = ScriptEngineManager()
+        val engine = factory.getEngineByName(CompilableJsr223ReplEngineFactory.jsr223EngineName)
+
+        val capture = StringWriter()
+        engine.context.writer = capture
+
+        engine.eval("""println("Hello kotin-compilable engine")""")
+
+        assertEquals("Hello kotin-compilable engine\n", capture.toString())
+    }
+
     @Test
     fun testJsr223CompilableEngineEvalOnlyParts() {
         val factory = ScriptEngineManager()
@@ -35,8 +50,6 @@ class CompilableReplEngineIT {
         engine.context.writer = capture
 
         engine.put("z", 33)
-
-        engine.eval("""println("Hello keplin-kotin-compilable engine")""")
 
         engine.eval("""val x = 10 + context.getAttribute("z") as Int""")
         engine.eval("""println(x)""")
@@ -49,8 +62,6 @@ class CompilableReplEngineIT {
             put("boundValue", 100)
         })
         assertEquals(143, result2)
-
-        assertEquals("Hello keplin-kotin-compilable engine\n43\n", capture.toString())
     }
 
     @Test
@@ -61,8 +72,6 @@ class CompilableReplEngineIT {
 
         val capture = StringWriter()
         engine.context.writer = capture
-
-        engine.eval("""println("Hello keplin-kotin-compilable engine")""")
 
         val compiled1 = compiler.compile("""listOf(1,2,3).joinToString(",")""")
         val compiled2 = compiler.compile("""val x = context.getAttribute("boundValue") as Int + context.getAttribute("z") as Int""")

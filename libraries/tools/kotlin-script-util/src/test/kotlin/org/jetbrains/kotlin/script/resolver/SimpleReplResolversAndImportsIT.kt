@@ -42,7 +42,7 @@ class SimpleReplResolversAndImportsIT {
                 JUnitAsserter.fail("Expected compile error")
             }
             catch (ex: ReplCompilerException) {
-                assertTrue("unresolved reference: Instant" in ex.message!!)
+                assertTrue("unresolved reference: Date" in ex.message!!)
             }
         }
     }
@@ -78,18 +78,18 @@ class SimpleReplResolversAndImportsIT {
     fun testConfigurableResolversFailsWithoutCorrectImport() {
         makeConfigurableEngine().use { repl ->
             try {
-                repl.compileAndEval("""val now = Instant.now()""")
+                repl.compileAndEval("""val now = Date()""")
                 JUnitAsserter.fail("Expected compile error")
             }
             catch (ex: ReplCompilerException) {
-                assertTrue("unresolved reference: Instant" in ex.message!!)
+                assertTrue("unresolved reference: Date" in ex.message!!)
             }
         }
     }
 
     @Test
     fun testConfigurableResolversWithDefaultImports() {
-        makeConfigurableEngine(defaultImports = listOf("java.date.*")).use { repl ->
+        makeConfigurableEngine(defaultImports = listOf("java.util.*")).use { repl ->
             val now = Date()
             repl.compileAndEval("""val now = Date()""")
             val result = repl.compileAndEval("""now""").resultValue as Date

@@ -27,7 +27,10 @@ import org.sonatype.aether.util.artifact.JavaScopes
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.*
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 open class MavenScriptDependenciesResolver() : AnnotationTriggeredScriptResolver {
     override val acceptedAnnotations = listOf(MavenRepository::class, DependsOnMaven::class)
@@ -61,9 +64,10 @@ open class MavenScriptDependenciesResolver() : AnnotationTriggeredScriptResolver
         // TODO: make robust
         private val localRepo = File(File(System.getProperty("user.home")!!, ".m2"), "repository")
 
-        private val repos: ConcurrentLinkedDeque<RemoteRepository> = ConcurrentLinkedDeque()
+        private val repos: ArrayDeque<RemoteRepository> = ArrayDeque()
+        private var reposLock = ReentrantReadWriteLock()
 
-        private fun currentRepos() = if (repos.isEmpty()) arrayListOf(mavenCentral) else repos.toList()
+        private fun currentRepos() = reposLock.read { if (repos.isEmpty()) arrayListOf(mavenCentral) else repos.toList() }
 
         private fun String.isValidParam() = isNotBlank()
 
@@ -76,7 +80,7 @@ open class MavenScriptDependenciesResolver() : AnnotationTriggeredScriptResolver
             fun String?.orNullIfBlank(): String? = this?.check(String::isNotBlank)
 
             val parts = dependsOn.fullGAV.split(':')
-            if (parts.size < 3 || parts.size > 4 || parts.any { it.isNullOrBlank() }) {
+            if (parts.size < 3 || parts.size > 4 || parts.any(String::isNullOrBlank)) {
                 error("Unknown set of arguments to maven resolver: ${dependsOn.fullGAV}, should be `group:artifact:version` or `group:artifact:classifier:version`")
                 return null
             }
@@ -104,8 +108,10 @@ open class MavenScriptDependenciesResolver() : AnnotationTriggeredScriptResolver
             catch (_: MalformedURLException) {
                 return false
             }
-            repos.add(RemoteRepository(if (annotation.id.isValidParam()) annotation.id else "unknown-${System.currentTimeMillis()}",
-                                       "default", urlStr))
+            reposLock.write {
+                repos.add(RemoteRepository(if (annotation.id.isValidParam()) annotation.id else "unknown-${System.currentTimeMillis()}",
+                                           "default", urlStr))
+            }
             return true
         }
     }

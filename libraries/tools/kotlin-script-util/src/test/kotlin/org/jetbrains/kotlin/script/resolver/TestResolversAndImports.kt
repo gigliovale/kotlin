@@ -21,9 +21,8 @@ import org.jetbrains.kotlin.cli.common.repl.ScriptArgsWithTypes
 import org.jetbrains.kotlin.script.KotlinScriptDefinitionEx
 import org.jetbrains.kotlin.script.ReplCompilerException
 import org.jetbrains.kotlin.script.SimplifiedRepl
-import org.jetbrains.kotlin.script.resolver.AnnotationTriggeredScriptDefinition
 import org.junit.Test
-import java.time.Instant
+import java.util.*
 import kotlin.reflect.KClass
 import kotlin.script.templates.standard.ScriptTemplateWithArgs
 import kotlin.test.assertEquals
@@ -39,7 +38,7 @@ class TestSimpleReplResolversAndImports {
         SimplifiedRepl(scriptDefinition = KotlinScriptDefinitionEx(ScriptTemplateWithArgs::class,
                                                                    ScriptArgsWithTypes(EMPTY_SCRIPT_ARGS, EMPTY_SCRIPT_ARGS_TYPES))).use { repl ->
             try {
-                repl.compileAndEval("""val now = Instant.now()""")
+                repl.compileAndEval("""val now = Date()""")
                 JUnitAsserter.fail("Expected compile error")
             }
             catch (ex: ReplCompilerException) {
@@ -52,10 +51,10 @@ class TestSimpleReplResolversAndImports {
     fun testWithDefaultImports() {
         SimplifiedRepl(scriptDefinition = KotlinScriptDefinitionEx(ScriptTemplateWithArgs::class,
                                                                    ScriptArgsWithTypes(EMPTY_SCRIPT_ARGS, EMPTY_SCRIPT_ARGS_TYPES),
-                                                                   defaultImports = listOf("java.time.*"))).use { repl ->
-            val now = Instant.now()
-            repl.compileAndEval("""val now = Instant.now()""")
-            val result = repl.compileAndEval("""now""").resultValue as Instant
+                                                                   defaultImports = listOf("java.util.*"))).use { repl ->
+            val now = Date()
+            repl.compileAndEval("""val now = Date()""")
+            val result = repl.compileAndEval("""now""").resultValue as Date
             assertTrue(result >= now)
         }
     }
@@ -90,10 +89,10 @@ class TestSimpleReplResolversAndImports {
 
     @Test
     fun testConfigurableResolversWithDefaultImports() {
-        makeConfigurableEngine(defaultImports = listOf("java.time.*")).use { repl ->
-            val now = Instant.now()
-            repl.compileAndEval("""val now = Instant.now()""")
-            val result = repl.compileAndEval("""now""").resultValue as Instant
+        makeConfigurableEngine(defaultImports = listOf("java.date.*")).use { repl ->
+            val now = Date()
+            repl.compileAndEval("""val now = Date()""")
+            val result = repl.compileAndEval("""now""").resultValue as Date
             assertTrue(result >= now)
         }
     }

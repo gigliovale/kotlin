@@ -40,7 +40,7 @@ class AnnotationTriggeredResolutionManager(val resolvers: List<AnnotationTrigger
                          previousDependencies: KotlinScriptExternalDependencies?): Future<KotlinScriptExternalDependencies?> {
         // sort script annotations first by resolver order then by accepted order within resolver, this allows the resolver
         // to be sure some actions occur before others, i.e. adding a maven repository before depending on the maven artifact.
-        val sortedScriptAnnotations = script.annotations.sortedBy { annotationSortOrder.getOrDefault(it.javaClass.kotlin, 0) }
+        val sortedScriptAnnotations = script.annotations.sortedBy { annotationSortOrder.getOrElse(it.javaClass.kotlin, { 0 }) }
         val depsFromAnnotations = sortedScriptAnnotations.map { annotation ->
             val resolver = when (annotation) {
                 is InvalidScriptResolverAnnotation -> throw Exception("Invalid annotation ${annotation.annotationClass}", annotation.error)

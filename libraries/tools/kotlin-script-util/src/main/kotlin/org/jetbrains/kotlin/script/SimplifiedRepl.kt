@@ -27,9 +27,9 @@ import org.jetbrains.kotlin.cli.common.repl.*
 import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
 import org.jetbrains.kotlin.cli.jvm.config.jvmClasspathRoots
 import org.jetbrains.kotlin.cli.jvm.repl.GenericRepl
-import org.jetbrains.kotlin.cli.jvm.repl.findRequiredScriptingJarFiles
 import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.script.util.findRequiredScriptingJarFiles
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.Closeable
 import java.io.File

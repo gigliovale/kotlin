@@ -19,24 +19,31 @@ package org.jetbrains.kotlin.script.resolver
 
 import org.jetbrains.kotlin.utils.addToStdlib.check
 import java.io.File
+import java.util.*
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 open class JarFileScriptDependenciesResolver() : AnnotationTriggeredScriptResolver {
     override val acceptedAnnotations = listOf(DirRepository::class, DependsOnJar::class)
     override val autoImports = listOf(DependsOnJar::class.java.`package`.name + ".*")
 
-    private val resolvers = java.util.concurrent.ConcurrentLinkedDeque<LocalJarResolver>(listOf(DirectResolver()))
+    private val resolvers = ArrayDeque<LocalJarResolver>(listOf(DirectResolver()))
+    private var resolversLock = ReentrantReadWriteLock()
 
     override fun resolveForAnnotation(annotation: Annotation): List<File> {
         return when (annotation) {
             is DirRepository -> {
                 FlatLibDirectoryResolver.Companion.tryCreate(annotation)
-                        ?.apply { resolvers.add(this) }
+                        ?.apply { resolversLock.write { resolvers.add(this) } }
                 ?: throw IllegalArgumentException("Illegal argument for DirRepository annotation: $annotation")
                 emptyList()
             }
             is DependsOnJar -> {
-                resolvers.asSequence().mapNotNull { it.tryResolve(annotation) }.firstOrNull()?.toList() ?:
-                throw Exception("Unable to resolve dependency $annotation")
+                resolversLock.read {
+                    resolvers.asSequence().mapNotNull { it.tryResolve(annotation) }.firstOrNull()?.toList() ?:
+                            throw Exception("Unable to resolve dependency $annotation")
+                }
 
             }
             else -> throw Exception("Unknown annotation ${annotation.javaClass}")

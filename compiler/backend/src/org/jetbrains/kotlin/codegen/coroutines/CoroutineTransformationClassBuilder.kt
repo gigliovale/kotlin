@@ -84,9 +84,7 @@ class CoroutineTransformerMethodVisitor(
         // Remove unreachable suspension points
         // If we don't do this, then relevant frames will not be analyzed, that is unexpected from point of view of next steps (e.g. variable spilling)
         DeadCodeEliminationMethodTransformer().transform(classBuilder.thisName, methodNode)
-        suspensionPoints.removeAll {
-            it.suspensionCallBegin.next == null && it.suspensionCallBegin.previous == null
-        }
+        suspensionPoints.removeAll { it.suspensionCallBegin.isRemoved }
 
         processUninitializedStores(methodNode)
 
@@ -186,8 +184,8 @@ class CoroutineTransformerMethodVisitor(
 
         for (suspension in suspensionPoints) {
             val suspensionCallBegin = suspension.suspensionCallBegin
-            val suspensionCallEnd = suspension.suspensionCallEnd
-            assert(frames[suspensionCallEnd.next.index()]?.stackSize == 1) {
+
+            assert(suspension.suspensionCallEnd.let { it.isRemoved || frames[it.next.index()]?.stackSize == 1 }) {
                 "Stack should be spilled before suspension call"
             }
 
@@ -436,3 +434,5 @@ private val DEFAULT_VALUE_OPCODES =
               // GETSTATIC Unit.Instance
               Opcodes.GETSTATIC)
 
+internal val AbstractInsnNode.isRemoved
+    get() = previous == null && next == null

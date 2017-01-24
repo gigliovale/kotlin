@@ -58,7 +58,7 @@ open class GenericReplEvaluator(baseClasspath: Iterable<File>,
         return stateLock.write {
             var mainLineClassName: String? = null
             val classLoader = makeReplClassLoader(effectiveHistory.lastOrNull()?.classLoader ?: topClassLoader, compileResult.classpathAddendum)
-            fun classNameFromPath(path: String) = JvmClassName.byInternalName(path.removeSuffix(".class$"))
+            fun classNameFromPath(path: String) = JvmClassName.byInternalName(path.removeSuffix(".class"))
             fun compiledClassesNames() = compileResult.classes.map { classNameFromPath(it.path).internalName.replace('/', '.') }
             val expectedClassName = compileResult.generatedClassname
             compileResult.classes.filter { it.path.endsWith(".class") }

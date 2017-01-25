@@ -26,8 +26,8 @@ import kotlin.reflect.KClass
 
 fun findKotlinCompilerJarsOrEmpty(useEmbeddedCompiler: Boolean = true): List<File> {
     val filter = if (useEmbeddedCompiler) """.*\/kotlin-compiler-embeddable.*\.jar""".toRegex()
-    else """.*\/kotlin-compiler-(?!embeddable).*\.jar""".toRegex()
-    return listOf(K2JVMCompiler::class.containingClasspath(filter)).filterNotNull()
+    else """.*\/kotlin-compiler(?!-embeddable).*\.jar""".toRegex()
+    return listOf(K2JVMCompiler::class.containingClasspathOrError(filter)).filterNotNull()
 }
 
 fun <T : Any> List<T>.assertNotEmpty(error: String): List<T> {
@@ -40,7 +40,7 @@ fun findKotlinCompilerJars(useEmbeddedCompiler: Boolean = true): List<File> {
 }
 
 fun findKotlinStdLibJarsOrEmpty(): List<File> {
-    return listOf(Pair::class.containingClasspath(""".*\/kotlin-stdlib.*\.jar""".toRegex())).filterNotNull()
+    return listOf(Pair::class.containingClasspathOrError(""".*\/kotlin-stdlib.*\.jar""".toRegex())).filterNotNull()
 }
 
 fun findKotlinStdLibJars(): List<File> {
@@ -48,7 +48,7 @@ fun findKotlinStdLibJars(): List<File> {
 }
 
 fun findKotlinRuntimeJarsOrEmpty(): List<File> {
-    return listOf(JvmName::class.containingClasspath(""".*\/kotlin-runtime.*\.jar""".toRegex())).filterNotNull()
+    return listOf(JvmName::class.containingClasspathOrError(""".*\/kotlin-runtime.*\.jar""".toRegex())).filterNotNull()
 }
 
 fun findKotlinRuntimeJars(): List<File> {
@@ -56,7 +56,7 @@ fun findKotlinRuntimeJars(): List<File> {
 }
 
 fun findClassJarsOrEmpty(klass: KClass<out Any>, filterJarByRegex: Regex = ".*".toRegex()): List<File> {
-    return listOf(klass.containingClasspath(filterJarByRegex)).filterNotNull()
+    return listOf(klass.containingClasspathOrError(filterJarByRegex)).filterNotNull()
 }
 
 fun findClassJars(klass: KClass<out Any>, filterJarByRegex: Regex = ".*".toRegex()): List<File> {
@@ -99,8 +99,22 @@ internal fun <T : Any> KClass<T>.containingClasspath(filterJarName: Regex = ".*"
             ?.map { it.toString() }
             ?.map { url ->
                 zipOrJarUrlToBaseFile(url) ?: qualifiedName?.let { classFilenameToBaseDir(url, clp) }
-                ?: throw IllegalStateException("Expecting a local classpath when searching for class: ${qualifiedName}")
+                ?: throw IllegalStateException("Expecting a local classpath when searching for class: $qualifiedName")
             }
             ?.find { filterJarName.matches(it) }
-            ?.let { File(it) }
+            ?.let(::File)
+}
+
+internal fun <T : Any> KClass<T>.containingClasspathOrError(filterJarName: Regex = ".*".toRegex(),
+                                                            errorFn: (Iterable<String>?) -> String = { "Cannot find '${filterJarName.pattern}' in the classpath $it" }): File {
+    val clp = "${qualifiedName?.replace('.', '/')}.class"
+    val cp = Thread.currentThread().contextClassLoader.getResources(clp)
+            ?.toList()
+            ?.map { it.toString() }
+            ?.map { url ->
+                zipOrJarUrlToBaseFile(url) ?: qualifiedName?.let { classFilenameToBaseDir(url, clp) }
+                        ?: throw IllegalStateException("Expecting a local classpath when searching for class: $qualifiedName")
+            }
+    return cp?.find { filterJarName.matches(it) }?.let(::File)
+            ?: throw IllegalStateException(errorFn(cp))
 }

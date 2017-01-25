@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.script.resolver
 
 import org.jetbrains.kotlin.script.*
 import org.jetbrains.kotlin.script.util.containingClasspath
+import org.jetbrains.kotlin.script.util.containingClasspathOrError
 import java.io.File
 import java.util.concurrent.Future
 import kotlin.reflect.KClass
@@ -55,8 +56,8 @@ class AnnotationTriggeredResolutionManager(val resolvers: List<AnnotationTrigger
         val defaultClassPath: List<File> = if (previousDependencies == null) {
             resolvers.map {
                 it.acceptedAnnotations.map {
-                    it.containingClasspath()
-                    ?: throw IllegalStateException("Missing JAR containing ${it} annotation")
+                    it.containingClasspathOrError()
+                    ?: throw IllegalStateException("Missing JAR containing $it annotation")
                 }
             }.flatten().distinct()
         }

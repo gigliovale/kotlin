@@ -1,9 +1,11 @@
 object C {
 
     fun consume1(c: C) {
+
     }
 
     fun consume2(c: C) {
+
     }
 
     fun foo(cList: List<C>) {

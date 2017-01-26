@@ -111,7 +111,7 @@ internal abstract class CoroutineImpl(private val resultContinuation: Continuati
     protected fun doResumeWrapper() {
         try {
             result = doResume()
-            if (result != SUSPENDED_MARKER) {
+            if (result !== SUSPENDED_MARKER) {
                 val data = result
                 result = SUSPENDED_MARKER
                 resultContinuation.resume(data)
@@ -136,11 +136,11 @@ internal class SafeContinuation<in T> internal constructor(private val delegate:
     private var result: Any? = UNDECIDED
 
     override fun resume(value: T) {
-        when (result) {
-            UNDECIDED -> {
+        when {
+            result === UNDECIDED -> {
                 result = value
             }
-            SUSPENDED_MARKER -> {
+            result === SUSPENDED_MARKER -> {
                 result = RESUMED
                 delegate.resume(value)
             }
@@ -151,11 +151,11 @@ internal class SafeContinuation<in T> internal constructor(private val delegate:
     }
 
     override fun resumeWithException(exception: Throwable) {
-        when (result) {
-            UNDECIDED -> {
+        when {
+            result === UNDECIDED -> {
                 result = Fail(exception)
             }
-            SUSPENDED_MARKER -> {
+            result === SUSPENDED_MARKER -> {
                 result = RESUMED
                 delegate.resumeWithException(exception)
             }
@@ -166,15 +166,15 @@ internal class SafeContinuation<in T> internal constructor(private val delegate:
     }
 
     internal fun getResult(): Any? {
-        if (result == UNDECIDED) {
+        if (result === UNDECIDED) {
             result = SUSPENDED_MARKER
         }
         val result = this.result
-        return when (result) {
-            RESUMED -> {
+        return when {
+            result === RESUMED -> {
                 SUSPENDED_MARKER // already called continuation, indicate SUSPENDED upstream
             }
-            is Fail -> {
+            result is Fail -> {
                 throw result.exception
             }
             else -> {

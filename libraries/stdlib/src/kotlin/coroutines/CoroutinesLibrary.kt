@@ -91,19 +91,16 @@ internal class SafeContinuation<in T> @PublishedApi internal constructor(private
     companion object {
         @Suppress("UNCHECKED_CAST")
         @JvmStatic
-        private val RESULT_UPDATER = AtomicReferenceFieldUpdater.newUpdater<SafeContinuation<*>, Any?>(
+        private val RESULT = AtomicReferenceFieldUpdater.newUpdater<SafeContinuation<*>, Any?>(
                 SafeContinuation::class.java, Any::class.java as Class<Any?>, "result")
     }
-
-    private fun cas(expect: Any?, update: Any?): Boolean =
-            RESULT_UPDATER.compareAndSet(this, expect, update)
 
     override fun resume(value: T) {
         while (true) { // lock-free loop
             val result = this.result // atomic read
-            when (result) {
-                UNDECIDED -> if (cas(UNDECIDED, value)) return
-                SUSPENDED_MARKER -> if (cas(SUSPENDED_MARKER, RESUMED)) {
+            when {
+                result === UNDECIDED -> if (RESULT.compareAndSet(this, UNDECIDED, value)) return
+                result === SUSPENDED_MARKER -> if (RESULT.compareAndSet(this, SUSPENDED_MARKER, RESUMED)) {
                     delegate.resume(value)
                     return
                 }
@@ -115,9 +112,9 @@ internal class SafeContinuation<in T> @PublishedApi internal constructor(private
     override fun resumeWithException(exception: Throwable) {
         while (true) { // lock-free loop
             val result = this.result // atomic read
-            when (result) {
-                UNDECIDED -> if (cas(UNDECIDED, Fail(exception))) return
-                SUSPENDED_MARKER -> if (cas(SUSPENDED_MARKER, RESUMED)) {
+            when  {
+                result === UNDECIDED -> if (RESULT.compareAndSet(this, UNDECIDED, Fail(exception))) return
+                result === SUSPENDED_MARKER -> if (RESULT.compareAndSet(this, SUSPENDED_MARKER, RESUMED)) {
                     delegate.resumeWithException(exception)
                     return
                 }
@@ -129,13 +126,13 @@ internal class SafeContinuation<in T> @PublishedApi internal constructor(private
     @PublishedApi
     internal fun getResult(): Any? {
         var result = this.result // atomic read
-        if (result == UNDECIDED) {
-            if (cas(UNDECIDED, SUSPENDED_MARKER)) return SUSPENDED_MARKER
+        if (result === UNDECIDED) {
+            if (RESULT.compareAndSet(this, UNDECIDED, SUSPENDED_MARKER)) return SUSPENDED_MARKER
             result = this.result // reread volatile var
         }
-        when (result) {
-            RESUMED -> return SUSPENDED_MARKER // already called continuation, indicate SUSPENDED_MARKER upstream
-            is Fail -> throw result.exception
+        when {
+            result === RESUMED -> return SUSPENDED_MARKER // already called continuation, indicate SUSPENDED_MARKER upstream
+            result is Fail -> throw result.exception
             else -> return result // either SUSPENDED_MARKER or data
         }
     }

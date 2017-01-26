@@ -48,7 +48,7 @@ abstract class CoroutineImpl(
     override fun resume(value: Any?) {
         try {
             val result = doResume(value, null)
-            if (result != SUSPENDED_MARKER)
+            if (result !== SUSPENDED_MARKER)
                 completion!!.resume(result)
         } catch (e: Throwable) {
             completion!!.resumeWithException(e)
@@ -58,7 +58,7 @@ abstract class CoroutineImpl(
     override fun resumeWithException(exception: Throwable) {
         try {
             val result = doResume(null, exception)
-            if (result != SUSPENDED_MARKER)
+            if (result !== SUSPENDED_MARKER)
                 completion!!.resume(result)
         } catch (e: Throwable) {
             completion!!.resumeWithException(e)

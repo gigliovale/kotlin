@@ -47,12 +47,22 @@ object StringPlusCharBOIF : BinaryOperationIntrinsicFactory {
         }
     }
 
-    override fun getSupportTokens() = ImmutableSet.of(KtTokens.PLUS, KtTokens.PLUSEQ)
+    private object StringPlusStringIntrinsic : AbstractBinaryOperationIntrinsic() {
+        override fun apply(expression: KtBinaryExpression, left: JsExpression, right: JsExpression, context: TranslationContext): JsExpression {
+            val operator = OperatorTable.getBinaryOperator(getOperationToken(expression))
+            return JsBinaryOperation(operator, left, right)
+        }
+    }
+
+    override fun getSupportTokens() = ImmutableSet.of(KtTokens.PLUS)
 
     override fun getIntrinsic(descriptor: FunctionDescriptor, leftType: KotlinType?, rightType: KotlinType?): BinaryOperationIntrinsic? {
         if (KotlinBuiltIns.isString(leftType) && rightType != null) {
             if (KotlinBuiltIns.isCharOrNullableChar(rightType)) {
                 return StringPlusCharIntrinsic
+            }
+            if (KotlinBuiltIns.isStringOrNullableString(rightType)) {
+                return StringPlusStringIntrinsic
             }
             if (KotlinBuiltIns.isAnyOrNullableAny(rightType)) {
                 return StringPlusAnyIntrinsic

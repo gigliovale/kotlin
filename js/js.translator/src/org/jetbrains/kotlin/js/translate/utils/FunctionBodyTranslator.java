@@ -120,16 +120,6 @@ public final class FunctionBodyTranslator extends AbstractTranslator {
         return jsBlock;
     }
 
-    public static boolean overridesReturnAny(CallableDescriptor c) {
-        KotlinType returnType = c.getOriginal().getReturnType();
-        assert returnType != null;
-        if (KotlinBuiltIns.isAnyOrNullableAny(returnType) || TypeUtils.isTypeParameter(returnType)) return true;
-        for (CallableDescriptor o : c.getOverriddenDescriptors()) {
-            if (overridesReturnAny(o)) return true;
-        }
-        return false;
-    }
-
     @NotNull
     private JsBlock mayBeWrapWithReturn(@NotNull JsNode body) {
         if (!mustAddReturnToGeneratedFunctionBody()) {
@@ -156,7 +146,7 @@ public final class FunctionBodyTranslator extends AbstractTranslator {
 
                 KotlinType bodyType = context().bindingContext().getType(declaration.getBodyExpression());
                 if (bodyType == null && KotlinBuiltIns.isCharOrNullableChar(descriptor.getReturnType()) ||
-                    bodyType != null && KotlinBuiltIns.isCharOrNullableChar(bodyType) && overridesReturnAny(descriptor)) {
+                    bodyType != null && KotlinBuiltIns.isCharOrNullableChar(bodyType) && TranslationUtils.shouldBoxReturnValue(descriptor)) {
                     node = JsAstUtils.charToBoxedChar((JsExpression) node);
                 }
 

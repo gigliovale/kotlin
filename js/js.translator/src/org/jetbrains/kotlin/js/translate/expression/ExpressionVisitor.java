@@ -36,10 +36,7 @@ import org.jetbrains.kotlin.js.translate.general.TranslatorVisitor;
 import org.jetbrains.kotlin.js.translate.operation.BinaryOperationTranslator;
 import org.jetbrains.kotlin.js.translate.operation.UnaryOperationTranslator;
 import org.jetbrains.kotlin.js.translate.reference.*;
-import org.jetbrains.kotlin.js.translate.utils.BindingUtils;
-import org.jetbrains.kotlin.js.translate.utils.FunctionBodyTranslator;
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
-import org.jetbrains.kotlin.js.translate.utils.UtilsKt;
+import org.jetbrains.kotlin.js.translate.utils.*;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.psi.psiUtil.PsiUtilsKt;
 import org.jetbrains.kotlin.resolve.BindingContext;
@@ -138,7 +135,8 @@ public final class ExpressionVisitor extends TranslatorVisitor<JsNode> {
 
             KotlinType returnedType = context.bindingContext().getType(returned);
 
-            if (KotlinBuiltIns.isCharOrNullableChar(returnedType) && FunctionBodyTranslator.overridesReturnAny((CallableDescriptor)context.getDeclarationDescriptor())) {
+            if (KotlinBuiltIns.isCharOrNullableChar(returnedType) &&
+                TranslationUtils.shouldBoxReturnValue((CallableDescriptor)context.getDeclarationDescriptor())) {
                 jsReturnExpression = JsAstUtils.charToBoxedChar(jsReturnExpression);
             }
 

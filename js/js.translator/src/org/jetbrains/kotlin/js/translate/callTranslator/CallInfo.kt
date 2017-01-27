@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
 import org.jetbrains.kotlin.js.backend.ast.JsBlock
 import org.jetbrains.kotlin.js.backend.ast.JsConditional
 import org.jetbrains.kotlin.js.backend.ast.JsExpression
@@ -86,32 +87,35 @@ fun TranslationContext.getCallInfo(
     val argsBlock = JsBlock()
     val argumentsInfo = CallArgumentTranslator.translate(resolvedCall, explicitReceivers.extensionOrDispatchReceiver, this, argsBlock)
 
-    val boxedExplicitRecievers = boxExplicitRecievers(explicitReceivers, resolvedCall)
-
     val explicitReceiversCorrected =
-        if (!argsBlock.isEmpty && boxedExplicitRecievers.extensionOrDispatchReceiver != null) {
-            val receiverOrThisRef = cacheExpressionIfNeeded(boxedExplicitRecievers.extensionOrDispatchReceiver)
-            var receiverRef = boxedExplicitRecievers.extensionReceiver
-            if (receiverRef != null) {
-                receiverRef = boxIfNeedeed(resolvedCall.extensionReceiver, defineTemporary(boxedExplicitRecievers.extensionReceiver!!))
+            if (!argsBlock.isEmpty && explicitReceivers.extensionOrDispatchReceiver != null) {
+                val receiverOrThisRef = cacheExpressionIfNeeded(explicitReceivers.extensionOrDispatchReceiver)
+                var receiverRef = explicitReceivers.extensionReceiver
+                if (receiverRef != null) {
+                    receiverRef = defineTemporary(explicitReceivers.extensionReceiver!!)
+                }
+                ExplicitReceivers(receiverOrThisRef, receiverRef)
             }
-            ExplicitReceivers(receiverOrThisRef, receiverRef)
-        }
-        else {
-            boxedExplicitRecievers
-        }
+            else {
+                explicitReceivers
+            }
     this.addStatementsToCurrentBlockFrom(argsBlock)
-    val callInfo = createCallInfo(resolvedCall, explicitReceiversCorrected)
+    val callInfo = createCallInfo(resolvedCall, boxExplicitReceivers(explicitReceiversCorrected, resolvedCall))
     return FunctionCallInfo(callInfo, argumentsInfo)
 }
 
-private fun boxExplicitRecievers(e: ExplicitReceivers, r: ResolvedCall<*>): ExplicitReceivers {
-    return ExplicitReceivers(boxIfNeedeed(r.dispatchReceiver ?: r.extensionReceiver, e.extensionOrDispatchReceiver),
-                                          boxIfNeedeed(r.extensionReceiver, e.extensionReceiver))
+private fun boxExplicitReceivers(e: ExplicitReceivers, r: ResolvedCall<*>): ExplicitReceivers {
+    return ExplicitReceivers(
+            boxIfNeedeed(
+                    r.dispatchReceiver ?: r.extensionReceiver,
+                    r.candidateDescriptor.dispatchReceiverParameter ?: r.candidateDescriptor.extensionReceiverParameter,
+                    e.extensionOrDispatchReceiver),
+            boxIfNeedeed(r.extensionReceiver, r.candidateDescriptor.extensionReceiverParameter, e.extensionReceiver))
 }
 
-private fun boxIfNeedeed(v: ReceiverValue?, r: JsExpression?): JsExpression? {
-    if (r != null && v != null && KotlinBuiltIns.isCharOrNullableChar(v.type)) {
+private fun boxIfNeedeed(v: ReceiverValue?, d: ReceiverParameterDescriptor?, r: JsExpression?): JsExpression? {
+    if (r != null && v != null && KotlinBuiltIns.isCharOrNullableChar(v.type) &&
+        (d == null || !KotlinBuiltIns.isCharOrNullableChar(d.type))) {
         return JsAstUtils.charToBoxedChar(r)
     }
     return r
@@ -182,7 +186,8 @@ private fun TranslationContext.createCallInfo(
         override fun constructSafeCallIfNeeded(result: JsExpression): JsExpression {
             if (notNullConditionalForSafeCall == null) {
                 return result
-            } else {
+            }
+            else {
                 notNullConditionalForSafeCall.thenExpression = result
                 return notNullConditionalForSafeCall
             }

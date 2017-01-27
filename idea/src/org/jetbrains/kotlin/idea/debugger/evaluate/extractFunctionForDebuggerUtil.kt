@@ -24,11 +24,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.kotlin.idea.actions.internal.KotlinInternalMode
-import org.jetbrains.kotlin.idea.caches.resolve.analyze
 import org.jetbrains.kotlin.idea.caches.resolve.analyzeFullyAndGetResult
 import org.jetbrains.kotlin.idea.codeInsight.CodeInsightUtils
 import org.jetbrains.kotlin.idea.core.replaced
-import org.jetbrains.kotlin.idea.intentions.InsertExplicitTypeArgumentsIntention
 import org.jetbrains.kotlin.idea.refactoring.introduce.extractionEngine.*
 import org.jetbrains.kotlin.idea.refactoring.introduce.extractionEngine.AnalysisResult.ErrorMessage
 import org.jetbrains.kotlin.idea.refactoring.introduce.extractionEngine.AnalysisResult.Status
@@ -42,7 +40,6 @@ import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
 import org.jetbrains.kotlin.psi.psiUtil.findDescendantOfType
 import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
-import org.jetbrains.kotlin.resolve.BindingContext.IMPLICIT_RECEIVER_SMARTCAST
 import org.jetbrains.kotlin.resolve.BindingContext.SMARTCAST
 
 fun getFunctionForExtractedFragment(
@@ -345,18 +342,12 @@ private fun findElementBefore(contextElement: PsiElement): PsiElement? {
     }
 }
 
-private fun replaceByRunFunction(expression: KtExpression): KtCallExpression {
-    val callExpression = KtPsiFactory(expression).createExpression("run { \n${expression.text} \n}") as KtCallExpression
-    val replaced = expression.replaced(callExpression)
-    val typeArguments = InsertExplicitTypeArgumentsIntention.createTypeArguments(replaced, replaced.analyze())
-    if (typeArguments?.arguments?.isNotEmpty() ?: false) {
-        val calleeExpression = replaced.calleeExpression
-        replaced.addAfter(typeArguments!!, calleeExpression)
-    }
-    return replaced
+private fun replaceByLambdaCall(expression: KtExpression): KtCallExpression {
+    val callExpression = KtPsiFactory(expression).createExpression("{ \n${expression.text} \n}()") as KtCallExpression
+    return expression.replaced(callExpression)
 }
 
 private fun wrapInRunFun(expression: KtExpression): PsiElement? {
-    val replacedBody = replaceByRunFunction(expression)
-    return replacedBody.lambdaArguments.first().getLambdaExpression().bodyExpression?.firstChild
+    val replacedBody = replaceByLambdaCall(expression)
+    return (replacedBody.calleeExpression as? KtLambdaExpression)?.bodyExpression?.firstChild
 }

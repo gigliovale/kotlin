@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
 import org.jetbrains.kotlin.idea.MainFunctionDetector;
 import org.jetbrains.kotlin.js.backend.ast.*;
+import org.jetbrains.kotlin.js.backend.ast.metadata.MetadataProperties;
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
 import org.jetbrains.kotlin.js.config.JsConfig;
 import org.jetbrains.kotlin.js.facade.MainCallParameters;
@@ -154,7 +155,9 @@ public final class Translation {
             return context.program().getStringLiteral((String) value);
         }
         if (value instanceof Character) {
-            return context.program().getNumberLiteral(((Character) value).charValue());
+            JsExpression result = context.program().getNumberLiteral(((Character) value).charValue());
+            MetadataProperties.setUnboxedChar(result, true);
+            return result;
         }
 
         return null;
@@ -188,11 +191,7 @@ public final class Translation {
             @NotNull JsBlock block
     ) {
         JsNode jsNode = translateExpression(expression, context, block);
-        if (jsNode instanceof  JsExpression) {
-            KotlinType expressionType = context.bindingContext().getType(expression);
-            if (expressionType != null && KotlinBuiltIns.isCharOrNullableChar(expressionType)) {
-                jsNode = JsAstUtils.boxedCharToChar((JsExpression) jsNode);
-            }
+        if (jsNode instanceof JsExpression) {
             return (JsExpression) jsNode;
         }
 

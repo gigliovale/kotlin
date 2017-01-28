@@ -18,15 +18,14 @@ package org.jetbrains.kotlin.js.translate.utils
 
 import com.intellij.util.SmartList
 import org.jetbrains.kotlin.backend.common.SUSPENDED_MARKER_NAME
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.js.backend.ast.*
 import org.jetbrains.kotlin.js.backend.ast.metadata.CoroutineMetadata
 import org.jetbrains.kotlin.js.backend.ast.metadata.coroutineMetadata
+import org.jetbrains.kotlin.js.backend.ast.metadata.isUnboxedChar
 import org.jetbrains.kotlin.js.translate.context.Namer
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.basic.FunctionIntrinsicWithReceiverComputed
@@ -35,6 +34,7 @@ import org.jetbrains.kotlin.js.translate.utils.TranslationUtils.simpleReturnFunc
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
 import org.jetbrains.kotlin.types.KotlinType
 
 fun generateDelegateCall(
@@ -175,3 +175,9 @@ fun JsFunction.fillCoroutineMetadata(
 }
 
 private val COROUTINES_INTRINSICS_PACKAGE_FQ_NAME = FqName("kotlin.coroutines.intrinsics")
+
+fun boxOrUnboxIfNeedeed(targetType: KotlinType, expr: JsExpression) = when {
+    !KotlinBuiltIns.isCharOrNullableChar(targetType) -> JsAstUtils.charToBoxedChar(expr)
+    KotlinBuiltIns.isCharOrNullableChar(targetType) -> JsAstUtils.boxedCharToChar(expr)
+    else -> expr
+}

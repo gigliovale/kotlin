@@ -18,9 +18,8 @@ package org.jetbrains.kotlin.js.translate.callTranslator
 
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.ReceiverParameterDescriptor
+import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.js.backend.ast.JsBlock
 import org.jetbrains.kotlin.js.backend.ast.JsConditional
 import org.jetbrains.kotlin.js.backend.ast.JsExpression
@@ -28,9 +27,9 @@ import org.jetbrains.kotlin.js.backend.ast.JsLiteral
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.reference.CallArgumentTranslator
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.JsDescriptorUtils.getReceiverParameterForReceiver
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
+import org.jetbrains.kotlin.js.translate.utils.boxOrUnboxIfNeedeed
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.isSafeCall
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -106,19 +105,14 @@ fun TranslationContext.getCallInfo(
 
 private fun boxExplicitReceivers(e: ExplicitReceivers, r: ResolvedCall<*>): ExplicitReceivers {
     return ExplicitReceivers(
-            boxIfNeedeed(
-                    r.dispatchReceiver ?: r.extensionReceiver,
+            boxReceiverIfNeedeed(
                     r.candidateDescriptor.dispatchReceiverParameter ?: r.candidateDescriptor.extensionReceiverParameter,
                     e.extensionOrDispatchReceiver),
-            boxIfNeedeed(r.extensionReceiver, r.candidateDescriptor.extensionReceiverParameter, e.extensionReceiver))
+            boxReceiverIfNeedeed(r.candidateDescriptor.extensionReceiverParameter, e.extensionReceiver))
 }
 
-private fun boxIfNeedeed(v: ReceiverValue?, d: ReceiverParameterDescriptor?, r: JsExpression?): JsExpression? {
-    if (r != null && v != null && KotlinBuiltIns.isCharOrNullableChar(v.type) &&
-        (d == null || !KotlinBuiltIns.isCharOrNullableChar(d.type))) {
-        return JsAstUtils.charToBoxedChar(r)
-    }
-    return r
+private fun boxReceiverIfNeedeed(d: ReceiverParameterDescriptor?, r: JsExpression?): JsExpression? {
+    return d?.let { r?.let { boxOrUnboxIfNeedeed(d.type, r) } }
 }
 
 private fun TranslationContext.getDispatchReceiver(receiverValue: ReceiverValue): JsExpression {

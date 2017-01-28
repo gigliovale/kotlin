@@ -25,24 +25,30 @@ import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.operation.OperatorTable
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.PsiUtils
+import org.jetbrains.kotlin.lexer.KtSingleValueToken
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.types.KotlinType
 
 object AssignmentBOIF : BinaryOperationIntrinsicFactory {
-
     private object CharAssignmentIntrinsic : AbstractBinaryOperationIntrinsic() {
-        override fun apply(expression: KtBinaryExpression, left: JsExpression, right: JsExpression, context: TranslationContext): JsExpression {
+        override fun apply(
+                expression: KtBinaryExpression,
+                left: JsExpression, right: JsExpression,
+                context: TranslationContext
+        ): JsExpression {
             val operator = OperatorTable.getBinaryOperator(PsiUtils.getOperationToken(expression))
             return JsBinaryOperation(operator, left, JsAstUtils.charToBoxedChar(right))
         }
     }
 
-    override fun getSupportTokens() = ImmutableSet.of(KtTokens.EQ)
+    override fun getSupportTokens(): ImmutableSet<KtSingleValueToken> = ImmutableSet.of(KtTokens.EQ)
 
     override fun getIntrinsic(descriptor: FunctionDescriptor, leftType: KotlinType?, rightType: KotlinType?): BinaryOperationIntrinsic? {
-        if (leftType != null && !KotlinBuiltIns.isCharOrNullableChar(leftType) && rightType != null && KotlinBuiltIns.isCharOrNullableChar(rightType)) {
-            return CharAssignmentIntrinsic
+        if (leftType != null && rightType != null) {
+            if (!KotlinBuiltIns.isCharOrNullableChar(leftType) && KotlinBuiltIns.isCharOrNullableChar(rightType)) {
+                return CharAssignmentIntrinsic
+            }
         }
         return null
     }

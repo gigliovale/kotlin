@@ -201,4 +201,24 @@ public final class JsDescriptorUtils {
         ModuleDescriptor module = DescriptorUtils.getContainingModule(descriptor);
         return TypeUtilsKt.isSubtypeOf(descriptor.getDefaultType(), module.getBuiltIns().getThrowable().getDefaultType());
     }
+
+    public static boolean callGivesUnboxedChar(@NotNull CallableDescriptor descriptor) {
+        descriptor = descriptor.getOriginal();
+        if (descriptor instanceof CallableMemberDescriptor &&
+            ModalityKt.isOverridable((CallableMemberDescriptor) descriptor)
+        ) {
+            return false;
+        }
+        return callGivesUnboxedCharRec(descriptor);
+    }
+
+    private static boolean callGivesUnboxedCharRec(@NotNull CallableDescriptor descriptor) {
+        KotlinType type = descriptor.getOriginal().getReturnType();
+        if (type == null || !KotlinBuiltIns.isCharOrNullableChar(type)) return false;
+
+        for (CallableDescriptor overridden : descriptor.getOverriddenDescriptors()) {
+            if (!callGivesUnboxedCharRec(overridden)) return false;
+        }
+        return true;
+    }
 }

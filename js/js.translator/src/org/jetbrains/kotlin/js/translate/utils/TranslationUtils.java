@@ -197,11 +197,9 @@ public final class TranslationUtils {
         KtExpression initializer = declaration.getInitializer();
         if (initializer != null) {
             jsInitExpression = Translation.translateAsExpression(initializer, context);
-
-            KotlinType propertyType = BindingContextUtils.getNotNull(context.bindingContext(), BindingContext.VARIABLE, declaration).getType();
-            KotlinType initType = context.bindingContext().getType(initializer);
-
-            if (initType != null && KotlinBuiltIns.isCharOrNullableChar(initType) && !KotlinBuiltIns.isCharOrNullableChar(propertyType)) {
+            VariableDescriptor descriptor = BindingContextUtils.getNotNull(
+                    context.bindingContext(), BindingContext.VARIABLE, declaration);
+            if (!JsDescriptorUtils.callGivesUnboxedChar(descriptor)) {
                 jsInitExpression = JsAstUtils.charToBoxedChar(jsInitExpression);
             }
         }
@@ -224,12 +222,6 @@ public final class TranslationUtils {
         KtExpression left = expression.getLeft();
         assert left != null : "Binary expression should have a left expression: " + expression.getText();
         return Translation.translateAsExpression(left, context, block);
-    }
-
-    @NotNull
-    public static JsExpression translateRightExpression(@NotNull TranslationContext context,
-            @NotNull KtBinaryExpression expression) {
-        return translateRightExpression(context, expression, context.dynamicContext().jsBlock());
     }
 
     @NotNull
@@ -361,7 +353,7 @@ public final class TranslationUtils {
     }
 
     @NotNull
-    public static VariableDescriptor getEnclosingContinuationParameter(@NotNull TranslationContext context) {
+    private static VariableDescriptor getEnclosingContinuationParameter(@NotNull TranslationContext context) {
         VariableDescriptor result = context.getContinuationParameterDescriptor();
         if (result == null) {
             assert context.getParent() != null;

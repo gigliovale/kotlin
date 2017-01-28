@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.reference.CallExpressionTranslator;
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
+import org.jetbrains.kotlin.js.translate.utils.UtilsKt;
 import org.jetbrains.kotlin.psi.KtDestructuringDeclaration;
 import org.jetbrains.kotlin.psi.KtDestructuringDeclarationEntry;
 import org.jetbrains.kotlin.resolve.BindingContext;
@@ -94,7 +95,9 @@ public class DestructuringDeclarationTranslator extends AbstractTranslator {
                 setInlineCallMetadata(entryInitializer, entry, entryInitCall, context());
             }
 
-            JsName name =  context().getNameForDescriptor(descriptor);
+            entryInitializer = UtilsKt.boxOrUnboxIfNeedeed(descriptor.getType(), entryInitializer);
+
+            JsName name = context().getNameForDescriptor(descriptor);
             if (isVarCapturedInClosure(context().bindingContext(), descriptor)) {
                 JsNameRef alias = getCapturedVarAccessor(name.makeRef());
                 entryInitializer = JsAstUtils.wrapValue(alias, entryInitializer);

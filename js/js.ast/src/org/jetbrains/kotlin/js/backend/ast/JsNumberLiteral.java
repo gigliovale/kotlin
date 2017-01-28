@@ -4,6 +4,8 @@
 
 package org.jetbrains.kotlin.js.backend.ast;
 
+import org.jetbrains.annotations.NotNull;
+
 public abstract class JsNumberLiteral extends JsLiteral.JsValueLiteral {
     public static final JsIntLiteral ZERO = new JsIntLiteral(0);
 
@@ -50,6 +52,12 @@ public abstract class JsNumberLiteral extends JsLiteral.JsValueLiteral {
         public void traverse(JsVisitorWithContext v, JsContext ctx) {
             v.visit(this, ctx);
             v.endVisit(this, ctx);
+        }
+
+        @NotNull
+        @Override
+        public JsExpression deepCopy() {
+            return new JsIntLiteral(value).withMetadataFrom(this);
         }
     }
 }

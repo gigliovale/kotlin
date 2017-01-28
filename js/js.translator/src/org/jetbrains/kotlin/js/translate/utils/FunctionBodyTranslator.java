@@ -18,7 +18,6 @@ package org.jetbrains.kotlin.js.translate.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns;
-import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor;
 import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor;
@@ -34,7 +33,6 @@ import org.jetbrains.kotlin.js.translate.utils.mutator.Mutator;
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.types.KotlinType;
-import org.jetbrains.kotlin.types.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -120,16 +118,6 @@ public final class FunctionBodyTranslator extends AbstractTranslator {
         return jsBlock;
     }
 
-    public static boolean overridesReturnAny(CallableDescriptor c) {
-        KotlinType returnType = c.getOriginal().getReturnType();
-        assert returnType != null;
-        if (KotlinBuiltIns.isAnyOrNullableAny(returnType) || TypeUtils.isTypeParameter(returnType)) return true;
-        for (CallableDescriptor o : c.getOverriddenDescriptors()) {
-            if (overridesReturnAny(o)) return true;
-        }
-        return false;
-    }
-
     @NotNull
     private JsBlock mayBeWrapWithReturn(@NotNull JsNode body) {
         if (!mustAddReturnToGeneratedFunctionBody()) {
@@ -154,13 +142,12 @@ public final class FunctionBodyTranslator extends AbstractTranslator {
                     return node;
                 }
 
-                KotlinType bodyType = context().bindingContext().getType(declaration.getBodyExpression());
-                if (bodyType == null && KotlinBuiltIns.isCharOrNullableChar(descriptor.getReturnType()) ||
-                    bodyType != null && KotlinBuiltIns.isCharOrNullableChar(bodyType) && overridesReturnAny(descriptor)) {
-                    node = JsAstUtils.charToBoxedChar((JsExpression) node);
+                JsExpression jsExpression = (JsExpression) node;
+                if (MetadataProperties.isUnboxedChar(jsExpression) &&  !JsDescriptorUtils.callGivesUnboxedChar(descriptor)) {
+                    jsExpression = JsAstUtils.charToBoxedChar(jsExpression);
                 }
 
-                JsReturn jsReturn = new JsReturn((JsExpression)node);
+                JsReturn jsReturn = new JsReturn(jsExpression);
                 MetadataProperties.setReturnTarget(jsReturn, descriptor);
                 return jsReturn;
             }

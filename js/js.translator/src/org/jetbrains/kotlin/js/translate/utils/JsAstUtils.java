@@ -159,12 +159,14 @@ public final class JsAstUtils {
 
     @NotNull
     public static JsExpression charToBoxedChar(@NotNull JsExpression expression) {
-        return invokeKotlinFunction("toBoxedChar", expression);
+        return MetadataProperties.isUnboxedChar(expression) ? invokeKotlinFunction("toBoxedChar", expression) : expression;
     }
 
     @NotNull
     public static JsExpression boxedCharToChar(@NotNull JsExpression expression) {
-        return invokeKotlinFunction("unboxChar", expression);
+        JsExpression result = !MetadataProperties.isUnboxedChar(expression) ? invokeKotlinFunction("unboxChar", expression) : expression;
+        MetadataProperties.setUnboxedChar(expression, true);
+        return result;
     }
 
     @NotNull
@@ -411,12 +413,6 @@ public final class JsAstUtils {
     @NotNull
     public static JsVars newVar(@NotNull JsName name, @Nullable JsExpression expr) {
         return new JsVars(new JsVars.JsVar(name, expr));
-    }
-
-    public static void setParameters(@NotNull JsFunction function, @NotNull List<JsParameter> newParams) {
-        List<JsParameter> parameters = function.getParameters();
-        assert parameters.isEmpty() : "Arguments already set.";
-        parameters.addAll(newParams);
     }
 
     @NotNull

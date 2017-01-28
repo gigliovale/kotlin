@@ -55,13 +55,7 @@ public final class JsProgram extends SourceInfoAwareJsNode {
     }
 
     public JsNumberLiteral getNumberLiteral(int value) {
-        JsIntLiteral literal = intLiteralMap.get(value);
-        if (literal == null) {
-            literal = new JsIntLiteral(value);
-            intLiteralMap.put(value, literal);
-        }
-
-        return literal;
+        return new JsIntLiteral(value);
     }
 
     /**

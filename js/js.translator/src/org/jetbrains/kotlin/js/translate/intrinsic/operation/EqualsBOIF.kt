@@ -42,15 +42,21 @@ import java.util.*
 object EqualsBOIF : BinaryOperationIntrinsicFactory {
     private object EqualsIntrinsic : AbstractBinaryOperationIntrinsic() {
         override fun apply(expression: KtBinaryExpression, left: JsExpression, right: JsExpression, context: TranslationContext): JsExpression {
+            val resolvedCall = expression.getResolvedCall(context.bindingContext())
             val isNegated = expression.isNegated()
             if (right == JsLiteral.NULL || left == JsLiteral.NULL) {
                 return TranslationUtils.nullCheck(if (right == JsLiteral.NULL) left else right, isNegated)
             }
             else if (canUseSimpleEquals(expression, context)) {
-                return JsBinaryOperation(if (isNegated) JsBinaryOperator.REF_NEQ else JsBinaryOperator.REF_EQ, left, right)
+                var unboxedLeft = left
+                var unboxedRight = right
+                if (resolvedCall?.dispatchReceiver?.type?.let { KotlinBuiltIns.isCharOrNullableChar(it) } == true) {
+                    unboxedLeft = JsAstUtils.boxedCharToChar(left)
+                    unboxedRight = JsAstUtils.boxedCharToChar(right)
+                }
+                return JsBinaryOperation(if (isNegated) JsBinaryOperator.REF_NEQ else JsBinaryOperator.REF_EQ, unboxedLeft, unboxedRight)
             }
 
-            val resolvedCall = expression.getResolvedCall(context.bindingContext())
             val appliedToDynamic =
                     resolvedCall != null &&
                     with(resolvedCall.dispatchReceiver) {

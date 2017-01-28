@@ -22,10 +22,7 @@ import org.jetbrains.kotlin.descriptors.FunctionDescriptor
 import org.jetbrains.kotlin.descriptors.VariableDescriptor
 import org.jetbrains.kotlin.js.backend.ast.JsExpression
 import org.jetbrains.kotlin.js.backend.ast.JsNameRef
-import org.jetbrains.kotlin.js.backend.ast.metadata.SideEffectKind
-import org.jetbrains.kotlin.js.backend.ast.metadata.coroutineResult
-import org.jetbrains.kotlin.js.backend.ast.metadata.isSuspend
-import org.jetbrains.kotlin.js.backend.ast.metadata.sideEffects
+import org.jetbrains.kotlin.js.backend.ast.metadata.*
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.general.Translation
 import org.jetbrains.kotlin.js.translate.reference.CallArgumentTranslator
@@ -47,7 +44,9 @@ object CallTranslator {
                   resolvedCall: ResolvedCall<out FunctionDescriptor>,
                   extensionOrDispatchReceiver: JsExpression? = null
     ): JsExpression {
-        return translateCall(context, resolvedCall, ExplicitReceivers(extensionOrDispatchReceiver))
+        return translateCall(context, resolvedCall, ExplicitReceivers(extensionOrDispatchReceiver)).apply {
+            isUnboxedChar = JsDescriptorUtils.callGivesUnboxedChar(resolvedCall.resultingDescriptor)
+        }
     }
 
     fun translateGet(context: TranslationContext,
@@ -55,7 +54,9 @@ object CallTranslator {
                      extensionOrDispatchReceiver: JsExpression? = null
     ): JsExpression {
         val variableAccessInfo = VariableAccessInfo(context.getCallInfo(resolvedCall, extensionOrDispatchReceiver), null)
-        return variableAccessInfo.translateVariableAccess()
+        return variableAccessInfo.translateVariableAccess().apply {
+            isUnboxedChar = JsDescriptorUtils.callGivesUnboxedChar(resolvedCall.resultingDescriptor)
+        }
     }
 
     fun translateSet(context: TranslationContext,
@@ -63,7 +64,13 @@ object CallTranslator {
                      value: JsExpression,
                      extensionOrDispatchReceiver: JsExpression? = null
     ): JsExpression {
-        val variableAccessInfo = VariableAccessInfo(context.getCallInfo(resolvedCall, extensionOrDispatchReceiver), value)
+        val valueToPass = if (!JsDescriptorUtils.callGivesUnboxedChar(resolvedCall.resultingDescriptor)) {
+            JsAstUtils.charToBoxedChar(value)
+        }
+        else {
+            value
+        }
+        val variableAccessInfo = VariableAccessInfo(context.getCallInfo(resolvedCall, extensionOrDispatchReceiver), valueToPass)
         return variableAccessInfo.translateVariableAccess()
     }
 

@@ -21,17 +21,14 @@ import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.js.backend.ast.*
 import org.jetbrains.kotlin.js.backend.ast.metadata.SideEffectKind
 import org.jetbrains.kotlin.js.backend.ast.metadata.sideEffects
-import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.js.translate.context.Namer
 import org.jetbrains.kotlin.js.translate.context.TemporaryConstVariable
 import org.jetbrains.kotlin.js.translate.context.TranslationContext
 import org.jetbrains.kotlin.js.translate.expression.PatternTranslator
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator
 import org.jetbrains.kotlin.js.translate.general.Translation
-import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
-import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
-import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
-import org.jetbrains.kotlin.js.translate.utils.getReferenceToJsClass
+import org.jetbrains.kotlin.js.translate.utils.*
+import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -162,19 +159,13 @@ class CallArgumentTranslator private constructor(
 
         var result = resolvedCall.call.valueArguments.associate { arg ->
             val argumentContext = argumentContexts[arg]!!
-            val parenthisedArgumentExpression = arg.getArgumentExpression()
+            val argumentPsi = arg.getArgumentExpression()!!
 
-            val param = argsToParameters[arg]!!
-            val parameterType = param.varargElementType ?: param.type
-            val argType = context.bindingContext().getType(parenthisedArgumentExpression!!)
+            val paramRaw = argsToParameters[arg]!!
+            val param = if (resolvedCall.call.callType == Call.CallType.INVOKE) paramRaw else paramRaw.original
+            val parameterType = param.type
 
-            val argJs = Translation.translateAsExpression(parenthisedArgumentExpression, argumentContext)
-            val jsExpr = if (argType != null && KotlinBuiltIns.isCharOrNullableChar(argType) && (!KotlinBuiltIns.isCharOrNullableChar(parameterType) || param.original != param)) {
-                JsAstUtils.charToBoxedChar(argJs)
-            }
-            else {
-                argJs
-            }
+            val jsExpr = boxOrUnboxIfNeedeed(parameterType, Translation.translateAsExpression(argumentPsi, argumentContext))
 
             arg to jsExpr
         }

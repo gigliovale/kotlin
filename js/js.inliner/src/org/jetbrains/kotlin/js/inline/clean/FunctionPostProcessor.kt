@@ -31,8 +31,7 @@ class FunctionPostProcessor(val root: JsFunction) {
         { DeadCodeElimination(root.body).apply() },
         { RedundantVariableDeclarationElimination(root.body).apply() },
         { RedundantStatementElimination(root).apply() },
-        { CoroutineStateElimination(root.body).apply() },
-        { RedundantBoxUnboxElimination(root.body).apply() }
+        { CoroutineStateElimination(root.body).apply() }
     )
     // TODO: reduce to A || B, A && B if possible
 

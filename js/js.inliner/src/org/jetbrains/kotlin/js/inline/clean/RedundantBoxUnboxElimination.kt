@@ -40,22 +40,19 @@ class RedundantBoxUnboxElimination(private val root: JsBlock) {
                 val args = invocation.arguments
                 if (args.size != 1) return
 
-                if (outer == "toBoxedChar") {
-                    val arg = args[0] as? JsInvocation ?: return
-                    if (decomposeBuiltin(arg.qualifier) == "unboxChar") {
-                        args[0] = arg.arguments[0]
-                        changed = true
-                    }
-                }
-                else if (outer == "unboxChar") {
+                val boxingFunctions = listOf("unboxChar", "toBoxedChar");
+                if (outer in boxingFunctions) {
                     val arg = args[0]
-                    if (arg is JsNumberLiteral) {
-                        ctx.replaceMe(arg)
-                        changed = true
-                    }
-                    else if (arg is JsInvocation && decomposeBuiltin(arg.qualifier) == "toBoxedChar") {
-                        args[0] = arg.arguments[0]
-                        changed = true
+                    when (arg) {
+                        is JsNumberLiteral -> if (outer == "unboxChar") {
+                            ctx.replaceMe(arg)
+                            changed = true
+                        }
+                        is JsInvocation -> if (decomposeBuiltin(arg.qualifier) in boxingFunctions) {
+                            args[0] = arg.arguments[0]
+                            changed = true
+                            return
+                        }
                     }
                 }
             }

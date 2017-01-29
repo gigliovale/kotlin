@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils
 import org.jetbrains.kotlin.js.translate.utils.getReferenceToJsClass
+import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -169,7 +170,8 @@ class CallArgumentTranslator private constructor(
             val argType = context.bindingContext().getType(parenthisedArgumentExpression!!)
 
             val argJs = Translation.translateAsExpression(parenthisedArgumentExpression, argumentContext)
-            val jsExpr = if (argType != null && KotlinBuiltIns.isCharOrNullableChar(argType) && !KotlinBuiltIns.isCharOrNullableChar(parameterType)) {
+            val jsExpr = if (argType != null && KotlinBuiltIns.isCharOrNullableChar(argType) &&
+                             (!KotlinBuiltIns.isCharOrNullableChar(parameterType) || resolvedCall.call.callType == Call.CallType.INVOKE)) {
                 JsAstUtils.charToBoxedChar(argJs)
             }
             else {

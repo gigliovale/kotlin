@@ -190,7 +190,8 @@ public final class Translation {
         JsNode jsNode = translateExpression(expression, context, block);
         if (jsNode instanceof  JsExpression) {
             KotlinType expressionType = context.bindingContext().getType(expression);
-            if (expressionType != null && KotlinBuiltIns.isCharOrNullableChar(expressionType) && !(jsNode instanceof JsNumberLiteral)) {
+            if (expressionType != null && KotlinBuiltIns.isCharOrNullableChar(expressionType) &&
+                (jsNode instanceof JsInvocation || jsNode instanceof JsNameRef || jsNode instanceof JsArrayAccess)) {
                 jsNode = JsAstUtils.boxedCharToChar((JsExpression) jsNode);
             }
             return (JsExpression) jsNode;

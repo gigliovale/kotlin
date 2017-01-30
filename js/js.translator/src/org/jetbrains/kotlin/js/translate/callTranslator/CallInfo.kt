@@ -100,17 +100,8 @@ fun TranslationContext.getCallInfo(
                 explicitReceivers
             }
     this.addStatementsToCurrentBlockFrom(argsBlock)
-    val callInfo = createCallInfo(resolvedCall, boxExplicitReceivers(explicitReceiversCorrected, resolvedCall))
+    val callInfo = createCallInfo(resolvedCall, explicitReceiversCorrected)
     return FunctionCallInfo(callInfo, argumentsInfo)
-}
-
-private fun boxExplicitReceivers(e: ExplicitReceivers, r: ResolvedCall<*>): ExplicitReceivers {
-    return ExplicitReceivers(
-            boxIfNeedeed(
-                    r.dispatchReceiver ?: r.extensionReceiver,
-                    r.candidateDescriptor.dispatchReceiverParameter ?: r.candidateDescriptor.extensionReceiverParameter,
-                    e.extensionOrDispatchReceiver),
-            boxIfNeedeed(r.extensionReceiver, r.candidateDescriptor.extensionReceiverParameter, e.extensionReceiver))
 }
 
 private fun boxIfNeedeed(v: ReceiverValue?, d: ReceiverParameterDescriptor?, r: JsExpression?): JsExpression? {
@@ -174,6 +165,15 @@ private fun TranslationContext.createCallInfo(
             dispatchReceiver = ReferenceTranslator.translateAsValueReference(container, this)
         }
     }
+
+    dispatchReceiver = boxIfNeedeed(resolvedCall.dispatchReceiver,
+                                    resolvedCall.candidateDescriptor.dispatchReceiverParameter,
+                                    dispatchReceiver)
+
+    extensionReceiver = boxIfNeedeed(resolvedCall.extensionReceiver,
+                                     resolvedCall.candidateDescriptor.extensionReceiverParameter,
+                                     extensionReceiver)
+
 
     return object : AbstractCallInfo(), CallInfo {
         override val context: TranslationContext = this@createCallInfo

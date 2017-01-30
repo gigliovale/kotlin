@@ -58,7 +58,8 @@ object JvmPlatformConfigurator : PlatformConfigurator(
                 MissingDependencyClassChecker,
                 ProtectedSyntheticExtensionCallChecker,
                 ReifiedTypeParameterSubstitutionChecker(),
-                AdditionalBuiltInsMembersCallChecker
+                AdditionalBuiltInsMembersCallChecker,
+                InlineFromBiggerJvmTargetChecker
         ),
 
         additionalTypeCheckers = listOf(

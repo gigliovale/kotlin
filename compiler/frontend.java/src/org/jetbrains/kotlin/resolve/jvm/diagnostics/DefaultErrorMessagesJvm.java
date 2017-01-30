@@ -115,6 +115,8 @@ public class DefaultErrorMessagesJvm implements DefaultErrorMessages.Extension {
 
         MAP.put(ErrorsJvm.DEFAULT_METHOD_CALL_FROM_JAVA6_TARGET, "Super calls to Java default methods are deprecated in JVM target 1.6. Recompile with '-jvm-target 1.8'");
         MAP.put(ErrorsJvm.INTERFACE_STATIC_METHOD_CALL_FROM_JAVA6_TARGET, "Calls to static methods in Java interfaces are deprecated in JVM target 1.6. Recompile with '-jvm-target 1.8'");
+
+        MAP.put(ErrorsJvm.INLINING_FROM_BIGGER_JVM_TARGET, "Can't inline ''{0}'' member call: inlining from class version ''{1}'' to ''{2}'' is prohibited. Please specify proper '-jvm-target' option", Renderers.SHORT_NAMES_IN_TYPES, Renderers.TO_STRING, Renderers.TO_STRING);
     }
 
     @NotNull

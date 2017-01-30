@@ -2,11 +2,11 @@
 // ACTION: Convert property initializer to getter
 // ACTION: Create object 'BLUE'
 // ACTION: Create property 'BLUE'
-// ACTION: Import member
+// ACTION: Import
 // ACTION: Rename reference
 // ERROR: Unresolved reference: BLUE
 
-// Import should be present only in "Import member" action
+// Import should be present only in "Import" action
 
 
 package e

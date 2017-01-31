@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.js.translate.context;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.builtins.PrimitiveType;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor;
@@ -89,7 +90,6 @@ public final class Namer {
     private static final String PROTOTYPE_NAME = "prototype";
     private static final String CAPTURED_VAR_FIELD = "v";
 
-    public static final JsNameRef IS_ARRAY_FUN_REF = new JsNameRef("isArray", "Array");
     public static final String DEFINE_INLINE_FUNCTION = "defineInlineFunction";
     public static final String DEFAULT_PARAMETER_IMPLEMENTOR_SUFFIX = "$default";
 
@@ -281,6 +281,16 @@ public final class Namer {
     @NotNull
     public JsExpression isCharSequence() {
         return kotlin(IS_CHAR_SEQUENCE);
+    }
+
+    @NotNull
+    public JsExpression isArray() {
+        return kotlin("isArray");
+    }
+
+    @NotNull
+    public JsExpression isPrimitiveArray(@NotNull PrimitiveType type) {
+        return kotlin("is" + type.getArrayTypeName().asString());
     }
 
     @NotNull

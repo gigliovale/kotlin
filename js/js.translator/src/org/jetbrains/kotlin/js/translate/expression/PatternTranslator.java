@@ -35,8 +35,8 @@ import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
-import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
+import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
 import org.jetbrains.kotlin.js.translate.utils.BindingUtils;
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils;
@@ -210,7 +210,7 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("function"));
         }
 
-        if (isArray(type)) return Namer.IS_ARRAY_FUN_REF;
+        if (isArray(type)) return namer().isArray();
 
         if (TypePredicatesKt.getCHAR_SEQUENCE().apply(type)) return namer().isCharSequence();
 
@@ -245,6 +245,12 @@ public final class PatternTranslator extends AbstractTranslator {
 
         if (NamePredicate.PRIMITIVE_NUMBERS_MAPPED_TO_PRIMITIVE_JS.apply(typeName)) {
             return namer().isTypeOf(program().getStringLiteral("number"));
+        }
+
+        if (KotlinBuiltIns.isPrimitiveArray(type)) {
+            PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
+            assert arrayType != null;
+            return namer().isPrimitiveArray(arrayType);
         }
 
         return null;

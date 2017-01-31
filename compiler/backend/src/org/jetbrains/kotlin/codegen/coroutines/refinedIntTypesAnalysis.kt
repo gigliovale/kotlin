@@ -37,7 +37,7 @@ import java.util.*
 internal fun performRefinedTypeAnalysis(methodNode: MethodNode, thisName: String): Array<out Frame<out BasicValue>?> {
     val insnList = methodNode.instructions
     val basicFrames = MethodTransformer.analyze(thisName, methodNode, OptimizationBasicInterpreter())
-    val sourceValueFrames = MethodTransformer.analyze(thisName, methodNode, MySourceInterpreter())
+    val sourceValueFrames = MethodTransformer.analyze(thisName, methodNode, SourceInterpreterIgnoringStackOperations())
 
     val expectedTypeAndSourcesByInsnIndex: Array<Pair<Type, List<SourceValue>>?> = arrayOfNulls(insnList.size())
 
@@ -171,7 +171,7 @@ private fun checkUpdatedExpectedType(was: Type?, new: Type) {
     }
 }
 
-private class MySourceInterpreter : SourceInterpreter() {
+class SourceInterpreterIgnoringStackOperations : SourceInterpreter() {
     override fun copyOperation(insn: AbstractInsnNode, value: SourceValue) =
             when {
                 insn.isStoreOperation() || insn.isLoadOperation() -> SourceValue(value.size, insn)

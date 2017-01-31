@@ -96,23 +96,64 @@ internal class BoxedChar(val c: Char) : Comparable<Char> {
     }
 }
 
-/* For future binary compatibility with TypedArrays
- * TODO: concat normal Array's and TypedArrays into an Array
+internal inline fun <T> concat(args: Array<T>): T {
+    val untyped = args.map { arr ->
+        if (arr !is Array<*>) {
+            js("[]").slice.call(arr)
+        }
+        else {
+            arr
+        }
+    }.toTypedArray()
+    return js("[]").concat.apply(js("[]"), untyped);
+}
+
+/** Concat regular Array's and TypedArrays into an Array
  */
 @PublishedApi
 @JsName("arrayConcat")
 internal fun <T> arrayConcat(a: T, b: T): T {
-    return a.asDynamic().concat.apply(js("[]"), js("arguments"));
+    val args: Array<T> = js("arguments")
+    return concat(args)
 }
 
-/* For future binary compatibility with TypedArrays
- * TODO: concat primitive arrays.
- *       For Byte-, Short-, Int-, Float-, and DoubleArray concat result into a TypedArray.
- *       For Boolean-, Char-, and LongArray return an Array with corresponding type property.
- *       Default to Array.prototype.concat for compatibility.
+/** Concat primitive arrays.
+ *
+ *  For Byte-, Short-, Int-, Float-, and DoubleArray concat result into a TypedArray.
+ *  For Boolean-, Char-, and LongArray return an Array with corresponding type property.
+ *  Default to Array.prototype.concat for compatibility.
  */
 @PublishedApi
 @JsName("primitiveArrayConcat")
 internal fun <T> primitiveArrayConcat(a: T, b: T): T {
-    return a.asDynamic().concat.apply(js("[]"), js("arguments"));
+    val args: Array<T> = js("arguments")
+    if (a is Array<*>) {
+        return concat(args)
+    }
+    else {
+        var size = 0
+        for (i in 0..args.size - 1) {
+            size += args[i].asDynamic().length as Int
+        }
+        val result = js("new a.constructor(size)")
+        if (a.asDynamic().`$type$` is String) {
+            result.`$type$` = a.asDynamic().`$type$`
+        }
+        size = 0
+        for (i in 0..args.size - 1) {
+            val arr = args[i].asDynamic()
+            for (j in 0..arr.length - 1) {
+                result[size++] = arr[j]
+            }
+        }
+        return result
+    }
+}
+
+
+@PublishedApi
+@JsName("withType")
+internal fun withType(type: String, array: dynamic): dynamic {
+    array.`$type$` = type
+    return array
 }

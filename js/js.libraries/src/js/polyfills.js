@@ -31,3 +31,40 @@ if (typeof String.prototype.endsWith === "undefined") {
         return lastIndex !== -1 && lastIndex === position;
     };
 }
+// Polyfills for Rhino
+(function() {
+    var normalizeOffset = function(offset, length) {
+        if (offset < 0) return Math.max(0, offset + length);
+        return Math.min(offset, length);
+    };
+    var typedArraySlice = function(begin, end) {
+        if (typeof end === "undefined") {
+            end = this.length;
+        }
+        begin = normalizeOffset(begin || 0, this.length);
+        end = Math.max(begin, normalizeOffset(end, this.length));
+        return new this.constructor(this.subarray(begin, end));
+    };
+
+    var arrays = [Int8Array, Int16Array, Int32Array, Float32Array, Float64Array];
+    for (var i = 0; i < arrays.length; ++i) {
+        var TypedArray = arrays[i];
+        if (typeof TypedArray.prototype.slice === "undefined") {
+            Object.defineProperty(TypedArray.prototype, 'slice', {
+                value: typedArraySlice
+            });
+        }
+    }
+
+    // Patch apply to work with TypedArrays if needed.
+    try {
+        (function() {}).apply(null, new Int32Array(0))
+    } catch (e) {
+        var apply = Function.prototype.apply;
+        Object.defineProperty(Function.prototype, 'apply', {
+           value: function(self, array) {
+               return apply.call(this, self, [].slice.call(array));
+           }
+        });
+    }
+})();

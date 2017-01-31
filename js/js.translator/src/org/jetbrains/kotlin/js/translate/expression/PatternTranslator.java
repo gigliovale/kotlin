@@ -34,9 +34,10 @@ import org.jetbrains.kotlin.js.translate.context.TemporaryVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
+import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
-import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
+import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
 import org.jetbrains.kotlin.js.translate.utils.BindingUtils;
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
 import org.jetbrains.kotlin.js.translate.utils.TranslationUtils;
@@ -56,8 +57,7 @@ import static org.jetbrains.kotlin.builtins.FunctionTypesKt.isFunctionTypeOrSubt
 import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.isArray;
 import static org.jetbrains.kotlin.js.descriptorUtils.DescriptorUtilsKt.getNameIfStandardType;
 import static org.jetbrains.kotlin.js.translate.utils.BindingUtils.getTypeByReference;
-import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.equality;
-import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.not;
+import static org.jetbrains.kotlin.js.translate.utils.JsAstUtils.*;
 import static org.jetbrains.kotlin.psi.KtPsiUtil.findChildByType;
 import static org.jetbrains.kotlin.types.TypeUtils.*;
 
@@ -210,7 +210,7 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("function"));
         }
 
-        if (isArray(type)) return Namer.IS_ARRAY_FUN_REF;
+        if (isArray(type)) return namer().isArray();
 
         if (TypePredicatesKt.getCHAR_SEQUENCE().apply(type)) return namer().isCharSequence();
 
@@ -245,6 +245,20 @@ public final class PatternTranslator extends AbstractTranslator {
 
         if (NamePredicate.PRIMITIVE_NUMBERS_MAPPED_TO_PRIMITIVE_JS.apply(typeName)) {
             return namer().isTypeOf(program().getStringLiteral("number"));
+        }
+
+        if (KotlinBuiltIns.isPrimitiveArray(type)) {
+            PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayType(type);
+            switch (arrayType) {
+                case BOOLEAN:
+                    return namer().isBooleanArray();
+                case CHAR:
+                    return namer().isCharArray();
+                case LONG:
+                    return namer().isLongArray();
+                default:
+                    return namer().isInstanceOf(pureFqn(ArrayFIF.TYPED_MAP.get(arrayType) + "Array", null));
+            }
         }
 
         return null;

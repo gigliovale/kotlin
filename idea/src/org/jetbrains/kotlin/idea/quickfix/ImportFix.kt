@@ -271,12 +271,11 @@ internal class ImportFix(expression: KtSimpleNameExpression) : OrdinaryImportFix
         return emptyList()
     }
 
-    override val importNames: Collection<Name> = (element?.mainReference?.resolvesByNames ?: emptyList()) + importNamesForMembers()
+    override val importNames: Collection<Name> = ((element?.mainReference?.resolvesByNames ?: emptyList()) + importNamesForMembers()).distinct()
 
     private fun collectMemberCandidates(
             name: String,
             callTypeAndReceiver: CallTypeAndReceiver<*, *>,
-            bindingContext: BindingContext,
             indicesHelper: KotlinIndicesHelper
     ): List<DeclarationDescriptor> {
 
@@ -318,7 +317,7 @@ internal class ImportFix(expression: KtSimpleNameExpression) : OrdinaryImportFix
             bindingContext: BindingContext,
             indicesHelper: KotlinIndicesHelper
     ): List<DeclarationDescriptor> {
-        return super.fillCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper) + collectMemberCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper)
+        return super.fillCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper) + collectMemberCandidates(name, callTypeAndReceiver, indicesHelper)
     }
 
     companion object MyFactory : Factory() {

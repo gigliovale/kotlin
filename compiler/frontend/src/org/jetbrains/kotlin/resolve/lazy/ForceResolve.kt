@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.descriptors.TypeAliasDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve.Depth.*
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeConstructor
@@ -29,81 +30,94 @@ import org.jetbrains.kotlin.types.asFlexibleType
 import org.jetbrains.kotlin.types.isFlexible
 
 object ForceResolve {
+
+    enum class Depth {
+        Deep, Shallow
+    }
+
+
     @JvmStatic
-    fun <T : Any> forceResolveAllContents(descriptor: T): T {
-        doForceResolveAllContents(descriptor)
+    @JvmOverloads
+    fun <T : Any> forceResolveAllContents(descriptor: T, depth: Depth = Deep): T {
+        doForceResolveAllContents(descriptor, depth)
         return descriptor
     }
 
     @JvmStatic
-    fun forceResolveAllContents(scope: MemberScope) {
-        forceResolveAllContents(DescriptorUtils.getAllDescriptors(scope))
+    @JvmOverloads
+    fun forceResolveAllContents(scope: MemberScope, depth: Depth = Deep) {
+        forceResolveAllContents(DescriptorUtils.getAllDescriptors(scope), depth)
     }
 
     @JvmStatic
-    fun forceResolveAllContents(descriptors: Iterable<DeclarationDescriptor>) {
+    @JvmOverloads
+    fun forceResolveAllContents(descriptors: Iterable<DeclarationDescriptor>, depth: Depth = Deep) {
         for (descriptor in descriptors) {
-            forceResolveAllContents(descriptor)
+            forceResolveAllContents(descriptor, depth)
         }
     }
 
     @JvmStatic
-    fun forceResolveAllContents(types: Collection<KotlinType>) {
+    @JvmOverloads
+    fun forceResolveAllContents(types: Collection<KotlinType>, depth: Depth = Deep) {
         for (type in types) {
-            forceResolveAllContents(type)
+            forceResolveAllContents(type, depth)
         }
     }
 
     @JvmStatic
-    fun forceResolveAllContents(typeConstructor: TypeConstructor) {
-        doForceResolveAllContents(typeConstructor)
+    @JvmOverloads
+    fun forceResolveAllContents(typeConstructor: TypeConstructor, depth: Depth = Deep) {
+        doForceResolveAllContents(typeConstructor, depth)
     }
 
     @JvmStatic
-    fun forceResolveAllContents(annotations: Annotations) {
-        doForceResolveAllContents(annotations)
+    @JvmOverloads
+    fun forceResolveAllContents(annotations: Annotations, depth: Depth = Deep) {
+        doForceResolveAllContents(annotations, depth)
         for (annotationWithTarget in annotations.getAllAnnotations()) {
-            doForceResolveAllContents(annotationWithTarget.annotation)
+            doForceResolveAllContents(annotationWithTarget.annotation, depth)
         }
     }
 
-    private fun doForceResolveAllContents(obj: Any) {
+    private fun doForceResolveAllContents(obj: Any, depth: Depth) {
         (obj as? LazyEntity)?.forceResolveAllContents()
         (obj as? ValueParameterDescriptorImpl.WithDestructuringDeclaration)?.destructuringVariables
         if (obj is CallableDescriptor) {
             val callableDescriptor = obj
             val parameter = callableDescriptor.extensionReceiverParameter
             if (parameter != null) {
-                forceResolveAllContents(parameter.type)
+                forceResolveAllContents(parameter.type, depth)
             }
             for (parameterDescriptor in callableDescriptor.valueParameters) {
-                forceResolveAllContents(parameterDescriptor)
+                forceResolveAllContents(parameterDescriptor, depth)
             }
             for (typeParameterDescriptor in callableDescriptor.typeParameters) {
-                forceResolveAllContents(typeParameterDescriptor.upperBounds)
+                forceResolveAllContents(typeParameterDescriptor.upperBounds, depth)
             }
-            forceResolveAllContents(callableDescriptor.returnType)
-            forceResolveAllContents(callableDescriptor.annotations)
+            forceResolveAllContents(callableDescriptor.returnType, depth)
+            forceResolveAllContents(callableDescriptor.annotations, depth)
         }
         else if (obj is TypeAliasDescriptor) {
-            forceResolveAllContents(obj.underlyingType)
+            forceResolveAllContents(obj.underlyingType, depth)
         }
     }
 
     @JvmStatic
-    fun forceResolveAllContents(type: KotlinType?): KotlinType? {
+    @JvmOverloads
+    fun forceResolveAllContents(type: KotlinType?, depth: Depth = Deep): KotlinType? {
         if (type == null) return null
 
-        forceResolveAllContents(type.annotations)
+        forceResolveAllContents(type.annotations, depth)
         if (type.isFlexible()) {
-            forceResolveAllContents(type.asFlexibleType().lowerBound)
-            forceResolveAllContents(type.asFlexibleType().upperBound)
+            forceResolveAllContents(type.asFlexibleType().lowerBound, depth)
+            forceResolveAllContents(type.asFlexibleType().upperBound, depth)
         }
         else {
-            forceResolveAllContents(type.constructor)
+            forceResolveAllContents(type.constructor, depth)
             for (projection in type.arguments) {
                 if (!projection.isStarProjection) {
-                    forceResolveAllContents(projection.type)
+                    forceResolveAllContents(projection.type, depth)
                 }
             }
         }

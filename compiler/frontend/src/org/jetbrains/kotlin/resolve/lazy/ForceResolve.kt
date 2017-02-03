@@ -100,7 +100,10 @@ object ForceResolve {
             for (typeParameterDescriptor in callableDescriptor.typeParameters) {
                 forceResolveAllContents(typeParameterDescriptor.upperBounds, depth)
             }
-            forceResolveAllContents(callableDescriptor.returnType, depth)
+            
+            if (depth == Deep) {
+                forceResolveAllContents(callableDescriptor.returnType, depth)
+            }
             forceResolveAllContents(callableDescriptor.annotations, depth)
         }
         else if (obj is TypeAliasDescriptor) {

@@ -41,6 +41,7 @@ import org.jetbrains.kotlin.psi.synthetics.SyntheticClassOrObjectDescriptor;
 import org.jetbrains.kotlin.resolve.*;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve.Depth;
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.lazy.data.KtClassInfoUtil;
@@ -52,10 +53,7 @@ import org.jetbrains.kotlin.resolve.scopes.LexicalScope;
 import org.jetbrains.kotlin.resolve.scopes.MemberScope;
 import org.jetbrains.kotlin.resolve.scopes.StaticScopeForKotlinEnum;
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElementKt;
-import org.jetbrains.kotlin.storage.MemoizedFunctionToNotNull;
-import org.jetbrains.kotlin.storage.NotNullLazyValue;
-import org.jetbrains.kotlin.storage.NullableLazyValue;
-import org.jetbrains.kotlin.storage.StorageManager;
+import org.jetbrains.kotlin.storage.*;
 import org.jetbrains.kotlin.types.AbstractClassTypeConstructor;
 import org.jetbrains.kotlin.types.KotlinType;
 import org.jetbrains.kotlin.types.TypeConstructor;
@@ -105,7 +103,7 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     private final LazyClassMemberScope unsubstitutedMemberScope;
     private final MemberScope staticScope;
 
-    private final NullableLazyValue<Void> forceResolveAllContents;
+    private final MemoizedFunctionToNullable<Depth, Void> forceResolveAllContents;
     private final boolean isCompanionObject;
 
     private final ClassResolutionScopesSupport resolutionScopesSupport;
@@ -245,13 +243,13 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
                 return computeCompanionObjectDescriptor(companionObject);
             }
         });
-        this.forceResolveAllContents = storageManager.createRecursionTolerantNullableLazyValue(new Function0<Void>() {
+        this.forceResolveAllContents = storageManager.createMemoizedFunctionWithNullableValues(new Function1<Depth, Void>() {
             @Override
-            public Void invoke() {
-                doForceResolveAllContents();
+            public Void invoke(@NotNull Depth depth) {
+                doForceResolveAllContents(depth);
                 return null;
             }
-        }, null);
+        });
 
         this.resolutionScopesSupport = new ClassResolutionScopesSupport(this, storageManager, new Function0<LexicalScope>() {
             @Override
@@ -573,27 +571,27 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
     }
 
     @Override
-    public void forceResolveAllContents() {
-        forceResolveAllContents.invoke();
+    public void forceResolveAllContents(@NotNull Depth depth) {
+        forceResolveAllContents.invoke(depth);
     }
 
-    private void doForceResolveAllContents() {
-        resolveMemberHeaders();
+    private void doForceResolveAllContents(@NotNull Depth depth) {
+        resolveMemberHeaders(depth);
         ClassDescriptor companionObjectDescriptor = getCompanionObjectDescriptor();
         if (companionObjectDescriptor != null) {
-            ForceResolve.forceResolveAllContents(companionObjectDescriptor);
+            ForceResolve.forceResolveAllContents(companionObjectDescriptor, depth);
         }
 
-        ForceResolve.forceResolveAllContents(getConstructors());
-        ForceResolve.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
-        ForceResolve.forceResolveAllContents(getUnsubstitutedMemberScope());
-        ForceResolve.forceResolveAllContents(getTypeConstructor());
+        ForceResolve.forceResolveAllContents(getConstructors(), depth);
+        ForceResolve.forceResolveAllContents(getDescriptorsForExtraCompanionObjects(), depth);
+        ForceResolve.forceResolveAllContents(getUnsubstitutedMemberScope(), depth);
+        ForceResolve.forceResolveAllContents(getTypeConstructor(), depth);
     }
 
     // Note: headers of member classes' members are not resolved
-    public void resolveMemberHeaders() {
-        ForceResolve.forceResolveAllContents(getAnnotations());
-        ForceResolve.forceResolveAllContents(getDanglingAnnotations());
+    public void resolveMemberHeaders(@NotNull Depth depth) {
+        ForceResolve.forceResolveAllContents(getAnnotations(), depth);
+        ForceResolve.forceResolveAllContents(getDanglingAnnotations(), depth);
 
         getCompanionObjectDescriptor();
 

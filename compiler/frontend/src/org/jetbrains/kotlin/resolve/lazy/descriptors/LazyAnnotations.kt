@@ -102,7 +102,7 @@ class LazyAnnotations(
                 }.iterator()
     }
 
-    override fun forceResolveAllContents() {
+    override fun forceResolveAllContents(depth: ForceResolve.Depth) {
         // To resolve all entries
         getAllAnnotations()
     }
@@ -159,8 +159,8 @@ class LazyAnnotationDescriptor(
 
     override fun getSource() = source
 
-    override fun forceResolveAllContents() {
-        ForceResolve.forceResolveAllContents(getType())
+    override fun forceResolveAllContents(depth: ForceResolve.Depth) {
+        ForceResolve.forceResolveAllContents(getType(), depth)
         allValueArguments
     }
 

@@ -134,14 +134,14 @@ public class LazyTypeParameterDescriptor extends AbstractLazyTypeParameterDescri
     }
 
     @Override
-    public void forceResolveAllContents() {
-        ForceResolve.forceResolveAllContents(getAnnotations());
+    public void forceResolveAllContents(@NotNull ForceResolve.Depth depth) {
+        ForceResolve.forceResolveAllContents(getAnnotations(), depth);
         getContainingDeclaration();
         getDefaultType();
         getIndex();
         getOriginal();
-        ForceResolve.forceResolveAllContents(getTypeConstructor());
-        ForceResolve.forceResolveAllContents(getUpperBounds());
+        ForceResolve.forceResolveAllContents(getTypeConstructor(), depth);
+        ForceResolve.forceResolveAllContents(getUpperBounds(), depth);
         getVariance();
     }
 }

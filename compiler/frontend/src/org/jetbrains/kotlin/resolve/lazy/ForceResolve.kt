@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.types.isFlexible
 
 
 interface LazyEntity {
-    fun forceResolveAllContents()
+    fun forceResolveAllContents(depth: ForceResolve.Depth)
 }
 
 object ForceResolve {
@@ -86,7 +86,7 @@ object ForceResolve {
     }
 
     private fun doForceResolveAllContents(obj: Any, depth: Depth) {
-        (obj as? LazyEntity)?.forceResolveAllContents()
+        (obj as? LazyEntity)?.forceResolveAllContents(depth)
         (obj as? ValueParameterDescriptorImpl.WithDestructuringDeclaration)?.destructuringVariables
         if (obj is CallableDescriptor) {
             val callableDescriptor = obj

@@ -217,7 +217,7 @@ class LazyTopDownAnalyzer(
 
     private fun resolveAllHeadersInClasses(c: TopDownAnalysisContext) {
         for (classDescriptor in c.allClasses) {
-            (classDescriptor as LazyClassDescriptor).resolveMemberHeaders()
+            (classDescriptor as LazyClassDescriptor).resolveMemberHeaders(ForceResolve.Depth.Deep)
         }
     }
 

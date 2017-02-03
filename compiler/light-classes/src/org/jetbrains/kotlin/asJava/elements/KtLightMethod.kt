@@ -54,8 +54,8 @@ sealed class KtLightMethodImpl(
     private val lightIdentifier by lazy(LazyThreadSafetyMode.PUBLICATION) { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
     private val returnTypeElem by lazy(LazyThreadSafetyMode.PUBLICATION) {
         val returnTypeTextFromDelegate = (clsDelegate.returnTypeElement as? ClsTypeElementImpl)?.canonicalText
-        val returnTypeText = clsDelegate.getUserData(ClsWrapperStubPsiFactory.COMPUTE_RETURN_TYPE)?.invoke()?.className
-        assert(returnTypeText == returnTypeTextFromDelegate)
+        val returnTypeText = clsDelegate.getUserData(ClsWrapperStubPsiFactory.COMPUTE_RETURN_TYPE)?.invoke()?.className?.replace('$', '.') ?: returnTypeTextFromDelegate
+//        assert(returnTypeText == returnTypeTextFromDelegate)
         returnTypeText?.let { ClsTypeElementImpl(this, it, /*ClsTypeElementImpl.VARIANCE_NONE */ 0.toChar()) }
     }
 

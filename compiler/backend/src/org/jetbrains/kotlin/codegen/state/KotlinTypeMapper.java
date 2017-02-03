@@ -1107,7 +1107,13 @@ public class KotlinTypeMapper {
             }
 
             sw.writeReturnType();
-            mapReturnType(f, sw);
+
+            if (classBuilderMode == ClassBuilderMode.LIGHT_CLASSES) {
+                sw.writeAsmType(Type.VOID_TYPE);
+            }
+            else {
+                mapReturnType(f, sw);
+            }
             sw.writeReturnTypeEnd();
         }
 

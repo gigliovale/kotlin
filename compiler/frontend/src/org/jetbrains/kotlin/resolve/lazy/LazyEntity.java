@@ -16,6 +16,4 @@
 
 package org.jetbrains.kotlin.resolve.lazy;
 
-public interface LazyEntity {
-    void forceResolveAllContents();
-}
+

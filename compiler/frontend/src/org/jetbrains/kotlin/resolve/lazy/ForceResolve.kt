@@ -29,6 +29,11 @@ import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.asFlexibleType
 import org.jetbrains.kotlin.types.isFlexible
 
+
+interface LazyEntity {
+    fun forceResolveAllContents()
+}
+
 object ForceResolve {
 
     enum class Depth {

@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.descriptors.impl.PackageFragmentDescriptorImpl;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.resolve.lazy.declarations.PackageMemberDeclarationProvider;
@@ -56,7 +56,7 @@ public class LazyPackageDescriptor extends PackageFragmentDescriptorImpl impleme
 
     @Override
     public void forceResolveAllContents() {
-        ForceResolveUtil.forceResolveAllContents(memberScope);
+        ForceResolve.forceResolveAllContents(memberScope);
     }
 
     @NotNull

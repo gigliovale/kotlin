@@ -44,7 +44,7 @@ import org.jetbrains.kotlin.resolve.calls.tasks.*;
 import org.jetbrains.kotlin.resolve.calls.tower.NewResolutionOldInference;
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver;
 import org.jetbrains.kotlin.types.KotlinType;
@@ -600,7 +600,7 @@ public class CallResolver {
                     projection.getTypeReference(), context.scope, context.trace,
                     null);
             if (type != null) {
-                ForceResolveUtil.forceResolveAllContents(type);
+                ForceResolve.forceResolveAllContents(type);
             }
         }
 

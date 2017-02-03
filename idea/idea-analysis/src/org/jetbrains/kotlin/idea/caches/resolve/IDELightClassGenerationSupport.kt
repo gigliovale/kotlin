@@ -52,7 +52,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -86,7 +86,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         val classDescriptor = bindingContext.get(BindingContext.CLASS, classOrObject).sure {
             "Class descriptor was not found for ${classOrObject.getElementTextWithContext()}"
         }
-        ForceResolveUtil.forceResolveAllContents(classDescriptor)
+        ForceResolve.forceResolveAllContents(classDescriptor)
         return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
     }
 
@@ -101,7 +101,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
             return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
         }
 
-        ForceResolveUtil.forceResolveAllContents<ClassDescriptor>(descriptor)
+        ForceResolve.forceResolveAllContents<ClassDescriptor>(descriptor)
 
         return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
     }
@@ -272,14 +272,14 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
                     val name = declaration.nameAsSafeName
                     val functions = packageDescriptor.memberScope.getContributedFunctions(name, NoLookupLocation.FROM_IDE)
                     for (descriptor in functions) {
-                        ForceResolveUtil.forceResolveAllContents(descriptor)
+                        ForceResolve.forceResolveAllContents(descriptor)
                     }
                 }
                 else if (declaration is KtProperty) {
                     val name = declaration.nameAsSafeName
                     val properties = packageDescriptor.memberScope.getContributedVariables(name, NoLookupLocation.FROM_IDE)
                     for (descriptor in properties) {
-                        ForceResolveUtil.forceResolveAllContents(descriptor)
+                        ForceResolve.forceResolveAllContents(descriptor)
                     }
                 }
                 else if (declaration is KtClassOrObject || declaration is KtTypeAlias || declaration is KtDestructuringDeclaration) {
@@ -291,7 +291,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
                 }
             }
 
-            ForceResolveUtil.forceResolveAllContents(session.getFileAnnotations(file))
+            ForceResolve.forceResolveAllContents(session.getFileAnnotations(file))
         }
     }
 

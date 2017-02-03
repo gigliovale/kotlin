@@ -18,13 +18,12 @@ package org.jetbrains.kotlin.resolve.lazy.descriptors;
 
 import kotlin.collections.CollectionsKt;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.kotlin.descriptors.SupertypeLoopChecker;
 import org.jetbrains.kotlin.descriptors.impl.AbstractLazyTypeParameterDescriptor;
 import org.jetbrains.kotlin.diagnostics.Errors;
 import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.source.KotlinSourceElementKt;
@@ -136,13 +135,13 @@ public class LazyTypeParameterDescriptor extends AbstractLazyTypeParameterDescri
 
     @Override
     public void forceResolveAllContents() {
-        ForceResolveUtil.forceResolveAllContents(getAnnotations());
+        ForceResolve.forceResolveAllContents(getAnnotations());
         getContainingDeclaration();
         getDefaultType();
         getIndex();
         getOriginal();
-        ForceResolveUtil.forceResolveAllContents(getTypeConstructor());
-        ForceResolveUtil.forceResolveAllContents(getUpperBounds());
+        ForceResolve.forceResolveAllContents(getTypeConstructor());
+        ForceResolve.forceResolveAllContents(getUpperBounds());
         getVariance();
     }
 }

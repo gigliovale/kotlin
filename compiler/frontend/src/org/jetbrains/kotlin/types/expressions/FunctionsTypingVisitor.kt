@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.resolve.BindingContextUtils
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.FunctionDescriptorUtil
 import org.jetbrains.kotlin.resolve.checkers.UnderscoreChecker
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope
 import org.jetbrains.kotlin.resolve.source.toSourceElement
 import org.jetbrains.kotlin.types.CommonSupertypes
@@ -96,10 +96,10 @@ internal class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Expre
             )
         }
         // Necessary for local functions
-        ForceResolveUtil.forceResolveAllContents(functionDescriptor.annotations)
+        ForceResolve.forceResolveAllContents(functionDescriptor.annotations)
 
         if (!function.hasDeclaredReturnType() && !function.hasBlockBody()) {
-            ForceResolveUtil.forceResolveAllContents(functionDescriptor.returnType)
+            ForceResolve.forceResolveAllContents(functionDescriptor.returnType)
         }
         else {
             val functionInnerScope = FunctionDescriptorUtil.getFunctionInnerScope(context.scope, functionDescriptor, context.trace, components.overloadChecker)
@@ -175,7 +175,7 @@ internal class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Expre
                 initializeFunctionDescriptorAndExplicitReturnType(context.scope.ownerDescriptor, context.scope, functionLiteral,
                                                                   functionDescriptor, context.trace, context.expectedType)
         for (parameterDescriptor in functionDescriptor.valueParameters) {
-            ForceResolveUtil.forceResolveAllContents(parameterDescriptor.annotations)
+            ForceResolve.forceResolveAllContents(parameterDescriptor.annotations)
         }
         BindingContextUtils.recordFunctionDeclarationToDescriptor(context.trace, functionLiteral, functionDescriptor)
         return functionDescriptor

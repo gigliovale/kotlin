@@ -232,7 +232,7 @@ class LazyTopDownAnalyzer(
             val descriptor = lazyDeclarationResolver.resolveToDescriptor(typeAlias) as TypeAliasDescriptor
 
             c.typeAliases[typeAlias] = descriptor
-            ForceResolveUtil.forceResolveAllContents(descriptor.annotations)
+            ForceResolve.forceResolveAllContents(descriptor.annotations)
             registerTopLevelFqName(topLevelFqNames, typeAlias, descriptor)
         }
     }
@@ -242,7 +242,7 @@ class LazyTopDownAnalyzer(
             val descriptor = lazyDeclarationResolver.resolveToDescriptor(property) as PropertyDescriptor
 
             c.properties.put(property, descriptor)
-            ForceResolveUtil.forceResolveAllContents(descriptor.annotations)
+            ForceResolve.forceResolveAllContents(descriptor.annotations)
             registerTopLevelFqName(topLevelFqNames, property, descriptor)
         }
     }
@@ -251,9 +251,9 @@ class LazyTopDownAnalyzer(
         for (function in functions) {
             val simpleFunctionDescriptor = lazyDeclarationResolver.resolveToDescriptor(function) as SimpleFunctionDescriptor
             c.functions.put(function, simpleFunctionDescriptor)
-            ForceResolveUtil.forceResolveAllContents(simpleFunctionDescriptor.annotations)
+            ForceResolve.forceResolveAllContents(simpleFunctionDescriptor.annotations)
             for (parameterDescriptor in simpleFunctionDescriptor.valueParameters) {
-                ForceResolveUtil.forceResolveAllContents(parameterDescriptor.annotations)
+                ForceResolve.forceResolveAllContents(parameterDescriptor.annotations)
             }
         }
     }

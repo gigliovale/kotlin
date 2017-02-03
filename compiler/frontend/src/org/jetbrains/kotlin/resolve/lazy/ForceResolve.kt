@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.types.TypeConstructor
 import org.jetbrains.kotlin.types.asFlexibleType
 import org.jetbrains.kotlin.types.isFlexible
 
-object ForceResolveUtil {
+object ForceResolve {
     @JvmStatic
     fun <T : Any> forceResolveAllContents(descriptor: T): T {
         doForceResolveAllContents(descriptor)

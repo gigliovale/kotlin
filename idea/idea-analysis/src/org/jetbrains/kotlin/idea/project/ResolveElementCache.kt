@@ -376,7 +376,7 @@ class ResolveElementCache(
         val descriptor = analyzer.resolveToDescriptor(declaration) as ClassifierDescriptorWithTypeParameters
 
         for (parameterDescriptor in descriptor.declaredTypeParameters) {
-            ForceResolveUtil.forceResolveAllContents<TypeParameterDescriptor>(parameterDescriptor)
+            ForceResolve.forceResolveAllContents<TypeParameterDescriptor>(parameterDescriptor)
         }
 
         return resolveSession.trace
@@ -414,7 +414,7 @@ class ResolveElementCache(
     }
 
     private fun doResolveAnnotations(annotations: Annotations) {
-        ForceResolveUtil.forceResolveAllContents(annotations)
+        ForceResolve.forceResolveAllContents(annotations)
     }
 
     private fun getAnnotationsByDeclaration(resolveSession: ResolveSession, modifierList: KtModifierList, declaration: KtDeclaration): Annotations {
@@ -435,7 +435,7 @@ class ResolveElementCache(
 
     private fun typeParameterAdditionalResolve(analyzer: KotlinCodeAnalyzer, typeParameter: KtTypeParameter): BindingTrace {
         val descriptor = analyzer.resolveToDescriptor(typeParameter)
-        ForceResolveUtil.forceResolveAllContents(descriptor)
+        ForceResolve.forceResolveAllContents(descriptor)
 
         return resolveSession.trace
     }
@@ -447,7 +447,7 @@ class ResolveElementCache(
         val descriptor = resolveSession.resolveToDescriptor(classOrObject) as LazyClassDescriptor
 
         // Activate resolving of supertypes
-        ForceResolveUtil.forceResolveAllContents(descriptor.typeConstructor.supertypes)
+        ForceResolve.forceResolveAllContents(descriptor.typeConstructor.supertypes)
 
         val bodyResolver = createBodyResolver(resolveSession, trace, file, StatementFilter.NONE)
         bodyResolver.resolveSuperTypeEntryList(DataFlowInfo.EMPTY,
@@ -468,7 +468,7 @@ class ResolveElementCache(
 
         val bodyResolver = createBodyResolver(resolveSession, trace, file, statementFilter)
         val descriptor = resolveSession.resolveToDescriptor(property) as PropertyDescriptor
-        ForceResolveUtil.forceResolveAllContents(descriptor)
+        ForceResolve.forceResolveAllContents(descriptor)
 
         val bodyResolveContext = BodyResolveContextForLazy(TopDownAnalysisMode.LocalDeclarations, { declaration ->
             assert(declaration.parent == property || declaration == property) {
@@ -495,7 +495,7 @@ class ResolveElementCache(
 
         val scope = resolveSession.declarationScopeProvider.getResolutionScopeForDeclaration(namedFunction)
         val functionDescriptor = resolveSession.resolveToDescriptor(namedFunction) as FunctionDescriptor
-        ForceResolveUtil.forceResolveAllContents(functionDescriptor)
+        ForceResolve.forceResolveAllContents(functionDescriptor)
 
         val bodyResolver = createBodyResolver(resolveSession, trace, file, statementFilter)
         bodyResolver.resolveFunctionBody(DataFlowInfo.EMPTY, trace, namedFunction, functionDescriptor, scope)
@@ -512,7 +512,7 @@ class ResolveElementCache(
 
         val scope = resolveSession.declarationScopeProvider.getResolutionScopeForDeclaration(constructor)
         val constructorDescriptor = resolveSession.resolveToDescriptor(constructor) as ClassConstructorDescriptor
-        ForceResolveUtil.forceResolveAllContents(constructorDescriptor)
+        ForceResolve.forceResolveAllContents(constructorDescriptor)
 
         val bodyResolver = createBodyResolver(resolveSession, trace, file, statementFilter)
         bodyResolver.resolveSecondaryConstructorBody(DataFlowInfo.EMPTY, trace, constructor, constructorDescriptor, scope)
@@ -530,7 +530,7 @@ class ResolveElementCache(
         val constructorDescriptor = classDescriptor.unsubstitutedPrimaryConstructor
                                     ?: error("Can't get primary constructor for descriptor '$classDescriptor' " +
                                              "in from class '${klass.getElementTextWithContext()}'")
-        ForceResolveUtil.forceResolveAllContents(constructorDescriptor)
+        ForceResolve.forceResolveAllContents(constructorDescriptor)
 
         val primaryConstructor = klass.getPrimaryConstructor()
         if (primaryConstructor != null) {
@@ -547,7 +547,7 @@ class ResolveElementCache(
                                            bindingTraceFilter: BindingTraceFilter): BindingTrace {
         val trace = createDelegatingTrace(typeAlias, bindingTraceFilter)
         val typeAliasDescriptor = resolveSession.resolveToDescriptor(typeAlias)
-        ForceResolveUtil.forceResolveAllContents(typeAliasDescriptor)
+        ForceResolve.forceResolveAllContents(typeAliasDescriptor)
         forceResolveAnnotationsInside(typeAlias)
         return trace
     }
@@ -570,7 +570,7 @@ class ResolveElementCache(
     private fun forceResolveAnnotationsInside(element: KtElement) {
         element.forEachDescendantOfType<KtAnnotationEntry>(canGoInside = { it !is KtBlockExpression }) { entry ->
             resolveSession.bindingContext[BindingContext.ANNOTATION, entry]?.let {
-                ForceResolveUtil.forceResolveAllContents(it)
+                ForceResolve.forceResolveAllContents(it)
             }
         }
     }

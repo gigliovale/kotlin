@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
 import org.jetbrains.kotlin.psi.synthetics.SyntheticClassOrObjectDescriptor;
 import org.jetbrains.kotlin.resolve.*;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
 import org.jetbrains.kotlin.resolve.lazy.LazyClassContext;
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity;
 import org.jetbrains.kotlin.resolve.lazy.data.KtClassInfoUtil;
@@ -581,19 +581,19 @@ public class LazyClassDescriptor extends ClassDescriptorBase implements ClassDes
         resolveMemberHeaders();
         ClassDescriptor companionObjectDescriptor = getCompanionObjectDescriptor();
         if (companionObjectDescriptor != null) {
-            ForceResolveUtil.forceResolveAllContents(companionObjectDescriptor);
+            ForceResolve.forceResolveAllContents(companionObjectDescriptor);
         }
 
-        ForceResolveUtil.forceResolveAllContents(getConstructors());
-        ForceResolveUtil.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
-        ForceResolveUtil.forceResolveAllContents(getUnsubstitutedMemberScope());
-        ForceResolveUtil.forceResolveAllContents(getTypeConstructor());
+        ForceResolve.forceResolveAllContents(getConstructors());
+        ForceResolve.forceResolveAllContents(getDescriptorsForExtraCompanionObjects());
+        ForceResolve.forceResolveAllContents(getUnsubstitutedMemberScope());
+        ForceResolve.forceResolveAllContents(getTypeConstructor());
     }
 
     // Note: headers of member classes' members are not resolved
     public void resolveMemberHeaders() {
-        ForceResolveUtil.forceResolveAllContents(getAnnotations());
-        ForceResolveUtil.forceResolveAllContents(getDanglingAnnotations());
+        ForceResolve.forceResolveAllContents(getAnnotations());
+        ForceResolve.forceResolveAllContents(getDanglingAnnotations());
 
         getCompanionObjectDescriptor();
 

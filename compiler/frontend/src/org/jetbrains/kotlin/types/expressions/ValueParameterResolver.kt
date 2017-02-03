@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.resolve.DescriptorResolver
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.constants.evaluate.ConstantExpressionEvaluator
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeImpl
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
@@ -47,7 +47,7 @@ class ValueParameterResolver(
         val contextForDefaultValue = ExpressionTypingContext.newContext(trace, scopeForDefaultValue, dataFlowInfo, TypeUtils.NO_EXPECTED_TYPE)
 
         for ((descriptor, parameter) in valueParameterDescriptors.zip(valueParameters)) {
-            ForceResolveUtil.forceResolveAllContents(descriptor.annotations)
+            ForceResolve.forceResolveAllContents(descriptor.annotations)
             resolveDefaultValue(descriptor, parameter, contextForDefaultValue)
         }
     }

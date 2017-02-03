@@ -38,7 +38,7 @@ import org.jetbrains.kotlin.resolve.ModifiersChecker.resolveVisibilityFromModifi
 import org.jetbrains.kotlin.resolve.bindingContextUtil.recordScope
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.calls.util.createValueParametersForInvokeInFunctionType
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.LexicalScopeKind
 import org.jetbrains.kotlin.resolve.scopes.LexicalWritableScope
@@ -187,9 +187,9 @@ class FunctionDescriptorResolver(
                                         containingDescriptor is ClassDescriptor && containingDescriptor.isHeader
         functionDescriptor.isImpl = function.hasModifier(KtTokens.IMPL_KEYWORD)
 
-        receiverType?.let { ForceResolveUtil.forceResolveAllContents(it.annotations) }
+        receiverType?.let { ForceResolve.forceResolveAllContents(it.annotations) }
         for (valueParameterDescriptor in valueParameterDescriptors) {
-            ForceResolveUtil.forceResolveAllContents(valueParameterDescriptor.type.annotations)
+            ForceResolve.forceResolveAllContents(valueParameterDescriptor.type.annotations)
         }
     }
 

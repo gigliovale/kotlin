@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.lazy.LazyEntity
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.source.toSourceElement
@@ -160,7 +160,7 @@ class LazyAnnotationDescriptor(
     override fun getSource() = source
 
     override fun forceResolveAllContents() {
-        ForceResolveUtil.forceResolveAllContents(getType())
+        ForceResolve.forceResolveAllContents(getType())
         allValueArguments
     }
 

@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.smartcasts.DataFlowInfo
 import org.jetbrains.kotlin.resolve.lazy.DeclarationScopeProvider
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.resolve.scopes.utils.memberScopeAsImportingScope
@@ -55,7 +55,7 @@ open class PartialAnalysisHandlerExtension : AnalysisHandlerExtension {
                 TopDownAnalysisMode.TopLevelDeclarations, DataFlowInfo.EMPTY, declarationScopeProvider)
 
         for (file in files) {
-            ForceResolveUtil.forceResolveAllContents(resolveSession.getFileAnnotations(file))
+            ForceResolve.forceResolveAllContents(resolveSession.getFileAnnotations(file))
         }
 
         doForEachDeclaration(files) { declaration ->
@@ -63,8 +63,8 @@ open class PartialAnalysisHandlerExtension : AnalysisHandlerExtension {
 
             when (descriptor) {
                 is ClassDescriptor -> {
-                    ForceResolveUtil.forceResolveAllContents(descriptor)
-                    ForceResolveUtil.forceResolveAllContents(descriptor.typeConstructor.supertypes)
+                    ForceResolve.forceResolveAllContents(descriptor)
+                    ForceResolve.forceResolveAllContents(descriptor.typeConstructor.supertypes)
 
                     if (declaration is KtClassOrObject && descriptor is ClassDescriptorWithResolutionScopes) {
                         bodyResolver.resolveSuperTypeEntryList(DataFlowInfo.EMPTY,
@@ -95,7 +95,7 @@ open class PartialAnalysisHandlerExtension : AnalysisHandlerExtension {
                 is FunctionDescriptor -> {
                     // is body expression (not unit)
                     if (declaration is KtFunction && !declaration.hasDeclaredReturnType() && !declaration.hasBlockBody()) {
-                        ForceResolveUtil.forceResolveAllContents(descriptor)
+                        ForceResolve.forceResolveAllContents(descriptor)
                     }
                 }
             }

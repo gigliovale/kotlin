@@ -27,6 +27,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.*
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.asJava.LightClassUtil
+import org.jetbrains.kotlin.asJava.builder.ClsWrapperStubPsiFactory
 import org.jetbrains.kotlin.asJava.builder.LightMemberOrigin
 import org.jetbrains.kotlin.asJava.builder.LightMemberOriginForDeclaration
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
@@ -52,8 +53,10 @@ sealed class KtLightMethodImpl(
 
     private val lightIdentifier by lazy(LazyThreadSafetyMode.PUBLICATION) { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
     private val returnTypeElem by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        val delegateTypeElement = clsDelegate.returnTypeElement as? ClsTypeElementImpl
-        delegateTypeElement?.let { ClsTypeElementImpl(this, it.canonicalText, /*ClsTypeElementImpl.VARIANCE_NONE */ 0.toChar()) }
+        val returnTypeTextFromDelegate = (clsDelegate.returnTypeElement as? ClsTypeElementImpl)?.canonicalText
+        val returnTypeText = clsDelegate.getUserData(ClsWrapperStubPsiFactory.COMPUTE_RETURN_TYPE)?.invoke()?.className
+        assert(returnTypeText == returnTypeTextFromDelegate)
+        returnTypeText?.let { ClsTypeElementImpl(this, it, /*ClsTypeElementImpl.VARIANCE_NONE */ 0.toChar()) }
     }
 
     private val calculatingReturnType = ThreadLocal<Boolean>()

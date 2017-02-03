@@ -91,9 +91,10 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
             @Suppress("UNCHECKED_CAST")
             stubStack.push(javaFileStub as StubElement<PsiElement>)
 
+            val lightClassBuilderFactory = KotlinLightClassBuilderFactory(stubStack)
             state = GenerationState(
                     project,
-                    KotlinLightClassBuilderFactory(stubStack),
+                    lightClassBuilderFactory,
                     context.module,
                     context.bindingContext,
                     files.toMutableList(),
@@ -101,6 +102,7 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
                     generateClassFilter,
                     wantsDiagnostics = false
             )
+            lightClassBuilderFactory.setTypeMapper(state.typeMapper)
             state.beforeCompile()
 
             bindingContext = state.bindingContext

@@ -22,13 +22,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.codegen.ClassBuilder;
 import org.jetbrains.kotlin.codegen.ClassBuilderFactory;
 import org.jetbrains.kotlin.codegen.ClassBuilderMode;
+import org.jetbrains.kotlin.codegen.state.GenerationState;
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 
 /*package*/ class KotlinLightClassBuilderFactory implements ClassBuilderFactory {
     private final Stack<StubElement> stubStack;
+    private KotlinTypeMapper typeMapper;
+
 
     public KotlinLightClassBuilderFactory(Stack<StubElement> stubStack) {
         this.stubStack = stubStack;
+    }
+
+    public void setTypeMapper(@NotNull KotlinTypeMapper typeMapper) {
+        this.typeMapper = typeMapper;
     }
 
     @NotNull
@@ -40,7 +48,7 @@ import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
     @NotNull
     @Override
     public ClassBuilder newClassBuilder(@NotNull JvmDeclarationOrigin origin) {
-        return new StubClassBuilder(stubStack);
+        return new StubClassBuilder(stubStack, typeMapper);
     }
 
     @Override

@@ -24,8 +24,12 @@ import com.intellij.psi.impl.java.stubs.PsiJavaFileStub;
 import com.intellij.psi.stubs.StubBase;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.containers.Stack;
+import kotlin.jvm.functions.Function0;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
+import org.jetbrains.kotlin.descriptors.CallableDescriptor;
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.fileClasses.OldPackageFacadeClassUtils;
 import org.jetbrains.kotlin.codegen.AbstractClassBuilder;
 import org.jetbrains.kotlin.name.FqName;
@@ -34,6 +38,7 @@ import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin;
 import org.jetbrains.org.objectweb.asm.ClassVisitor;
 import org.jetbrains.org.objectweb.asm.FieldVisitor;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
+import org.jetbrains.org.objectweb.asm.Type;
 
 import java.util.List;
 
@@ -50,13 +55,15 @@ public class StubClassBuilder extends AbstractClassBuilder {
         }
     };
     private final StubElement parent;
+    private KotlinTypeMapper typeMapper;
     private StubBuildingVisitor v;
     private final Stack<StubElement> parentStack;
     private boolean isPackageClass = false;
 
-    public StubClassBuilder(@NotNull Stack<StubElement> parentStack) {
+    public StubClassBuilder(@NotNull Stack<StubElement> parentStack, @NotNull KotlinTypeMapper typeMapper) {
         this.parentStack = parentStack;
         this.parent = parentStack.peek();
+        this.typeMapper = typeMapper;
     }
 
     @NotNull
@@ -196,6 +203,15 @@ public class StubClassBuilder extends AbstractClassBuilder {
         }
 
         last.putUserData(ClsWrapperStubPsiFactory.ORIGIN, LightElementOriginKt.toLightMemberOrigin(origin));
+        final DeclarationDescriptor descriptor = origin.getDescriptor();
+        if (descriptor instanceof CallableDescriptor) {
+            last.putUserData(ClsWrapperStubPsiFactory.COMPUTE_RETURN_TYPE, new Function0<Type>() {
+                @Override
+                public Type invoke() {
+                    return typeMapper.mapReturnType((CallableDescriptor) descriptor);
+                }
+            });
+        }
     }
 
     @Override

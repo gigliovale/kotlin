@@ -46,13 +46,6 @@ public interface KotlinCodeAnalyzer extends TopLevelDescriptorProvider {
     @NotNull
     FileScopeProvider getFileScopeProvider();
 
-    /**
-     * Forces all descriptors to be resolved.
-     *
-     * Use this method when laziness plays against you, e.g. when lazy descriptors may be accessed in a multi-threaded setting
-     */
-    void forceResolveAll();
-
     @NotNull
     PackageFragmentProvider getPackageFragmentProvider();
 }

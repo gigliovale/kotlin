@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase;
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.BindingContext;
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve;
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession;
 import org.jetbrains.kotlin.test.InTextDirectivesUtils;
 
@@ -100,7 +101,7 @@ public abstract class AbstractOutOfBlockModificationTest extends KotlinLightCode
 
         ResolutionFacade facade = ResolutionUtils.getResolutionFacade(ktElement.getContainingKtFile());
         ResolveSession session = facade.getFrontendService(ResolveSession.class);
-        session.forceResolveAll();
+        session.forceResolveAll(ForceResolve.Depth.Deep);
 
         BindingContext context = session.getBindingContext();
 

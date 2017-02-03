@@ -53,6 +53,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ForceResolve
+import org.jetbrains.kotlin.resolve.lazy.ForceResolve.Depth.*
 import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
@@ -86,7 +87,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         val classDescriptor = bindingContext.get(BindingContext.CLASS, classOrObject).sure {
             "Class descriptor was not found for ${classOrObject.getElementTextWithContext()}"
         }
-        ForceResolve.forceResolveAllContents(classDescriptor)
+        ForceResolve.forceResolveAllContents(classDescriptor, depth = Shallow)
         return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
     }
 
@@ -101,7 +102,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
             return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
         }
 
-        ForceResolve.forceResolveAllContents<ClassDescriptor>(descriptor)
+        ForceResolve.forceResolveAllContents<ClassDescriptor>(descriptor, depth = Shallow)
 
         return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
     }
@@ -263,7 +264,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
             val packageDescriptor = session.moduleDescriptor.getPackage(packageFqName)
             if (packageDescriptor.isEmpty()) {
                 LOG.warn("No descriptor found for package " + packageFqName + " in file " + file.name + "\n" + file.text)
-                session.forceResolveAll()
+                session.forceResolveAll(Shallow)
                 continue
             }
 
@@ -272,14 +273,14 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
                     val name = declaration.nameAsSafeName
                     val functions = packageDescriptor.memberScope.getContributedFunctions(name, NoLookupLocation.FROM_IDE)
                     for (descriptor in functions) {
-                        ForceResolve.forceResolveAllContents(descriptor)
+                        ForceResolve.forceResolveAllContents(descriptor, depth = Shallow)
                     }
                 }
                 else if (declaration is KtProperty) {
                     val name = declaration.nameAsSafeName
                     val properties = packageDescriptor.memberScope.getContributedVariables(name, NoLookupLocation.FROM_IDE)
                     for (descriptor in properties) {
-                        ForceResolve.forceResolveAllContents(descriptor)
+                        ForceResolve.forceResolveAllContents(descriptor,  depth = Shallow)
                     }
                 }
                 else if (declaration is KtClassOrObject || declaration is KtTypeAlias || declaration is KtDestructuringDeclaration) {
@@ -291,7 +292,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
                 }
             }
 
-            ForceResolve.forceResolveAllContents(session.getFileAnnotations(file))
+            ForceResolve.forceResolveAllContents(session.getFileAnnotations(file),  depth = Shallow)
         }
     }
 

@@ -376,10 +376,9 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
         return result;
     }
 
-    @Override
-    public void forceResolveAll() {
+    public void forceResolveAll(@NotNull ForceResolve.Depth depth) {
         for (LazyPackageDescriptor lazyPackage : getAllPackages()) {
-            ForceResolve.forceResolveAllContents(lazyPackage);
+            ForceResolve.forceResolveAllContents(lazyPackage, depth);
         }
     }
 

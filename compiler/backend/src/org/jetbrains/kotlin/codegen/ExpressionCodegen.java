@@ -3751,7 +3751,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         Type leftType = left754Type.type;
         Type rightType = right754Type.type;
         if (left754Type.isNullable) {
-            leftValue.dup(v, false);
+            AsmUtil.dup(v, leftValue.type);
             Label leftIsNull = new Label();
             v.ifnull(leftIsNull);
             StackValue.coercion(leftValue, leftType).put(leftType, v);
@@ -3761,7 +3761,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             rightValue.put(rightValue.type, v);
             rightValue = StackValue.onStack(rightValue.type);
             if (right754Type.isNullable) {
-                rightValue.dup(v, false);
+                AsmUtil.dup(v, rightValue.type);
                 Label rightIsNotNull = new Label();
                 v.ifnonnull(rightIsNotNull);
                 AsmUtil.pop(v, rightValue.type);
@@ -3810,7 +3810,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         rightValue.put(rightValue.type, v);
         rightValue = StackValue.onStack(rightValue.type);
 
-        rightValue.dup(v, false);
+        AsmUtil.dup(v, rightValue.type);
         Label rightIsNotNull = new Label();
         v.ifnonnull(rightIsNotNull);
         AsmUtil.pop(v, rightValue.type);

@@ -37,6 +37,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.Stack
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
+import org.jetbrains.kotlin.asJava.classes.getOutermostClassOrObject
 import org.jetbrains.kotlin.codegen.CompilationErrorHandler
 import org.jetbrains.kotlin.codegen.binding.CodegenBinding
 import org.jetbrains.kotlin.codegen.state.GenerationState
@@ -177,21 +178,13 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
             javaFileStub: PsiJavaFileStub,
             bindingContext: BindingContext,
             extraDiagnostics: Diagnostics): WithFileStubAndExtraDiagnostics {
-        val classDescriptor = bindingContext.get(BindingContext.CLASS, classOrObject) ?: return InvalidLightClassData
+        bindingContext.get(BindingContext.CLASS, classOrObject) ?: return InvalidLightClassData
 
-        val allInnerClasses = CodegenBinding.getAllInnerClasses(bindingContext, classDescriptor)
-
-        val innerClassesMap = ContainerUtil.newHashMap<KtClassOrObject, InnerKotlinClassLightClassData>()
-        for (innerClassDescriptor in allInnerClasses) {
-            val declaration = descriptorToDeclaration(innerClassDescriptor) as? KtClassOrObject ?: continue
-            innerClassesMap.put(declaration, InnerKotlinClassLightClassData(declaration))
-        }
 
         return OutermostKotlinClassLightClassData(
                 javaFileStub,
                 extraDiagnostics,
-                classOrObject,
-                innerClassesMap)
+                classOrObject)
     }
 
     override val files: Collection<KtFile>
@@ -211,15 +204,11 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
                 return shouldGenerateClass(processingClassOrObject)
             }
 
-            override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean {
-                // Trivial: generate and analyze class we are interested in.
+            override fun shouldGenerateClassMembers(processingClassOrObject: KtClassOrObject): Boolean {
                 if (classOrObject === processingClassOrObject) return true
 
-                // Process all parent classes as they are context for current class
-                // Process child classes because they probably affect members (heuristic)
-
-                if (PsiTreeUtil.isAncestor(classOrObject, processingClassOrObject, true) ||
-                    PsiTreeUtil.isAncestor(processingClassOrObject, classOrObject, true)) {
+                // process all children
+                if (PsiTreeUtil.isAncestor(classOrObject, processingClassOrObject, true)) {
                     return true
                 }
 
@@ -245,6 +234,11 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
                 return false
             }
 
+            override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean {
+                // generate outer classes but not their members
+                return shouldGenerateClassMembers(processingClassOrObject) || PsiTreeUtil.isAncestor(processingClassOrObject, classOrObject, true)
+            }
+
             override fun shouldGenerateScript(script: KtScript): Boolean {
                 return PsiTreeUtil.isAncestor(script, classOrObject, false)
             }
@@ -255,7 +249,7 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
         val file = classOrObject.getContainingKtFile()
         val packagePartType = state.fileClassesProvider.getFileClassType(file)
         val context = state.rootContext.intoPackagePart(packageCodegen.packageFragment, packagePartType, file)
-        packageCodegen.generateClassOrObject(classOrObject, context)
+        packageCodegen.generateClassOrObject(getOutermostClassOrObject(classOrObject), context)
         state.factory.asList()
     }
 

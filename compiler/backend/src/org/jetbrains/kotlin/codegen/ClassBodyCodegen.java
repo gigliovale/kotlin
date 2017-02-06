@@ -77,9 +77,13 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtPureClassOrObject
             }
         }
 
-        generatePrimaryConstructorProperties();
-        generateConstructors();
-        generateDefaultImplsIfNeeded();
+        boolean generateNonClassMembers = shouldGenerateNonClassMembers();
+
+        if (generateNonClassMembers) {
+            generatePrimaryConstructorProperties();
+            generateConstructors();
+            generateDefaultImplsIfNeeded();
+        }
 
         // Generate _declared_ companions
         for (KtObjectDeclaration companion : companions) {
@@ -91,6 +95,8 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtPureClassOrObject
         if (companionObjectDescriptor instanceof SyntheticClassOrObjectDescriptor) {
             genSyntheticClassOrObject((SyntheticClassOrObjectDescriptor) companionObjectDescriptor);
         }
+
+        if (!generateNonClassMembers) return;
 
         if (!DescriptorUtils.isInterface(descriptor)) {
             for (DeclarationDescriptor memberDescriptor : DescriptorUtils.getAllDescriptors(descriptor.getDefaultType().getMemberScope())) {
@@ -116,6 +122,11 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtPureClassOrObject
         }
     }
 
+    protected boolean shouldGenerateNonClassMembers() {
+        return !(myClass instanceof KtClassOrObject) ||
+               state.getGenerateDeclaredClassFilter().shouldGenerateClassMembers((KtClassOrObject) myClass);
+    }
+
     protected void generateConstructors() {
 
     }
@@ -130,7 +141,9 @@ public abstract class ClassBodyCodegen extends MemberCodegen<KtPureClassOrObject
 
     protected void generateDeclaration(KtDeclaration declaration) {
         if (declaration instanceof KtProperty || declaration instanceof KtNamedFunction || declaration instanceof KtTypeAlias) {
-            genSimpleMember(declaration);
+            if (shouldGenerateNonClassMembers()) {
+                genSimpleMember(declaration);
+            }
         }
         else if (declaration instanceof KtClassOrObject) {
             if (declaration instanceof KtEnumEntry && !enumEntryNeedSubclass(bindingContext, (KtEnumEntry) declaration)) {

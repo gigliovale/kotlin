@@ -26,6 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.codegen.binding.CalculatedClosure;
 import org.jetbrains.kotlin.codegen.context.ClosureContext;
+import org.jetbrains.kotlin.codegen.context.EnclosedValueDescriptor;
 import org.jetbrains.kotlin.codegen.coroutines.CoroutineCodegenUtilKt;
 import org.jetbrains.kotlin.codegen.inline.InlineCodegenUtil;
 import org.jetbrains.kotlin.codegen.serialization.JvmSerializerExtension;
@@ -34,13 +35,11 @@ import org.jetbrains.kotlin.codegen.signature.JvmSignatureWriter;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.descriptors.*;
-import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.SimpleFunctionDescriptorImpl;
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation;
 import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.load.kotlin.header.KotlinClassHeader;
 import org.jetbrains.kotlin.psi.KtElement;
-import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.descriptorUtil.DescriptorUtilsKt;
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKt;
@@ -63,7 +62,6 @@ import java.util.List;
 import static org.jetbrains.kotlin.codegen.AsmUtil.*;
 import static org.jetbrains.kotlin.codegen.JvmCodegenUtil.isConst;
 import static org.jetbrains.kotlin.codegen.binding.CodegenBinding.CLOSURE;
-import static org.jetbrains.kotlin.codegen.binding.CodegenBinding.asmTypeForAnonymousClass;
 import static org.jetbrains.kotlin.codegen.serialization.JvmSerializationBindings.METHOD_FOR_FUNCTION;
 import static org.jetbrains.kotlin.resolve.jvm.AsmTypes.*;
 import static org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOrigin.NO_ORIGIN;
@@ -232,9 +230,10 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
 
     @Override
     protected void generateKotlinMetadataAnnotation() {
-        FunctionDescriptor freeLambdaDescriptor = createFreeLambdaDescriptor(funDescriptor);
-        Method method = v.getSerializationBindings().get(METHOD_FOR_FUNCTION, funDescriptor);
-        assert method != null : "No method for " + funDescriptor;
+        FunctionDescriptor frontendFunDescriptor = CodegenUtilKt.unwrapFrontendVersion(funDescriptor);
+        FunctionDescriptor freeLambdaDescriptor = createFreeLambdaDescriptor(frontendFunDescriptor);
+        Method method = v.getSerializationBindings().get(METHOD_FOR_FUNCTION, frontendFunDescriptor);
+        assert method != null : "No method for " + frontendFunDescriptor;
         v.getSerializationBindings().put(METHOD_FOR_FUNCTION, freeLambdaDescriptor, method);
 
         final DescriptorSerializer serializer =
@@ -468,7 +467,6 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
             @NotNull CalculatedClosure closure,
             @NotNull Type ownerType
     ) {
-        BindingContext bindingContext = typeMapper.getBindingContext();
         List<FieldInfo> args = Lists.newArrayList();
         ClassDescriptor captureThis = closure.getCaptureThis();
         if (captureThis != null) {
@@ -480,23 +478,15 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
             args.add(FieldInfo.createForHiddenField(ownerType, typeMapper.mapType(captureReceiverType), CAPTURED_RECEIVER_FIELD));
         }
 
-        for (DeclarationDescriptor descriptor : closure.getCaptureVariables().keySet()) {
-            if (descriptor instanceof VariableDescriptor && !(descriptor instanceof PropertyDescriptor)) {
-                Type type = typeMapper.getSharedVarType(descriptor);
-                if (type == null && descriptor instanceof LocalVariableDescriptor) {
-                    KotlinType delegateType = JvmCodegenUtil.getPropertyDelegateType((LocalVariableDescriptor) descriptor, bindingContext);
-                    if (delegateType != null) {
-                        type = typeMapper.mapType(delegateType);
-                    }
-                }
-                if (type == null) {
-                    type = typeMapper.mapType((VariableDescriptor) descriptor);
-                }
-                args.add(FieldInfo.createForHiddenField(ownerType, type, "$" + descriptor.getName().asString()));
-            }
-            else if (ExpressionTypingUtils.isLocalFunction(descriptor)) {
-                Type classType = asmTypeForAnonymousClass(bindingContext, (FunctionDescriptor) descriptor);
-                args.add(FieldInfo.createForHiddenField(ownerType, classType, "$" + descriptor.getName().asString()));
+        for (EnclosedValueDescriptor enclosedValueDescriptor : closure.getCaptureVariables().values()) {
+            DeclarationDescriptor descriptor = enclosedValueDescriptor.getDescriptor();
+            if ((descriptor instanceof VariableDescriptor && !(descriptor instanceof PropertyDescriptor)) ||
+                ExpressionTypingUtils.isLocalFunction(descriptor)) {
+                args.add(
+                        FieldInfo.createForHiddenField(
+                                ownerType, enclosedValueDescriptor.getType(), enclosedValueDescriptor.getFieldName()
+                        )
+                );
             }
             else if (descriptor instanceof FunctionDescriptor) {
                 assert captureReceiverType != null;

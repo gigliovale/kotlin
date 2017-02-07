@@ -50,6 +50,7 @@ import org.jetbrains.kotlin.codegen.state.GenerationState;
 import org.jetbrains.kotlin.codegen.state.KotlinTypeMapper;
 import org.jetbrains.kotlin.codegen.when.SwitchCodegen;
 import org.jetbrains.kotlin.codegen.when.SwitchCodegenUtil;
+import org.jetbrains.kotlin.config.ApiVersion;
 import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor;
 import org.jetbrains.kotlin.descriptors.impl.SyntheticFieldDescriptor;
@@ -2497,14 +2498,14 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
     public int lookupLocalIndex(DeclarationDescriptor descriptor) {
-        return myFrameMap.getIndex(getParameterSynonymOrThis(descriptor));
-    }
+        int index = myFrameMap.getIndex(descriptor);
+        if (index != -1) return index;
 
-    private DeclarationDescriptor getParameterSynonymOrThis(DeclarationDescriptor descriptor) {
-        if (!(descriptor instanceof ValueParameterDescriptor)) return descriptor;
-
+        if (!(descriptor instanceof ValueParameterDescriptor)) return -1;
         DeclarationDescriptor synonym = bindingContext.get(CodegenBinding.PARAMETER_SYNONYM, (ValueParameterDescriptor) descriptor);
-        return synonym != null ? synonym : descriptor;
+        if (synonym == null) return -1;
+
+        return myFrameMap.getIndex(synonym);
     }
 
     @NotNull
@@ -2942,13 +2943,35 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             // The solution is to spill stack just after receiver is loaded (after IFNULL) in case of safe call.
             // But the problem is that we should leave the receiver itself on the stack, so we store it in a temporary variable.
             if (isSuspensionPoint && isSafeCallOrOnStack) {
-                int tmpVar = myFrameMap.enterTemp(receiver.type);
+                boolean bothReceivers =
+                        receiver instanceof StackValue.CallReceiver
+                        && ((StackValue.CallReceiver) receiver).getDispatchReceiver() != null
+                        && ((StackValue.CallReceiver) receiver).getExtensionReceiver() != null;
+                Type firstReceiverType =
+                        bothReceivers
+                        ? ((StackValue.CallReceiver) receiver).getDispatchReceiver().type
+                        : receiver.type;
 
-                v.store(tmpVar, receiver.type);
+                Type secondReceiverType = bothReceivers ? receiver.type : null;
+
+                int tmpVarForFirstReceiver = myFrameMap.enterTemp(firstReceiverType);
+                int tmpVarForSecondReceiver = -1;
+
+                if (secondReceiverType != null) {
+                    tmpVarForSecondReceiver = myFrameMap.enterTemp(secondReceiverType);
+                    v.store(tmpVarForSecondReceiver, secondReceiverType);
+                }
+                v.store(tmpVarForFirstReceiver, firstReceiverType);
+
                 addInlineMarker(v, true);
-                v.load(tmpVar, receiver.type);
 
-                myFrameMap.leaveTemp(receiver.type);
+                v.load(tmpVarForFirstReceiver, firstReceiverType);
+                if (secondReceiverType != null) {
+                    v.load(tmpVarForSecondReceiver, secondReceiverType);
+                    myFrameMap.leaveTemp(secondReceiverType);
+                }
+
+                myFrameMap.leaveTemp(firstReceiverType);
             }
 
             callableMethod.afterReceiverGeneration(v);
@@ -2998,7 +3021,8 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
     @NotNull
     CallGenerator getOrCreateCallGenerator(@NotNull ResolvedCall<?> resolvedCall, @NotNull CallableDescriptor descriptor) {
-        Map<TypeParameterDescriptor, KotlinType> typeArguments = resolvedCall.getTypeArguments();
+        Map<TypeParameterDescriptor, KotlinType> typeArguments = getTypeArgumentsForResolvedCall(resolvedCall, descriptor);
+
         TypeParameterMappings mappings = new TypeParameterMappings();
         for (Map.Entry<TypeParameterDescriptor, KotlinType> entry : typeArguments.entrySet()) {
             TypeParameterDescriptor key = entry.getKey();
@@ -3023,7 +3047,36 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 );
             }
         }
+
         return getOrCreateCallGenerator(descriptor, resolvedCall.getCall().getCallElement(), mappings, false);
+    }
+
+    @NotNull
+    private static Map<TypeParameterDescriptor, KotlinType> getTypeArgumentsForResolvedCall(
+            @NotNull ResolvedCall<?> resolvedCall,
+            @NotNull CallableDescriptor descriptor
+    ) {
+        if (!(descriptor instanceof TypeAliasConstructorDescriptor)) {
+            return resolvedCall.getTypeArguments();
+        }
+
+        TypeAliasConstructorDescriptor typeAliasConstructorDescriptor = (TypeAliasConstructorDescriptor) descriptor;
+        ClassConstructorDescriptor underlyingConstructorDescriptor = typeAliasConstructorDescriptor.getUnderlyingConstructorDescriptor();
+        KotlinType resultingType = typeAliasConstructorDescriptor.getReturnType();
+        List<TypeProjection> typeArgumentsForReturnType = resultingType.getArguments();
+        List<TypeParameterDescriptor> typeParameters = underlyingConstructorDescriptor.getTypeParameters();
+
+        assert typeParameters.size() == typeArgumentsForReturnType.size() :
+                "Type parameters of the underlying constructor " + underlyingConstructorDescriptor +
+                "should correspond to type arguments for the resulting type " + resultingType;
+
+        Map<TypeParameterDescriptor, KotlinType> typeArgumentsMap = Maps.newHashMapWithExpectedSize(typeParameters.size());
+        for (TypeParameterDescriptor typeParameter: typeParameters) {
+            KotlinType typeArgument = typeArgumentsForReturnType.get(typeParameter.getIndex()).getType();
+            typeArgumentsMap.put(typeParameter, typeArgument);
+        }
+
+        return typeArgumentsMap;
     }
 
 
@@ -3362,7 +3415,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             @Override
             public Unit invoke(InstructionAdapter v) {
                 KotlinType type = lhs.getType();
-                if (lhs instanceof DoubleColonLHS.Expression && !((DoubleColonLHS.Expression) lhs).isObject()) {
+                if (lhs instanceof DoubleColonLHS.Expression && !((DoubleColonLHS.Expression) lhs).isObjectQualifier()) {
                     JavaClassProperty.INSTANCE.generateImpl(v, gen(receiverExpression));
                 }
                 else {
@@ -3604,18 +3657,47 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
     /*tries to use IEEE 754 arithmetic*/
     private StackValue genEqualsForExpressionsPreferIEEE754Arithmetic(
-            @Nullable KtExpression left,
-            @Nullable KtExpression right,
-            @NotNull IElementType opToken,
+            @Nullable final KtExpression left,
+            @Nullable final KtExpression right,
+            @NotNull final IElementType opToken,
             @NotNull Type leftType,
             @NotNull Type rightType,
-            @Nullable StackValue pregeneratedLeft
+            @Nullable final StackValue pregeneratedLeft
     ) {
-        Type left754Type = calcTypeForIEEE754ArithmeticIfNeeded(left);
-        Type right754Type = calcTypeForIEEE754ArithmeticIfNeeded(right);
-        if (left754Type != null && right754Type != null && left754Type.equals(right754Type)) {
-            leftType = left754Type;
-            rightType = right754Type;
+        assert (opToken == KtTokens.EQEQ || opToken == KtTokens.EXCLEQ) : "Optoken should be '==' or '!=', but: " + opToken;
+
+        final TypeAndNullability left754Type = calcTypeForIEEE754ArithmeticIfNeeded(left);
+        final TypeAndNullability right754Type = calcTypeForIEEE754ArithmeticIfNeeded(right);
+        if (left754Type != null && right754Type != null && left754Type.type.equals(right754Type.type)) {
+            //check nullability cause there is some optimizations in codegen for non-nullable case
+            if (left754Type.isNullable || right754Type.isNullable) {
+                // Using Intrinsics.areEqual is preferable here, but will result in NoSuchMethodError at runtime if the runtime
+                // of version 1.0 is used and the user forgot to explicitly specify language version / API version.
+                // This should be enabled when/if we decide to drop support for "-language-version 1.0" / "-api-version 1.0"
+                //noinspection ConstantConditions, PointlessBooleanExpression
+                if (false && state.getLanguageVersionSettings().getApiVersion().compareTo(ApiVersion.KOTLIN_1_1) >= 0) {
+                    return StackValue.operation(Type.BOOLEAN_TYPE, new Function1<InstructionAdapter, Unit>() {
+                        @Override
+                        public Unit invoke(InstructionAdapter v) {
+                            generate754EqualsForNullableTypesViaIntrinsic(v, opToken, pregeneratedLeft, left, left754Type, right, right754Type);
+                            return Unit.INSTANCE;
+                        }
+                    });
+                }
+                else {
+                    return StackValue.operation(Type.BOOLEAN_TYPE, new Function1<InstructionAdapter, Unit>() {
+                        @Override
+                        public Unit invoke(InstructionAdapter v) {
+                            generate754EqualsForNullableTypes(v, opToken, pregeneratedLeft, left, left754Type, right, right754Type);
+                            return Unit.INSTANCE;
+                        }
+                    });
+                }
+            }
+            else {
+                leftType = left754Type.type;
+                rightType = right754Type.type;
+            }
         }
 
         return genEqualsForExpressionsOnStack(
@@ -3623,6 +3705,126 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 pregeneratedLeft != null ? StackValue.coercion(pregeneratedLeft, leftType) : genLazy(left, leftType),
                 genLazy(right, rightType)
         );
+    }
+
+    private void generate754EqualsForNullableTypesViaIntrinsic(
+            @NotNull InstructionAdapter v,
+            @NotNull IElementType opToken,
+            @Nullable StackValue pregeneratedLeft,
+            @Nullable KtExpression left,
+            @NotNull TypeAndNullability left754Type,
+            @Nullable KtExpression right,
+            @NotNull TypeAndNullability right754Type
+    ) {
+        Type leftType = left754Type.isNullable ? AsmUtil.boxType(left754Type.type) : left754Type.type;
+
+        if (pregeneratedLeft != null)  {
+            StackValue.coercion(pregeneratedLeft, leftType).put(leftType, v);
+        }
+        else {
+            gen(left, leftType);
+        }
+        Type rightType = right754Type.isNullable ? AsmUtil.boxType(right754Type.type) : right754Type.type;
+        gen(right, rightType);
+
+        AsmUtil.genIEEE754EqualForNullableTypesCall(v, leftType, rightType);
+
+        if (opToken == KtTokens.EXCLEQ) {
+            genInvertBoolean(v);
+        }
+    }
+
+    private void generate754EqualsForNullableTypes(
+            @NotNull InstructionAdapter v,
+            @NotNull IElementType opToken,
+            @Nullable StackValue pregeneratedLeft,
+            @Nullable KtExpression left,
+            @NotNull TypeAndNullability left754Type,
+            @Nullable KtExpression right,
+            @NotNull TypeAndNullability right754Type
+    ) {
+        int equals = opToken == KtTokens.EQEQ ? 1 : 0;
+        int notEquals = opToken != KtTokens.EQEQ ? 1 : 0;
+        Label end = new Label();
+        StackValue leftValue = pregeneratedLeft != null ? pregeneratedLeft : gen(left);
+        leftValue.put(leftValue.type, v);
+        leftValue = StackValue.onStack(leftValue.type);
+        Type leftType = left754Type.type;
+        Type rightType = right754Type.type;
+        if (left754Type.isNullable) {
+            leftValue.dup(v, false);
+            Label leftIsNull = new Label();
+            v.ifnull(leftIsNull);
+            StackValue.coercion(leftValue, leftType).put(leftType, v);
+            StackValue nonNullLeftValue = StackValue.onStack(leftType);
+
+            StackValue rightValue = gen(right);
+            rightValue.put(rightValue.type, v);
+            rightValue = StackValue.onStack(rightValue.type);
+            if (right754Type.isNullable) {
+                rightValue.dup(v, false);
+                Label rightIsNotNull = new Label();
+                v.ifnonnull(rightIsNotNull);
+                AsmUtil.pop(v, rightValue.type);
+                AsmUtil.pop(v, nonNullLeftValue.type);
+                v.iconst(notEquals);
+                v.goTo(end);
+                v.mark(rightIsNotNull);
+            }
+
+            StackValue.coercion(rightValue, rightType).put(rightType, v);
+            StackValue nonNullRightValue = StackValue.onStack(rightType);
+            StackValue.cmp(opToken, leftType, nonNullLeftValue, nonNullRightValue).put(Type.BOOLEAN_TYPE, v);
+            v.goTo(end);
+
+            //left is null case
+            v.mark(leftIsNull);
+            AsmUtil.pop(v, leftValue.type);//pop null left
+            rightValue = gen(right);
+            rightValue.put(rightValue.type, v);
+            rightValue = StackValue.onStack(rightValue.type);
+            if (right754Type.isNullable) {
+                Label rightIsNotNull = new Label();
+                v.ifnonnull(rightIsNotNull);
+                v.iconst(equals);
+                v.goTo(end);
+                v.mark(rightIsNotNull);
+                v.iconst(notEquals);
+                //v.goTo(end);
+            }
+            else {
+                AsmUtil.pop(v, rightValue.type);
+                v.iconst(notEquals);
+                //v.goTo(end);
+            }
+
+            v.mark(end);
+            return;
+        }
+        else {
+            StackValue.coercion(leftValue, leftType).put(leftType, v);
+            leftValue = StackValue.onStack(leftType);
+        }
+
+        //right is nullable cause left is not
+        StackValue rightValue = gen(right);
+        rightValue.put(rightValue.type, v);
+        rightValue = StackValue.onStack(rightValue.type);
+
+        rightValue.dup(v, false);
+        Label rightIsNotNull = new Label();
+        v.ifnonnull(rightIsNotNull);
+        AsmUtil.pop(v, rightValue.type);
+        AsmUtil.pop(v, leftValue.type);
+        v.iconst(notEquals);
+        v.goTo(end);
+
+        v.mark(rightIsNotNull);
+        StackValue.coercion(rightValue, rightType).put(rightType, v);
+        StackValue nonNullRightValue = StackValue.onStack(rightType);
+        StackValue.cmp(opToken, leftType, leftValue, nonNullRightValue).put(Type.BOOLEAN_TYPE, v);
+
+        v.mark(end);
     }
 
     private boolean isIntZero(KtExpression expr, Type exprType) {
@@ -3686,12 +3888,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         StackValue rightValue;
         Type leftType = expressionType(left);
         Type rightType = expressionType(right);
-        Type left754Type = calcTypeForIEEE754ArithmeticIfNeeded(left);
-        Type right754Type = calcTypeForIEEE754ArithmeticIfNeeded(right);
+        TypeAndNullability left754Type = calcTypeForIEEE754ArithmeticIfNeeded(left);
+        TypeAndNullability right754Type = calcTypeForIEEE754ArithmeticIfNeeded(right);
         Callable callable = resolveToCallable((FunctionDescriptor) resolvedCall.getResultingDescriptor(), false, resolvedCall);
-        boolean is754Arithmetic = left754Type != null && right754Type != null && left754Type.equals(right754Type);
+        boolean is754Arithmetic = left754Type != null && right754Type != null && left754Type.type.equals(right754Type.type);
         if (callable instanceof IntrinsicCallable && ((isPrimitive(leftType) && isPrimitive(rightType)) || is754Arithmetic)) {
-            type = is754Arithmetic ? left754Type : comparisonOperandType(leftType, rightType);
+            type = is754Arithmetic ? left754Type.type : comparisonOperandType(leftType, rightType);
             leftValue = gen(left);
             rightValue = gen(right);
         }
@@ -3703,7 +3905,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         return StackValue.cmp(expression.getOperationToken(), type, leftValue, rightValue);
     }
 
-    private Type calcTypeForIEEE754ArithmeticIfNeeded(@Nullable KtExpression expression) {
+    private TypeAndNullability calcTypeForIEEE754ArithmeticIfNeeded(@Nullable KtExpression expression) {
         return CodegenUtilKt.calcTypeForIEEE754ArithmeticIfNeeded(expression, bindingContext, context.getFunctionDescriptor());
     }
 

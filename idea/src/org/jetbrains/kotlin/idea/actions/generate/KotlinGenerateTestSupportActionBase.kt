@@ -149,33 +149,35 @@ abstract class KotlinGenerateTestSupportActionBase(
     private fun doGenerate(editor: Editor, file: PsiFile, klass: KtClassOrObject, framework: TestFramework) {
         val project = file.project
         val commandName = "Generate test function"
-        project.executeWriteCommand(commandName) {
-            try {
+
+        val fileTemplateDescriptor = methodKind.getFileTemplateDescriptor(framework)
+        val fileTemplate = FileTemplateManager.getInstance(project).getCodeTemplate(fileTemplateDescriptor.fileName)
+        var templateText = fileTemplate.text.replace(BODY_VAR, "")
+        var name: String? = null
+        if (templateText.contains(NAME_VAR)) {
+            name = if (templateText.contains("test$NAME_VAR")) "Name" else "name"
+            if (!ApplicationManager.getApplication().isUnitTestMode) {
+                name = Messages.showInputDialog("Choose test name: ", commandName, null, name, NAME_VALIDATOR)
+                       ?: return
+            }
+
+            templateText = fileTemplate.text.replace(NAME_VAR, DUMMY_NAME)
+        }
+
+        try {
+            var errorHint: String? = null
+            project.executeWriteCommand(commandName) {
                 PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-                val fileTemplateDescriptor = methodKind.getFileTemplateDescriptor(framework)
-                val fileTemplate = FileTemplateManager.getInstance(project).getCodeTemplate(fileTemplateDescriptor.fileName)
-                var templateText = fileTemplate.text.replace(BODY_VAR, "")
-                var name: String? = null
-                if (templateText.contains(NAME_VAR)) {
-                    name = if (templateText.contains("test$NAME_VAR")) "Name" else "name"
-                    if (!ApplicationManager.getApplication().isUnitTestMode) {
-                        name = Messages.showInputDialog("Choose test name: ", commandName, null, name, NAME_VALIDATOR)
-                                ?: return@executeWriteCommand
-                    }
-
-                    templateText = fileTemplate.text.replace(NAME_VAR, DUMMY_NAME)
-                }
                 val factory = PsiElementFactory.SERVICE.getInstance(project)
                 val psiMethod = factory.createMethodFromText(templateText, null)
                 psiMethod.throwsList.referenceElements.forEach { it.delete() }
-                var function = psiMethod.j2k() as? KtNamedFunction
-                if (function == null) {
-                    HintManager.getInstance().showErrorHint(editor, "Couldn't convert Java template to Kotlin")
+                var function = psiMethod.j2k() as? KtNamedFunction ?: run {
+                    errorHint = "Couldn't convert Java template to Kotlin"
                     return@executeWriteCommand
                 }
-                if (name != null) {
-                    function = substituteNewName(function, name)
+                name?.let {
+                    function = substituteNewName(function, it)
                 }
                 val functionInPlace = insertMember(editor, klass, function)
 
@@ -195,9 +197,10 @@ abstract class KotlinGenerateTestSupportActionBase(
 
                 setupEditorSelection(editor, functionInPlace)
             }
-            catch (e: IncorrectOperationException) {
-                HintManager.getInstance().showErrorHint(editor, "Cannot generate method: " + e.message)
-            }
+            errorHint?.let { HintManager.getInstance().showErrorHint(editor, it) }
+        }
+        catch (e: IncorrectOperationException) {
+            HintManager.getInstance().showErrorHint(editor, "Cannot generate method: " + e.message)
         }
     }
 

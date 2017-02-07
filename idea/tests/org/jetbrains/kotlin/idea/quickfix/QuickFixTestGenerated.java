@@ -722,12 +722,6 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             doTest(fileName);
         }
 
-        @TestMetadata("enumEntriesImportAbsentJsRuntime.kt")
-        public void testEnumEntriesImportAbsentJsRuntime() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/enumEntriesImportAbsentJsRuntime.kt");
-            doTest(fileName);
-        }
-
         @TestMetadata("enumEntriesJsRuntime.kt")
         public void testEnumEntriesJsRuntime() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/enumEntriesJsRuntime.kt");
@@ -6767,6 +6761,24 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             @TestMetadata("init.kt")
             public void testInit() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/suspend/init.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("open.kt")
+            public void testOpen() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/suspend/open.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("override.kt")
+            public void testOverride() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/suspend/override.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("public.kt")
+            public void testPublic() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/modifiers/suspend/public.kt");
                 doTest(fileName);
             }
 

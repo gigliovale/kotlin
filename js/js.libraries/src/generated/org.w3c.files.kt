@@ -5,6 +5,7 @@
  * See libraries/tools/idl2k for details
  */
 
+@file:Suppress("NESTED_CLASS_IN_EXTERNAL_INTERFACE")
 package org.w3c.files
 
 import kotlin.js.*
@@ -35,6 +36,7 @@ public external interface BlobPropertyBag {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun BlobPropertyBag(type: String? = ""): BlobPropertyBag {
     val o = js("({})")
 
@@ -54,6 +56,7 @@ public external interface FilePropertyBag : BlobPropertyBag {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun FilePropertyBag(lastModified: Int? = null, type: String? = ""): FilePropertyBag {
     val o = js("({})")
 
@@ -67,7 +70,7 @@ public external abstract class FileList {
     open val length: Int
     fun item(index: Int): File?
 }
-inline operator fun FileList.get(index: Int): File? = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun FileList.get(index: Int): File? = asDynamic()[index]
 
 public external open class FileReader : EventTarget {
     open val readyState: Short

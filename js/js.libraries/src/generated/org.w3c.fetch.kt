@@ -5,6 +5,7 @@
  * See libraries/tools/idl2k for details
  */
 
+@file:Suppress("NESTED_CLASS_IN_EXTERNAL_INTERFACE")
 package org.w3c.fetch
 
 import kotlin.js.*
@@ -100,6 +101,7 @@ public external interface RequestInit {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun RequestInit(method: String? = null, headers: dynamic = null, body: dynamic = null, referrer: String? = null, referrerPolicy: dynamic = null, mode: RequestMode? = null, credentials: RequestCredentials? = null, cache: RequestCache? = null, redirect: RequestRedirect? = null, integrity: String? = null, keepalive: Boolean? = null, window: Any? = null): RequestInit {
     val o = js("({})")
 
@@ -155,6 +157,7 @@ public external interface ResponseInit {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun ResponseInit(status: Short? = 200, statusText: String? = "OK", headers: dynamic = null): ResponseInit {
     val o = js("({})")
 

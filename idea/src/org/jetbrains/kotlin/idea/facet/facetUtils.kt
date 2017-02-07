@@ -34,10 +34,7 @@ import org.jetbrains.kotlin.idea.compiler.configuration.KotlinCommonCompilerArgu
 import org.jetbrains.kotlin.idea.compiler.configuration.KotlinCompilerSettings
 import org.jetbrains.kotlin.idea.framework.JSLibraryStdPresentationProvider
 import org.jetbrains.kotlin.idea.framework.JavaRuntimePresentationProvider
-import org.jetbrains.kotlin.idea.versions.MAVEN_COMMON_STDLIB_ID
-import org.jetbrains.kotlin.idea.versions.MAVEN_JS_STDLIB_ID
-import org.jetbrains.kotlin.idea.versions.MAVEN_STDLIB_ID
-import org.jetbrains.kotlin.idea.versions.bundledRuntimeVersion
+import org.jetbrains.kotlin.idea.versions.*
 
 private fun getRuntimeLibraryVersions(
         module: Module,
@@ -145,11 +142,11 @@ fun KotlinFacetSettings.initializeIfNeeded(module: Module, rootModel: ModuleRoot
     }
 }
 
-val TargetPlatformKind<*>.mavenLibraryId: String
+val TargetPlatformKind<*>.mavenLibraryIds: List<String>
     get() = when (this) {
-        is TargetPlatformKind.Jvm -> MAVEN_STDLIB_ID
-        is TargetPlatformKind.JavaScript -> MAVEN_JS_STDLIB_ID
-        is TargetPlatformKind.Common -> MAVEN_COMMON_STDLIB_ID
+        is TargetPlatformKind.Jvm -> listOf(MAVEN_STDLIB_ID, MAVEN_STDLIB_ID_JRE7, MAVEN_STDLIB_ID_JRE8)
+        is TargetPlatformKind.JavaScript -> listOf(MAVEN_JS_STDLIB_ID)
+        is TargetPlatformKind.Common -> listOf(MAVEN_COMMON_STDLIB_ID)
     }
 
 fun Module.getOrCreateFacet(modelsProvider: IdeModifiableModelsProvider, useProjectSettings: Boolean): KotlinFacet {
@@ -205,14 +202,14 @@ fun parseCompilerArgumentsToFacet(arguments: List<String>, kotlinFacet: KotlinFa
 
         when (versionInfo.targetPlatformKind) {
             is TargetPlatformKind.Jvm -> {
-                val jvmTarget = K2JVMCompilerArguments().apply { parseArguments(argumentArray, this) }.jvmTarget
+                val jvmTarget = K2JVMCompilerArguments().apply { parseArguments(argumentArray, this, ignoreInvalidArguments = true) }.jvmTarget
                 if (jvmTarget != null) {
                     versionInfo.targetPlatformKind = TargetPlatformKind.Jvm.JVM_PLATFORMS.firstOrNull {
                         VersionComparatorUtil.compare(it.version.description, jvmTarget) >= 0
                     } ?: TargetPlatformKind.Jvm.JVM_PLATFORMS.last()
                 }
             }
-            is TargetPlatformKind.JavaScript -> parseArguments(argumentArray, compilerInfo.k2jsCompilerArguments!!)
+            is TargetPlatformKind.JavaScript -> parseArguments(argumentArray, compilerInfo.k2jsCompilerArguments!!, ignoreInvalidArguments = true)
             else -> {}
         }
 

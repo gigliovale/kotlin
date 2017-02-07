@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.*
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.callUtil.getType
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -104,7 +105,15 @@ class JoinDeclarationAndAssignmentIntention : SelfTargetingOffsetIndependentInte
         val assignments = mutableListOf<KtBinaryExpression>()
         fun process(binaryExpr: KtBinaryExpression) {
             if (binaryExpr.operationToken != KtTokens.EQ) return
-            val leftReference = binaryExpr.left as? KtNameReferenceExpression ?: return
+            val left = binaryExpr.left
+            val leftReference = when (left) {
+                is KtNameReferenceExpression ->
+                    left
+                is KtDotQualifiedExpression ->
+                    if (left.receiverExpression is KtThisExpression) left.selectorExpression as? KtNameReferenceExpression else null
+                else ->
+                    null
+            } ?: return
             if (leftReference.getReferencedName() != property.name) return
             assignments += binaryExpr
         }
@@ -124,9 +133,18 @@ class JoinDeclarationAndAssignmentIntention : SelfTargetingOffsetIndependentInte
 
         if (assignments.any { it.parent.invalidParent() }) return null
 
-        val first = assignments.firstOrNull() ?: return null
-        if (assignments.any { it !== first && it.parent.parent is KtSecondaryConstructor}) return null
-        return first
+        val firstAssignment = assignments.firstOrNull() ?: return null
+        if (assignments.any { it !== firstAssignment && it.parent.parent is KtSecondaryConstructor}) return null
+
+        val context = firstAssignment.analyze()
+        val propertyDescriptor = context[BindingContext.DECLARATION_TO_DESCRIPTOR, property] ?: return null
+        val assignedDescriptor = firstAssignment.left.getResolvedCall(context)?.candidateDescriptor ?: return null
+        if (propertyDescriptor != assignedDescriptor) return null
+
+        if (propertyContainer !is KtClassBody) return firstAssignment
+
+        val blockParent = firstAssignment.parent as? KtBlockExpression ?: return null
+        return if (blockParent.statements.firstOrNull() == firstAssignment) firstAssignment else null
     }
 
     // a block that only contains comments is not empty

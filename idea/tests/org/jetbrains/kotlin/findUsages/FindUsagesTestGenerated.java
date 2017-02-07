@@ -957,6 +957,12 @@ public class FindUsagesTestGenerated extends AbstractFindUsagesTest {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findParameterUsages/kotlinHighlightParameterUsages.0.kt");
                 doTest(fileName);
             }
+
+            @TestMetadata("parameterNameInTextFile.0.kt")
+            public void testParameterNameInTextFile() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/kotlin/findParameterUsages/parameterNameInTextFile.0.kt");
+                doTest(fileName);
+            }
         }
 
         @TestMetadata("idea/testData/findUsages/kotlin/findPrimaryConstructorUsages")
@@ -1606,6 +1612,12 @@ public class FindUsagesTestGenerated extends AbstractFindUsagesTest {
             @TestMetadata("javaInvoke.0.java")
             public void testJavaInvoke() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/java/findJavaMethodUsages/javaInvoke.0.java");
+                doTest(fileName);
+            }
+
+            @TestMetadata("MismatchedAccessor.0.java")
+            public void testMismatchedAccessor() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("idea/testData/findUsages/java/findJavaMethodUsages/MismatchedAccessor.0.java");
                 doTest(fileName);
             }
 

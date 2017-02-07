@@ -791,6 +791,24 @@ public class DiagnosticsTestWithStdLibGenerated extends AbstractDiagnosticsTestW
             doTest(fileName);
         }
 
+        @TestMetadata("suspendCoroutineUnavailableWithNewAPI.kt")
+        public void testSuspendCoroutineUnavailableWithNewAPI() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/suspendCoroutineUnavailableWithNewAPI.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendCoroutineUnavailableWithOldAPI.kt")
+        public void testSuspendCoroutineUnavailableWithOldAPI() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/suspendCoroutineUnavailableWithOldAPI.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("suspendDestructuring.kt")
+        public void testSuspendDestructuring() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/suspendDestructuring.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("suspendExternalFunctions.kt")
         public void testSuspendExternalFunctions() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/suspendExternalFunctions.kt");
@@ -850,6 +868,12 @@ public class DiagnosticsTestWithStdLibGenerated extends AbstractDiagnosticsTestW
             @TestMetadata("incorrectCalls.kt")
             public void testIncorrectCalls() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/inference/incorrectCalls.kt");
+                doTest(fileName);
+            }
+
+            @TestMetadata("kt15516.kt")
+            public void testKt15516() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/coroutines/inference/kt15516.kt");
                 doTest(fileName);
             }
 
@@ -1685,6 +1709,21 @@ public class DiagnosticsTestWithStdLibGenerated extends AbstractDiagnosticsTestW
         @TestMetadata("withChangesToNull.kt")
         public void testWithChangesToNull() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/smartcasts/withChangesToNull.kt");
+            doTest(fileName);
+        }
+    }
+
+    @TestMetadata("compiler/testData/diagnostics/testsWithStdLib/sourceCompatibility")
+    @TestDataPath("$PROJECT_ROOT")
+    @RunWith(JUnit3RunnerWithInners.class)
+    public static class SourceCompatibility extends AbstractDiagnosticsTestWithStdLib {
+        public void testAllFilesPresentInSourceCompatibility() throws Exception {
+            KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/diagnostics/testsWithStdLib/sourceCompatibility"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
+        }
+
+        @TestMetadata("noDefaultImportOfKotlinComparisons.kt")
+        public void testNoDefaultImportOfKotlinComparisons() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithStdLib/sourceCompatibility/noDefaultImportOfKotlinComparisons.kt");
             doTest(fileName);
         }
     }

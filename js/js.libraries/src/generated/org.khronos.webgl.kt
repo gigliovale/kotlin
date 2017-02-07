@@ -5,6 +5,7 @@
  * See libraries/tools/idl2k for details
  */
 
+@file:Suppress("NESTED_CLASS_IN_EXTERNAL_INTERFACE")
 package org.khronos.webgl
 
 import kotlin.js.*
@@ -48,6 +49,7 @@ public external interface WebGLContextAttributes {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun WebGLContextAttributes(alpha: Boolean? = true, depth: Boolean? = true, stencil: Boolean? = false, antialias: Boolean? = true, premultipliedAlpha: Boolean? = true, preserveDrawingBuffer: Boolean? = false, preferLowPowerToHighPerformance: Boolean? = false, failIfMajorPerformanceCaveat: Boolean? = false): WebGLContextAttributes {
     val o = js("({})")
 
@@ -868,6 +870,7 @@ public external interface WebGLContextEventInit : EventInit {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun WebGLContextEventInit(statusMessage: String? = "", bubbles: Boolean? = false, cancelable: Boolean? = false, composed: Boolean? = false): WebGLContextEventInit {
     val o = js("({})")
 
@@ -911,8 +914,8 @@ public external open class Int8Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Int8Array.get(index: Int): Byte = asDynamic()[index]
-inline operator fun Int8Array.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Int8Array.get(index: Int): Byte = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Int8Array.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
 
 public external open class Uint8Array : ArrayBufferView {
     constructor(length: Int)
@@ -931,8 +934,8 @@ public external open class Uint8Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Uint8Array.get(index: Int): Byte = asDynamic()[index]
-inline operator fun Uint8Array.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Uint8Array.get(index: Int): Byte = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Uint8Array.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
 
 public external open class Uint8ClampedArray : ArrayBufferView {
     constructor(length: Int)
@@ -951,8 +954,8 @@ public external open class Uint8ClampedArray : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Uint8ClampedArray.get(index: Int): Byte = asDynamic()[index]
-inline operator fun Uint8ClampedArray.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Uint8ClampedArray.get(index: Int): Byte = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Uint8ClampedArray.set(index: Int, value: Byte): Unit { asDynamic()[index] = value; }
 
 public external open class Int16Array : ArrayBufferView {
     constructor(length: Int)
@@ -971,8 +974,8 @@ public external open class Int16Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Int16Array.get(index: Int): Short = asDynamic()[index]
-inline operator fun Int16Array.set(index: Int, value: Short): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Int16Array.get(index: Int): Short = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Int16Array.set(index: Int, value: Short): Unit { asDynamic()[index] = value; }
 
 public external open class Uint16Array : ArrayBufferView {
     constructor(length: Int)
@@ -991,8 +994,8 @@ public external open class Uint16Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Uint16Array.get(index: Int): Short = asDynamic()[index]
-inline operator fun Uint16Array.set(index: Int, value: Short): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Uint16Array.get(index: Int): Short = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Uint16Array.set(index: Int, value: Short): Unit { asDynamic()[index] = value; }
 
 public external open class Int32Array : ArrayBufferView {
     constructor(length: Int)
@@ -1011,8 +1014,8 @@ public external open class Int32Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Int32Array.get(index: Int): Int = asDynamic()[index]
-inline operator fun Int32Array.set(index: Int, value: Int): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Int32Array.get(index: Int): Int = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Int32Array.set(index: Int, value: Int): Unit { asDynamic()[index] = value; }
 
 public external open class Uint32Array : ArrayBufferView {
     constructor(length: Int)
@@ -1031,8 +1034,8 @@ public external open class Uint32Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Uint32Array.get(index: Int): Int = asDynamic()[index]
-inline operator fun Uint32Array.set(index: Int, value: Int): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Uint32Array.get(index: Int): Int = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Uint32Array.set(index: Int, value: Int): Unit { asDynamic()[index] = value; }
 
 public external open class Float32Array : ArrayBufferView {
     constructor(length: Int)
@@ -1051,8 +1054,8 @@ public external open class Float32Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Float32Array.get(index: Int): Float = asDynamic()[index]
-inline operator fun Float32Array.set(index: Int, value: Float): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Float32Array.get(index: Int): Float = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Float32Array.set(index: Int, value: Float): Unit { asDynamic()[index] = value; }
 
 public external open class Float64Array : ArrayBufferView {
     constructor(length: Int)
@@ -1071,8 +1074,8 @@ public external open class Float64Array : ArrayBufferView {
         val BYTES_PER_ELEMENT: Int
     }
 }
-inline operator fun Float64Array.get(index: Int): Double = asDynamic()[index]
-inline operator fun Float64Array.set(index: Int, value: Double): Unit { asDynamic()[index] = value; }
+@kotlin.internal.InlineOnly inline operator fun Float64Array.get(index: Int): Double = asDynamic()[index]
+@kotlin.internal.InlineOnly inline operator fun Float64Array.set(index: Int, value: Double): Unit { asDynamic()[index] = value; }
 
 public external open class DataView(buffer: ArrayBuffer, byteOffset: Int = definedExternally, byteLength: Int = definedExternally) : ArrayBufferView {
     override val buffer: ArrayBuffer

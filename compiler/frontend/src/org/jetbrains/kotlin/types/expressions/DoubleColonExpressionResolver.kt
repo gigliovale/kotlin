@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.psi.psiUtil.getQualifiedElementSelector
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.calls.CallResolver
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.ResolveArgumentsMode
+import org.jetbrains.kotlin.resolve.calls.callUtil.getCalleeExpressionIfAny
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.context.*
 import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults
@@ -59,7 +60,18 @@ import java.util.*
 import javax.inject.Inject
 
 sealed class DoubleColonLHS(val type: KotlinType) {
-    class Expression(typeInfo: KotlinTypeInfo, val isObject: Boolean) : DoubleColonLHS(typeInfo.type!!) {
+    /**
+     * [isObjectQualifier] is true iff the LHS of a callable reference is a qualified expression which references a named object.
+     * Note that such LHS can be treated both as a type and as an expression, so special handling may be required.
+     *
+     * For example, if `Obj` is an object:
+     *
+     *     Obj::class         // object qualifier
+     *     test.Obj::class    // object qualifier
+     *     (Obj)::class       // not an object qualifier (can only be treated as an expression, not as a type)
+     *     { Obj }()::class   // not an object qualifier
+     */
+    class Expression(typeInfo: KotlinTypeInfo, val isObjectQualifier: Boolean) : DoubleColonLHS(typeInfo.type!!) {
         val dataFlowInfo: DataFlowInfo = typeInfo.dataFlowInfo
     }
 
@@ -97,7 +109,8 @@ class DoubleColonExpressionResolver(
             val type = result?.type
             if (type != null && !type.isError) {
                 checkClassLiteral(c, expression, result)
-                val variance = if (result is DoubleColonLHS.Expression && !result.isObject) Variance.OUT_VARIANCE else Variance.INVARIANT
+                val variance =
+                        if (result is DoubleColonLHS.Expression && !result.isObjectQualifier) Variance.OUT_VARIANCE else Variance.INVARIANT
                 val kClassType = reflectionTypes.getKClassType(Annotations.EMPTY, type, variance)
                 if (kClassType.isError) {
                     c.trace.report(MISSING_DEPENDENCY_CLASS.on(expression.receiverExpression!!, KotlinBuiltIns.FQ_NAMES.kClass.toSafe()))
@@ -114,7 +127,7 @@ class DoubleColonExpressionResolver(
         val type = result.type
 
         if (result is DoubleColonLHS.Expression) {
-            if (!result.isObject) {
+            if (!result.isObjectQualifier) {
                 if (!type.isSubtypeOf(type.builtIns.anyType)) {
                     c.trace.report(EXPRESSION_OF_NULLABLE_TYPE_IN_CLASS_LITERAL_LHS.on(expression.receiverExpression!!, type))
                 }
@@ -315,7 +328,7 @@ class DoubleColonExpressionResolver(
             val lhs = resultForExpr.lhs
             // If expression result is an object, we remember this and skip it here, because there are valid situations where
             // another type (representing another classifier) should win
-            if (lhs != null && !lhs.isObject) {
+            if (lhs != null && !lhs.isObjectQualifier) {
                 return resultForExpr.commit()
             }
         }
@@ -403,7 +416,7 @@ class DoubleColonExpressionResolver(
                 if (classDescriptor.companionObjectDescriptor != null) return null
 
                 if (DescriptorUtils.isObject(classDescriptor)) {
-                    return DoubleColonLHS.Expression(typeInfo, isObject = true)
+                    return DoubleColonLHS.Expression(typeInfo, isObjectQualifier = true)
                 }
             }
 
@@ -411,7 +424,7 @@ class DoubleColonExpressionResolver(
             if (expression.canBeConsideredProperType() && resultingDescriptor !is VariableDescriptor) return null
         }
 
-        return DoubleColonLHS.Expression(typeInfo, isObject = false)
+        return DoubleColonLHS.Expression(typeInfo, isObjectQualifier = false)
     }
 
     private fun resolveTypeOnLHS(
@@ -682,6 +695,18 @@ class DoubleColonExpressionResolver(
                         "resolve bound callable reference", expressionReceiver, reference, c, mode
                 )
                 if (result != null) return result
+
+                if (lhs.isObjectQualifier) {
+                    val classifier = lhsType.constructor.declarationDescriptor
+                    val calleeExpression = expression.receiverExpression?.getCalleeExpressionIfAny()
+                    if (calleeExpression is KtSimpleNameExpression && classifier is ClassDescriptor) {
+                        val qualifier = ClassQualifier(calleeExpression, classifier)
+                        val possibleStatic = tryResolveRHSWithReceiver(
+                                "resolve object callable reference in static scope", qualifier, reference, c, mode
+                        )
+                        if (possibleStatic != null) return possibleStatic
+                    }
+                }
             }
         }
 

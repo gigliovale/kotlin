@@ -19,13 +19,14 @@ package org.jetbrains.kotlin.jps.build
 import com.intellij.util.Consumer
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.incremental.ModuleBuildTarget
+import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.jps.model.java.JpsJavaModuleType
 import org.jetbrains.jps.model.library.JpsOrderRootType
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.jps.util.JpsPathUtil
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils
 import java.io.File
-import java.util.ArrayList
+import java.util.*
 
 object JpsJsModuleUtils {
     fun getLibraryFilesAndDependencies(target: ModuleBuildTarget): List<String> {
@@ -47,9 +48,29 @@ object JpsJsModuleUtils {
     fun getDependencyModulesAndSources(target: ModuleBuildTarget, result: MutableList<String>) {
         JpsUtils.getAllDependencies(target).processModules(object : Consumer<JpsModule> {
             override fun consume(module: JpsModule) {
-                if (module == target.module || module.moduleType != JpsJavaModuleType.INSTANCE) return
+                if (module.moduleType != JpsJavaModuleType.INSTANCE) return
 
-                val moduleBuildTarget = ModuleBuildTarget(module, JavaModuleBuildTargetType.PRODUCTION)
+                var yieldProduction = module != target.module || target.isTests
+                var yieldTests = module != target.module
+
+                module.sourceRoots.forEach {
+                    if (it.rootType == JavaSourceRootType.SOURCE) {
+                        if (yieldProduction) {
+                            addTarget(module, JavaModuleBuildTargetType.PRODUCTION)
+                            yieldProduction = false
+                        }
+                    }
+                    else {
+                        if (yieldTests) {
+                            addTarget(module, JavaModuleBuildTargetType.TEST)
+                            yieldTests = false
+                        }
+                    }
+                }
+            }
+
+            fun addTarget(module: JpsModule, targetType: JavaModuleBuildTargetType) {
+                val moduleBuildTarget = ModuleBuildTarget(module, targetType)
                 val outputDir = KotlinBuilderModuleScriptGenerator.getOutputDirSafe(moduleBuildTarget)
                 val metaInfoFile = getOutputMetaFile(outputDir, module.name)
                 result.add(metaInfoFile.absolutePath)

@@ -5,6 +5,7 @@
  * See libraries/tools/idl2k for details
  */
 
+@file:Suppress("NESTED_CLASS_IN_EXTERNAL_INTERFACE")
 package org.w3c.xhr
 
 import kotlin.js.*
@@ -94,6 +95,7 @@ public external interface ProgressEventInit : EventInit {
         set(value) = definedExternally
 }
 
+@kotlin.internal.InlineOnly
 public inline fun ProgressEventInit(lengthComputable: Boolean? = false, loaded: Int? = 0, total: Int? = 0, bubbles: Boolean? = false, cancelable: Boolean? = false, composed: Boolean? = false): ProgressEventInit {
     val o = js("({})")
 

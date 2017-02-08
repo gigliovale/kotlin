@@ -54,7 +54,7 @@ object JpsJsModuleUtils {
                     addTarget(module, JavaModuleBuildTargetType.PRODUCTION)
                 }
 
-                if (module != target.module && module.sourceRoots.any { it.rootType == JavaSourceRootType.TEST_SOURCE}) {
+                if (module != target.module && target.isTests && module.sourceRoots.any { it.rootType == JavaSourceRootType.TEST_SOURCE}) {
                     addTarget(module, JavaModuleBuildTargetType.TEST)
                 }
             }

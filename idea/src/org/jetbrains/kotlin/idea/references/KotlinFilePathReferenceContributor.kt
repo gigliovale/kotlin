@@ -24,18 +24,19 @@ import com.intellij.psi.PsiReferenceRegistrar
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FilePathReferenceProvider
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference
 import com.intellij.util.ProcessingContext
+import org.jetbrains.kotlin.idea.completion.KotlinCompletionCharFilter
+import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtStringTemplateExpression
-import org.jetbrains.kotlin.psi.psiUtil.getContentRange
 import org.jetbrains.kotlin.psi.psiUtil.isPlain
 import org.jetbrains.kotlin.psi.psiUtil.plainContent
-import org.jetbrains.kotlin.idea.completion.KotlinCompletionCharFilter
 
 class KotlinFilePathReferenceContributor : AbstractKotlinReferenceContributor() {
     object KotlinFilePathReferenceProvider : FilePathReferenceProvider() {
         override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<out PsiReference> {
-            if (element !is KtStringTemplateExpression) return PsiReference.EMPTY_ARRAY
-            if (!element.isPlain()) return PsiReference.EMPTY_ARRAY
-            return getReferencesByElement(element, element.plainContent, element.getContentRange().startOffset, true)
+            if (element !is KtLiteralStringTemplateEntry) return PsiReference.EMPTY_ARRAY
+            val stringTemplate = element.parent as? KtStringTemplateExpression ?: return PsiReference.EMPTY_ARRAY
+            if (!stringTemplate.isPlain()) return PsiReference.EMPTY_ARRAY
+            return getReferencesByElement(element, stringTemplate.plainContent, 0, true)
                     .map {
                         if (it is FileReference) {
                             object: FileReference(it.fileReferenceSet, it.rangeInElement, it.index, it.text) {
@@ -58,7 +59,7 @@ class KotlinFilePathReferenceContributor : AbstractKotlinReferenceContributor() 
 
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(
-                PlatformPatterns.psiElement(KtStringTemplateExpression::class.java),
+                PlatformPatterns.psiElement(KtLiteralStringTemplateEntry::class.java),
                 KotlinFilePathReferenceProvider
         )
     }

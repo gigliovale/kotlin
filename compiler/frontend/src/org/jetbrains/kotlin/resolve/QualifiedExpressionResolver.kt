@@ -235,7 +235,12 @@ class QualifiedExpressionResolver {
         return SingleImportScope(aliasName, importedDescriptors)
     }
 
-    private fun collectCandidateDescriptors(lastPart: QualifierPart, packageOrClassDescriptor: DeclarationDescriptor): SmartList<DeclarationDescriptor> {
+    private fun collectCandidateDescriptors(lastPart: QualifierPart, packageOrClassDescriptor: DeclarationDescriptor): List<DeclarationDescriptor> {
+        if (packageOrClassDescriptor is TypeAliasDescriptor) {
+            val classDescriptor = packageOrClassDescriptor.classDescriptor ?: return listOf()
+            return collectCandidateDescriptors(lastPart, classDescriptor)
+        }
+
         val descriptors = SmartList<DeclarationDescriptor>()
 
         val lastName = lastPart.name

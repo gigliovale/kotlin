@@ -17,11 +17,13 @@
 package org.jetbrains.kotlin.js.config;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.VirtualFileSystem;
 import com.intellij.util.PathUtil;
+import com.intellij.util.containers.MultiMap;
 import com.intellij.util.io.URLUtil;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -33,10 +35,10 @@ import org.jetbrains.kotlin.utils.KotlinJavascriptMetadata;
 import org.jetbrains.kotlin.utils.KotlinJavascriptMetadataUtils;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import static org.jetbrains.kotlin.utils.PathUtil.getKotlinPathsForDistDirectory;
 
@@ -98,7 +100,7 @@ public class LibrarySourcesConfig extends JsConfig {
         VirtualFileSystem fileSystem = VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.FILE_PROTOCOL);
         VirtualFileSystem jarFileSystem = VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.JAR_PROTOCOL);
 
-        Set<String> modules = new HashSet<String>();
+        MultiMap<String, String> moduleNameToPath = MultiMap.create();
 
         for (String path : libraries) {
             VirtualFile file;
@@ -134,12 +136,24 @@ public class LibrarySourcesConfig extends JsConfig {
                                   ", expected version is " + JsMetadataVersion.INSTANCE);
                     return true;
                 }
-                if (!modules.add(metadata.getModuleName())) {
-                        report.warning("Module \"" + metadata.getModuleName() + "\" is defined in more, than one file");
-                    }}
+                moduleNameToPath.putValue(metadata.getModuleName(), path);
+            }
 
             if (action != null) {
                 action.invoke(file);
+            }
+        }
+
+        // Report warnings on multiple definitions
+        for (Map.Entry<String, Collection<String>> e : moduleNameToPath.entrySet()) {
+            Collection<String> paths = e.getValue();
+            if (paths.size() > 1) {
+                String moduleName = e.getKey();
+                StringBuilder msgBuilder = new StringBuilder()
+                        .append("Module \"").append(moduleName).append("\" is defined in multiple files (");
+                StringUtil.join(paths, ";", msgBuilder);
+                msgBuilder.append(").");
+                report.warning(msgBuilder.toString());
             }
         }
 

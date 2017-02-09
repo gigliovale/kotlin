@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.types.expressions
 
 import com.google.common.collect.Lists
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor
@@ -27,6 +28,7 @@ import org.jetbrains.kotlin.diagnostics.DiagnosticUtils
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.diagnostics.Errors.*
 import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.checkReservedPrefixWord
 import org.jetbrains.kotlin.psi.psiUtil.getAnnotationEntries
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingContext.EXPECTED_RETURN_TYPE
@@ -137,6 +139,7 @@ internal class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Expre
     }
 
     override fun visitLambdaExpression(expression: KtLambdaExpression, context: ExpressionTypingContext): KotlinTypeInfo? {
+        checkReservedYield(context, expression)
         if (!expression.functionLiteral.hasBody()) return null
 
         val expectedType = context.expectedType
@@ -158,6 +161,10 @@ internal class FunctionsTypingVisitor(facade: ExpressionTypingInternals) : Expre
         }
 
         return components.dataFlowAnalyzer.createCheckedTypeInfo(resultType, context, expression)
+    }
+
+    private fun checkReservedYield(context: ExpressionTypingContext, expression: PsiElement) {
+        checkReservedPrefixWord(context.trace, expression, "yield", "yield block/lambda. Use 'yield() { ... }' or 'yield(fun...)'")
     }
 
     private fun createFunctionLiteralDescriptor(

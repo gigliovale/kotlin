@@ -461,6 +461,17 @@ fun checkReservedPrefixWord(sink: DiagnosticSink, element: PsiElement, word: Str
     }
 }
 
+fun checkReservedWord(sink: DiagnosticSink, element: PsiElement, word: String, message: String) {
+    if (element.node.elementType == KtTokens.IDENTIFIER && word == element.text) {
+        sink.report(Errors.UNSUPPORTED.on(element, message))
+    }
+}
+
+fun checkReservedYield(expression: KtSimpleNameExpression?, sink: DiagnosticSink) {
+    val identifier = expression?.getIdentifier() ?: return
+    checkReservedWord(sink, identifier, "yield", "yield identifier. Use `yield` instead")
+}
+
 fun KtElement.nonStaticOuterClasses(): Sequence<KtClass> {
     return generateSequence(containingClass()) { if (it.isInner()) it.containingClass() else null }
 }

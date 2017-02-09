@@ -2,21 +2,21 @@
 
 // FILE: 1.kt
 
-annotation class yield
+annotation class <!YIELD_IS_RESERVED!>yield<!>
 
 fun bar(p: Int) {
-    <!UNSUPPORTED!>yield<!>@ p
+    <!UNSUPPORTED, YIELD_IS_RESERVED!>yield<!>@ p
     `yield`@ p
 
     @<!UNSUPPORTED!>yield<!>() p
     @`yield`() p
 
-    for (yield in 1..5) {
+    for (<!YIELD_IS_RESERVED!>yield<!> in 1..5) {
 
     }
-    { yield: Int -> }
+    { <!YIELD_IS_RESERVED!>yield<!>: Int -> }
 
-    val (yield) = listOf(4)
+    val (<!YIELD_IS_RESERVED!>yield<!>) = listOf(4)
 
 }
 
@@ -26,19 +26,19 @@ operator fun <T> List<T>.component1() = get(0)
 // FILE: 2.kt
 package p3
 
-enum class yield {
-    yield
+enum class <!YIELD_IS_RESERVED!>yield<!> {
+    <!YIELD_IS_RESERVED!>yield<!>
 }
 
-fun f1(yield: Int, foo: Int = <!UNSUPPORTED!>yield<!>) {}
+fun f1(<!YIELD_IS_RESERVED!>yield<!>: Int, foo: Int = <!UNSUPPORTED!>yield<!>) {}
 
 fun f2(foo: <!UNSUPPORTED!>yield<!>) {}
 
 // FILE: 3.kt
 package p4
 
-typealias yield = Number
+typealias <!YIELD_IS_RESERVED!>yield<!> = Number
 
-fun <yield: Number> f1() {}
+fun <<!YIELD_IS_RESERVED!>yield<!>: Number> f1() {}
 fun <y: <!UNSUPPORTED!>yield<!>> f2() {}
 

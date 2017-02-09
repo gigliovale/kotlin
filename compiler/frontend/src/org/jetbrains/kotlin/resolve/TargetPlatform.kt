@@ -77,7 +77,7 @@ abstract class TargetPlatform(val platformName: String) {
 private val DEFAULT_DECLARATION_CHECKERS = listOf(
         DataClassDeclarationChecker(),
         ConstModifierChecker,
-        UnderscoreChecker,
+        UnderscoreAndYieldChecker,
         InlineParameterChecker,
         InfixModifierChecker(),
         SinceKotlinAnnotationValueChecker,

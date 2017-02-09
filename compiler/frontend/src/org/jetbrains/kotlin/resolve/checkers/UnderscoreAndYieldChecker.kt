@@ -27,16 +27,22 @@ import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 
-object UnderscoreChecker : DeclarationChecker {
+object UnderscoreAndYieldChecker : DeclarationChecker {
 
     @JvmOverloads
     fun checkIdentifier(
             identifier: PsiElement?,
             diagnosticHolder: DiagnosticSink,
             languageVersionSettings: LanguageVersionSettings,
-            allowSingleUnderscore: Boolean = false
+            allowSingleUnderscore: Boolean = false,
+            isFunction: Boolean = false
     ) {
         if (identifier == null || identifier.text.isEmpty()) return
+
+        if (!isFunction && identifier.text == "yield") {
+            diagnosticHolder.report(Errors.YIELD_IS_RESERVED.on(identifier))
+        }
+
         val isValidSingleUnderscore = allowSingleUnderscore && identifier.text == "_"
         if (!isValidSingleUnderscore && identifier.text.all { it == '_' }) {
             diagnosticHolder.report(Errors.UNDERSCORE_IS_RESERVED.on(identifier))
@@ -53,7 +59,7 @@ object UnderscoreChecker : DeclarationChecker {
             languageVersionSettings: LanguageVersionSettings,
             allowSingleUnderscore: Boolean = false
     ) {
-        checkIdentifier(declaration.nameIdentifier, diagnosticHolder, languageVersionSettings, allowSingleUnderscore)
+        checkIdentifier(declaration.nameIdentifier, diagnosticHolder, languageVersionSettings, allowSingleUnderscore, isFunction = declaration is KtNamedFunction)
     }
 
     override fun check(

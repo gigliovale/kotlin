@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.lexer.KtTokens;
 import org.jetbrains.kotlin.psi.*;
 import org.jetbrains.kotlin.resolve.checkers.DeclarationChecker;
 import org.jetbrains.kotlin.resolve.checkers.PublishedApiUsageChecker;
-import org.jetbrains.kotlin.resolve.checkers.UnderscoreChecker;
+import org.jetbrains.kotlin.resolve.checkers.UnderscoreAndYieldChecker;
 
 import java.util.*;
 
@@ -243,7 +243,7 @@ public class ModifiersChecker {
             for (KtDestructuringDeclarationEntry multiEntry: multiDeclaration.getEntries()) {
                 annotationChecker.check(multiEntry, trace, null);
                 ModifierCheckerCore.INSTANCE.check(multiEntry, trace, null, languageVersionSettings);
-                UnderscoreChecker.INSTANCE.checkNamed(multiEntry, trace, languageVersionSettings, /* allowSingleUnderscore = */ true);
+                UnderscoreAndYieldChecker.INSTANCE.checkNamed(multiEntry, trace, languageVersionSettings, /* allowSingleUnderscore = */ true);
             }
         }
 

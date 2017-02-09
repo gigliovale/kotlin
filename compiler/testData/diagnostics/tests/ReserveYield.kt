@@ -6,12 +6,12 @@ package p1.yield
 import p1.yield.yield
 import p1.yield.foo
 
-val yield = 5
+val <!YIELD_IS_RESERVED!>yield<!> = 5
 fun foo(){}
 
-fun bar(yield: Int = 4) {}
+fun bar(<!YIELD_IS_RESERVED!>yield<!>: Int = 4) {}
 
-fun yield(yield: Int) {
+fun yield(<!YIELD_IS_RESERVED!>yield<!>: Int) {
     "$<!UNSUPPORTED!>yield<!>"
     "${<!UNSUPPORTED!>yield<!>}"
 
@@ -24,7 +24,7 @@ fun yield(yield: Int) {
     yield(4)
     <!UNSUPPORTED!>yield<!> {}
 
-    class yield<T: <!UNSUPPORTED!>yield<!><T>>
+    class <!YIELD_IS_RESERVED!>yield<!><T: <!UNSUPPORTED!>yield<!><T>>
 
     return@<!UNSUPPORTED!>yield<!>
     return@<!UNSUPPORTED!>yield<!> Unit
@@ -41,12 +41,12 @@ package p2.yield
 import p2.yield.yield
 import p2.yield.foo
 
-val yield = 5
+val <!YIELD_IS_RESERVED!>yield<!> = 5
 fun foo(){}
 
-fun bar(yield: Int = 4) {}
+fun bar(<!YIELD_IS_RESERVED!>yield<!>: Int = 4) {}
 
-fun yield(yield: Int) {
+fun yield(<!YIELD_IS_RESERVED!>yield<!>: Int) {
     "$`yield`"
     "${`yield`}"
 

@@ -830,6 +830,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
             doTest(fileName);
         }
 
+        @TestMetadata("YieldOnDeclaration.kt")
+        public void testYieldOnDeclaration() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/YieldOnDeclaration.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("compiler/testData/diagnostics/tests/annotations")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)

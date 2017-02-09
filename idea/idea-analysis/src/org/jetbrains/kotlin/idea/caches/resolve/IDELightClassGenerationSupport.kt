@@ -27,6 +27,7 @@ import com.intellij.psi.impl.compiled.ClsClassImpl
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.analyzer.common.DefaultAnalyzerFacade
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
 import org.jetbrains.kotlin.asJava.builder.ClsWrapperStubPsiFactory
 import org.jetbrains.kotlin.asJava.builder.LightClassConstructionContext
@@ -35,27 +36,46 @@ import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
 import org.jetbrains.kotlin.asJava.finder.JavaElementFinder
+import org.jetbrains.kotlin.config.ApiVersion
+import org.jetbrains.kotlin.config.LanguageVersion
+import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
+import org.jetbrains.kotlin.container.get
+import org.jetbrains.kotlin.container.useImpl
+import org.jetbrains.kotlin.container.useInstance
+import org.jetbrains.kotlin.context.LazyResolveToken
+import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.PackagePartProvider
+import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
+import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
+import org.jetbrains.kotlin.frontend.di.configureModule
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.decompiler.navigation.SourceNavigationHelper
-import org.jetbrains.kotlin.idea.project.ResolveElementCache
+import org.jetbrains.kotlin.idea.project.IdeaEnvironment
 import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope.Companion.sourceAndClassFiles
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
+import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.load.kotlin.PackagePartClassUtils
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
-import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
-import org.jetbrains.kotlin.resolve.lazy.ForceResolveUtil
-import org.jetbrains.kotlin.resolve.lazy.NoDescriptorForDeclarationException
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.*
+import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
+import org.jetbrains.kotlin.resolve.lazy.*
+import org.jetbrains.kotlin.resolve.lazy.declarations.FileBasedDeclarationProviderFactory
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.serialization.deserialization.KotlinMetadataFinder
+import org.jetbrains.kotlin.serialization.deserialization.MetadataPackageFragmentProvider
+import org.jetbrains.kotlin.storage.LockBasedStorageManager
+import org.jetbrains.kotlin.types.ErrorUtils
+import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.types.WrappedTypeFactory
 import org.jetbrains.kotlin.utils.sure
 import java.util.*
 
@@ -73,21 +93,48 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     }
 
     private fun getContextForNonLocalClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
-        val resolutionFacade = classOrObject.getResolutionFacade()
-        val bindingContext = if (classOrObject is KtClass && classOrObject.isAnnotation()) {
-            // need to make sure default values for parameters are resolved
-            // because java resolve depends on whether there is a default value for an annotation attribute
-            resolutionFacade.getFrontendService(ResolveElementCache::class.java)
-                    .resolvePrimaryConstructorParametersDefaultValues(classOrObject)
+        val trace = BindingTraceContext()
+        val sm = LockBasedStorageManager.NO_LOCKS
+        val moduleDescriptor = ModuleDescriptorImpl(Name.special("<dummy>"), sm, classOrObject.getResolutionFacade().moduleDescriptor.builtIns)
+        moduleDescriptor.setDependencies(moduleDescriptor, moduleDescriptor.builtIns.builtInsModule)
+        val container = createContainer("LightClassStub", DefaultAnalyzerFacade.targetPlatform) {
+            configureModule(ModuleContext(moduleDescriptor, project), JvmPlatform, trace)
+
+            useInstance(GlobalSearchScope.EMPTY_SCOPE)
+            useInstance(LookupTracker.DO_NOTHING)
+            useImpl<ResolveSession>()
+            useImpl<LazyTopDownAnalyzer>()
+            useImpl<FileScopeProviderImpl>()
+            useInstance(LanguageVersion.LATEST)
+            useImpl<CompilerDeserializationConfiguration>()
+            useImpl<MetadataPackageFragmentProvider>()
+            val languageVersionSettings = LanguageVersionSettingsImpl(
+                    LanguageVersion.LATEST, ApiVersion.LATEST
+            )
+            useInstance(object: WrappedTypeFactory(sm) {
+                override fun createLazyWrappedType(computation: () -> KotlinType): KotlinType = ErrorUtils.createErrorType("^_^")
+
+                override fun createDeferredType(trace: BindingTrace, computation: () -> KotlinType) = ErrorUtils.createErrorType("^_^")
+
+                override fun createRecursionIntolerantDeferredType(trace: BindingTrace, computation: () -> KotlinType) = ErrorUtils.createErrorType("^_^")
+            })
+            useInstance(languageVersionSettings)
+            useInstance(FileBasedDeclarationProviderFactory(sm, listOf(classOrObject.containingKtFile)))
+            useInstance(PackagePartProvider.Empty)
+            useInstance(KotlinMetadataFinder.Empty)
+
+            IdeaEnvironment.configure(this)
+            useImpl<LazyResolveToken>()
         }
-        else {
-            resolutionFacade.analyze(classOrObject)
-        }
-        val classDescriptor = bindingContext.get(BindingContext.CLASS, classOrObject).sure {
-            "Class descriptor was not found for ${classOrObject.getElementTextWithContext()}"
-        }
-        ForceResolveUtil.forceResolveAllContents(classDescriptor)
-        return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
+
+
+        val resolveSession = container.get<ResolveSession>()
+
+        moduleDescriptor.initialize(CompositePackageFragmentProvider(listOf(resolveSession.packageFragmentProvider)))
+
+        container.get<LazyTopDownAnalyzer>().analyzeDeclarations(TopDownAnalysisMode.TopLevelDeclarations, listOf(classOrObject))
+
+        return LightClassConstructionContext(trace.bindingContext, moduleDescriptor)
     }
 
     private fun getContextForLocalClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {

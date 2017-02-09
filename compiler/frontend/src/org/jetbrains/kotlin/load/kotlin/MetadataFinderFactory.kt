@@ -17,7 +17,10 @@
 package org.jetbrains.kotlin.load.kotlin
 
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.serialization.deserialization.KotlinMetadataFinder
+import java.io.InputStream
 
 interface MetadataFinderFactory {
     fun create(scope: GlobalSearchScope): KotlinMetadataFinder

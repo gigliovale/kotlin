@@ -38,4 +38,10 @@ interface KotlinMetadataFinder {
      * @return an [InputStream] which should be used to load the .kotlin_builtins file for package with the given [packageFqName].
      */
     fun findBuiltInsData(packageFqName: FqName): InputStream?
+
+    object Empty : KotlinMetadataFinder {
+        override fun findMetadata(classId: ClassId) = null
+        override fun hasMetadataPackage(fqName: FqName) = false
+        override fun findBuiltInsData(packageFqName: FqName) = null
+    }
 }

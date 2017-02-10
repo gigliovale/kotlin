@@ -182,7 +182,7 @@ class FuzzyType(
                         valueTransform = {
                             val typeProjection = TypeProjectionImpl(Variance.INVARIANT, it.defaultType)
                             val substitutedProjection = substitutorToKeepCapturedTypes.substitute(typeProjection)
-                            substitutedProjection?.check { !ErrorUtils.containsUninferredParameter(it.type) } ?: typeProjection
+                            substitutedProjection?.takeUnless { ErrorUtils.containsUninferredParameter(it.type) } ?: typeProjection
                         })
         return TypeConstructorSubstitution.createByConstructorsMap(substitutionMap, approximateCapturedTypes = true).buildSubstitutor()
     }

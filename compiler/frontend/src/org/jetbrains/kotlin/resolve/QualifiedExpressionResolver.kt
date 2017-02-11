@@ -412,12 +412,12 @@ class QualifiedExpressionResolver {
         val qualifierDescriptor = when (receiver) {
             is PackageQualifier -> {
                 val childPackageFQN = receiver.descriptor.fqName.child(name)
-                receiver.descriptor.module.getPackage(childPackageFQN).check { !it.isEmpty() } ?:
+                receiver.descriptor.module.getPackage(childPackageFQN).takeIfNot { it.isEmpty() } ?:
                 receiver.descriptor.memberScope.getContributedClassifier(name, location)
             }
             is ClassQualifier -> receiver.staticScope.getContributedClassifier(name, location)
             null -> context.scope.findClassifier(name, location) ?:
-                    context.scope.ownerDescriptor.module.getPackage(FqName.ROOT.child(name)).check { !it.isEmpty() }
+                    context.scope.ownerDescriptor.module.getPackage(FqName.ROOT.child(name)).takeIfNot { it.isEmpty() }
             is ReceiverValue -> receiver.type.memberScope.memberScopeAsImportingScope().findClassifier(name, location)
             else -> null
         }

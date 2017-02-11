@@ -51,7 +51,7 @@ open class ChangeVariableTypeFix(element: KtVariableDeclaration, type: KotlinTyp
         val name = element.name
         if (name != null) {
             val container = element.resolveToDescriptor().containingDeclaration as? ClassDescriptor
-            val containerName = container?.name?.check { !it.isSpecial }?.asString()
+            val containerName = container?.name?.takeIfNot { it.isSpecial }?.asString()
             return if (containerName != null) "'$containerName.$name'" else "'$name'"
         }
         else {

@@ -398,7 +398,7 @@ class KotlinCodeFragmentFactory: CodeFragmentFactory() {
 
         val sb = StringBuilder()
 
-        javaFile?.packageName?.check { !it.isBlank() }?.let {
+        javaFile?.packageName?.takeIfNot { it.isBlank() }?.let {
             sb.append("package ").append(it.quoteIfNeeded()).append("\n")
         }
 

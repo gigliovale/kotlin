@@ -105,10 +105,10 @@ fun <T : Any> constant(calculator: () -> T): T {
 private val constantMap = ConcurrentHashMap<Function0<*>, Any>()
 
 fun String.indexOfOrNull(char: Char, startIndex: Int = 0, ignoreCase: Boolean = false): Int? =
-        indexOf(char, startIndex, ignoreCase).takeIf { it >= 0 }
+        indexOf(char, startIndex, ignoreCase).takeIfNot { it < 0 }
 
 fun String.lastIndexOfOrNull(char: Char, startIndex: Int = 0, ignoreCase: Boolean = false): Int? =
-        lastIndexOf(char, startIndex, ignoreCase).takeIf { it >= 0 }
+        lastIndexOf(char, startIndex, ignoreCase).takeIfNot { it < 0 }
 
 inline fun <T, R : Any> Iterable<T>.firstNotNullResult(transform: (T) -> R?): R? {
     for (element in this) {

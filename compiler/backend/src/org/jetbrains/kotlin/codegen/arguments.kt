@@ -31,7 +31,9 @@ enum class LazyArgumentKind {
     CONSTRUCTOR_MARKER,
     DEFAULT_CONSTRUCTOR_MARKER,
     CONTINUATION,
-    EXPLICITLY_ADDED
+    EXPLICITLY_ADDED,
+    COMPLEX_OPERATION_ORIGINAL,
+    COMPLEX_OPERATION_DUP
 }
 
 sealed class GeneratedArgument(val stackValue: StackValue, val type: Type, val kind: LazyArgumentKind)
@@ -46,6 +48,9 @@ class GeneratedValueArgument(
         stackValue: StackValue, type: Type = stackValue.type, val descriptor: ValueParameterDescriptor?, val declIndex: Int, val expression: KtExpression? = null
 ): GeneratedArgument(stackValue, type, LazyArgumentKind.VALUE_PARAMETER)
 
+class ComplexOperationDup(stackValue: StackValue, val original: StackValue) :
+        GeneratedArgument(stackValue, stackValue.type, LazyArgumentKind.COMPLEX_OPERATION_DUP)
+
 class LazyArguments {
 
     val list = arrayListOf<GeneratedArgument>()
@@ -54,8 +59,13 @@ class LazyArguments {
         list.add(arg)
     }
 
+
     fun addParameter(arg: StackValue, kind: LazyArgumentKind) {
-        list.add(NonValueArgument(arg, arg.type, kind))
+        addParameter(arg, arg.type, kind)
+    }
+
+    fun addParameter(arg: StackValue, type: Type, kind: LazyArgumentKind) {
+        list.add(NonValueArgument(arg, type, kind))
     }
 
     fun generateAllDirectlyTo(v: InstructionAdapter) {

@@ -647,7 +647,7 @@ public abstract class StackValue {
         @NotNull
         private final StackValue metadataValue;
         @NotNull
-        private final VariableDescriptorWithAccessors variableDescriptor;
+        final VariableDescriptorWithAccessors variableDescriptor;
         @NotNull
         private final ExpressionCodegen codegen;
 
@@ -1815,6 +1815,39 @@ public abstract class StackValue {
         else {
             return stackValue;
         }
+    }
+
+    private static void complexReceiver(StackValue stackValue, LazyArguments arguments, boolean... isReadOperations) {
+        if (stackValue instanceof Delegate) {
+            //TODO need to support
+            throwUnsupportedComplexOperation(((Delegate) stackValue).variableDescriptor);
+        }
+
+        if (stackValue instanceof StackValueWithSimpleReceiver) {
+            boolean wasPut = false;
+            StackValue receiver = ((StackValueWithSimpleReceiver) stackValue).receiver;
+            for (boolean operation : isReadOperations) {
+                if (stackValue.isNonStaticAccess(operation)) {
+                    if (!wasPut) {
+                        arguments.addParameter(receiver, LazyArgumentKind.COMPLEX_OPERATION_ORIGINAL);
+                        wasPut = true;
+                    }
+                    else {
+                        StackValue.operation(receiver.type)
+                        receiver.dup(v, false);
+                        arguments.addParameter();
+                    }
+                }
+            }
+
+            if (!wasPut && receiver.canHaveSideEffects()) {
+                receiver.put(Type.VOID_TYPE, v);
+            }
+        }
+        else {
+            //nothing
+        }
+
     }
 
     static class SafeCall extends StackValue {

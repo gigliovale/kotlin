@@ -3931,10 +3931,12 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             boolean keepReturnValue
     ) {
         StackValue value = gen(expression.getLeft());
+        LazyArguments lazyArguments = null;
         if (keepReturnValue) {
-            value = StackValue.complexWriteReadReceiver(value);
+            lazyArguments = new LazyArguments();
+            StackValueKt.complexReceiver(value, lazyArguments);
         }
-        value.put(lhsType, v);
+        value.put(lhsType, v, false);
         StackValue receiver = StackValue.onStack(lhsType);
 
         callable.invokeMethodWithArguments(resolvedCall, receiver, this).put(callable.getReturnType(), v);

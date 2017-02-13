@@ -70,7 +70,7 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
     private final MemoizedFunctionToNotNull<KtFile, LazyAnnotations> danglingAnnotations;
 
     private KtImportsFactory jetImportFactory;
-    private AnnotationResolver annotationResolve;
+    private AnnotationResolver annotationResolver;
     private DescriptorResolver descriptorResolver;
     private FunctionDescriptorResolver functionDescriptorResolver;
     private TypeResolver typeResolver;
@@ -91,8 +91,8 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
     }
 
     @Inject
-    public void setAnnotationResolve(AnnotationResolver annotationResolve) {
-        this.annotationResolve = annotationResolve;
+    public void setAnnotationResolve(AnnotationResolver annotationResolver) {
+        this.annotationResolver = annotationResolver;
     }
 
     @Inject
@@ -209,7 +209,7 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
     private LazyAnnotations createAnnotations(KtFile file, List<KtAnnotationEntry> annotationEntries) {
         LexicalScope scope = fileScopeProvider.getFileResolutionScope(file);
         LazyAnnotationsContextImpl lazyAnnotationContext =
-                new LazyAnnotationsContextImpl(annotationResolve, storageManager, trace, scope);
+                new LazyAnnotationsContextImpl(annotationResolver, storageManager, trace, scope);
         return new LazyAnnotations(lazyAnnotationContext, annotationEntries);
     }
 
@@ -391,7 +391,7 @@ public class ResolveSession implements KotlinCodeAnalyzer, LazyClassContext {
     @Override
     @NotNull
     public AnnotationResolver getAnnotationResolver() {
-        return annotationResolve;
+        return annotationResolver;
     }
 
     @Override

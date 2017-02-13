@@ -57,7 +57,7 @@ class ExplicitImportsIndexed(allImports: Collection<KtImportDirective>) : Indexe
 
         for (directive in imports) {
             val path = directive.getImportPath() ?: continue // parse error
-            val importedName = path.getImportedName() ?: continue // parse error
+            val importedName = path.importedName ?: continue // parse error
             builder.put(importedName, directive)
         }
 
@@ -242,7 +242,7 @@ class LazyImportScope(
             val descriptors = LinkedHashSet<DeclarationDescriptor>()
             for (directive in importResolver.indexedImports.imports) {
                 val importPath = directive.getImportPath() ?: continue
-                val importedName = importPath.getImportedName()
+                val importedName = importPath.importedName
                 if (importedName == null || nameFilter(importedName)) {
                     descriptors.addAll(importResolver.getImportScope(directive).getContributedDescriptors(kindFilter, nameFilter))
                 }

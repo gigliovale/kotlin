@@ -77,6 +77,7 @@ fun createContainerForBodyResolve(
 
     useInstance(LookupTracker.DO_NOTHING)
     useInstance(BodyResolveCache.ThrowException)
+    useImpl<AnnotationResolverImpl>()
     useInstance(languageVersionSettings)
 
     useImpl<BodyResolver>()
@@ -96,6 +97,7 @@ fun createContainerForLazyBodyResolve(
     useInstance(kotlinCodeAnalyzer)
     useInstance(kotlinCodeAnalyzer.fileScopeProvider)
     useInstance(bodyResolveCache)
+    useImpl<AnnotationResolverImpl>()
     useInstance(languageVersionSettings)
     useImpl<LazyTopDownAnalyzer>()
     useImpl<BasicAbsentDescriptorHandler>()
@@ -122,6 +124,7 @@ fun createContainerForLazyLocalClassifierAnalyzer(
     CompilerEnvironment.configure(this)
 
     useInstance(FileScopeProvider.ThrowException)
+    useImpl<AnnotationResolverImpl>()
 
     useImpl<DeclarationScopeProviderForLocalClassifierAnalyzer>()
     useImpl<LocalLazyDeclarationResolver>()
@@ -147,6 +150,7 @@ fun createContainerForLazyResolve(
     useInstance(CompilerConfiguration.EMPTY)
 
     useImpl<FileScopeProviderImpl>()
+    useImpl<AnnotationResolverImpl>()
     useImpl<CompilerDeserializationConfiguration>()
     targetEnvironment.configure(this)
 

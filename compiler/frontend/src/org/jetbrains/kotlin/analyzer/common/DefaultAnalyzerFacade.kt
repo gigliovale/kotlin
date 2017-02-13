@@ -135,6 +135,7 @@ object DefaultAnalyzerFacade : AnalyzerFacade<PlatformAnalysisParameters>() {
         useImpl<ResolveSession>()
         useImpl<LazyTopDownAnalyzer>()
         useImpl<FileScopeProviderImpl>()
+        useImpl<AnnotationResolverImpl>()
         useInstance(languageVersionSettings)
         useImpl<CompilerDeserializationConfiguration>()
         useInstance(packagePartProvider)

@@ -63,6 +63,7 @@ private fun StorageComponentContainer.configureJavaTopDownAnalysis(
     useInstance(JvmVirtualFileFinderFactory.SERVICE.getInstance(project).create(moduleContentScope))
 
     useImpl<FileScopeProviderImpl>()
+    useImpl<AnnotationResolverImpl>()
 
     useImpl<JavaClassFinderImpl>()
     useImpl<SignaturePropagatorImpl>()

@@ -323,10 +323,4 @@ public class DiagnosticMessageTestGenerated extends AbstractDiagnosticMessageTes
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/diagnosticMessage/upperBoundViolatedInTypeAliasConstructorCall.kt");
         doTest(fileName);
     }
-
-    @TestMetadata("urlMultiproject.kt")
-    public void testUrlMultiproject() throws Exception {
-        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/diagnosticMessage/urlMultiproject.kt");
-        doTest(fileName);
-    }
 }

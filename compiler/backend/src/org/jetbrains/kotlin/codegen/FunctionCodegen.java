@@ -72,10 +72,7 @@ import org.jetbrains.org.objectweb.asm.util.TraceMethodVisitor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.isNullableAny;
 import static org.jetbrains.kotlin.codegen.AsmUtil.*;
@@ -986,19 +983,21 @@ public class FunctionCodegen {
             }
         }
 
+
+        LazyArguments params = new LazyArguments();
         // load arguments after defaults generation to avoid redundant stack normalization operations
-        loadExplicitArgumentsOnStack(OBJECT_TYPE, isStatic, signature, generator);
+        loadExplicitArgumentsOnStack(OBJECT_TYPE, isStatic, signature, params);
 
         for (int index = 0; index < valueParameters.size(); index++) {
             ValueParameterDescriptor parameterDescriptor = valueParameters.get(index);
             Type type = mappedParameters.get(capturedArgumentsCount + index).getAsmType();
             int parameterIndex = frameMap.getIndex(parameterDescriptor);
-            generator.putValueIfNeeded(type, StackValue.local(parameterIndex, type));
+            params.addParameter(new GeneratedValueArgument(StackValue.local(parameterIndex, type), type, parameterDescriptor, index, null));
         }
 
         CallableMethod method = state.getTypeMapper().mapToCallableMethod(functionDescriptor, false);
 
-        generator.genCall(method, null, false, codegen);
+        generator.genCall(method, null, params, codegen);
 
         iv.areturn(signature.getReturnType());
     }
@@ -1061,18 +1060,18 @@ public class FunctionCodegen {
             @NotNull Type ownerType,
             boolean isStatic,
             @NotNull JvmMethodSignature signature,
-            @NotNull CallGenerator callGenerator
+            @NotNull LazyArguments lazyArguments
     ) {
         int var = 0;
         if (!isStatic) {
-            callGenerator.putValueIfNeeded(ownerType, StackValue.local(var, ownerType));
+            lazyArguments.addParameter(StackValue.local(var, ownerType), LazyArgumentKind.EXPLICITLY_ADDED);
             var += ownerType.getSize();
         }
 
         for (JvmMethodParameterSignature parameterSignature : signature.getValueParameters()) {
             if (parameterSignature.getKind() != JvmMethodParameterKind.VALUE) {
                 Type type = parameterSignature.getAsmType();
-                callGenerator.putValueIfNeeded(type, StackValue.local(var, type));
+                lazyArguments.addParameter(StackValue.local(var, type), LazyArgumentKind.EXPLICITLY_ADDED);
                 var += type.getSize();
             }
         }

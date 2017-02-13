@@ -294,7 +294,9 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
                             v.anew(asmType);
                             v.dup();
 
-                            codegen.pushClosureOnStack(classDescriptor, true, codegen.defaultCallGenerator, functionReferenceReceiver);
+                            LazyArguments arguments = new LazyArguments();
+                            codegen.addClosureParameters(classDescriptor, true, arguments, functionReferenceReceiver);
+                            arguments.generateAllDirectlyTo(v);
                             v.invokespecial(asmType.getInternalName(), "<init>", constructor.getDescriptor(), false);
                         }
 

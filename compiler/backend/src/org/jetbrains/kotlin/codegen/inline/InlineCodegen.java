@@ -59,6 +59,7 @@ import org.jetbrains.org.objectweb.asm.Label;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
 import org.jetbrains.org.objectweb.asm.Opcodes;
 import org.jetbrains.org.objectweb.asm.Type;
+import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter;
 import org.jetbrains.org.objectweb.asm.commons.Method;
 import org.jetbrains.org.objectweb.asm.tree.AbstractInsnNode;
 import org.jetbrains.org.objectweb.asm.tree.InsnList;
@@ -161,6 +162,21 @@ public class InlineCodegen extends CallGenerator {
             return ((PackageFragmentDescriptor) classOrPackageFragment).getMemberScope();
         }
         return null;
+    }
+
+    @Override
+    public void putValueParameters(
+            @NotNull LazyArguments lazyArguments, @NotNull InstructionAdapter v
+    ) {
+        processAndPutHiddenParameters(false);
+
+        for (GeneratedValueArgument argument : extractValueParameters(lazyArguments)) {
+            ValueParameterDescriptor descriptor = argument.getDescriptor();
+            assert descriptor != null;
+            StackValue stackValue = argument.getStackValue();
+            /*TODO add type to GeneratedValueArgument?*/
+            genValueAndPut(descriptor, argument.getExpression(), argument.getType(), stackValue);
+        }
     }
 
     @Override
@@ -869,7 +885,11 @@ public class InlineCodegen extends CallGenerator {
 
     private void putClosureParametersOnStack(@NotNull LambdaInfo next, @Nullable StackValue functionReferenceReceiver) {
         activeLambda = next;
-        codegen.pushClosureOnStack(next.getClassDescriptor(), true, this, functionReferenceReceiver);
+        LazyArguments arguments = new LazyArguments();
+        codegen.addClosureParameters(next.getClassDescriptor(), true, arguments, functionReferenceReceiver);
+        for (GeneratedArgument argument : arguments.getList()) {
+            putCapturedValueOnStack(argument.getStackValue(), argument.getType(), ((CapturedParameter)argument).getIndex());
+        }
         activeLambda = null;
     }
 
@@ -904,14 +924,13 @@ public class InlineCodegen extends CallGenerator {
         throw new IllegalStateException("Couldn't build context for " + descriptor);
     }
 
-    @Override
-    public void genValueAndPut(
+    private void genValueAndPut(
             @NotNull ValueParameterDescriptor valueParameterDescriptor,
-            @NotNull KtExpression argumentExpression,
+            @Nullable KtExpression argumentExpression,
             @NotNull Type parameterType,
-            int parameterIndex
+            @NotNull StackValue value
     ) {
-        if (isInliningParameter(argumentExpression, valueParameterDescriptor)) {
+        if (argumentExpression != null && isInliningParameter(argumentExpression, valueParameterDescriptor)) {
             LambdaInfo lambdaInfo = rememberClosure(argumentExpression, parameterType, valueParameterDescriptor);
 
             KtExpression receiver = getBoundCallableReferenceReceiver(argumentExpression);
@@ -920,7 +939,6 @@ public class InlineCodegen extends CallGenerator {
             }
         }
         else {
-            StackValue value = codegen.gen(argumentExpression);
             putValueIfNeeded(parameterType, value, valueParameterDescriptor.getIndex());
         }
     }
@@ -951,8 +969,7 @@ public class InlineCodegen extends CallGenerator {
         afterParameterPut(parameterType, value, index);
     }
 
-    @Override
-    public void putCapturedValueOnStack(@NotNull StackValue stackValue, @NotNull Type valueType, int paramIndex) {
+    private void putCapturedValueOnStack(@NotNull StackValue stackValue, @NotNull Type valueType, int paramIndex) {
         if (shouldPutValue(stackValue.type, stackValue)) {
             stackValue.put(stackValue.type, codegen.v);
         }
@@ -1048,7 +1065,7 @@ public class InlineCodegen extends CallGenerator {
 
     @Override
     public void reorderArgumentsIfNeeded(
-            @NotNull List<ArgumentAndDeclIndex> actualArgsWithDeclIndex, @NotNull List<? extends Type> valueParameterTypes
+            @NotNull List<Integer> actualArgsWithDeclIndex, @NotNull List<? extends Type> valueParameterTypes
     ) {
     }
 

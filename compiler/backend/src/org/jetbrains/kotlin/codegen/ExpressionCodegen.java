@@ -107,7 +107,6 @@ import static org.jetbrains.kotlin.builtins.KotlinBuiltIns.isInt;
 import static org.jetbrains.kotlin.codegen.AsmUtil.*;
 import static org.jetbrains.kotlin.codegen.JvmCodegenUtil.*;
 import static org.jetbrains.kotlin.codegen.binding.CodegenBinding.*;
-import static org.jetbrains.kotlin.codegen.inline.InlineCodegenUtil.addInlineMarker;
 import static org.jetbrains.kotlin.resolve.BindingContext.*;
 import static org.jetbrains.kotlin.resolve.BindingContextUtils.*;
 import static org.jetbrains.kotlin.resolve.DescriptorUtils.isEnumEntry;
@@ -1679,7 +1678,8 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 v.anew(type);
                 v.dup();
 
-                pushClosureOnStack(classDescriptor, true, defaultCallGenerator, /* functionReferenceReceiver = */ null);
+                LazyArguments generatedArgumentList = new LazyArguments();
+                addClosureParameters(classDescriptor, true, generatedArgumentList, /* functionReferenceReceiver = */ null);
 
                 ConstructorDescriptor primaryConstructor = classDescriptor.getUnsubstitutedPrimaryConstructor();
                 assert primaryConstructor != null : "There should be primary constructor for object literal";
@@ -1707,10 +1707,11 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                         }
                     }
                     ArgumentGenerator argumentGenerator =
-                            new CallBasedArgumentGenerator(ExpressionCodegen.this, defaultCallGenerator, valueParameters, mappedTypes);
+                            new CallBasedArgumentGenerator(ExpressionCodegen.this, valueParameters, mappedTypes);
 
-                    argumentGenerator.generate(valueArguments, valueArguments, null);
+                    argumentGenerator.generate(valueArguments, valueArguments, null, generatedArgumentList);
                 }
+                generatedArgumentList.generateAllDirectlyTo(v);
 
                 Collection<ClassConstructorDescriptor> constructors = classDescriptor.getConstructors();
                 assert constructors.size() == 1 : "Unexpected number of constructors for class: " + classDescriptor + " " + constructors;
@@ -1723,10 +1724,10 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         });
     }
 
-    public void pushClosureOnStack(
+    public void addClosureParameters(
             @NotNull ClassDescriptor classDescriptor,
             boolean putThis,
-            @NotNull CallGenerator callGenerator,
+            @NotNull LazyArguments argumentList,
             @Nullable StackValue functionReferenceReceiver
     ) {
         CalculatedClosure closure = bindingContext.get(CLOSURE, classDescriptor);
@@ -1739,7 +1740,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             if (captureThis != null) {
                 StackValue thisOrOuter = generateThisOrOuter(captureThis, false);
                 assert !isPrimitive(thisOrOuter.type) : "This or outer should be non primitive: " + thisOrOuter.type;
-                callGenerator.putCapturedValueOnStack(thisOrOuter, thisOrOuter.type, paramIndex++);
+                argumentList.addParameter(new CapturedParameter(thisOrOuter, paramIndex++));
             }
         }
 
@@ -1748,30 +1749,30 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             StackValue capturedReceiver =
                     functionReferenceReceiver != null ? functionReferenceReceiver :
                     generateExtensionReceiver(unwrapOriginalReceiverOwnerForSuspendFunction(context));
-            callGenerator.putCapturedValueOnStack(capturedReceiver, capturedReceiver.type, paramIndex++);
+            argumentList.addParameter(new CapturedParameter(capturedReceiver, paramIndex++));
         }
 
         for (Map.Entry<DeclarationDescriptor, EnclosedValueDescriptor> entry : closure.getCaptureVariables().entrySet()) {
             Type sharedVarType = typeMapper.getSharedVarType(entry.getKey());
             if (sharedVarType == null) {
-                sharedVarType = typeMapper.mapType((VariableDescriptor) entry.getKey());
+                sharedVarType = getVariableTypeNoSharing((VariableDescriptor) entry.getKey());
             }
             StackValue capturedVar = lookupOuterValue(entry.getValue());
-            callGenerator.putCapturedValueOnStack(capturedVar, sharedVarType, paramIndex++);
+            argumentList.addParameter(new CapturedParameter(capturedVar, paramIndex++, sharedVarType));
         }
 
 
         ClassDescriptor superClass = DescriptorUtilsKt.getSuperClassNotAny(classDescriptor);
         if (superClass != null) {
-            pushClosureOnStack(
-                    superClass, putThis && closure.getCaptureThis() == null, callGenerator, /* functionReferenceReceiver = */ null
+            addClosureParameters(
+                    superClass, putThis && closure.getCaptureThis() == null, argumentList, /* functionReferenceReceiver = */ null
             );
         }
 
         if (closure.isSuspend()) {
             // resultContinuation
             if (closure.isSuspendLambda()) {
-                v.aconst(null);
+                argumentList.addParameter(new CapturedParameter(StackValue.constant(null, AsmTypes.OBJECT_TYPE), paramIndex++));
             }
             else {
                 assert context.getFunctionDescriptor().isSuspend() : "Coroutines closure must be created only inside suspend functions";
@@ -1780,7 +1781,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
                 assert continuationValue != null : "Couldn't find a value for continuation parameter of " + context.getFunctionDescriptor();
 
-                callGenerator.putCapturedValueOnStack(continuationValue, continuationValue.type, paramIndex++);
+                argumentList.addParameter(new CapturedParameter(continuationValue, paramIndex++));
             }
         }
     }
@@ -2839,7 +2840,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         assert callGenerator == defaultCallGenerator || !tailRecursionCodegen.isTailRecursion(resolvedCall) :
                 "Tail recursive method can't be inlined: " + descriptor;
 
-        ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(this, callGenerator, descriptor.getValueParameters(),
+        ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(this, descriptor.getValueParameters(),
                                                                              callableMethod.getValueParameterTypes());
 
         invokeMethodWithArguments(callableMethod, resolvedCall, receiver, callGenerator, argumentGenerator);
@@ -2854,53 +2855,36 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     ) {
         boolean isSuspensionPoint = CoroutineCodegenUtilKt.isSuspensionPointInStateMachine(resolvedCall, bindingContext);
         boolean isConstructor = resolvedCall.getResultingDescriptor() instanceof ConstructorDescriptor;
-        putReceiverAndInlineMarkerIfNeeded(callableMethod, resolvedCall, receiver, isSuspensionPoint, isConstructor);
 
-        callGenerator.processAndPutHiddenParameters(false);
+        LazyArguments argumentList = new LazyArguments();
+        argumentList.addParameter(putReceiverAndInlineMarkerIfNeeded(callableMethod, resolvedCall, receiver, isSuspensionPoint, isConstructor), LazyArgumentKind.DISPATCH_RECEIVER);
 
         List<ResolvedValueArgument> valueArguments = resolvedCall.getValueArgumentsByIndex();
         assert valueArguments != null : "Failed to arrange value arguments by index: " + resolvedCall.getResultingDescriptor();
 
-        DefaultCallArgs defaultArgs =
-                argumentGenerator.generate(
-                        valueArguments,
-                        new ArrayList<ResolvedValueArgument>(resolvedCall.getValueArguments().values()),
-                        resolvedCall.getResultingDescriptor()
-                );
+        DefaultCallArgs defaultCallArgs =
+                argumentGenerator.generate(valueArguments, new ArrayList<ResolvedValueArgument>(resolvedCall.getValueArguments().values()),
+                                           resolvedCall.getResultingDescriptor(), argumentList);
 
         if (tailRecursionCodegen.isTailRecursion(resolvedCall)) {
-            tailRecursionCodegen.generateTailRecursion(resolvedCall);
+            //TODO
+            tailRecursionCodegen.generateTailRecursion(resolvedCall, argumentList);
             return;
         }
 
-        boolean defaultMaskWasGenerated = defaultArgs.generateOnStackIfNeeded(callGenerator, isConstructor);
+        defaultCallArgs.generateOnStackIfNeeded(argumentList, isConstructor);
 
         // Extra constructor marker argument
         if (callableMethod instanceof CallableMethod) {
             List<JvmMethodParameterSignature> callableParameters = ((CallableMethod) callableMethod).getValueParameters();
             for (JvmMethodParameterSignature parameter: callableParameters) {
                 if (parameter.getKind() == JvmMethodParameterKind.CONSTRUCTOR_MARKER) {
-                    callGenerator.putValueIfNeeded(parameter.getAsmType(), StackValue.constant(null, parameter.getAsmType()));
+                    argumentList.addParameter(StackValue.constant(null, parameter.getAsmType()), LazyArgumentKind.CONSTRUCTOR_MARKER);
                 }
             }
         }
 
-        if (isSuspensionPoint) {
-            v.invokestatic(
-                    CoroutineCodegenUtilKt.COROUTINE_MARKER_OWNER,
-                    CoroutineCodegenUtilKt.BEFORE_SUSPENSION_POINT_MARKER_NAME,
-                    "()V", false
-            );
-        }
-
-        callGenerator.genCall(callableMethod, resolvedCall, defaultMaskWasGenerated, this);
-
-        if (isSuspensionPoint) {
-            v.invokestatic(
-                    CoroutineCodegenUtilKt.COROUTINE_MARKER_OWNER,
-                    CoroutineCodegenUtilKt.AFTER_SUSPENSION_POINT_MARKER_NAME, "()V", false);
-            addInlineMarker(v, false);
-        }
+        callGenerator.genCall(callableMethod, resolvedCall, argumentList, this);
 
         KotlinType returnType = resolvedCall.getResultingDescriptor().getReturnType();
         if (returnType != null && KotlinBuiltIns.isNothing(returnType)) {
@@ -2909,23 +2893,18 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         }
     }
 
-    private void putReceiverAndInlineMarkerIfNeeded(
+    @Nullable
+    private StackValue putReceiverAndInlineMarkerIfNeeded(
             @NotNull Callable callableMethod,
             @NotNull ResolvedCall<?> resolvedCall,
             @NotNull StackValue receiver,
             boolean isSuspensionPoint,
             boolean isConstructor
     ) {
-        boolean isSafeCallOrOnStack = receiver instanceof StackValue.SafeCall || receiver instanceof StackValue.OnStack;
-
-        if (isSuspensionPoint && !isSafeCallOrOnStack) {
-            // Inline markers are used to spill the stack before coroutine suspension
-            addInlineMarker(v, true);
-        }
 
         if (!isConstructor) { // otherwise already
             receiver = StackValue.receiver(resolvedCall, receiver, this, callableMethod);
-            receiver.put(receiver.type, v);
+            return receiver;
 
             // In regular cases we add an inline marker just before receiver is loaded (to spill the stack before a suspension)
             // But in case of safe call things we get the following bytecode:
@@ -2945,40 +2924,41 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             // The problem is that the stack before the call is not restored in case of null receiver.
             // The solution is to spill stack just after receiver is loaded (after IFNULL) in case of safe call.
             // But the problem is that we should leave the receiver itself on the stack, so we store it in a temporary variable.
-            if (isSuspensionPoint && isSafeCallOrOnStack) {
-                boolean bothReceivers =
-                        receiver instanceof StackValue.CallReceiver
-                        && ((StackValue.CallReceiver) receiver).getDispatchReceiver().type.getSort() != Type.VOID
-                        && ((StackValue.CallReceiver) receiver).getExtensionReceiver().type.getSort() != Type.VOID;
-                Type firstReceiverType =
-                        bothReceivers
-                        ? ((StackValue.CallReceiver) receiver).getDispatchReceiver().type
-                        : receiver.type;
-
-                Type secondReceiverType = bothReceivers ? receiver.type : null;
-
-                int tmpVarForFirstReceiver = myFrameMap.enterTemp(firstReceiverType);
-                int tmpVarForSecondReceiver = -1;
-
-                if (secondReceiverType != null) {
-                    tmpVarForSecondReceiver = myFrameMap.enterTemp(secondReceiverType);
-                    v.store(tmpVarForSecondReceiver, secondReceiverType);
-                }
-                v.store(tmpVarForFirstReceiver, firstReceiverType);
-
-                addInlineMarker(v, true);
-
-                v.load(tmpVarForFirstReceiver, firstReceiverType);
-                if (secondReceiverType != null) {
-                    v.load(tmpVarForSecondReceiver, secondReceiverType);
-                    myFrameMap.leaveTemp(secondReceiverType);
-                }
-
-                myFrameMap.leaveTemp(firstReceiverType);
-            }
-
-            callableMethod.afterReceiverGeneration(v);
+            //if (isSuspensionPoint && isSafeCallOrOnStack) {
+            //    boolean bothReceivers =
+            //            receiver instanceof StackValue.CallReceiver
+            //            && ((StackValue.CallReceiver) receiver).getDispatchReceiver().type.getSort() != Type.VOID
+            //            && ((StackValue.CallReceiver) receiver).getExtensionReceiver().type.getSort() != Type.VOID;
+            //    Type firstReceiverType =
+            //            bothReceivers
+            //            ? ((StackValue.CallReceiver) receiver).getDispatchReceiver().type
+            //            : receiver.type;
+            //
+            //    Type secondReceiverType = bothReceivers ? receiver.type : null;
+            //
+            //    int tmpVarForFirstReceiver = myFrameMap.enterTemp(firstReceiverType);
+            //    int tmpVarForSecondReceiver = -1;
+            //
+            //    if (secondReceiverType != null) {
+            //        tmpVarForSecondReceiver = myFrameMap.enterTemp(secondReceiverType);
+            //        v.store(tmpVarForSecondReceiver, secondReceiverType);
+            //    }
+            //    v.store(tmpVarForFirstReceiver, firstReceiverType);
+            //
+            //    addInlineMarker(v, true);
+            //
+            //    v.load(tmpVarForFirstReceiver, firstReceiverType);
+            //    if (secondReceiverType != null) {
+            //        v.load(tmpVarForSecondReceiver, secondReceiverType);
+            //        myFrameMap.leaveTemp(secondReceiverType);
+            //    }
+            //
+            //    myFrameMap.leaveTemp(firstReceiverType);
+            //}
+            //
+            //callableMethod.afterReceiverGeneration(v);
         }
+        return StackValue.onStack(receiver.type);
     }
 
     @NotNull
@@ -3246,6 +3226,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
     }
 
 
+    //TODO wrap to stackValue
     public void genVarargs(@NotNull VarargValueArgument valueArgument, @NotNull KotlinType outType) {
         Type type = asmType(outType);
         assert type.getSort() == Type.ARRAY;
@@ -4337,23 +4318,25 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 v.anew(objectType);
                 v.dup();
 
-                ClassConstructorDescriptor constructor = getConstructorDescriptor(resolvedCall);
+                LazyArguments lazyArguments = new LazyArguments();
 
+                ClassConstructorDescriptor constructor = getConstructorDescriptor(resolvedCall);
                 ReceiverParameterDescriptor dispatchReceiver = constructor.getDispatchReceiverParameter();
                 ClassDescriptor containingDeclaration = constructor.getContainingDeclaration();
                 if (dispatchReceiver != null) {
                     Type receiverType = typeMapper.mapType(dispatchReceiver.getType());
                     ReceiverValue receiver = getConstructorReceiver(resolvedCall);
                     boolean callSuper = containingDeclaration.isInner() && receiver instanceof ImplicitClassReceiver;
-                    generateReceiverValue(receiver, callSuper).put(receiverType, v);
+                    lazyArguments.addParameter(new NonValueArgument(generateReceiverValue(receiver, callSuper), receiverType, LazyArgumentKind.DISPATCH_RECEIVER/*?*/));
                 }
 
                 // Resolved call to local class constructor doesn't have dispatchReceiver, so we need to generate closure on stack
                 // See StackValue.receiver for more info
-                pushClosureOnStack(
-                        containingDeclaration, dispatchReceiver == null, defaultCallGenerator, /* functionReferenceReceiver = */ null
+                addClosureParameters(
+                        containingDeclaration, dispatchReceiver == null, lazyArguments , /* functionReferenceReceiver = */ null
                 );
-
+                //TODO move to invokeMethodWithArguments
+                lazyArguments.generateAllDirectlyTo(v);
                 constructor = SamCodegenUtil.resolveSamAdapter(constructor);
                 CallableMethod method = typeMapper.mapToCallableMethod(constructor, false);
                 invokeMethodWithArguments(method, resolvedCall, StackValue.none());

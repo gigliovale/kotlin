@@ -65,7 +65,7 @@ public class TailRecursionCodegen {
         return status != null && status.isDoGenerateTailRecursion();
     }
 
-    public void generateTailRecursion(ResolvedCall<?> resolvedCall) {
+    public void generateTailRecursion(@NotNull ResolvedCall<?> resolvedCall, @NotNull LazyArguments lazyArguments) {
         CallableDescriptor fd = CoroutineCodegenUtilKt.unwrapInitialDescriptorForSuspendFunction(resolvedCall.getResultingDescriptor());
         assert fd instanceof FunctionDescriptor : "Resolved call doesn't refer to the function descriptor: " + fd;
         CallableMethod callable = (CallableMethod) codegen.resolveToCallable((FunctionDescriptor) fd, false, resolvedCall);
@@ -75,6 +75,8 @@ public class TailRecursionCodegen {
             throw new IllegalStateException("Failed to arrange value arguments by index: " + fd);
         }
 
+        //TODO filter out some of parameters
+        lazyArguments.generateAllDirectlyTo(codegen.v);
         if (((FunctionDescriptor) fd).isSuspend()) {
             AsmUtil.pop(v, callable.getValueParameters().get(callable.getValueParameters().size() - 1).getAsmType());
         }

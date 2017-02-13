@@ -16,10 +16,14 @@
 
 package org.jetbrains.kotlin.codegen
 
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.codegen.coroutines.AFTER_SUSPENSION_POINT_MARKER_NAME
+import org.jetbrains.kotlin.codegen.coroutines.BEFORE_SUSPENSION_POINT_MARKER_NAME
+import org.jetbrains.kotlin.codegen.coroutines.COROUTINE_MARKER_OWNER
+import org.jetbrains.kotlin.codegen.coroutines.isSuspensionPointInStateMachine
+import org.jetbrains.kotlin.codegen.inline.InlineCodegenUtil.addInlineMarker
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.org.objectweb.asm.Type
+import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
 abstract class CallGenerator {
 
@@ -53,37 +57,23 @@ abstract class CallGenerator {
 
         }
 
-        override fun genValueAndPut(
-                valueParameterDescriptor: ValueParameterDescriptor,
-                argumentExpression: KtExpression,
-                parameterType: Type,
-                parameterIndex: Int) {
-            val value = codegen.gen(argumentExpression)
-            value.put(parameterType, codegen.v)
-        }
-
-        override fun putCapturedValueOnStack(
-                stackValue: StackValue, valueType: Type, paramIndex: Int) {
-            stackValue.put(stackValue.type, codegen.v)
-        }
-
         override fun putValueIfNeeded(
                 parameterType: Type, value: StackValue) {
             value.put(value.type, codegen.v)
         }
 
-        override fun reorderArgumentsIfNeeded(actualArgsWithDeclIndex: List<ArgumentAndDeclIndex>, valueParameterTypes: List<Type>) {
+        override fun reorderArgumentsIfNeeded(argumentDeclIndex: List<Int>, valueParameterTypes: List<Type>) {
             val mark = codegen.myFrameMap.mark()
-            val reordered = actualArgsWithDeclIndex.withIndex().dropWhile {
-                it.value.declIndex == it.index
+            val reordered = argumentDeclIndex.withIndex().dropWhile {
+                it.value == it.index
             }
 
             reordered.reversed().map {
                 val argumentAndDeclIndex = it.value
-                val type = valueParameterTypes.get(argumentAndDeclIndex.declIndex)
+                val type = valueParameterTypes.get(argumentAndDeclIndex)
                 val stackValue = StackValue.local(codegen.frameMap.enterTemp(type), type)
                 stackValue.store(StackValue.onStack(type), codegen.v)
-                Pair(argumentAndDeclIndex.declIndex, stackValue)
+                Pair(argumentAndDeclIndex, stackValue)
             }.sortedBy {
                 it.first
             }.forEach {
@@ -93,7 +83,44 @@ abstract class CallGenerator {
         }
     }
 
-    fun genCall(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, callDefault: Boolean, codegen: ExpressionCodegen) {
+    open fun putValueParameters(lazyArguments: LazyArguments, v: InstructionAdapter) {
+        //TODO: could contain captured one for inline case or not?
+        val valueParameters = extractValueParameters(lazyArguments)
+
+        valueParameters.forEach {
+            it.stackValue.put(it.type, v)
+        }
+    }
+
+    fun genCall(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, lazyArguments: LazyArguments, codegen: ExpressionCodegen) {
+        val isSuspensionPoint = resolvedCall?.isSuspensionPointInStateMachine(codegen.bindingContext) ?: false
+
+        if (isSuspensionPoint) {
+            //process safe calls
+            // Inline markers are used to spill the stack before coroutine suspension
+            addInlineMarker(codegen.v, true)
+        }
+        val v = codegen.v
+        lazyArguments.list.takeWhile{ it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach {
+            it.stackValue.put(it.type, v)
+            if (it.kind == LazyArgumentKind.DISPATCH_RECEIVER) {
+                callableMethod.afterReceiverGeneration(v)
+            }
+        }
+
+        putValueParameters(lazyArguments, v)
+
+        val valueParameters = extractValueParameters(lazyArguments)
+        reorderArgumentsIfNeeded(valueParameters.map { it.declIndex }, callableMethod.valueParameterTypes)
+
+        if (!valueParameters.isEmpty()) {
+            lazyArguments.list.takeLastWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach { putValueIfNeeded(it.type, it.stackValue) }
+        }
+
+        if (isSuspensionPoint) {
+            v.invokestatic(COROUTINE_MARKER_OWNER, BEFORE_SUSPENSION_POINT_MARKER_NAME, "()V", false)
+        }
+
         if (resolvedCall != null) {
             val calleeExpression = resolvedCall.call.calleeExpression
             if (calleeExpression != null) {
@@ -101,7 +128,22 @@ abstract class CallGenerator {
             }
         }
 
+        val callDefault = lazyArguments.list.any {it.kind == LazyArgumentKind.DEFAULT_MASK_PART}
         genCallInner(callableMethod, resolvedCall, callDefault, codegen)
+
+        if (isSuspensionPoint) {
+            v.invokestatic(
+                    COROUTINE_MARKER_OWNER,
+                    AFTER_SUSPENSION_POINT_MARKER_NAME, "()V", false)
+            addInlineMarker(v, false)
+        }
+
+    }
+
+    fun extractValueParameters(lazyArguments: LazyArguments): List<GeneratedValueArgument> {
+        val valueParameters = lazyArguments.list.dropWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER }.
+                dropLastWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER } as List<GeneratedValueArgument>
+        return valueParameters
     }
 
     abstract fun genCallInner(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, callDefault: Boolean, codegen: ExpressionCodegen)
@@ -111,24 +153,14 @@ abstract class CallGenerator {
             stackValue: StackValue?,
             parameterIndex: Int)
 
-    abstract fun genValueAndPut(
-            valueParameterDescriptor: ValueParameterDescriptor,
-            argumentExpression: KtExpression,
-            parameterType: Type,
-            parameterIndex: Int)
-
     abstract fun putValueIfNeeded(
             parameterType: Type,
             value: StackValue)
-
-    abstract fun putCapturedValueOnStack(
-            stackValue: StackValue,
-            valueType: Type, paramIndex: Int)
 
     abstract fun processAndPutHiddenParameters(justProcess: Boolean)
 
     /*should be called if justProcess = true in processAndPutHiddenParameters*/
     abstract fun putHiddenParamsIntoLocals()
 
-    abstract fun reorderArgumentsIfNeeded(actualArgsWithDeclIndex: List<ArgumentAndDeclIndex>, valueParameterTypes: List<Type>)
+    abstract fun reorderArgumentsIfNeeded(argumentDeclIndex: List<Int>, valueParameterTypes: List<Type>)
 }

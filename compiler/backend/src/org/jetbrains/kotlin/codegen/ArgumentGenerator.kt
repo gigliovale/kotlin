@@ -17,11 +17,14 @@
 package org.jetbrains.kotlin.codegen
 
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
+import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.ExpressionValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedValueArgument
 import org.jetbrains.kotlin.resolve.calls.model.VarargValueArgument
 import org.jetbrains.kotlin.utils.mapToIndex
+import org.jetbrains.org.objectweb.asm.Type
 
 class ArgumentAndDeclIndex(val arg: ResolvedValueArgument, val declIndex: Int)
 
@@ -36,7 +39,8 @@ abstract class ArgumentGenerator {
             valueArgumentsByIndex: List<ResolvedValueArgument>,
             actualArgs: List<ResolvedValueArgument>,
             // may be null for a constructor of an object literal
-            calleeDescriptor: CallableDescriptor?
+            calleeDescriptor: CallableDescriptor?,
+            lazyArguments: LazyArguments
     ): DefaultCallArgs {
         assert(valueArgumentsByIndex.size == actualArgs.size) {
             "Value arguments collection should have same size, but ${valueArgumentsByIndex.size} != ${actualArgs.size}"
@@ -60,46 +64,56 @@ abstract class ArgumentGenerator {
         for (argumentWithDeclIndex in actualArgsWithDeclIndex) {
             val argument = argumentWithDeclIndex.arg
             val declIndex = argumentWithDeclIndex.declIndex
-
-            when (argument) {
+            val expression: KtExpression?
+            val value = when (argument) {
                 is ExpressionValueArgument -> {
+                    expression = argument.valueArgument?.getArgumentExpression()
                     generateExpression(declIndex, argument)
                 }
                 is DefaultValueArgument -> {
                     defaultArgs.mark(declIndex)
+                    expression = null
                     generateDefault(declIndex, argument)
                 }
                 is VarargValueArgument -> {
+                    expression = null
                     generateVararg(declIndex, argument)
                 }
                 else -> {
+                    expression = null
                     generateOther(declIndex, argument)
                 }
             }
+            lazyArguments.addParameter(GeneratedValueArgument(value, parameterType(declIndex), parameterDescriptor(declIndex), declIndex, expression))
         }
-
-        reorderArgumentsIfNeeded(actualArgsWithDeclIndex)
 
         return defaultArgs
     }
 
-    protected open fun generateExpression(i: Int, argument: ExpressionValueArgument) {
+    protected open fun generateExpression(i: Int, argument: ExpressionValueArgument): StackValue {
         throw UnsupportedOperationException("Unsupported expression value argument #$i: $argument")
     }
 
-    protected open fun generateDefault(i: Int, argument: DefaultValueArgument) {
-        throw UnsupportedOperationException("Unsupported default value argument #$i: $argument")
+    protected open fun generateDefault(i: Int, argument: DefaultValueArgument): StackValue {
+        val type = parameterType(i)
+        if (type.sort == Type.OBJECT || type.sort == Type.ARRAY) {
+            return StackValue.constant(null, type)
+        }
+        else {
+            //TODO check equality
+            return StackValue.createDefaultPrimitiveValue(type)
+        }
     }
 
-    protected open fun generateVararg(i: Int, argument: VarargValueArgument) {
+    protected abstract fun parameterType(i: Int): Type
+
+    protected abstract fun parameterDescriptor(i: Int): ValueParameterDescriptor?
+
+    protected open fun generateVararg(i: Int, argument: VarargValueArgument): StackValue {
         throw UnsupportedOperationException("Unsupported vararg value argument #$i: $argument")
     }
 
-    protected open fun generateOther(i: Int, argument: ResolvedValueArgument) {
+    protected open fun generateOther(i: Int, argument: ResolvedValueArgument): StackValue {
         throw UnsupportedOperationException("Unsupported value argument #$i: $argument")
-    }
-
-    protected open fun reorderArgumentsIfNeeded(args: List<ArgumentAndDeclIndex>) {
-        throw UnsupportedOperationException("Unsupported operation")
     }
 }

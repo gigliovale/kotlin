@@ -65,6 +65,18 @@ class DefaultCallArgs(val size: Int) {
         return toInts.isNotEmpty()
     }
 
+    fun generateOnStackIfNeeded(arguments: LazyArguments, isConstructor: Boolean){
+        val toInts = toInts()
+        if (!toInts.isEmpty()) {
+            for (mask in toInts) {
+                arguments.addParameter(StackValue.constant(mask, Type.INT_TYPE), LazyArgumentKind.DEFAULT_MASK_PART)
+            }
+
+            val parameterType = if (isConstructor) AsmTypes.DEFAULT_CONSTRUCTOR_MARKER else AsmTypes.OBJECT_TYPE
+            arguments.addParameter(StackValue.constant(null, parameterType), LazyArgumentKind.DEFAULT_CONSTRUCTOR_MARKER)
+        }
+    }
+
     fun generateOnStackIfNeeded(iv: InstructionAdapter, isConstructor: Boolean): Boolean {
         val toInts = toInts()
         if (!toInts.isEmpty()) {

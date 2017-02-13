@@ -1446,11 +1446,11 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         if (isAnonymousObject(descriptor)) {
             List<JvmMethodParameterSignature> superValues = superParameters.subList(superIndex, superParameters.size());
-            return new ObjectSuperCallArgumentGenerator(superValues, iv, offset);
+            return new ObjectSuperCallArgumentGenerator(superValues, offset);
         }
         else {
-            return new CallBasedArgumentGenerator(codegen, codegen.defaultCallGenerator, superConstructor.getValueParameters(),
-                                                   superCallable.getValueParameterTypes());
+            return new CallBasedArgumentGenerator(codegen, superConstructor.getValueParameters(),
+                                                  superCallable.getValueParameterTypes());
         }
     }
 
@@ -1483,50 +1483,51 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         assert index == parameters.size() || parameters.get(index).getKind() == JvmMethodParameterKind.VALUE :
                     "Delegating constructor has not enough parameters";
 
-        return new CallBasedArgumentGenerator(codegen, codegen.defaultCallGenerator, delegatingConstructor.getValueParameters(),
+        return new CallBasedArgumentGenerator(codegen, delegatingConstructor.getValueParameters(),
                                               delegatingCallable.getValueParameterTypes());
     }
 
     private static class ObjectSuperCallArgumentGenerator extends ArgumentGenerator {
         private final List<JvmMethodParameterSignature> parameters;
-        private final InstructionAdapter iv;
         private int offset;
 
         public ObjectSuperCallArgumentGenerator(
                 @NotNull List<JvmMethodParameterSignature> superParameters,
-                @NotNull InstructionAdapter iv,
                 int firstValueParamOffset
         ) {
             this.parameters = superParameters;
-            this.iv = iv;
             this.offset = firstValueParamOffset;
         }
 
+        @NotNull
         @Override
-        public void generateExpression(int i, @NotNull ExpressionValueArgument argument) {
-            generateSuperCallArgument(i);
+        public StackValue generateExpression(int i, @NotNull ExpressionValueArgument argument) {
+            return generateSuperCallArgument(i);
         }
 
+        @NotNull
         @Override
-        public void generateDefault(int i, @NotNull DefaultValueArgument argument) {
+        public StackValue generateVararg(int i, @NotNull VarargValueArgument argument) {
+            return generateSuperCallArgument(i);
+        }
+
+        private StackValue generateSuperCallArgument(int i) {
             Type type = parameters.get(i).getAsmType();
-            pushDefaultValueOnStack(type, iv);
-        }
-
-        @Override
-        public void generateVararg(int i, @NotNull VarargValueArgument argument) {
-            generateSuperCallArgument(i);
-        }
-
-        private void generateSuperCallArgument(int i) {
-            Type type = parameters.get(i).getAsmType();
-            iv.load(offset, type);
+            StackValue value = StackValue.local(offset, type);
             offset += type.getSize();
+            return value;
         }
 
+        @NotNull
         @Override
-        protected void reorderArgumentsIfNeeded(@NotNull List<ArgumentAndDeclIndex> args) {
+        public Type parameterType(int i) {
+            return parameters.get(i).getAsmType();
+        }
 
+        @Nullable
+        @Override
+        protected ValueParameterDescriptor parameterDescriptor(int i) {
+            return null;
         }
     }
 

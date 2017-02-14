@@ -33,7 +33,8 @@ enum class LazyArgumentKind {
     CONTINUATION,
     EXPLICITLY_ADDED,
     COMPLEX_OPERATION_ORIGINAL,
-    COMPLEX_OPERATION_DUP
+    COMPLEX_OPERATION_DUP,
+    RECEIVER_LIKE_IN_STACKVALUE
 }
 
 sealed class GeneratedArgument(val stackValue: StackValue, val type: Type, val kind: LazyArgumentKind)

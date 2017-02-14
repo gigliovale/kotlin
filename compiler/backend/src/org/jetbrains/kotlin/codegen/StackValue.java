@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.codegen;
 import com.intellij.psi.tree.IElementType;
 import kotlin.Unit;
 import kotlin.collections.ArraysKt;
-import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +37,6 @@ import org.jetbrains.kotlin.psi.ValueArgument;
 import org.jetbrains.kotlin.resolve.BindingContext;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.ImportedFromObjectCallableDescriptor;
-import org.jetbrains.kotlin.resolve.calls.model.DefaultValueArgument;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall;
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedValueArgument;
 import org.jetbrains.kotlin.resolve.constants.ConstantValue;
@@ -58,7 +56,7 @@ import static org.jetbrains.kotlin.codegen.AsmUtil.*;
 import static org.jetbrains.kotlin.resolve.jvm.AsmTypes.*;
 import static org.jetbrains.org.objectweb.asm.Opcodes.*;
 
-public abstract class StackValue {
+public abstract class StackValue extends StackValueBase {
 
     private static final String NULLABLE_BYTE_TYPE_NAME = "java/lang/Byte";
     private static final String NULLABLE_SHORT_TYPE_NAME = "java/lang/Short";
@@ -235,13 +233,16 @@ public abstract class StackValue {
 
     @NotNull
     public static StackValue collectionElement(
-            CollectionElementReceiver collectionElementReceiver,
+            StackValue receiver,
             Type type,
             ResolvedCall<FunctionDescriptor> getter,
             ResolvedCall<FunctionDescriptor> setter,
-            ExpressionCodegen codegen
+            ExpressionCodegen codegen,
+            Callable callable,
+            boolean isGetter,
+            List<ResolvedValueArgument> valueArguments
     ) {
-        return new CollectionElement(collectionElementReceiver, type, getter, setter, codegen);
+        return new CollectionElement(receiver, type, getter, setter, codegen, callable, isGetter, valueArguments);
     }
 
     @NotNull
@@ -801,10 +802,14 @@ public abstract class StackValue {
 
     private static class ArrayElement extends StackValueWithSimpleReceiver {
         private final Type type;
+        private final StackValue array;
+        private final StackValue index;
 
         public ArrayElement(Type type, StackValue array, StackValue index) {
             super(type, false, false, new Receiver(Type.LONG_TYPE, array, index), true);
             this.type = type;
+            this.array = array;
+            this.index = index;
         }
 
         @Override
@@ -825,78 +830,199 @@ public abstract class StackValue {
             v.aload(this.type);    // assumes array and index are on the stack
             coerceTo(type, v);
         }
+
+        @Override
+        public void putReceiver(@NotNull LazyArguments arguments, boolean isRead) {
+            arguments.addParameter(array, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
+            arguments.addParameter(index, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
+        }
     }
 
-    public static class CollectionElementReceiver extends StackValue {
-        private final Callable callable;
-        private final boolean isGetter;
+    public static class CollectionElement extends StackValueWithSimpleReceiver {
+        private final Callable getter;
+        private final Callable setter;
         private final ExpressionCodegen codegen;
-        private final List<ResolvedValueArgument> valueArguments;
-        private final FrameMap frame;
-        private final StackValue receiver;
         private final ResolvedCall<FunctionDescriptor> resolvedGetCall;
         private final ResolvedCall<FunctionDescriptor> resolvedSetCall;
-        private DefaultCallArgs defaultArgs;
-        private CallGenerator callGenerator;
-        boolean isComplexOperationWithDup;
+        private final boolean isGetter;
+        private final Callable callable;
+        private final List<ResolvedValueArgument> valueArguments;
 
-        public CollectionElementReceiver(
-                @NotNull Callable callable,
+        public CollectionElement(
                 @NotNull StackValue receiver,
-                ResolvedCall<FunctionDescriptor> resolvedGetCall,
-                ResolvedCall<FunctionDescriptor> resolvedSetCall,
-                boolean isGetter,
+                @NotNull Type type,
+                @Nullable ResolvedCall<FunctionDescriptor> resolvedGetCall,
+                @Nullable ResolvedCall<FunctionDescriptor> resolvedSetCall,
                 @NotNull ExpressionCodegen codegen,
-                List<ResolvedValueArgument> valueArguments
+                @NotNull Callable callable,
+                boolean isGetter,
+                @NotNull List<ResolvedValueArgument> valueArguments
         ) {
-            super(OBJECT_TYPE);
-            this.callable = callable;
-
-            this.isGetter = isGetter;
-            this.receiver = receiver;
+            super(type, false, false, /*TODO another receiver*/receiver, true);
             this.resolvedGetCall = resolvedGetCall;
             this.resolvedSetCall = resolvedSetCall;
-            this.valueArguments = valueArguments;
+            this.setter = resolvedSetCall == null ? null :
+                          codegen.resolveToCallable(codegen.accessibleFunctionDescriptor(resolvedSetCall), false, resolvedSetCall);
+            this.getter = resolvedGetCall == null ? null :
+                          codegen.resolveToCallable(codegen.accessibleFunctionDescriptor(resolvedGetCall), false, resolvedGetCall);
             this.codegen = codegen;
-            this.frame = codegen.myFrameMap;
+
+            this.isGetter = isGetter;
+            this.callable = callable;
+            this.valueArguments = valueArguments;
         }
 
         @Override
         public void putSelector(@NotNull Type type, @NotNull InstructionAdapter v) {
-            ResolvedCall<?> call = isGetter ? resolvedGetCall : resolvedSetCall;
-            StackValue newReceiver = StackValue.receiver(call, receiver, codegen, callable);
-            ArgumentGenerator generator = createArgumentGenerator();
-            newReceiver.put(newReceiver.type, v);
-            callGenerator.processAndPutHiddenParameters(false);
-
-            defaultArgs = generator.generate(valueArguments, valueArguments, call.getResultingDescriptor(), LazyArgumentList);
+            throw new RuntimeException("Shoudn't be called");
         }
 
-        private ArgumentGenerator createArgumentGenerator() {
-            assert callGenerator == null :
-                    "'putSelector' and 'createArgumentGenerator' methods should be called once for CollectionElementReceiver: " + callable;
-            ResolvedCall<FunctionDescriptor> resolvedCall = isGetter ? resolvedGetCall : resolvedSetCall;
-            assert resolvedCall != null : "Resolved call should be non-null: " + callable;
-            callGenerator =
-                    !isComplexOperationWithDup ? codegen.getOrCreateCallGenerator(resolvedCall) : codegen.defaultCallGenerator;
-            return new CallBasedArgumentGenerator(
+        private void genCall(@NotNull Callable callable, @NotNull ResolvedCall<?> resolvedCall, @Nullable  StackValue setValue) {
+            StackValue newReceiver = StackValue.receiver(resolvedCall, receiver, codegen, callable);
+
+            ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(
                     codegen,
-                    resolvedCall.getResultingDescriptor().getValueParameters(), callable.getValueParameterTypes()
+                    resolvedCall.getResultingDescriptor().getValueParameters(), this.callable.getValueParameterTypes()
             );
+
+            LazyArguments lazyArguments = new LazyArguments();
+            lazyArguments.addParameter(newReceiver, LazyArgumentKind.DISPATCH_RECEIVER);
+            argumentGenerator.generate(valueArguments, valueArguments, resolvedCall.getResultingDescriptor(), lazyArguments);
+            if (setValue != null) {
+                //TODO create proper lazyArgument
+                Type lastParameterType = ArraysKt.last(callable.getParameterTypes());
+                lazyArguments.addParameter(setValue, lastParameterType, LazyArgumentKind.EXPLICITLY_ADDED);
+            }
+
+            CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall) ;
+            callGenerator.genCall(callable, resolvedCall, lazyArguments, codegen);
         }
 
         @Override
-        public void dup(@NotNull InstructionAdapter v, boolean withReceiver) {
-            dupReceiver(v);
+        public void put(@NotNull Type type, @NotNull InstructionAdapter v, boolean skipReceiver) {
+            if (getter == null) {
+                throw new UnsupportedOperationException("no getter specified");
+            }
+
+            genCall(getter, resolvedGetCall, null);
+            coerceTo(type, v );
         }
 
+        @Override
+        public int receiverSize() {
+            if (isStandardStack(codegen.typeMapper, resolvedGetCall, 1) && isStandardStack(codegen.typeMapper, resolvedSetCall, 2)) {
+                return 2;
+            }
+            else {
+                return -1;
+            }
+        }
+
+        public static boolean isStandardStack(@NotNull KotlinTypeMapper typeMapper, @Nullable ResolvedCall<?> call, int valueParamsSize) {
+            if (call == null) {
+                return true;
+            }
+
+            List<ValueParameterDescriptor> valueParameters = call.getResultingDescriptor().getValueParameters();
+            if (valueParameters.size() != valueParamsSize) {
+                return false;
+            }
+
+            for (ValueParameterDescriptor valueParameter : valueParameters) {
+                if (typeMapper.mapType(valueParameter.getType()).getSize() != 1) {
+                    return false;
+                }
+            }
+
+            if (call.getDispatchReceiver() != null) {
+                if (call.getExtensionReceiver() != null) {
+                    return false;
+                }
+            }
+            else {
+                //noinspection ConstantConditions
+                if (typeMapper.mapType(call.getResultingDescriptor().getExtensionReceiverParameter().getType()).getSize() != 1) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        @Override
+        public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
+            if (setter == null) {
+                throw new UnsupportedOperationException("no setter specified");
+            }
+
+            ////Convention setter couldn't have default parameters, just getter can have it at last positions
+            ////We should remove default parameters of getter from stack*/
+            ////Note that it works only for non-inline case
+            //CollectionElementReceiver collectionElementReceiver = (CollectionElementReceiver) receiver;
+            //if (collectionElementReceiver.isGetter) {
+            //    List<ResolvedValueArgument> arguments = collectionElementReceiver.valueArguments;
+            //    List<Type> types = getter.getValueParameterTypes();
+            //    for (int i = arguments.size() - 1; i >= 0; i--) {
+            //        ResolvedValueArgument argument = arguments.get(i);
+            //        if (argument instanceof DefaultValueArgument) {
+            //            Type defaultType = types.get(i);
+            //            AsmUtil.swap(v, lastParameterType, defaultType);
+            //            AsmUtil.pop(v, defaultType);
+            //        }
+            //    }
+            //}
+
+            genCall(setter, resolvedSetCall, rightSide);
+
+            Type returnType = setter.getReturnType();
+            if (returnType != Type.VOID_TYPE) {
+                pop(v, returnType);
+            }
+        }
+        //
+        //@Override
+        //public void storeSelector(@NotNull Type topOfStackType, @NotNull InstructionAdapter v) {
+        //    if (setter == null) {
+        //        throw new UnsupportedOperationException("no setter specified");
+        //    }
+        //
+        //    Type lastParameterType = ArraysKt.last(setter.getParameterTypes());
+        //    coerce(topOfStackType, lastParameterType, v);
+        //
+        //    getCallGenerator().afterParameterPut(lastParameterType, StackValue.onStack(lastParameterType),
+        //                                         CollectionsKt.getLastIndex(setter.getValueParameterTypes()));
+        //
+        //    //Convention setter couldn't have default parameters, just getter can have it at last positions
+        //    //We should remove default parameters of getter from stack*/
+        //    //Note that it works only for non-inline case
+        //    CollectionElementReceiver collectionElementReceiver = (CollectionElementReceiver) receiver;
+        //    if (collectionElementReceiver.isGetter) {
+        //        List<ResolvedValueArgument> arguments = collectionElementReceiver.valueArguments;
+        //        List<Type> types = getter.getValueParameterTypes();
+        //        for (int i = arguments.size() - 1; i >= 0; i--) {
+        //            ResolvedValueArgument argument = arguments.get(i);
+        //            if (argument instanceof DefaultValueArgument) {
+        //                Type defaultType = types.get(i);
+        //                AsmUtil.swap(v, lastParameterType, defaultType);
+        //                AsmUtil.pop(v, defaultType);
+        //            }
+        //        }
+        //    }
+        //
+        //    getCallGenerator().genCall(setter, resolvedSetCall, false, codegen);
+        //    Type returnType = setter.getReturnType();
+        //    if (returnType != Type.VOID_TYPE) {
+        //        pop(v, returnType);
+        //    }
+        //}
+
         public void dupReceiver(@NotNull InstructionAdapter v) {
-            if (CollectionElement.isStandardStack(codegen.typeMapper, resolvedGetCall, 1) &&
-                CollectionElement.isStandardStack(codegen.typeMapper, resolvedSetCall, 2)) {
+            if (isStandardStack(codegen.typeMapper, resolvedGetCall, 1) &&
+                isStandardStack(codegen.typeMapper, resolvedSetCall, 2)) {
                 v.dup2();   // collection and index
                 return;
             }
-
+            FrameMap frame = codegen.getFrameMap();
             FrameMap.Mark mark = frame.mark();
 
             // indexes
@@ -978,131 +1104,6 @@ public abstract class StackValue {
             }
 
             mark.dropTo();
-        }
-    }
-
-    public static class CollectionElement extends StackValueWithSimpleReceiver {
-        private final Callable getter;
-        private final Callable setter;
-        private final ExpressionCodegen codegen;
-        private final ResolvedCall<FunctionDescriptor> resolvedGetCall;
-        private final ResolvedCall<FunctionDescriptor> resolvedSetCall;
-
-        public CollectionElement(
-                @NotNull CollectionElementReceiver collectionElementReceiver,
-                @NotNull Type type,
-                @Nullable ResolvedCall<FunctionDescriptor> resolvedGetCall,
-                @Nullable ResolvedCall<FunctionDescriptor> resolvedSetCall,
-                @NotNull ExpressionCodegen codegen
-        ) {
-            super(type, false, false, collectionElementReceiver, true);
-            this.resolvedGetCall = resolvedGetCall;
-            this.resolvedSetCall = resolvedSetCall;
-            this.setter = resolvedSetCall == null ? null :
-                          codegen.resolveToCallable(codegen.accessibleFunctionDescriptor(resolvedSetCall), false, resolvedSetCall);
-            this.getter = resolvedGetCall == null ? null :
-                          codegen.resolveToCallable(codegen.accessibleFunctionDescriptor(resolvedGetCall), false, resolvedGetCall);
-            this.codegen = codegen;
-        }
-
-        @Override
-        public void putSelector(@NotNull Type type, @NotNull InstructionAdapter v) {
-            if (getter == null) {
-                throw new UnsupportedOperationException("no getter specified");
-            }
-            CallGenerator callGenerator = getCallGenerator();
-            callGenerator.genCall(getter, resolvedGetCall, genDefaultMaskIfPresent(callGenerator), codegen);
-            coerceTo(type, v );
-        }
-
-        private boolean genDefaultMaskIfPresent(CallGenerator callGenerator) {
-            DefaultCallArgs defaultArgs = ((CollectionElementReceiver) receiver).defaultArgs;
-            return defaultArgs.generateOnStackIfNeeded(callGenerator, true);
-        }
-
-        private CallGenerator getCallGenerator() {
-            CallGenerator generator = ((CollectionElementReceiver) receiver).callGenerator;
-            assert generator != null :
-                    "CollectionElementReceiver should be putted on stack before CollectionElement:" +
-                    " getCall = " + resolvedGetCall + ",  setCall = " + resolvedSetCall;
-            return generator;
-        }
-
-        @Override
-        public int receiverSize() {
-            if (isStandardStack(codegen.typeMapper, resolvedGetCall, 1) && isStandardStack(codegen.typeMapper, resolvedSetCall, 2)) {
-                return 2;
-            }
-            else {
-                return -1;
-            }
-        }
-
-        public static boolean isStandardStack(@NotNull KotlinTypeMapper typeMapper, @Nullable ResolvedCall<?> call, int valueParamsSize) {
-            if (call == null) {
-                return true;
-            }
-
-            List<ValueParameterDescriptor> valueParameters = call.getResultingDescriptor().getValueParameters();
-            if (valueParameters.size() != valueParamsSize) {
-                return false;
-            }
-
-            for (ValueParameterDescriptor valueParameter : valueParameters) {
-                if (typeMapper.mapType(valueParameter.getType()).getSize() != 1) {
-                    return false;
-                }
-            }
-
-            if (call.getDispatchReceiver() != null) {
-                if (call.getExtensionReceiver() != null) {
-                    return false;
-                }
-            }
-            else {
-                //noinspection ConstantConditions
-                if (typeMapper.mapType(call.getResultingDescriptor().getExtensionReceiverParameter().getType()).getSize() != 1) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        @Override
-        public void storeSelector(@NotNull Type topOfStackType, @NotNull InstructionAdapter v) {
-            if (setter == null) {
-                throw new UnsupportedOperationException("no setter specified");
-            }
-
-            Type lastParameterType = ArraysKt.last(setter.getParameterTypes());
-            coerce(topOfStackType, lastParameterType, v);
-
-            getCallGenerator().afterParameterPut(lastParameterType, StackValue.onStack(lastParameterType),
-                                                 CollectionsKt.getLastIndex(setter.getValueParameterTypes()));
-
-            //Convention setter couldn't have default parameters, just getter can have it at last positions
-            //We should remove default parameters of getter from stack*/
-            //Note that it works only for non-inline case
-            CollectionElementReceiver collectionElementReceiver = (CollectionElementReceiver) receiver;
-            if (collectionElementReceiver.isGetter) {
-                List<ResolvedValueArgument> arguments = collectionElementReceiver.valueArguments;
-                List<Type> types = getter.getValueParameterTypes();
-                for (int i = arguments.size() - 1; i >= 0; i--) {
-                    ResolvedValueArgument argument = arguments.get(i);
-                    if (argument instanceof DefaultValueArgument) {
-                        Type defaultType = types.get(i);
-                        AsmUtil.swap(v, lastParameterType, defaultType);
-                        AsmUtil.pop(v, defaultType);
-                    }
-                }
-            }
-
-            getCallGenerator().genCall(setter, resolvedSetCall, false, codegen);
-            Type returnType = setter.getReturnType();
-            if (returnType != Type.VOID_TYPE) {
-                pop(v, returnType);
-            }
         }
     }
 
@@ -1692,6 +1693,14 @@ public abstract class StackValue {
         protected StackValueWithSimpleReceiver changeReceiver(@NotNull StackValue newReceiver) {
             return this;
         }
+
+        @Override
+        public void putReceiver(@NotNull LazyArguments arguments, boolean isRead) {
+            boolean hasReceiver = isNonStaticAccess(isRead);
+            if (hasReceiver || receiver.canHaveSideEffects()) {
+                arguments.addParameter(receiver, hasReceiver ? receiver.type : Type.VOID_TYPE, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
+            }
+        }
     }
 
     private static class ComplexReceiver extends StackValue {
@@ -1703,11 +1712,6 @@ public abstract class StackValue {
             super(value.type, value.receiver.canHaveSideEffects());
             this.originalValueWithReceiver = value;
             this.isReadOperations = isReadOperations;
-            if (value instanceof CollectionElement) {
-                if (value.receiver instanceof CollectionElementReceiver) {
-                    ((CollectionElementReceiver) value.receiver).isComplexOperationWithDup = true;
-                }
-            }
         }
 
         @Override
@@ -1825,7 +1829,7 @@ public abstract class StackValue {
 
         if (stackValue instanceof StackValueWithSimpleReceiver) {
             boolean wasPut = false;
-            StackValue receiver = ((StackValueWithSimpleReceiver) stackValue).receiver;
+            final StackValue receiver = ((StackValueWithSimpleReceiver) stackValue).receiver;
             for (boolean operation : isReadOperations) {
                 if (stackValue.isNonStaticAccess(operation)) {
                     if (!wasPut) {
@@ -1833,16 +1837,24 @@ public abstract class StackValue {
                         wasPut = true;
                     }
                     else {
-                        StackValue.operation(receiver.type)
-                        receiver.dup(v, false);
-                        arguments.addParameter();
+                        StackValue dupReceiver = operation(receiver.type, new Function1<InstructionAdapter, Unit>() {
+                            @Override
+                            public Unit invoke(InstructionAdapter adapter) {
+                                receiver.dup(adapter, false);
+                                return Unit.INSTANCE;
+                            }
+                        });
+
+                        arguments.addParameter(new ComplexOperationDup(dupReceiver, receiver));
                     }
                 }
             }
 
-            if (!wasPut && receiver.canHaveSideEffects()) {
-                receiver.put(Type.VOID_TYPE, v);
-            }
+
+            //if (!wasPut && receiver.canHaveSideEffects()) {
+            //    receiver.put(Type.VOID_TYPE, v);
+            //    //TODO side effects
+            //}
         }
         else {
             //nothing

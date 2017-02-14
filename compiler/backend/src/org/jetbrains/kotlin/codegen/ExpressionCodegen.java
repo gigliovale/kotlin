@@ -4419,40 +4419,21 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             Callable callableMethod = resolveToCallableMethod(operationDescriptor, false);
             Type[] argumentTypes = callableMethod.getParameterTypes();
 
-            StackValue.CollectionElementReceiver collectionElementReceiver = createCollectionElementReceiver(
-                    expression, receiver, operationDescriptor, isGetter, resolvedGetCall, resolvedSetCall, callable
-            );
+            ResolvedCall<FunctionDescriptor> resolvedCall = isGetter ? resolvedGetCall : resolvedSetCall;
+            assert resolvedCall != null : "couldn't find resolved call: " + expression.getText();
+
+            List<ResolvedValueArgument> valueArguments = resolvedCall.getValueArgumentsByIndex();
+            assert valueArguments != null : "Failed to arrange value arguments by index: " + operationDescriptor;
+
+            if (!isGetter) {
+                assert valueArguments.size() >= 2 : "Setter call should have at least 2 arguments: " + operationDescriptor;
+                // Skip generation of the right hand side of an indexed assignment, which is the last value argument
+                valueArguments.remove(valueArguments.size() - 1);
+            }
 
             Type elementType = isGetter ? callableMethod.getReturnType() : ArrayUtil.getLastElement(argumentTypes);
-            return StackValue.collectionElement(collectionElementReceiver, elementType, resolvedGetCall, resolvedSetCall, this);
+            return StackValue.collectionElement(receiver, elementType, resolvedGetCall, resolvedSetCall, this, callable, isGetter, valueArguments);
         }
-    }
-
-    @NotNull
-    private StackValue.CollectionElementReceiver createCollectionElementReceiver(
-            @NotNull KtArrayAccessExpression expression,
-            @NotNull StackValue receiver,
-            @NotNull FunctionDescriptor operationDescriptor,
-            boolean isGetter,
-            ResolvedCall<FunctionDescriptor> resolvedGetCall,
-            ResolvedCall<FunctionDescriptor> resolvedSetCall,
-            @NotNull Callable callable
-    ) {
-        ResolvedCall<FunctionDescriptor> resolvedCall = isGetter ? resolvedGetCall : resolvedSetCall;
-        assert resolvedCall != null : "couldn't find resolved call: " + expression.getText();
-
-        List<ResolvedValueArgument> valueArguments = resolvedCall.getValueArgumentsByIndex();
-        assert valueArguments != null : "Failed to arrange value arguments by index: " + operationDescriptor;
-
-        if (!isGetter) {
-            assert valueArguments.size() >= 2 : "Setter call should have at least 2 arguments: " + operationDescriptor;
-            // Skip generation of the right hand side of an indexed assignment, which is the last value argument
-            valueArguments.remove(valueArguments.size() - 1);
-        }
-
-        return new StackValue.CollectionElementReceiver(
-                callable, receiver, resolvedGetCall, resolvedSetCall, isGetter, this, valueArguments
-        );
     }
 
     @Override

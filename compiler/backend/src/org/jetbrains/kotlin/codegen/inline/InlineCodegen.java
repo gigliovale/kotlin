@@ -698,8 +698,7 @@ public class InlineCodegen extends CallGenerator {
         }
     }
 
-    @Override
-    public void afterParameterPut(@NotNull Type type, @Nullable StackValue stackValue, int parameterIndex) {
+    private void afterParameterPut(@NotNull Type type, @Nullable StackValue stackValue, int parameterIndex) {
         putArgumentOrCapturedToLocalVal(type, stackValue, -1, parameterIndex);
     }
 
@@ -798,8 +797,7 @@ public class InlineCodegen extends CallGenerator {
         return null;
     }
 
-    @Override
-    public void processAndPutHiddenParameters(boolean justProcess) {
+    private void processAndPutHiddenParameters(boolean justProcess) {
         if ((getMethodAsmFlags(functionDescriptor, context.getContextKind(), state) & Opcodes.ACC_STATIC) == 0) {
             invocationParamBuilder.addNextParameter(AsmTypes.OBJECT_TYPE, false);
         }
@@ -1065,12 +1063,11 @@ public class InlineCodegen extends CallGenerator {
 
     @Override
     public void reorderArgumentsIfNeeded(
-            @NotNull List<Integer> actualArgsWithDeclIndex, @NotNull List<? extends Type> valueParameterTypes
+            @NotNull List<Integer> argumentDeclIndex, @NotNull List<? extends Type> valueParameterTypes
     ) {
     }
 
-    @Override
-    public void putHiddenParamsIntoLocals() {
+    private void putHiddenParamsIntoLocals() {
         assert delayedHiddenWriting != null : "processAndPutHiddenParameters(true) should be called before putHiddenParamsIntoLocals";
         delayedHiddenWriting.run();
         delayedHiddenWriting = null;

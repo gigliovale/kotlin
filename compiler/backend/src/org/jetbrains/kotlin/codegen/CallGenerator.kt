@@ -42,21 +42,6 @@ abstract class CallGenerator {
             }
         }
 
-        override fun afterParameterPut(
-                type: Type,
-                stackValue: StackValue?,
-                parameterIndex: Int) {
-
-        }
-
-        override fun processAndPutHiddenParameters(justProcess: Boolean) {
-
-        }
-
-        override fun putHiddenParamsIntoLocals() {
-
-        }
-
         override fun putValueIfNeeded(
                 parameterType: Type, value: StackValue) {
             value.put(value.type, codegen.v)
@@ -148,19 +133,9 @@ abstract class CallGenerator {
 
     abstract fun genCallInner(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, callDefault: Boolean, codegen: ExpressionCodegen)
 
-    abstract fun afterParameterPut(
-            type: Type,
-            stackValue: StackValue?,
-            parameterIndex: Int)
-
     abstract fun putValueIfNeeded(
             parameterType: Type,
             value: StackValue)
-
-    abstract fun processAndPutHiddenParameters(justProcess: Boolean)
-
-    /*should be called if justProcess = true in processAndPutHiddenParameters*/
-    abstract fun putHiddenParamsIntoLocals()
 
     abstract fun reorderArgumentsIfNeeded(argumentDeclIndex: List<Int>, valueParameterTypes: List<Type>)
 }

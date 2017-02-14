@@ -16,12 +16,13 @@
 
 package org.jetbrains.kotlin.codegen.inline
 
-import org.jetbrains.kotlin.codegen.*
+import org.jetbrains.kotlin.codegen.CallGenerator
+import org.jetbrains.kotlin.codegen.Callable
+import org.jetbrains.kotlin.codegen.ExpressionCodegen
+import org.jetbrains.kotlin.codegen.StackValue
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.descriptors.ConstructorDescriptor
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
-import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -87,32 +88,18 @@ class InlineCodegenForDefaultBody(
         transformedMethod.accept(MethodBodyVisitor(codegen.v))
     }
 
-    override fun afterParameterPut(type: Type, stackValue: StackValue?, parameterIndex: Int) {
-        throw UnsupportedOperationException("Shouldn't be called")
-    }
-
-    override fun genValueAndPut(valueParameterDescriptor: ValueParameterDescriptor, argumentExpression: KtExpression, parameterType: Type, parameterIndex: Int) {
-        throw UnsupportedOperationException("Shouldn't be called")
-    }
-
     override fun putValueIfNeeded(parameterType: Type, value: StackValue) {
         //original method would be inlined directly into default impl body without any inline magic
         //so we no need to load variables on stack to further method call
     }
 
-    override fun putCapturedValueOnStack(stackValue: StackValue, valueType: Type, paramIndex: Int) {
-        throw UnsupportedOperationException("Shouldn't be called")
-    }
-
-    override fun processAndPutHiddenParameters(justProcess: Boolean) {
-        throw UnsupportedOperationException("Shouldn't be called")
-    }
-
-    override fun putHiddenParamsIntoLocals() {
-        throw UnsupportedOperationException("Shouldn't be called")
-    }
-
-    override fun reorderArgumentsIfNeeded(actualArgsWithDeclIndex: List<ArgumentAndDeclIndex>, valueParameterTypes: List<Type>) {
-        throw UnsupportedOperationException("Shouldn't be called")
+    override fun reorderArgumentsIfNeeded(argumentDeclIndex: List<Int>, valueParameterTypes: List<Type>) {
+        var last = -1
+        argumentDeclIndex.forEach {
+            if (last >= it) {
+                throw UnsupportedOperationException("Arguments for function call within its default shouldn't be reorder: ${argumentDeclIndex.joinToString()}")
+            }
+            last = it
+        }
     }
 }

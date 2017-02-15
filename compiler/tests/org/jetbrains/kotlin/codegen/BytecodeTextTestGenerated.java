@@ -707,6 +707,12 @@ public class BytecodeTextTestGenerated extends AbstractBytecodeTextTest {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/bytecodeText/checkcast"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.ANY, true);
         }
 
+        @TestMetadata("kt14811.kt")
+        public void testKt14811() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/checkcast/kt14811.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("kt15411.kt")
         public void testKt15411() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/checkcast/kt15411.kt");

@@ -24,8 +24,7 @@ import org.jetbrains.kotlin.asJava.builder.findDelegate
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
-class KtLightClassForInterfaceDefaultImpls(
-        classOrObject: KtClassOrObject)
+class KtLightClassForInterfaceDefaultImpls(classOrObject: KtClassOrObject)
     : KtLightClassForSourceDeclaration(classOrObject) {
     override fun getQualifiedName(): String? = containingClass?.qualifiedName?.let { it + ".${JvmAbi.DEFAULT_IMPLS_CLASS_NAME}" }
 

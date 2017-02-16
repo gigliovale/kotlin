@@ -34,7 +34,7 @@ class KtLightClassForInterfaceDefaultImpls(
     }
 
     override fun findDelegateClass(): PsiClass {
-        return getLightClassData().findData(classOrObject).clsDelegate.findInnerClassByName(JvmAbi.DEFAULT_IMPLS_CLASS_NAME, false) ?: /*TODO_R*/ error("TODO")
+        return getLightClassDataHolder().findData(classOrObject).clsDelegate.findInnerClassByName(JvmAbi.DEFAULT_IMPLS_CLASS_NAME, false) ?: /*TODO_R*/ error("TODO")
     }
 
     override fun getTypeParameterList(): PsiTypeParameterList? = null

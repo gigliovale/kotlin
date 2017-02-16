@@ -48,10 +48,6 @@ data class KotlinFacadeLightClassData(
         override val extraDiagnostics: Diagnostics
 ): LightClassData, WithFileStubAndExtraDiagnostics
 
-data class InnerKotlinClassLightClassData(
-        override val classOrObject: KtClassOrObject
-): LightClassDataForKotlinClass
-
 data class OutermostKotlinClassLightClassData(
         override val javaFileStub: PsiJavaFileStub,
         override val extraDiagnostics: Diagnostics,

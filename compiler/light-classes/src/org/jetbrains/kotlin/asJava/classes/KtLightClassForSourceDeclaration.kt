@@ -33,8 +33,8 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
 import org.jetbrains.kotlin.asJava.LightClassUtil
+import org.jetbrains.kotlin.asJava.builder.InvalidLightClassDataHolder
 import org.jetbrains.kotlin.asJava.builder.LightClassDataHolder
-import org.jetbrains.kotlin.asJava.builder.LightClassDataHolderImpl
 import org.jetbrains.kotlin.asJava.builder.LightClassDataProviderForClassOrObject
 import org.jetbrains.kotlin.asJava.elements.FakeFileForLightClass
 import org.jetbrains.kotlin.asJava.elements.KtLightIdentifier
@@ -87,12 +87,12 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
         return LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor
     }
 
-    protected fun getLightClassData(): LightClassDataHolderImpl {
+    protected fun getLightClassData(): LightClassDataHolder {
         val lightClassData = getLightClassData(classOrObject)
-        if (lightClassData !is LightClassDataHolderImpl) {
+        if (lightClassData is InvalidLightClassDataHolder) {
             LOG.error("Invalid light class data for existing light class:\n$lightClassData\n${classOrObject.getElementTextWithContext()}")
         }
-        return lightClassData as LightClassDataHolderImpl
+        return lightClassData
     }
 
     private val _containingFile: PsiFile by lazy(LazyThreadSafetyMode.PUBLICATION) {

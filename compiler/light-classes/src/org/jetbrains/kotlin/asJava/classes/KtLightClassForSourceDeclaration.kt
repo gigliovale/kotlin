@@ -79,16 +79,16 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
 
     override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegateClass() }
 
-    protected open fun findDelegateClass(): PsiClass = getLightClassData().findData(classOrObject).clsDelegate
+    protected open fun findDelegateClass(): PsiClass = getLightClassDataHolder().findData(classOrObject).clsDelegate
 
-    private fun getJavaFileStub(): PsiJavaFileStub = getLightClassData().javaFileStub
+    private fun getJavaFileStub(): PsiJavaFileStub = getLightClassDataHolder().javaFileStub
 
     protected fun getDescriptor(): ClassDescriptor? {
         return LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor
     }
 
-    protected fun getLightClassData(): LightClassDataHolder {
-        val lightClassData = getLightClassData(classOrObject)
+    protected fun getLightClassDataHolder(): LightClassDataHolder {
+        val lightClassData = getLightClassDataHolder(classOrObject)
         if (lightClassData is InvalidLightClassDataHolder) {
             LOG.error("Invalid light class data for existing light class:\n$lightClassData\n${classOrObject.getElementTextWithContext()}")
         }
@@ -361,7 +361,7 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
             return classOrObject.getBody()?.declarations?.isEmpty() ?: true
         }
 
-        fun getLightClassData(classOrObject: KtClassOrObject): LightClassDataHolder {
+        fun getLightClassDataHolder(classOrObject: KtClassOrObject): LightClassDataHolder {
             return getLightClassCachedValue(classOrObject).value
         }
 

@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.codegen;
 
 import com.intellij.psi.tree.IElementType;
+import kotlin.Lazy;
 import kotlin.Unit;
 import kotlin.collections.ArraysKt;
 import kotlin.jvm.functions.Function1;
@@ -518,6 +519,57 @@ public abstract class StackValue extends StackValueBase {
         return receiver;
     }
 
+    @NotNull
+    public static LazyArguments receiver(
+            ResolvedCall<?> resolvedCall,
+            StackValue receiver,
+            ExpressionCodegen codegen,
+            @Nullable Callable callableMethod,
+            @NotNull LazyArguments arguments
+    ) {
+        ReceiverValue callDispatchReceiver = resolvedCall.getDispatchReceiver();
+        CallableDescriptor descriptor = resolvedCall.getResultingDescriptor();
+        if (descriptor instanceof SyntheticFieldDescriptor) {
+            callDispatchReceiver = ((SyntheticFieldDescriptor) descriptor).getDispatchReceiverForBackend();
+        }
+
+        ReceiverValue callExtensionReceiver = resolvedCall.getExtensionReceiver();
+        if (callDispatchReceiver != null || callExtensionReceiver != null
+            || isLocalFunCall(callableMethod) || isCallToMemberObjectImportedByName(resolvedCall)) {
+            ReceiverParameterDescriptor dispatchReceiverParameter = descriptor.getDispatchReceiverParameter();
+            ReceiverParameterDescriptor extensionReceiverParameter = descriptor.getExtensionReceiverParameter();
+
+            if (descriptor instanceof SyntheticFieldDescriptor) {
+                dispatchReceiverParameter = ((SyntheticFieldDescriptor) descriptor).getDispatchReceiverParameterForBackend();
+            }
+
+            boolean hasExtensionReceiver = callExtensionReceiver != null;
+            StackValue dispatchReceiver = platformStaticCallIfPresent(
+                    genReceiver(hasExtensionReceiver ? none() : receiver, codegen, resolvedCall, callableMethod, callDispatchReceiver, false),
+                    descriptor
+            );
+            StackValue extensionReceiver = genReceiver(receiver, codegen, resolvedCall, callableMethod, callExtensionReceiver, true);
+            Type type = CallReceiver.calcType(resolvedCall, dispatchReceiverParameter, extensionReceiverParameter, codegen.typeMapper, callableMethod, codegen.getState());
+            assert type != null : "Could not map receiver type for " + resolvedCall;
+
+            //TODO proper types
+            if (extensionReceiver instanceof SafeCall) {
+                arguments.addParameter(extensionReceiver, type, LazyArgumentKind.EXTENSION_RECEIVER);
+                arguments.addParameter(dispatchReceiver, LazyArgumentKind.DISPATCH_RECEIVER);
+            }
+            else {
+                arguments.addParameter(dispatchReceiver, dispatchReceiver != none() &&dispatchReceiver != none() && extensionReceiver == none() ? type : dispatchReceiver.type, LazyArgumentKind.DISPATCH_RECEIVER);
+                arguments.addParameter(extensionReceiver, extensionReceiver != none() ? type : extensionReceiver.type, LazyArgumentKind.EXTENSION_RECEIVER);
+            }
+
+        }
+        else {
+            //none?
+            arguments.addParameter(receiver, LazyArgumentKind.DISPATCH_RECEIVER);
+        }
+        return arguments;
+    }
+
     private static StackValue genReceiver(
             @NotNull StackValue receiver,
             @NotNull ExpressionCodegen codegen,
@@ -832,7 +884,7 @@ public abstract class StackValue extends StackValueBase {
         }
 
         @Override
-        public void putReceiver(@NotNull LazyArguments arguments, boolean isRead) {
+        public void genArgs(@NotNull LazyArguments arguments, boolean isRead) {
             arguments.addParameter(array, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
             arguments.addParameter(index, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
         }
@@ -874,19 +926,18 @@ public abstract class StackValue extends StackValueBase {
 
         @Override
         public void putSelector(@NotNull Type type, @NotNull InstructionAdapter v) {
-            throw new RuntimeException("Shoudn't be called");
+            throw new RuntimeException("Shouldn't be called");
         }
 
         private void genCall(@NotNull Callable callable, @NotNull ResolvedCall<?> resolvedCall, @Nullable  StackValue setValue) {
-            StackValue newReceiver = StackValue.receiver(resolvedCall, receiver, codegen, callable);
+            LazyArguments lazyArguments = new LazyArguments();
+            StackValue.receiver(resolvedCall, receiver, codegen, callable, lazyArguments);
 
             ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(
                     codegen,
                     resolvedCall.getResultingDescriptor().getValueParameters(), this.callable.getValueParameterTypes()
             );
 
-            LazyArguments lazyArguments = new LazyArguments();
-            lazyArguments.addParameter(newReceiver, LazyArgumentKind.DISPATCH_RECEIVER);
             argumentGenerator.generate(valueArguments, valueArguments, resolvedCall.getResultingDescriptor(), lazyArguments);
             if (setValue != null) {
                 //TODO create proper lazyArgument
@@ -1184,7 +1235,7 @@ public abstract class StackValue extends StackValueBase {
             assert getterDescriptor != null : "Getter descriptor should be not null for " + descriptor;
 
             LazyArguments lazyArguments = new LazyArguments();
-            lazyArguments.addParameter(receiver, LazyArgumentKind.DISPATCH_RECEIVER);
+            genArgs(lazyArguments, false);
 
             if (resolvedCall != null) {
                 CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, getterDescriptor);
@@ -1215,6 +1266,11 @@ public abstract class StackValue extends StackValueBase {
                 v.aconst(null);
                 v.athrow();
             }
+        }
+
+        @Override
+        public void genArgs(@NotNull LazyArguments arguments, boolean isRead) {
+            arguments.addParameter(receiver, LazyArgumentKind.DISPATCH_RECEIVER);
         }
 
         @Override
@@ -1279,14 +1335,15 @@ public abstract class StackValue extends StackValueBase {
         @Override
         public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
             PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
-            if (resolvedCall != null && setterDescriptor != null && setterDescriptor.isInline()) {
+            if (resolvedCall != null && setterDescriptor != null) {
                 assert setter != null : "Setter should be not null for " + descriptor;
                 CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
 
                 LazyArguments lazyArguments = new LazyArguments();
-                lazyArguments.addParameter(receiver, LazyArgumentKind.DISPATCH_RECEIVER);
                 //TODO generate proper LazyValue
+                genArgs(lazyArguments, false);
                 lazyArguments.addParameter(rightSide, LazyArgumentKind.EXPLICITLY_ADDED);
+
                 callGenerator.genCall(setter, resolvedCall, lazyArguments, codegen);
 
                 //coerce(topOfStackType, ArraysKt.last(setter.getParameterTypes()), v);
@@ -1526,12 +1583,13 @@ public abstract class StackValue extends StackValueBase {
 
         @Override
         public void putSelector(@NotNull Type type, @NotNull InstructionAdapter v) {
-            value = StackValue.complexReceiver(value, true, false, true);
-            value.put(this.type, v);
+            LazyArguments[] lazyArguments = StackValueCoreKt.complexReceiver(value, codegen, true, false, true);
 
-            value.store(codegen.invokeFunction(resolvedCall, StackValue.onStack(this.type)), v, true);
+            value.putWithArguments(this.type, v, lazyArguments[0]);
 
-            value.put(this.type, v, true);
+            value.storeWithArguments(codegen.invokeFunction(resolvedCall, StackValue.onStack(this.type)), v, lazyArguments[1]);
+
+            value.putWithArguments(this.type, v, lazyArguments[2]);
             coerceTo(type, v);
         }
     }
@@ -1721,7 +1779,7 @@ public abstract class StackValue extends StackValueBase {
         }
 
         @Override
-        public void putReceiver(@NotNull LazyArguments arguments, boolean isRead) {
+        public void genArgs(@NotNull LazyArguments arguments, boolean isRead) {
             boolean hasReceiver = isNonStaticAccess(isRead);
             if (hasReceiver || receiver.canHaveSideEffects()) {
                 arguments.addParameter(receiver, hasReceiver ? receiver.type : Type.VOID_TYPE, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
@@ -1781,111 +1839,6 @@ public abstract class StackValue extends StackValueBase {
                 instruction.put(instruction.type, v);
             }
         }
-    }
-
-    public static class DelegatedForComplexReceiver extends StackValueWithSimpleReceiver {
-
-        public final StackValueWithSimpleReceiver originalValue;
-
-        public DelegatedForComplexReceiver(
-                @NotNull Type type,
-                @NotNull StackValueWithSimpleReceiver originalValue,
-                @NotNull ComplexReceiver receiver
-        ) {
-            super(type, bothReceiverStatic(originalValue), bothReceiverStatic(originalValue), receiver, originalValue.canHaveSideEffects());
-            this.originalValue = originalValue;
-        }
-
-        private static boolean bothReceiverStatic(StackValueWithSimpleReceiver originalValue) {
-            return !(originalValue.isNonStaticAccess(true) || originalValue.isNonStaticAccess(false));
-        }
-
-        @Override
-        public void putSelector(
-                @NotNull Type type, @NotNull InstructionAdapter v
-        ) {
-            originalValue.putSelector(type, v);
-        }
-
-        @Override
-        public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
-            if (!skipReceiver) {
-                putReceiver(v, false);
-            }
-            originalValue.store(rightSide, v, true);
-        }
-
-        @Override
-        public void storeSelector(
-                @NotNull Type topOfStackType, @NotNull InstructionAdapter v
-        ) {
-            originalValue.storeSelector(topOfStackType, v);
-        }
-
-        @Override
-        public void dup(@NotNull InstructionAdapter v, boolean withWriteReceiver) {
-            originalValue.dup(v, withWriteReceiver);
-        }
-    }
-
-    public static StackValue complexWriteReadReceiver(StackValue stackValue) {
-        return complexReceiver(stackValue, false, true);
-    }
-
-    private static StackValue complexReceiver(StackValue stackValue, boolean... isReadOperations) {
-        if (stackValue instanceof Delegate) {
-            //TODO need to support
-            throwUnsupportedComplexOperation(((Delegate) stackValue).variableDescriptor);
-        }
-
-        if (stackValue instanceof StackValueWithSimpleReceiver) {
-            return new DelegatedForComplexReceiver(stackValue.type, (StackValueWithSimpleReceiver) stackValue,
-                                 new ComplexReceiver((StackValueWithSimpleReceiver) stackValue, isReadOperations));
-        }
-        else {
-            return stackValue;
-        }
-    }
-
-    private static void complexReceiver(StackValue stackValue, LazyArguments arguments, boolean... isReadOperations) {
-        if (stackValue instanceof Delegate) {
-            //TODO need to support
-            throwUnsupportedComplexOperation(((Delegate) stackValue).variableDescriptor);
-        }
-
-        if (stackValue instanceof StackValueWithSimpleReceiver) {
-            boolean wasPut = false;
-            final StackValue receiver = ((StackValueWithSimpleReceiver) stackValue).receiver;
-            for (boolean operation : isReadOperations) {
-                if (stackValue.isNonStaticAccess(operation)) {
-                    if (!wasPut) {
-                        arguments.addParameter(receiver, LazyArgumentKind.COMPLEX_OPERATION_ORIGINAL);
-                        wasPut = true;
-                    }
-                    else {
-                        StackValue dupReceiver = operation(receiver.type, new Function1<InstructionAdapter, Unit>() {
-                            @Override
-                            public Unit invoke(InstructionAdapter adapter) {
-                                receiver.dup(adapter, false);
-                                return Unit.INSTANCE;
-                            }
-                        });
-
-                        arguments.addParameter(new ComplexOperationDup(dupReceiver, receiver));
-                    }
-                }
-            }
-
-
-            //if (!wasPut && receiver.canHaveSideEffects()) {
-            //    receiver.put(Type.VOID_TYPE, v);
-            //    //TODO side effects
-            //}
-        }
-        else {
-            //nothing
-        }
-
     }
 
     static class SafeCall extends StackValue {

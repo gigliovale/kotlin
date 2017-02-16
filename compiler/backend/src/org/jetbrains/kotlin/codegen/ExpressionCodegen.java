@@ -2857,7 +2857,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         boolean isConstructor = resolvedCall.getResultingDescriptor() instanceof ConstructorDescriptor;
 
         LazyArguments argumentList = new LazyArguments();
-        argumentList.addParameter(putReceiverAndInlineMarkerIfNeeded(callableMethod, resolvedCall, receiver, isSuspensionPoint, isConstructor), LazyArgumentKind.DISPATCH_RECEIVER);
+        putReceiverAndInlineMarkerIfNeeded(callableMethod, resolvedCall, receiver, isSuspensionPoint, isConstructor, argumentList);
 
         List<ResolvedValueArgument> valueArguments = resolvedCall.getValueArgumentsByIndex();
         assert valueArguments != null : "Failed to arrange value arguments by index: " + resolvedCall.getResultingDescriptor();
@@ -2893,18 +2893,17 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         }
     }
 
-    @Nullable
-    private StackValue putReceiverAndInlineMarkerIfNeeded(
+    private void putReceiverAndInlineMarkerIfNeeded(
             @NotNull Callable callableMethod,
             @NotNull ResolvedCall<?> resolvedCall,
             @NotNull StackValue receiver,
             boolean isSuspensionPoint,
-            boolean isConstructor
+            boolean isConstructor,
+            LazyArguments argumentList
     ) {
 
         if (!isConstructor) { // otherwise already
-            receiver = StackValue.receiver(resolvedCall, receiver, this, callableMethod);
-            return receiver;
+            StackValue.receiver(resolvedCall, receiver, this, callableMethod, argumentList);
 
             // In regular cases we add an inline marker just before receiver is loaded (to spill the stack before a suspension)
             // But in case of safe call things we get the following bytecode:
@@ -2958,7 +2957,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             //
             //callableMethod.afterReceiverGeneration(v);
         }
-        return StackValue.onStack(receiver.type);
+        argumentList.addParameter(StackValue.onStack(receiver.type), LazyArgumentKind.DISPATCH_RECEIVER);
     }
 
     @NotNull
@@ -2972,8 +2971,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
         // We should inline callable containing reified type parameters even if inline is disabled
         // because they may contain something to reify and straight call will probably fail at runtime
-        boolean isInline = (!state.isInlineDisabled() || InlineUtil.containsReifiedTypeParameters(descriptor)) &&
-                           (InlineUtil.isInline(descriptor) || InlineUtil.isArrayConstructorWithLambda(descriptor));
+        boolean isInline = isInline(descriptor);
 
         if (!isInline) return defaultCallGenerator;
 
@@ -2985,6 +2983,11 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         else {
             return new InlineCodegen(this, state, original, callElement, typeParameterMappings);
         }
+    }
+
+    public boolean isInline(@NotNull CallableDescriptor descriptor) {
+        return (!state.isInlineDisabled() || InlineUtil.containsReifiedTypeParameters(descriptor)) &&
+               (InlineUtil.isInline(descriptor) || InlineUtil.isArrayConstructorWithLambda(descriptor));
     }
 
     @NotNull
@@ -3931,18 +3934,17 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             boolean keepReturnValue
     ) {
         StackValue value = gen(expression.getLeft());
-        LazyArguments lazyArguments = null;
+        LazyArguments [] lazyArguments = new LazyArguments[2];
         if (keepReturnValue) {
-            lazyArguments = new LazyArguments();
-            StackValueKt.complexReceiver(value, lazyArguments);
+            lazyArguments = StackValueCoreKt.complexReceiver(value, this, false, true);
         }
-        value.put(lhsType, v, false);
+        value.putWithArguments(lhsType, v, lazyArguments[0]);
         StackValue receiver = StackValue.onStack(lhsType);
 
         callable.invokeMethodWithArguments(resolvedCall, receiver, this).put(callable.getReturnType(), v);
 
         if (keepReturnValue) {
-            value.store(StackValue.onStack(callable.getReturnType()), v, true);
+            value.storeWithArguments(StackValue.onStack(callable.getReturnType()), v, lazyArguments[1]);
         }
     }
 
@@ -4074,9 +4076,11 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         return StackValue.operation(asmBaseType, new Function1<InstructionAdapter, Unit>() {
             @Override
             public Unit invoke(InstructionAdapter v) {
-                StackValue value = StackValue.complexWriteReadReceiver(gen(expression.getBaseExpression()));
+                StackValue baseValue = gen(expression.getBaseExpression());
 
-                value.put(asmBaseType, v);
+                LazyArguments[] lazyArguments = StackValueCoreKt.complexReceiver(baseValue, ExpressionCodegen.this, false, true);
+
+                baseValue.putWithArguments(asmBaseType, v, lazyArguments[0]);
                 AsmUtil.dup(v, asmBaseType);
 
                 StackValue previousValue = StackValue.local(myFrameMap.enterTemp(asmBaseType), asmBaseType);
@@ -4093,7 +4097,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                     storeType = result.type;
                 }
 
-                value.store(StackValue.onStack(storeType), v, true);
+                baseValue.storeWithArguments(StackValue.onStack(storeType), v, lazyArguments[1]);
 
                 previousValue.put(asmBaseType, v);
 

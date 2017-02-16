@@ -1066,10 +1066,4 @@ public class InlineCodegen extends CallGenerator {
             @NotNull List<Integer> argumentDeclIndex, @NotNull List<? extends Type> valueParameterTypes
     ) {
     }
-
-    private void putHiddenParamsIntoLocals() {
-        assert delayedHiddenWriting != null : "processAndPutHiddenParameters(true) should be called before putHiddenParamsIntoLocals";
-        delayedHiddenWriting.run();
-        delayedHiddenWriting = null;
-    }
 }

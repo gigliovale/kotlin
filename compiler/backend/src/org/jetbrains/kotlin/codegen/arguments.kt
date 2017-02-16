@@ -34,27 +34,48 @@ enum class LazyArgumentKind {
     EXPLICITLY_ADDED,
     COMPLEX_OPERATION_ORIGINAL,
     COMPLEX_OPERATION_DUP,
-    RECEIVER_LIKE_IN_STACKVALUE
+    RECEIVER_LIKE_IN_STACKVALUE;
+
 }
 
-sealed class GeneratedArgument(val stackValue: StackValue, val type: Type, val kind: LazyArgumentKind)
+sealed class GeneratedArgument(val stackValue: StackValue, val type: Type, val kind: LazyArgumentKind) {
+    fun put(v: InstructionAdapter) {
+        stackValue.put(type, v)
+    }
 
-class NonValueArgument(stackValue: StackValue, type: Type, kind: LazyArgumentKind):GeneratedArgument(stackValue, type, kind)
+    abstract fun copyWithNewStackValue(stackValue: StackValue): GeneratedArgument
+}
+
+class NonValueArgument(stackValue: StackValue, type: Type, kind: LazyArgumentKind):GeneratedArgument(stackValue, type, kind) {
+    override fun copyWithNewStackValue(stackValue: StackValue) = NonValueArgument(stackValue, type, kind)
+}
 
 class CapturedParameter @JvmOverloads constructor(
         stackValue: StackValue, val index: Int, type: Type = stackValue.type
 ) : GeneratedArgument(stackValue, type, LazyArgumentKind.CAPTURED_PARAM)
+{
+    override fun copyWithNewStackValue(stackValue: StackValue): GeneratedArgument {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
 
 class GeneratedValueArgument(
         stackValue: StackValue, type: Type = stackValue.type, val descriptor: ValueParameterDescriptor?, val declIndex: Int, val expression: KtExpression? = null
-): GeneratedArgument(stackValue, type, LazyArgumentKind.VALUE_PARAMETER)
+): GeneratedArgument(stackValue, type, LazyArgumentKind.VALUE_PARAMETER) {
+    override fun copyWithNewStackValue(stackValue: StackValue): GeneratedArgument {
+        return GeneratedValueArgument(stackValue, type, descriptor, declIndex, expression)
+    }
+}
 
 class ComplexOperationDup(stackValue: StackValue, val original: StackValue) :
-        GeneratedArgument(stackValue, stackValue.type, LazyArgumentKind.COMPLEX_OPERATION_DUP)
+        GeneratedArgument(stackValue, stackValue.type, LazyArgumentKind.COMPLEX_OPERATION_DUP) {
 
-class LazyArguments {
+    override fun copyWithNewStackValue(stackValue: StackValue): GeneratedArgument {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
 
-    val list = arrayListOf<GeneratedArgument>()
+class LazyArguments @JvmOverloads constructor(val list: ArrayList<GeneratedArgument> = arrayListOf<GeneratedArgument>()) {
 
     fun addParameter(arg: GeneratedArgument) {
         list.add(arg)
@@ -70,8 +91,43 @@ class LazyArguments {
     }
 
     fun generateAllDirectlyTo(v: InstructionAdapter) {
-        list.forEach {
-            it.stackValue.put(it.type, v)
+        generateDirectlyTo(list, v)
+    }
+
+    fun generateAllDirectlyTo(v: InstructionAdapter, type: Type?) {
+        generateDirectlyTo(list, v, type)
+    }
+
+    fun generateDirectlyTo(args: List<GeneratedArgument>, v: InstructionAdapter, castTo: Type?) {
+        val first = args.getOrNull(0)
+        val second = args.getOrNull(1)
+        var lastType: Type? = null
+        if (LazyArgumentKind.EXTENSION_RECEIVER == first?.kind && LazyArgumentKind.DISPATCH_RECEIVER == second?.kind) {
+            //safe call
+            first.stackValue.put(v)
+            second.stackValue.put(v)
+            AsmUtil.swap(v, second.type, first.type)
+            lastType = first.type
+            args.drop(2).forEach {
+                it.put(v)
+                lastType = it.type
+            }
+        }
+        else {
+            args.forEach {
+                it.put(v)
+                lastType = it.type
+            }
+        }
+
+        if (castTo != null) {
+            StackValue.coerce(lastType!!, castTo, v)
         }
     }
+
+    fun generateDirectlyTo(args: List<GeneratedArgument>, v: InstructionAdapter) {
+        generateDirectlyTo(args, v, null)
+    }
+
+    val isEmpty = list.isEmpty()
 }

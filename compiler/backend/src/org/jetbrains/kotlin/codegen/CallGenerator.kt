@@ -86,6 +86,7 @@ abstract class CallGenerator {
             addInlineMarker(codegen.v, true)
         }
         val v = codegen.v
+        //safe call
         lazyArguments.list.takeWhile{ it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach {
             it.stackValue.put(it.type, v)
             if (it.kind == LazyArgumentKind.DISPATCH_RECEIVER) {
@@ -125,7 +126,7 @@ abstract class CallGenerator {
 
     }
 
-    fun extractValueParameters(lazyArguments: LazyArguments): List<GeneratedValueArgument> {
+    protected fun extractValueParameters(lazyArguments: LazyArguments): List<GeneratedValueArgument> {
         val valueParameters = lazyArguments.list.dropWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER }.
                 dropLastWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER } as List<GeneratedValueArgument>
         return valueParameters

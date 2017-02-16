@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.asJava.classes
 
 import com.intellij.psi.*
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.kotlin.asJava.builder.LightClassData
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
@@ -33,8 +34,8 @@ class KtLightClassForInterfaceDefaultImpls(
         return KtLightClassForInterfaceDefaultImpls(classOrObject.copy() as KtClassOrObject)
     }
 
-    override fun findDelegateClass(): PsiClass {
-        return getLightClassDataHolder().findData(classOrObject).clsDelegate.findInnerClassByName(JvmAbi.DEFAULT_IMPLS_CLASS_NAME, false) ?: /*TODO_R*/ error("TODO")
+    override fun findLightClassData(): LightClassData {
+        return /*TODO_R*/ error("TODO")
     }
 
     override fun getTypeParameterList(): PsiTypeParameterList? = null

@@ -34,12 +34,10 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.Stack
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
 import org.jetbrains.kotlin.asJava.classes.getOutermostClassOrObject
 import org.jetbrains.kotlin.codegen.CompilationErrorHandler
-import org.jetbrains.kotlin.codegen.binding.CodegenBinding
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.fileClasses.NoResolveFileClassesProvider
@@ -50,10 +48,9 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.KtScript
 import org.jetbrains.kotlin.resolve.BindingContext
-import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils.descriptorToDeclaration
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 
-abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
+abstract class LightClassDataProvider<T : LightClassData>(
         private val project: Project
 ) : CachedValueProvider<T> {
 
@@ -163,7 +160,7 @@ abstract class LightClassDataProvider<T : WithFileStubAndExtraDiagnostics>(
 }
 
 class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassOrObject) :
-        LightClassDataProvider<WithFileStubAndExtraDiagnostics>(classOrObject.project) {
+        LightClassDataProvider<LightClassData>(classOrObject.project) {
 
     private val file: KtFile
         get() = classOrObject.getContainingKtFile()
@@ -177,14 +174,14 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
     override fun createLightClassData(
             javaFileStub: PsiJavaFileStub,
             bindingContext: BindingContext,
-            extraDiagnostics: Diagnostics): WithFileStubAndExtraDiagnostics {
+            extraDiagnostics: Diagnostics): LightClassData {
         bindingContext.get(BindingContext.CLASS, classOrObject) ?: return InvalidLightClassData
 
 
-        return OutermostKotlinClassLightClassData(
+        return LightClassDataImpl(
                 javaFileStub,
-                extraDiagnostics,
-                classOrObject)
+                extraDiagnostics
+        )
     }
 
     override val files: Collection<KtFile>
@@ -260,7 +257,7 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
 
 sealed class LightClassDataProviderForFileFacade private constructor(
         protected val project: Project, protected val facadeFqName: FqName
-) : LightClassDataProvider<KotlinFacadeLightClassData>(project) {
+) : LightClassDataProvider<LightClassDataImpl>(project) {
     override val packageFqName: FqName
         get() = facadeFqName.parent()
 
@@ -273,8 +270,9 @@ sealed class LightClassDataProviderForFileFacade private constructor(
     override fun createLightClassData(
             javaFileStub: PsiJavaFileStub,
             bindingContext: BindingContext,
-            extraDiagnostics: Diagnostics): KotlinFacadeLightClassData {
-        return KotlinFacadeLightClassData(javaFileStub, extraDiagnostics)
+            extraDiagnostics: Diagnostics
+    ): LightClassDataImpl {
+        return LightClassDataImpl(javaFileStub, extraDiagnostics)
     }
 
     override val generateClassFilter: GenerationState.GenerateClassFilter

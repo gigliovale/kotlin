@@ -37,6 +37,8 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 
+data class LightClassBuilderResult(val stub: PsiJavaFileStub, val bindingContext: BindingContext, val diagnostics: Diagnostics)
+
 fun buildLightClass(
         project: Project,
         packageFqName: FqName,
@@ -44,7 +46,7 @@ fun buildLightClass(
         generateClassFilter: GenerationState.GenerateClassFilter,
         context: LightClassConstructionContext,
         generate: (state: GenerationState, files: Collection<KtFile>) -> Unit
-): Triple<PsiJavaFileStub, BindingContext, Diagnostics> {
+): LightClassBuilderResult {
 
     val javaFileStub = createJavaFileStub(project, packageFqName, files)
     val bindingContext: BindingContext
@@ -79,7 +81,7 @@ fun buildLightClass(
         }
 
         ServiceManager.getService(project, StubComputationTracker::class.java)?.onStubComputed(javaFileStub)
-        return Triple(javaFileStub, bindingContext, state.collectedExtraJvmDiagnostics)
+        return LightClassBuilderResult(javaFileStub, bindingContext, state.collectedExtraJvmDiagnostics)
     }
     catch (e: ProcessCanceledException) {
         throw e

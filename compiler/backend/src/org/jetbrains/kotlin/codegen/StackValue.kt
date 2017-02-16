@@ -25,18 +25,17 @@ class CoercionValue(
         val castType: Type
 ) : StackValue(castType, value.canHaveSideEffects()) {
 
-    override fun putSelector(type: Type, v: InstructionAdapter) {
-        value.putSelector(value.type, v)
-        StackValue.coerce(value.type, castType, v)
+    override fun put(type: Type, v: InstructionAdapter, skipReceiver: Boolean) {
+        value.put(castType, v, skipReceiver)
         StackValue.coerce(castType, type, v)
     }
 
-    override fun storeSelector(topOfStackType: Type, v: InstructionAdapter) {
-        value.storeSelector(topOfStackType, v)
+    override fun store(value: StackValue, v: InstructionAdapter, skipReceiver: Boolean) {
+        value.store(value, v, skipReceiver)
     }
 
-    override fun putReceiver(v: InstructionAdapter, isRead: Boolean) {
-        value.putReceiver(v, isRead)
+    override fun putSelector(type: Type, v: InstructionAdapter) {
+        throw RuntimeException("Shouldn't be called")
     }
 
     override fun isNonStaticAccess(isRead: Boolean): Boolean {

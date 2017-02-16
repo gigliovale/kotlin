@@ -72,8 +72,6 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         )
     }
 
-
-
     fun getContextForClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
         if (classOrObject.isLocal()) {
             return getContextForLocalClassOrObject(classOrObject)

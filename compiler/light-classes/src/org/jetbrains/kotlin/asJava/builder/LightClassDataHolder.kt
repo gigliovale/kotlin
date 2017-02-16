@@ -32,6 +32,9 @@ import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 interface LightClassDataHolder {
     val javaFileStub: PsiJavaFileStub
     val extraDiagnostics: Diagnostics
+
+    fun findData(classOrObject: KtClassOrObject): LightClassData
+    fun findData(classFqName: FqName): LightClassData
 }
 
 interface LightClassData {
@@ -50,8 +53,12 @@ class LightClassDataImpl(override val clsDelegate: PsiClass) : LightClassData {
 object InvalidLightClassDataHolder : LightClassDataHolder {
     override val javaFileStub: PsiJavaFileStub
         get() = shouldNotBeCalled()
+
     override val extraDiagnostics: Diagnostics
         get() = shouldNotBeCalled()
+
+    override fun findData(classOrObject: KtClassOrObject) = shouldNotBeCalled()
+    override fun findData(classFqName: FqName) = shouldNotBeCalled()
 
     private fun shouldNotBeCalled(): Nothing = throw UnsupportedOperationException("Should not be called")
 }
@@ -61,7 +68,7 @@ class LightClassDataHolderImpl(
         override val extraDiagnostics: Diagnostics
 ) : LightClassDataHolder {
 
-    fun findData(classOrObject: KtClassOrObject): LightClassData {
+    override fun findData(classOrObject: KtClassOrObject): LightClassData {
         findClass(javaFileStub) {
             ClsWrapperStubPsiFactory.getOriginalElement(it as StubElement<*>) == classOrObject
         }?.let { return LightClassDataImpl(it) }
@@ -78,7 +85,7 @@ class LightClassDataHolderImpl(
         throw IllegalStateException("Couldn't get delegate for $this\nin $ktFileText\nstub: \n$stubFileText")
     }
 
-    fun findData(classFqName: FqName): LightClassData {
+    override fun findData(classFqName: FqName): LightClassData {
         return findClass(javaFileStub) {
             classFqName.asString() == it.qualifiedName
         }?.let(::LightClassDataImpl) ?: throw IllegalStateException("Facade class $classFqName not found; classes in Java file stub: ${collectClassNames(javaFileStub)}")

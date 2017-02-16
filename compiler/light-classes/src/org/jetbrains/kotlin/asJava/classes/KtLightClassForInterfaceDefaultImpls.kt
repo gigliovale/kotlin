@@ -17,11 +17,7 @@
 package org.jetbrains.kotlin.asJava.classes
 
 import com.intellij.psi.*
-import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
-import com.intellij.psi.stubs.StubElement
 import com.intellij.util.IncorrectOperationException
-import org.jetbrains.kotlin.asJava.LightClassUtil
-import org.jetbrains.kotlin.asJava.builder.ClsWrapperStubPsiFactory
 import org.jetbrains.kotlin.load.java.JvmAbi
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
@@ -37,11 +33,8 @@ class KtLightClassForInterfaceDefaultImpls(
         return KtLightClassForInterfaceDefaultImpls(classOrObject.copy() as KtClassOrObject)
     }
 
-    override fun findDelegateClass(javaFileStub: PsiJavaFileStub): PsiClass? {
-        val interfaceClass = LightClassUtil.findClass(javaFileStub) {
-            ClsWrapperStubPsiFactory.getOriginalElement(it as StubElement<*>) == classOrObject
-        }
-        return interfaceClass?.findInnerClassByName(JvmAbi.DEFAULT_IMPLS_CLASS_NAME, false)
+    override fun findDelegateClass(): PsiClass {
+        return getLightClassData().findData(classOrObject).clsDelegate.findInnerClassByName(JvmAbi.DEFAULT_IMPLS_CLASS_NAME, false) ?: /*TODO_R*/ error("TODO")
     }
 
     override fun getTypeParameterList(): PsiTypeParameterList? = null

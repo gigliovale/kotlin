@@ -18,9 +18,9 @@ package org.jetbrains.kotlin.asJava
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.kotlin.asJava.builder.LightClassDataImpl
-import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
+import org.jetbrains.kotlin.asJava.builder.LightClassDataHolderImpl
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
 import org.jetbrains.kotlin.diagnostics.Diagnostic
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory
 import org.jetbrains.kotlin.diagnostics.DiagnosticFactory.cast
@@ -42,7 +42,7 @@ fun getJvmSignatureDiagnostics(element: PsiElement, otherDiagnostics: Diagnostic
     }
 
     fun getDiagnosticsForClass(ktClassOrObject: KtClassOrObject): Diagnostics {
-        return (KtLightClassForSourceDeclaration.getLightClassData(ktClassOrObject) as? LightClassDataImpl)?.extraDiagnostics ?: Diagnostics.EMPTY
+        return (KtLightClassForSourceDeclaration.getLightClassData(ktClassOrObject) as? LightClassDataHolderImpl)?.extraDiagnostics ?: Diagnostics.EMPTY
     }
 
     fun doGetDiagnostics(): Diagnostics? {

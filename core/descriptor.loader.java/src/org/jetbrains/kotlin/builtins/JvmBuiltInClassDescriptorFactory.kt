@@ -27,14 +27,11 @@ import org.jetbrains.kotlin.storage.getValue
 
 class JvmBuiltInClassDescriptorFactory(
         storageManager: StorageManager,
-        private val moduleDescriptor: ModuleDescriptor,
-        private val computeContainingDeclaration: (ModuleDescriptor) -> DeclarationDescriptor = { module ->
-            module.getPackage(KOTLIN_FQ_NAME).fragments.filterIsInstance<BuiltInsPackageFragment>().first()
-        }
+        private val moduleDescriptor: ModuleDescriptor
 ) : ClassDescriptorFactory {
     private val cloneable by storageManager.createLazyValue {
         ClassDescriptorImpl(
-                computeContainingDeclaration(moduleDescriptor),
+                moduleDescriptor.getPackage(KOTLIN_FQ_NAME).fragments.filterIsInstance<BuiltInsPackageFragment>().first(),
                 CLONEABLE_NAME, Modality.ABSTRACT, ClassKind.INTERFACE, listOf(moduleDescriptor.builtIns.anyType),
                 SourceElement.NO_SOURCE, /* isExternal = */ false
         ).apply {

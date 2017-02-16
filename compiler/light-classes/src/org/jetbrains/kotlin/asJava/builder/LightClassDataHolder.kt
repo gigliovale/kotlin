@@ -22,9 +22,8 @@ import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.kotlin.asJava.LightClassUtil
 import org.jetbrains.kotlin.asJava.LightClassUtil.findClass
+import org.jetbrains.kotlin.asJava.builder.InvalidLightClassDataHolder.javaFileStub
 import org.jetbrains.kotlin.asJava.classes.getOutermostClassOrObject
-import org.jetbrains.kotlin.asJava.elements.KtLightField
-import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
@@ -39,15 +38,9 @@ interface LightClassDataHolder {
 
 interface LightClassData {
     val clsDelegate: PsiClass
-    val ownFields: Collection<KtLightField>
-    val ownMethods: Collection<KtLightMethod>
 }
 
 class LightClassDataImpl(override val clsDelegate: PsiClass) : LightClassData {
-    override val ownFields: Collection<KtLightField>
-        get() = TODO("not implemented")
-    override val ownMethods: Collection<KtLightMethod>
-        get() = TODO("not implemented")
 }
 
 object InvalidLightClassDataHolder : LightClassDataHolder {
@@ -68,35 +61,40 @@ class LightClassDataHolderImpl(
         override val extraDiagnostics: Diagnostics
 ) : LightClassDataHolder {
 
-    override fun findData(classOrObject: KtClassOrObject): LightClassData {
-        findClass(javaFileStub) {
-            ClsWrapperStubPsiFactory.getOriginalElement(it as StubElement<*>) == classOrObject
-        }?.let { return LightClassDataImpl(it) }
+    override fun findData(classOrObject: KtClassOrObject) = javaFileStub.findDelegate(classOrObject).let(::LightClassDataImpl)
 
-        val outermostClassOrObject = getOutermostClassOrObject(classOrObject)
-        val ktFileText: String? = try {
-            outermostClassOrObject.containingFile.text
-        }
-        catch (e: Exception) {
-            "Can't get text for outermost class"
-        }
+    override fun findData(classFqName: FqName) = javaFileStub.findDelegate(classFqName).let(::LightClassDataImpl)
+}
 
-        val stubFileText = DebugUtil.stubTreeToString(javaFileStub)
-        throw IllegalStateException("Couldn't get delegate for $this\nin $ktFileText\nstub: \n$stubFileText")
+fun PsiJavaFileStub.findDelegate(classOrObject: KtClassOrObject): PsiClass {
+    findClass(this) {
+        ClsWrapperStubPsiFactory.getOriginalElement(it as StubElement<*>) == classOrObject
+    }?.let { return it }
+
+    val outermostClassOrObject = getOutermostClassOrObject(classOrObject)
+    val ktFileText: String? = try {
+        outermostClassOrObject.containingFile.text
+    }
+    catch (e: Exception) {
+        "Can't get text for outermost class"
     }
 
-    override fun findData(classFqName: FqName): LightClassData {
-        return findClass(javaFileStub) {
-            classFqName.asString() == it.qualifiedName
-        }?.let(::LightClassDataImpl) ?: throw IllegalStateException("Facade class $classFqName not found; classes in Java file stub: ${collectClassNames(javaFileStub)}")
-    }
+    val stubFileText = DebugUtil.stubTreeToString(this)
+    throw IllegalStateException("Couldn't get delegate for $this\nin $ktFileText\nstub: \n$stubFileText")
+}
 
-    private fun collectClassNames(javaFileStub: PsiJavaFileStub): String {
-        val names = mutableListOf<String>()
-        LightClassUtil.findClass(javaFileStub) { cls ->
-            names.add(cls.qualifiedName ?: "<null>")
-            false
-        }
-        return names.joinToString(prefix = "[", postfix = "]")
+fun PsiJavaFileStub.findDelegate(classFqName: FqName): PsiClass {
+    return findClass(this) {
+        classFqName.asString() == it.qualifiedName
+    } ?: throw IllegalStateException("Facade class $classFqName not found; classes in Java file stub: ${collectClassNames(javaFileStub)}")
+}
+
+
+private fun collectClassNames(javaFileStub: PsiJavaFileStub): String {
+    val names = mutableListOf<String>()
+    LightClassUtil.findClass(javaFileStub) { cls ->
+        names.add(cls.qualifiedName ?: "<null>")
+        false
     }
+    return names.joinToString(prefix = "[", postfix = "]")
 }

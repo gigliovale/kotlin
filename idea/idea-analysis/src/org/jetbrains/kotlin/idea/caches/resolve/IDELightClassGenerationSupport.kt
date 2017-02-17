@@ -116,15 +116,15 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     }
 
     override fun createLightClassDataHolderForFacade(files: Collection<KtFile>, build: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
-        return LazyLightClassDataHolder(build, { getContextForFacade(files) }, { getContextForFacade(files) })
-    }
-
-    fun getContextForFacade(files: Collection<KtFile>): LightClassConstructionContext {
         assert(!files.isEmpty()) { "No files in facade" }
 
         val sortedFiles = files.sortedWith(scopeFileComparator)
-        val file = sortedFiles.first()
-        val resolveSession = file.getResolutionFacade().getFrontendService(ResolveSession::class.java)
+
+        return LazyLightClassDataHolder(build, { getContextForFacade(sortedFiles) }, { contextForBuildingLighterClasses(sortedFiles) })
+    }
+
+    fun getContextForFacade(files: List<KtFile>): LightClassConstructionContext {
+        val resolveSession = files.first().getResolutionFacade().getFrontendService(ResolveSession::class.java)
         forceResolvePackageDeclarations(files, resolveSession)
         return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
     }

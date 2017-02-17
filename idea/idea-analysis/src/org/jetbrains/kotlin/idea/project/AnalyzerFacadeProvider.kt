@@ -18,7 +18,7 @@ package org.jetbrains.kotlin.idea.project
 
 import org.jetbrains.kotlin.analyzer.AnalyzerFacade
 import org.jetbrains.kotlin.analyzer.common.DefaultAnalyzerFacade
-import org.jetbrains.kotlin.idea.caches.resolve.JsAnalyzerFacade
+import org.jetbrains.kotlin.js.resolve.JsAnalyzerFacade
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.resolve.jvm.JvmAnalyzerFacade

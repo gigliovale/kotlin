@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.idea.caches.resolve
+package org.jetbrains.kotlin.js.resolve
 
-import com.intellij.openapi.roots.OrderRootType
+
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.PathUtil
 import org.jetbrains.kotlin.analyzer.*
@@ -26,7 +26,7 @@ import org.jetbrains.kotlin.descriptors.PackagePartProvider
 import org.jetbrains.kotlin.descriptors.impl.CompositePackageFragmentProvider
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.di.createContainerForLazyResolve
-import org.jetbrains.kotlin.idea.framework.KotlinJavaScriptLibraryDetectionUtil
+
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.resolve.TargetEnvironment
@@ -61,24 +61,24 @@ object JsAnalyzerFacade : AnalyzerFacade<PlatformAnalysisParameters>() {
                 BindingTraceContext(),
                 JsPlatform,
                 targetEnvironment,
-                LanguageSettingsProvider.getInstance(project).getLanguageVersionSettings(moduleInfo, project)
+                LanguageSettingsProvider.Companion.getInstance(project).getLanguageVersionSettings(moduleInfo, project)
         )
         var packageFragmentProvider = container.get<ResolveSession>().packageFragmentProvider
-
-        if (moduleInfo is LibraryInfo && KotlinJavaScriptLibraryDetectionUtil.isKotlinJavaScriptLibrary(moduleInfo.library)) {
-            val providers = moduleInfo.library.getFiles(OrderRootType.CLASSES)
-                    .flatMap { KotlinJavascriptMetadataUtils.loadMetadata(PathUtil.getLocalPath(it)!!) }
-                    .filter { it.version.isCompatible() }
-                    .mapNotNull {
-                        KotlinJavascriptSerializationUtil.readModule(
-                                it.body, moduleContext.storageManager, moduleDescriptor, container.get<DeserializationConfiguration>()
-                        ).data
-                    }
-
-            if (providers.isNotEmpty()) {
-                packageFragmentProvider = CompositePackageFragmentProvider(listOf(packageFragmentProvider) + providers)
-            }
-        }
+//
+//        if (moduleInfo is org.jetbrains.kotlin.idea.caches.resolve.LibraryInfo && org.jetbrains.kotlin.idea.framework.KotlinJavaScriptLibraryDetectionUtil.isKotlinJavaScriptLibrary(moduleInfo.library)) {
+//            val providers = moduleInfo.library.getFiles(com.intellij.openapi.roots.OrderRootType.CLASSES)
+//                    .flatMap { KotlinJavascriptMetadataUtils.loadMetadata(PathUtil.getLocalPath(it)!!) }
+//                    .filter { it.version.isCompatible() }
+//                    .mapNotNull {
+//                        KotlinJavascriptSerializationUtil.readModule(
+//                                it.body, moduleContext.storageManager, moduleDescriptor, container.get<DeserializationConfiguration>()
+//                        ).data
+//                    }
+//
+//            if (providers.isNotEmpty()) {
+//                packageFragmentProvider = CompositePackageFragmentProvider(listOf(packageFragmentProvider) + providers)
+//            }
+//        }
 
         return ResolverForModule(packageFragmentProvider, container)
     }

@@ -322,6 +322,10 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
 
     override fun getImplementsList() = _implementsList
 
+    override fun getOwnFields() = lightClassData.getOwnFields(this)
+    override fun getOwnMethods() = lightClassData.getOwnMethods(this)
+    override fun getSuperTypes() = lightClassData.supertypes
+
     companion object {
         private val JAVA_API_STUB = Key.create<CachedValue<LightClassDataHolder>>("JAVA_API_STUB")
 

@@ -40,6 +40,8 @@ import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
 import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.ClsJavaStubByVirtualFileCache
 import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDecompiledDeclaration
+import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.LazyLightClassDataHolder
+import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.contextForBuildingLighterClasses
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.decompiler.navigation.SourceNavigationHelper
 import org.jetbrains.kotlin.idea.project.ResolveElementCache
@@ -64,14 +66,10 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     private val scopeFileComparator = JavaElementFinder.byClasspathComparator(GlobalSearchScope.allScope(project))
     private val psiManager: PsiManager = PsiManager.getInstance(project)
 
-    override fun createLightClassDataHolderForClassOrObject(classOrObject: KtClassOrObject, build: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
-        val (stub, bindingContext, diagnostics) = build(getContextForClassOrObject(classOrObject))
-        bindingContext.get(BindingContext.CLASS, classOrObject) ?: return InvalidLightClassDataHolder
-
-        return LightClassDataHolderImpl(
-                stub,
-                diagnostics
-        )
+    override fun createLightClassDataHolderForClassOrObject(
+            classOrObject: KtClassOrObject, build: (LightClassConstructionContext) -> LightClassBuilderResult
+    ): LightClassDataHolder {
+        return LazyLightClassDataHolder(build, { getContextForClassOrObject(classOrObject) }, { contextForBuildingLighterClasses(classOrObject) })
     }
 
     fun getContextForClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
@@ -118,8 +116,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     }
 
     override fun createLightClassDataHolderForFacade(files: Collection<KtFile>, build: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
-        val (stub, _, diagnostics) = build(getContextForFacade(files))
-        return LightClassDataHolderImpl(stub, diagnostics)
+        return LazyLightClassDataHolder(build, { getContextForFacade(files) }, { getContextForFacade(files) })
     }
 
     fun getContextForFacade(files: Collection<KtFile>): LightClassConstructionContext {

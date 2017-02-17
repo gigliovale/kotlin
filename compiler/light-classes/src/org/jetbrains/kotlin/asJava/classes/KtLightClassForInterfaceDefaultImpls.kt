@@ -35,7 +35,7 @@ class KtLightClassForInterfaceDefaultImpls(
     }
 
     override fun findLightClassData(): LightClassData {
-        return /*TODO_R*/ error("TODO")
+        return /*TODO_R*/ getLightClassDataHolder().findData(classOrObject)
     }
 
     override fun getTypeParameterList(): PsiTypeParameterList? = null

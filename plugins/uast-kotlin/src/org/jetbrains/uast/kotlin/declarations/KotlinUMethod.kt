@@ -74,19 +74,20 @@ open class KotlinUMethod(
 
     companion object {
         fun create(psi: KtLightMethod, containingElement: UElement?) = when (psi) {
-            is KtLightMethodImpl.KtLightAnnotationMethod -> KotlinUAnnotationMethod(psi, containingElement)
+            // TODO_R:
             else -> KotlinUMethod(psi, containingElement)
         }
     }
 }
 
-class KotlinUAnnotationMethod(
-        override val psi: KtLightMethodImpl.KtLightAnnotationMethod,
-        containingElement: UElement?
-) : KotlinUMethod(psi, containingElement), UAnnotationMethod {
-    override val uastDefaultValue by lz {
-        val annotationParameter = psi.kotlinOrigin as? KtParameter ?: return@lz null
-        val defaultValue = annotationParameter.defaultValue ?: return@lz null
-        getLanguagePlugin().convertElement(defaultValue, this) as? UExpression
-    }
-}
+// TODO_R:
+//class KotlinUAnnotationMethod(
+//        override val psi: KtLightMethodImpl.KtLightAnnotationMethod,
+//        containingElement: UElement?
+//) : KotlinUMethod(psi, containingElement), UAnnotationMethod {
+//    override val uastDefaultValue by lz {
+//        val annotationParameter = psi.kotlinOrigin as? KtParameter ?: return@lz null
+//        val defaultValue = annotationParameter.defaultValue ?: return@lz null
+//        getLanguagePlugin().convertElement(defaultValue, this) as? UExpression
+//    }
+//}

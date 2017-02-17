@@ -38,10 +38,13 @@ import java.lang.UnsupportedOperationException
 // Copied from com.intellij.psi.impl.light.LightField
 sealed class KtLightFieldImpl(
         override val lightMemberOrigin: LightMemberOrigin?,
-        override val clsDelegate: PsiField,
-        private val containingClass: KtLightClass
-) : LightElement(clsDelegate.manager, KotlinLanguage.INSTANCE), KtLightField {
+        computeDelegate: () -> PsiField,
+        private val containingClass: KtLightClass,
+        private val name: String? = null
+) : LightElement(containingClass.manager, KotlinLanguage.INSTANCE), KtLightField {
     private val lightIdentifier by lazy(LazyThreadSafetyMode.PUBLICATION) { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
+
+    override val clsDelegate by lazy(LazyThreadSafetyMode.PUBLICATION, computeDelegate)
 
     @Throws(IncorrectOperationException::class)
     override fun setInitializer(initializer: PsiExpression?) = throw IncorrectOperationException("Not supported")
@@ -50,7 +53,7 @@ sealed class KtLightFieldImpl(
 
     override fun getPresentation(): ItemPresentation? = (kotlinOrigin ?: this).let { ItemPresentationProviders.getItemPresentation(it) }
 
-    override fun getName() = clsDelegate.name
+    override fun getName() = name ?: clsDelegate.name
 
     override fun getNameIdentifier() = lightIdentifier
 
@@ -132,12 +135,13 @@ sealed class KtLightFieldImpl(
     override fun copy() = Factory.create(lightMemberOrigin?.copy(), clsDelegate, containingClass)
 
 
+    // TODO_R: deal with enums
     class KtLightEnumConstant(
             origin: LightMemberOrigin?,
             override val clsDelegate: PsiEnumConstant,
             containingClass: KtLightClass,
             private val initializingClass: PsiEnumConstantInitializer?
-    ) : KtLightFieldImpl(origin, clsDelegate, containingClass), PsiEnumConstant {
+    ) : KtLightFieldImpl(origin, { clsDelegate } , containingClass), PsiEnumConstant {
         // NOTE: we don't use "delegation by" because the compiler would generate method calls to ALL of PsiEnumConstant members,
         // but we need only members whose implementations are not present in KotlinLightField
         override fun getArgumentList() = clsDelegate.argumentList
@@ -151,11 +155,12 @@ sealed class KtLightFieldImpl(
         override fun resolveMethodGenerics() = clsDelegate.resolveMethodGenerics()
     }
 
-    class KtLightFieldForDeclaration(origin: LightMemberOrigin?, delegate: PsiField, containingClass: KtLightClass) :
-            KtLightFieldImpl(origin, delegate, containingClass)
+    class KtLightFieldForDeclaration(origin: LightMemberOrigin?, computeDelegate: () -> PsiField, containingClass: KtLightClass, name: String? = null) :
+            KtLightFieldImpl(origin, computeDelegate, containingClass, name)
 
     companion object Factory {
         fun create(origin: LightMemberOrigin?, delegate: PsiField, containingClass: KtLightClass): KtLightField {
+            // TODO_R: deal with enum constants
             when (delegate) {
                 is PsiEnumConstant -> {
                     val kotlinEnumEntry = (origin as? LightMemberOriginForDeclaration)?.originalElement as? KtEnumEntry
@@ -165,8 +170,20 @@ sealed class KtLightFieldImpl(
                     else null
                     return KtLightEnumConstant(origin, delegate, containingClass, initializingClass)
                 }
-                else -> return KtLightFieldForDeclaration(origin, delegate, containingClass)
+                else -> return KtLightFieldForDeclaration(origin, { delegate }, containingClass)
             }
+        }
+
+        fun lazy(
+                name: String,
+                origin: LightMemberOriginForDeclaration,
+                containingClass: KtLightClass,
+                computeDelegate: () -> PsiField
+        ): KtLightField {
+            if (origin.originalElement is KtEnumEntry) {
+                // TODO_R:
+            }
+            return KtLightFieldForDeclaration(origin, computeDelegate, containingClass, name)
         }
 
         @JvmStatic

@@ -63,7 +63,7 @@ import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.WrappedTypeFactory
 
-private fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClassConstructionContext {
+fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClassConstructionContext {
     val trace = BindingTraceContext()
     val sm = LockBasedStorageManager.NO_LOCKS
     val moduleDescriptor = ModuleDescriptorImpl(Name.special("<dummy>"), sm, classOrObject.getResolutionFacade().moduleDescriptor.builtIns)

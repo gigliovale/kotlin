@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.idea.caches.resolve.lightClasses
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.analyzer.common.DefaultAnalyzerFacade
 import org.jetbrains.kotlin.asJava.builder.LightClassConstructionContext
@@ -64,11 +65,29 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.WrappedTypeFactory
 
 fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClassConstructionContext {
+    val resolveSession = setupAdHocResolve(classOrObject.project, classOrObject.getResolutionFacade().moduleDescriptor, listOf(classOrObject.containingKtFile))
+
+    val descriptor = resolveSession.resolveToDescriptor(classOrObject)
+    ForceResolveUtil.forceResolveAllContents(descriptor)
+
+    return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
+}
+
+fun contextForBuildingLighterClasses(files: List<KtFile>): LightClassConstructionContext {
+    val representativeFile = files.first()
+    val resolveSession = setupAdHocResolve(representativeFile.project, representativeFile.getResolutionFacade().moduleDescriptor, files)
+
+//    val descriptor = resolveSession.resolveToDescriptor(classOrObject)
+//    ForceResolveUtil.forceResolveAllContents(descriptor)
+
+    return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
+}
+
+private fun setupAdHocResolve(project: Project, realWorldModule: ModuleDescriptor, files: List<KtFile>): ResolveSession {
     val trace = BindingTraceContext()
     val sm = LockBasedStorageManager.NO_LOCKS
-    val moduleDescriptor = ModuleDescriptorImpl(Name.special("<dummy>"), sm, classOrObject.getResolutionFacade().moduleDescriptor.builtIns)
-    val jvmFieldClass = classOrObject.getResolutionFacade()
-            .moduleDescriptor.getPackage(FqName("kotlin.jvm")).memberScope
+    val moduleDescriptor = ModuleDescriptorImpl(Name.special("<dummy>"), sm, realWorldModule.builtIns)
+    val jvmFieldClass = realWorldModule.getPackage(FqName("kotlin.jvm")).memberScope
             .getContributedClassifier(Name.identifier("JvmField"), NoLookupLocation.FROM_IDE)
 
     if (jvmFieldClass != null) {
@@ -79,7 +98,7 @@ fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClass
     }
 
     val container = createContainer("LightClassStub", DefaultAnalyzerFacade.targetPlatform) {
-        configureModule(ModuleContext(moduleDescriptor, classOrObject.project), JvmPlatform, trace)
+        configureModule(ModuleContext(moduleDescriptor, project), JvmPlatform, trace)
 
         useInstance(GlobalSearchScope.EMPTY_SCOPE)
         useInstance(LookupTracker.DO_NOTHING)
@@ -102,7 +121,7 @@ fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClass
             override fun createRecursionIntolerantDeferredType(trace: BindingTrace, computation: () -> KotlinType) = ErrorUtils.createErrorType("^_^")
         })
         useInstance(languageVersionSettings)
-        useInstance(FileBasedDeclarationProviderFactory(sm, listOf(classOrObject.containingKtFile)))
+        useInstance(FileBasedDeclarationProviderFactory(sm, files))
         useInstance(PackagePartProvider.Empty)
         useInstance(KotlinMetadataFinder.Empty)
 
@@ -113,14 +132,8 @@ fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClass
 
     val resolveSession = container.get<ResolveSession>()
     moduleDescriptor.initialize(CompositePackageFragmentProvider(listOf(resolveSession.packageFragmentProvider)))
-
-    val descriptor = resolveSession.resolveToDescriptor(classOrObject)
-    ForceResolveUtil.forceResolveAllContents(descriptor)
-
-    return LightClassConstructionContext(trace.bindingContext, moduleDescriptor)
+    return resolveSession
 }
-
-
 
 private val annotationsThatAffectCodegen = listOf("JvmField", "JvmOverloads", "JvmName", "JvmStatic").map { FqName("kotlin.jvm").child(Name.identifier(it)) }
 

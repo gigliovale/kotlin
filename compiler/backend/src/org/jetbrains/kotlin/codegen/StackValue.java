@@ -1335,8 +1335,7 @@ public abstract class StackValue extends StackValueBase {
         @Override
         public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
             PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
-            if (resolvedCall != null && setterDescriptor != null) {
-                assert setter != null : "Setter should be not null for " + descriptor;
+            if (setter != null && resolvedCall != null && setterDescriptor != null) {
                 CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
 
                 LazyArguments lazyArguments = new LazyArguments();

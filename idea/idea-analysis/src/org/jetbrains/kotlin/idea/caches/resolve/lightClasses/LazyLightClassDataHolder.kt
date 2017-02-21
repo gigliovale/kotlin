@@ -40,11 +40,18 @@ class LazyLightClassDataHolder(
     override val javaFileStub get() = exactResult.stub
     override val extraDiagnostics get() = exactResult.diagnostics
 
-    override fun findData(classOrObject: KtClassOrObject): LightClassData = object: LightClassData {
-        override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.NONE) { javaFileStub.findDelegate(classOrObject) }
+    override fun findData(classOrObject: KtClassOrObject): LightClassData = LazyLightClassData { it.stub.findDelegate(classOrObject) }
+
+    override fun findData(classFqName: FqName): LightClassData = LazyLightClassData { it.stub.findDelegate(classFqName) }
+
+
+    private inner class LazyLightClassData(findDelegate: (LightClassBuilderResult) -> PsiClass) : LightClassData {
+        override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(exactResult) }
+
+        private val dummyDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(inexactResult) }
 
         override fun getOwnFields(containingClass: KtLightClass): List<KtLightField> {
-            return inexactResult.stub.findDelegate(classOrObject).fields.map { dummyDelegate ->
+            return dummyDelegate.fields.map { dummyDelegate ->
                 val memberOrigin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)!!
                 val fieldName = dummyDelegate.name!!
                 KtLightFieldImpl.lazy(fieldName, memberOrigin, containingClass) {
@@ -54,7 +61,7 @@ class LazyLightClassDataHolder(
         }
 
         override fun getOwnMethods(containingClass: KtLightClass): List<KtLightMethod> {
-            return inexactResult.stub.findDelegate(classOrObject).methods.map { dummyDelegate ->
+            return dummyDelegate.methods.map { dummyDelegate ->
                 // TODO_R: correct origin
                 val methodName = dummyDelegate.name
                 KtLightMethodImpl.lazy(methodName, containingClass, ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)) {
@@ -68,21 +75,12 @@ class LazyLightClassDataHolder(
 
         override val supertypes: Array<PsiClassType>
             get() {
-                val dummyDelegate = inexactResult.stub.findDelegate(classOrObject)
                 val supertypes = dummyDelegate.superTypes
                 if (supertypes.any { it.resolve() == null }) {
                     return clsDelegate.superTypes
                 }
                 return supertypes
             }
-    }
-
-    override fun findData(classFqName: FqName) = object: LightClassData {
-        override val clsDelegate by lazy(LazyThreadSafetyMode.NONE) { javaFileStub.findDelegate(classFqName) }
-
-        override fun getOwnFields(containingClass: KtLightClass) = clsDelegate.fields.map { KtLightFieldImpl.fromClsField(it, containingClass) }
-
-        override fun getOwnMethods(containingClass: KtLightClass) = clsDelegate.methods.map { KtLightMethodImpl.fromClsMethod(it, containingClass) }
 
     }
 }

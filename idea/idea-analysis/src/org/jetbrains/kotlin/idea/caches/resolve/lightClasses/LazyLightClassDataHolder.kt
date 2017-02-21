@@ -40,12 +40,19 @@ class LazyLightClassDataHolder(
     override val javaFileStub get() = exactResult.stub
     override val extraDiagnostics get() = exactResult.diagnostics
 
-    override fun findData(classOrObject: KtClassOrObject): LightClassData = LazyLightClassData { it.stub.findDelegate(classOrObject) }
+    override fun findData(classOrObject: KtClassOrObject): LightClassData =
+            LazyLightClassData(relyOnDummySupertypes = classOrObject.getSuperTypeList() == null) {
+                it.stub.findDelegate(classOrObject)
+            }
 
-    override fun findData(classFqName: FqName): LightClassData = LazyLightClassData { it.stub.findDelegate(classFqName) }
+    override fun findData(classFqName: FqName): LightClassData =
+            LazyLightClassData(relyOnDummySupertypes = true) { it.stub.findDelegate(classFqName) }
 
 
-    private inner class LazyLightClassData(findDelegate: (LightClassBuilderResult) -> PsiClass) : LightClassData {
+    private inner class LazyLightClassData(
+            private val relyOnDummySupertypes: Boolean,
+            findDelegate: (LightClassBuilderResult) -> PsiClass
+    ) : LightClassData {
         override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(exactResult) }
 
         private val dummyDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(inexactResult) }
@@ -55,7 +62,9 @@ class LazyLightClassDataHolder(
                 val memberOrigin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)!!
                 val fieldName = dummyDelegate.name!!
                 KtLightFieldImpl.lazy(fieldName, memberOrigin, containingClass) {
-                    clsDelegate.findFieldByName(fieldName, false)!!
+                    clsDelegate.findFieldByName(fieldName, false)!!.apply {
+                        assert(this.codegenMarker!! == dummyDelegate.codegenMarker!!)
+                    }
                 }
             }
         }
@@ -64,23 +73,20 @@ class LazyLightClassDataHolder(
             return dummyDelegate.methods.map { dummyDelegate ->
                 // TODO_R: correct origin
                 val methodName = dummyDelegate.name
-                KtLightMethodImpl.lazy(methodName, containingClass, ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)) {
-                    // TODO_R: correct filtering
-                    clsDelegate.findMethodsByName(methodName, false).filter { delegateCandidate ->
-                        delegateCandidate.parameterList.parametersCount == dummyDelegate.parameterList.parametersCount
-                    }.single()
+                val origin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)
+                KtLightMethodImpl.lazy(methodName, containingClass, origin) {
+                    val dummyMarker = dummyDelegate.codegenMarker!!
+                    clsDelegate.findMethodsByName(methodName, false).filter {
+                        delegateCandidate -> delegateCandidate.codegenMarker == dummyMarker
+                    }.single().apply {
+                        assert(this.parameterList.parametersCount == dummyDelegate.parameterList.parametersCount)
+                    }
                 }
             }
         }
 
         override val supertypes: Array<PsiClassType>
-            get() {
-                val supertypes = dummyDelegate.superTypes
-                if (supertypes.any { it.resolve() == null }) {
-                    return clsDelegate.superTypes
-                }
-                return supertypes
-            }
+            get() = if (relyOnDummySupertypes) dummyDelegate.superTypes else clsDelegate.superTypes
 
     }
 }

@@ -18,15 +18,18 @@ package org.jetbrains.kotlin.js.test.rhino;
 
 import com.google.common.collect.Sets;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.js.config.EcmaVersion;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.mozilla.javascript.*;
+import sun.nio.cs.StandardCharsets;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +109,7 @@ public final class RhinoUtils {
             @NotNull Scriptable scope) throws Exception {
         String result;
         try {
-            result = FileUtil.loadFile(new File(inputFile), true);
+            result = FileUtil.loadFile(new File(inputFile), CharsetToolkit.UTF8, true);
         }
         catch (IOException e) {
             throw new RuntimeException(e);

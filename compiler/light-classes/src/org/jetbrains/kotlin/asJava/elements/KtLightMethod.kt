@@ -48,7 +48,7 @@ class KtLightMethodImpl private constructor(
         computeDelegate: () -> PsiMethod,
         override val lightMethodOrigin: LightMemberOrigin?,
         private val containingClass: KtLightClass,
-        private val name: String? = null
+        private val _name: String? = null
 ) : LightElement(containingClass.manager, containingClass.language), KtLightMethod, PsiAnnotationMethod {
     override val kotlinOrigin: KtDeclaration? get() = lightMethodOrigin?.originalElement as? KtDeclaration
 
@@ -251,7 +251,7 @@ class KtLightMethodImpl private constructor(
         }
     }
 
-    override fun getName() = name ?: clsDelegate.name
+    override fun getName() = _name ?: clsDelegate.name
 
     override fun hasModifierProperty(name: String) = clsDelegate.hasModifierProperty(name)
 

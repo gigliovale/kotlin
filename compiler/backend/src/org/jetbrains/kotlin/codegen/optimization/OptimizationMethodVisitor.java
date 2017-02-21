@@ -71,4 +71,10 @@ public class OptimizationMethodVisitor extends TransformationMethodVisitor {
         int totalFramesSizeMb = node.instructions.size() * (node.maxLocals + node.maxStack) / (1024 * 1024);
         return totalFramesSizeMb < MEMORY_LIMIT_BY_METHOD_MB;
     }
+
+    public static boolean canBeOptimizedN2(@NotNull MethodNode node) {
+        long n = node.instructions.size();
+        long totalFramesSizeMb = n * n * (node.maxLocals + node.maxStack) / (1024 * 1024);
+        return totalFramesSizeMb < MEMORY_LIMIT_BY_METHOD_MB;
+    }
 }

@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.codegen.optimization.boxing
 
+import org.jetbrains.kotlin.codegen.optimization.OptimizationMethodVisitor
 import org.jetbrains.kotlin.codegen.optimization.common.isMeaningful
 import org.jetbrains.kotlin.codegen.optimization.fixStack.top
 import org.jetbrains.kotlin.codegen.optimization.removeNodeGetNext
@@ -31,6 +32,7 @@ import java.util.*
 
 class RedundantCoercionToUnitTransformer : MethodTransformer() {
     override fun transform(internalClassName: String, methodNode: MethodNode) {
+        if (!OptimizationMethodVisitor.canBeOptimizedN2(methodNode)) return
         Transformer(methodNode).transform()
     }
 

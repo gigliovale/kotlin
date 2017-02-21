@@ -671,6 +671,12 @@ public class BytecodeTextTestGenerated extends AbstractBytecodeTextTest {
             doTest(fileName);
         }
 
+        @TestMetadata("methodIsTooBigToOptimizeNow.kt")
+        public void testMethodIsTooBigToOptimizeNow() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/coercionToUnitOptimization/methodIsTooBigToOptimizeNow.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("nopInlineFuns.kt")
         public void testNopInlineFuns() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/coercionToUnitOptimization/nopInlineFuns.kt");

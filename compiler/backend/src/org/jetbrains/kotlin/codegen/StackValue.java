@@ -1358,6 +1358,20 @@ public abstract class StackValue extends StackValueBase {
         }
 
         @Override
+        public void storeWithArguments(
+                @NotNull StackValue value, @NotNull InstructionAdapter v, @Nullable LazyArguments arguments
+        ) {
+            PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
+            if (setter != null && resolvedCall != null && setterDescriptor != null && arguments != null) {
+                CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
+                callGenerator.genCall(setter, resolvedCall, arguments, codegen);
+            }
+            else {
+                super.storeWithArguments(value, v, arguments);
+            }
+        }
+
+        @Override
         public void storeSelector(@NotNull Type topOfStackType, @NotNull InstructionAdapter v) {
             if (setter == null) {
                 coerceFrom(topOfStackType, v);

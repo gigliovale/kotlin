@@ -63,7 +63,7 @@ abstract class StackValueBase {
 
     abstract fun store(value: StackValue, v: InstructionAdapter, skipReceiver: Boolean)
 
-    fun storeWithArguments(value: StackValue, v: InstructionAdapter, arguments: LazyArguments?) {
+    open fun storeWithArguments(value: StackValue, v: InstructionAdapter, arguments: LazyArguments?) {
         arguments?.generateAllDirectlyTo(v)
         store(value, v, arguments != null)
     }
@@ -137,7 +137,7 @@ fun StackValue.complexReceiver(codegen: ExpressionCodegen, /*ordered by stack*/v
             }
             else it.stackValue
             value.put(v)
-            newArgss[0].addParameter(it.copyWithNewStackValue(StackValue.onStack(it.type)))
+            newArgs.addParameter(it.copyWithNewStackValue(StackValue.onStack(it.type)))
         }
     }
 

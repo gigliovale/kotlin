@@ -44,7 +44,7 @@ abstract class CallGenerator {
 
         override fun putValueIfNeeded(
                 parameterType: Type, value: StackValue) {
-            value.put(value.type, codegen.v)
+            value.put(parameterType, codegen.v)
         }
 
         override fun reorderArgumentsIfNeeded(argumentDeclIndex: List<Int>, valueParameterTypes: List<Type>) {

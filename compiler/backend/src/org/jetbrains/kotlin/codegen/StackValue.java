@@ -1341,7 +1341,7 @@ public abstract class StackValue extends StackValueBase {
                 LazyArguments lazyArguments = new LazyArguments();
                 //TODO generate proper LazyValue
                 genArgs(lazyArguments, false);
-                lazyArguments.addParameter(rightSide, LazyArgumentKind.EXPLICITLY_ADDED);
+                lazyArguments.addParameter(rightSide, ArraysKt.last(setter.getParameterTypes()), LazyArgumentKind.EXPLICITLY_ADDED);
 
                 callGenerator.genCall(setter, resolvedCall, lazyArguments, codegen);
 

@@ -280,6 +280,10 @@ public class ClosureCodegen extends MemberCodegen<KtElement> {
         super.done();
     }
 
+    public static Type getInstanceType(FunctionDescriptor functionReferenceTarget, ClassDescriptor classDescriptor, KotlinTypeMapper mapper) {
+        return functionReferenceTarget != null ? K_FUNCTION : mapper.mapType(classDescriptor);
+    }
+
     @NotNull
     public StackValue putInstanceOnStack(@NotNull final ExpressionCodegen codegen, @Nullable final StackValue functionReferenceReceiver) {
         return StackValue.operation(

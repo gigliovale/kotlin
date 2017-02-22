@@ -1626,28 +1626,42 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
     @NotNull
     private StackValue genClosure(
-            @NotNull KtElement declaration,
-            @NotNull FunctionDescriptor descriptor,
-            @NotNull FunctionGenerationStrategy strategy,
-            @Nullable SamType samType,
-            @Nullable FunctionDescriptor functionReferenceTarget,
-            @Nullable StackValue functionReferenceReceiver
+            @NotNull final KtElement declaration,
+            @NotNull final FunctionDescriptor descriptor,
+            @NotNull final FunctionGenerationStrategy strategy,
+            @Nullable final SamType samType,
+            @Nullable final FunctionDescriptor functionReferenceTarget,
+            @Nullable final StackValue functionReferenceReceiver
     ) {
-        ClassBuilder cv = state.getFactory().newVisitor(
-                JvmDeclarationOriginKt.OtherOrigin(declaration, descriptor),
-                asmTypeForAnonymousClass(bindingContext, descriptor),
-                declaration.getContainingFile()
-        );
 
-        ClosureCodegen coroutineCodegen = CoroutineCodegen.createByLambda(this, descriptor, declaration, cv);
-        ClosureCodegen closureCodegen = coroutineCodegen != null ? coroutineCodegen : new ClosureCodegen(
-                state, declaration, samType, context.intoClosure(descriptor, this, typeMapper),
-                functionReferenceTarget, strategy, parentCodegen, cv
-        );
+        //TODO make lazy
+        final ClosureContext closureContext = this.context.intoClosure(descriptor, this, typeMapper);
 
-        closureCodegen.generate();
+        return StackValue
+                .operation(ClosureCodegen.getInstanceType(functionReferenceTarget, closureContext.getContextDescriptor(), typeMapper),
+                           new Function1<InstructionAdapter, Unit>() {
+                               @Override
+                               public Unit invoke(InstructionAdapter adapter) {
+                                   ClassBuilder cv = state.getFactory().newVisitor(
+                                           JvmDeclarationOriginKt.OtherOrigin(declaration, descriptor),
+                                           asmTypeForAnonymousClass(bindingContext, descriptor),
+                                           declaration.getContainingFile()
+                                   );
 
-        return putClosureInstanceOnStack(closureCodegen, functionReferenceReceiver);
+                                   ClosureCodegen coroutineCodegen = CoroutineCodegen.createByLambda(ExpressionCodegen.this, descriptor, declaration, cv);
+
+                                   ClosureCodegen closureCodegen = coroutineCodegen != null ? coroutineCodegen : new ClosureCodegen(
+                                           state, declaration, samType, closureContext,
+                                           functionReferenceTarget, strategy, parentCodegen, cv
+                                   );
+
+                                   closureCodegen.generate();
+
+                                   StackValue value = putClosureInstanceOnStack(closureCodegen, functionReferenceReceiver);
+                                   value.put(value.type, v);
+                                   return Unit.INSTANCE;
+                               }
+                           });
     }
 
     @NotNull

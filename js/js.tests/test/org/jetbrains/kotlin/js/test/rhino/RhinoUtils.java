@@ -25,11 +25,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.js.config.EcmaVersion;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 import org.mozilla.javascript.*;
-import sun.nio.cs.StandardCharsets;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;

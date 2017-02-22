@@ -50,11 +50,15 @@ class StackValueWithLeaveTask(
 ) : StackValue(stackValue.type) {
 
     override fun putReceiver(v: InstructionAdapter, isRead: Boolean) {
-        stackValue.putReceiver(v, isRead)
+        throw UnsupportedOperationException("Shouldn't be called")
     }
 
     override fun putSelector(type: Type, v: InstructionAdapter) {
-        stackValue.putSelector(type, v)
+        throw UnsupportedOperationException("Shouldn't be called")
+    }
+
+    override fun put(type: Type, v: InstructionAdapter) {
+        stackValue.put(type, v)
         leaveTasks(stackValue)
     }
 }

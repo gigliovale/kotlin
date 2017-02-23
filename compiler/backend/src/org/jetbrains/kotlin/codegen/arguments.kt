@@ -78,6 +78,8 @@ class ComplexOperationDup(stackValue: StackValue, val original: StackValue) :
 class LazyArguments @JvmOverloads constructor(val list: ArrayList<GeneratedArgument> = arrayListOf<GeneratedArgument>()) {
 
     fun addParameter(arg: GeneratedArgument) {
+        //TODO don't add nones
+        if (arg.stackValue == StackValue.none()) return
         list.add(arg)
     }
 
@@ -87,7 +89,7 @@ class LazyArguments @JvmOverloads constructor(val list: ArrayList<GeneratedArgum
     }
 
     fun addParameter(arg: StackValue, type: Type, kind: LazyArgumentKind) {
-        list.add(NonValueArgument(arg, type, kind))
+        addParameter(NonValueArgument(arg, type, kind))
     }
 
     fun generateAllDirectlyTo(v: InstructionAdapter) {

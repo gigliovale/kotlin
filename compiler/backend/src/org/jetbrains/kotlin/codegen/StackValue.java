@@ -931,26 +931,60 @@ public abstract class StackValue extends StackValueBase {
 
         private void genCall(@NotNull Callable callable, @NotNull ResolvedCall<?> resolvedCall, @Nullable  StackValue setValue) {
             LazyArguments lazyArguments = new LazyArguments();
+            genArgsImpl(callable, resolvedCall, setValue, lazyArguments, valueArguments);
+
+            genCallImpl(callable, resolvedCall, setValue != null, lazyArguments);
+        }
+
+        private void genArgsImpl(
+                @NotNull Callable callable,
+                @NotNull ResolvedCall<?> resolvedCall,
+                @Nullable StackValue setValue,
+                @NotNull LazyArguments lazyArguments,
+                @NotNull List<ResolvedValueArgument> valueArguments
+        ) {
             StackValue.receiver(resolvedCall, receiver, codegen, callable, lazyArguments);
 
             List<ValueParameterDescriptor> valueParameters = resolvedCall.getResultingDescriptor().getValueParameters();
             ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(
                     codegen,
-                    valueParameters, this.callable.getValueParameterTypes()
+                    valueParameters, callable.getValueParameterTypes()
             );
 
-
             argumentGenerator.generate(valueArguments, valueArguments, resolvedCall.getResultingDescriptor(), lazyArguments, false);
-            if (setValue != null) {
-                lazyArguments.addParameter(new GeneratedValueArgument(
-                        setValue, ArraysKt.last(callable.getParameterTypes()),
-                        CollectionsKt.last(valueParameters),
-                        valueParameters.size() - 1/*TODO add expression*/
-                ));
-            }
 
-            CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall) ;
-            callGenerator.genCall(callable, resolvedCall, lazyArguments, codegen);
+            if (setValue != null) {
+                addRightSide(callable, setValue, lazyArguments, valueParameters);
+            }
+        }
+
+        private void addRightSide(
+                @NotNull Callable callable,
+                @Nullable StackValue setValue,
+                @NotNull LazyArguments lazyArguments,
+                List<ValueParameterDescriptor> valueParameters
+        ) {
+            lazyArguments.addParameter(new GeneratedValueArgument(
+                    setValue, ArraysKt.last(callable.getParameterTypes()),
+                    CollectionsKt.last(valueParameters),
+                    valueParameters.size() - 1/*TODO add expression*/
+            ));
+        }
+
+        private void genCallImpl(
+                @NotNull Callable callable,
+                @NotNull ResolvedCall<?> resolvedCall,
+                boolean isStore,
+                @NotNull LazyArguments lazyArguments
+        ) {
+            codegen.getOrCreateCallGenerator(resolvedCall).genCall(callable, resolvedCall, lazyArguments, codegen);
+
+            if (isStore) {
+                Type returnType = setter.getReturnType();
+                if (returnType != Type.VOID_TYPE) {
+                    pop(codegen.v, returnType);
+                }
+            }
         }
 
         @Override
@@ -1005,6 +1039,27 @@ public abstract class StackValue extends StackValueBase {
         }
 
         @Override
+        public void storeWithArguments(
+                @NotNull StackValue value, @NotNull InstructionAdapter v, @Nullable LazyArguments arguments
+        ) {
+            if (setter == null || arguments == null) {
+                super.storeWithArguments(value, v, arguments);
+            }
+            else {
+                addRightSide(setter, value, arguments, resolvedSetCall.getResultingDescriptor().getValueParameters());
+                genCallImpl(setter, resolvedSetCall, true, arguments);
+            }
+        }
+
+        @Override
+        public void genArgs(@NotNull LazyArguments arguments, boolean isRead) {
+            Callable callable = isRead ? getter : setter;
+            ResolvedCall resolvedCall = isRead ? resolvedGetCall : resolvedSetCall;
+            List valueArguments = resolvedCall.getValueArgumentsByIndex();
+            genArgsImpl(callable, resolvedCall, null, arguments, isRead ? valueArguments: valueArguments.subList(0, valueArguments.size() - 1));
+        }
+
+        @Override
         public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
             if (setter == null) {
                 throw new UnsupportedOperationException("no setter specified");
@@ -1028,12 +1083,8 @@ public abstract class StackValue extends StackValueBase {
             //}
 
             genCall(setter, resolvedSetCall, rightSide);
-
-            Type returnType = setter.getReturnType();
-            if (returnType != Type.VOID_TYPE) {
-                pop(v, returnType);
-            }
         }
+
         //
         //@Override
         //public void storeSelector(@NotNull Type topOfStackType, @NotNull InstructionAdapter v) {
@@ -1340,24 +1391,12 @@ public abstract class StackValue extends StackValueBase {
         public void store(@NotNull StackValue rightSide, @NotNull InstructionAdapter v, boolean skipReceiver) {
             PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
             if (setter != null && resolvedCall != null && setterDescriptor != null) {
-                CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
+
 
                 LazyArguments lazyArguments = new LazyArguments();
                 //TODO generate proper LazyValue
                 genArgs(lazyArguments, false);
-                List<ValueParameterDescriptor> valueParameters = setterDescriptor.getValueParameters();
-                lazyArguments.addParameter(new GeneratedValueArgument(
-                        rightSide, ArraysKt.last(setter.getParameterTypes()),
-                        CollectionsKt.last(valueParameters),
-                        valueParameters.size() - 1/*TODO add expression*/
-                ));
-
-                callGenerator.genCall(setter, resolvedCall, lazyArguments, codegen);
-
-                Type returnType = setter.getReturnType();
-                if (returnType != Type.VOID_TYPE) {
-                    pop(v, returnType);
-                }
+                storeImpl(rightSide, v, setterDescriptor, lazyArguments);
             }
             else {
                 super.store(rightSide, v, skipReceiver);
@@ -1370,11 +1409,32 @@ public abstract class StackValue extends StackValueBase {
         ) {
             PropertySetterDescriptor setterDescriptor = descriptor.getSetter();
             if (setter != null && resolvedCall != null && setterDescriptor != null && arguments != null) {
-                CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
-                callGenerator.genCall(setter, resolvedCall, arguments, codegen);
+                storeImpl(value, v, setterDescriptor, arguments);
             }
             else {
                 super.storeWithArguments(value, v, arguments);
+            }
+        }
+
+        private void storeImpl(
+                @NotNull StackValue rightSide,
+                @NotNull InstructionAdapter v,
+                PropertySetterDescriptor setterDescriptor,
+                LazyArguments lazyArguments
+        ) {
+            List<ValueParameterDescriptor> valueParameters = setterDescriptor.getValueParameters();
+            lazyArguments.addParameter(new GeneratedValueArgument(
+                    rightSide, ArraysKt.last(setter.getParameterTypes()),
+                    CollectionsKt.last(valueParameters),
+                    valueParameters.size() - 1/*TODO add expression*/
+            ));
+
+            CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall, setterDescriptor);
+            callGenerator.genCall(setter, resolvedCall, lazyArguments, codegen);
+
+            Type returnType = setter.getReturnType();
+            if (returnType != Type.VOID_TYPE) {
+                pop(v, returnType);
             }
         }
 

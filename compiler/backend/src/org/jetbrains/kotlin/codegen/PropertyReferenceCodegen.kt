@@ -71,6 +71,8 @@ class PropertyReferenceCodegen(
     // e.g. mutableProperty0(Lkotlin/jvm/internal/MutablePropertyReference0;)Lkotlin/reflect/KMutableProperty0;
     private val wrapperMethod = getWrapperMethodForPropertyReference(target, getFunction.valueParameters.size)
 
+    val referenceType = wrapperMethod.returnType
+
     private val closure = bindingContext.get(CodegenBinding.CLOSURE, classDescriptor)!!.apply {
         assert((captureReceiverType != null) == (receiverType != null)) {
             "Bound property reference can only be generated with the type of the receiver. " +
@@ -165,10 +167,11 @@ class PropertyReferenceCodegen(
     }
 
     fun putInstanceOnStack(receiverValue: (() -> Unit)?): StackValue {
-        return StackValue.operation(wrapperMethod.returnType) { iv ->
+
+        return StackValue.operation(referenceType) { iv ->
             if (JvmCodegenUtil.isConst(closure)) {
                 assert(receiverValue == null) { "No receiver expected for unbound property reference: $classDescriptor" }
-                iv.getstatic(asmType.internalName, JvmAbi.INSTANCE_FIELD, wrapperMethod.returnType.descriptor)
+                iv.getstatic(asmType.internalName, JvmAbi.INSTANCE_FIELD, referenceType.descriptor)
             }
             else {
                 assert(receiverValue != null) { "Receiver expected for bound property reference: $classDescriptor" }

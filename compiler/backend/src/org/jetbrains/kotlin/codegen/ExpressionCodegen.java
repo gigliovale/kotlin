@@ -3377,31 +3377,44 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
 
     @NotNull
     private StackValue generatePropertyReference(
-            @NotNull KtElement element,
+            @NotNull final KtElement element,
             @NotNull VariableDescriptor variableDescriptor,
             @NotNull VariableDescriptor target,
             @Nullable final Type receiverAsmType,
             @Nullable final StackValue receiverValue
     ) {
-        ClassDescriptor classDescriptor = CodegenBinding.anonymousClassForCallable(bindingContext, variableDescriptor);
+        //TODO make lazy
+        final ClassDescriptor classDescriptor = CodegenBinding.anonymousClassForCallable(bindingContext, variableDescriptor);
+        ClassBuilder classBuilder = new ClassBuilderOnDemand(new Function0<ClassBuilder>() {
+            @Override
+            public ClassBuilder invoke() {
+                return state.getFactory().newVisitor(
+                        JvmDeclarationOriginKt.OtherOrigin(element),
+                        typeMapper.mapClass(classDescriptor),
+                        element.getContainingFile()
+                );
+            }
+        });
 
-        ClassBuilder classBuilder = state.getFactory().newVisitor(
-                JvmDeclarationOriginKt.OtherOrigin(element),
-                typeMapper.mapClass(classDescriptor),
-                element.getContainingFile()
-        );
-
-        PropertyReferenceCodegen codegen = new PropertyReferenceCodegen(
+        final PropertyReferenceCodegen codegen = new PropertyReferenceCodegen(
                 state, parentCodegen, context.intoAnonymousClass(classDescriptor, this, OwnerKind.IMPLEMENTATION),
                 element, classBuilder, variableDescriptor, target, receiverAsmType
         );
-        codegen.generate();
 
-        return codegen.putInstanceOnStack(receiverValue == null ? null : new Function0<Unit>() {
+        return StackValue.operation(codegen.getReferenceType(), new Function1<InstructionAdapter, Unit>() {
             @Override
-            public Unit invoke() {
-                assert receiverAsmType != null : "Receiver type should not be null when receiver value is not null: " + receiverValue;
-                receiverValue.put(receiverAsmType, v);
+            public Unit invoke(InstructionAdapter adapter) {
+                codegen.generate();
+
+                StackValue value = codegen.putInstanceOnStack(receiverValue == null ? null : new Function0<Unit>() {
+                    @Override
+                    public Unit invoke() {
+                        assert receiverAsmType != null : "Receiver type should not be null when receiver value is not null: " + receiverValue;
+                        receiverValue.put(receiverAsmType, v);
+                        return Unit.INSTANCE;
+                    }
+                });
+                value.put(value.type, adapter);
                 return Unit.INSTANCE;
             }
         });

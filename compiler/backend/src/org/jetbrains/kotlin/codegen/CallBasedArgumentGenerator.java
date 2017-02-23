@@ -56,12 +56,13 @@ public class CallBasedArgumentGenerator extends ArgumentGenerator {
             @NotNull List<? extends ResolvedValueArgument> valueArgumentsByIndex,
             @NotNull List<? extends ResolvedValueArgument> valueArgs,
             @Nullable CallableDescriptor calleeDescriptor,
-            @NotNull LazyArguments lazyArguments
+            @NotNull LazyArguments lazyArguments,
+            boolean isConstructor
     ) {
         //TODO move out
         boolean shouldMarkLineNumbers = this.codegen.isShouldMarkLineNumbers();
         this.codegen.setShouldMarkLineNumbers(false);
-        DefaultCallArgs defaultArgs = super.generate(valueArgumentsByIndex, valueArgs, calleeDescriptor, lazyArguments);
+        DefaultCallArgs defaultArgs = super.generate(valueArgumentsByIndex, valueArgs, calleeDescriptor, lazyArguments, false);
         this.codegen.setShouldMarkLineNumbers(shouldMarkLineNumbers);
         return defaultArgs;
     }

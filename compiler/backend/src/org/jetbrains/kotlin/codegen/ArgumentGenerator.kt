@@ -40,7 +40,8 @@ abstract class ArgumentGenerator {
             actualArgs: List<ResolvedValueArgument>,
             // may be null for a constructor of an object literal
             calleeDescriptor: CallableDescriptor?,
-            lazyArguments: LazyArguments
+            lazyArguments: LazyArguments,
+            isConstructor: Boolean
     ): DefaultCallArgs {
         assert(valueArgumentsByIndex.size == actualArgs.size) {
             "Value arguments collection should have same size, but ${valueArgumentsByIndex.size} != ${actualArgs.size}"
@@ -86,6 +87,8 @@ abstract class ArgumentGenerator {
             }
             lazyArguments.addParameter(GeneratedValueArgument(value, parameterType(declIndex), parameterDescriptor(declIndex), declIndex, expression))
         }
+
+        defaultArgs.generateOnStackIfNeeded(lazyArguments, isConstructor)
 
         return defaultArgs
     }

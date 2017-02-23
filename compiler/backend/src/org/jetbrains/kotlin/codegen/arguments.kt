@@ -59,7 +59,7 @@ class CapturedParameter @JvmOverloads constructor(
     }
 }
 
-class GeneratedValueArgument(
+class GeneratedValueArgument @JvmOverloads constructor(
         stackValue: StackValue, type: Type = stackValue.type, val descriptor: ValueParameterDescriptor?, val declIndex: Int, val expression: KtExpression? = null
 ): GeneratedArgument(stackValue, type, LazyArgumentKind.VALUE_PARAMETER) {
     override fun copyWithNewStackValue(stackValue: StackValue): GeneratedArgument {

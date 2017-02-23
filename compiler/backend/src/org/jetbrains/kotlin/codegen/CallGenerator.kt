@@ -73,11 +73,11 @@ abstract class CallGenerator {
         val valueParameters = extractValueParameters(lazyArguments)
 
         valueParameters.forEach {
-            it.stackValue.put(it.type, v)
+            putValueIfNeeded(it.type, it.stackValue)
         }
     }
 
-    fun genCall(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, lazyArguments: LazyArguments, codegen: ExpressionCodegen) {
+    open fun genCall(callableMethod: Callable, resolvedCall: ResolvedCall<*>?, lazyArguments: LazyArguments, codegen: ExpressionCodegen) {
         val isSuspensionPoint = resolvedCall?.isSuspensionPointInStateMachine(codegen.bindingContext) ?: false
 
         if (isSuspensionPoint) {
@@ -86,11 +86,28 @@ abstract class CallGenerator {
             addInlineMarker(codegen.v, true)
         }
         val v = codegen.v
-        //safe call
-        lazyArguments.list.takeWhile{ it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach {
-            it.stackValue.put(it.type, v)
-            if (it.kind == LazyArgumentKind.DISPATCH_RECEIVER) {
-                callableMethod.afterReceiverGeneration(v)
+
+        val first = lazyArguments.list.getOrNull(0)
+        val second = lazyArguments.list.getOrNull(1)
+        if (LazyArgumentKind.EXTENSION_RECEIVER == first?.kind && LazyArgumentKind.DISPATCH_RECEIVER == second?.kind) {
+            //safe call
+            first.put(v)
+            second.put(v)
+            AsmUtil.swap(v, second.type, first.type)
+            lazyArguments.list.drop(2).takeWhile{ it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach {
+                //todo put value if needed
+                it.put(v)
+            }
+
+            //callableMethod.afterReceiverGeneration(v)
+        }
+        else {
+            lazyArguments.list.takeWhile{ it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach {
+                //todo put value if needed
+                it.stackValue.put(it.type, v)
+                if (it.kind == LazyArgumentKind.DISPATCH_RECEIVER) {
+                    callableMethod.afterReceiverGeneration(v)
+                }
             }
         }
 

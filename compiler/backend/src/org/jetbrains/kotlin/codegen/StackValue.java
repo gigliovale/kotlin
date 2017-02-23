@@ -17,9 +17,9 @@
 package org.jetbrains.kotlin.codegen;
 
 import com.intellij.psi.tree.IElementType;
-import kotlin.Lazy;
 import kotlin.Unit;
 import kotlin.collections.ArraysKt;
+import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -933,16 +933,19 @@ public abstract class StackValue extends StackValueBase {
             LazyArguments lazyArguments = new LazyArguments();
             StackValue.receiver(resolvedCall, receiver, codegen, callable, lazyArguments);
 
+            List<ValueParameterDescriptor> valueParameters = resolvedCall.getResultingDescriptor().getValueParameters();
             ArgumentGenerator argumentGenerator = new CallBasedArgumentGenerator(
                     codegen,
-                    resolvedCall.getResultingDescriptor().getValueParameters(), this.callable.getValueParameterTypes()
+                    valueParameters, this.callable.getValueParameterTypes()
             );
 
             argumentGenerator.generate(valueArguments, valueArguments, resolvedCall.getResultingDescriptor(), lazyArguments);
             if (setValue != null) {
-                //TODO create proper lazyArgument
-                Type lastParameterType = ArraysKt.last(callable.getParameterTypes());
-                lazyArguments.addParameter(setValue, lastParameterType, LazyArgumentKind.EXPLICITLY_ADDED);
+                lazyArguments.addParameter(new GeneratedValueArgument(
+                        setValue, ArraysKt.last(callable.getParameterTypes()),
+                        CollectionsKt.last(valueParameters),
+                        valueParameters.size() - 1/*TODO add expression*/
+                ));
             }
 
             CallGenerator callGenerator = codegen.getOrCreateCallGenerator(resolvedCall) ;
@@ -1341,11 +1344,14 @@ public abstract class StackValue extends StackValueBase {
                 LazyArguments lazyArguments = new LazyArguments();
                 //TODO generate proper LazyValue
                 genArgs(lazyArguments, false);
-                lazyArguments.addParameter(rightSide, ArraysKt.last(setter.getParameterTypes()), LazyArgumentKind.EXPLICITLY_ADDED);
+                List<ValueParameterDescriptor> valueParameters = setterDescriptor.getValueParameters();
+                lazyArguments.addParameter(new GeneratedValueArgument(
+                        rightSide, ArraysKt.last(setter.getParameterTypes()),
+                        CollectionsKt.last(valueParameters),
+                        valueParameters.size() - 1/*TODO add expression*/
+                ));
 
                 callGenerator.genCall(setter, resolvedCall, lazyArguments, codegen);
-
-                //coerce(topOfStackType, ArraysKt.last(setter.getParameterTypes()), v);
 
                 Type returnType = setter.getReturnType();
                 if (returnType != Type.VOID_TYPE) {

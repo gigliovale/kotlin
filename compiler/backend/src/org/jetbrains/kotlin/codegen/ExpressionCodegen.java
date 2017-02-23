@@ -2970,8 +2970,9 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             //}
             //
             //callableMethod.afterReceiverGeneration(v);
+        } else {
+            argumentList.addParameter(StackValue.onStack(receiver.type), LazyArgumentKind.DISPATCH_RECEIVER);
         }
-        argumentList.addParameter(StackValue.onStack(receiver.type), LazyArgumentKind.DISPATCH_RECEIVER);
     }
 
     @NotNull

@@ -25,8 +25,8 @@ class CoercionValue(
         val castType: Type
 ) : StackValue(castType, value.canHaveSideEffects()) {
 
-    override fun put(type: Type, v: InstructionAdapter, skipReceiver: Boolean) {
-        value.put(castType, v, skipReceiver)
+    override fun put(type: Type, v: InstructionAdapter) {
+        value.put(castType, v)
         StackValue.coerce(castType, type, v)
     }
 

@@ -40,21 +40,11 @@ import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
 
 abstract class StackValueBase {
-    open fun put(type: Type, v: InstructionAdapter) {
-        put(type, v, false)
-    }
-
-    abstract fun put(type: Type, v: InstructionAdapter, skipReceiver: Boolean)
+    abstract fun put(type: Type, v: InstructionAdapter)
 
     open fun putWithArguments(type: Type, v: InstructionAdapter, arguments: LazyArguments?) {
         arguments?.generateAllDirectlyTo(v)
-        put(type, v, arguments != null)
-    }
-
-    open fun putLazy(type: Type, v: InstructionAdapter, arguments: LazyArguments?): StackValue {
-        return OperationStackValue(type) {
-            putWithArguments(type, v, arguments)
-        }
+        put(type, v)
     }
 
     open fun genArgs(arguments: LazyArguments, isRead: Boolean) {

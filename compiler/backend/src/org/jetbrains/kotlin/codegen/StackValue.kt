@@ -30,8 +30,8 @@ class CoercionValue(
         StackValue.coerce(castType, type, v)
     }
 
-    override fun store(value: StackValue, v: InstructionAdapter, skipReceiver: Boolean) {
-        value.store(value, v, skipReceiver)
+    override fun store(value: StackValue, v: InstructionAdapter) {
+        this.value.store(value, v)
     }
 
     override fun putSelector(type: Type, v: InstructionAdapter) {

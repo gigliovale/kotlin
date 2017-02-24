@@ -1,0 +1,14 @@
+@kotlin.Metadata
+public final class A {
+    private field z: boolean
+    public method <init>(p0: boolean): void
+    public final method getZ(): boolean
+    public final method setZ(p0: boolean): void
+}
+
+@kotlin.Metadata
+public final class AssignKt {
+    public final static @org.jetbrains.annotations.NotNull method box(): java.lang.String
+    public final static method test(): void
+    public final static @org.jetbrains.annotations.Nullable method test(@org.jetbrains.annotations.Nullable p0: A): A
+}

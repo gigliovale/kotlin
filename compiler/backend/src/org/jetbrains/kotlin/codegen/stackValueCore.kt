@@ -51,13 +51,12 @@ abstract class StackValueBase {
 
     }
 
-    abstract fun store(value: StackValue, v: InstructionAdapter, skipReceiver: Boolean)
+    abstract fun store(value: StackValue, v: InstructionAdapter)
 
     open fun storeWithArguments(value: StackValue, v: InstructionAdapter, arguments: LazyArguments?) {
         arguments?.generateAllDirectlyTo(v)
-        store(value, v, arguments != null)
+        store(value, v)
     }
-
 }
 
 fun StackValue.put(v: InstructionAdapter) {

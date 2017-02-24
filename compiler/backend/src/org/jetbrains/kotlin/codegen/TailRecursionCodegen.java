@@ -85,7 +85,7 @@ public class TailRecursionCodegen {
         if (callable.getExtensionReceiverType() != null) {
             if (resolvedCall.getExtensionReceiver() != fd.getExtensionReceiverParameter().getValue()) {
                 StackValue expression = context.getReceiverExpression(codegen.typeMapper);
-                expression.store(StackValue.onStack(callable.getExtensionReceiverType()), v, true);
+                expression.storeWithArguments(StackValue.onStack(callable.getExtensionReceiverType()), v, new LazyArguments());
             }
             else {
                 AsmUtil.pop(v, callable.getExtensionReceiverType());

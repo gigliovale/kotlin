@@ -747,7 +747,7 @@ public abstract class MemberCodegen<T extends KtPureElement/* TODO: & KtDeclarat
                         property.put(signature.getReturnType(), iv);
                     }
                     else {
-                        property.store(StackValue.onStack(property.type), iv, true);
+                        property.storeWithArguments(StackValue.onStack(property.type), iv, new LazyArguments());
                     }
 
                     iv.areturn(signature.getReturnType());

@@ -61,7 +61,7 @@ class JvmStaticInCompanionObjectGenerator(
                                 propertyValue.put(signature.returnType, iv)
                             }
                             else {
-                                propertyValue.store(StackValue.onStack(propertyValue.type), iv, true)
+                                propertyValue.storeWithArguments(StackValue.onStack(propertyValue.type), iv, LazyArguments()/*TODO add args*/)
                             }
                         }
                         else {

@@ -4462,7 +4462,7 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
             }
 
             Type elementType = isGetter ? callableMethod.getReturnType() : ArrayUtil.getLastElement(argumentTypes);
-            return StackValue.collectionElement(receiver, elementType, resolvedGetCall, resolvedSetCall, this, callable, isGetter, valueArguments);
+            return StackValue.collectionElement(receiver, elementType, resolvedGetCall, resolvedSetCall, this, valueArguments);
         }
     }
 

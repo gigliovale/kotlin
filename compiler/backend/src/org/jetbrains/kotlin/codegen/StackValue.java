@@ -239,11 +239,9 @@ public abstract class StackValue extends StackValueBase {
             ResolvedCall<FunctionDescriptor> getter,
             ResolvedCall<FunctionDescriptor> setter,
             ExpressionCodegen codegen,
-            Callable callable,
-            boolean isGetter,
             List<ResolvedValueArgument> valueArguments
     ) {
-        return new CollectionElement(receiver, type, getter, setter, codegen, callable, isGetter, valueArguments);
+        return new CollectionElement(receiver, type, getter, setter, codegen, valueArguments);
     }
 
     @NotNull
@@ -896,8 +894,6 @@ public abstract class StackValue extends StackValueBase {
         private final ExpressionCodegen codegen;
         private final ResolvedCall<FunctionDescriptor> resolvedGetCall;
         private final ResolvedCall<FunctionDescriptor> resolvedSetCall;
-        private final boolean isGetter;
-        private final Callable callable;
         private final List<ResolvedValueArgument> valueArguments;
 
         public CollectionElement(
@@ -906,8 +902,6 @@ public abstract class StackValue extends StackValueBase {
                 @Nullable ResolvedCall<FunctionDescriptor> resolvedGetCall,
                 @Nullable ResolvedCall<FunctionDescriptor> resolvedSetCall,
                 @NotNull ExpressionCodegen codegen,
-                @NotNull Callable callable,
-                boolean isGetter,
                 @NotNull List<ResolvedValueArgument> valueArguments
         ) {
             super(type, false, false, /*TODO another receiver*/receiver, true);
@@ -919,8 +913,6 @@ public abstract class StackValue extends StackValueBase {
                           codegen.resolveToCallable(codegen.accessibleFunctionDescriptor(resolvedGetCall), false, resolvedGetCall);
             this.codegen = codegen;
 
-            this.isGetter = isGetter;
-            this.callable = callable;
             this.valueArguments = valueArguments;
         }
 
@@ -958,7 +950,7 @@ public abstract class StackValue extends StackValueBase {
             }
         }
 
-        private void addRightSide(
+        private static void addRightSide(
                 @NotNull Callable callable,
                 @Nullable StackValue setValue,
                 @NotNull LazyArguments lazyArguments,
@@ -1121,96 +1113,6 @@ public abstract class StackValue extends StackValueBase {
         //        pop(v, returnType);
         //    }
         //}
-
-        public void dupReceiver(@NotNull InstructionAdapter v) {
-            if (isStandardStack(codegen.typeMapper, resolvedGetCall, 1) &&
-                isStandardStack(codegen.typeMapper, resolvedSetCall, 2)) {
-                v.dup2();   // collection and index
-                return;
-            }
-            FrameMap frame = codegen.getFrameMap();
-            FrameMap.Mark mark = frame.mark();
-
-            // indexes
-            List<ValueParameterDescriptor> valueParameters = resolvedGetCall.getResultingDescriptor().getValueParameters();
-            int firstParamIndex = -1;
-            for (int i = valueParameters.size() - 1; i >= 0; --i) {
-                Type type = codegen.typeMapper.mapType(valueParameters.get(i).getType());
-                firstParamIndex = frame.enterTemp(type);
-                v.store(firstParamIndex, type);
-            }
-
-            ReceiverValue receiverParameter = resolvedGetCall.getExtensionReceiver();
-            int receiverIndex = -1;
-            if (receiverParameter != null) {
-                Type type = codegen.typeMapper.mapType(receiverParameter.getType());
-                receiverIndex = frame.enterTemp(type);
-                v.store(receiverIndex, type);
-            }
-
-            ReceiverValue dispatchReceiver = resolvedGetCall.getDispatchReceiver();
-            int thisIndex = -1;
-            if (dispatchReceiver != null) {
-                thisIndex = frame.enterTemp(OBJECT_TYPE);
-                v.store(thisIndex, OBJECT_TYPE);
-            }
-
-            // for setter
-
-            int realReceiverIndex;
-            Type realReceiverType;
-            if (receiverIndex != -1) {
-                realReceiverType = codegen.typeMapper.mapType(receiverParameter.getType());
-                realReceiverIndex = receiverIndex;
-            }
-            else if (thisIndex != -1) {
-                realReceiverType = OBJECT_TYPE;
-                realReceiverIndex = thisIndex;
-            }
-            else {
-                throw new UnsupportedOperationException();
-            }
-
-            if (resolvedSetCall.getDispatchReceiver() != null) {
-                if (resolvedSetCall.getExtensionReceiver() != null) {
-                    codegen.generateReceiverValue(resolvedSetCall.getDispatchReceiver(), false).put(OBJECT_TYPE, v);
-                }
-                v.load(realReceiverIndex, realReceiverType);
-            }
-            else {
-                if (resolvedSetCall.getExtensionReceiver() != null) {
-                    v.load(realReceiverIndex, realReceiverType);
-                }
-                else {
-                    throw new UnsupportedOperationException();
-                }
-            }
-
-            int index = firstParamIndex;
-            for (ValueParameterDescriptor valueParameter : valueParameters) {
-                Type type = codegen.typeMapper.mapType(valueParameter.getType());
-                v.load(index, type);
-                index -= type.getSize();
-            }
-
-            // restoring original
-            if (thisIndex != -1) {
-                v.load(thisIndex, OBJECT_TYPE);
-            }
-
-            if (receiverIndex != -1) {
-                v.load(receiverIndex, realReceiverType);
-            }
-
-            index = firstParamIndex;
-            for (ValueParameterDescriptor valueParameter : valueParameters) {
-                Type type = codegen.typeMapper.mapType(valueParameter.getType());
-                v.load(index, type);
-                index -= type.getSize();
-            }
-
-            mark.dropTo();
-        }
     }
 
 
@@ -1863,41 +1765,6 @@ public abstract class StackValue extends StackValueBase {
             boolean hasReceiver = isNonStaticAccess(isRead);
             if (hasReceiver || receiver.canHaveSideEffects()) {
                 arguments.addParameter(receiver, hasReceiver ? receiver.type : Type.VOID_TYPE, LazyArgumentKind.RECEIVER_LIKE_IN_STACKVALUE);
-            }
-        }
-    }
-
-    private static class ComplexReceiver extends StackValue {
-
-        private final StackValueWithSimpleReceiver originalValueWithReceiver;
-        private final boolean[] isReadOperations;
-
-        public ComplexReceiver(StackValueWithSimpleReceiver value, boolean[] isReadOperations) {
-            super(value.type, value.receiver.canHaveSideEffects());
-            this.originalValueWithReceiver = value;
-            this.isReadOperations = isReadOperations;
-        }
-
-        @Override
-        public void putSelector(
-                @NotNull Type type, @NotNull InstructionAdapter v
-        ) {
-            boolean wasPut = false;
-            StackValue receiver = originalValueWithReceiver.receiver;
-            for (boolean operation : isReadOperations) {
-                if (originalValueWithReceiver.isNonStaticAccess(operation)) {
-                    if (!wasPut) {
-                        receiver.put(receiver.type, v);
-                        wasPut = true;
-                    }
-                    else {
-                        receiver.dup(v, false);
-                    }
-                }
-            }
-
-            if (!wasPut && receiver.canHaveSideEffects()) {
-                receiver.put(Type.VOID_TYPE, v);
             }
         }
     }

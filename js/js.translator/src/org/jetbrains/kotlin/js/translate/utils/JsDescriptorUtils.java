@@ -25,7 +25,6 @@ import org.jetbrains.kotlin.descriptors.*;
 import org.jetbrains.kotlin.js.descriptorUtils.DescriptorUtilsKt;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.name.Name;
-import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.resolve.DescriptorUtils;
 import org.jetbrains.kotlin.resolve.calls.tasks.DynamicCallsKt;
 import org.jetbrains.kotlin.resolve.scopes.receivers.ImplicitReceiver;
@@ -153,8 +152,7 @@ public final class JsDescriptorUtils {
     }
 
     @Nullable
-    public static Name getNameIfStandardType(@NotNull KtExpression expression, @NotNull TranslationContext context) {
-        KotlinType type = context.bindingContext().getType(expression);
+    public static Name getNameIfStandardType(@Nullable KotlinType type, @NotNull TranslationContext context) {
         return type != null ? DescriptorUtilsKt.getNameIfStandardType(type) : null;
     }
 

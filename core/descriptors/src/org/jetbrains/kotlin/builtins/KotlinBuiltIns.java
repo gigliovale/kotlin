@@ -882,6 +882,13 @@ public abstract class KotlinBuiltIns {
         return !type.isMarkedNullable() && descriptor instanceof ClassDescriptor && isPrimitiveClass((ClassDescriptor) descriptor);
     }
 
+    @Nullable
+    public static PrimitiveType getPrimitiveTypeByKotlinType(@NotNull KotlinType type) {
+        ClassifierDescriptor descriptor = type.getConstructor().getDeclarationDescriptor();
+        if (descriptor == null) return null;
+        return getPrimitiveTypeByFqName(getFqName(descriptor));
+    }
+
     public static boolean isPrimitiveClass(@NotNull ClassDescriptor descriptor) {
         return getPrimitiveTypeByFqName(getFqName(descriptor)) != null;
     }

@@ -76,11 +76,11 @@ class CliLightClassGenerationSupport(project: Project) : LightClassGenerationSup
         trace.setKotlinCodeAnalyzer(codeAnalyzer)
     }
 
-    override fun createLightClassDataHolderForClassOrObject(classOrObject: KtClassOrObject, build: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
+    override fun createLightClassDataHolderForClassOrObject(classOrObject: KtClassOrObject, builder: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
         //force resolve companion for light class generation
         bindingContext.get(BindingContext.CLASS, classOrObject)?.companionObjectDescriptor
 
-        val (stub, bindingContext, diagnostics) = build(getContext())
+        val (stub, bindingContext, diagnostics) = builder(getContext())
 
         bindingContext.get(BindingContext.CLASS, classOrObject) ?: return InvalidLightClassDataHolder
 

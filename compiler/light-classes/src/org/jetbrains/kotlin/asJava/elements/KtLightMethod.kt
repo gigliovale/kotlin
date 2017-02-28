@@ -248,7 +248,7 @@ class KtLightMethodImpl private constructor(
 
     override fun getName() = dummyDelegate?.name ?: clsDelegate.name
 
-    override fun hasModifierProperty(name: String) = clsDelegate.hasModifierProperty(name)
+    override fun hasModifierProperty(name: String) = dummyDelegate?.hasModifierProperty(name) ?: clsDelegate.hasModifierProperty(name)
 
     override fun getThrowsList() = clsDelegate.throwsList
 

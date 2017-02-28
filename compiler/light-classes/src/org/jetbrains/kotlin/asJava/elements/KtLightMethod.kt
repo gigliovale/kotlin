@@ -27,9 +27,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.*
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.kotlin.asJava.LightClassUtil
-import org.jetbrains.kotlin.asJava.builder.ClsWrapperStubPsiFactory
-import org.jetbrains.kotlin.asJava.builder.LightMemberOrigin
-import org.jetbrains.kotlin.asJava.builder.LightMemberOriginForDeclaration
+import org.jetbrains.kotlin.asJava.builder.*
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.propertyNameByAccessor
 import org.jetbrains.kotlin.asJava.unwrapped
@@ -187,14 +185,21 @@ class KtLightMethodImpl private constructor(
         return super.isEquivalentTo(another)
     }
 
-    override fun equals(other: Any?): Boolean =
-            other is KtLightMethod &&
-            name == other.name &&
-            lightMethodOrigin == other.lightMethodOrigin &&
-            containingClass == other.containingClass &&
-            clsDelegate == other.clsDelegate
+    private val _codegenMarker: CodegenMarker?
+        get() = (dummyDelegate ?: clsDelegate).codegenMarker
 
-    override fun hashCode(): Int = ((getName().hashCode() * 31 + (lightMethodOrigin?.hashCode() ?: 0)) * 31 + containingClass.hashCode()) * 31 + clsDelegate.hashCode()
+    /* comparing origin and codegen marker should be enough to determine equality:
+            for compiled elements origin contains delegate
+            for source elements codegen marker is unique to each light method
+            */
+    override fun equals(other: Any?): Boolean =
+            other is KtLightMethodImpl &&
+            this.name == other.name &&
+            this.containingClass == other.containingClass &&
+            this.lightMethodOrigin == other.lightMethodOrigin &&
+            this._codegenMarker == other._codegenMarker
+
+    override fun hashCode(): Int = ((getName().hashCode() * 31 + (lightMethodOrigin?.hashCode() ?: 0)) * 31 + containingClass.hashCode()) * 31 + (_codegenMarker?.hashCode() ?: 0)
 
     override fun toString(): String = "${this.javaClass.simpleName}:$name"
 

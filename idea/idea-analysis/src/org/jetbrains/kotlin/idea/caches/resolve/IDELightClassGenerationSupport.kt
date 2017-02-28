@@ -38,10 +38,7 @@ import org.jetbrains.kotlin.descriptors.ClassDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil
 import org.jetbrains.kotlin.fileClasses.javaFileFacadeFqName
-import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.ClsJavaStubByVirtualFileCache
-import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDecompiledDeclaration
-import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.LazyLightClassDataHolder
-import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.contextForBuildingLighterClasses
+import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.*
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.decompiler.navigation.SourceNavigationHelper
 import org.jetbrains.kotlin.idea.project.ResolveElementCache
@@ -67,17 +64,21 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     private val psiManager: PsiManager = PsiManager.getInstance(project)
 
     override fun createLightClassDataHolderForClassOrObject(
-            classOrObject: KtClassOrObject, build: (LightClassConstructionContext) -> LightClassBuilderResult
+            classOrObject: KtClassOrObject, builder: LightClassBuilder
     ): LightClassDataHolder {
-        return LazyLightClassDataHolder(build, { getContextForClassOrObject(classOrObject) }, { contextForBuildingLighterClasses(classOrObject) })
-    }
-
-    fun getContextForClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
-        if (classOrObject.isLocal()) {
-            return getContextForLocalClassOrObject(classOrObject)
+        return if (classOrObject.isLocal) {
+            LazyLightClassDataHolder(
+                    builder,
+                    exactContextProvider = { getContextForLocalClassOrObject(classOrObject) },
+                    dummyContextProvider = null
+            )
         }
         else {
-            return getContextForNonLocalClassOrObject(classOrObject)
+            LazyLightClassDataHolder(
+                    builder,
+                    exactContextProvider = { getContextForNonLocalClassOrObject(classOrObject) },
+                    dummyContextProvider = { contextForBuildingLighterClasses(classOrObject) }
+            )
         }
     }
 
@@ -115,12 +116,16 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
     }
 
-    override fun createLightClassDataHolderForFacade(files: Collection<KtFile>, build: (LightClassConstructionContext) -> LightClassBuilderResult): LightClassDataHolder {
+    override fun createLightClassDataHolderForFacade(files: Collection<KtFile>, builder: LightClassBuilder): LightClassDataHolder {
         assert(!files.isEmpty()) { "No files in facade" }
 
         val sortedFiles = files.sortedWith(scopeFileComparator)
 
-        return LazyLightClassDataHolder(build, { getContextForFacade(sortedFiles) }, { contextForBuildingLighterClasses(sortedFiles) })
+        return LazyLightClassDataHolder(
+                builder,
+                exactContextProvider = { getContextForFacade(sortedFiles) },
+                dummyContextProvider = { contextForBuildingLighterClasses(sortedFiles) }
+        )
     }
 
     fun getContextForFacade(files: List<KtFile>): LightClassConstructionContext {

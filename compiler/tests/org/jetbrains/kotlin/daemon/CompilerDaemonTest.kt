@@ -403,13 +403,16 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
 
     fun testParallelDaemonStart() {
 
-        val PARALLEL_THREADS_TO_START = 10
+        val PARALLEL_THREADS_TO_START = 16
 
         val doneLatch = CountDownLatch(PARALLEL_THREADS_TO_START)
 
         val resultCodes = arrayOfNulls<Int>(PARALLEL_THREADS_TO_START)
         val outStreams = Array(PARALLEL_THREADS_TO_START, { ByteArrayOutputStream() })
         val logFiles = arrayOfNulls<File>(PARALLEL_THREADS_TO_START)
+
+        System.setProperty(COMPILE_DAEMON_VERBOSE_REPORT_PROPERTY, "true")
+        System.setProperty(COMPILE_DAEMON_STARTUP_TIMEOUT_PROPERTY, "100000")
 
         fun connectThread(threadNo: Int) = thread(name = "daemonConnect$threadNo") {
             try {
@@ -419,6 +422,7 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
                                                           runFilesPath = File(tmpdir, getTestName(true)).absolutePath,
                                                           verbose = true)
                         val logFile = createTempFile("kotlin-daemon-test", ".log")
+                        logFiles[threadNo] = logFile
                         val daemonJVMOptions =
                                 configureDaemonJVMOptions(DaemonJVMOptions(maxMemory = "2048m"),
                                                           "D$COMPILE_DAEMON_LOG_PATH_PROPERTY=\"${logFile.loggerCompatiblePath}\"",
@@ -426,7 +430,9 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
                         val daemonWithSession = KotlinCompilerClient.connectAndLease(compilerId, flagFile, daemonJVMOptions, daemonOptions,
                                                                                      DaemonReportingTargets(out = System.err), autostart = true,
                                                                                      leaseSession = true, sessionAliveFlagFile = sessionFlagFile)
-                        assertNotNull("failed to connect daemon", daemonWithSession?.first)
+                        if (daemonWithSession?.first == null) {
+                            fail("failed to connect daemon:\n${logFile.readLines().joinToString("\n")}\n------")
+                        }
                         val jar = tmpdir.absolutePath + File.separator + "hello.$threadNo.jar"
                         val res = KotlinCompilerClient.compile(
                                 daemonWithSession!!.first,
@@ -435,7 +441,6 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
                                 arrayOf(File(getHelloAppBaseDir(), "hello.kt").absolutePath, "-d", jar),
                                 outStreams[threadNo])
                         resultCodes[threadNo] = res
-                        logFiles[threadNo] = logFile
                     }
                 }
             }
@@ -447,20 +452,23 @@ class CompilerDaemonTest : KotlinIntegrationTestBase() {
         (1..PARALLEL_THREADS_TO_START).forEach { connectThread(it - 1) }
 
         val succeeded = doneLatch.await(PARALLEL_WAIT_TIMEOUT_S, TimeUnit.SECONDS)
+
+        System.clearProperty(COMPILE_DAEMON_STARTUP_TIMEOUT_PROPERTY)
+
         assertTrue("parallel daemons start failed to complete in $PARALLEL_WAIT_TIMEOUT_S s, ${doneLatch.count} unfinished threads", succeeded)
 
         Thread.sleep(100) // Wait for processes to finish and close log files
 
-        val electionLogs = logFiles.map { it to it?.readLines()?.find { it.contains(LOG_PREFIX_ASSUMING_OTHER_DAEMONS_HAVE) } }
+        val electionLogs = (0..(PARALLEL_THREADS_TO_START - 1)).map {
+            val logContents = logFiles[it]?.readLines()
+            assertEquals("Compilation on thread $it failed:\n${outStreams[it]}\n\n------- daemon log: -------\n${logContents?.joinToString("\n")}\n-------", 0, resultCodes[it])
+            logContents?.find { it.contains(LOG_PREFIX_ASSUMING_OTHER_DAEMONS_HAVE) }
+        }
 
         assertTrue("No daemon elected: \n${electionLogs.joinToString("\n")}",
-                   electionLogs.any { (_, electionLine) -> electionLine != null && (electionLine.contains("lower prio") || electionLine.contains("equal prio")) })
+                   electionLogs.any { it != null && (it.contains("lower prio") || it.contains("equal prio")) })
 
-        electionLogs.forEach { (logFile, _) -> logFile?.delete() }
-
-        (1..PARALLEL_THREADS_TO_START).forEach {
-            assertEquals("Compilation on thread $it failed:\n${outStreams[it - 1]}", 0, resultCodes[it - 1])
-        }
+        logFiles.forEach { it?.delete() }
     }
 
     fun testDaemonConnectionProblems() {

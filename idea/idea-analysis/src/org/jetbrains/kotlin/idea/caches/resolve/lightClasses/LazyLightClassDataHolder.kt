@@ -27,15 +27,25 @@ import org.jetbrains.kotlin.asJava.elements.KtLightMethodImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
 
+typealias LightClassBuilder = (LightClassConstructionContext) -> LightClassBuilderResult
+typealias LightClassContextProvider = () -> LightClassConstructionContext
+
 class LazyLightClassDataHolder(
-        build: (LightClassConstructionContext) -> LightClassBuilderResult,
-        getRealContext: () -> LightClassConstructionContext,
-        getDummyContext: () -> LightClassConstructionContext
+        builder: LightClassBuilder,
+        exactContextProvider: LightClassContextProvider,
+        dummyContextProvider: LightClassContextProvider?
 ) : LightClassDataHolder {
 
-    private val exactResult by lazy(LazyThreadSafetyMode.PUBLICATION) { build(getRealContext()) }
+    private val exactResultDelegate = lazy(LazyThreadSafetyMode.PUBLICATION) { builder(exactContextProvider()) }
 
-    private val inexactResult by lazy(LazyThreadSafetyMode.PUBLICATION) { build(getDummyContext()) }
+    private val exactResult: LightClassBuilderResult by exactResultDelegate
+
+    private val lazyInexactResult by lazy(LazyThreadSafetyMode.PUBLICATION) {
+        dummyContextProvider?.let { builder.invoke(it()) }
+    }
+
+    private val inexactResult: LightClassBuilderResult?
+        get() = if (exactResultDelegate.isInitialized()) null else lazyInexactResult
 
     override val javaFileStub get() = exactResult.stub
     override val extraDiagnostics get() = exactResult.diagnostics
@@ -55,10 +65,12 @@ class LazyLightClassDataHolder(
     ) : LightClassData {
         override val clsDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(exactResult) }
 
-        private val dummyDelegate: PsiClass by lazy(LazyThreadSafetyMode.PUBLICATION) { findDelegate(inexactResult) }
+        private val dummyDelegate: PsiClass? by lazy(LazyThreadSafetyMode.PUBLICATION) { inexactResult?.let(findDelegate) }
 
         override fun getOwnFields(containingClass: KtLightClass): List<KtLightField> {
-            return dummyDelegate.fields.map { dummyDelegate ->
+            if (dummyDelegate == null) return clsDelegate.fields.map { KtLightFieldImpl.fromClsField(it, containingClass) }
+
+            return dummyDelegate!!.fields.map { dummyDelegate ->
                 val memberOrigin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)!!
                 val fieldName = dummyDelegate.name!!
                 KtLightFieldImpl.lazy(fieldName, memberOrigin, containingClass) {
@@ -70,7 +82,9 @@ class LazyLightClassDataHolder(
         }
 
         override fun getOwnMethods(containingClass: KtLightClass): List<KtLightMethod> {
-            return dummyDelegate.methods.map { dummyDelegate ->
+            if (dummyDelegate == null) return clsDelegate.methods.map { KtLightMethodImpl.fromClsMethod(it, containingClass) }
+
+            return dummyDelegate!!.methods.map { dummyDelegate ->
                 // TODO_R: correct origin
                 val methodName = dummyDelegate.name
                 val origin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)
@@ -86,7 +100,7 @@ class LazyLightClassDataHolder(
         }
 
         override val supertypes: Array<PsiClassType>
-            get() = if (relyOnDummySupertypes) dummyDelegate.superTypes else clsDelegate.superTypes
+            get() = if (relyOnDummySupertypes && dummyDelegate != null) dummyDelegate!!.superTypes else clsDelegate.superTypes
 
     }
 }

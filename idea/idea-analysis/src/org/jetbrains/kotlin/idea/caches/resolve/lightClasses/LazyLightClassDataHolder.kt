@@ -88,7 +88,7 @@ class LazyLightClassDataHolder(
                 // TODO_R: correct origin
                 val methodName = dummyDelegate.name
                 val origin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)
-                KtLightMethodImpl.lazy(methodName, containingClass, origin) {
+                KtLightMethodImpl.lazy(dummyDelegate, containingClass, origin) {
                     val dummyMarker = dummyDelegate.codegenMarker!!
                     clsDelegate.findMethodsByName(methodName, false).filter {
                         delegateCandidate -> delegateCandidate.codegenMarker == dummyMarker

@@ -185,7 +185,7 @@ class KtLightMethodImpl private constructor(
         return super.isEquivalentTo(another)
     }
 
-    private val codegenMarker: CodegenMarker?
+    private val _codegenMarker: CodegenMarker?
         get() = (dummyDelegate ?: clsDelegate).codegenMarker
 
     /* comparing origin and codegen marker should be enough to determine equality:
@@ -193,13 +193,13 @@ class KtLightMethodImpl private constructor(
             for source elements codegen marker is unique to each light method
             */
     override fun equals(other: Any?): Boolean =
-            other is KtLightMethod &&
+            other is KtLightMethodImpl &&
             this.name == other.name &&
             this.containingClass == other.containingClass &&
             this.lightMethodOrigin == other.lightMethodOrigin &&
-            this.codegenMarker == other.codegenMarker
+            this._codegenMarker == other._codegenMarker
 
-    override fun hashCode(): Int = ((getName().hashCode() * 31 + (lightMethodOrigin?.hashCode() ?: 0)) * 31 + containingClass.hashCode()) * 31 + (codegenMarker?.hashCode() ?: 0)
+    override fun hashCode(): Int = ((getName().hashCode() * 31 + (lightMethodOrigin?.hashCode() ?: 0)) * 31 + containingClass.hashCode()) * 31 + (_codegenMarker?.hashCode() ?: 0)
 
     override fun toString(): String = "${this.javaClass.simpleName}:$name"
 

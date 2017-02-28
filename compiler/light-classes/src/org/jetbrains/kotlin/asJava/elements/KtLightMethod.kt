@@ -48,7 +48,7 @@ class KtLightMethodImpl private constructor(
         computeDelegate: () -> PsiMethod,
         override val lightMethodOrigin: LightMemberOrigin?,
         private val containingClass: KtLightClass,
-        private val _name: String? = null
+        private val dummyDelegate: PsiMethod? = null
 ) : LightElement(containingClass.manager, containingClass.language), KtLightMethod, PsiAnnotationMethod {
     override val kotlinOrigin: KtDeclaration? get() = lightMethodOrigin?.originalElement as? KtDeclaration
 
@@ -241,17 +241,17 @@ class KtLightMethodImpl private constructor(
         }
 
         @JvmStatic
-        fun lazy(name: String, containingClass: KtLightClass, origin: LightMemberOriginForDeclaration?, computeDelegate: () -> PsiMethod): KtLightMethodImpl {
+        fun lazy(dummyDelegate: PsiMethod?, containingClass: KtLightClass, origin: LightMemberOriginForDeclaration?, computeDelegate: () -> PsiMethod): KtLightMethodImpl {
             val originalElement = origin?.originalElement
             val trueOrigin = if (originalElement is KtPropertyAccessor) {
                 origin.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty::class.java)!!, origin.originKind)
             } else origin
 
-            return KtLightMethodImpl(computeDelegate, trueOrigin, containingClass, name)
+            return KtLightMethodImpl(computeDelegate, trueOrigin, containingClass, dummyDelegate)
         }
     }
 
-    override fun getName() = _name ?: clsDelegate.name
+    override fun getName() = dummyDelegate?.name ?: clsDelegate.name
 
     override fun hasModifierProperty(name: String) = clsDelegate.hasModifierProperty(name)
 

@@ -24,9 +24,7 @@ import com.intellij.psi.impl.PsiVariableEx
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.kotlin.asJava.builder.ClsWrapperStubPsiFactory
-import org.jetbrains.kotlin.asJava.builder.LightMemberOrigin
-import org.jetbrains.kotlin.asJava.builder.LightMemberOriginForDeclaration
+import org.jetbrains.kotlin.asJava.builder.*
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForEnumEntry
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -101,17 +99,25 @@ sealed class KtLightFieldImpl<T: PsiField>(
 
     override fun toString(): String = "${this.javaClass.simpleName}:$name"
 
+    private val _memberIndex: MemberIndex?
+        get() = (dummyDelegate ?: clsDelegate).memberIndex
+
+
+    /* comparing origin and member index should be enough to determine equality:
+            for compiled elements origin contains delegate
+            for source elements index is unique to each member
+            */
     override fun equals(other: Any?): Boolean =
-            other is KtLightField &&
-            name == other.name &&
-            lightMemberOrigin == other.lightMemberOrigin &&
-            containingClass == other.containingClass &&
-            clsDelegate == other.clsDelegate
+            other is KtLightFieldImpl<*> &&
+            this.name == other.name &&
+            this.lightMemberOrigin == other.lightMemberOrigin &&
+            this.containingClass == other.containingClass &&
+            this._memberIndex == other._memberIndex
 
     override fun hashCode(): Int {
         var result = lightMemberOrigin?.hashCode() ?: 0
-        result = 31 * result + clsDelegate.hashCode()
         result = 31 * result + containingClass.hashCode()
+        result = 31 * result + (_memberIndex?.hashCode() ?: 0)
         return result
     }
 

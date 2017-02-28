@@ -40,7 +40,7 @@ sealed class KtLightFieldImpl(
         override val lightMemberOrigin: LightMemberOrigin?,
         computeDelegate: () -> PsiField,
         private val containingClass: KtLightClass,
-        private val name: String? = null
+        private val _name: String? = null
 ) : LightElement(containingClass.manager, KotlinLanguage.INSTANCE), KtLightField {
     private val lightIdentifier by lazy(LazyThreadSafetyMode.PUBLICATION) { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
 
@@ -53,7 +53,7 @@ sealed class KtLightFieldImpl(
 
     override fun getPresentation(): ItemPresentation? = (kotlinOrigin ?: this).let { ItemPresentationProviders.getItemPresentation(it) }
 
-    override fun getName() = name ?: clsDelegate.name
+    override fun getName() = _name ?: clsDelegate.name
 
     override fun getNameIdentifier() = lightIdentifier
 

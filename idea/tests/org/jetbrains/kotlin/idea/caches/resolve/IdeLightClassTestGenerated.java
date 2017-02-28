@@ -42,6 +42,12 @@ public class IdeLightClassTestGenerated extends AbstractIdeLightClassTest {
         doTest(fileName);
     }
 
+    @TestMetadata("AnnotationModifiers.kt")
+    public void testAnnotationModifiers() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/AnnotationModifiers.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("DeprecatedEnumEntry.kt")
     public void testDeprecatedEnumEntry() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/DeprecatedEnumEntry.kt");

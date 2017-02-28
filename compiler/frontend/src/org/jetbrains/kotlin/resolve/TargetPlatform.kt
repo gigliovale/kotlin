@@ -44,6 +44,7 @@ abstract class TargetPlatform(val platformName: String) {
     object Default : TargetPlatform("Default") {
         override fun getDefaultImports(languageVersionSettings: LanguageVersionSettings): List<ImportPath> = ArrayList<ImportPath>().apply {
             listOf(
+                    "kotlin.*",
                     "kotlin.annotation.*",
                     "kotlin.collections.*",
                     "kotlin.ranges.*",

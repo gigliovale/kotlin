@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.asJava.elements.KtLightMethod
 import org.jetbrains.kotlin.asJava.elements.KtLightMethodImpl
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.resolve.diagnostics.Diagnostics
 
 interface LightClassDataHolder {
@@ -100,7 +101,7 @@ fun PsiJavaFileStub.findDelegate(classOrObject: KtClassOrObject): PsiClass {
     }
 
     val stubFileText = DebugUtil.stubTreeToString(this)
-    throw IllegalStateException("Couldn't get delegate for $this\nin $ktFileText\nstub: \n$stubFileText")
+    throw IllegalStateException("Couldn't get delegate for ${classOrObject.getDebugText()}\nin $ktFileText\nstub: \n$stubFileText")
 }
 
 fun PsiJavaFileStub.findDelegate(classFqName: FqName): PsiClass {

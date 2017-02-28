@@ -73,7 +73,7 @@ class LazyLightClassDataHolder(
             return dummyDelegate!!.fields.map { dummyDelegate ->
                 val memberOrigin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyDelegate)!!
                 val fieldName = dummyDelegate.name!!
-                KtLightFieldImpl.lazy(fieldName, memberOrigin, containingClass) {
+                KtLightFieldImpl.lazy(dummyDelegate, memberOrigin, containingClass) {
                     clsDelegate.findFieldByName(fieldName, false)!!.apply {
                         assert(this.codegenMarker!! == dummyDelegate.codegenMarker!!)
                     }

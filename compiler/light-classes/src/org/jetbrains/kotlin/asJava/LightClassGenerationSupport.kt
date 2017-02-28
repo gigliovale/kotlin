@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.resolve.BindingContext
 abstract class LightClassGenerationSupport {
 
     abstract fun createLightClassDataHolderForClassOrObject(
-            classOrObject: KtClassOrObject, build: (LightClassConstructionContext) -> LightClassBuilderResult
+            classOrObject: KtClassOrObject, builder: (LightClassConstructionContext) -> LightClassBuilderResult
     ): LightClassDataHolder
 
     abstract fun createLightClassDataHolderForFacade(

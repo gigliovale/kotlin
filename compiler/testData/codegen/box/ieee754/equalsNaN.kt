@@ -1,4 +1,9 @@
-package foo
+fun assertTrue(v: Boolean, msg: String) {
+    if (!v) throw Error(msg)
+}
+fun assertFalse(v: Boolean, msg: String) {
+    assertTrue(!v, msg)
+}
 
 object O {
     var equalsCalled: Boolean = false
@@ -135,10 +140,10 @@ fun box(): String {
     }
 
     // Explicit .equals
-    assertTrue(A == dn && O.equalsCalled)
-    assertTrue(dn != A && !O.equalsCalled)
-    assertFalse(A != dn || !O.equalsCalled)
-    assertFalse(dn == A || O.equalsCalled)
+    assertTrue(A == dn && O.equalsCalled, "A.equals not called for A == dn")
+    assertTrue(dn != A && !O.equalsCalled, "A.equals called for dn == A")
+    assertFalse(A != dn || !O.equalsCalled, "A.equals not called for A != dn")
+    assertFalse(dn == A || O.equalsCalled, "A.equals called for dn != A")
 
     // Generics and varags
     testDouble(Double.NaN, Double.NaN, Double.NaN)
@@ -209,10 +214,10 @@ fun box(): String {
         assertFalse(gfn != gfn, "Unstable Float smart-cast: NaN != NaN")
     }
 
-    assertTrue(A == fn && O.equalsCalled)
-    assertTrue(fn != A && !O.equalsCalled)
-    assertFalse(A != fn || !O.equalsCalled)
-    assertFalse(fn == A || O.equalsCalled)
+    assertTrue(A == fn && O.equalsCalled, "A.equals not called for A == fn")
+    assertTrue(fn != A && !O.equalsCalled, "A.equals called for fn == A")
+    assertFalse(A != fn || !O.equalsCalled, "A.equals not called for A != fn")
+    assertFalse(fn == A || O.equalsCalled, "A.equals called for fn != A")
 
     // Generics and varags
     testFloat(Float.NaN, Float.NaN, Float.NaN)

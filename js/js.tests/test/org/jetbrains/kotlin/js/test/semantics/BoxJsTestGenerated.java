@@ -1942,12 +1942,6 @@ public class BoxJsTestGenerated extends AbstractBoxJsTest {
                 doTest(fileName);
             }
 
-            @TestMetadata("equalsNaN.kt")
-            public void testEqualsNaN() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("js/js.translator/testData/box/expression/equals/equalsNaN.kt");
-                doTest(fileName);
-            }
-
             @TestMetadata("equalsNullOrUndefined.kt")
             public void testEqualsNullOrUndefined() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("js/js.translator/testData/box/expression/equals/equalsNullOrUndefined.kt");

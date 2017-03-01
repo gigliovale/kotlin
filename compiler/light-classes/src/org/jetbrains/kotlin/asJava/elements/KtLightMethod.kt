@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.jvm.KotlinJavaPsiFacade
 import org.jetbrains.kotlin.resolve.jvm.diagnostics.JvmDeclarationOriginKind
 
-interface KtLightMethod : PsiMethod, KtLightDeclaration<KtDeclaration, PsiMethod> {
+interface KtLightMethod : PsiAnnotationMethod, KtLightDeclaration<KtDeclaration, PsiMethod> {
     val lightMethodOrigin: LightMemberOrigin?
     val isDelegated: Boolean
 }
@@ -47,7 +47,7 @@ class KtLightMethodImpl private constructor(
         override val lightMethodOrigin: LightMemberOrigin?,
         private val containingClass: KtLightClass,
         private val dummyDelegate: PsiMethod? = null
-) : LightElement(containingClass.manager, containingClass.language), KtLightMethod, PsiAnnotationMethod {
+) : LightElement(containingClass.manager, containingClass.language), KtLightMethod {
     override val kotlinOrigin: KtDeclaration? get() = lightMethodOrigin?.originalElement as? KtDeclaration
 
     override val clsDelegate by lazy(computeDelegate)

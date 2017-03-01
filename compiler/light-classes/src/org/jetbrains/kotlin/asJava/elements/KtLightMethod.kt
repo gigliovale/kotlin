@@ -220,6 +220,14 @@ class KtLightMethodImpl private constructor(
     }
 
     companion object Factory {
+        private fun adjustMethodOrigin(origin: LightMemberOriginForDeclaration?): LightMemberOriginForDeclaration? {
+            val originalElement = origin?.originalElement
+            if (originalElement is KtPropertyAccessor) {
+                return origin.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty::class.java)!!, origin.originKind)
+            }
+            return origin
+        }
+
         fun create(
                 delegate: PsiMethod, origin: LightMemberOrigin?, containingClass: KtLightClass
         ): KtLightMethodImpl {
@@ -228,24 +236,13 @@ class KtLightMethodImpl private constructor(
 
         @JvmStatic
         fun fromClsMethod(method: PsiMethod, containingClass: KtLightClass): KtLightMethodImpl {
-            var origin = ClsWrapperStubPsiFactory.getMemberOrigin(method)
-            val originalElement = if (origin != null) origin.originalElement else null
-            if (originalElement is KtPropertyAccessor) {
-
-                origin = origin!!.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty::class.java)!!, origin.originKind)
-            }
-
-            return KtLightMethodImpl.create(method, origin, containingClass)
+            val origin = ClsWrapperStubPsiFactory.getMemberOrigin(method)
+            return KtLightMethodImpl.create(method, adjustMethodOrigin(origin), containingClass)
         }
 
         @JvmStatic
         fun lazy(dummyDelegate: PsiMethod?, containingClass: KtLightClass, origin: LightMemberOriginForDeclaration?, computeDelegate: () -> PsiMethod): KtLightMethodImpl {
-            val originalElement = origin?.originalElement
-            val trueOrigin = if (originalElement is KtPropertyAccessor) {
-                origin.copy(PsiTreeUtil.getParentOfType(originalElement, KtProperty::class.java)!!, origin.originKind)
-            } else origin
-
-            return KtLightMethodImpl(computeDelegate, trueOrigin, containingClass, dummyDelegate)
+            return KtLightMethodImpl(computeDelegate, adjustMethodOrigin(origin), containingClass, dummyDelegate)
         }
     }
 

@@ -63,7 +63,13 @@ fun <T: Float> testFloat(d: Float, v: T, vararg va: T) {
     assertTrue(va[0] != va[0], "Float: va[0] == va[0]")
 }
 
+var gdn: Any = Double.NaN
+var gfn: Any = Float.NaN
+
 fun box(): String {
+
+    // Double
+
     val dn = Double.NaN
     val adn: Any = dn
     val dnq: Double? = dn
@@ -74,15 +80,15 @@ fun box(): String {
     assertTrue(adn == dn, "Double: (Any)NaN != NaN")
     assertTrue(adn == adn, "Double: (Any)NaN != (Any)NaN")
 
-    assertFalse(dnq == dnq, "Double: NaN? == NaN?")
-    assertTrue(dnq == adn, "Double: NaN? != (Any)NaN")
-    assertTrue(adn == dnq, "Double: (Any)NaN != NaN?")
-    assertTrue(adn == adn, "Double: (Any)NaN != (Any)NaN")
-
-    assertFalse(dn == dn, "Double: NaN == NaN")
+    assertFalse(dn == dnq, "Double: NaN == NaN?")
     assertTrue(dn == adnq, "Double: NaN != (Any?)NaN")
+    assertTrue(adn == dnq, "Double: (Any)NaN != NaN?")
+    assertTrue(adn == adnq, "Double: (Any)NaN != (Any?)NaN")
+
+    assertFalse(dnq == dn, "Double: NaN? == NaN")
+    assertTrue(dnq == adn, "Double: NaN? != (Any)NaN")
     assertTrue(adnq == dn, "Double: (Any?)NaN != NaN")
-    assertTrue(adnq == adnq, "Double: (Any?)NaN != (Any?)NaN")
+    assertTrue(adnq == adn, "Double: (Any?)NaN != (Any)NaN")
 
     assertFalse(dnq == dnq, "Double: NaN? == NaN?")
     assertTrue(dnq == adnq, "Double: NaN? != (Any?)NaN")
@@ -94,21 +100,22 @@ fun box(): String {
     assertFalse(adn != dn, "Double: (Any)NaN != NaN")
     assertFalse(adn != adn, "Double: (Any)NaN != (Any)NaN")
 
-    assertTrue(dnq != dnq, "Double: NaN? == NaN?")
-    assertFalse(dnq != adn, "Double: NaN? != (Any)NaN")
-    assertFalse(adn != dnq, "Double: (Any)NaN != NaN?")
-    assertFalse(adn != adn, "Double: (Any)NaN != (Any)NaN")
-
-    assertTrue(dn != dn, "Double: NaN == NaN")
+    assertTrue(dn != dnq, "Double: NaN == NaN?")
     assertFalse(dn != adnq, "Double: NaN != (Any?)NaN")
+    assertFalse(adn != dnq, "Double: (Any)NaN != NaN?")
+    assertFalse(adn != adnq, "Double: (Any)NaN != (Any?)NaN")
+
+    assertTrue(dnq != dn, "Double: NaN? == NaN")
+    assertFalse(dnq != adn, "Double: NaN? != (Any)NaN")
     assertFalse(adnq != dn, "Double: (Any?)NaN != NaN")
-    assertFalse(adnq != adnq, "Double: (Any?)NaN != (Any?)NaN")
+    assertFalse(adnq != adn, "Double: (Any?)NaN != (Any)NaN")
 
     assertTrue(dnq != dnq, "Double: NaN? == NaN?")
     assertFalse(dnq != adnq, "Double: NaN? != (Any?)NaN")
     assertFalse(adnq != dnq, "Double: (Any?)NaN != NaN?")
     assertFalse(adnq != adnq, "Double: (Any?)NaN != (Any?)NaN")
 
+    // Stable smart-casts
     if (adn is Double) {
         assertFalse(adn == adn, "Double smart-cast: NaN == NaN")
         assertTrue(adn != adn, "Double smart-cast: NaN == NaN")
@@ -117,13 +124,26 @@ fun box(): String {
         assertFalse(adnq == adnq, "Double? smart-cast: NaN? == NaN?")
         assertTrue(adnq != adnq, "Double? smart-cast: NaN? == NaN?")
     }
+    // Unstable smart-casts
+    if (gdn is Double) {
+        assertTrue(gdn == gdn, "Unstable Double smart-cast: NaN != NaN")
+        assertFalse(gdn != gdn, "Unstable Double smart-cast: NaN != NaN")
+    }
+    if (gdn is Double?) {
+        assertTrue(gdn == gdn, "Unstable Double smart-cast: NaN != NaN")
+        assertFalse(gdn != gdn, "Unstable Double smart-cast: NaN != NaN")
+    }
 
+    // Explicit .equals
     assertTrue(A == dn && O.equalsCalled)
     assertTrue(dn != A && !O.equalsCalled)
     assertFalse(A != dn || !O.equalsCalled)
     assertFalse(dn == A || O.equalsCalled)
 
+    // Generics and varags
     testDouble(Double.NaN, Double.NaN, Double.NaN)
+
+    // Float
 
     val fn = Float.NaN
     val afn: Any = fn
@@ -135,15 +155,15 @@ fun box(): String {
     assertTrue(afn == fn, "Float: (Any)NaN != NaN")
     assertTrue(afn == afn, "Float: (Any)NaN != (Any)NaN")
 
-    assertFalse(fnq == fnq, "Float: NaN? == NaN?")
-    assertTrue(fnq == afn, "Float: NaN? != (Any)NaN")
-    assertTrue(afn == fnq, "Float: (Any)NaN != NaN?")
-    assertTrue(afn == afn, "Float: (Any)NaN != (Any)NaN")
-
-    assertFalse(fn == fn, "Float: NaN == NaN")
+    assertFalse(fn == fnq, "Float: NaN == NaN?")
     assertTrue(fn == afnq, "Float: NaN != (Any?)NaN")
+    assertTrue(afn == fnq, "Float: (Any)NaN != NaN?")
+    assertTrue(afn == afnq, "Float: (Any)NaN != (Any?)NaN")
+
+    assertFalse(fnq == fn, "Float: NaN? == NaN")
+    assertTrue(fnq == afn, "Float: NaN? != (Any)NaN")
     assertTrue(afnq == fn, "Float: (Any?)NaN != NaN")
-    assertTrue(afnq == afnq, "Float: (Any?)NaN != (Any?)NaN")
+    assertTrue(afnq == afn, "Float: (Any?)NaN != (Any)NaN")
 
     assertFalse(fnq == fnq, "Float: NaN? == NaN?")
     assertTrue(fnq == afnq, "Float: NaN? != (Any?)NaN")
@@ -155,22 +175,22 @@ fun box(): String {
     assertFalse(afn != fn, "Float: (Any)NaN != NaN")
     assertFalse(afn != afn, "Float: (Any)NaN != (Any)NaN")
 
-    assertTrue(fnq != fnq, "Float: NaN? == NaN?")
-    assertFalse(fnq != afn, "Float: NaN? != (Any)NaN")
-    assertFalse(afn != fnq, "Float: (Any)NaN != NaN?")
-    assertFalse(afn != afn, "Float: (Any)NaN != (Any)NaN")
-
-    assertTrue(fn != fn, "Float: NaN == NaN")
+    assertTrue(fn != fnq, "Float: NaN == NaN?")
     assertFalse(fn != afnq, "Float: NaN != (Any?)NaN")
+    assertFalse(afn != fnq, "Float: (Any)NaN != NaN?")
+    assertFalse(afn != afnq, "Float: (Any)NaN != (Any?)NaN")
+
+    assertTrue(fnq != fn, "Float: NaN? == NaN")
+    assertFalse(fnq != afn, "Float: NaN? != (Any)NaN")
     assertFalse(afnq != fn, "Float: (Any?)NaN != NaN")
-    assertFalse(afnq != afnq, "Float: (Any?)NaN != (Any?)NaN")
+    assertFalse(afnq != afn, "Float: (Any?)NaN != (Any)NaN")
 
     assertTrue(fnq != fnq, "Float: NaN? == NaN?")
     assertFalse(fnq != afnq, "Float: NaN? != (Any?)NaN")
     assertFalse(afnq != fnq, "Float: (Any?)NaN != NaN?")
     assertFalse(afnq != afnq, "Float: (Any?)NaN != (Any?)NaN")
 
-
+    // Stable smart-casts
     if (afn is Float) {
         assertFalse(afn == afn, "Float smart-cast: NaN == NaN")
         assertTrue(afn != afn, "Float smart-cast: NaN == NaN")
@@ -179,12 +199,22 @@ fun box(): String {
         assertFalse(afnq == afnq, "Float? smart-cast: NaN? == NaN?")
         assertTrue(afnq != afnq, "Float? smart-cast: NaN? == NaN?")
     }
+    // Unstable smart-casts
+    if (gfn is Float) {
+        assertTrue(gfn == gfn, "Unstable Float smart-cast: NaN != NaN")
+        assertFalse(gfn != gfn, "Unstable Float smart-cast: NaN != NaN")
+    }
+    if (gfn is Float?) {
+        assertTrue(gfn == gfn, "Unstable Float smart-cast: NaN != NaN")
+        assertFalse(gfn != gfn, "Unstable Float smart-cast: NaN != NaN")
+    }
 
     assertTrue(A == fn && O.equalsCalled)
     assertTrue(fn != A && !O.equalsCalled)
     assertFalse(A != fn || !O.equalsCalled)
     assertFalse(fn == A || O.equalsCalled)
 
+    // Generics and varags
     testFloat(Float.NaN, Float.NaN, Float.NaN)
 
     return "OK"

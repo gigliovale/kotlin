@@ -207,7 +207,9 @@ public final class Translation {
 
     @NotNull
     public static JsExpression unboxIfNeeded(@NotNull JsExpression expression, boolean charOrNullableChar) {
-        if (charOrNullableChar && (expression instanceof JsInvocation || expression instanceof JsNameRef || expression instanceof JsArrayAccess)) {
+        if (charOrNullableChar &&
+            (expression instanceof JsInvocation || expression instanceof JsNameRef || expression instanceof JsArrayAccess)
+        ) {
             expression = JsAstUtils.boxedCharToChar(expression);
         }
         return expression;

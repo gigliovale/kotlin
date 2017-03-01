@@ -352,7 +352,7 @@
 
     <target name="js-stdlib-merge">
         <!-- value should be one of: whitespace, simple, advanced -->
-        <property name="compilationLevel" value="whitespace"/>
+        <property name="compilationLevel" value="simple"/>
         <!-- value should be one of: default, quiet, verbose -->
         <property name="warningLevel" value="default"/>
 
@@ -362,7 +362,7 @@
 
         <closure-compiler
             compilationLevel="${compilationLevel}"
-            prettyprint="true"
+            prettyprint="false"
             languagein="ECMASCRIPT5_STRICT"
             warning="${warningLevel}"
             output="${js.stdlib.output.dir}/kotlin.js"

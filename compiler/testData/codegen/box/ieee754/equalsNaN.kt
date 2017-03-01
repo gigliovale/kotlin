@@ -1,9 +1,6 @@
-fun assertTrue(v: Boolean, msg: String) {
-    if (!v) throw Error(msg)
-}
-fun assertFalse(v: Boolean, msg: String) {
-    assertTrue(!v, msg)
-}
+// WITH_RUNTIME
+
+import kotlin.test.*
 
 object O {
     var equalsCalled: Boolean = false

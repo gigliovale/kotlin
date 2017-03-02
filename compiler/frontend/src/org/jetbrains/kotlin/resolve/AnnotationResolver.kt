@@ -26,7 +26,11 @@ import org.jetbrains.kotlin.resolve.calls.results.OverloadResolutionResults
 import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.scopes.LexicalScope
 import org.jetbrains.kotlin.types.KotlinType
+import kotlin.reflect.KClass
 
+annotation class DefaultImpl(val impl: KClass<*>)
+
+@DefaultImpl(AnnotationResolverImpl::class)
 abstract class AnnotationResolver {
     fun resolveAnnotationsWithoutArguments(
             scope: LexicalScope,

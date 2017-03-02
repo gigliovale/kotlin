@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.impl.ModuleDescriptorImpl
 import org.jetbrains.kotlin.frontend.di.configureCommon
 import org.jetbrains.kotlin.frontend.di.configureModule
-import org.jetbrains.kotlin.incremental.components.LookupTracker
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
@@ -46,7 +45,6 @@ fun createTopDownAnalyzerForJs(
 
         CompilerEnvironment.configure(this)
 
-        useInstance(LookupTracker.DO_NOTHING)
         configureCommon(compilerConfiguration)
         useImpl<LazyTopDownAnalyzer>()
     }.apply {

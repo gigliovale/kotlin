@@ -82,7 +82,6 @@ fun createContainerForBodyResolve(
 
     useInstance(statementFilter)
 
-    useInstance(LookupTracker.DO_NOTHING)
     useInstance(BodyResolveCache.ThrowException)
     configureCommon(compilerConfiguration)
 
@@ -99,7 +98,6 @@ fun createContainerForLazyBodyResolve(
 ): StorageComponentContainer = createContainer("LazyBodyResolve", platform) {
     configureModule(moduleContext, platform, bindingTrace)
 
-    useInstance(LookupTracker.DO_NOTHING)
     useInstance(kotlinCodeAnalyzer)
     useInstance(kotlinCodeAnalyzer.fileScopeProvider)
     useInstance(bodyResolveCache)
@@ -148,7 +146,6 @@ fun createContainerForLazyResolve(
     configureModule(moduleContext, platform, bindingTrace)
 
     useInstance(declarationProviderFactory)
-    useInstance(LookupTracker.DO_NOTHING)
 
     configureCommon(compilerConfiguration)
 

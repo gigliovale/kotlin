@@ -52,7 +52,7 @@ class MetadataPackageFragmentProvider(
                 this,
                 LocalClassifierTypeSettings.Default,
                 ErrorReporter.DO_NOTHING,
-                LookupTracker.Companion.DO_NOTHING,
+                LookupTracker.DO_NOTHING,
                 FlexibleTypeDeserializer.ThrowException,
                 emptyList(),
                 notFoundClasses, AdditionalClassPartsProvider.None, PlatformDependentDeclarationFilter.All

@@ -31,7 +31,6 @@ import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.createContainer
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
-import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
 
 fun createTopDownAnalyzerForJs(
@@ -49,7 +48,6 @@ fun createTopDownAnalyzerForJs(
 
         useInstance(LookupTracker.DO_NOTHING)
         configureCommon(compilerConfiguration)
-        useImpl<ResolveSession>()
         useImpl<LazyTopDownAnalyzer>()
     }.apply {
         get<ModuleDescriptorImpl>().initialize(get<KotlinCodeAnalyzer>().packageFragmentProvider)

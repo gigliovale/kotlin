@@ -131,7 +131,6 @@ object DefaultAnalyzerFacade : AnalyzerFacade<PlatformAnalysisParameters>() {
 
         useInstance(moduleContentScope)
         useInstance(LookupTracker.DO_NOTHING)
-        useImpl<ResolveSession>()
         useImpl<LazyTopDownAnalyzer>()
         configureCommon(compilerConfiguration)
         useImpl<CompilerDeserializationConfiguration>()

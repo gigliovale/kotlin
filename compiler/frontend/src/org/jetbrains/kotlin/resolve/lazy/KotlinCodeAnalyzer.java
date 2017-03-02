@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.lazy;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.container.DefaultImplementation;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor;
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor;
@@ -26,6 +27,7 @@ import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtDeclaration;
 import org.jetbrains.kotlin.resolve.BindingContext;
 
+@DefaultImplementation(impl = ResolveSession.class)
 public interface KotlinCodeAnalyzer extends TopLevelDescriptorProvider {
 
     @NotNull

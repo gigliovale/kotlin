@@ -176,8 +176,12 @@ class ComponentStorage(val myId: String, parent: ComponentStorage?) : ValueResol
         }
 
         val defaultImplementation = rawType.getInfo().defaultImplementation
-        if (defaultImplementation != null) {
+        if (defaultImplementation != null && defaultImplementation.getInfo().constructorInfo != null) {
             return DefaultSingletonTypeComponentDescriptor(context.container, defaultImplementation)
+        }
+
+        if (defaultImplementation != null) {
+            return defaultImplementation.getField("INSTANCE")?.get(null)?.let(::DefaultInstanceComponentDescriptor)
         }
 
         return null

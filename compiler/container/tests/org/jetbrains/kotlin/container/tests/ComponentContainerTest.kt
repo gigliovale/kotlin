@@ -325,11 +325,10 @@ class ComponentContainerTest {
     fun default_implementation() {
         class Use(val i: I)
 
-        val ac = composeContainer("a") {
+        val u = composeContainer("a") {
             useImpl<Use>()
-        }
+        }.get<Use>()
 
-        val u = ac.get<Use>()
         assertTrue(u.i is Impl)
     }
 
@@ -342,5 +341,21 @@ class ComponentContainerTest {
 
         val u = ac.get<Use>()
         assertTrue(u.i is Impl2)
+    }
+
+    @DefaultImplementation(impl = A::class)
+    interface S
+
+    object A: S
+
+    class UseS(val s: S)
+
+    @Test
+    fun test_default_object() {
+        val useS = composeContainer("s") {
+            useImpl<UseS>()
+        }.get<UseS>()
+
+        assertTrue(useS.s === A)
     }
 }

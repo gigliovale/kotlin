@@ -152,7 +152,6 @@ fun createContainerForLazyResolve(
 
     configureCommon(compilerConfiguration)
 
-    useImpl<FileScopeProviderImpl>()
     useImpl<CompilerDeserializationConfiguration>()
     targetEnvironment.configure(this)
 

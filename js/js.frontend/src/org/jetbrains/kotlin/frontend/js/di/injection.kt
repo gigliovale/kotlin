@@ -30,7 +30,6 @@ import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.CompilerEnvironment
 import org.jetbrains.kotlin.resolve.LazyTopDownAnalyzer
 import org.jetbrains.kotlin.resolve.createContainer
-import org.jetbrains.kotlin.resolve.lazy.FileScopeProviderImpl
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
 import org.jetbrains.kotlin.resolve.lazy.declarations.DeclarationProviderFactory
@@ -45,7 +44,6 @@ fun createTopDownAnalyzerForJs(
         configureModule(moduleContext, JsPlatform, bindingTrace)
 
         useInstance(declarationProviderFactory)
-        useImpl<FileScopeProviderImpl>()
 
         CompilerEnvironment.configure(this)
 

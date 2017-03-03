@@ -64,20 +64,24 @@ import org.jetbrains.kotlin.types.ErrorUtils
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.WrappedTypeFactory
 
+class DummyLightClassConstructionContext(override val bindingContext: BindingContext,
+ override val module: ModuleDescriptor
+) : LightClassConstructionContext
+
 fun contextForBuildingLighterClasses(classOrObject: KtClassOrObject): LightClassConstructionContext {
     val resolveSession = setupAdHocResolve(classOrObject.project, classOrObject.getResolutionFacade().moduleDescriptor, listOf(classOrObject.containingKtFile))
 
     val descriptor = resolveSession.resolveToDescriptor(classOrObject)
     ForceResolveUtil.forceResolveAllContents(descriptor)
 
-    return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
+    return DummyLightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
 }
 
 fun contextForBuildingLighterClasses(files: List<KtFile>): LightClassConstructionContext {
     val representativeFile = files.first()
     val resolveSession = setupAdHocResolve(representativeFile.project, representativeFile.getResolutionFacade().moduleDescriptor, files)
 
-    return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
+    return DummyLightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
 }
 
 private fun setupAdHocResolve(project: Project, realWorldModule: ModuleDescriptor, files: List<KtFile>): ResolveSession {

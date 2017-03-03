@@ -91,7 +91,7 @@ class CliLightClassGenerationSupport(project: Project) : LightClassGenerationSup
     }
 
     private fun getContext(): LightClassConstructionContext {
-        return LightClassConstructionContext(bindingContext, module)
+        return LightClassConstructionContextImpl(bindingContext, module)
     }
 
     override fun findClassOrObjectDeclarations(fqName: FqName, searchScope: GlobalSearchScope): Collection<KtClassOrObject> {

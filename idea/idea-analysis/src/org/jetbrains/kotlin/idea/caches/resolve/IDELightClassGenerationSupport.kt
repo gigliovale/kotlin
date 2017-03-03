@@ -97,7 +97,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
             "Class descriptor was not found for ${classOrObject.getElementTextWithContext()}"
         }
         ForceResolveUtil.forceResolveAllContents(classDescriptor)
-        return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
+        return LightClassConstructionContextImpl(bindingContext, resolutionFacade.moduleDescriptor)
     }
 
     private fun getContextForLocalClassOrObject(classOrObject: KtClassOrObject): LightClassConstructionContext {
@@ -108,12 +108,12 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
 
         if (descriptor == null) {
             LOG.warn("No class descriptor in context for class: " + classOrObject.getElementTextWithContext())
-            return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
+            return LightClassConstructionContextImpl(bindingContext, resolutionFacade.moduleDescriptor)
         }
 
         ForceResolveUtil.forceResolveAllContents<ClassDescriptor>(descriptor)
 
-        return LightClassConstructionContext(bindingContext, resolutionFacade.moduleDescriptor)
+        return LightClassConstructionContextImpl(bindingContext, resolutionFacade.moduleDescriptor)
     }
 
     override fun createLightClassDataHolderForFacade(files: Collection<KtFile>, builder: LightClassBuilder): LightClassDataHolder {
@@ -131,7 +131,7 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
     fun getContextForFacade(files: List<KtFile>): LightClassConstructionContext {
         val resolveSession = files.first().getResolutionFacade().getFrontendService(ResolveSession::class.java)
         forceResolvePackageDeclarations(files, resolveSession)
-        return LightClassConstructionContext(resolveSession.bindingContext, resolveSession.moduleDescriptor)
+        return LightClassConstructionContextImpl(resolveSession.bindingContext, resolveSession.moduleDescriptor)
     }
 
     override fun findClassOrObjectDeclarations(fqName: FqName, searchScope: GlobalSearchScope): Collection<KtClassOrObject> {

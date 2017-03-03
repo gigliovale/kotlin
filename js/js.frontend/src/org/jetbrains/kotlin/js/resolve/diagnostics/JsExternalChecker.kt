@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.js.resolve.diagnostics
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.DiagnosticSink
 import org.jetbrains.kotlin.js.PredefinedAnnotation
@@ -86,8 +87,15 @@ object JsExternalChecker : SimpleDeclarationChecker {
             }
         }
 
-        if (descriptor is FunctionDescriptor && descriptor.isInline) {
-            diagnosticHolder.report(ErrorsJs.INLINE_EXTERNAL_DECLARATION.on(declaration))
+        if (descriptor is FunctionDescriptor) {
+            if (descriptor.isInline) {
+                diagnosticHolder.report(ErrorsJs.INLINE_EXTERNAL_DECLARATION.on(declaration))
+            }
+            if (descriptor.valueParameters.any {
+                it.type.isExtensionFunctionType || it.varargElementType?.isExtensionFunctionType ?: false
+            }) {
+                diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(declaration, "extension function argument"))
+            }
         }
 
         if (descriptor is CallableMemberDescriptor && descriptor.isNonAbstractMemberOfInterface() &&

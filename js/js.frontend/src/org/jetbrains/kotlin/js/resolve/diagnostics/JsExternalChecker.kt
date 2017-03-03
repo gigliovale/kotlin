@@ -96,7 +96,7 @@ object JsExternalChecker : SimpleDeclarationChecker {
             for (p in descriptor.valueParameters) {
                 if ((p.varargElementType ?: p.type).isExtensionFunctionType) {
                     val ktParam = p.source.getPsi() as? KtParameter ?: declaration
-                    diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(ktParam, "extension function argument"))
+                    diagnosticHolder.report(ErrorsJs.EXTENSION_FUNCTION_IN_EXTERNAL_DECLARATION.on(ktParam))
                 }
             }
 
@@ -105,7 +105,7 @@ object JsExternalChecker : SimpleDeclarationChecker {
                                               !(descriptor.getter?.isDefault ?: true && descriptor.setter?.isDefault ?: true)
 
             if (!propertyWithCustomAccessors && descriptor.returnType?.isExtensionFunctionType ?: false) {
-                diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(declaration, "extension function return type"))
+                diagnosticHolder.report(ErrorsJs.EXTENSION_FUNCTION_IN_EXTERNAL_DECLARATION.on(declaration))
             }
         }
 

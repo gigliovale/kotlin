@@ -6,8 +6,9 @@
         factory(module.exports);
     }
     else {
-        root.kotlin = {};
-        factory(root.kotlin);
+        var kotlin = {};
+        factory(kotlin);
+        root["kotlin"] = kotlin;
     }
 }(this, function (Kotlin) {
     var _ = Kotlin;

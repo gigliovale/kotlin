@@ -352,7 +352,8 @@
 
     <target name="js-stdlib-merge">
         <!-- value should be one of: whitespace, simple, advanced -->
-        <property name="compilationLevel" value="simple"/>
+        <property name="compilationLevelStage1" value="whitespace"/>
+        <property name="compilationLevelStage2" value="simple"/>
         <!-- value should be one of: default, quiet, verbose -->
         <property name="warningLevel" value="default"/>
 
@@ -361,7 +362,7 @@
                  classpath="${dependencies}/closure-compiler.jar"/>
 
         <closure-compiler
-            compilationLevel="${compilationLevel}"
+            compilationLevel="${compilationLevelStage1}"
             prettyprint="false"
             languagein="ECMASCRIPT5_STRICT"
             warning="${warningLevel}"
@@ -404,6 +405,21 @@
                        match="return\s+_;"
                        replace=""
                        byline="true" encoding="UTF-8" />
+
+        <!-- Optimize -->
+        <closure-compiler
+            compilationLevel="${compilationLevelStage2}"
+            prettyprint="false"
+            languagein="ECMASCRIPT5_STRICT"
+            warning="${warningLevel}"
+            output="${js.stdlib.output.dir}/kotlin.js">
+
+            <path path="${js.stdlib.output.dir}/kotlin.js"/>
+
+            <externs dir="${stdlib.js.dir}">
+                <file name="externs.js"/>
+            </externs>
+        </closure-compiler>
     </target>
 
     <target name="js-stdlib-preprocess">

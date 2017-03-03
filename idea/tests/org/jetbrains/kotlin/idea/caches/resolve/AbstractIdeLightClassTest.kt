@@ -21,11 +21,19 @@ import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.PsiClass
+import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.asJava.LightClassTestCommon
+import org.jetbrains.kotlin.asJava.builder.LightClassConstructionContext
+import org.jetbrains.kotlin.asJava.builder.LightClassConstructionContextImpl
+import org.jetbrains.kotlin.asJava.builder.StubComputationTracker
+import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
 import org.jetbrains.kotlin.idea.KotlinDaemonAnalyzerTestCase
+import org.jetbrains.kotlin.idea.caches.resolve.LightClassLazinessChecker.Tracker.Level.*
+import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.DummyLightClassConstructionContext
+import org.jetbrains.kotlin.idea.completion.test.withServiceRegistered
 import org.jetbrains.kotlin.idea.test.KotlinLightCodeInsightFixtureTestCase
 import org.jetbrains.kotlin.idea.test.KotlinWithJdkAndRuntimeLightProjectDescriptor
 import org.jetbrains.kotlin.load.java.JvmAnnotationNames
@@ -72,16 +80,23 @@ private fun testLightClass(project: Project, ktFile: KtFile?, testDataPath: Stri
     LightClassTestCommon.testLightClass(
             File(testDataPath),
             findLightClass = { fqName ->
-                var clazz: PsiClass? = JavaPsiFacade.getInstance(project).findClass(fqName, GlobalSearchScope.allScope(project))
-                if (clazz == null) {
-                    clazz = PsiTreeUtil.findChildrenOfType(ktFile, KtClassOrObject::class.java)
-                            .find { fqName.endsWith(it.nameAsName!!.asString()) }
-                            ?.let { KtLightClassForSourceDeclaration.create(it) }
+
+                val tracker = LightClassLazinessChecker.Tracker(fqName)
+                project.withServiceRegistered<StubComputationTracker, PsiClass?>(tracker) {
+                    var clazz: PsiClass? = JavaPsiFacade.getInstance(project).findClass(fqName, GlobalSearchScope.allScope(project))
+                    if (clazz == null) {
+                        clazz = PsiTreeUtil.findChildrenOfType(ktFile, KtClassOrObject::class.java)
+                                .find { fqName.endsWith(it.nameAsName!!.asString()) }
+                                ?.let { KtLightClassForSourceDeclaration.create(it) }
+                    }
+                    if (clazz != null) {
+                        tracker.checkExactLevel(NONE)
+                        LightClassLazinessChecker.check(clazz as KtLightClass, tracker)
+                        PsiElementChecker.checkPsiElementStructure(clazz)
+                        tracker.checkExactLevel(FULL)
+                    }
+                    clazz
                 }
-                if (clazz != null) {
-                    PsiElementChecker.checkPsiElementStructure(clazz)
-                }
-                clazz
 
             },
             normalizeText = { text ->
@@ -95,6 +110,58 @@ private fun testLightClass(project: Project, ktFile: KtFile?, testDataPath: Stri
                         .run(normalize)
             }
     )
+}
+
+object LightClassLazinessChecker {
+
+    class Tracker(private val fqName: String) : StubComputationTracker {
+
+        private var level = NONE
+            set(newLevel) {
+                if (newLevel.ordinal <= field.ordinal) {
+                    error("Level should not decrease at any point")
+                }
+                if (newLevel.ordinal > allowedLevel.ordinal) {
+                    error("Level increased before it was expected $level -> $newLevel, allowed: $allowedLevel")
+                }
+                field = newLevel
+            }
+
+        private var allowedLevel = NONE
+
+        enum class Level {
+            NONE,
+            DUMMY,
+            FULL
+        }
+
+        override fun onStubComputed(javaFileStub: PsiJavaFileStub, context: LightClassConstructionContext) {
+            assert(fqName == javaFileStub.classes.single().qualifiedName!!)
+            when {
+                context is DummyLightClassConstructionContext -> level = DUMMY
+                context is LightClassConstructionContextImpl -> level = FULL
+                else -> error("Unknown context ${context::class}")
+            }
+        }
+
+        fun checkExactLevel(expectedLevel: Level) {
+            assert(level == expectedLevel)
+        }
+
+        fun allowLevel(newAllowed: Level) {
+            allowedLevel = newAllowed
+        }
+    }
+
+    fun check(lightClass: KtLightClass, tracker: Tracker) {
+        with(tracker) {
+            allowLevel(DUMMY)
+            lightClass.fields
+            allowLevel(FULL)
+            lightClass.superClass
+        }
+    }
+
 }
 
 private fun String.removeLinesStartingWith(prefix: String): String {

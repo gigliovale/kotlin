@@ -41,7 +41,7 @@ object LightClassComputationControl {
             }
         }
 
-        project.withServiceRegistered<StubComputationTracker>(stubComputationTracker) {
+        project.withServiceRegistered<StubComputationTracker, Unit>(stubComputationTracker) {
             testBody()
         }
 
@@ -59,13 +59,13 @@ object LightClassComputationControl {
     private fun List<String>.prettyToString() = if (isEmpty()) "<empty>" else joinToString()
 }
 
-private inline fun <reified T : Any> ComponentManager.withServiceRegistered(instance: T, body: () -> Unit) {
+inline fun <reified T : Any, R> ComponentManager.withServiceRegistered(instance: T, body: () -> R): R {
     val picoContainer = picoContainer as MutablePicoContainer
     val key = T::class.java.name
     try {
         picoContainer.unregisterComponent(key)
         picoContainer.registerComponentInstance(key, instance)
-        body()
+        return body()
     }
     finally {
         picoContainer.unregisterComponent(key)

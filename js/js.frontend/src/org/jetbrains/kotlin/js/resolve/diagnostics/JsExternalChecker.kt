@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.checkers.SimpleDeclarationChecker
 import org.jetbrains.kotlin.resolve.descriptorUtil.*
+import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.utils.singletonOrEmptyList
 
@@ -87,14 +88,24 @@ object JsExternalChecker : SimpleDeclarationChecker {
             }
         }
 
-        if (descriptor is FunctionDescriptor) {
-            if (descriptor.isInline) {
-                diagnosticHolder.report(ErrorsJs.INLINE_EXTERNAL_DECLARATION.on(declaration))
+        if (descriptor is FunctionDescriptor && descriptor.isInline) {
+            diagnosticHolder.report(ErrorsJs.INLINE_EXTERNAL_DECLARATION.on(declaration))
+        }
+
+        if (descriptor is CallableMemberDescriptor && !(descriptor is PropertyAccessorDescriptor && descriptor.isDefault)) {
+            for (p in descriptor.valueParameters) {
+                if ((p.varargElementType ?: p.type).isExtensionFunctionType) {
+                    val ktParam = p.source.getPsi() as? KtParameter ?: declaration
+                    diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(ktParam, "extension function argument"))
+                }
             }
-            if (descriptor.valueParameters.any {
-                it.type.isExtensionFunctionType || it.varargElementType?.isExtensionFunctionType ?: false
-            }) {
-                diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(declaration, "extension function argument"))
+
+            // Only report on properties if there are no custom accessors
+            val propertyWithCustomAccessors = descriptor is PropertyDescriptor &&
+                                              !(descriptor.getter?.isDefault ?: true && descriptor.setter?.isDefault ?: true)
+
+            if (!propertyWithCustomAccessors && descriptor.returnType?.isExtensionFunctionType ?: false) {
+                diagnosticHolder.report(ErrorsJs.WRONG_EXTERNAL_DECLARATION.on(declaration, "extension function return type"))
             }
         }
 

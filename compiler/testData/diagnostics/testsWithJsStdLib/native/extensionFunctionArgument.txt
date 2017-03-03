@@ -1,4 +1,0 @@
-package
-
-public external fun bar(/*0*/ vararg f: kotlin.Int.() -> kotlin.Int /*kotlin.Array<out kotlin.Int.() -> kotlin.Int>*/): kotlin.Unit
-public external fun foo(/*0*/ f: kotlin.Int.() -> kotlin.Int): kotlin.Unit

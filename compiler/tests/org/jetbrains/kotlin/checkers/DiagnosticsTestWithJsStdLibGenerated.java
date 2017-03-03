@@ -656,9 +656,9 @@ public class DiagnosticsTestWithJsStdLibGenerated extends AbstractDiagnosticsTes
             doTest(fileName);
         }
 
-        @TestMetadata("extensionFunctionArgument.kt")
-        public void testExtensionFunctionArgument() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithJsStdLib/native/extensionFunctionArgument.kt");
+        @TestMetadata("extensionFunctionArgumentOrReturnType.kt")
+        public void testExtensionFunctionArgumentOrReturnType() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/testsWithJsStdLib/native/extensionFunctionArgumentOrReturnType.kt");
             doTest(fileName);
         }
 

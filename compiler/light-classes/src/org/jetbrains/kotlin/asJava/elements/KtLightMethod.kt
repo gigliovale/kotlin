@@ -50,7 +50,8 @@ class KtLightMethodImpl private constructor(
 ) : LightElement(containingClass.manager, containingClass.language), KtLightMethod {
     override val kotlinOrigin: KtDeclaration? get() = lightMethodOrigin?.originalElement as? KtDeclaration
 
-    override val clsDelegate by lazy(computeDelegate)
+    // TODO_R: lazyPub
+    override val clsDelegate by lazy(LazyThreadSafetyMode.PUBLICATION, computeDelegate)
 
     private val lightIdentifier by lazy(LazyThreadSafetyMode.PUBLICATION) { KtLightIdentifier(this, kotlinOrigin as? KtNamedDeclaration) }
     private val returnTypeElem by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -266,6 +267,7 @@ class KtLightMethodImpl private constructor(
 
     override fun getBody() = clsDelegate.body
 
+    // TODO_R: make lazy
     override fun isDeprecated() = clsDelegate.isDeprecated
 
     override fun findDeepestSuperMethod() = clsDelegate.findDeepestSuperMethod()
@@ -283,6 +285,7 @@ class KtLightMethodImpl private constructor(
     override fun isValid() = containingClass.isValid
 }
 
+// TODO_R: interface
 fun KtLightMethod.isTraitFakeOverride(): Boolean {
     val methodOrigin = this.kotlinOrigin
     if (!(methodOrigin is KtNamedFunction || methodOrigin is KtPropertyAccessor || methodOrigin is KtProperty)) {

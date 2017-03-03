@@ -106,6 +106,7 @@ class LightClassDataProviderForClassOrObject(private val classOrObject: KtClassO
 
             override fun shouldGenerateClass(processingClassOrObject: KtClassOrObject): Boolean {
                 // generate outer classes but not their members
+                // isAncestor
                 return shouldGenerateClassMembers(processingClassOrObject) || PsiTreeUtil.isAncestor(processingClassOrObject, classOrObject, true)
             }
 

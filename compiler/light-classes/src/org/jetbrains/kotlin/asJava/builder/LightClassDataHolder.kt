@@ -41,6 +41,7 @@ interface LightClassDataHolder {
     val javaFileStub: PsiJavaFileStub
     val extraDiagnostics: Diagnostics
 
+    // TODO_R: find data for default impls
     fun findData(findDelegate: (PsiJavaFileStub) -> PsiClass): LightClassData
     fun findData(classOrObject: KtClassOrObject): LightClassData = findData { it.findDelegate(classOrObject) }
     fun findData(classFqName: FqName): LightClassData = findData { it.findDelegate(classFqName) }

@@ -36,28 +36,29 @@ class LazyLightClassDataHolder(
         dummyContextProvider: LightClassContextProvider?
 ) : LightClassDataHolder {
 
-    private val exactResultDelegate = lazy(LazyThreadSafetyMode.PUBLICATION) { builder(exactContextProvider()) }
+    private val exactResultLazyValue = lazy(LazyThreadSafetyMode.PUBLICATION) { builder(exactContextProvider()) }
 
-    private val exactResult: LightClassBuilderResult by exactResultDelegate
+    private val exactResult: LightClassBuilderResult by exactResultLazyValue
 
     private val lazyInexactResult by lazy(LazyThreadSafetyMode.PUBLICATION) {
         dummyContextProvider?.let { builder.invoke(it()) }
     }
 
     private val inexactResult: LightClassBuilderResult?
-        get() = if (exactResultDelegate.isInitialized()) null else lazyInexactResult
+        get() = if (exactResultLazyValue.isInitialized()) null else lazyInexactResult
 
     override val javaFileStub get() = exactResult.stub
     override val extraDiagnostics get() = exactResult.diagnostics
 
+    // TODO_R:
     override fun findData(findDelegate: (PsiJavaFileStub) -> PsiClass): LightClassData =
-            LazyLightClassData(relyOnDummySupertypes = true) {
-                findDelegate(it.stub)
+            LazyLightClassData(relyOnDummySupertypes = true) { lightClassBuilderResult ->
+                findDelegate(lightClassBuilderResult.stub)
             }
 
     override fun findData(classOrObject: KtClassOrObject): LightClassData =
-            LazyLightClassData(relyOnDummySupertypes = classOrObject.getSuperTypeList() == null) {
-                it.stub.findDelegate(classOrObject)
+            LazyLightClassData(relyOnDummySupertypes = classOrObject.getSuperTypeList() == null) { lightClassBuilderResult ->
+                lightClassBuilderResult.stub.findDelegate(classOrObject)
             }
 
     private inner class LazyLightClassData(

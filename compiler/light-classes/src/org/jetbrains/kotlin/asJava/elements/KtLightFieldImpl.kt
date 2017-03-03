@@ -180,12 +180,12 @@ sealed class KtLightFieldImpl<T: PsiField>(
                 dummyDelegate: PsiField,
                 origin: LightMemberOriginForDeclaration,
                 containingClass: KtLightClass,
-                computeDelegate: () -> PsiField
+                computeRealDelegate: () -> PsiField
         ): KtLightField {
             if (dummyDelegate is PsiEnumConstant) {
-                return KtLightEnumConstant(origin, computeDelegate as () -> PsiEnumConstant, containingClass, null)
+                return KtLightEnumConstant(origin, computeRealDelegate as () -> PsiEnumConstant, containingClass, dummyDelegate)
             }
-            return KtLightFieldForDeclaration(origin, computeDelegate, containingClass, dummyDelegate)
+            return KtLightFieldForDeclaration(origin, computeRealDelegate, containingClass, dummyDelegate)
         }
 
         @JvmStatic

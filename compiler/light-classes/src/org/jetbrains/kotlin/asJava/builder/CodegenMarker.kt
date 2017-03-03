@@ -21,6 +21,8 @@ import com.intellij.openapi.util.UserDataHolder
 import com.intellij.psi.PsiMember
 import com.intellij.psi.StubBasedPsiElement
 
+// TODO_R: replace with ORDINAL: Int
+// TODO_R: rename to MemberIndex
 data class CodegenMarker(private val index: Int) {
     companion object {
         @JvmField
@@ -28,6 +30,7 @@ data class CodegenMarker(private val index: Int) {
     }
 }
 
+// TODO_R: drop
 class CodegenMarkerProvider {
     private var i: Int = 0
 

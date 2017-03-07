@@ -53,12 +53,22 @@ object ArrayFIF : CompositeFIF() {
     @JvmField
     val TYPED_MAP = EnumMap(mapOf(BYTE to "Int8", SHORT to "Int16", INT to "Int32", FLOAT to "Float32", DOUBLE to "Float64"))
 
-    fun castToTypedArray(p: JsProgram, type: PrimitiveType?, arg: JsExpression): JsExpression {
+    fun castToPrimitiveArray(p: JsProgram, type: PrimitiveType?, arg: JsExpression): JsExpression {
         return when (type) {
             null -> arg
-            in TYPED_MAP -> JsNew(JsNameRef(TYPED_MAP[type] + "Array"), listOf(arg))
-            else -> JsAstUtils.invokeKotlinFunction("withType", p.getStringLiteral(type.arrayTypeName.asString()), arg)
+            in TYPED_MAP -> createTypedArray(type, arg)
+            else -> setTypeProperty(type, arg, p)
         }
+    }
+
+    private fun createTypedArray(type: PrimitiveType, arg: JsExpression): JsExpression {
+        assert(type in TYPED_MAP)
+        return JsNew(JsNameRef(TYPED_MAP[type] + "Array"), listOf(arg))
+    }
+
+    private fun setTypeProperty(type: PrimitiveType, arg: JsExpression, p: JsProgram): JsExpression {
+        assert(type !in TYPED_MAP)
+        return JsAstUtils.invokeKotlinFunction("withType", p.getStringLiteral(type.arrayTypeName.asString()), arg)
     }
 
     init {
@@ -77,18 +87,23 @@ object ArrayFIF : CompositeFIF() {
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 1) { "Array <init>(Int) expression must have one argument." }
                 val (size) = arguments
-                val arg = if (type in TYPED_MAP) size else JsAstUtils.invokeKotlinFunction("newArray", size, when (type) {
-                    BOOLEAN ->  JsLiteral.FALSE
-                    LONG -> JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong())
-                    else -> JsNumberLiteral.ZERO
-                })
-                castToTypedArray(context.program(), type, arg)
+                if (type in TYPED_MAP) {
+                    createTypedArray(type, size)
+                }
+                else {
+                    val arr = JsAstUtils.invokeKotlinFunction("newArray", size, when (type) {
+                        BOOLEAN ->  JsLiteral.FALSE
+                        LONG -> JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong())
+                        else -> JsNumberLiteral.ZERO
+                    })
+                    setTypeProperty(type, arr, context.program())
+                }
             })
 
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int,Function1)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 2) { "Array <init>(Int,Function1) expression must have two arguments." }
                 val (size, fn) = arguments
-                castToTypedArray(context.program(), type, JsAstUtils.invokeKotlinFunction("newArrayF", size, fn))
+                castToPrimitiveArray(context.program(), type, JsAstUtils.invokeKotlinFunction("newArrayF", size, fn))
             })
         }
 

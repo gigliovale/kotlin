@@ -33,18 +33,18 @@ if (typeof String.prototype.endsWith === "undefined") {
 }
 // Polyfills for Rhino
 (function() {
-    var normalizeOffset = function(offset, length) {
+    function normalizeOffset(offset, length) {
         if (offset < 0) return Math.max(0, offset + length);
         return Math.min(offset, length);
-    };
-    var typedArraySlice = function(begin, end) {
+    }
+    function typedArraySlice(begin, end) {
         if (typeof end === "undefined") {
             end = this.length;
         }
         begin = normalizeOffset(begin || 0, this.length);
         end = Math.max(begin, normalizeOffset(end, this.length));
         return new this.constructor(this.subarray(begin, end));
-    };
+    }
 
     var arrays = [Int8Array, Int16Array, Int32Array, Float32Array, Float64Array];
     for (var i = 0; i < arrays.length; ++i) {

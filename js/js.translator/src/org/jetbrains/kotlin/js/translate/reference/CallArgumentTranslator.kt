@@ -243,9 +243,9 @@ class CallArgumentTranslator private constructor(
     }
 
     private fun toArray(varargPrimitiveType: PrimitiveType?, elements: List<JsExpression>): JsExpression {
-        return ArrayFIF.castToTypedArray(program(),
-                                         varargPrimitiveType,
-                                         JsArrayLiteral(elements).apply { sideEffects = SideEffectKind.DEPENDS_ON_STATE })
+        return ArrayFIF.castToPrimitiveArray(program(),
+                                             varargPrimitiveType,
+                                             JsArrayLiteral(elements).apply { sideEffects = SideEffectKind.DEPENDS_ON_STATE })
     }
 
     private fun prepareConcatArguments(

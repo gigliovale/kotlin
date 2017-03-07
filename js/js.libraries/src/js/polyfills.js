@@ -46,7 +46,7 @@ if (typeof String.prototype.endsWith === "undefined") {
         return new this.constructor(this.subarray(begin, end));
     }
 
-    var arrays = [Int8Array, Int16Array, Int32Array, Float32Array, Float64Array];
+    var arrays = [Int8Array, Int16Array, Uint16Array, Int32Array, Float32Array, Float64Array];
     for (var i = 0; i < arrays.length; ++i) {
         var TypedArray = arrays[i];
         if (typeof TypedArray.prototype.slice === "undefined") {

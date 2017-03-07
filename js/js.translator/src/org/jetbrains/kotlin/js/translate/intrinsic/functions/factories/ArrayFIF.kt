@@ -53,23 +53,33 @@ object ArrayFIF : CompositeFIF() {
     val LENGTH_PROPERTY_INTRINSIC = BuiltInPropertyIntrinsic("length")
 
     @JvmField
-    val TYPED_MAP = EnumMap(mapOf(BYTE to "Int8", SHORT to "Int16", INT to "Int32", FLOAT to "Float32", DOUBLE to "Float64"))
+    val TYPED_ARRAY_MAP = EnumMap(mapOf(BYTE to "Int8",
+                                        SHORT to "Int16",
+                                        CHAR to "Uint16",
+                                        INT to "Int32",
+                                        FLOAT to "Float32",
+                                        DOUBLE to "Float64"))
+
+    @JvmField
+    val TYPE_PROPERTY_SET: EnumSet<PrimitiveType> = EnumSet.of(BOOLEAN, CHAR, LONG)
 
     fun castToPrimitiveArray(p: JsProgram, type: PrimitiveType?, arg: JsExpression): JsExpression {
-        return when (type) {
-            null -> arg
-            in TYPED_MAP -> createTypedArray(type, arg)
-            else -> setTypeProperty(type, arg, p)
-        }
+        if (type == null) return arg
+
+        // Copy arg to a TypedArray if needed
+        val arr = if (type in TYPED_ARRAY_MAP) createTypedArray(type, arg) else arg
+
+        // Set type property if needed
+        return if (type in TYPE_PROPERTY_SET) setTypeProperty(type, arr, p) else arr
     }
 
     private fun createTypedArray(type: PrimitiveType, arg: JsExpression): JsExpression {
-        assert(type in TYPED_MAP)
-        return JsNew(JsNameRef(TYPED_MAP[type] + "Array"), listOf(arg)).apply { sideEffects = SideEffectKind.PURE }
+        assert(type in TYPED_ARRAY_MAP)
+        return JsNew(JsNameRef(TYPED_ARRAY_MAP[type] + "Array"), listOf(arg)).apply { sideEffects = SideEffectKind.PURE }
     }
 
     private fun setTypeProperty(type: PrimitiveType, arg: JsExpression, p: JsProgram): JsExpression {
-        assert(type !in TYPED_MAP)
+        assert(type in TYPE_PROPERTY_SET)
         return JsAstUtils.invokeKotlinFunction("withType", p.getStringLiteral(type.arrayTypeName.asString()), arg) .apply {
             sideEffects = SideEffectKind.PURE
         }
@@ -91,17 +101,13 @@ object ArrayFIF : CompositeFIF() {
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 1) { "Array <init>(Int) expression must have one argument." }
                 val (size) = arguments
-                if (type in TYPED_MAP) {
-                    createTypedArray(type, size)
+                val array = when (type) {
+                    BOOLEAN -> JsAstUtils.invokeKotlinFunction("newArray", size, JsLiteral.FALSE)
+                    LONG -> JsAstUtils.invokeKotlinFunction("newArray", size, JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong()))
+                    else -> createTypedArray(type, size)
                 }
-                else {
-                    val arr = JsAstUtils.invokeKotlinFunction("newArray", size, when (type) {
-                        BOOLEAN ->  JsLiteral.FALSE
-                        LONG -> JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong())
-                        else -> JsNumberLiteral.ZERO
-                    })
-                    setTypeProperty(type, arr, context.program())
-                }
+
+                if (type in TYPE_PROPERTY_SET) setTypeProperty(type, array, context.program()) else array
             })
 
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int,Function1)"), intrinsify { _, arguments, context ->

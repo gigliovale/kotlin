@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.js.translate.context;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.builtins.PrimitiveType;
 import org.jetbrains.kotlin.descriptors.CallableDescriptor;
 import org.jetbrains.kotlin.descriptors.ClassDescriptor;
 import org.jetbrains.kotlin.descriptors.SimpleFunctionDescriptor;
@@ -32,6 +33,7 @@ import org.jetbrains.kotlin.js.backend.ast.metadata.TypeCheck;
 import org.jetbrains.kotlin.js.naming.NameSuggestion;
 import org.jetbrains.kotlin.js.naming.SuggestedName;
 import org.jetbrains.kotlin.js.resolve.JsPlatform;
+import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.utils.JsAstUtils;
 import org.jetbrains.kotlin.js.translate.utils.JsDescriptorUtils;
 import org.jetbrains.kotlin.name.FqName;
@@ -288,18 +290,9 @@ public final class Namer {
     }
 
     @NotNull
-    public JsExpression isBooleanArray() {
-        return kotlin("isBooleanArray");
-    }
-
-    @NotNull
-    public JsExpression isCharArray() {
-        return kotlin("isCharArray");
-    }
-
-    @NotNull
-    public JsExpression isLongArray() {
-        return kotlin("isLongArray");
+    public JsExpression isPrimitiveArray(@NotNull PrimitiveType type) {
+        assert ArrayFIF.TYPE_PROPERTY_SET.contains(type);
+        return kotlin("is" + type.getArrayTypeName().asString());
     }
 
     @NotNull

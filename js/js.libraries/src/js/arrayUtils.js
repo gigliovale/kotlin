@@ -19,7 +19,7 @@ Kotlin.isBooleanArray = function (a) {
 };
 
 Kotlin.isCharArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "CharArray"
+    return a instanceof Uint16Array && a.$type$ === "CharArray"
 };
 
 Kotlin.isLongArray = function (a) {

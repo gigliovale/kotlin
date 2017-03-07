@@ -13082,7 +13082,7 @@ public fun BooleanArray.copyOf(newSize: Int): BooleanArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun CharArray.copyOf(newSize: Int): CharArray {
-    return withType("CharArray", arrayCopyResize(this, newSize, 0))
+    return withType("CharArray", arrayCopy(this, CharArray(newSize)))
 }
 
 /**
@@ -13296,7 +13296,7 @@ public operator fun BooleanArray.plus(elements: Collection<Boolean>): BooleanArr
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun CharArray.plus(elements: Collection<Char>): CharArray {
-    return arrayPlusCollection(this, elements)
+    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**

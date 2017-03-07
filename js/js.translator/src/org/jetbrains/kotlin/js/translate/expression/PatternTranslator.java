@@ -248,16 +248,13 @@ public final class PatternTranslator extends AbstractTranslator {
         }
 
         if (KotlinBuiltIns.isPrimitiveArray(type)) {
-            PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayType(type);
-            switch (arrayType) {
-                case BOOLEAN:
-                    return namer().isBooleanArray();
-                case CHAR:
-                    return namer().isCharArray();
-                case LONG:
-                    return namer().isLongArray();
-                default:
-                    return namer().isInstanceOf(pureFqn(ArrayFIF.TYPED_MAP.get(arrayType) + "Array", null));
+            PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
+            assert arrayType != null;
+            if (ArrayFIF.TYPE_PROPERTY_SET.contains(arrayType)) {
+                return namer().isPrimitiveArray(arrayType);
+            }
+            else {
+                return namer().isInstanceOf(pureFqn(ArrayFIF.TYPED_ARRAY_MAP.get(arrayType) + "Array", null));
             }
         }
 

@@ -34,6 +34,9 @@
         <mkdir dir="${android.sdk.dir}/build-tools"/>
 
         <download_android_platform android.versioncode="23_r01" android.sdk.version="23" android.full.version="6.0" />
+        <download_android_platform android.versioncode="22_r02" android.sdk.version="22" android.full.version="5.1.1" />
+
+        <download_support_repository android.repo.version="44" android.repo.last="25.2.0"/>
 
         <download_platform_tools android.platform.tools.version="23" />
         <download_tools android.tools.version="24.3.4" />

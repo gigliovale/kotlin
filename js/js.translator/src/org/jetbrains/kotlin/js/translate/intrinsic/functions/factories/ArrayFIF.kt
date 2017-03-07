@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.builtins.PrimitiveType.*
 import org.jetbrains.kotlin.js.backend.ast.*
+import org.jetbrains.kotlin.js.backend.ast.metadata.SideEffectKind
+import org.jetbrains.kotlin.js.backend.ast.metadata.sideEffects
 import org.jetbrains.kotlin.js.patterns.NamePredicate
 import org.jetbrains.kotlin.js.patterns.PatternBuilder.pattern
 import org.jetbrains.kotlin.js.translate.context.Namer
@@ -63,12 +65,14 @@ object ArrayFIF : CompositeFIF() {
 
     private fun createTypedArray(type: PrimitiveType, arg: JsExpression): JsExpression {
         assert(type in TYPED_MAP)
-        return JsNew(JsNameRef(TYPED_MAP[type] + "Array"), listOf(arg))
+        return JsNew(JsNameRef(TYPED_MAP[type] + "Array"), listOf(arg)).apply { sideEffects = SideEffectKind.PURE }
     }
 
     private fun setTypeProperty(type: PrimitiveType, arg: JsExpression, p: JsProgram): JsExpression {
         assert(type !in TYPED_MAP)
-        return JsAstUtils.invokeKotlinFunction("withType", p.getStringLiteral(type.arrayTypeName.asString()), arg)
+        return JsAstUtils.invokeKotlinFunction("withType", p.getStringLiteral(type.arrayTypeName.asString()), arg) .apply {
+            sideEffects = SideEffectKind.PURE
+        }
     }
 
     init {

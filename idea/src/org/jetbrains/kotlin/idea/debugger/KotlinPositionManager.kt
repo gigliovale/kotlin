@@ -231,6 +231,12 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
             for (name in names) {
                 result.addAll(myDebugProcess.virtualMachineProxy.classesByName(name))
             }
+
+            val allClasses = myDebugProcess.getAllClasses(sourcePosition)
+            if (result != allClasses.toSet()) {
+                println("OLD: ${result.joinToString()}")
+                println("NEW: ${allClasses.toSet().joinToString()}")
+            }
             return result
         }
 

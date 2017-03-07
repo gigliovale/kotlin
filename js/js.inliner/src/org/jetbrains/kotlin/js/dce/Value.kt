@@ -16,6 +16,18 @@
 
 package org.jetbrains.kotlin.js.dce
 
-import org.jetbrains.kotlin.js.backend.ast.JsFunction
+import org.jetbrains.kotlin.js.backend.ast.JsNode
 
-class FunctionTag(val jsFunction: JsFunction?)
+interface Value {
+    val jsNode: JsNode?
+
+    fun getMember(name: String): Node
+
+    fun getDynamicMember(): Node
+
+    fun getParameter(index: Int): Node
+
+    fun getReturnValue(): Node
+
+    fun addHandler(handler: ValueEventHandler)
+}

@@ -22,19 +22,26 @@ import java.util.*
 class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
     private val nodes = mutableMapOf<JsName, Node>()
     private val worklist: Queue<() -> Unit> = ArrayDeque()
-    private val functionNodes = mutableMapOf<JsFunction, Node>()
     private val processedFunctions = mutableSetOf<JsFunction>()
     private val nodeMap = mutableMapOf<JsNode, Node>()
-    private val globalScopeCache = mutableMapOf<String, Node>()
-    private val globalNode = NodeImpl(null, "")
+    private val valueMap = mutableMapOf<JsNode, Value>()
+    private val globalScope = ValueImpl(null)
+    private val globalScopeNode = NodeImpl(null, "")
+
+    private val objectValue = ValueImpl(null)
+    private val functionValue = ValueImpl(null)
+    private val arrayValue = ValueImpl(null)
 
     companion object {
         private val PROTO = "__proto__"
     }
 
-    val globalScopeContributors = mutableListOf<GlobalScopeContributor>()
-
     fun apply() {
+        globalScopeNode.addValue(globalScope)
+        globalScope.getMember("Object").addValue(objectValue)
+        globalScope.getMember("Function").addValue(functionValue)
+        globalScope.getMember("Array").addValue(arrayValue)
+
         root.accept(visitor)
         while (worklist.isNotEmpty()) {
             worklist.remove()()
@@ -66,73 +73,58 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
 
         private fun shouldRemoveFunction(x: JsFunction): Boolean {
             if (x !in processedFunctions) {
-                val node = functionNodes[x]!!
-                if (!node.isUsed) {
-                    return true
-                }
-                else {
-                    x.body.statements.clear()
-                    x.parameters.clear()
-                }
+                x.body.statements.clear()
+                x.parameters.clear()
             }
             return false
         }
 
         override fun endVisit(x: JsObjectLiteral, ctx: JsContext<*>) {
-            x.propertyInitializers.removeAll { property ->
-                val node = nodeMap[property.valueExpr]
-                node != null && !node.isUsed
-            }
         }
     }
 
-    private val dynamicNode: Node by lazy {
-        val node = NodeImpl(null, "[dynamic]")
-        node.addHandler(object : NodeEventHandler {
+    private val dynamicValue: Value by lazy {
+        val newValue = ValueImpl(null)
+        newValue.addHandler(object : ValueEventHandler {
             override fun memberAdded(name: String, value: Node) {
-                value.connectTo(node)
-                node.connectTo(value)
+                value.addValue(newValue)
             }
 
             override fun parameterAdded(index: Int, value: Node) {
-                value.connectTo(dynamicNode)
+                value.addValue(newValue)
             }
 
             override fun returnValueAdded(value: Node) {
-                dynamicNode.connectTo(value)
+                value.addValue(newValue)
             }
 
             override fun dynamicMemberAdded(value: Node) {
-                value.connectTo(node)
-                node.connectTo(value)
+                value.addValue(newValue)
             }
         })
-        node.use()
-        node
+        newValue
     }
 
-    private var resultNodes: List<Node> = listOf()
+    private var resultNode: Node = NodeImpl(null, "")
     private var returnNode: Node? = null
-    private var thisNode: Node = globalNode
+    private var thisNode: Node = globalScopeNode
     private val visitor = object : RecursiveJsVisitor() {
         override fun visitBinaryExpression(x: JsBinaryOperation) {
             if (x.operator == JsBinaryOperator.ASG) {
                 x.arg1.accept(this)
-                val lhsNodes = resultNodes
+                val lhsNode = resultNode
                 x.arg2.accept(this)
-                val rhsNodes = resultNodes
-                for (lhsNode in lhsNodes) {
-                    for (rhsNode in rhsNodes) {
-                        rhsNode.connectTo(lhsNode)
-                    }
-                }
+                val rhsNode = resultNode
+                rhsNode.connectTo(lhsNode)
             }
             else if (x.operator == JsBinaryOperator.OR) {
                 x.arg1.accept(this)
-                val first = resultNodes
+                val first = resultNode
                 x.arg2.accept(this)
-                val second = resultNodes
-                resultNodes = first + second
+                val second = resultNode
+                resultNode = NodeImpl(x, "")
+                first.connectTo(resultNode)
+                second.connectTo(resultNode)
             }
             else {
                 super.visitBinaryExpression(x)
@@ -140,44 +132,47 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
         }
 
         override fun visitFunction(x: JsFunction) {
-            val node = NodeImpl(x, "")
-            val tag = FunctionTag(x)
-            /*setType(node, getGlobalScopeNode("Function"))
-            val prototypeMember = node.getMember("prototype")
+            val value = constructObject(globalScope.getMember("Function"), emptyList(), x)
 
-            val prototypeNode = NodeImpl(null)
-            setType(prototypeNode, getGlobalScopeNode("Object"))
-            prototypeNode.getMember("constructor").addFunction(tag)
-            prototypeNode.connectTo(prototypeMember)*/
-
-            functionNodes[x] = node
+            valueMap[x] = value
+            resultNode = NodeImpl(x, "")
             x.name?.let {
-                nodes[it] = node
+                nodes[it] = resultNode
             }
-            node.addFunction(tag)
-            resultNodes = listOf(node)
+            resultNode.addValue(value)
         }
 
         override fun visitObjectLiteral(x: JsObjectLiteral) {
-            val node = NodeImpl(x, "")
-            //setType(node, getGlobalScopeNode("Object"))
+            val objectValue = constructObject(globalScope.getMember("Object"), listOf(), x)
             for (propertyInitializer in x.propertyInitializers) {
                 propertyInitializer.valueExpr.accept(this)
-                val propertyNodes = resultNodes
+                val propertyNode = resultNode
                 val label = propertyInitializer.labelExpr
                 when (label) {
                     is JsNameRef -> {
-                        propertyNodes.forEach { it.connectTo(node.getMember(label.ident)) }
+                        propertyNode.connectTo(objectValue.getMember(label.ident))
                     }
                     is JsStringLiteral -> {
-                        propertyNodes.forEach { it.connectTo(node.getMember(label.value)) }
+                        propertyNode.connectTo(objectValue.getMember(label.value))
                     }
                     else -> {
-                        propertyNodes.forEach { it.connectTo(node.getDynamicMember()) }
+                        propertyNode.connectTo(objectValue.getDynamicMember())
                     }
                 }
             }
-            resultNodes = listOf(node)
+            resultNode = NodeImpl(x, "")
+            resultNode.addValue(objectValue)
+            objectValue.getMember(PROTO).addValue(objectValue)
+        }
+
+        override fun visitArray(x: JsArrayLiteral) {
+            val arrayValue = constructObject(globalScope.getMember("Array"), listOf(), x)
+            for (item in x.expressions) {
+                item.accept(this)
+                resultNode.connectTo(arrayValue.getDynamicMember())
+            }
+            resultNode = NodeImpl(x, "")
+            resultNode.addValue(arrayValue)
         }
 
         override fun visit(x: JsVars.JsVar) {
@@ -185,138 +180,172 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             nodes[x.name] = node
             x.initExpression?.let {
                 accept(it)
-                resultNodes.forEach { it.connectTo(node) }
+                resultNode.connectTo(node)
             }
-            resultNodes = listOf()
+            resultNode = node
         }
 
         override fun visitNameRef(nameRef: JsNameRef) {
             val qualifier = nameRef.qualifier
-            resultNodes = if (qualifier == null) {
+            resultNode = if (qualifier == null) {
                 val name = nameRef.name
-                val node = if (name != null) {
-                    nodes[name]
-                }
-                else {
-                    dynamicNode
-                }
-                node?.let { nodeMap[nameRef] = it }
-                listOfNotNull(node)
+                val node = name?.let { nodes[it] } ?: globalScope.getMember(nameRef.ident)
+                node.also { nodeMap[nameRef] = it }
             }
             else {
                 accept(qualifier)
-                resultNodes.map { resultNode ->
-                    resultNode.getMember(nameRef.ident).also { nodeMap[nameRef] = it }
-                }
+                val newNode = NodeImpl(nameRef, "." + nameRef.ident)
+                resultNode.addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        val memberNode = value.getMember(nameRef.ident)
+                        memberNode.connectTo(newNode)
+                    }
+                })
+                newNode
             }
         }
 
         override fun visitArrayAccess(x: JsArrayAccess) {
             accept(x.arrayExpression)
-            val arrayNodes = resultNodes
+            val arrayNode = resultNode
 
             val indexExpr = x.indexExpression
-            resultNodes = if (indexExpr is JsStringLiteral) {
-                arrayNodes.map { it.getMember(indexExpr.value) }
+            val newNode = NodeImpl(x, "")
+            if (indexExpr is JsStringLiteral) {
+                arrayNode.addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        value.getMember(indexExpr.value).connectTo(newNode)
+                    }
+                })
             }
             else {
                 accept(indexExpr)
-                resultNodes.forEach { it.use() }
-                arrayNodes.map { it.getDynamicMember() }
+                arrayNode.addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        value.getDynamicMember().connectTo(newNode)
+                    }
+                })
             }
+            resultNode = newNode
         }
 
         override fun visitInvocation(invocation: JsInvocation) {
-            val node = NodeImpl(invocation, "")
+            val newNode = NodeImpl(invocation, "")
             val qualifier = invocation.qualifier
 
-            val (qualifierNodes, receiverNodes) = if (qualifier is JsNameRef) {
+            val qualifierNode = NodeImpl(invocation, "")
+            val receiverNode = NodeImpl(invocation, "")
+
+            if (qualifier is JsNameRef) {
                 accept(qualifier.qualifier)
-                Pair(resultNodes.map { it.getMember(qualifier.ident) }, resultNodes)
+                resultNode.connectTo(receiverNode)
+                resultNode.addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        value.getMember(qualifier.ident).connectTo(qualifierNode)
+                    }
+                })
             }
             else {
                 accept(qualifier)
-                Pair(resultNodes, emptyList())
+                resultNode.connectTo(qualifierNode)
             }
             val argumentsNodes = invocation.arguments.map {
                 accept(it)
-                resultNodes
+                resultNode
             }
 
-            resultNodes = qualifierNodes.map { qualifierNode ->
-                qualifierNode.addHandler(object : NodeEventHandler {
-                    override fun functionAdded(function: FunctionTag) {
-                        val jsFunction = function.jsFunction
-                        if (jsFunction != null) {
-                            val functionNode = functionNodes[jsFunction]!!
-                            functionNode.connectTo(functionNode)
-                            if (processedFunctions.add(jsFunction)) {
-                                processFunction(jsFunction, functionNode)
-                            }
-                            functionNode.use()
+            qualifierNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    receiverNode.connectTo(value.getParameter(0))
+                    for ((index, argNode) in argumentsNodes.withIndex()) {
+                        argNode.connectTo(value.getParameter(index + 1))
+                    }
+                    value.getReturnValue().connectTo(newNode)
+
+                    val jsFunction = value.jsNode as? JsFunction
+                    if (jsFunction != null) {
+                        if (processedFunctions.add(jsFunction)) {
+                            processFunction(jsFunction, value)
                         }
                     }
-                })
-                for ((argumentIndex, argumentNodes) in argumentsNodes.withIndex()) {
-                    argumentNodes.forEach { it.connectTo(qualifierNode.getParameter(argumentIndex + 1)) }
                 }
-                receiverNodes.forEach { it.connectTo(qualifierNode.getParameter(0)) }
-                node
-            }
+            })
+
+            resultNode = newNode
         }
 
         override fun visitReturn(x: JsReturn) {
             x.expression?.let {
                 accept(it)
-                resultNodes.forEach { resultNode ->
-                    returnNode?.let { resultNode.connectTo(it) }
-                }
+                returnNode?.let { resultNode.connectTo(it) }
             }
-            resultNodes = emptyList()
+            resultNode = NodeImpl(x, "")
         }
 
         override fun visitNew(x: JsNew) {
-            val node = NodeImpl(x, "")
             accept(x.constructorExpression)
-            val constructorNodes = resultNodes
-            val prototypeNodes = resultNodes.map { it.getMember("prototype") }
 
-            prototypeNodes.forEach { setType(node, it) }
-            constructorNodes.forEach { it.use() }
+            val argumentsNodes = x.arguments.map {
+                accept(it)
+                resultNode
+            }
 
-            resultNodes = listOf(node)
+            val constructorNode = resultNode
+            val newNode = NodeImpl(x, "")
+            newNode.addValue(constructObject(constructorNode, argumentsNodes, x))
+            resultNode = newNode
         }
 
         override fun visitThis(x: JsLiteral.JsThisRef) {
-            resultNodes = listOf(thisNode)
+            resultNode = thisNode
         }
     }
 
-    private fun setType(node: Node, type: Node) {
-        type.connectTo(node.getMember(PROTO))
-        type.addHandler(object : NodeEventHandler {
-            override fun memberAdded(name: String, value: Node) {
-                value.connectTo(node.getMember(name))
-            }
+    private fun constructObject(constructorNode: Node, argumentsNodes: List<Node>, jsNode: JsNode?): Value {
+        val objectValue = ValueImpl(jsNode)
+        val prototypeNode = objectValue.getMember(PROTO)
+        constructorNode.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                value.getParameter(0).addValue(objectValue)
+                for ((index, argumentNode) in argumentsNodes.withIndex()) {
+                    argumentNode.connectTo(value.getParameter(index + 1))
+                }
 
-            override fun dynamicMemberAdded(value: Node) {
-                value.connectTo(node.getDynamicMember())
+                val jsFunction = value.jsNode as? JsFunction
+                if (jsFunction != null) {
+                    if (processedFunctions.add(jsFunction)) {
+                        processFunction(jsFunction, value)
+                    }
+                }
+                value.getMember("prototype").connectTo(prototypeNode)
             }
         })
+
+        prototypeNode.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                value.addHandler(object : ValueEventHandler {
+                    override fun memberAdded(name: String, value: Node) {
+                        value.connectTo(objectValue.getMember(name))
+                    }
+
+                    override fun dynamicMemberAdded(value: Node) {
+                        value.connectTo(objectValue.getDynamicMember())
+                    }
+                })
+            }
+        })
+
+        return objectValue
     }
 
-    private fun getGlobalScopeNode(name: String): Node = globalScopeCache.getOrPut(name) {
-        val existingObject = globalScopeContributors.mapNotNull { it.getGlobalObjectNode({ NodeImpl(null, "") }, name) }.firstOrNull()
-        existingObject ?: NodeImpl(null, "").also { dynamicNode.connectTo(it) }
-    }
-
-    private fun processFunction(function: JsFunction, node: Node) {
-        returnNode = node.getReturnValue()
+    private fun processFunction(function: JsFunction, value: Value) {
+        returnNode = value.getReturnValue()
         for ((index, param) in function.parameters.withIndex()) {
             val parameterNode = NodeImpl(param, "")
             nodes[param.name] = parameterNode
-            node.getParameter(index + 1).connectTo(parameterNode)
+            value.getParameter(index + 1).connectTo(parameterNode)
         }
+        thisNode = value.getParameter(0)
         function.body.accept(visitor)
     }
 
@@ -324,60 +353,30 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
         worklist += action
     }
 
-    internal inner class NodeImpl(override val jsNode: JsNode?, val path: String) : Node {
-        private var functions: MutableSet<FunctionTag>? = null
+    internal inner class ValueImpl(override val jsNode: JsNode?) : Value {
         private var members: MutableMap<String, NodeImpl>? = null
         private var dynamicMemberImpl: NodeImpl? = null
         private var parameters: MutableList<NodeImpl?>? = null
         private var returnValueImpl: NodeImpl? = null
-        private var handlers: MutableList<NodeEventHandler>? = null
-        private var successors: MutableSet<Node>? = null
-
-        init {
-            if (jsNode != null) {
-                nodeMap[jsNode] = this
-            }
-        }
-
-        override var isUsed: Boolean = false
-            get
-            private set
-
-        override fun getFunctions(): Set<FunctionTag> = functions ?: emptySet()
-
-        override fun addFunction(function: FunctionTag) {
-            val set = functions ?: mutableSetOf<FunctionTag>().also { functions = it }
-            if (set.add(function)) {
-                defer { handlers?.toList()?.forEach { it.functionAdded(function) } }
-            }
-        }
+        private var handlers: MutableList<ValueEventHandler>? = null
 
         override fun getMember(name: String): NodeImpl {
             val members = this.members ?: mutableMapOf<String, NodeImpl>().also { this.members = it }
             return members.getOrPut(name) {
-                NodeImpl(jsNode, "$path.$name").also { newNode ->
-                    newNode.addHandler(object : NodeEventHandler {
-                        override fun used(value: Node) {
-                            use()
-                        }
-                    })
+                NodeImpl(jsNode, ".$name").also { newNode ->
                     defer { handlers?.toList()?.forEach { it.memberAdded(name, newNode) } }
                 }
             }
         }
 
         override fun getDynamicMember(): NodeImpl {
-            return dynamicMemberImpl ?: NodeImpl(jsNode, "$path.*").also { newNode ->
+            return dynamicMemberImpl ?: NodeImpl(jsNode, ".*").also { newNode ->
                 dynamicMemberImpl = newNode
                 defer { handlers?.toList()?.forEach { it.dynamicMemberAdded(newNode) } }
-                addHandler(object : NodeEventHandler {
+                addHandler(object : ValueEventHandler {
                     override fun memberAdded(name: String, value: Node) {
                         newNode.connectTo(value)
                         value.connectTo(newNode)
-                    }
-
-                    override fun used(value: Node) {
-                        use()
                     }
                 })
             }
@@ -388,70 +387,22 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             while (list.lastIndex < index) {
                 list.add(null)
             }
-            return list[index] ?: NodeImpl(jsNode, "$path|$index").also { param ->
+            return list[index] ?: NodeImpl(jsNode, "|$index").also { param ->
                 list[index] = param
                 defer { handlers?.toList()?.forEach { it.parameterAdded(index, param) } }
             }
         }
 
         override fun getReturnValue(): NodeImpl {
-            return returnValueImpl ?: NodeImpl(jsNode, "$path|return").also { newReturnValue ->
+            return returnValueImpl ?: NodeImpl(jsNode, "|return").also { newReturnValue ->
                 returnValueImpl = newReturnValue
                 defer { handlers?.toList()?.forEach { it.returnValueAdded(newReturnValue) } }
             }
         }
 
-        override fun connectTo(other: Node) {
-            val successors = this.successors ?: mutableSetOf<Node>().also { this.successors = it }
-            if (successors.add(other)) {
-                addHandler(object : NodeEventHandler {
-                    override fun functionAdded(function: FunctionTag) {
-                        other.addFunction(function)
-                    }
-
-                    override fun parameterAdded(index: Int, value: Node) {
-                        value.connectTo(other.getParameter(index))
-                    }
-
-                    override fun returnValueAdded(value: Node) {
-                        getReturnValue().connectTo(value)
-                    }
-
-                    override fun dynamicMemberAdded(value: Node) {
-                        other.getDynamicMember().connectTo(value)
-                        value.connectTo(other.getDynamicMember())
-                    }
-
-                    override fun memberAdded(name: String, value: Node) {
-                        value.connectTo(other.getMember(name))
-                        other.getMember(name).connectTo(value)
-                    }
-                })
-                other.addHandler(object : NodeEventHandler {
-                    override fun returnValueAdded(value: Node) {
-                        value.connectTo(getReturnValue())
-                    }
-
-                    override fun dynamicMemberAdded(value: Node) {
-                        getDynamicMember().connectTo(value)
-                        value.connectTo(getDynamicMember())
-                    }
-
-                    override fun memberAdded(name: String, value: Node) {
-                        value.connectTo(getMember(name))
-                        getMember(name).connectTo(value)
-                    }
-                })
-            }
-        }
-
-        override fun addHandler(handler: NodeEventHandler) {
-            val list = handlers ?: mutableListOf<NodeEventHandler>().also { handlers = it }
+        override fun addHandler(handler: ValueEventHandler) {
+            val list = handlers ?: mutableListOf<ValueEventHandler>().also { handlers = it }
             list += handler
-
-            functions?.forEach { function ->
-                defer { handler.functionAdded(function) }
-            }
 
             dynamicMemberImpl?.let { dynamicMember ->
                 defer { handler.dynamicMemberAdded(dynamicMember) }
@@ -474,16 +425,46 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             returnValueImpl?.let {
                 defer { handler.returnValueAdded(it) }
             }
+        }
+    }
 
-            if (isUsed) {
-                defer { handler.used(this) }
+    internal inner class NodeImpl(override val jsNode: JsNode?, val path: String) : Node {
+        private var values: MutableSet<Value>? = null
+        private var handlers: MutableList<NodeEventHandler>? = null
+        private var successors: MutableSet<Node>? = null
+
+        init {
+            if (jsNode != null) {
+                nodeMap[jsNode] = this
             }
         }
 
-        override fun use() {
-            if (!isUsed) {
-                isUsed = true
-                defer { handlers?.toList()?.forEach { it.used(this) } }
+        override fun getValues(): Set<Value> = values ?: emptySet()
+
+        override fun addValue(value: Value) {
+            val set = values ?: mutableSetOf<Value>().also { values = it }
+            if (set.add(value)) {
+                defer { handlers?.toList()?.forEach { it.valueAdded(value) } }
+            }
+        }
+
+        override fun connectTo(other: Node) {
+            val successors = this.successors ?: mutableSetOf<Node>().also { this.successors = it }
+            if (successors.add(other)) {
+                addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        other.addValue(value)
+                    }
+                })
+            }
+        }
+
+        override fun addHandler(handler: NodeEventHandler) {
+            val list = handlers ?: mutableListOf<NodeEventHandler>().also { handlers = it }
+            list += handler
+
+            values?.forEach { value ->
+                defer { handler.valueAdded(value) }
             }
         }
     }

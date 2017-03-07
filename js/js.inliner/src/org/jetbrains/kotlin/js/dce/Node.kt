@@ -21,23 +21,11 @@ import org.jetbrains.kotlin.js.backend.ast.JsNode
 interface Node {
     val jsNode: JsNode?
 
-    fun getFunctions(): Set<FunctionTag>
+    fun getValues(): Set<Value>
 
-    fun addFunction(function: FunctionTag)
-
-    fun getMember(name: String): Node
-
-    fun getDynamicMember(): Node
-
-    fun getParameter(index: Int): Node
-
-    fun getReturnValue(): Node
+    fun addValue(value: Value)
 
     fun connectTo(other: Node)
 
     fun addHandler(handler: NodeEventHandler)
-
-    val isUsed: Boolean
-
-    fun use()
 }

@@ -16,11 +16,12 @@
 
 package org.jetbrains.kotlin.js.dce
 
-class ObjectTypeContributor : GlobalScopeContributor {
-    override fun getGlobalObjectNode(nodeFactory: () -> Node, name: String): Node? {
-        if (name != "Object") return null
+interface ValueEventHandler {
+    fun dynamicMemberAdded(value: Node) {}
 
-        val node = nodeFactory()
-        return node
-    }
+    fun memberAdded(name: String, value: Node) {}
+
+    fun parameterAdded(index: Int, value: Node) {}
+
+    fun returnValueAdded(value: Node) {}
 }

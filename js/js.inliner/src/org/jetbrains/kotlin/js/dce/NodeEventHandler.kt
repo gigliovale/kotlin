@@ -17,15 +17,5 @@
 package org.jetbrains.kotlin.js.dce
 
 interface NodeEventHandler {
-    fun functionAdded(function: FunctionTag) {}
-
-    fun parameterAdded(index: Int, value: Node) {}
-
-    fun returnValueAdded(value: Node) {}
-
-    fun dynamicMemberAdded(value: Node) {}
-
-    fun memberAdded(name: String, value: Node) {}
-
-    fun used(value: Node) {}
+    fun valueAdded(value: Value) {}
 }

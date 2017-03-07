@@ -70,7 +70,7 @@ class ReifiedTypeInliner(private val parametersMapping: TypeParameterMappings?) 
         const val REIFIED_OPERATION_MARKER_METHOD_NAME = "reifiedOperationMarker"
         const val NEED_CLASS_REIFICATION_MARKER_METHOD_NAME = "needClassReification"
 
-        private fun isOperationReifiedMarker(insn: AbstractInsnNode) =
+        fun isOperationReifiedMarker(insn: AbstractInsnNode) =
                 isReifiedMarker(insn) { it == REIFIED_OPERATION_MARKER_METHOD_NAME }
 
         private fun isReifiedMarker(insn: AbstractInsnNode, namePredicate: (String) -> Boolean): Boolean {
@@ -247,7 +247,7 @@ class ReifiedTypeInliner(private val parametersMapping: TypeParameterMappings?) 
     }
 }
 
-private val MethodInsnNode.reificationArgument: ReificationArgument?
+val MethodInsnNode.reificationArgument: ReificationArgument?
     get() {
         val prev = previous!!
 

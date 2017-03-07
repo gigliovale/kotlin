@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.resolve.jvm.AsmTypes.JAVA_STRING_TYPE
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.Type
 import org.jetbrains.org.objectweb.asm.commons.InstructionAdapter
+import java.util.*
 
 class Concat : IntrinsicMethod() {
     fun generateImpl(
@@ -100,3 +101,46 @@ class Concat : IntrinsicMethod() {
                 }
             }
 }
+//
+//class My {
+//    var currentElement: String? = null
+//}
+//
+//val delayedQueue = LinkedList<My?>()
+//
+//fun  next(): String {
+//    while (true) {
+//        (delayedQueue.poll() ?: break).currentElement?.let { unblock(it) }
+//    }
+////    if (cfg.cfg().getFromAddQueueBeforeUnblock > 0) {
+////        for (i in 0..cfg.cfg().getFromAddQueueBeforeUnblock) {
+////            addToQueues(addQueue.poll() ?: break)
+////        }
+////    }
+//    while (true) {
+//        unblock(delayedQueue.poll() ?: break)
+//    }
+//    tryProcessingQueue()?.let { return it }
+//
+//    while (true) {
+//        addToQueues(delayedQueue.poll() ?: break)
+//        tryProcessingQueue()?.let { return it }
+//    }
+//    //return tryProcessingQueue()
+//}
+//
+//fun addToQueues(my: My) {
+//
+//}
+//
+//inline fun tryProcessingQueue(): String? {
+//    return null
+//}
+//
+//fun unblock(s: String) {
+//
+//}
+//
+//fun unblock(s: My) {
+//
+//}

@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.js.dce
 
 import org.jetbrains.kotlin.js.backend.ast.*
+import org.jetbrains.kotlin.js.translate.utils.jsAstUtils.array
+import org.jetbrains.kotlin.js.translate.utils.jsAstUtils.index
 import java.util.*
 
 class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
@@ -111,18 +113,14 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
     private val visitor = object : RecursiveJsVisitor() {
         override fun visitBinaryExpression(x: JsBinaryOperation) {
             if (x.operator == JsBinaryOperator.ASG) {
-                x.arg1.accept(this)
-                val lhsNode = resultNode
-                x.arg2.accept(this)
-                val rhsNode = resultNode
-                rhsNode.connectTo(lhsNode)
+                handleAssignment(x.arg1, x.arg2)
             }
             else if (x.operator == JsBinaryOperator.OR) {
                 x.arg1.accept(this)
                 val first = resultNode
                 x.arg2.accept(this)
                 val second = resultNode
-                resultNode = NodeImpl(x, "")
+                resultNode = createNode(x)
                 first.connectTo(resultNode)
                 second.connectTo(resultNode)
             }
@@ -131,11 +129,45 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             }
         }
 
+        private fun handleAssignment(leftExpr: JsExpression, rightExpr: JsExpression) {
+            accept(rightExpr)
+            val rhsNode = resultNode
+            when (leftExpr) {
+                is JsNameRef -> {
+                    val varNode = leftExpr.name?.let { nodes[it] }
+                    if (varNode != null) {
+                        rhsNode.connectTo(varNode)
+                    }
+                    else {
+                        val qualifierNode = leftExpr.qualifier?.let { accept(it); resultNode } ?: globalScopeNode
+                        qualifierNode.addHandler(object : NodeEventHandler {
+                            override fun valueAdded(value: Value) {
+                                rhsNode.connectTo(value.getMember(leftExpr.ident))
+                            }
+                        })
+                    }
+                }
+                is JsArrayAccess -> {
+                    accept(leftExpr.array)
+                    val arrayNode = resultNode
+                    accept(leftExpr.index)
+                    arrayNode.addHandler(object : NodeEventHandler {
+                        override fun valueAdded(value: Value) {
+                            rhsNode.connectTo(value.getDynamicMember())
+                        }
+                    })
+                }
+                else -> error("Unexpected LHS expression: $leftExpr")
+            }
+        }
+
         override fun visitFunction(x: JsFunction) {
             val value = constructObject(globalScope.getMember("Function"), emptyList(), x)
+            val prototypeValue = constructObject(globalScope.getMember("Object"), emptyList(), x)
+            value.getMember("prototype").addValue(prototypeValue)
 
             valueMap[x] = value
-            resultNode = NodeImpl(x, "")
+            resultNode = createNode(x)
             x.name?.let {
                 nodes[it] = resultNode
             }
@@ -160,7 +192,7 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
                     }
                 }
             }
-            resultNode = NodeImpl(x, "")
+            resultNode = createNode(x)
             resultNode.addValue(objectValue)
             objectValue.getMember(PROTO).addValue(objectValue)
         }
@@ -171,12 +203,12 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
                 item.accept(this)
                 resultNode.connectTo(arrayValue.getDynamicMember())
             }
-            resultNode = NodeImpl(x, "")
+            resultNode = createNode(x)
             resultNode.addValue(arrayValue)
         }
 
         override fun visit(x: JsVars.JsVar) {
-            val node = NodeImpl(x, "")
+            val node = createNode(x)
             nodes[x.name] = node
             x.initExpression?.let {
                 accept(it)
@@ -194,7 +226,7 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             }
             else {
                 accept(qualifier)
-                val newNode = NodeImpl(nameRef, "." + nameRef.ident)
+                val newNode = createNode(nameRef)
                 resultNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
                         val memberNode = value.getMember(nameRef.ident)
@@ -210,7 +242,7 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             val arrayNode = resultNode
 
             val indexExpr = x.indexExpression
-            val newNode = NodeImpl(x, "")
+            val newNode = createNode(x)
             if (indexExpr is JsStringLiteral) {
                 arrayNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
@@ -230,22 +262,25 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
         }
 
         override fun visitInvocation(invocation: JsInvocation) {
-            val newNode = NodeImpl(invocation, "")
+            val newNode = createNode(invocation)
             val qualifier = invocation.qualifier
 
-            val qualifierNode = NodeImpl(invocation, "")
-            val receiverNode = NodeImpl(invocation, "")
+            val qualifierNode: Node
+            val receiverNode: Node
 
             if (qualifier is JsNameRef) {
+                qualifierNode = createNode(qualifier)
                 accept(qualifier.qualifier)
-                resultNode.connectTo(receiverNode)
-                resultNode.addHandler(object : NodeEventHandler {
+                receiverNode = resultNode
+                receiverNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
                         value.getMember(qualifier.ident).connectTo(qualifierNode)
                     }
                 })
             }
             else {
+                qualifierNode = createNode(qualifier)
+                receiverNode = NodeImpl(invocation, "")
                 accept(qualifier)
                 resultNode.connectTo(qualifierNode)
             }
@@ -279,7 +314,7 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
                 accept(it)
                 returnNode?.let { resultNode.connectTo(it) }
             }
-            resultNode = NodeImpl(x, "")
+            resultNode = createNode(x)
         }
 
         override fun visitNew(x: JsNew) {
@@ -291,13 +326,21 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
             }
 
             val constructorNode = resultNode
-            val newNode = NodeImpl(x, "")
+            val newNode = createNode(x)
             newNode.addValue(constructObject(constructorNode, argumentsNodes, x))
             resultNode = newNode
         }
 
         override fun visitThis(x: JsLiteral.JsThisRef) {
             resultNode = thisNode
+        }
+    }
+
+    private fun createNode(jsNode: JsNode?): Node {
+        return NodeImpl(jsNode, "").also {
+            if (jsNode != null) {
+                nodeMap[jsNode] = it
+            }
         }
     }
 
@@ -341,7 +384,7 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
     private fun processFunction(function: JsFunction, value: Value) {
         returnNode = value.getReturnValue()
         for ((index, param) in function.parameters.withIndex()) {
-            val parameterNode = NodeImpl(param, "")
+            val parameterNode = createNode(param)
             nodes[param.name] = parameterNode
             value.getParameter(index + 1).connectTo(parameterNode)
         }
@@ -432,12 +475,6 @@ class DeadCodeElimination(private val root: JsStatement, program: JsProgram) {
         private var values: MutableSet<Value>? = null
         private var handlers: MutableList<NodeEventHandler>? = null
         private var successors: MutableSet<Node>? = null
-
-        init {
-            if (jsNode != null) {
-                nodeMap[jsNode] = this
-            }
-        }
 
         override fun getValues(): Set<Value> = values ?: emptySet()
 

@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
     val program = JsProgram()
     program.globalBlock.statements += parse(code, reporter, program.scope)
 
-    val dce = DeadCodeElimination(program.globalBlock, program)
+    val dce = DeadCodeElimination(program.globalBlock)
     dce.apply()
 
     val newName = file.nameWithoutExtension + ".min.js"

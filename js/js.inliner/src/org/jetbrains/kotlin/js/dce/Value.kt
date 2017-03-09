@@ -30,4 +30,8 @@ interface Value {
     fun getReturnValue(): Node
 
     fun addHandler(handler: ValueEventHandler)
+
+    val isUsed: Boolean
+
+    fun use()
 }

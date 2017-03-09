@@ -24,4 +24,6 @@ interface ValueEventHandler {
     fun parameterAdded(index: Int, value: Node) {}
 
     fun returnValueAdded(value: Node) {}
+
+    fun used() {}
 }

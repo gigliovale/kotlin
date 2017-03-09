@@ -28,4 +28,8 @@ interface Node {
     fun connectTo(other: Node)
 
     fun addHandler(handler: NodeEventHandler)
+
+    fun use()
+
+    val isUsed: Boolean
 }

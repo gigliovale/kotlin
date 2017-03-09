@@ -16,20 +16,16 @@
 
 package org.jetbrains.kotlin.idea.kdoc
 
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.idea.caches.resolve.collectAllModuleInfosFromIdeaModel
 import org.jetbrains.kotlin.idea.caches.resolve.findModuleDescriptor
-import org.jetbrains.kotlin.idea.caches.resolve.getNullableModuleInfo
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
 import org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex
-import org.jetbrains.kotlin.idea.stubindex.KotlinExactPackagesIndex
 import org.jetbrains.kotlin.idea.stubindex.KotlinFunctionShortNameIndex
-import org.jetbrains.kotlin.idea.stubindex.SubpackagesIndexService
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
@@ -46,34 +42,19 @@ class IdeSampleResolutionService(val project: Project) : SampleResolutionService
         val functions = KotlinFunctionShortNameIndex.getInstance().get(shortName, project, allScope).asSequence()
         val classes = KotlinClassShortNameIndex.getInstance().get(shortName, project, allScope).asSequence()
 
-        val subPackageIndex = SubpackagesIndexService.getInstance(project)
-
-        fun resolveSubpackagesRecursively(fqName: FqName): Sequence<FqName> {
-            ProgressManager.checkCanceled()
-            return subPackageIndex.getSubpackages(fqName, allScope, { true }).asSequence().let { subPackages ->
-                subPackages + subPackages.flatMap(::resolveSubpackagesRecursively)
-            }
-        }
-
-        val exactPackageIndex = KotlinExactPackagesIndex.getInstance()
-
-        val exactMembersOfPackage = exactPackageIndex.get(targetFqName.asString(), project, allScope)
-
-        val subPackages = resolveSubpackagesRecursively(targetFqName)
-
-        val packageIndexContents = exactMembersOfPackage.asSequence() +
-                                   subPackages.flatMap { exactPackageIndex.get(it.asString(), project, allScope).asSequence() }
-
-        val packageDescriptors = packageIndexContents.map(KtFile::getNullableModuleInfo)
-                .distinct()
-                .filterNotNull()
-                .map { moduleInfo -> resolutionFacade.findModuleDescriptor(moduleInfo)?.getPackage(targetFqName) }
-                .filterNotNull()
-
         val descriptors = (functions + classes)
                 .filter { it.fqName == targetFqName }
                 .map { it.resolveToDescriptor(BodyResolveMode.PARTIAL) } // TODO Filter out not visible due dependencies config descriptors
+                .toList()
+        if(descriptors.isNotEmpty())
+            return descriptors
 
-        return (descriptors + packageDescriptors).toList()
+        val packageDescriptors = collectAllModuleInfosFromIdeaModel(project)
+                .asSequence()
+                .map { resolutionFacade.findModuleDescriptor(it)?.getPackage(targetFqName) }
+                .filterNotNull()
+                .filterNot { it.isEmpty() }
+
+        return packageDescriptors.toList()
     }
 }

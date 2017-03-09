@@ -32,8 +32,12 @@ class DeadCodeElimination(private val root: JsStatement) {
 
     private val objectValue = ValueImpl(null)
     private val functionValue = ValueImpl(null)
+    private val functionPrototypeValue = ValueImpl(null)
     private val arrayValue = ValueImpl(null)
     private val primitiveValue = ValueImpl(null)
+    private val objectCreateValue = ValueImpl(null)
+    private val functionApplyValue = ValueImpl(null)
+    private val functionCallValue = ValueImpl(null)
 
     companion object {
         private val PROTO = "__proto__"
@@ -47,6 +51,12 @@ class DeadCodeElimination(private val root: JsStatement) {
         globalScope.getMember("Object").addValue(objectValue)
         globalScope.getMember("Function").addValue(functionValue)
         globalScope.getMember("Array").addValue(arrayValue)
+
+        objectValue.getMember("create").addValue(objectCreateValue)
+
+        functionValue.getMember("prototype").addValue(functionPrototypeValue)
+        functionPrototypeValue.getMember("apply").addValue(functionApplyValue)
+        functionPrototypeValue.getMember("call").addValue(functionCallValue)
 
         root.accept(visitor)
         while (worklist.isNotEmpty()) {
@@ -95,6 +105,13 @@ class DeadCodeElimination(private val root: JsStatement) {
                     accept(value)
                     false
                 }
+            }
+        }
+
+        override fun endVisit(x: JsNameRef, ctx: JsContext<in JsNode>) {
+            val node = x.name?.let { nodes[it] }
+            if (node != null && !hasUsedValues(node)) {
+                ctx.replaceMe(JsLiteral.NULL)
             }
         }
 
@@ -271,6 +288,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                         memberNode.connectTo(newNode)
                     }
                 })
+                resultNode.use()
                 newNode
             }
         }
@@ -331,6 +349,8 @@ class DeadCodeElimination(private val root: JsStatement) {
                 accept(qualifier)
                 resultNode.connectTo(qualifierNode)
             }
+            receiverNode.use()
+
             val argumentsNodes = invocation.arguments.map {
                 accept(it)
                 resultNode
@@ -338,16 +358,23 @@ class DeadCodeElimination(private val root: JsStatement) {
 
             qualifierNode.addHandler(object : NodeEventHandler {
                 override fun valueAdded(value: Value) {
-                    receiverNode.connectTo(value.getParameter(0))
-                    for ((index, argNode) in argumentsNodes.withIndex()) {
-                        argNode.connectTo(value.getParameter(index + 1))
-                    }
-                    value.getReturnValue().connectTo(newNode)
-
-                    val jsFunction = value.jsNode as? JsFunction
-                    if (jsFunction != null) {
-                        if (processedFunctions.add(jsFunction)) {
-                            processFunction(jsFunction, value)
+                    when (value) {
+                        objectCreateValue -> {
+                            handleObjectCreate(invocation, argumentsNodes.getOrNull(0), newNode)
+                        }
+                        functionCallValue -> {
+                            handleFunctionCall(receiverNode, argumentsNodes.getOrNull(0), argumentsNodes.drop(1), newNode)
+                        }
+                        functionApplyValue -> {
+                            handleFunctionApply(receiverNode, argumentsNodes.getOrNull(0), argumentsNodes.getOrNull(1), newNode)
+                        }
+                        else -> {
+                            receiverNode.connectTo(value.getParameter(0))
+                            for ((index, argNode) in argumentsNodes.withIndex()) {
+                                argNode.connectTo(value.getParameter(index + 1))
+                            }
+                            value.getReturnValue().connectTo(newNode)
+                            processFunctionIfNecessary(value)
                         }
                     }
                 }
@@ -355,6 +382,76 @@ class DeadCodeElimination(private val root: JsStatement) {
             qualifierNode.use()
 
             resultNode = newNode
+        }
+
+        private fun processFunctionIfNecessary(value: Value) {
+            val jsFunction = value.jsNode as? JsFunction
+            if (jsFunction != null) {
+                if (processedFunctions.add(jsFunction)) {
+                    processFunction(jsFunction, value)
+                }
+            }
+        }
+
+        private fun handleObjectCreate(jsNode: JsNode?, prototypeNode: Node?, resultNode: Node) {
+            val objectValue = ValueImpl(jsNode)
+
+            prototypeNode?.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun memberAdded(name: String, value: Node) {
+                            value.connectTo(objectValue.getMember(name))
+                        }
+
+                        override fun dynamicMemberAdded(value: Node) {
+                            value.connectTo(objectValue.getDynamicMember())
+                        }
+                    })
+                }
+            })
+
+            resultNode.addValue(objectValue)
+        }
+
+        private fun handleFunctionCall(functionNode: Node, thisNode: Node?, argumentsNodes: List<Node>, resultNode: Node) {
+            functionNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    processFunctionIfNecessary(value)
+                    value.use()
+                    thisNode?.connectTo(value.getParameter(0))
+                    for ((index, arg) in argumentsNodes.withIndex()) {
+                        arg.connectTo(value.getParameter(index + 1))
+                    }
+                    value.getReturnValue().connectTo(resultNode)
+                }
+            })
+        }
+
+        private fun handleFunctionApply(functionNode: Node, thisNode: Node?, argumentsNode: Node?, resultNode: Node) {
+            functionNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    val function = value
+                    processFunctionIfNecessary(value)
+                    function.use()
+                    thisNode?.connectTo(function.getParameter(0))
+                    val argumentsHub = NodeImpl(null, "")
+                    argumentsNode?.addHandler(object : NodeEventHandler {
+                        override fun valueAdded(value: Value) {
+                            value.addHandler(object : ValueEventHandler {
+                                override fun dynamicMemberAdded(value: Node) {
+                                    value.connectTo(argumentsHub)
+                                }
+                            })
+                        }
+                    })
+                    function.addHandler(object : ValueEventHandler {
+                        override fun parameterAdded(index: Int, value: Node) {
+                            argumentsHub.connectTo(value)
+                        }
+                    })
+                    function.getReturnValue().connectTo(resultNode)
+                }
+            })
         }
 
         override fun visitReturn(x: JsReturn) {

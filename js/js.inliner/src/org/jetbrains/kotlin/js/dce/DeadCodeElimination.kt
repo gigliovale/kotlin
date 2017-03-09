@@ -31,11 +31,16 @@ class DeadCodeElimination(private val root: JsStatement) {
     private val globalScopeNode = NodeImpl(null, "")
 
     private val objectValue = ValueImpl(null)
+    private val objectNode = nodeOfOneValue(objectValue)
     private val functionValue = ValueImpl(null)
+    private val functionNode = nodeOfOneValue(functionValue)
     private val functionPrototypeValue = ValueImpl(null)
     private val arrayValue = ValueImpl(null)
+    private val arrayNode = nodeOfOneValue(functionValue)
     private val primitiveValue = ValueImpl(null)
     private val objectCreateValue = ValueImpl(null)
+    private val objectDefineProperty = ValueImpl(null)
+
     private val functionApplyValue = ValueImpl(null)
     private val functionCallValue = ValueImpl(null)
 
@@ -48,15 +53,16 @@ class DeadCodeElimination(private val root: JsStatement) {
         dynamicValue.use()
 
         globalScopeNode.addValue(globalScope)
-        globalScope.getMember("Object").addValue(objectValue)
-        globalScope.getMember("Function").addValue(functionValue)
-        globalScope.getMember("Array").addValue(arrayValue)
+        globalScope.getMember("Object").addValue(propertyDescriptorOfOneValue(objectValue))
+        globalScope.getMember("Function").addValue(propertyDescriptorOfOneValue(functionValue))
+        globalScope.getMember("Array").addValue(propertyDescriptorOfOneValue(arrayValue))
 
-        objectValue.getMember("create").addValue(objectCreateValue)
+        objectValue.getMember("create").addValue(propertyDescriptorOfOneValue(objectCreateValue))
+        objectValue.getMember("defineProperty").addValue(propertyDescriptorOfOneValue(objectDefineProperty))
 
-        functionValue.getMember("prototype").addValue(functionPrototypeValue)
-        functionPrototypeValue.getMember("apply").addValue(functionApplyValue)
-        functionPrototypeValue.getMember("call").addValue(functionCallValue)
+        functionValue.getMember("prototype").addValue(propertyDescriptorOfOneValue(functionPrototypeValue))
+        functionPrototypeValue.getMember("apply").addValue(propertyDescriptorOfOneValue(functionApplyValue))
+        functionPrototypeValue.getMember("call").addValue(propertyDescriptorOfOneValue(functionCallValue))
 
         root.accept(visitor)
         while (worklist.isNotEmpty()) {
@@ -91,8 +97,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                 val label = prop.labelExpr
                 val value = prop.valueExpr
                 if (label is JsStringLiteral) {
-                    val node = nodeMap[value]
-                    if (value is JsFunction && shouldRemoveFunction(value) || node != null && !hasUsedValues(node)) {
+                    if (value is JsFunction && shouldRemoveFunction(value)) {
                         true
                     }
                     else {
@@ -197,7 +202,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                         val qualifierNode = leftExpr.qualifier?.let { accept(it); resultNode } ?: globalScopeNode
                         qualifierNode.addHandler(object : NodeEventHandler {
                             override fun valueAdded(value: Value) {
-                                rhsNode.connectTo(value.getMember(leftExpr.ident))
+                                value.writeProperty(leftExpr.ident, rhsNode)
                             }
                         })
                     }
@@ -208,7 +213,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                     accept(leftExpr.index)
                     arrayNode.addHandler(object : NodeEventHandler {
                         override fun valueAdded(value: Value) {
-                            rhsNode.connectTo(value.getDynamicMember())
+                            value.writeDynamicProperty(rhsNode)
                         }
                     })
                 }
@@ -217,9 +222,11 @@ class DeadCodeElimination(private val root: JsStatement) {
         }
 
         override fun visitFunction(x: JsFunction) {
-            val value = constructObject(globalScope.getMember("Function"), emptyList(), x)
-            val prototypeValue = constructObject(globalScope.getMember("Object"), emptyList(), x)
-            value.getMember("prototype").addValue(prototypeValue)
+            val value = constructObject(functionNode, emptyList(), x)
+            val prototypeValue = constructObject(objectNode, emptyList(), x)
+            val prototypeDescriptor = ValueImpl(x)
+            prototypeDescriptor.getMember("value").addValue(prototypeValue)
+            value.getMember("prototype").addValue(prototypeDescriptor)
 
             valueMap[x] = value
             resultNode = createNode(x)
@@ -230,20 +237,20 @@ class DeadCodeElimination(private val root: JsStatement) {
         }
 
         override fun visitObjectLiteral(x: JsObjectLiteral) {
-            val objectValue = constructObject(globalScope.getMember("Object"), listOf(), x)
+            val objectValue = constructObject(objectNode, listOf(), x)
             for (propertyInitializer in x.propertyInitializers) {
                 accept(propertyInitializer.valueExpr)
                 val propertyNode = resultNode
                 val label = propertyInitializer.labelExpr
                 when (label) {
                     is JsNameRef -> {
-                        propertyNode.connectTo(objectValue.getMember(label.ident))
+                        objectValue.writeProperty(label.ident, propertyNode)
                     }
                     is JsStringLiteral -> {
-                        propertyNode.connectTo(objectValue.getMember(label.value))
+                        objectValue.writeProperty(label.value, propertyNode)
                     }
                     else -> {
-                        propertyNode.connectTo(objectValue.getDynamicMember())
+                        objectValue.writeDynamicProperty(propertyNode)
                     }
                 }
             }
@@ -253,7 +260,7 @@ class DeadCodeElimination(private val root: JsStatement) {
         }
 
         override fun visitArray(x: JsArrayLiteral) {
-            val arrayValue = constructObject(globalScope.getMember("Array"), listOf(), x)
+            val arrayValue = constructObject(arrayNode, listOf(), x)
             for (item in x.expressions) {
                 accept(item)
                 resultNode.connectTo(arrayValue.getDynamicMember())
@@ -276,16 +283,21 @@ class DeadCodeElimination(private val root: JsStatement) {
             val qualifier = nameRef.qualifier
             resultNode = if (qualifier == null) {
                 val name = nameRef.name
-                val node = name?.let { nodes[it] } ?: globalScope.getMember(nameRef.ident)
-                node.also { nodeMap[nameRef] = it }
+                val varNode = name?.let { nodes[it] }
+                if (varNode != null) {
+                    nodeMap[nameRef] = varNode
+                    varNode
+                }
+                else {
+                    createNode(nameRef).also { globalScope.readProperty(nameRef.ident, it) }
+                }
             }
             else {
                 accept(qualifier)
                 val newNode = createNode(nameRef)
                 resultNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
-                        val memberNode = value.getMember(nameRef.ident)
-                        memberNode.connectTo(newNode)
+                        value.readProperty(nameRef.ident, newNode)
                     }
                 })
                 resultNode.use()
@@ -303,7 +315,7 @@ class DeadCodeElimination(private val root: JsStatement) {
             if (indexExpr is JsStringLiteral) {
                 arrayNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
-                        value.getMember(indexExpr.value).connectTo(newNode)
+                        value.readProperty(indexExpr.value, newNode)
                     }
                 })
             }
@@ -312,7 +324,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                 resultNode.use()
                 arrayNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
-                        value.getDynamicMember().connectTo(newNode)
+                        value.readDynamicProperty(newNode)
                     }
                 })
             }
@@ -338,7 +350,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                     receiverNode = resultNode
                     receiverNode.addHandler(object : NodeEventHandler {
                         override fun valueAdded(value: Value) {
-                            value.getMember(qualifier.ident).connectTo(qualifierNode)
+                            value.readProperty(qualifier.ident, qualifierNode)
                         }
                     })
                 }
@@ -362,6 +374,12 @@ class DeadCodeElimination(private val root: JsStatement) {
                         objectCreateValue -> {
                             handleObjectCreate(invocation, argumentsNodes.getOrNull(0), newNode)
                         }
+                        objectDefineProperty -> {
+                            if (argumentsNodes.size >= 3) {
+                                handleObjectDefineProperty(argumentsNodes[0], argumentsNodes[1], argumentsNodes[2])
+                            }
+                            newNode.addValue(primitiveValue)
+                        }
                         functionCallValue -> {
                             handleFunctionCall(receiverNode, argumentsNodes.getOrNull(0), argumentsNodes.drop(1), newNode)
                         }
@@ -384,15 +402,6 @@ class DeadCodeElimination(private val root: JsStatement) {
             resultNode = newNode
         }
 
-        private fun processFunctionIfNecessary(value: Value) {
-            val jsFunction = value.jsNode as? JsFunction
-            if (jsFunction != null) {
-                if (processedFunctions.add(jsFunction)) {
-                    processFunction(jsFunction, value)
-                }
-            }
-        }
-
         private fun handleObjectCreate(jsNode: JsNode?, prototypeNode: Node?, resultNode: Node) {
             val objectValue = ValueImpl(jsNode)
 
@@ -411,6 +420,40 @@ class DeadCodeElimination(private val root: JsStatement) {
             })
 
             resultNode.addValue(objectValue)
+        }
+
+        private fun handleObjectDefineProperty(objectNode: Node, propertyNameNode: Node, descriptorNode: Node) {
+            val descriptor = ValueImpl(null)
+            descriptorNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    value.readProperty("get", descriptor.getMember("get"))
+                    value.readProperty("set", descriptor.getMember("set"))
+                    value.readProperty("value", descriptor.getMember("value"))
+                }
+            })
+
+            propertyNameNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    val propertyName = value
+                    if (primitiveValue !in propertyNameNode.getValues()) {
+                        val name = propertyName.stringConstant
+                        if (name == null) {
+                            objectNode.addHandler(object : NodeEventHandler {
+                                override fun valueAdded(value: Value) {
+                                    value.getDynamicMember().addValue(descriptor)
+                                }
+                            })
+                        }
+                        else {
+                            objectNode.addHandler(object : NodeEventHandler {
+                                override fun valueAdded(value: Value) {
+                                    value.getMember(name).addValue(descriptor)
+                                }
+                            })
+                        }
+                    }
+                }
+            })
         }
 
         private fun handleFunctionCall(functionNode: Node, thisNode: Node?, argumentsNodes: List<Node>, resultNode: Node) {
@@ -487,8 +530,6 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun visitInt(x: JsNumberLiteral.JsIntLiteral) = handlePrimitive(x)
 
-        override fun visitString(x: JsStringLiteral) = handlePrimitive(x)
-
         override fun visitNull(x: JsNullLiteral) = handlePrimitive(x)
 
         override fun visitRegExp(x: JsRegExp) = handlePrimitive(x)
@@ -498,18 +539,45 @@ class DeadCodeElimination(private val root: JsStatement) {
             resultNode.addValue(primitiveValue)
         }
 
+        override fun visitString(x: JsStringLiteral) {
+            resultNode = createNode(x)
+            resultNode.addValue(ValueImpl(x, x.value))
+        }
+
         override fun visitThrow(x: JsThrow) {
             x.expression.accept(this)
             resultNode.use()
         }
 
         override fun visitForIn(x: JsForIn) {
-            x.iterVarName?.let {
-                val node = createNode(x)
-                node.addValue(primitiveValue)
-                nodes[it] = node
+            accept(x.objectExpression)
+            val objectNode = resultNode
+            val iterVarName = x.iterVarName
+            val node = if (iterVarName != null) {
+                createNode(x).also { nodes[iterVarName] = it }
             }
-            super.visitForIn(x)
+            else {
+                accept(x.iterExpression)
+                resultNode
+            }
+
+            objectNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun dynamicMemberAdded(value: Node) {
+                            node.addValue(primitiveValue)
+                        }
+
+                        override fun memberAdded(name: String, value: Node) {
+                            if (primitiveValue !in node.getValues()) {
+                                node.addValue(ValueImpl(x, name))
+                            }
+                        }
+                    })
+                }
+            })
+
+            x.body?.accept(this)
         }
     }
 
@@ -531,13 +599,8 @@ class DeadCodeElimination(private val root: JsStatement) {
                     argumentNode.connectTo(value.getParameter(index + 1))
                 }
 
-                val jsFunction = value.jsNode as? JsFunction
-                if (jsFunction != null) {
-                    if (processedFunctions.add(jsFunction)) {
-                        processFunction(jsFunction, value)
-                    }
-                }
-                value.getMember("prototype").connectTo(prototypeNode)
+                processFunctionIfNecessary(value)
+                value.readProperty("prototype", prototypeNode)
             }
         })
 
@@ -558,6 +621,15 @@ class DeadCodeElimination(private val root: JsStatement) {
         return objectValue
     }
 
+    private fun processFunctionIfNecessary(value: Value) {
+        val jsFunction = value.jsNode as? JsFunction
+        if (jsFunction != null) {
+            if (processedFunctions.add(jsFunction)) {
+                processFunction(jsFunction, value)
+            }
+        }
+    }
+
     private fun processFunction(function: JsFunction, value: Value) {
         returnNode = value.getReturnValue()
         for ((index, param) in function.parameters.withIndex()) {
@@ -569,11 +641,79 @@ class DeadCodeElimination(private val root: JsStatement) {
         function.body.accept(visitor)
     }
 
+    private fun Value.readProperty(name: String, to: Node) {
+        readProperty(to) { getMember(name) }
+    }
+
+    private fun Value.readDynamicProperty(to: Node) {
+        readProperty(to) { getDynamicMember() }
+    }
+
+    private fun Value.readProperty(to: Node, descriptorSupplier: () -> Node) {
+        val propertyDescriptorNode = descriptorSupplier()
+        propertyDescriptorNode.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                val propertyDescriptor = value
+                propertyDescriptor.getMember("value").connectTo(to)
+                propertyDescriptor.getMember("get").addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        val getter = value
+                        getter.getParameter(0).addValue(this@readProperty)
+                        getter.getReturnValue().connectTo(to)
+                        processFunctionIfNecessary(getter)
+                    }
+                })
+            }
+        })
+    }
+
+    private fun Value.writeProperty(name: String, newValue: Node) {
+        writeProperty(newValue) { getMember(name) }
+    }
+
+    private fun Value.writeDynamicProperty(newValue: Node) {
+        writeProperty(newValue) { getDynamicMember() }
+    }
+
+    private fun Value.writeProperty(newValue: Node, descriptorSupplier: () -> Node) {
+        val newPropertyDescriptor = ValueImpl(null)
+        newValue.connectTo(newPropertyDescriptor.getMember("value"))
+
+        val propertyDescriptorNode = descriptorSupplier()
+        propertyDescriptorNode.addValue(newPropertyDescriptor)
+        propertyDescriptorNode.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                val propertyDescriptor = value
+                newValue.connectTo(propertyDescriptor.getMember("value"))
+                propertyDescriptor.getMember("set").addHandler(object : NodeEventHandler {
+                    override fun valueAdded(value: Value) {
+                        val setter = value
+                        setter.getParameter(0).addValue(this@writeProperty)
+                        newValue.connectTo(setter.getParameter(1))
+                        processFunctionIfNecessary(setter)
+                    }
+                })
+            }
+        })
+    }
+
+    private fun nodeOfOneValue(value: Value): Node {
+        val node = NodeImpl(null, "")
+        node.addValue(value)
+        return node
+    }
+
+    private fun propertyDescriptorOfOneValue(value: Value): Value {
+        val pd = ValueImpl(null)
+        pd.getMember("value").addValue(value)
+        return pd
+    }
+
     private fun defer(action: () -> Unit) {
         worklist += action
     }
 
-    internal inner class ValueImpl(override val jsNode: JsNode?) : Value {
+    internal inner class ValueImpl(override val jsNode: JsNode?, override val stringConstant: String? = null) : Value {
         private var members: MutableMap<String, NodeImpl>? = null
         private var dynamicMemberImpl: NodeImpl? = null
         private var parameters: MutableList<NodeImpl?>? = null

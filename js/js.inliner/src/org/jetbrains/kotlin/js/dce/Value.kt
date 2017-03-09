@@ -34,4 +34,6 @@ interface Value {
     val isUsed: Boolean
 
     fun use()
+
+    val stringConstant: String?
 }

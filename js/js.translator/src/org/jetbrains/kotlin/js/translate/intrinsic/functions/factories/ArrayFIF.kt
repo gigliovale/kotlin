@@ -95,7 +95,6 @@ object ArrayFIF : CompositeFIF() {
         add(pattern(arrays, "get"), GET_INTRINSIC)
         add(pattern(arrays, "set"), SET_INTRINSIC)
         add(pattern(arrays, "<get-size>"), LENGTH_PROPERTY_INTRINSIC)
-        add(pattern(arrays, "iterator"), KotlinFunctionIntrinsic("arrayIterator"))
 
         for (type in PrimitiveType.values()) {
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int)"), intrinsify { _, arguments, context ->
@@ -115,9 +114,13 @@ object ArrayFIF : CompositeFIF() {
                 val (size, fn) = arguments
                 castToPrimitiveArray(context.program(), type, JsAstUtils.invokeKotlinFunction("newArrayF", size, fn))
             })
+
+            val iteratorFunctionName = "${type.typeName.asString().toLowerCase()}ArrayIterator"
+            add(pattern(NamePredicate(type.arrayTypeName), "iterator"), KotlinFunctionIntrinsic(iteratorFunctionName))
         }
 
         add(pattern(NamePredicate(arrayName), "<init>(Int,Function1)"), KotlinFunctionIntrinsic("newArrayF"))
+        add(pattern(NamePredicate(arrayName), "iterator"), KotlinFunctionIntrinsic("arrayIterator"))
 
         add(pattern(Namer.KOTLIN_LOWER_NAME, "arrayOfNulls"), KotlinFunctionIntrinsic("newArray", JsLiteral.NULL))
 

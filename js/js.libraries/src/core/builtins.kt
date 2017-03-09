@@ -15,21 +15,66 @@
  */
 
 @JsName("arrayIterator")
-internal fun arrayIterator(array: dynamic): MutableIterator<dynamic> {
-    return object : MutableIterator<dynamic> {
-        var index = 0;
+internal fun <T> arrayIterator(array: Array<T>) = object : Iterator<T> {
+    var index = 0;
+    override fun hasNext() = index < array.size
+    override fun next() = array[index++]
+}
 
-        override fun hasNext(): Boolean {
-            val length: Int = array.length
-            return index < length
-        }
+@JsName("booleanArrayIterator")
+internal fun booleanArrayIterator(array: BooleanArray) = object : BooleanIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextBoolean() = array[index++]
+}
 
-        override fun next() = array[index++]
+@JsName("byteArrayIterator")
+internal fun byteArrayIterator(array: ByteArray) = object : ByteIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextByte() = array[index++]
+}
 
-        override fun remove() {
-            array.splice(--index, 1)
-        }
-    }
+@JsName("shortArrayIterator")
+internal fun shortArrayIterator(array: ShortArray) = object : ShortIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextShort() = array[index++]
+}
+
+@JsName("charArrayIterator")
+internal fun charArrayIterator(array: CharArray) = object : CharIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextChar() = array[index++]
+}
+
+@JsName("intArrayIterator")
+internal fun intArrayIterator(array: IntArray) = object : IntIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextInt() = array[index++]
+}
+
+@JsName("floatArrayIterator")
+internal fun floatArrayIterator(array: FloatArray) = object : FloatIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextFloat() = array[index++]
+}
+
+@JsName("doubleArrayIterator")
+internal fun doubleArrayIterator(array: DoubleArray) = object : DoubleIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextDouble() = array[index++]
+}
+
+@JsName("longArrayIterator")
+internal fun longArrayIterator(array: LongArray) = object : LongIterator() {
+    var index = 0
+    override fun hasNext() = index < array.size
+    override fun nextLong() = array[index++]
 }
 
 @JsName("PropertyMetadata")

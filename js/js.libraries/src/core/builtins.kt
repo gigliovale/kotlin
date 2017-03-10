@@ -16,7 +16,7 @@
 
 @JsName("arrayIterator")
 internal fun <T> arrayIterator(array: Array<T>) = object : Iterator<T> {
-    var index = 0;
+    var index = 0
     override fun hasNext() = index < array.size
     override fun next() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }

@@ -625,12 +625,10 @@ class BasicCompletionSession(
         }
 
         val referenceVariantsCollector = referenceVariantsCollector!!
-        val configuration = referenceVariantsCollector.configure(descriptorKindFilter)
-        val basicVariants = referenceVariantsCollector.collectBasicVariants(configuration)
-        addReferenceVariants(basicVariants)
-        flushToResultSet()
-        addReferenceVariants(referenceVariantsCollector.collectExtensionVariants(configuration, basicVariants))
-        flushToResultSet()
+        referenceVariantsCollector.collectReferenceVariants(descriptorKindFilter) { referenceVariants ->
+            addReferenceVariants(referenceVariants)
+            flushToResultSet()
+        }
     }
 }
 

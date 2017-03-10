@@ -84,13 +84,23 @@ class ReferenceVariantsCollector(
         return basic + collectExtensionVariants(config, basic)
     }
 
-    fun collectBasicVariants(filterConfiguration: FilterConfiguration): ReferenceVariants {
+    fun collectReferenceVariants(descriptorKindFilter: DescriptorKindFilter, consumer: (ReferenceVariants) -> Unit) {
+        assert(!isCollectingFinished)
+        val config = configure(descriptorKindFilter)
+
+        val basic = collectBasicVariants(config)
+        consumer(basic)
+        val extensions = collectExtensionVariants(config, basic)
+        consumer(extensions)
+    }
+
+    private fun collectBasicVariants(filterConfiguration: FilterConfiguration): ReferenceVariants {
         val variants = doCollectBasicVariants(filterConfiguration)
         collectedImported += variants.imported
         return variants
     }
 
-    fun collectExtensionVariants(filterConfiguration: FilterConfiguration, basicVariants: ReferenceVariants): ReferenceVariants {
+    private fun collectExtensionVariants(filterConfiguration: FilterConfiguration, basicVariants: ReferenceVariants): ReferenceVariants {
         val variants = doCollectExtensionVariants(filterConfiguration, basicVariants)
         collectedImported += variants.imported
         collectedNotImportedExtensions += variants.notImportedExtensions

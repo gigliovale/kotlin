@@ -18,63 +18,63 @@
 internal fun <T> arrayIterator(array: Array<T>) = object : Iterator<T> {
     var index = 0;
     override fun hasNext() = index < array.size
-    override fun next() = array[index++]
+    override fun next() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("booleanArrayIterator")
 internal fun booleanArrayIterator(array: BooleanArray) = object : BooleanIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextBoolean() = array[index++]
+    override fun nextBoolean() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("byteArrayIterator")
 internal fun byteArrayIterator(array: ByteArray) = object : ByteIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextByte() = array[index++]
+    override fun nextByte() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("shortArrayIterator")
 internal fun shortArrayIterator(array: ShortArray) = object : ShortIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextShort() = array[index++]
+    override fun nextShort() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("charArrayIterator")
 internal fun charArrayIterator(array: CharArray) = object : CharIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextChar() = array[index++]
+    override fun nextChar() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("intArrayIterator")
 internal fun intArrayIterator(array: IntArray) = object : IntIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextInt() = array[index++]
+    override fun nextInt() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("floatArrayIterator")
 internal fun floatArrayIterator(array: FloatArray) = object : FloatIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextFloat() = array[index++]
+    override fun nextFloat() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("doubleArrayIterator")
 internal fun doubleArrayIterator(array: DoubleArray) = object : DoubleIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextDouble() = array[index++]
+    override fun nextDouble() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("longArrayIterator")
 internal fun longArrayIterator(array: LongArray) = object : LongIterator() {
     var index = 0
     override fun hasNext() = index < array.size
-    override fun nextLong() = array[index++]
+    override fun nextLong() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
 }
 
 @JsName("PropertyMetadata")

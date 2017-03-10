@@ -38,6 +38,9 @@ fun box(): String {
     assertTrue(eq(booleanArrayOf(false, true, false, true), customBooleanArrayOf(false, *booleanArrayOf(true, false), true)))
     assertTrue(booleanArrayOf(true).iterator() is BooleanIterator)
     assertEquals(true, booleanArrayOf(true).iterator().nextBoolean())
+    assertEquals(true, booleanArrayOf(true).iterator().next())
+    assertFalse(booleanArrayOf().iterator().hasNext())
+    assertTrue(assertFails { booleanArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(byteArrayOf(0) is ByteArray)
     assertTrue(eq(byteArrayOf(0), ByteArray(1)))
@@ -51,6 +54,9 @@ fun box(): String {
     assertTrue(eq(byteArrayOf(1, 2, 3, 4), customByteArrayOf(1.toByte(), *byteArrayOf(2, 3), 4.toByte())))
     assertTrue(byteArrayOf(1).iterator() is ByteIterator)
     assertEquals(1, byteArrayOf(1).iterator().nextByte())
+    assertEquals(1, byteArrayOf(1).iterator().next())
+    assertFalse(byteArrayOf().iterator().hasNext())
+    assertTrue(assertFails { byteArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(shortArrayOf(0) is ShortArray)
     assertTrue(eq(shortArrayOf(0), ShortArray(1)))
@@ -64,6 +70,9 @@ fun box(): String {
     assertTrue(eq(shortArrayOf(1, 2, 3, 4), customShortArrayOf(1.toShort(), *shortArrayOf(2, 3), 4.toShort())))
     assertTrue(shortArrayOf(1).iterator() is ShortIterator)
     assertEquals(1, shortArrayOf(1).iterator().nextShort())
+    assertEquals(1, shortArrayOf(1).iterator().next())
+    assertFalse(shortArrayOf().iterator().hasNext())
+    assertTrue(assertFails { shortArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(charArrayOf('a') is CharArray)
     assertTrue(eq(charArrayOf(0.toChar()), CharArray(1)))
@@ -77,6 +86,9 @@ fun box(): String {
     assertTrue(eq(charArrayOf('a', 'b', 'c', 'd'), customCharArrayOf('a', *charArrayOf('b', 'c'), 'd')))
     assertTrue(charArrayOf('a').iterator() is CharIterator)
     assertEquals('a', charArrayOf('a').iterator().nextChar())
+    assertEquals('a', charArrayOf('a').iterator().next())
+    assertFalse(charArrayOf().iterator().hasNext())
+    assertTrue(assertFails { charArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(intArrayOf(0) is IntArray)
     assertTrue(eq(intArrayOf(0), IntArray(1)))
@@ -90,6 +102,9 @@ fun box(): String {
     assertTrue(eq(intArrayOf(1, 2, 3, 4), customIntArrayOf(1, *intArrayOf(2, 3), 4)))
     assertTrue(intArrayOf(1).iterator() is IntIterator)
     assertEquals(1, intArrayOf(1).iterator().nextInt())
+    assertEquals(1, intArrayOf(1).iterator().next())
+    assertFalse(intArrayOf().iterator().hasNext())
+    assertTrue(assertFails { intArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(floatArrayOf(0f) is FloatArray)
     assertTrue(eq(floatArrayOf(0f), FloatArray(1)))
@@ -103,6 +118,9 @@ fun box(): String {
     assertTrue(eq(floatArrayOf(1f, 2f, 3f, 4f), customFloatArrayOf(1f, *floatArrayOf(2f, 3f), 4f)))
     assertTrue(floatArrayOf(1f).iterator() is FloatIterator)
     assertEquals(1f, floatArrayOf(1f).iterator().nextFloat())
+    assertEquals(1f, floatArrayOf(1f).iterator().next())
+    assertFalse(floatArrayOf().iterator().hasNext())
+    assertTrue(assertFails { floatArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(doubleArrayOf(0.0) is DoubleArray)
     assertTrue(eq(doubleArrayOf(0.0), DoubleArray(1)))
@@ -116,6 +134,9 @@ fun box(): String {
     assertTrue(eq(doubleArrayOf(1.0, 2.0, 3.0, 4.0), customDoubleArrayOf(1.0, *doubleArrayOf(2.0, 3.0), 4.0)))
     assertTrue(doubleArrayOf(1.0).iterator() is DoubleIterator)
     assertEquals(1.0, doubleArrayOf(1.0).iterator().nextDouble())
+    assertEquals(1.0, doubleArrayOf(1.0).iterator().next())
+    assertFalse(doubleArrayOf().iterator().hasNext())
+    assertTrue(assertFails { doubleArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     assertTrue(longArrayOf(0) is LongArray)
     assertTrue(eq(longArrayOf(0), LongArray(1)))
@@ -129,6 +150,9 @@ fun box(): String {
     assertTrue(eq(longArrayOf(1, 2, 3, 4), customLongArrayOf(1L, *longArrayOf(2, 3), 4L)))
     assertTrue(longArrayOf(1).iterator() is LongIterator)
     assertEquals(1L, longArrayOf(1).iterator().nextLong())
+    assertEquals(1L, longArrayOf(1).iterator().next())
+    assertFalse(longArrayOf().iterator().hasNext())
+    assertTrue(assertFails { longArrayOf().iterator().next() } is IndexOutOfBoundsException)
 
     return "OK"
 }

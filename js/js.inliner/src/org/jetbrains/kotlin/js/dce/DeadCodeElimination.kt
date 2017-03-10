@@ -71,7 +71,12 @@ class DeadCodeElimination(private val root: JsStatement) {
         }
 
         root.accept(visitor)
+        var lastSize = 0
         while (worklist.isNotEmpty()) {
+            if (Math.abs(lastSize - worklist.size) > 100) {
+                println(worklist.size)
+                lastSize = worklist.size
+            }
             worklist.remove()()
         }
 
@@ -127,8 +132,17 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun visitBinaryExpression(x: JsBinaryOperation) {
             super.visitBinaryExpression(x)
-            if (x.operator == JsBinaryOperator.ASG && x.arg1 in nodesToEliminate && x.arg2 in nodesToEliminate) {
-                nodesToEliminate += x
+            if (x.operator == JsBinaryOperator.ASG) {
+                val lhs = x.arg1
+                if (lhs is JsNameRef) {
+                    val qualifier = lhs.qualifier
+                    if (qualifier != null && shouldRemoveNode(qualifier)) {
+                        nodesToEliminate += lhs
+                    }
+                }
+                if (x.arg1 in nodesToEliminate || x.arg2 in nodesToEliminate) {
+                    nodesToEliminate += x
+                }
             }
         }
 
@@ -174,7 +188,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
     private val eliminator = object : JsVisitorWithContextImpl() {
         override fun endVisit(x: JsExpressionStatement, ctx: JsContext<in JsNode>) {
-            if (x.expression in nodesToEliminate) {
+            if (x in nodesToEliminate) {
                 ctx.removeMe()
             }
         }
@@ -200,6 +214,18 @@ class DeadCodeElimination(private val root: JsStatement) {
             }
             else {
                 x.vars.removeAll { it in nodesToEliminate }
+            }
+        }
+
+        override fun endVisit(x: JsFunction, ctx: JsContext<in JsNode>) {
+            if (x in nodesToEliminate) {
+                ctx.replaceMe(JsLiteral.NULL)
+            }
+        }
+
+        override fun endVisit(x: JsBinaryOperation, ctx: JsContext<in JsNode>) {
+            if (x in nodesToEliminate) {
+                ctx.replaceMe(JsLiteral.NULL)
             }
         }
     }

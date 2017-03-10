@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 @TestMetadata("compiler/testData/codegen/box")
 @TestDataPath("$PROJECT_ROOT")
 @RunWith(JUnit3RunnerWithInners.class)
-public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
+public class BlackBoxCodegenTarget8TestGenerated extends AbstractBlackBoxCodegenTarget8Test {
     public void testAllFilesPresentInBox() throws Exception {
         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
     }
@@ -39,7 +39,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/annotations")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Annotations extends AbstractBlackBoxCodegenTest {
+    public static class Annotations extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInAnnotations() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/annotations"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -155,7 +155,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/annotations/annotatedLambda")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class AnnotatedLambda extends AbstractBlackBoxCodegenTest {
+        public static class AnnotatedLambda extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInAnnotatedLambda() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/annotations/annotatedLambda"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -189,7 +189,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/argumentOrder")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ArgumentOrder extends AbstractBlackBoxCodegenTest {
+    public static class ArgumentOrder extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInArgumentOrder() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/argumentOrder"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -264,7 +264,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/arrays")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Arrays extends AbstractBlackBoxCodegenTest {
+    public static class Arrays extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInArrays() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/arrays"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -626,7 +626,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/arrays/multiDecl")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class MultiDecl extends AbstractBlackBoxCodegenTest {
+        public static class MultiDecl extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMultiDecl() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/arrays/multiDecl"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -682,7 +682,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/arrays/multiDecl/int")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Int extends AbstractBlackBoxCodegenTest {
+            public static class Int extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInInt() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/arrays/multiDecl/int"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -715,7 +715,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/arrays/multiDecl/long")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Long extends AbstractBlackBoxCodegenTest {
+            public static class Long extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInLong() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/arrays/multiDecl/long"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -750,7 +750,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/binaryOp")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class BinaryOp extends AbstractBlackBoxCodegenTest {
+    public static class BinaryOp extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInBinaryOp() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/binaryOp"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -867,7 +867,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/boxingOptimization")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class BoxingOptimization extends AbstractBlackBoxCodegenTest {
+    public static class BoxingOptimization extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInBoxingOptimization() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/boxingOptimization"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -984,7 +984,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/bridges")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Bridges extends AbstractBlackBoxCodegenTest {
+    public static class Bridges extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInBridges() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/bridges"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -1262,7 +1262,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/bridges/substitutionInSuperClass")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class SubstitutionInSuperClass extends AbstractBlackBoxCodegenTest {
+        public static class SubstitutionInSuperClass extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("abstractFun.kt")
             public void testAbstractFun() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/bridges/substitutionInSuperClass/abstractFun.kt");
@@ -1338,7 +1338,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/builtinStubMethods")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class BuiltinStubMethods extends AbstractBlackBoxCodegenTest {
+    public static class BuiltinStubMethods extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("abstractMember.kt")
         public void testAbstractMember() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/builtinStubMethods/abstractMember.kt");
@@ -1484,7 +1484,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/builtinStubMethods/extendJavaCollections")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ExtendJavaCollections extends AbstractBlackBoxCodegenTest {
+        public static class ExtendJavaCollections extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("abstractList.kt")
             public void testAbstractList() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/builtinStubMethods/extendJavaCollections/abstractList.kt");
@@ -1536,7 +1536,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/callableReference")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class CallableReference extends AbstractBlackBoxCodegenTest {
+    public static class CallableReference extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInCallableReference() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -1544,7 +1544,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/callableReference/bound")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Bound extends AbstractBlackBoxCodegenTest {
+        public static class Bound extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInBound() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/bound"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -1630,7 +1630,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/callableReference/bound/equals")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Equals extends AbstractBlackBoxCodegenTest {
+            public static class Equals extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInEquals() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/bound/equals"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -1663,7 +1663,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/callableReference/bound/inline")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Inline extends AbstractBlackBoxCodegenTest {
+            public static class Inline extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInInline() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/bound/inline"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -1685,7 +1685,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/callableReference/function")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Function extends AbstractBlackBoxCodegenTest {
+        public static class Function extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("abstractClassMember.kt")
             public void testAbstractClassMember() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/function/abstractClassMember.kt");
@@ -1969,7 +1969,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/callableReference/function/local")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Local extends AbstractBlackBoxCodegenTest {
+            public static class Local extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInLocal() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/function/local"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -2093,7 +2093,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/callableReference/property")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Property extends AbstractBlackBoxCodegenTest {
+        public static class Property extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("accessViaSubclass.kt")
             public void testAccessViaSubclass() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/callableReference/property/accessViaSubclass.kt");
@@ -2264,7 +2264,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/callableReference/serializability")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Serializability extends AbstractBlackBoxCodegenTest {
+        public static class Serializability extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSerializability() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/callableReference/serializability"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2304,7 +2304,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/casts")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Casts extends AbstractBlackBoxCodegenTest {
+    public static class Casts extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInCasts() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/casts"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -2432,7 +2432,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/casts/functions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Functions extends AbstractBlackBoxCodegenTest {
+        public static class Functions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFunctions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/casts/functions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2519,7 +2519,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/casts/literalExpressionAsGenericArgument")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class LiteralExpressionAsGenericArgument extends AbstractBlackBoxCodegenTest {
+        public static class LiteralExpressionAsGenericArgument extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInLiteralExpressionAsGenericArgument() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/casts/literalExpressionAsGenericArgument"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2570,7 +2570,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/casts/mutableCollections")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class MutableCollections extends AbstractBlackBoxCodegenTest {
+        public static class MutableCollections extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMutableCollections() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/casts/mutableCollections"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2628,7 +2628,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/classLiteral")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ClassLiteral extends AbstractBlackBoxCodegenTest {
+    public static class ClassLiteral extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInClassLiteral() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -2642,7 +2642,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/classLiteral/bound")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Bound extends AbstractBlackBoxCodegenTest {
+        public static class Bound extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInBound() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral/bound"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2681,7 +2681,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/classLiteral/java")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Java extends AbstractBlackBoxCodegenTest {
+        public static class Java extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInJava() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classLiteral/java"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -2739,7 +2739,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/classes")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Classes extends AbstractBlackBoxCodegenTest {
+    public static class Classes extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInClasses() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classes"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -3431,7 +3431,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/classes/inner")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Inner extends AbstractBlackBoxCodegenTest {
+        public static class Inner extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInInner() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/classes/inner"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -3477,7 +3477,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/closures")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Closures extends AbstractBlackBoxCodegenTest {
+    public static class Closures extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInClosures() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/closures"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -3713,7 +3713,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/closures/captureOuterProperty")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class CaptureOuterProperty extends AbstractBlackBoxCodegenTest {
+        public static class CaptureOuterProperty extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCaptureOuterProperty() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/closures/captureOuterProperty"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -3770,7 +3770,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/closures/closureInsideClosure")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ClosureInsideClosure extends AbstractBlackBoxCodegenTest {
+        public static class ClosureInsideClosure extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInClosureInsideClosure() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/closures/closureInsideClosure"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -3816,7 +3816,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/collections")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Collections extends AbstractBlackBoxCodegenTest {
+    public static class Collections extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInCollections() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/collections"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -3933,7 +3933,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/compatibility")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Compatibility extends AbstractBlackBoxCodegenTest {
+    public static class Compatibility extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInCompatibility() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/compatibility"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -3948,7 +3948,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/constants")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Constants extends AbstractBlackBoxCodegenTest {
+    public static class Constants extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInConstants() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/constants"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -3987,7 +3987,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/controlStructures")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ControlStructures extends AbstractBlackBoxCodegenTest {
+    public static class ControlStructures extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInControlStructures() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/controlStructures"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -4403,7 +4403,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/controlStructures/breakContinueInExpressions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class BreakContinueInExpressions extends AbstractBlackBoxCodegenTest {
+        public static class BreakContinueInExpressions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInBreakContinueInExpressions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/controlStructures/breakContinueInExpressions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -4514,7 +4514,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/controlStructures/returnsNothing")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ReturnsNothing extends AbstractBlackBoxCodegenTest {
+        public static class ReturnsNothing extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInReturnsNothing() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/controlStructures/returnsNothing"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -4553,7 +4553,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class TryCatchInExpressions extends AbstractBlackBoxCodegenTest {
+        public static class TryCatchInExpressions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInTryCatchInExpressions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/controlStructures/tryCatchInExpressions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -4695,7 +4695,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/coroutines")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Coroutines extends AbstractBlackBoxCodegenTest {
+    public static class Coroutines extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("32defaultParametersInSuspend.kt")
         public void test32defaultParametersInSuspend() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/coroutines/32defaultParametersInSuspend.kt");
@@ -5081,7 +5081,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/controlFlow")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ControlFlow extends AbstractBlackBoxCodegenTest {
+        public static class ControlFlow extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInControlFlow() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/controlFlow"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5156,7 +5156,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/featureIntersection")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class FeatureIntersection extends AbstractBlackBoxCodegenTest {
+        public static class FeatureIntersection extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFeatureIntersection() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/featureIntersection"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5195,7 +5195,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/intLikeVarSpilling")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class IntLikeVarSpilling extends AbstractBlackBoxCodegenTest {
+        public static class IntLikeVarSpilling extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInIntLikeVarSpilling() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/intLikeVarSpilling"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5264,7 +5264,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/intrinsicSemantics")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class IntrinsicSemantics extends AbstractBlackBoxCodegenTest {
+        public static class IntrinsicSemantics extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInIntrinsicSemantics() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/intrinsicSemantics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5291,7 +5291,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/multiModule")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class MultiModule extends AbstractBlackBoxCodegenTest {
+        public static class MultiModule extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMultiModule() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/multiModule"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5312,7 +5312,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/stackUnwinding")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class StackUnwinding extends AbstractBlackBoxCodegenTest {
+        public static class StackUnwinding extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInStackUnwinding() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/stackUnwinding"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5345,7 +5345,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/suspendFunctionAsCoroutine")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class SuspendFunctionAsCoroutine extends AbstractBlackBoxCodegenTest {
+        public static class SuspendFunctionAsCoroutine extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSuspendFunctionAsCoroutine() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/suspendFunctionAsCoroutine"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5426,7 +5426,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/suspendFunctionTypeCall")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class SuspendFunctionTypeCall extends AbstractBlackBoxCodegenTest {
+        public static class SuspendFunctionTypeCall extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSuspendFunctionTypeCall() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/suspendFunctionTypeCall"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5453,7 +5453,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/tailOperations")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class TailOperations extends AbstractBlackBoxCodegenTest {
+        public static class TailOperations extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInTailOperations() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/tailOperations"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5480,7 +5480,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/unitTypeReturn")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class UnitTypeReturn extends AbstractBlackBoxCodegenTest {
+        public static class UnitTypeReturn extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInUnitTypeReturn() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/unitTypeReturn"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5513,7 +5513,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/coroutines/varSpilling")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class VarSpilling extends AbstractBlackBoxCodegenTest {
+        public static class VarSpilling extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInVarSpilling() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/coroutines/varSpilling"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5529,7 +5529,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/dataClasses")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class DataClasses extends AbstractBlackBoxCodegenTest {
+    public static class DataClasses extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDataClasses() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/dataClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -5627,7 +5627,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/dataClasses/copy")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Copy extends AbstractBlackBoxCodegenTest {
+        public static class Copy extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCopy() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/dataClasses/copy"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5678,7 +5678,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/dataClasses/equals")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Equals extends AbstractBlackBoxCodegenTest {
+        public static class Equals extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInEquals() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/dataClasses/equals"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5723,7 +5723,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/dataClasses/hashCode")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class HashCode extends AbstractBlackBoxCodegenTest {
+        public static class HashCode extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInHashCode() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/dataClasses/hashCode"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5810,7 +5810,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/dataClasses/toString")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ToString extends AbstractBlackBoxCodegenTest {
+        public static class ToString extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInToString() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/dataClasses/toString"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -5862,7 +5862,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/deadCodeElimination")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class DeadCodeElimination extends AbstractBlackBoxCodegenTest {
+    public static class DeadCodeElimination extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDeadCodeElimination() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/deadCodeElimination"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -5895,7 +5895,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/defaultArguments")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class DefaultArguments extends AbstractBlackBoxCodegenTest {
+    public static class DefaultArguments extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDefaultArguments() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/defaultArguments"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -5927,7 +5927,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/defaultArguments/constructor")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Constructor extends AbstractBlackBoxCodegenTest {
+        public static class Constructor extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInConstructor() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/defaultArguments/constructor"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6020,7 +6020,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/defaultArguments/convention")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Convention extends AbstractBlackBoxCodegenTest {
+        public static class Convention extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInConvention() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/defaultArguments/convention"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6047,7 +6047,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/defaultArguments/function")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Function extends AbstractBlackBoxCodegenTest {
+        public static class Function extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("abstractClass.kt")
             public void testAbstractClass() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/defaultArguments/function/abstractClass.kt");
@@ -6176,7 +6176,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/defaultArguments/private")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Private extends AbstractBlackBoxCodegenTest {
+        public static class Private extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInPrivate() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/defaultArguments/private"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6209,7 +6209,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/defaultArguments/signature")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Signature extends AbstractBlackBoxCodegenTest {
+        public static class Signature extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSignature() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/defaultArguments/signature"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6237,7 +6237,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/delegatedProperty")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class DelegatedProperty extends AbstractBlackBoxCodegenTest {
+    public static class DelegatedProperty extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("accessTopLevelDelegatedPropertyInClinit.kt")
         public void testAccessTopLevelDelegatedPropertyInClinit() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/delegatedProperty/accessTopLevelDelegatedPropertyInClinit.kt");
@@ -6473,7 +6473,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/delegatedProperty/local")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Local extends AbstractBlackBoxCodegenTest {
+        public static class Local extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInLocal() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/delegatedProperty/local"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6554,7 +6554,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/delegatedProperty/provideDelegate")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ProvideDelegate extends AbstractBlackBoxCodegenTest {
+        public static class ProvideDelegate extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInProvideDelegate() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/delegatedProperty/provideDelegate"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6660,7 +6660,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/delegation")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Delegation extends AbstractBlackBoxCodegenTest {
+    public static class Delegation extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDelegation() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/delegation"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -6693,7 +6693,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/destructuringDeclInLambdaParam")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class DestructuringDeclInLambdaParam extends AbstractBlackBoxCodegenTest {
+    public static class DestructuringDeclInLambdaParam extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDestructuringDeclInLambdaParam() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/destructuringDeclInLambdaParam"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -6750,7 +6750,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/diagnostics")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Diagnostics extends AbstractBlackBoxCodegenTest {
+    public static class Diagnostics extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInDiagnostics() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -6758,7 +6758,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/diagnostics/functions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Functions extends AbstractBlackBoxCodegenTest {
+        public static class Functions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFunctions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/functions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -6766,7 +6766,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/diagnostics/functions/inference")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Inference extends AbstractBlackBoxCodegenTest {
+            public static class Inference extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInInference() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/functions/inference"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -6781,7 +6781,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/diagnostics/functions/invoke")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Invoke extends AbstractBlackBoxCodegenTest {
+            public static class Invoke extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInInvoke() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/functions/invoke"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -6789,7 +6789,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 @TestMetadata("compiler/testData/codegen/box/diagnostics/functions/invoke/onObjects")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
-                public static class OnObjects extends AbstractBlackBoxCodegenTest {
+                public static class OnObjects extends AbstractBlackBoxCodegenTarget8Test {
                     public void testAllFilesPresentInOnObjects() throws Exception {
                         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/functions/invoke/onObjects"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                     }
@@ -6859,7 +6859,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/diagnostics/functions/tailRecursion")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class TailRecursion extends AbstractBlackBoxCodegenTest {
+            public static class TailRecursion extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInTailRecursion() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/functions/tailRecursion"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -7091,7 +7091,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/diagnostics/vararg")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Vararg extends AbstractBlackBoxCodegenTest {
+        public static class Vararg extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInVararg() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/diagnostics/vararg"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -7107,7 +7107,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/elvis")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Elvis extends AbstractBlackBoxCodegenTest {
+    public static class Elvis extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInElvis() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/elvis"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7140,7 +7140,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/enum")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Enum extends AbstractBlackBoxCodegenTest {
+    public static class Enum extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("abstractMethodInEnum.kt")
         public void testAbstractMethodInEnum() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/enum/abstractMethodInEnum.kt");
@@ -7316,7 +7316,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/enum/defaultCtor")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class DefaultCtor extends AbstractBlackBoxCodegenTest {
+        public static class DefaultCtor extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInDefaultCtor() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/enum/defaultCtor"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -7350,7 +7350,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/evaluate")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Evaluate extends AbstractBlackBoxCodegenTest {
+    public static class Evaluate extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInEvaluate() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/evaluate"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7449,7 +7449,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/exclExcl")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ExclExcl extends AbstractBlackBoxCodegenTest {
+    public static class ExclExcl extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInExclExcl() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/exclExcl"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7470,7 +7470,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/extensionFunctions")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ExtensionFunctions extends AbstractBlackBoxCodegenTest {
+    public static class ExtensionFunctions extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInExtensionFunctions() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/extensionFunctions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7617,7 +7617,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/extensionProperties")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ExtensionProperties extends AbstractBlackBoxCodegenTest {
+    public static class ExtensionProperties extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("accessorForPrivateSetter.kt")
         public void testAccessorForPrivateSetter() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/extensionProperties/accessorForPrivateSetter.kt");
@@ -7710,7 +7710,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/external")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class External extends AbstractBlackBoxCodegenTest {
+    public static class External extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInExternal() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/external"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7737,7 +7737,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/fakeOverride")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class FakeOverride extends AbstractBlackBoxCodegenTest {
+    public static class FakeOverride extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInFakeOverride() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fakeOverride"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7770,7 +7770,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/fieldRename")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class FieldRename extends AbstractBlackBoxCodegenTest {
+    public static class FieldRename extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInFieldRename() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fieldRename"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7797,7 +7797,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/finally")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Finally extends AbstractBlackBoxCodegenTest {
+    public static class Finally extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInFinally() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/finally"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7872,7 +7872,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/fullJdk")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class FullJdk extends AbstractBlackBoxCodegenTest {
+    public static class FullJdk extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInFullJdk() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fullJdk"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -7916,7 +7916,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/fullJdk/native")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Native extends AbstractBlackBoxCodegenTest {
+        public static class Native extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInNative() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fullJdk/native"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -7943,7 +7943,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/fullJdk/regressions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Regressions extends AbstractBlackBoxCodegenTest {
+        public static class Regressions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInRegressions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/fullJdk/regressions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -7965,7 +7965,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/functions")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Functions extends AbstractBlackBoxCodegenTest {
+    public static class Functions extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInFunctions() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/functions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -8231,7 +8231,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/functions/functionExpression")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class FunctionExpression extends AbstractBlackBoxCodegenTest {
+        public static class FunctionExpression extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFunctionExpression() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/functions/functionExpression"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -8264,7 +8264,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/functions/invoke")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Invoke extends AbstractBlackBoxCodegenTest {
+        public static class Invoke extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInInvoke() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/functions/invoke"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -8363,7 +8363,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/functions/localFunctions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class LocalFunctions extends AbstractBlackBoxCodegenTest {
+        public static class LocalFunctions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInLocalFunctions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/functions/localFunctions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -8469,7 +8469,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/hashPMap")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class HashPMap extends AbstractBlackBoxCodegenTest {
+    public static class HashPMap extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInHashPMap() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/hashPMap"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -8514,7 +8514,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/ieee754")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Ieee754 extends AbstractBlackBoxCodegenTest {
+    public static class Ieee754 extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInIeee754() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ieee754"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -8721,7 +8721,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/increment")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Increment extends AbstractBlackBoxCodegenTest {
+    public static class Increment extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInIncrement() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/increment"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -8862,7 +8862,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/innerNested")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class InnerNested extends AbstractBlackBoxCodegenTest {
+    public static class InnerNested extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInInnerNested() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/innerNested"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9008,7 +9008,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/innerNested/superConstructorCall")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class SuperConstructorCall extends AbstractBlackBoxCodegenTest {
+        public static class SuperConstructorCall extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSuperConstructorCall() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/innerNested/superConstructorCall"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9138,7 +9138,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/instructions")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Instructions extends AbstractBlackBoxCodegenTest {
+    public static class Instructions extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInInstructions() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/instructions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9146,7 +9146,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/instructions/swap")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Swap extends AbstractBlackBoxCodegenTest {
+        public static class Swap extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSwap() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/instructions/swap"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9168,7 +9168,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/intrinsics")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Intrinsics extends AbstractBlackBoxCodegenTest {
+    public static class Intrinsics extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInIntrinsics() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/intrinsics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9297,7 +9297,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/javaInterop")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class JavaInterop extends AbstractBlackBoxCodegenTest {
+    public static class JavaInterop extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJavaInterop() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/javaInterop"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9311,7 +9311,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/javaInterop/generics")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Generics extends AbstractBlackBoxCodegenTest {
+        public static class Generics extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInGenerics() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/javaInterop/generics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9338,7 +9338,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/javaInterop/notNullAssertions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class NotNullAssertions extends AbstractBlackBoxCodegenTest {
+        public static class NotNullAssertions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInNotNullAssertions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/javaInterop/notNullAssertions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9359,7 +9359,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/javaInterop/objectMethods")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ObjectMethods extends AbstractBlackBoxCodegenTest {
+        public static class ObjectMethods extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInObjectMethods() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/javaInterop/objectMethods"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9405,7 +9405,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/jdk")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Jdk extends AbstractBlackBoxCodegenTest {
+    public static class Jdk extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJdk() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jdk"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9438,7 +9438,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/jvmField")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class JvmField extends AbstractBlackBoxCodegenTest {
+    public static class JvmField extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJvmField() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jvmField"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9531,7 +9531,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/jvmName")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class JvmName extends AbstractBlackBoxCodegenTest {
+    public static class JvmName extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJvmName() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jvmName"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9605,7 +9605,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/jvmName/fileFacades")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class FileFacades extends AbstractBlackBoxCodegenTest {
+        public static class FileFacades extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFileFacades() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jvmName/fileFacades"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -9633,7 +9633,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/jvmOverloads")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class JvmOverloads extends AbstractBlackBoxCodegenTest {
+    public static class JvmOverloads extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJvmOverloads() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jvmOverloads"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9732,7 +9732,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/jvmStatic")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class JvmStatic extends AbstractBlackBoxCodegenTest {
+    public static class JvmStatic extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInJvmStatic() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/jvmStatic"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9885,7 +9885,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/labels")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Labels extends AbstractBlackBoxCodegenTest {
+    public static class Labels extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInLabels() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/labels"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9930,7 +9930,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/lazyCodegen")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class LazyCodegen extends AbstractBlackBoxCodegenTest {
+    public static class LazyCodegen extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInLazyCodegen() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/lazyCodegen"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -9992,7 +9992,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/lazyCodegen/optimizations")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Optimizations extends AbstractBlackBoxCodegenTest {
+        public static class Optimizations extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInOptimizations() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/lazyCodegen/optimizations"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -10056,7 +10056,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/localClasses")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class LocalClasses extends AbstractBlackBoxCodegenTest {
+    public static class LocalClasses extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInLocalClasses() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/localClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10215,7 +10215,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/mangling")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Mangling extends AbstractBlackBoxCodegenTest {
+    public static class Mangling extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInMangling() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/mangling"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10266,7 +10266,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/multiDecl")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class MultiDecl extends AbstractBlackBoxCodegenTest {
+    public static class MultiDecl extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInMultiDecl() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10358,7 +10358,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/multiDecl/forIterator")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ForIterator extends AbstractBlackBoxCodegenTest {
+        public static class ForIterator extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInForIterator() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forIterator"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -10396,7 +10396,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/multiDecl/forIterator/longIterator")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class LongIterator extends AbstractBlackBoxCodegenTest {
+            public static class LongIterator extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInLongIterator() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forIterator/longIterator"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -10430,7 +10430,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ForRange extends AbstractBlackBoxCodegenTest {
+        public static class ForRange extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInForRange() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -10480,7 +10480,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class ExplicitRangeTo extends AbstractBlackBoxCodegenTest {
+            public static class ExplicitRangeTo extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInExplicitRangeTo() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -10518,7 +10518,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo/int")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
-                public static class Int extends AbstractBlackBoxCodegenTest {
+                public static class Int extends AbstractBlackBoxCodegenTarget8Test {
                     public void testAllFilesPresentInInt() throws Exception {
                         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo/int"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                     }
@@ -10551,7 +10551,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo/long")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
-                public static class Long extends AbstractBlackBoxCodegenTest {
+                public static class Long extends AbstractBlackBoxCodegenTarget8Test {
                     public void testAllFilesPresentInLong() throws Exception {
                         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeTo/long"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                     }
@@ -10585,7 +10585,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class ExplicitRangeToWithDot extends AbstractBlackBoxCodegenTest {
+            public static class ExplicitRangeToWithDot extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInExplicitRangeToWithDot() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -10623,7 +10623,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot/int")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
-                public static class Int extends AbstractBlackBoxCodegenTest {
+                public static class Int extends AbstractBlackBoxCodegenTarget8Test {
                     public void testAllFilesPresentInInt() throws Exception {
                         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot/int"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                     }
@@ -10656,7 +10656,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
                 @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot/long")
                 @TestDataPath("$PROJECT_ROOT")
                 @RunWith(JUnit3RunnerWithInners.class)
-                public static class Long extends AbstractBlackBoxCodegenTest {
+                public static class Long extends AbstractBlackBoxCodegenTarget8Test {
                     public void testAllFilesPresentInLong() throws Exception {
                         KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/explicitRangeToWithDot/long"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                     }
@@ -10690,7 +10690,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/int")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Int extends AbstractBlackBoxCodegenTest {
+            public static class Int extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInInt() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/int"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -10723,7 +10723,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/multiDecl/forRange/long")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Long extends AbstractBlackBoxCodegenTest {
+            public static class Long extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInLong() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multiDecl/forRange/long"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -10758,7 +10758,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/multifileClasses")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class MultifileClasses extends AbstractBlackBoxCodegenTest {
+    public static class MultifileClasses extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInMultifileClasses() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multifileClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10832,7 +10832,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/multifileClasses/optimized")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Optimized extends AbstractBlackBoxCodegenTest {
+        public static class Optimized extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInOptimized() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/multifileClasses/optimized"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -10926,7 +10926,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/nonLocalReturns")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class NonLocalReturns extends AbstractBlackBoxCodegenTest {
+    public static class NonLocalReturns extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInNonLocalReturns() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/nonLocalReturns"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10959,7 +10959,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/objectIntrinsics")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ObjectIntrinsics extends AbstractBlackBoxCodegenTest {
+    public static class ObjectIntrinsics extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInObjectIntrinsics() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/objectIntrinsics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -10974,7 +10974,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/objects")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Objects extends AbstractBlackBoxCodegenTest {
+    public static class Objects extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInObjects() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/objects"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11241,7 +11241,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/operatorConventions")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class OperatorConventions extends AbstractBlackBoxCodegenTest {
+    public static class OperatorConventions extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInOperatorConventions() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/operatorConventions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11351,7 +11351,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/operatorConventions/compareTo")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class CompareTo extends AbstractBlackBoxCodegenTest {
+        public static class CompareTo extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCompareTo() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/operatorConventions/compareTo"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -11421,7 +11421,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/package")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Package extends AbstractBlackBoxCodegenTest {
+    public static class Package extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPackage() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/package"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11490,7 +11490,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/platformTypes")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class PlatformTypes extends AbstractBlackBoxCodegenTest {
+    public static class PlatformTypes extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPlatformTypes() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/platformTypes"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11498,7 +11498,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/platformTypes/primitives")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Primitives extends AbstractBlackBoxCodegenTest {
+        public static class Primitives extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInPrimitives() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/platformTypes/primitives"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -11628,7 +11628,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/primitiveTypes")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class PrimitiveTypes extends AbstractBlackBoxCodegenTest {
+    public static class PrimitiveTypes extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPrimitiveTypes() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/primitiveTypes"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11955,7 +11955,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/private")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Private extends AbstractBlackBoxCodegenTest {
+    public static class Private extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPrivate() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/private"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -11976,7 +11976,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/privateConstructors")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class PrivateConstructors extends AbstractBlackBoxCodegenTest {
+    public static class PrivateConstructors extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPrivateConstructors() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/privateConstructors"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -12063,7 +12063,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/properties")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Properties extends AbstractBlackBoxCodegenTest {
+    public static class Properties extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("accessToPrivateProperty.kt")
         public void testAccessToPrivateProperty() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/properties/accessToPrivateProperty.kt");
@@ -12467,7 +12467,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/properties/const")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Const extends AbstractBlackBoxCodegenTest {
+        public static class Const extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInConst() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/properties/const"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -12494,7 +12494,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/properties/lateinit")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Lateinit extends AbstractBlackBoxCodegenTest {
+        public static class Lateinit extends AbstractBlackBoxCodegenTarget8Test {
             @TestMetadata("accessor.kt")
             public void testAccessor() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/properties/lateinit/accessor.kt");
@@ -12564,7 +12564,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/publishedApi")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class PublishedApi extends AbstractBlackBoxCodegenTest {
+    public static class PublishedApi extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInPublishedApi() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/publishedApi"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -12591,7 +12591,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/ranges")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Ranges extends AbstractBlackBoxCodegenTest {
+    public static class Ranges extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInRanges() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -12635,7 +12635,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/contains")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Contains extends AbstractBlackBoxCodegenTest {
+        public static class Contains extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInContains() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/contains"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -12716,7 +12716,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/expression")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Expression extends AbstractBlackBoxCodegenTest {
+        public static class Expression extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInExpression() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/expression"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -12893,7 +12893,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/forInDownTo")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ForInDownTo extends AbstractBlackBoxCodegenTest {
+        public static class ForInDownTo extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInForInDownTo() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/forInDownTo"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -12926,7 +12926,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/forInIndices")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ForInIndices extends AbstractBlackBoxCodegenTest {
+        public static class ForInIndices extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInForInIndices() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/forInIndices"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13025,7 +13025,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/literal")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Literal extends AbstractBlackBoxCodegenTest {
+        public static class Literal extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInLiteral() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/literal"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13202,7 +13202,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/ranges/nullableLoopParameter")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class NullableLoopParameter extends AbstractBlackBoxCodegenTest {
+        public static class NullableLoopParameter extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInNullableLoopParameter() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/ranges/nullableLoopParameter"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13230,7 +13230,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/reflection")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Reflection extends AbstractBlackBoxCodegenTest {
+    public static class Reflection extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInReflection() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -13238,7 +13238,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/annotations")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Annotations extends AbstractBlackBoxCodegenTest {
+        public static class Annotations extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInAnnotations() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/annotations"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13313,7 +13313,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/call")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Call extends AbstractBlackBoxCodegenTest {
+        public static class Call extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCall() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/call"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13453,7 +13453,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/call/bound")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Bound extends AbstractBlackBoxCodegenTest {
+            public static class Bound extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInBound() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/call/bound"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -13541,7 +13541,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/callBy")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class CallBy extends AbstractBlackBoxCodegenTest {
+        public static class CallBy extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCallBy() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/callBy"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13658,7 +13658,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/classLiterals")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ClassLiterals extends AbstractBlackBoxCodegenTest {
+        public static class ClassLiterals extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInClassLiterals() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/classLiterals"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13709,7 +13709,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/classes")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Classes extends AbstractBlackBoxCodegenTest {
+        public static class Classes extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInClasses() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/classes"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13790,7 +13790,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/constructors")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Constructors extends AbstractBlackBoxCodegenTest {
+        public static class Constructors extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInConstructors() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/constructors"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13829,7 +13829,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/createAnnotation")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class CreateAnnotation extends AbstractBlackBoxCodegenTest {
+        public static class CreateAnnotation extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInCreateAnnotation() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/createAnnotation"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -13910,7 +13910,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/enclosing")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Enclosing extends AbstractBlackBoxCodegenTest {
+        public static class Enclosing extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInEnclosing() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/enclosing"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14063,7 +14063,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/functions")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Functions extends AbstractBlackBoxCodegenTest {
+        public static class Functions extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInFunctions() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/functions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14138,7 +14138,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/genericSignature")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class GenericSignature extends AbstractBlackBoxCodegenTest {
+        public static class GenericSignature extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInGenericSignature() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/genericSignature"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14195,7 +14195,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/isInstance")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class IsInstance extends AbstractBlackBoxCodegenTest {
+        public static class IsInstance extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInIsInstance() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/isInstance"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14210,7 +14210,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/kClassInAnnotation")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class KClassInAnnotation extends AbstractBlackBoxCodegenTest {
+        public static class KClassInAnnotation extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInKClassInAnnotation() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/kClassInAnnotation"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14273,7 +14273,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/lambdaClasses")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class LambdaClasses extends AbstractBlackBoxCodegenTest {
+        public static class LambdaClasses extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInLambdaClasses() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/lambdaClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14288,7 +14288,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/mapping")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Mapping extends AbstractBlackBoxCodegenTest {
+        public static class Mapping extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMapping() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/mapping"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14362,7 +14362,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/mapping/fakeOverrides")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class FakeOverrides extends AbstractBlackBoxCodegenTest {
+            public static class FakeOverrides extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInFakeOverrides() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/mapping/fakeOverrides"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -14383,7 +14383,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/mapping/jvmStatic")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class JvmStatic extends AbstractBlackBoxCodegenTest {
+            public static class JvmStatic extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInJvmStatic() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/mapping/jvmStatic"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -14404,7 +14404,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/mapping/types")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Types extends AbstractBlackBoxCodegenTest {
+            public static class Types extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInTypes() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/mapping/types"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -14510,7 +14510,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/methodsFromAny")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class MethodsFromAny extends AbstractBlackBoxCodegenTest {
+        public static class MethodsFromAny extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMethodsFromAny() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/methodsFromAny"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14621,7 +14621,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/modifiers")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Modifiers extends AbstractBlackBoxCodegenTest {
+        public static class Modifiers extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInModifiers() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/modifiers"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14684,7 +14684,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/multifileClasses")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class MultifileClasses extends AbstractBlackBoxCodegenTest {
+        public static class MultifileClasses extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInMultifileClasses() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/multifileClasses"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14711,7 +14711,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/noReflectAtRuntime")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class NoReflectAtRuntime extends AbstractBlackBoxCodegenTest {
+        public static class NoReflectAtRuntime extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInNoReflectAtRuntime() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/noReflectAtRuntime"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14755,7 +14755,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/noReflectAtRuntime/methodsFromAny")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class MethodsFromAny extends AbstractBlackBoxCodegenTest {
+            public static class MethodsFromAny extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInMethodsFromAny() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/noReflectAtRuntime/methodsFromAny"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -14783,7 +14783,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/parameters")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Parameters extends AbstractBlackBoxCodegenTest {
+        public static class Parameters extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInParameters() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/parameters"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -14864,7 +14864,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/properties")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Properties extends AbstractBlackBoxCodegenTest {
+        public static class Properties extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInProperties() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/properties"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -15046,7 +15046,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/properties/accessors")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Accessors extends AbstractBlackBoxCodegenTest {
+            public static class Accessors extends AbstractBlackBoxCodegenTarget8Test {
                 @TestMetadata("accessorNames.kt")
                 public void testAccessorNames() throws Exception {
                     String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/properties/accessors/accessorNames.kt");
@@ -15085,7 +15085,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/properties/getDelegate")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class GetDelegate extends AbstractBlackBoxCodegenTest {
+            public static class GetDelegate extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInGetDelegate() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/properties/getDelegate"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -15185,7 +15185,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/specialBuiltIns")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class SpecialBuiltIns extends AbstractBlackBoxCodegenTest {
+        public static class SpecialBuiltIns extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSpecialBuiltIns() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/specialBuiltIns"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -15200,7 +15200,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/supertypes")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Supertypes extends AbstractBlackBoxCodegenTest {
+        public static class Supertypes extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInSupertypes() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/supertypes"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -15239,7 +15239,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/typeParameters")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class TypeParameters extends AbstractBlackBoxCodegenTest {
+        public static class TypeParameters extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInTypeParameters() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/typeParameters"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -15266,7 +15266,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reflection/types")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Types extends AbstractBlackBoxCodegenTest {
+        public static class Types extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInTypes() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/types"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -15346,7 +15346,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/types/createType")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class CreateType extends AbstractBlackBoxCodegenTest {
+            public static class CreateType extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInCreateType() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/types/createType"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -15385,7 +15385,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             @TestMetadata("compiler/testData/codegen/box/reflection/types/subtyping")
             @TestDataPath("$PROJECT_ROOT")
             @RunWith(JUnit3RunnerWithInners.class)
-            public static class Subtyping extends AbstractBlackBoxCodegenTest {
+            public static class Subtyping extends AbstractBlackBoxCodegenTarget8Test {
                 public void testAllFilesPresentInSubtyping() throws Exception {
                     KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reflection/types/subtyping"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
                 }
@@ -15420,7 +15420,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/regressions")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Regressions extends AbstractBlackBoxCodegenTest {
+    public static class Regressions extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInRegressions() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/regressions"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -15849,7 +15849,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/reified")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Reified extends AbstractBlackBoxCodegenTest {
+    public static class Reified extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInReified() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reified"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16031,7 +16031,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/reified/arraysReification")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class ArraysReification extends AbstractBlackBoxCodegenTest {
+        public static class ArraysReification extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInArraysReification() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/reified/arraysReification"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -16077,7 +16077,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/safeCall")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class SafeCall extends AbstractBlackBoxCodegenTest {
+    public static class SafeCall extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSafeCall() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/safeCall"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16140,7 +16140,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/sam")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Sam extends AbstractBlackBoxCodegenTest {
+    public static class Sam extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSam() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/sam"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16148,7 +16148,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/sam/constructors")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class Constructors extends AbstractBlackBoxCodegenTest {
+        public static class Constructors extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInConstructors() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/sam/constructors"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -16230,7 +16230,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/sealed")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Sealed extends AbstractBlackBoxCodegenTest {
+    public static class Sealed extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSealed() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/sealed"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16251,7 +16251,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/secondaryConstructors")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class SecondaryConstructors extends AbstractBlackBoxCodegenTest {
+    public static class SecondaryConstructors extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("accessToCompanion.kt")
         public void testAccessToCompanion() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/secondaryConstructors/accessToCompanion.kt");
@@ -16446,7 +16446,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/smap")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Smap extends AbstractBlackBoxCodegenTest {
+    public static class Smap extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSmap() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/smap"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16473,7 +16473,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/smartCasts")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class SmartCasts extends AbstractBlackBoxCodegenTest {
+    public static class SmartCasts extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSmartCasts() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/smartCasts"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16554,7 +16554,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/specialBuiltins")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class SpecialBuiltins extends AbstractBlackBoxCodegenTest {
+    public static class SpecialBuiltins extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSpecialBuiltins() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/specialBuiltins"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16701,7 +16701,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/statics")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Statics extends AbstractBlackBoxCodegenTest {
+    public static class Statics extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInStatics() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/statics"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16806,7 +16806,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/storeStackBeforeInline")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class StoreStackBeforeInline extends AbstractBlackBoxCodegenTest {
+    public static class StoreStackBeforeInline extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInStoreStackBeforeInline() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/storeStackBeforeInline"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16845,7 +16845,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/strings")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Strings extends AbstractBlackBoxCodegenTest {
+    public static class Strings extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInStrings() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/strings"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -16950,7 +16950,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/super")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Super extends AbstractBlackBoxCodegenTest {
+    public static class Super extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSuper() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/super"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17127,7 +17127,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/synchronized")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Synchronized extends AbstractBlackBoxCodegenTest {
+    public static class Synchronized extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInSynchronized() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/synchronized"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17202,7 +17202,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/syntheticAccessors")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class SyntheticAccessors extends AbstractBlackBoxCodegenTest {
+    public static class SyntheticAccessors extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("accessorForProtected.kt")
         public void testAccessorForProtected() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/syntheticAccessors/accessorForProtected.kt");
@@ -17265,7 +17265,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/toArray")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class ToArray extends AbstractBlackBoxCodegenTest {
+    public static class ToArray extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInToArray() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/toArray"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17316,7 +17316,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/topLevelPrivate")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class TopLevelPrivate extends AbstractBlackBoxCodegenTest {
+    public static class TopLevelPrivate extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInTopLevelPrivate() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/topLevelPrivate"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17361,7 +17361,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/traits")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Traits extends AbstractBlackBoxCodegenTest {
+    public static class Traits extends AbstractBlackBoxCodegenTarget8Test {
         @TestMetadata("abstractClassInheritsFromInterface.kt")
         public void testAbstractClassInheritsFromInterface() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/traits/abstractClassInheritsFromInterface.kt");
@@ -17538,7 +17538,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/typeInfo")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class TypeInfo extends AbstractBlackBoxCodegenTest {
+    public static class TypeInfo extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInTypeInfo() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/typeInfo"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17589,7 +17589,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/typeMapping")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class TypeMapping extends AbstractBlackBoxCodegenTest {
+    public static class TypeMapping extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInTypeMapping() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/typeMapping"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17658,7 +17658,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/typealias")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Typealias extends AbstractBlackBoxCodegenTest {
+    public static class Typealias extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInTypealias() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/typealias"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17769,7 +17769,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/unaryOp")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class UnaryOp extends AbstractBlackBoxCodegenTest {
+    public static class UnaryOp extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInUnaryOp() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/unaryOp"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17814,7 +17814,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/unit")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Unit extends AbstractBlackBoxCodegenTest {
+    public static class Unit extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInUnit() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/unit"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17889,7 +17889,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/vararg")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class Vararg extends AbstractBlackBoxCodegenTest {
+    public static class Vararg extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInVararg() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/vararg"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -17946,7 +17946,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
     @TestMetadata("compiler/testData/codegen/box/when")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)
-    public static class When extends AbstractBlackBoxCodegenTest {
+    public static class When extends AbstractBlackBoxCodegenTarget8Test {
         public void testAllFilesPresentInWhen() throws Exception {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/when"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
         }
@@ -18152,7 +18152,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/when/enumOptimization")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class EnumOptimization extends AbstractBlackBoxCodegenTest {
+        public static class EnumOptimization extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInEnumOptimization() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/when/enumOptimization"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }
@@ -18251,7 +18251,7 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("compiler/testData/codegen/box/when/stringOptimization")
         @TestDataPath("$PROJECT_ROOT")
         @RunWith(JUnit3RunnerWithInners.class)
-        public static class StringOptimization extends AbstractBlackBoxCodegenTest {
+        public static class StringOptimization extends AbstractBlackBoxCodegenTarget8Test {
             public void testAllFilesPresentInStringOptimization() throws Exception {
                 KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/codegen/box/when/stringOptimization"), Pattern.compile("^(.+)\\.kt$"), TargetBackend.JVM, true);
             }

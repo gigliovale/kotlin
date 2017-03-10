@@ -26,7 +26,12 @@ fun box(): String {
     // Java class without nested classes
     assertEquals(emptyList<String>(), nestedNames(Error::class))
     // Java class with nested classes
-    assertEquals(listOf("State", "UncaughtExceptionHandler"), nestedNames(Thread::class))
+    if (isJDK8()) {
+        assertEquals(listOf("Caches", "State", "UncaughtExceptionHandler", "WeakClassKey"), nestedNames(Thread::class))
+    }
+    else {
+        assertEquals(listOf("State", "UncaughtExceptionHandler"), nestedNames(Thread::class))
+    }
 
     // Built-ins
     assertEquals(emptyList<String>(), nestedNames(Array<Any>::class))
@@ -59,4 +64,21 @@ fun box(): String {
     }
 
     return "OK"
+}
+
+private fun isJDK8() = getJavaVersion() >= 0x10008
+
+private fun getJavaVersion(): Int {
+    val default = 0x10006
+    val version = System.getProperty("java.specification.version") ?: return default
+    val components = version.split('.')
+    return try {
+        when (components.size) {
+            0 -> default
+            1 -> components[0].toInt() * 0x10000
+            else -> components[0].toInt() * 0x10000 + components[1].toInt()
+        }
+    } catch (e: NumberFormatException) {
+        default
+    }
 }

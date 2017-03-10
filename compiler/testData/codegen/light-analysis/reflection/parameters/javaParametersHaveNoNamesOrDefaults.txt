@@ -1,4 +1,6 @@
 @kotlin.Metadata
 public final class KKt {
     public final static @org.jetbrains.annotations.NotNull method box(): java.lang.String
+    private final static method getJavaVersion(): int
+    private final static method isJDK8(): boolean
 }

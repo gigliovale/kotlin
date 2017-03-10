@@ -36,5 +36,7 @@ private final static class A/PrivateNested {
 @kotlin.Metadata
 public final class NestedClassesKt {
     public final static @org.jetbrains.annotations.NotNull method box(): java.lang.String
+    private final static method getJavaVersion(): int
+    private final static method isJDK8(): boolean
     public final static @org.jetbrains.annotations.NotNull method nestedNames(@org.jetbrains.annotations.NotNull p0: kotlin.reflect.KClass): java.util.List
 }

@@ -14842,9 +14842,9 @@ public class IrBlackBoxCodegenTestGenerated extends AbstractIrBlackBoxCodegenTes
                 doTest(fileName);
             }
 
-            @TestMetadata("javaParametersHaveNoNames.kt")
-            public void testJavaParametersHaveNoNames() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/parameters/javaParametersHaveNoNames.kt");
+            @TestMetadata("javaParametersHaveNoNamesOrDefaults.kt")
+            public void testJavaParametersHaveNoNamesOrDefaults() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/parameters/javaParametersHaveNoNamesOrDefaults.kt");
                 doTest(fileName);
             }
 

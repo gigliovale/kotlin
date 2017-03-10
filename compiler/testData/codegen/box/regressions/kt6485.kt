@@ -16,10 +16,14 @@ open class TypeLiteral<T> {
 inline fun <reified T> typeLiteral(): TypeLiteral<T> = object : TypeLiteral<T>() {}
 
 fun box(): String {
-    assertEquals("class java.lang.String", typeLiteral<String>().type.toString())
-    assertEquals("java.util.List<?>", typeLiteral<List<*>>().type.toString())
-    assertEquals("java.lang.String[]", typeLiteral<Array<String>>().type.toString())
-    assertEquals("java.lang.Integer[]", typeLiteral<Array<Int>>().type.toString())
-    assertEquals("java.lang.String[][]", typeLiteral<Array<Array<String>>>().type.toString())
+    assertEquals("java.lang.String", typeLiteral<String>().type.canonicalName)
+    assertEquals("java.util.List<?>", typeLiteral<List<*>>().type.canonicalName)
+    assertEquals("java.lang.String[]", typeLiteral<Array<String>>().type.canonicalName)
+    assertEquals("java.lang.Integer[]", typeLiteral<Array<Int>>().type.canonicalName)
+    assertEquals("java.lang.String[][]", typeLiteral<Array<Array<String>>>().type.canonicalName)
     return "OK"
 }
+
+
+val Type.canonicalName: String
+    get() = if (this is Class<*>) this.canonicalName else this.toString()

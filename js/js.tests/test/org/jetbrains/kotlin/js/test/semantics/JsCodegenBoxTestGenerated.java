@@ -18054,9 +18054,9 @@ public class JsCodegenBoxTestGenerated extends AbstractJsCodegenBoxTest {
                 throw new AssertionError("Looks like this test can be unmuted. Remove IGNORE_BACKEND directive for that.");
             }
 
-            @TestMetadata("javaParametersHaveNoNames.kt")
-            public void testJavaParametersHaveNoNames() throws Exception {
-                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/parameters/javaParametersHaveNoNames.kt");
+            @TestMetadata("javaParametersHaveNoNamesOrDefaults.kt")
+            public void testJavaParametersHaveNoNamesOrDefaults() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/reflection/parameters/javaParametersHaveNoNamesOrDefaults.kt");
                 try {
                     doTest(fileName);
                 }

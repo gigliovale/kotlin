@@ -44,6 +44,8 @@ class DeadCodeElimination(private val root: JsStatement) {
     private val functionApplyValue = ValueImpl(null, "<global>.Function.prototype.apply")
     private val functionCallValue = ValueImpl(null, "<global>.Function.prototype.call")
 
+    private val nodesToEliminate = mutableSetOf<JsNode>()
+
     companion object {
         private val PROTO = "__proto__"
     }
@@ -64,64 +66,159 @@ class DeadCodeElimination(private val root: JsStatement) {
         functionPrototypeValue.getMember("apply").addValue(propertyDescriptorOfOneValue(functionApplyValue))
         functionPrototypeValue.getMember("call").addValue(propertyDescriptorOfOneValue(functionCallValue))
 
+        for (globalValue in listOf(globalScope, objectValue, functionValue, arrayValue, functionPrototypeValue)) {
+            spreadGlobalValue(globalValue)
+        }
+
         root.accept(visitor)
         while (worklist.isNotEmpty()) {
             worklist.remove()()
         }
+
+        marker.accept(root)
         eliminator.accept(root)
+    }
+
+    private fun spreadGlobalValue(value: Value): Value {
+        value.addHandler(object : ValueEventHandler {
+            override fun memberAdded(name: String, value: Node) {
+                if (value.getValues().isEmpty()) {
+                    value.addValue(spreadGlobalValue(ValueImpl(value.jsNode, "${value.path}.$name")))
+                }
+            }
+
+            override fun returnValueAdded(value: Node) {
+                if (value.getValues().isEmpty()) {
+                    value.addValue(spreadGlobalValue(ValueImpl(value.jsNode, "${value.path}|return")))
+                }
+            }
+        })
+        return value
+    }
+
+    private val marker = object : RecursiveJsVisitor() {
+        override fun visitExpressionStatement(x: JsExpressionStatement) {
+            super.visitExpressionStatement(x)
+            if (x.expression in nodesToEliminate) {
+                nodesToEliminate += x
+            }
+        }
+
+        override fun visitFunction(x: JsFunction) {
+            if (shouldRemoveFunction(x)) {
+                nodesToEliminate += x
+            }
+            super.visitFunction(x)
+        }
+
+        override fun visitObjectLiteral(x: JsObjectLiteral) {
+            super.visitObjectLiteral(x)
+            for (propertyInitializer in x.propertyInitializers) {
+                if (propertyInitializer.valueExpr in nodesToEliminate &&
+                    (propertyInitializer.labelExpr is JsNameRef || propertyInitializer.labelExpr is JsStringLiteral)
+                ) {
+                    nodesToEliminate += propertyInitializer
+                }
+            }
+            if (shouldRemoveNode(x) && x.propertyInitializers.all { it in nodesToEliminate }) {
+                nodesToEliminate += x
+            }
+        }
+
+        override fun visitBinaryExpression(x: JsBinaryOperation) {
+            super.visitBinaryExpression(x)
+            if (x.operator == JsBinaryOperator.ASG && x.arg1 in nodesToEliminate && x.arg2 in nodesToEliminate) {
+                nodesToEliminate += x
+            }
+        }
+
+        override fun visitVars(x: JsVars) {
+            super.visitVars(x)
+            if (x.vars.all { it in nodesToEliminate }) {
+                nodesToEliminate.add(x)
+            }
+        }
+
+        override fun visit(x: JsVars.JsVar) {
+            super.visit(x)
+            val node = nodes[x.name]
+            if (node != null && !hasUsedValues(node)) {
+                nodesToEliminate += x
+            }
+        }
+
+        override fun visitNameRef(nameRef: JsNameRef) {
+            super.visitNameRef(nameRef)
+            if (shouldRemoveNode(nameRef)) {
+                nodesToEliminate += nameRef
+            }
+        }
+
+        override fun visitInvocation(invocation: JsInvocation) {
+            super.visitInvocation(invocation)
+            if (isDefinePropertyUnused(invocation)) {
+                nodesToEliminate += invocation
+            }
+        }
+
+        private fun isDefinePropertyUnused(invocation: JsInvocation): Boolean {
+            val node = nodeMap[invocation.qualifier] ?: return false
+            val functions = node.getValues()
+            if (functions.singleOrNull() != objectDefineProperty) return false
+
+            val descriptorArg = invocation.arguments.getOrNull(2) ?: return false
+            val descriptorNode = nodeMap[descriptorArg] ?: return false
+            return !hasUsedValues(descriptorNode)
+        }
     }
 
     private val eliminator = object : JsVisitorWithContextImpl() {
         override fun endVisit(x: JsExpressionStatement, ctx: JsContext<in JsNode>) {
-            val expression = x.expression
-            if (expression is JsFunction && shouldRemoveFunction(expression)) {
+            if (x.expression in nodesToEliminate) {
                 ctx.removeMe()
             }
+        }
+
+        override fun endVisit(x: JsObjectLiteral, ctx: JsContext<in JsNode>) {
+            if (x in nodesToEliminate) {
+                ctx.replaceMe(JsLiteral.NULL)
+            }
             else {
-                super.endVisit(x, ctx)
-            }
-        }
-
-        private fun shouldRemoveFunction(x: JsFunction): Boolean {
-            if (x !in processedFunctions) {
-                val node = nodeMap[x]
-                if (node != null && !hasUsedValues(node)) return true
-                x.body.statements.clear()
-                x.parameters.clear()
-            }
-            return false
-        }
-
-        override fun endVisit(x: JsObjectLiteral, ctx: JsContext<*>) {
-            x.propertyInitializers.removeAll { prop ->
-                val label = prop.labelExpr
-                val value = prop.valueExpr
-                if (label is JsStringLiteral) {
-                    if (value is JsFunction && shouldRemoveFunction(value)) {
-                        true
-                    }
-                    else {
-                        accept(value)
-                        false
-                    }
-                }
-                else {
-                    accept(label)
-                    accept(value)
-                    false
-                }
+                x.propertyInitializers.removeAll { it in nodesToEliminate }
             }
         }
 
         override fun endVisit(x: JsNameRef, ctx: JsContext<in JsNode>) {
-            val node = x.name?.let { nodes[it] }
-            if (node != null && !hasUsedValues(node)) {
+            if (x in nodesToEliminate) {
                 ctx.replaceMe(JsLiteral.NULL)
             }
         }
 
-        private fun hasUsedValues(node: Node) = node.getValues().any { it.isUsed }
+        override fun endVisit(x: JsVars, ctx: JsContext<in JsNode>) {
+            if (x in nodesToEliminate) {
+                ctx.removeMe()
+            }
+            else {
+                x.vars.removeAll { it in nodesToEliminate }
+            }
+        }
     }
+
+    private fun shouldRemoveFunction(x: JsFunction): Boolean {
+        if (x !in processedFunctions) {
+            if (shouldRemoveNode(x)) return true
+            x.body.statements.clear()
+            x.parameters.clear()
+        }
+        return false
+    }
+
+    private fun shouldRemoveNode(x: JsNode): Boolean {
+        val node = nodeMap[x]
+        return node != null && !hasUsedValues(node)
+    }
+
+    private fun hasUsedValues(node: Node) = node.getValues().any { it.isUsed }
 
     private val dynamicValue: Value by lazy {
         val newValue = ValueImpl(null, "<dynamic>")
@@ -273,7 +370,7 @@ class DeadCodeElimination(private val root: JsStatement) {
             val arrayValue = constructObject(arrayNode, listOf(), x)
             for (item in x.expressions) {
                 accept(item)
-                resultNode.connectTo(arrayValue.getDynamicMember())
+                arrayValue.writeDynamicProperty(resultNode)
             }
             resultNode = createNode(x)
             resultNode.addValue(arrayValue)
@@ -371,7 +468,6 @@ class DeadCodeElimination(private val root: JsStatement) {
                 accept(qualifier)
                 resultNode.connectTo(qualifierNode)
             }
-            receiverNode.use()
 
             val argumentsNodes = invocation.arguments.map {
                 accept(it)
@@ -407,6 +503,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                     }
                 }
             })
+            receiverNode.use()
             qualifierNode.use()
 
             resultNode = newNode
@@ -430,6 +527,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                     })
                 }
             })
+            prototypeNode?.use()
 
             resultNode.addValue(objectValue)
         }
@@ -519,13 +617,13 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun visitNew(x: JsNew) {
             accept(x.constructorExpression)
+            val constructorNode = resultNode
 
             val argumentsNodes = x.arguments.map {
                 accept(it)
                 resultNode
             }
 
-            val constructorNode = resultNode
             val newNode = createNode(x)
             newNode.addValue(constructObject(constructorNode, argumentsNodes, x))
             constructorNode.use()
@@ -615,6 +713,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                 value.readProperty("prototype", prototypeNode)
             }
         })
+        constructorNode.use()
 
         prototypeNode.addHandler(object : NodeEventHandler {
             override fun valueAdded(value: Value) {
@@ -631,6 +730,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                 })
             }
         })
+        prototypeNode.use()
 
         return objectValue
     }

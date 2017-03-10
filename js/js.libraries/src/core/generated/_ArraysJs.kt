@@ -13033,21 +13033,21 @@ public inline fun CharArray.copyOf(): CharArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun ByteArray.copyOf(newSize: Int): ByteArray {
-    return arrayCopy(this, ByteArray(newSize))
+    return fillFrom(this, ByteArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun ShortArray.copyOf(newSize: Int): ShortArray {
-    return arrayCopy(this, ShortArray(newSize))
+    return fillFrom(this, ShortArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun IntArray.copyOf(newSize: Int): IntArray {
-    return arrayCopy(this, IntArray(newSize))
+    return fillFrom(this, IntArray(newSize))
 }
 
 /**
@@ -13061,14 +13061,14 @@ public fun LongArray.copyOf(newSize: Int): LongArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun FloatArray.copyOf(newSize: Int): FloatArray {
-    return arrayCopy(this, FloatArray(newSize))
+    return fillFrom(this, FloatArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun DoubleArray.copyOf(newSize: Int): DoubleArray {
-    return arrayCopy(this, DoubleArray(newSize))
+    return fillFrom(this, DoubleArray(newSize))
 }
 
 /**
@@ -13082,7 +13082,7 @@ public fun BooleanArray.copyOf(newSize: Int): BooleanArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun CharArray.copyOf(newSize: Int): CharArray {
-    return withType("CharArray", arrayCopy(this, CharArray(newSize)))
+    return withType("CharArray", fillFrom(this, CharArray(newSize)))
 }
 
 /**
@@ -13247,21 +13247,21 @@ public operator fun <T> Array<out T>.plus(elements: Collection<T>): Array<T> {
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun ByteArray.plus(elements: Collection<Byte>): ByteArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun ShortArray.plus(elements: Collection<Short>): ShortArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun IntArray.plus(elements: Collection<Int>): IntArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**
@@ -13275,14 +13275,14 @@ public operator fun LongArray.plus(elements: Collection<Long>): LongArray {
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun FloatArray.plus(elements: Collection<Float>): FloatArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun DoubleArray.plus(elements: Collection<Double>): DoubleArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**
@@ -13296,7 +13296,7 @@ public operator fun BooleanArray.plus(elements: Collection<Boolean>): BooleanArr
  * Returns an array containing all elements of the original array and then all elements of the given [elements] collection.
  */
 public operator fun CharArray.plus(elements: Collection<Char>): CharArray {
-    return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)
+    return fillFromCollection(this, this.copyOf(size + elements.size), elements)
 }
 
 /**

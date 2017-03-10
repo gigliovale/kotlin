@@ -244,7 +244,7 @@ object CommonArrays {
                         null, PrimitiveType.Boolean, PrimitiveType.Long ->
                             body(Platform.JS) { "return arrayPlusCollection(this, elements)" }
                         else ->
-                            body(Platform.JS) { "return typedArrayPlusCollection(this, this.copyOf(size + elements.size), elements)" }
+                            body(Platform.JS) { "return fillFromCollection(this, this.copyOf(size + elements.size), elements)" }
                     }
                 }
             }
@@ -370,11 +370,11 @@ object CommonArrays {
                         PrimitiveType.Boolean ->
                             body(Platform.JS) { "return withType(\"BooleanArray\", arrayCopyResize(this, newSize, false))" }
                         PrimitiveType.Char ->
-                            body(Platform.JS) { "return withType(\"CharArray\", arrayCopy(this, ${primitive}Array(newSize)))" }
+                            body(Platform.JS) { "return withType(\"CharArray\", fillFrom(this, ${primitive}Array(newSize)))" }
                         PrimitiveType.Long ->
                             body(Platform.JS) { "return withType(\"LongArray\", arrayCopyResize(this, newSize, ZERO))" }
                         else ->
-                            body(Platform.JS) { "return arrayCopy(this, ${primitive}Array(newSize))" }
+                            body(Platform.JS) { "return fillFrom(this, ${primitive}Array(newSize))" }
                     }
                 }
                 else {

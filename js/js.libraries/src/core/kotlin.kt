@@ -71,12 +71,12 @@ internal fun <T> arrayOfNulls(reference: Array<out T>, size: Int): Array<T> {
     return arrayOfNulls<Any>(size).unsafeCast<Array<T>>()
 }
 
-internal fun arrayCopy(source: dynamic, dest: dynamic): dynamic {
-    val srcLen: Int = source.length
-    val dstLen: Int = dest.length
+internal fun fillFrom(src: dynamic, dst: dynamic): dynamic {
+    val srcLen: Int = src.length
+    val dstLen: Int = dst.length
     var index: Int = 0
-    while (index < srcLen && index < dstLen) dest[index] = source[index++]
-    return dest
+    while (index < srcLen && index < dstLen) dst[index] = src[index++]
+    return dst
 }
 
 
@@ -100,8 +100,8 @@ internal fun <T> arrayPlusCollection(array: dynamic, collection: Collection<T>):
     return result
 }
 
-internal fun <T> typedArrayPlusCollection(array: dynamic, dst: dynamic, collection: Collection<T>): dynamic {
-    var index: Int = array.length
+internal fun <T> fillFromCollection(src: dynamic, dst: dynamic, collection: Collection<T>): dynamic {
+    var index: Int = src.length
     for (element in collection) dst[index++] = element
     return dst
 }

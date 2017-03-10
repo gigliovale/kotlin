@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.js.backend.ast.JsNode
 interface Node {
     val jsNode: JsNode?
 
+    val path: String
+
     fun getValues(): Set<Value>
 
     fun addValue(value: Value)

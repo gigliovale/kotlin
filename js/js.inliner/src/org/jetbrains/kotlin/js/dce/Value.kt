@@ -21,6 +21,8 @@ import org.jetbrains.kotlin.js.backend.ast.JsNode
 interface Value {
     val jsNode: JsNode?
 
+    val path: String
+
     fun getMember(name: String): Node
 
     fun getDynamicMember(): Node

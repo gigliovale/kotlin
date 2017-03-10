@@ -55,7 +55,8 @@ class InlineMetadata(val tag: JsStringLiteral, val function: JsFunction) {
 
     val functionWithMetadata: JsExpression
         get() {
-            val propertiesList = listOf(tag, function)
-            return JsInvocation(Namer.createInlineFunction(), propertiesList)
+            //val propertiesList = listOf(tag, function)
+            //return JsInvocation(Namer.createInlineFunction(), propertiesList)
+            return function
         }
 }

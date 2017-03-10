@@ -542,11 +542,11 @@ class CodegenAnnotatingVisitor extends KtVisitorVoid {
             if (samType == null) continue;
 
             ResolvedValueArgument resolvedValueArgument = valueArguments.get(valueParameter.getIndex());
-            assert resolvedValueArgument instanceof ExpressionValueArgument : resolvedValueArgument;
+            assert resolvedValueArgument instanceof ExpressionValueArgument : "Unexpected resolvedValueArgument: " + resolvedValueArgument;
             ValueArgument valueArgument = ((ExpressionValueArgument) resolvedValueArgument).getValueArgument();
-            assert valueArgument != null;
+            assert valueArgument != null : "valueArgument is null";
             KtExpression argumentExpression = valueArgument.getArgumentExpression();
-            assert argumentExpression != null : valueArgument.asElement().getText();
+            assert argumentExpression != null : "valueArgument: " + valueArgument + "; element text: " + valueArgument.asElement().getText();
 
             bindingTrace.record(CodegenBinding.SAM_VALUE, argumentExpression, samType);
         }

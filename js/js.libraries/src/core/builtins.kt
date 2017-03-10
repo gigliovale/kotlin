@@ -142,31 +142,33 @@ internal class BoxedChar(val c: Char) : Comparable<Char> {
 }
 
 internal inline fun <T> concat(args: Array<T>): T {
-    val untyped = args.map { arr ->
+    val typed = js("Array")(args.size)
+    for (i in 0..args.size - 1) {
+        val arr = args[i]
         if (arr !is Array<*>) {
-            js("[]").slice.call(arr)
+            typed[i] = js("[]").slice.call(arr)
         }
         else {
-            arr
+            typed[i] = arr
         }
-    }.toTypedArray()
-    return js("[]").concat.apply(js("[]"), untyped);
+    }
+    return js("[]").concat.apply(js("[]"), typed);
 }
 
-/** Concat regular Array's and TypedArrays into an Array
+/** Concat regular Array's and TypedArray's into an Array.
  */
 @PublishedApi
 @JsName("arrayConcat")
 internal fun <T> arrayConcat(a: T, b: T): T {
-    val args: Array<T> = js("arguments")
-    return concat(args)
+    return concat(js("arguments"))
 }
 
-/** Concat primitive arrays.
+/** Concat primitive arrays. Main use: prepare vararg arguments.
+ *  For compatibility with 1.1.0 the arguments may be a mixture of Array's and TypedArray's.
  *
- *  For Byte-, Short-, Int-, Float-, and DoubleArray concat result into a TypedArray.
- *  For Boolean-, Char-, and LongArray return an Array with corresponding type property.
- *  Default to Array.prototype.concat for compatibility.
+ *  If the first argument is TypedArray (Byte-, Short-, Char-, Int-, Float-, and DoubleArray) returns a TypedArray, otherwise an Array.
+ *  If the first argument has the $type$ property (Boolean-, Char-, and LongArray) copy its value to result.$type$.
+ *  If the first argument is a regular Array without the $type$ property default to arrayConcat.
  */
 @PublishedApi
 @JsName("primitiveArrayConcat")
@@ -181,9 +183,7 @@ internal fun <T> primitiveArrayConcat(a: T, b: T): T {
             size += args[i].asDynamic().length as Int
         }
         val result = js("new a.constructor(size)")
-        if (a.asDynamic().`$type$` is String) {
-            result.`$type$` = a.asDynamic().`$type$`
-        }
+        kotlin.copyArrayType(a, result)
         size = 0
         for (i in 0..args.size - 1) {
             val arr = args[i].asDynamic()

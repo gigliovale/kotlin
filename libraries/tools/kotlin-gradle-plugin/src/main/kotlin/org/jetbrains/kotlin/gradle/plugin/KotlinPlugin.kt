@@ -520,8 +520,22 @@ internal open class KotlinAndroidPlugin(
 }
 
 private fun configureJavaTask(kotlinTask: KotlinCompile, javaTask: AbstractCompile, logger: Logger) {
+    // Gradle Java IC in older Gradle versions (before 2.14) cannot check .class directories updates.
+    // To make it work, reset the up-to-date status of compileJava with this flag.
+    kotlinTask.anyClassesCompiled = false
+    javaTask.outputs.upToDateWhen { task ->
+        val gradleSupportsJavaIcWithClassesDirs = ParsedGradleVersion.parse(javaTask.project.gradle.gradleVersion)
+                                                          ?.let { it >= ParsedGradleVersion(2, 14) } ?: false
+        val kotlinClassesCompiled = kotlinTask.anyClassesCompiled
+        if (!gradleSupportsJavaIcWithClassesDirs && kotlinClassesCompiled) {
+            logger.info("Marking $task out of date, because kotlin classes are changed")
+            return@upToDateWhen false
+        }
+        true
+    }
+
     // Make Gradle check if the javaTask up-to-date based on the Kotlin classes
-    javaTask.inputs.dir(kotlinTask.destinationDir!!)
+    javaTask.inputs.dir(kotlinTask.destinationDir)
 
     javaTask.dependsOn(kotlinTask.name)
     /*

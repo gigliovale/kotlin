@@ -174,6 +174,7 @@ class DeserializedClassConstructorDescriptor(
 }
 
 class DeserializedTypeAliasDescriptor(
+        override val storageManager: StorageManager,
         containingDeclaration: DeclarationDescriptor,
         annotations: Annotations,
         name: Name,
@@ -182,8 +183,7 @@ class DeserializedTypeAliasDescriptor(
         override val nameResolver: NameResolver,
         override val typeTable: TypeTable,
         override val sinceKotlinInfoTable: SinceKotlinInfoTable,
-        override val containerSource: DeserializedContainerSource?,
-        private val storageManager: StorageManager
+        override val containerSource: DeserializedContainerSource?
 ) : AbstractTypeAliasDescriptor(containingDeclaration, annotations, name, SourceElement.NO_SOURCE, visibility),
         DeserializedMemberDescriptor {
     override lateinit var constructors: Collection<TypeAliasConstructorDescriptor> private set
@@ -203,7 +203,7 @@ class DeserializedTypeAliasDescriptor(
         this.expandedType = expandedType
         typeConstructorParameters = computeConstructorTypeParameters()
         defaultTypeImpl = computeDefaultType()
-        constructors = getTypeAliasConstructors(storageManager)
+        constructors = getTypeAliasConstructors()
     }
 
     override val classDescriptor: ClassDescriptor?
@@ -215,6 +215,7 @@ class DeserializedTypeAliasDescriptor(
     override fun substitute(substitutor: TypeSubstitutor): TypeAliasDescriptor {
         if (substitutor.isEmpty) return this
         val substituted = DeserializedTypeAliasDescriptor(
+                storageManager,
                 containingDeclaration,
                 annotations,
                 name,
@@ -223,8 +224,7 @@ class DeserializedTypeAliasDescriptor(
                 nameResolver,
                 typeTable,
                 sinceKotlinInfoTable,
-                containerSource,
-                storageManager
+                containerSource
         )
         substituted.initialize(declaredTypeParameters,
                                substitutor.safeSubstitute(underlyingType, Variance.INVARIANT).asSimpleType(),

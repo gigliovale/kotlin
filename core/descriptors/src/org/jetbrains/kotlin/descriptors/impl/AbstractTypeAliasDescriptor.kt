@@ -37,6 +37,8 @@ abstract class AbstractTypeAliasDescriptor(
 ) : DeclarationDescriptorNonRootImpl(containingDeclaration, annotations, name, sourceElement),
         TypeAliasDescriptor {
 
+    protected abstract val storageManager: StorageManager
+
     // TODO kotlinize some interfaces
     private lateinit var declaredTypeParametersImpl: List<TypeParameterDescriptor>
 
@@ -60,7 +62,7 @@ abstract class AbstractTypeAliasDescriptor(
             }
 
 
-    fun getTypeAliasConstructors(storageManager: StorageManager): Collection<TypeAliasConstructorDescriptor> {
+    fun getTypeAliasConstructors(): Collection<TypeAliasConstructorDescriptor> {
         val classDescriptor = this.classDescriptor ?: return emptyList()
 
         return classDescriptor.constructors.mapNotNull {

@@ -35,7 +35,7 @@ import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.asSimpleType
 
 class LazyTypeAliasDescriptor(
-        private val storageManager: StorageManager,
+        override val storageManager: StorageManager,
         private val trace: BindingTrace,
         containingDeclaration: DeclarationDescriptor,
         annotations: Annotations,
@@ -45,7 +45,7 @@ class LazyTypeAliasDescriptor(
 ) : AbstractTypeAliasDescriptor(containingDeclaration, annotations, name, sourceElement, visibility),
         TypeAliasDescriptor {
     override val constructors: Collection<TypeAliasConstructorDescriptor> by storageManager.createLazyValue {
-        getTypeAliasConstructors(storageManager)
+        getTypeAliasConstructors()
     }
 
     private lateinit var underlyingTypeImpl: NotNullLazyValue<SimpleType>

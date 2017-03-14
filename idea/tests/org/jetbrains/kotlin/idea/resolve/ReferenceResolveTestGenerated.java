@@ -450,6 +450,12 @@ public class ReferenceResolveTestGenerated extends AbstractReferenceResolveTest 
         doTest(fileName);
     }
 
+    @TestMetadata("typealiasConstructor.kt")
+    public void testTypealiasConstructor() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/resolve/references/typealiasConstructor.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("ValueParameter.kt")
     public void testValueParameter() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/resolve/references/ValueParameter.kt");

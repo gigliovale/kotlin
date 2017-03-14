@@ -492,6 +492,10 @@ public class ErrorUtils {
 
     public static boolean isError(@Nullable DeclarationDescriptor candidate) {
         if (candidate == null) return false;
+        if (candidate instanceof TypeAliasDescriptor) {
+            TypeAliasDescriptor typeAliasDescriptor = ((TypeAliasDescriptor) candidate);
+            return typeAliasDescriptor.getClassDescriptor() == null || isErrorClass(typeAliasDescriptor.getClassDescriptor());
+        }
         return isErrorClass(candidate) || isErrorClass(candidate.getContainingDeclaration()) || candidate == ERROR_MODULE;
     }
 

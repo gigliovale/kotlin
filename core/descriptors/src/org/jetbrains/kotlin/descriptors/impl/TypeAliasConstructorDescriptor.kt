@@ -34,7 +34,7 @@ interface TypeAliasConstructorDescriptor : ConstructorDescriptor {
 
     override fun substitute(substitutor: TypeSubstitutor): TypeAliasConstructorDescriptor
 
-    fun withDispatchReceiver(): TypeAliasConstructorDescriptor?
+    val withDispatchReceiver: TypeAliasConstructorDescriptor?
 
     override fun copy(
             newOwner: DeclarationDescriptor,
@@ -59,15 +59,15 @@ class TypeAliasConstructorDescriptorImpl private constructor(
     // When resolution is ran for common calls, type aliases constructors are resolved as extensions
     // (i.e. after members, and with extension receiver)
     // But when resolving super-calls (with known set of candidates) constructors of inner classes are expected to have
-    // an dispatch receiver
-    override fun withDispatchReceiver(): TypeAliasConstructorDescriptor? {
+    // a dispatch receiver
+    override val withDispatchReceiver: TypeAliasConstructorDescriptor? by lazy {
         val typeAliasConstructor = TypeAliasConstructorDescriptorImpl(typeAliasDescriptor,
                                                                       underlyingConstructorDescriptor,
                                                                       this,
                                                                       underlyingConstructorDescriptor.annotations,
                                                                       underlyingConstructorDescriptor.kind,
                                                                       typeAliasDescriptor.source)
-        val substitutorForUnderlyingClass = typeAliasDescriptor.getTypeSubstitutorForUnderlyingClass() ?: return null
+        val substitutorForUnderlyingClass = typeAliasDescriptor.getTypeSubstitutorForUnderlyingClass() ?: return@lazy null
 
         typeAliasConstructor.initialize(null,
                                         underlyingConstructorDescriptor.dispatchReceiverParameter?.substitute(substitutorForUnderlyingClass),
@@ -77,7 +77,7 @@ class TypeAliasConstructorDescriptorImpl private constructor(
                                         Modality.FINAL,
                                         typeAliasDescriptor.visibility)
 
-        return typeAliasConstructor
+        return@lazy typeAliasConstructor
     }
 
     override fun isPrimary(): Boolean =

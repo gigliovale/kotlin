@@ -54,6 +54,7 @@ public final class JvmAbi {
     private static final String ANNOTATED_TYPEALIAS_METHOD_NAME_SUFFIX = ANNOTATIONS_SUFFIX;
 
     public static final String INSTANCE_FIELD = "INSTANCE";
+    public static final String HIDDEN_INSTANCE_FIELD = "$$" + INSTANCE_FIELD;
 
     public static final String DEFAULT_MODULE_NAME = "main";
     public static final ClassId REFLECTION_FACTORY_IMPL = ClassId.topLevel(new FqName("kotlin.reflect.jvm.internal.ReflectionFactoryImpl"));
@@ -111,5 +112,9 @@ public final class JvmAbi {
         return isCompanionObject(companionObject) &&
                isClassOrEnumClass(companionObject.getContainingDeclaration()) &&
                !CompanionObjectMapping.INSTANCE.isMappedIntrinsicCompanionObject((ClassDescriptor) companionObject);
+    }
+
+    public static boolean isCompanionObjectWithOwnBackingFields(@NotNull DeclarationDescriptor companionObject) {
+        return isCompanionObject(companionObject) && !isCompanionObjectWithBackingFieldsInOuter(companionObject);
     }
 }

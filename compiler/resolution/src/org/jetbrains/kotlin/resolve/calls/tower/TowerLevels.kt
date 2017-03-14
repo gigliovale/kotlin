@@ -17,8 +17,6 @@
 package org.jetbrains.kotlin.resolve.calls.tower
 
 import org.jetbrains.kotlin.descriptors.*
-import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptor
-import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptorImpl
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.calls.smartcasts.getReceiverValueWithSmartCast
@@ -281,13 +279,13 @@ private fun ResolutionScope.getContributedFunctionsAndConstructors(
     return result.toReadOnlyList()
 }
 
-private fun ClassifierDescriptor.getCallableConstructors(): Collection<FunctionDescriptor> {
+private fun ClassifierDescriptor.getCallableConstructors(): Collection<FunctionDescriptor> =
     when (this) {
-        is TypeAliasDescriptor -> if (canHaveCallableConstructors) return constructors
-        is ClassDescriptor -> if (canHaveCallableConstructors) return constructors
+        is TypeAliasDescriptor -> if (canHaveCallableConstructors) constructors else emptyList()
+        is ClassDescriptor -> if (canHaveCallableConstructors) constructors else emptyList()
+        else -> emptyList()
     }
-    return emptyList()
-}
+
 
 private fun ResolutionScope.getContributedObjectVariables(name: Name, location: LookupLocation): Collection<VariableDescriptor> {
     val objectDescriptor = getFakeDescriptorForObject(getContributedClassifier(name, location))

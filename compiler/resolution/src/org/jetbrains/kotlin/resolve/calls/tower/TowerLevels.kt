@@ -281,14 +281,13 @@ private fun ResolutionScope.getContributedFunctionsAndConstructors(
     return result.toReadOnlyList()
 }
 
-private fun ClassifierDescriptor.getCallableConstructors(): Collection<FunctionDescriptor> =
-        when (this) {
-            is TypeAliasDescriptor ->
-                getTypeAliasConstructors()
-            is ClassDescriptor ->
-                if (canHaveCallableConstructors) constructors else emptyList()
-            else -> emptyList()
-        }
+private fun ClassifierDescriptor.getCallableConstructors(): Collection<FunctionDescriptor> {
+    when (this) {
+        is TypeAliasDescriptor -> if (canHaveCallableConstructors) return constructors
+        is ClassDescriptor -> if (canHaveCallableConstructors) return constructors
+    }
+    return emptyList()
+}
 
 private fun ResolutionScope.getContributedObjectVariables(name: Name, location: LookupLocation): Collection<VariableDescriptor> {
     val objectDescriptor = getFakeDescriptorForObject(getContributedClassifier(name, location))
@@ -321,11 +320,5 @@ private fun getClassWithConstructors(classifier: ClassifierDescriptor?): ClassDe
 private val ClassDescriptor.canHaveCallableConstructors: Boolean
     get() = !ErrorUtils.isError(this) && !kind.isSingleton
 
-fun TypeAliasDescriptor.getTypeAliasConstructors(withDispatchReceiver: Boolean = false): Collection<TypeAliasConstructorDescriptor> {
-    val classDescriptor = this.classDescriptor ?: return emptyList()
-    if (!classDescriptor.canHaveCallableConstructors) return emptyList()
-
-    return classDescriptor.constructors.mapNotNull {
-        TypeAliasConstructorDescriptorImpl.createIfAvailable(this, it, withDispatchReceiver)
-    }
-}
+private val TypeAliasDescriptor.canHaveCallableConstructors: Boolean
+    get() = !ErrorUtils.isError(this) && classDescriptor != null && !classDescriptor!!.kind.isSingleton

@@ -58,6 +58,15 @@ abstract class AbstractTypeAliasDescriptor(
                 }
             }
 
+
+    fun getTypeAliasConstructors(): Collection<TypeAliasConstructorDescriptor> {
+        val classDescriptor = this.classDescriptor ?: return emptyList()
+
+        return classDescriptor.constructors.mapNotNull {
+            TypeAliasConstructorDescriptorImpl.createIfAvailable(this, it)
+        }
+    }
+
     override fun getDeclaredTypeParameters(): List<TypeParameterDescriptor> =
             declaredTypeParametersImpl
 

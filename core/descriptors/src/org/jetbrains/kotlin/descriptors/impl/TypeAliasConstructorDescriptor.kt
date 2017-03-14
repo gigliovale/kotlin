@@ -34,6 +34,8 @@ interface TypeAliasConstructorDescriptor : ConstructorDescriptor {
 
     override fun substitute(substitutor: TypeSubstitutor): TypeAliasConstructorDescriptor
 
+    fun withDispatchReceiver(): TypeAliasConstructorDescriptor?
+
     override fun copy(
             newOwner: DeclarationDescriptor,
             modality: Modality,
@@ -53,6 +55,31 @@ class TypeAliasConstructorDescriptorImpl private constructor(
 ) : TypeAliasConstructorDescriptor,
         FunctionDescriptorImpl(typeAliasDescriptor, original, annotations, Name.special("<init>"), kind, source)
 {
+
+    // When resolution is ran for common calls, type aliases constructors are resolved as extensions
+    // (i.e. after members, and with extension receiver)
+    // But when resolving super-calls (with known set of candidates) constructors of inner classes are expected to have
+    // an dispatch receiver
+    override fun withDispatchReceiver(): TypeAliasConstructorDescriptor? {
+        val typeAliasConstructor = TypeAliasConstructorDescriptorImpl(typeAliasDescriptor,
+                                                                      underlyingConstructorDescriptor,
+                                                                      this,
+                                                                      underlyingConstructorDescriptor.annotations,
+                                                                      underlyingConstructorDescriptor.kind,
+                                                                      typeAliasDescriptor.source)
+        val substitutorForUnderlyingClass = typeAliasDescriptor.getTypeSubstitutorForUnderlyingClass() ?: return null
+
+        typeAliasConstructor.initialize(null,
+                                        underlyingConstructorDescriptor.dispatchReceiverParameter?.substitute(substitutorForUnderlyingClass),
+                                        typeAliasDescriptor.declaredTypeParameters,
+                                        valueParameters,
+                                        returnType,
+                                        Modality.FINAL,
+                                        typeAliasDescriptor.visibility)
+
+        return typeAliasConstructor
+    }
+
     override fun isPrimary(): Boolean =
             underlyingConstructorDescriptor.isPrimary
 
@@ -113,12 +140,7 @@ class TypeAliasConstructorDescriptorImpl private constructor(
 
         fun createIfAvailable(
                 typeAliasDescriptor: TypeAliasDescriptor,
-                constructor: ClassConstructorDescriptor,
-                // When resolution is ran for common calls, type aliases constructors are resolved as extensions
-                // (i.e. after members, and with extension receiver)
-                // But when resolving super-calls (with known set of candidates) constructors of inner classes are expected to have
-                // an dispatch receiver
-                withDispatchReceiver: Boolean
+                constructor: ClassConstructorDescriptor
         ): TypeAliasConstructorDescriptor? {
             val substitutorForUnderlyingClass = typeAliasDescriptor.getTypeSubstitutorForUnderlyingClass() ?: return null
 
@@ -142,17 +164,11 @@ class TypeAliasConstructorDescriptorImpl private constructor(
                     returnTypeNoAbbreviation
             }
 
-            val receiverParameterType =
-                    if (withDispatchReceiver) null
-                    else constructor.dispatchReceiverParameter?.let { substitutorForUnderlyingClass.safeSubstitute(it.type, Variance.INVARIANT) }
-
-            val dispatchReceiver =
-                    if (withDispatchReceiver) constructor.dispatchReceiverParameter?.substitute(substitutorForUnderlyingClass)
-                    else null
+            val receiverParameterType = constructor.dispatchReceiverParameter?.let { substitutorForUnderlyingClass.safeSubstitute(it.type, Variance.INVARIANT) }
 
             typeAliasConstructor.initialize(
                     receiverParameterType,
-                    dispatchReceiver,
+                    null,
                     typeAliasDescriptor.declaredTypeParameters,
                     valueParameters,
                     returnType,

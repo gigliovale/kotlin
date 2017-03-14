@@ -22,6 +22,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
 import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.storage.StorageManager
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.SimpleType
 import org.jetbrains.kotlin.types.TypeConstructor
@@ -59,11 +60,11 @@ abstract class AbstractTypeAliasDescriptor(
             }
 
 
-    fun getTypeAliasConstructors(): Collection<TypeAliasConstructorDescriptor> {
+    fun getTypeAliasConstructors(storageManager: StorageManager): Collection<TypeAliasConstructorDescriptor> {
         val classDescriptor = this.classDescriptor ?: return emptyList()
 
         return classDescriptor.constructors.mapNotNull {
-            TypeAliasConstructorDescriptorImpl.createIfAvailable(this, it)
+            TypeAliasConstructorDescriptorImpl.createIfAvailable(storageManager, this, it)
         }
     }
 

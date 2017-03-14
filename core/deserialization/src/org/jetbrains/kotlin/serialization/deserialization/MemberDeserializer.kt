@@ -184,7 +184,8 @@ class MemberDeserializer(private val c: DeserializationContext) {
         val visibility = Deserialization.visibility(Flags.VISIBILITY.get(proto.flags))
         val typeAlias = DeserializedTypeAliasDescriptor(
                 c.containingDeclaration, annotations, c.nameResolver.getName(proto.name),
-                visibility, proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable, c.containerSource
+                visibility, proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable, c.containerSource,
+                c.storageManager
         )
 
         val local = c.childContext(typeAlias, proto.typeParameterList)

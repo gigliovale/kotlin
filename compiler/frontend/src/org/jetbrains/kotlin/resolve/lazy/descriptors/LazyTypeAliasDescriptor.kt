@@ -45,7 +45,7 @@ class LazyTypeAliasDescriptor(
 ) : AbstractTypeAliasDescriptor(containingDeclaration, annotations, name, sourceElement, visibility),
         TypeAliasDescriptor {
     override val constructors: Collection<TypeAliasConstructorDescriptor> by storageManager.createLazyValue {
-        getTypeAliasConstructors()
+        getTypeAliasConstructors(storageManager)
     }
 
     private lateinit var underlyingTypeImpl: NotNullLazyValue<SimpleType>

@@ -306,10 +306,12 @@ object CommonArrays {
 
             if (primitive != null) {
                 only(primitive)
-                body(Platform.JS) { "return withType(\"${primitive}Array\", this.asDynamic().slice(fromIndex, toIndex))" }
             }
-            else {
-                body(Platform.JS) { "return this.asDynamic().slice(fromIndex, toIndex)" }
+            when (primitive) {
+                PrimitiveType.Char, PrimitiveType.Boolean, PrimitiveType.Long ->
+                    body(Platform.JS) { "return withType(\"${primitive}Array\", this.asDynamic().slice(fromIndex, toIndex))" }
+                else ->
+                    body(Platform.JS) { "return this.asDynamic().slice(fromIndex, toIndex)" }
             }
         }
     }
@@ -339,48 +341,52 @@ object CommonArrays {
 
             if (primitive != null) {
                 only(primitive)
-                body(Platform.JS) { "return withType(\"${primitive}Array\", this.asDynamic().slice())" }
             }
-            else {
-                body(Platform.JS) { "return this.asDynamic().slice()" }
+            when (primitive) {
+                PrimitiveType.Char, PrimitiveType.Boolean, PrimitiveType.Long ->
+                    body(Platform.JS) { "return withType(\"${primitive}Array\", this.asDynamic().slice())" }
+                else ->
+                    body(Platform.JS) { "return this.asDynamic().slice()" }
             }
         }
     }
 
     fun f_copyOfResized() =
-        (PrimitiveType.defaultPrimitives.map { ArraysOfPrimitives to it } + (InvariantArraysOfObjects to null)).map {
-            val (family, primitive) = it
-            f("copyOf(newSize: Int)") {
-                only(family)
-                if (family == InvariantArraysOfObjects) {
-                    only(Platform.JS, ArraysOfObjects)
-                }
+            (PrimitiveType.defaultPrimitives.map { ArraysOfPrimitives to it } + (InvariantArraysOfObjects to null)).map {
+                val (family, primitive) = it
+                f("copyOf(newSize: Int)") {
+                    only(family)
+                    if (family == InvariantArraysOfObjects) {
+                        only(Platform.JS, ArraysOfObjects)
+                    }
 
-                inline(Platform.JVM, Inline.Only)
-                doc { "Returns new array which is a copy of the original array, resized to the given [newSize]." }
+                    inline(Platform.JVM, Inline.Only)
+                    doc { "Returns new array which is a copy of the original array, resized to the given [newSize]." }
 
-                if (primitive != null) {
-                    only(primitive)
-                    returns("SELF")
-                    when (primitive) {
-                        PrimitiveType.Boolean ->
-                            body(Platform.JS) { "return withType(\"${primitive}Array\", arrayCopyResize(this, newSize, false))" }
-                        PrimitiveType.Long ->
-                            body(Platform.JS) { "return withType(\"${primitive}Array\", arrayCopyResize(this, newSize, ZERO))" }
-                        else ->
-                            body(Platform.JS) { "return withType(\"${primitive}Array\", fillFrom(this, ${primitive}Array(newSize)))" }
+                    if (primitive != null) {
+                        only(primitive)
+                        returns("SELF")
+                        when (primitive) {
+                            PrimitiveType.Boolean ->
+                                body(Platform.JS) { "return withType(\"BooleanArray\", arrayCopyResize(this, newSize, false))" }
+                            PrimitiveType.Char ->
+                                body(Platform.JS) { "return withType(\"CharArray\", fillFrom(this, ${primitive}Array(newSize)))" }
+                            PrimitiveType.Long ->
+                                body(Platform.JS) { "return withType(\"LongArray\", arrayCopyResize(this, newSize, ZERO))" }
+                            else ->
+                                body(Platform.JS) { "return fillFrom(this, ${primitive}Array(newSize))" }
+                        }
+                    }
+                    else {
+                        returns { "Array<T?>" }
+                        body(Platform.JS) { "return arrayCopyResize(this, newSize, null)" }
+                    }
+
+                    body(Platform.JVM) {
+                        "return java.util.Arrays.copyOf(this, newSize)"
                     }
                 }
-                else {
-                    returns { "Array<T?>" }
-                    body(Platform.JS) { "return arrayCopyResize(this, newSize, null)" }
-                }
-
-                body(Platform.JVM) {
-                    "return java.util.Arrays.copyOf(this, newSize)"
-                }
             }
-        }
 
     fun f_sortPrimitives() =
         (PrimitiveType.numericPrimitives + PrimitiveType.Char).map { primitive ->

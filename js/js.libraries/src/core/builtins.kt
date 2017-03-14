@@ -15,10 +15,24 @@
  */
 
 @JsName("arrayIterator")
-internal fun <T> arrayIterator(array: Array<T>) = object : Iterator<T> {
-    var index = 0
-    override fun hasNext() = index < array.size
-    override fun next() = if (index < array.size) array[index++] else throw IndexOutOfBoundsException("$index")
+internal fun arrayIterator(array: dynamic, type: String? = null) = when (type) {
+    null -> {
+        val arr: Array<dynamic> = array
+        object : Iterator<dynamic> {
+            var index = 0
+            override fun hasNext() = index < arr.size
+            override fun next() = if (index < arr.size) arr[index++] else throw IndexOutOfBoundsException("$index")
+        }
+    }
+    "BooleanArray" -> booleanArrayIterator(array)
+    "ByteArray" -> byteArrayIterator(array)
+    "ShortArray" -> shortArrayIterator(array)
+    "CharArray" -> charArrayIterator(array)
+    "IntArray" -> intArrayIterator(array)
+    "LongArray" -> longArrayIterator(array)
+    "FloatArray" -> floatArrayIterator(array)
+    "DoubleArray" -> doubleArrayIterator(array)
+    else -> throw IllegalStateException("Unsupported type argument for arrayIterator: $type")
 }
 
 @JsName("booleanArrayIterator")
@@ -174,7 +188,7 @@ internal fun <T> arrayConcat(a: T, b: T): T {
 @JsName("primitiveArrayConcat")
 internal fun <T> primitiveArrayConcat(a: T, b: T): T {
     val args: Array<T> = js("arguments")
-    if (a is Array<*>) {
+    if (a is Array<*> && a.asDynamic().`$type$` === undefined) {
         return concat(args)
     }
     else {

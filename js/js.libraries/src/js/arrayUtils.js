@@ -19,11 +19,11 @@ Kotlin.isBooleanArray = function (a) {
 };
 
 Kotlin.isByteArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "ByteArray" || a instanceof Int8Array && !a.$type$
+    return Array.isArray(a) && a.$type$ === "ByteArray" || a instanceof Int8Array && (!a.$type$ || a.$type$ === "ByteArray")
 };
 
 Kotlin.isShortArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "ShortArray" || a instanceof Int16Array
+    return Array.isArray(a) && a.$type$ === "ShortArray" || a instanceof Int16Array && (!a.$type$ || a.$type$ === "ShortArray")
 };
 
 Kotlin.isCharArray = function (a) {

@@ -12970,7 +12970,7 @@ public inline fun <T> Array<out T>.copyOf(): Array<T> {
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun ByteArray.copyOf(): ByteArray {
-    return withType("ByteArray", this.asDynamic().slice())
+    return this.asDynamic().slice()
 }
 
 /**
@@ -12978,7 +12978,7 @@ public inline fun ByteArray.copyOf(): ByteArray {
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun ShortArray.copyOf(): ShortArray {
-    return withType("ShortArray", this.asDynamic().slice())
+    return this.asDynamic().slice()
 }
 
 /**
@@ -12986,7 +12986,7 @@ public inline fun ShortArray.copyOf(): ShortArray {
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun IntArray.copyOf(): IntArray {
-    return withType("IntArray", this.asDynamic().slice())
+    return this.asDynamic().slice()
 }
 
 /**
@@ -13002,7 +13002,7 @@ public inline fun LongArray.copyOf(): LongArray {
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun FloatArray.copyOf(): FloatArray {
-    return withType("FloatArray", this.asDynamic().slice())
+    return this.asDynamic().slice()
 }
 
 /**
@@ -13010,7 +13010,7 @@ public inline fun FloatArray.copyOf(): FloatArray {
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun DoubleArray.copyOf(): DoubleArray {
-    return withType("DoubleArray", this.asDynamic().slice())
+    return this.asDynamic().slice()
 }
 
 /**
@@ -13033,21 +13033,21 @@ public inline fun CharArray.copyOf(): CharArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun ByteArray.copyOf(newSize: Int): ByteArray {
-    return withType("ByteArray", fillFrom(this, ByteArray(newSize)))
+    return fillFrom(this, ByteArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun ShortArray.copyOf(newSize: Int): ShortArray {
-    return withType("ShortArray", fillFrom(this, ShortArray(newSize)))
+    return fillFrom(this, ShortArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun IntArray.copyOf(newSize: Int): IntArray {
-    return withType("IntArray", fillFrom(this, IntArray(newSize)))
+    return fillFrom(this, IntArray(newSize))
 }
 
 /**
@@ -13061,14 +13061,14 @@ public fun LongArray.copyOf(newSize: Int): LongArray {
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun FloatArray.copyOf(newSize: Int): FloatArray {
-    return withType("FloatArray", fillFrom(this, FloatArray(newSize)))
+    return fillFrom(this, FloatArray(newSize))
 }
 
 /**
  * Returns new array which is a copy of the original array, resized to the given [newSize].
  */
 public fun DoubleArray.copyOf(newSize: Int): DoubleArray {
-    return withType("DoubleArray", fillFrom(this, DoubleArray(newSize)))
+    return fillFrom(this, DoubleArray(newSize))
 }
 
 /**
@@ -13105,7 +13105,7 @@ public inline fun <T> Array<out T>.copyOfRange(fromIndex: Int, toIndex: Int): Ar
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun ByteArray.copyOfRange(fromIndex: Int, toIndex: Int): ByteArray {
-    return withType("ByteArray", this.asDynamic().slice(fromIndex, toIndex))
+    return this.asDynamic().slice(fromIndex, toIndex)
 }
 
 /**
@@ -13113,7 +13113,7 @@ public inline fun ByteArray.copyOfRange(fromIndex: Int, toIndex: Int): ByteArray
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun ShortArray.copyOfRange(fromIndex: Int, toIndex: Int): ShortArray {
-    return withType("ShortArray", this.asDynamic().slice(fromIndex, toIndex))
+    return this.asDynamic().slice(fromIndex, toIndex)
 }
 
 /**
@@ -13121,7 +13121,7 @@ public inline fun ShortArray.copyOfRange(fromIndex: Int, toIndex: Int): ShortArr
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun IntArray.copyOfRange(fromIndex: Int, toIndex: Int): IntArray {
-    return withType("IntArray", this.asDynamic().slice(fromIndex, toIndex))
+    return this.asDynamic().slice(fromIndex, toIndex)
 }
 
 /**
@@ -13137,7 +13137,7 @@ public inline fun LongArray.copyOfRange(fromIndex: Int, toIndex: Int): LongArray
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun FloatArray.copyOfRange(fromIndex: Int, toIndex: Int): FloatArray {
-    return withType("FloatArray", this.asDynamic().slice(fromIndex, toIndex))
+    return this.asDynamic().slice(fromIndex, toIndex)
 }
 
 /**
@@ -13145,7 +13145,7 @@ public inline fun FloatArray.copyOfRange(fromIndex: Int, toIndex: Int): FloatArr
  */
 @Suppress("NOTHING_TO_INLINE")
 public inline fun DoubleArray.copyOfRange(fromIndex: Int, toIndex: Int): DoubleArray {
-    return withType("DoubleArray", this.asDynamic().slice(fromIndex, toIndex))
+    return this.asDynamic().slice(fromIndex, toIndex)
 }
 
 /**

@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.js.backend.ast.JsConditional;
 import org.jetbrains.kotlin.js.backend.ast.JsExpression;
 import org.jetbrains.kotlin.js.backend.ast.JsInvocation;
 import org.jetbrains.kotlin.js.backend.ast.JsLiteral;
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys;
 import org.jetbrains.kotlin.js.patterns.NamePredicate;
 import org.jetbrains.kotlin.js.patterns.typePredicates.TypePredicatesKt;
 import org.jetbrains.kotlin.js.translate.context.Namer;
@@ -34,6 +35,7 @@ import org.jetbrains.kotlin.js.translate.context.TemporaryVariable;
 import org.jetbrains.kotlin.js.translate.context.TranslationContext;
 import org.jetbrains.kotlin.js.translate.general.AbstractTranslator;
 import org.jetbrains.kotlin.js.translate.general.Translation;
+import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.ArrayFIF;
 import org.jetbrains.kotlin.js.translate.intrinsic.functions.factories.TopLevelFIF;
 import org.jetbrains.kotlin.js.translate.reference.ReferenceTranslator;
 import org.jetbrains.kotlin.js.translate.utils.AnnotationsUtils;
@@ -210,7 +212,15 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("function"));
         }
 
-        if (isArray(type)) return namer().isArray();
+        if (isArray(type)) {
+            if (ArrayFIF.INSTANCE.typedArraysEnabled(context())) {
+                return namer().isArray();
+            }
+            else {
+                return Namer.IS_ARRAY_FUN_REF;
+            }
+
+        }
 
         if (TypePredicatesKt.getCHAR_SEQUENCE().apply(type)) return namer().isCharSequence();
 
@@ -247,10 +257,12 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("number"));
         }
 
-        if (KotlinBuiltIns.isPrimitiveArray(type)) {
-            PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
-            assert arrayType != null;
-            return namer().isPrimitiveArray(arrayType);
+        if (context().getConfig().getConfiguration().getBoolean(JSConfigurationKeys.TYPED_ARRAYS_ENABLED)) {
+            if (KotlinBuiltIns.isPrimitiveArray(type)) {
+                PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
+                assert arrayType != null;
+                return namer().isPrimitiveArray(arrayType);
+            }
         }
 
         return null;

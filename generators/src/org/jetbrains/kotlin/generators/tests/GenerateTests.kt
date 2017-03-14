@@ -24,9 +24,9 @@ import org.jetbrains.kotlin.allopen.AbstractBytecodeListingTestForAllOpen
 import org.jetbrains.kotlin.android.*
 import org.jetbrains.kotlin.android.configure.AbstractConfigureProjectTest
 import org.jetbrains.kotlin.android.folding.AbstractAndroidResourceFoldingTest
-import org.jetbrains.kotlin.android.quickfix.AbstractAndroidLintQuickfixTest
 import org.jetbrains.kotlin.android.intention.AbstractAndroidResourceIntentionTest
 import org.jetbrains.kotlin.android.lint.AbstractKotlinLintTest
+import org.jetbrains.kotlin.android.quickfix.AbstractAndroidLintQuickfixTest
 import org.jetbrains.kotlin.android.quickfix.AbstractAndroidQuickFixMultiFileTest
 import org.jetbrains.kotlin.annotation.AbstractAnnotationProcessorBoxTest
 import org.jetbrains.kotlin.annotation.processing.test.sourceRetention.AbstractBytecodeListingTestForSourceRetention
@@ -1267,6 +1267,10 @@ fun main(args: Array<String>) {
 
         testClass<AbstractEnumValuesInlineTests> {
             model("codegen/boxInline/enum/", targetBackend = TargetBackend.JS)
+        }
+
+        testClass<AbstractJsTypedArraysBoxTest> {
+            model("codegen/box/arrays", targetBackend = TargetBackend.JS)
         }
     }
 }

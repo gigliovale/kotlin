@@ -232,12 +232,23 @@ class KotlinPositionManager(private val myDebugProcess: DebugProcess) : MultiReq
                 result.addAll(myDebugProcess.virtualMachineProxy.classesByName(name))
             }
 
-            val allClasses = myDebugProcess.getAllClasses(sourcePosition)
-            if (result != allClasses.toSet()) {
-                println("OLD: ${result.joinToString()}")
-                println("NEW: ${allClasses.toSet().joinToString()}")
+            val allClasses = runReadAction { myDebugProcess.getAllClassesAtLine(sourcePosition) }
+            // TEMP START
+            if (result.isNotEmpty()) {
+                val r1 = result.toSet().toList().sorted()
+                val r2 = allClasses.toSet().toList().sorted()
+                for ((i, r11) in r1.withIndex()) {
+                    if (i >= r2.size) {
+                        println("MIS: $r11")
+                    }
+                    else if (r11 != r2[i]) {
+                        println("OLD: $r11")
+                        println("NEW: ${r2[i]}")
+                    }
+                }
             }
-            return result
+            // TEMP END
+            return allClasses
         }
 
         if (psiFile is ClsFileImpl) {

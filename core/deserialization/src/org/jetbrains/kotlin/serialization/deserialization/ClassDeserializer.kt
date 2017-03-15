@@ -67,7 +67,7 @@ class ClassDeserializer(private val components: DeserializationComponents) {
                     fragment, nameResolver,
                     TypeTable(classProto.typeTable),
                     SinceKotlinInfoTable.create(classProto.sinceKotlinInfoTable),
-                    containerSource = null
+                    sourceElement
             )
         }
 

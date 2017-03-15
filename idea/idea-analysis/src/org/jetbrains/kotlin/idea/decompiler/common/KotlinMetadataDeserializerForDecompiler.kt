@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.resolve.TargetPlatform
 import org.jetbrains.kotlin.serialization.ProtoBuf
 import org.jetbrains.kotlin.serialization.SerializerExtensionProtocol
 import org.jetbrains.kotlin.serialization.deserialization.*
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedPackageMemberScope
 
 class KotlinMetadataDeserializerForDecompiler(
@@ -47,7 +48,8 @@ class KotlinMetadataDeserializerForDecompiler(
         val notFoundClasses = NotFoundClasses(storageManager, moduleDescriptor)
 
         deserializationComponents = DeserializationComponents(
-                storageManager, moduleDescriptor, DeserializationConfiguration.Default, ProtoBasedClassDataFinder(proto, nameResolver),
+                storageManager, moduleDescriptor, DeserializationConfiguration.Default,
+                ProtoBasedClassDataFinder(proto, nameResolver) { DeserializedContainerSource.NoSource },
                 AnnotationAndConstantLoaderImpl(moduleDescriptor, notFoundClasses, serializerProtocol), packageFragmentProvider,
                 ResolveEverythingToKotlinAnyLocalClassifierResolver(builtIns), LoggingErrorReporter(LOG),
                 LookupTracker.DO_NOTHING, flexibleTypeDeserializer, emptyList(), notFoundClasses
@@ -60,7 +62,7 @@ class KotlinMetadataDeserializerForDecompiler(
         }
 
         val membersScope = DeserializedPackageMemberScope(
-                createDummyPackageFragment(facadeFqName), proto.`package`, nameResolver, containerSource = null,
+                createDummyPackageFragment(facadeFqName), proto.`package`, nameResolver, DeserializedContainerSource.NoSource,
                 components = deserializationComponents
         ) { emptyList() }
 

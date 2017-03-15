@@ -33,7 +33,7 @@ import org.jetbrains.kotlin.utils.toReadOnlyList
 
 class MemberDeserializer(private val c: DeserializationContext) {
     private val annotationDeserializer = AnnotationDeserializer(c.components.moduleDescriptor, c.components.notFoundClasses)
-    fun loadProperty(proto: ProtoBuf.Property): PropertyDescriptor {
+    fun loadProperty(proto: ProtoBuf.Property, index: Int): PropertyDescriptor {
         val flags = if (proto.hasFlags()) proto.flags else loadOldFlags(proto.oldFlags)
 
         val property = DeserializedPropertyDescriptor(
@@ -52,7 +52,7 @@ class MemberDeserializer(private val c: DeserializationContext) {
                 c.nameResolver,
                 c.typeTable,
                 c.sinceKotlinInfoTable,
-                c.containerSource
+                createSource(index)
         )
 
         val local = c.childContext(property, proto.typeParameterList)
@@ -148,7 +148,7 @@ class MemberDeserializer(private val c: DeserializationContext) {
         return lowSixBits + rest
     }
 
-    fun loadFunction(proto: ProtoBuf.Function): SimpleFunctionDescriptor {
+    fun loadFunction(proto: ProtoBuf.Function, index: Int): SimpleFunctionDescriptor {
         val flags = if (proto.hasFlags()) proto.flags else loadOldFlags(proto.oldFlags)
         val annotations = getAnnotations(proto, flags, AnnotatedCallableKind.FUNCTION)
         val receiverAnnotations = if (proto.hasReceiver())
@@ -157,7 +157,7 @@ class MemberDeserializer(private val c: DeserializationContext) {
         val function = DeserializedSimpleFunctionDescriptor(
                 c.containingDeclaration, /* original = */ null, annotations, c.nameResolver.getName(proto.name),
                 Deserialization.memberKind(Flags.MEMBER_KIND.get(flags)), proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable,
-                c.containerSource
+                createSource(index)
         )
         val local = c.childContext(function, proto.typeParameterList)
         function.initialize(
@@ -184,7 +184,7 @@ class MemberDeserializer(private val c: DeserializationContext) {
         val visibility = Deserialization.visibility(Flags.VISIBILITY.get(proto.flags))
         val typeAlias = DeserializedTypeAliasDescriptor(
                 c.containingDeclaration, annotations, c.nameResolver.getName(proto.name),
-                visibility, proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable, c.containerSource
+                visibility, proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable, createSource(0)
         )
 
         val local = c.childContext(typeAlias, proto.typeParameterList)
@@ -201,12 +201,12 @@ class MemberDeserializer(private val c: DeserializationContext) {
         return (c.containingDeclaration as? ClassDescriptor)?.thisAsReceiverParameter
     }
 
-    fun loadConstructor(proto: ProtoBuf.Constructor, isPrimary: Boolean): ClassConstructorDescriptor {
+    fun loadConstructor(proto: ProtoBuf.Constructor, isPrimary: Boolean, index: Int): ClassConstructorDescriptor {
         val classDescriptor = c.containingDeclaration as ClassDescriptor
         val descriptor = DeserializedClassConstructorDescriptor(
                 classDescriptor, null, getAnnotations(proto, proto.flags, AnnotatedCallableKind.FUNCTION),
                 isPrimary, CallableMemberDescriptor.Kind.DECLARATION, proto, c.nameResolver, c.typeTable, c.sinceKotlinInfoTable,
-                c.containerSource
+                createSource(index)
         )
         val local = c.childContext(descriptor, listOf())
         descriptor.initialize(
@@ -275,4 +275,10 @@ class MemberDeserializer(private val c: DeserializationContext) {
         is DeserializedClassDescriptor -> thisAsProtoContainer
         else -> null // TODO: support annotations on lambdas and their parameters
     }
+
+    private fun createSource(index: Int) = DeserializedMemberSourceImpl(index, c.containerSource)
+}
+
+private class DeserializedMemberSourceImpl(val index: Int, override val containerSource: DeserializedContainerSource): DeserializedMemberSource {
+    override fun getContainingFile() = containerSource.containingFile
 }

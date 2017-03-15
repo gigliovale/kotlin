@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.serialization
 
 import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.serialization.deserialization.NameResolver
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 data class ClassData(
         val nameResolver: NameResolver,
@@ -26,7 +27,7 @@ data class ClassData(
 
 data class ClassDataWithSource(
         val classData: ClassData,
-        val sourceElement: SourceElement
+        val sourceElement: DeserializedContainerSource
 )
 
 data class PackageData(

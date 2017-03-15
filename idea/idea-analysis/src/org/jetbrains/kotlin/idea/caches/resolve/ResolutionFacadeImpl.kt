@@ -19,19 +19,32 @@ package org.jetbrains.kotlin.idea.caches.resolve
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.analyzer.AnalysisResult
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.container.get
 import org.jetbrains.kotlin.container.getService
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
+import org.jetbrains.kotlin.descriptors.SourceElement
+import org.jetbrains.kotlin.idea.decompiler.KtDecompiledFile
+import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.project.ResolveElementCache
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtPsiUtil
+import org.jetbrains.kotlin.incremental.components.NoLookupLocation
+import org.jetbrains.kotlin.load.java.lazy.LazyJavaPackageFragmentProvider
+import org.jetbrains.kotlin.load.kotlin.JvmPackagePartSource
+import org.jetbrains.kotlin.load.kotlin.KotlinJvmBinarySourceElement
+import org.jetbrains.kotlin.platform.JvmBuiltIns
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.getNonStrictParentOfType
+import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.BindingContext
+import org.jetbrains.kotlin.resolve.jvm.platform.JvmPlatform
 import org.jetbrains.kotlin.resolve.lazy.AbsentDescriptorHandler
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.ResolveSession
+import org.jetbrains.kotlin.resolve.scopes.MemberScope
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedMemberSource
 
 internal class ResolutionFacadeImpl(
         private val projectFacade: ProjectResolutionFacade,
@@ -61,6 +74,9 @@ internal class ResolutionFacadeImpl(
             = projectFacade.getAnalysisResultsForElements(elements)
 
     override fun resolveToDescriptor(declaration: KtDeclaration, bodyResolveMode: BodyResolveMode): DeclarationDescriptor {
+        if (declaration.containingKtFile.isCompiled) {
+            return resolveDecompiledDeclarationToDescriptor(this, declaration)
+        }
         if (KtPsiUtil.isLocal(declaration)) {
             val bindingContext = analyze(declaration, bodyResolveMode)
             return bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, declaration]
@@ -72,7 +88,7 @@ internal class ResolutionFacadeImpl(
         }
     }
 
-    override fun <T : Any> getFrontendService(serviceClass: Class<T>): T  = getFrontendService(moduleInfo, serviceClass)
+    override fun <T : Any> getFrontendService(serviceClass: Class<T>): T = getFrontendService(moduleInfo, serviceClass)
 
     override fun <T : Any> getIdeService(serviceClass: Class<T>): T {
         return projectFacade.resolverForModuleInfo(moduleInfo).componentProvider.create(serviceClass)
@@ -93,4 +109,100 @@ internal class ResolutionFacadeImpl(
 
 fun ResolutionFacade.findModuleDescriptor(ideaModuleInfo: IdeaModuleInfo): ModuleDescriptor? {
     return (this as? ResolutionFacadeImpl)?.findModuleDescriptor(ideaModuleInfo)
+}
+
+
+private fun resolveDecompiledDeclarationToDescriptor(resolutionFacade: ResolutionFacade, declaration: KtDeclaration): DeclarationDescriptor {
+    val decompiledFile = declaration.containingKtFile as KtDecompiledFile
+    val moduleInfo = getModuleInfoByVirtualFile(declaration.project, decompiledFile.virtualFile, false)
+    val moduleDescriptor = resolutionFacade.findModuleDescriptor(moduleInfo) ?: error("")
+    val packageFqName = decompiledFile.packageFqName
+
+    val packageFragment =
+            when (decompiledFile.virtualFile.extension) {
+                "class" -> {
+                    val packageFragmentProvider = resolutionFacade.getFrontendService<LazyJavaPackageFragmentProvider>(moduleDescriptor, LazyJavaPackageFragmentProvider::class.java)
+                    packageFragmentProvider.getPackageFragments(packageFqName).single()
+                }
+                "kotlin_builtins" -> {
+                    moduleDescriptor.builtIns.builtInsModule.packageFragmentProvider.getPackageFragments(packageFqName).single()
+                }
+                else -> TODO()
+            }
+
+    val declarations = declaration.parentsWithSelf.filterIsInstance<KtNamedDeclaration>().toList().asReversed()
+    var scope: MemberScope = packageFragment.getMemberScope()
+    declarations.forEach { declaration ->
+        val declarationName = declaration.nameAsName!!
+        when (declaration) {
+            is KtClass -> {
+                val classifier = scope.getContributedClassifier(declarationName, location = NoLookupLocation.FROM_IDE)!!
+                scope = classifier.defaultType.memberScope
+            }
+            is KtNamedFunction -> {
+                val functions = scope.getContributedFunctions(declaration.nameAsName!!, location = NoLookupLocation.FROM_IDE)
+                return chooseBySourceElement(declaration, functions)
+            }
+            is KtProperty -> {
+                val properties = scope.getContributedVariables(declaration.nameAsName!!, location = NoLookupLocation.FROM_IDE)
+                return chooseBySourceElement(declaration, properties)
+            }
+            else -> TODO()
+        }
+    }
+    TODO()
+}
+
+private fun getDeclarationIndex(declaration: KtNamedDeclaration): Int {
+    val declarationContainer: KtDeclarationContainer = declaration.getNonStrictParentOfType<KtClassBody>() ?: declaration.containingKtFile
+    return filterRelevantDeclarations(
+            declarationContainer, declaration
+    ).indexOf(declaration)
+}
+
+private fun filterRelevantDeclarations(declarationContainer: KtDeclarationContainer, declaration: KtNamedDeclaration): List<KtNamedDeclaration> {
+    return when (declaration) {
+        is KtProperty -> filterByName<KtProperty>(declaration, declarationContainer)
+        is KtFunction -> filterByName<KtFunction>(declaration, declarationContainer)
+        is KtSecondaryConstructor -> TODO()
+        is KtPrimaryConstructor -> TODO()
+        else -> TODO()
+    }
+}
+
+private inline fun <reified T : KtNamedDeclaration> filterByName(
+        declaration: KtNamedDeclaration,
+        declarationContainer: KtDeclarationContainer
+): List<T> {
+    val declarationName = declaration.nameAsName
+    return declarationContainer.declarations.filterIsInstance<T>().filter {
+        it.nameAsName == declarationName
+    }
+}
+
+private fun chooseBySourceElement(
+        declaration: KtNamedDeclaration,
+        descriptors: Collection<DeclarationDescriptor>
+): DeclarationDescriptor {
+    val index = getDeclarationIndex(declaration)
+    val fileName = declaration.containingKtFile.virtualFile.nameWithoutExtension
+    val descriptorsForThisFile = descriptors.filter {
+        val memberSourceElement = (it.original as? DeclarationDescriptorWithSource)?.source as? DeserializedMemberSource
+        val parentSource = memberSourceElement!!.containerSource
+        getFileNameBySource(parentSource)?.equals(fileName) ?: true
+    }
+
+    if (descriptorsForThisFile.isEmpty()) {
+        error("${declaration.text}")
+    }
+
+    return descriptorsForThisFile[index]
+}
+
+private fun getFileNameBySource(sourceElement: SourceElement): String? {
+    return when (sourceElement) {
+        is JvmPackagePartSource -> (sourceElement.facadeClassName ?: sourceElement.className).internalName.substringAfterLast('/')
+        is KotlinJvmBinarySourceElement -> sourceElement.binaryClass.classId.shortClassName.asString()
+        else -> null // TODO:
+    }
 }

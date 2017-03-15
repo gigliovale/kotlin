@@ -43,7 +43,7 @@ object MissingDependencyClassChecker : CallChecker {
             context.trace.report(diagnostic)
         }
 
-        val containerSource = (resultingDescriptor as? DeserializedMemberDescriptor)?.containerSource
+        val containerSource = (resultingDescriptor as? DeserializedMemberDescriptor)?.deserializedSource?.containerSource
         incompatibilityDiagnosticFor(containerSource, reportOn)?.let(context.trace::report)
     }
 
@@ -103,7 +103,7 @@ object MissingDependencyClassChecker : CallChecker {
         ) {
             diagnosticFor(targetDescriptor, element)?.let(trace::report)
 
-            val containerSource = (targetDescriptor as? DeserializedMemberDescriptor)?.containerSource
+            val containerSource = (targetDescriptor as? DeserializedMemberDescriptor)?.deserializedSource?.containerSource
             incompatibilityDiagnosticFor(containerSource, element)?.let(trace::report)
         }
     }

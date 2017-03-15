@@ -31,7 +31,7 @@ open class DeserializedPackageMemberScope(
         packageDescriptor: PackageFragmentDescriptor,
         proto: ProtoBuf.Package,
         nameResolver: NameResolver,
-        containerSource: DeserializedContainerSource?,
+        containerSource: DeserializedContainerSource,
         components: DeserializationComponents,
         classNames: () -> Collection<Name>
 ) : DeserializedMemberScope(

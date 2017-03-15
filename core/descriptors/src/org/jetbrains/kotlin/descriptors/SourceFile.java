@@ -16,6 +16,9 @@
 
 package org.jetbrains.kotlin.descriptors;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface SourceFile {
+    @NotNull
     SourceFile NO_SOURCE_FILE = new SourceFile() {};
 }

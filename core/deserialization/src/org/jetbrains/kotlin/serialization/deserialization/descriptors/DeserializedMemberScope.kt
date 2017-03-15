@@ -32,6 +32,8 @@ import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.compactIfPossible
 import java.util.*
 
+typealias DescriptorFactory<M, D> = (M, Int) -> D
+
 abstract class DeserializedMemberScope protected constructor(
         protected val c: DeserializationContext,
         functionList: Collection<ProtoBuf.Function>,
@@ -85,19 +87,19 @@ abstract class DeserializedMemberScope protected constructor(
             computeDescriptors(
                     name,
                     functionProtos,
-                    { c.memberDeserializer.loadFunction(it) },
+                    { p, i -> c.memberDeserializer.loadFunction(p, i) },
                     { computeNonDeclaredFunctions(name, it)}
             )
 
     inline private fun <M : MessageLite, D : DeclarationDescriptor> computeDescriptors(
             name: Name,
             protosByName: Map<Name, Collection<M>>,
-            factory: (M) -> D,
+            factory: DescriptorFactory<M, D>,
             computeNonDeclared: (MutableCollection<D>) -> Unit
     ): Collection<D> {
         val protos = protosByName[name].orEmpty()
 
-        val descriptors = protos.mapTo(arrayListOf(), factory)
+        val descriptors = protos.mapIndexedTo(arrayListOf()) { index, proto -> factory(proto, index) }
 
         computeNonDeclared(descriptors)
         return descriptors.compactIfPossible()
@@ -115,7 +117,7 @@ abstract class DeserializedMemberScope protected constructor(
             computeDescriptors(
                     name,
                     propertyProtos,
-                    { c.memberDeserializer.loadProperty(it) },
+                    { p, i -> c.memberDeserializer.loadProperty(p, i) },
                     { computeNonDeclaredProperties(name, it) }
             )
 

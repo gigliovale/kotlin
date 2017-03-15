@@ -67,8 +67,8 @@ fun ClassDescriptor.getParentJavaStaticClassScope(): LazyJavaStaticClassScope? {
 }
 
 fun DeserializedMemberDescriptor.getImplClassNameForDeserialized(): Name? {
-    return (containerSource as? JvmPackagePartSource)?.simpleName
+    return (deserializedSource.containerSource as? JvmPackagePartSource)?.simpleName
 }
 
 fun DeserializedMemberDescriptor.isFromJvmPackagePart(): Boolean =
-        containerSource is JvmPackagePartSource
+        deserializedSource.containerSource is JvmPackagePartSource

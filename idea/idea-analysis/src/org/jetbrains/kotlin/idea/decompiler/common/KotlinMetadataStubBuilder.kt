@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.serialization.SerializerExtensionProtocol
 import org.jetbrains.kotlin.serialization.deserialization.ProtoBasedClassDataFinder
 import org.jetbrains.kotlin.serialization.deserialization.ProtoContainer
 import org.jetbrains.kotlin.serialization.deserialization.TypeTable
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 open class KotlinMetadataStubBuilder(
         private val version: Int,
@@ -50,7 +51,7 @@ open class KotlinMetadataStubBuilder(
                 val packageFqName = file.packageFqName
                 val nameResolver = file.nameResolver
                 val components = ClsStubBuilderComponents(
-                        ProtoBasedClassDataFinder(file.proto, nameResolver),
+                        ProtoBasedClassDataFinder(file.proto, nameResolver) { DeserializedContainerSource.NoSource },
                         AnnotationLoaderForStubBuilderImpl(serializerProtocol),
                         virtualFile
                 )

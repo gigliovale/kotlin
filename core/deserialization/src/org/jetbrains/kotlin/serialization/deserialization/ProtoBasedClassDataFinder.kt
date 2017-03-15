@@ -16,16 +16,16 @@
 
 package org.jetbrains.kotlin.serialization.deserialization
 
-import org.jetbrains.kotlin.descriptors.SourceElement
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.serialization.ClassData
 import org.jetbrains.kotlin.serialization.ClassDataWithSource
 import org.jetbrains.kotlin.serialization.ProtoBuf
+import org.jetbrains.kotlin.serialization.deserialization.descriptors.DeserializedContainerSource
 
 class ProtoBasedClassDataFinder(
         proto: ProtoBuf.PackageFragment,
         private val nameResolver: NameResolver,
-        private val classSource: (ClassId) -> SourceElement = { SourceElement.NO_SOURCE }
+        private val classSource: (ClassId) -> DeserializedContainerSource
 ) : ClassDataFinder {
     private val classIdToProto =
             proto.class_List.associateBy { klass ->

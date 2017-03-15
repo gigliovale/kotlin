@@ -52,7 +52,7 @@ class DeserializationComponents(
             nameResolver: NameResolver,
             typeTable: TypeTable,
             sinceKotlinInfoTable: SinceKotlinInfoTable,
-            containerSource: DeserializedContainerSource?
+            containerSource: DeserializedContainerSource
     ): DeserializationContext =
             DeserializationContext(this, nameResolver, descriptor, typeTable, sinceKotlinInfoTable, containerSource,
                                    parentTypeDeserializer = null, typeParameters = listOf())
@@ -65,7 +65,7 @@ class DeserializationContext(
         val containingDeclaration: DeclarationDescriptor,
         val typeTable: TypeTable,
         val sinceKotlinInfoTable: SinceKotlinInfoTable,
-        val containerSource: DeserializedContainerSource?,
+        val containerSource: DeserializedContainerSource,
         parentTypeDeserializer: TypeDeserializer?,
         typeParameters: List<ProtoBuf.TypeParameter>
 ) {

@@ -49,7 +49,7 @@ fun <R> Function<R>.reflect(): KFunction<R>? {
             moduleData.deserialization, nameResolver, moduleData.module, TypeTable(proto.typeTable), SinceKotlinInfoTable.EMPTY,
             containerSource = null, parentTypeDeserializer = null, typeParameters = proto.typeParameterList
     )
-    val descriptor = MemberDeserializer(context).loadFunction(proto)
+    val descriptor = MemberDeserializer(context).loadFunction(proto, 0)
     @Suppress("UNCHECKED_CAST")
     return KFunctionImpl(EmptyContainerForLocal, descriptor) as KFunction<R>
 }

@@ -470,17 +470,11 @@ class KotlinIndicesHelper(
         return resolveToDescriptorsWithHack({ true }).filterIsInstance<TDescriptor>()
     }
 
-    private fun KtNamedDeclaration.resolveToDescriptorsWithHack(
-            psiFilter: (KtDeclaration) -> Boolean): Collection<DeclarationDescriptor> {
-        if (getContainingKtFile().isCompiled) { //TODO: it's temporary while resolveToDescriptor does not work for compiled declarations
-            return resolutionFacade.resolveImportReference(moduleDescriptor, fqName!!).filterIsInstance<DeclarationDescriptor>()
-        }
-        else {
-            val translatedDeclaration = declarationTranslator(this) ?: return emptyList()
-            if (!psiFilter(translatedDeclaration)) return emptyList()
+    private fun KtNamedDeclaration.resolveToDescriptorsWithHack(psiFilter: (KtDeclaration) -> Boolean): Collection<DeclarationDescriptor> {
+        val translatedDeclaration = declarationTranslator(this) ?: return emptyList()
+        if (!psiFilter(translatedDeclaration)) return emptyList()
 
-            return (resolutionFacade.resolveToDescriptor(translatedDeclaration)).singletonOrEmptyList()
-        }
+        return (resolutionFacade.resolveToDescriptor(translatedDeclaration)).singletonOrEmptyList()
     }
 }
 

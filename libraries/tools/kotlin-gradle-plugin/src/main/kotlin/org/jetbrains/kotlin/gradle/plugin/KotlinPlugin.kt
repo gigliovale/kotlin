@@ -647,7 +647,7 @@ internal fun Project.resolveSubpluginArtifacts(
         val file = resolvedClasspathArtifacts
                 .firstOrNull {
                     val id = it.moduleVersion.id
-                    subplugin.getGroupName() == id.group && subplugin.getArtifactName() == id.name
+                    id.group.endsWith(subplugin.getGroupName()) && subplugin.getArtifactName() == id.name
                 }?.file
         if (file != null) {
             subpluginClasspaths.put(subplugin, listOf(file))

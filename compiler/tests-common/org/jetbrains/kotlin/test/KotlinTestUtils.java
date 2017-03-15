@@ -853,7 +853,7 @@ public class KotlinTestUtils {
     }
 
     public static String navigationMetadata(@TestDataFile String testFile) {
-        return new File(testFile).getAbsolutePath();
+        return testFile;
     }
 
     public static String getTestsRoot(@NotNull Class<?> testCaseClass) {

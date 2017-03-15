@@ -1,4 +1,9 @@
-import kotlin.test.*
+// WITH_RUNTIME
+
+import kotlin.test.assertTrue
+import kotlin.test.assertFalse
+import kotlin.test.assertEquals
+import kotlin.test.assertFails
 
 fun isBooleanArray(a: Any?) = a  is BooleanArray && a !is ByteArray && a !is ShortArray && a !is CharArray && a !is IntArray && a !is LongArray && a !is FloatArray && a !is DoubleArray && a !is Array<*>
 fun isByteArray(a: Any?)    = a !is BooleanArray && a  is ByteArray && a !is ShortArray && a !is CharArray && a !is IntArray && a !is LongArray && a !is FloatArray && a !is DoubleArray && a !is Array<*>
@@ -161,7 +166,7 @@ fun box(): String {
     }
 
     // Rhino `instanceof` fails to distinguish TypedArray's
-    if (js("!((new Int8Array(10)) instanceof Int32Array)")) {
+    if (intArrayOf() is IntArray && (byteArrayOf() as Any) !is IntArray) {
         assertTrue(isBooleanArray(booleanArrayOf(false)))
         assertTrue(isByteArray(byteArrayOf(0)))
         assertTrue(isShortArray(shortArrayOf(0)))

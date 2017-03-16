@@ -48,6 +48,7 @@ messages/**)
 -dontwarn com.google.common.util.concurrent.*
 -dontwarn org.apache.xerces.dom.**
 -dontwarn org.apache.xerces.util.**
+-dontwarn org.w3c.dom.ElementTraversal
 
 -libraryjars '<rtjar>'
 -libraryjars '<jssejar>'

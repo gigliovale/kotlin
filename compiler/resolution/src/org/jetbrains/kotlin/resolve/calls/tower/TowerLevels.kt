@@ -319,4 +319,4 @@ private val ClassDescriptor.canHaveCallableConstructors: Boolean
     get() = !ErrorUtils.isError(this) && !kind.isSingleton
 
 private val TypeAliasDescriptor.canHaveCallableConstructors: Boolean
-    get() = !ErrorUtils.isError(this)  && classDescriptor!!.canHaveCallableConstructors
+    get() = classDescriptor != null && !ErrorUtils.isError(classDescriptor) && classDescriptor!!.canHaveCallableConstructors

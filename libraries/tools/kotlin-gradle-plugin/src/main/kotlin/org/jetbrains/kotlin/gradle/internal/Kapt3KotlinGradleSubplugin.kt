@@ -29,10 +29,10 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.plugin.*
 import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.utils.groupNamePattern
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.ObjectOutputStream
-import javax.xml.bind.DatatypeConverter
 import javax.xml.bind.DatatypeConverter.printBase64Binary
 
 // apply plugin: 'kotlin-kapt'
@@ -105,7 +105,7 @@ class Kapt3KotlinGradleSubplugin : KotlinGradleSubplugin<KotlinCompile> {
         fun handleSourceSet(sourceSetName: String) {
             val kaptConfiguration = project.findKaptConfiguration(sourceSetName)
             val filteredDependencies = kaptConfiguration?.dependencies?.filter {
-                it.group != getGroupName() || it.name != getArtifactName()
+                groupNamePattern() !in it.group || it.name != getArtifactName()
             } ?: emptyList()
 
             if (kaptConfiguration != null && filteredDependencies.isNotEmpty()) {

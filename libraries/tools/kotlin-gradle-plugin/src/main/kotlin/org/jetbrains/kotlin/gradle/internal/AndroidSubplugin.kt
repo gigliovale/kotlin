@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.utils.groupNamePattern
 import org.w3c.dom.Document
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
@@ -51,7 +52,7 @@ class AndroidSubplugin : KotlinGradleSubplugin<KotlinCompile> {
         }
         if (project.plugins.findPlugin(AndroidExtensionsSubpluginIndicator::class.java) == null) {
             val dependencies = project.buildscript.configurations.getByName("classpath").dependencies
-            if (dependencies.any { it.name == getArtifactName() && it.group == getGroupName() } && !migrateWarningReported) {
+            if (dependencies.any { it.name == getArtifactName() && groupNamePattern() in it.group } && !migrateWarningReported) {
                 project.logger.warn("To enable Android Extensions, use: \"apply plugin: 'kotlin-android-extensions'\"")
                 migrateWarningReported = true
             }

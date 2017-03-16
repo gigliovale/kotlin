@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import org.jetbrains.kotlin.gradle.plugin.android.KotlinJillTask
 import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.gradle.utils.getDeclaredFieldInHierarchy
+import org.jetbrains.kotlin.gradle.utils.groupNamePattern
 import org.jetbrains.kotlin.incremental.configureMultiProjectIncrementalCompilation
 import org.jetbrains.kotlin.incremental.multiproject.ArtifactDifferenceRegistryProviderAndroidWrapper
 import java.io.File
@@ -647,7 +648,7 @@ internal fun Project.resolveSubpluginArtifacts(
         val file = resolvedClasspathArtifacts
                 .firstOrNull {
                     val id = it.moduleVersion.id
-                    id.group.endsWith(subplugin.getGroupName()) && subplugin.getArtifactName() == id.name
+                    subplugin.groupNamePattern() in id.group && subplugin.getArtifactName() == id.name
                 }?.file
         if (file != null) {
             subpluginClasspaths.put(subplugin, listOf(file))

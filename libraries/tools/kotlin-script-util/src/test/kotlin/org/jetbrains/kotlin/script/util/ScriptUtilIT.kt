@@ -99,15 +99,29 @@ done
             System.setErr(savedErr)
         }
 
-        val scriptClass = compileScript("args-junit-hello-world.kts", StandardArgsScriptTemplateWithMavenResolving::class)
+        runScriptTest("args-junit-hello-world.kts", StandardArgsScriptTemplateWithMavenResolving::class, argsHelloWorldOutput) {
+            getConstructor(Array<String>::class.java)!!.newInstance(arrayOf("a1"))
+        }
+    }
+
+    @Test
+//    @Ignore("waiting on resolution of some problem with Kotlin analysis layer")
+    fun testResolveLibWithExtensionFunctions() {
+        runScriptTest("args-resolve-with-extfn.kts", StandardArgsScriptTemplateWithMavenResolving::class, "50") {
+            getConstructor(Array<String>::class.java)!!.newInstance(emptyArray<String>())
+        }
+    }
+
+    private fun runScriptTest(scriptFileName: String, scriptTemplate: KClass<out Any>, expectedOutput: String, construct: Class<*>.() -> Unit) {
+        val scriptClass = compileScript(scriptFileName, scriptTemplate)
         if (scriptClass == null) {
             System.err.println(contextClasspath(KOTLIN_JAVA_RUNTIME_JAR, Thread.currentThread().contextClassLoader)?.joinToString())
         }
         Assert.assertNotNull(scriptClass)
         captureOut {
-            scriptClass!!.getConstructor(Array<String>::class.java)!!.newInstance(arrayOf("a1"))
+            scriptClass!!.construct()
         }.let {
-            Assert.assertEquals(argsHelloWorldOutput.linesSplitTrim(), it.linesSplitTrim())
+            Assert.assertEquals(expectedOutput.linesSplitTrim(), it.linesSplitTrim())
         }
     }
 

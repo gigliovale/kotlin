@@ -209,10 +209,17 @@ internal fun <T> primitiveArrayConcat(a: T, b: T): T {
     }
 }
 
+@JsName("booleanArrayOf")
+internal fun booleanArrayOf(a: dynamic) = withType("BooleanArray", a)
 
-@PublishedApi
+@JsName("charArrayOf")
+internal fun charArrayOf(a: dynamic) = withType("CharArray", a)
+
+@JsName("longArrayOf")
+internal fun longArrayOf(a: dynamic) = withType("LongArray", a)
+
 @JsName("withType")
-internal inline fun withType(type: String, array: dynamic): dynamic {
+internal fun withType(type: String, array: dynamic): dynamic {
     array.`$type$` = type
     return array
 }

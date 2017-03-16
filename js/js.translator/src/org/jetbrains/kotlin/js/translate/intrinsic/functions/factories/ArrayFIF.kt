@@ -80,7 +80,7 @@ object ArrayFIF : CompositeFIF() {
     private fun setTypeProperty(ctx: TranslationContext, type: PrimitiveType, arg: JsExpression): JsExpression {
         if (!typedArraysEnabled(ctx) || type !in TYPE_PROPERTY_SET) return arg
 
-        return JsAstUtils.invokeKotlinFunction("withType", ctx.program().getStringLiteral(type.arrayTypeName.asString()), arg).apply {
+        return JsAstUtils.invokeKotlinFunction(type.typeName.asString().toLowerCase() + "ArrayOf", arg).apply {
             sideEffects = SideEffectKind.PURE
         }
     }

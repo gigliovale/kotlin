@@ -10,7 +10,6 @@ package kotlin.collections
 
 import kotlin.js.*
 import primitiveArrayConcat
-import withType
 import kotlin.comparisons.*
 
 /**
@@ -12992,8 +12991,7 @@ public inline fun IntArray.copyOf(): IntArray {
 /**
  * Returns new array which is a copy of the original array.
  */
-@Suppress("NOTHING_TO_INLINE")
-public inline fun LongArray.copyOf(): LongArray {
+public fun LongArray.copyOf(): LongArray {
     return withType("LongArray", this.asDynamic().slice())
 }
 
@@ -13016,16 +13014,14 @@ public inline fun DoubleArray.copyOf(): DoubleArray {
 /**
  * Returns new array which is a copy of the original array.
  */
-@Suppress("NOTHING_TO_INLINE")
-public inline fun BooleanArray.copyOf(): BooleanArray {
+public fun BooleanArray.copyOf(): BooleanArray {
     return withType("BooleanArray", this.asDynamic().slice())
 }
 
 /**
  * Returns new array which is a copy of the original array.
  */
-@Suppress("NOTHING_TO_INLINE")
-public inline fun CharArray.copyOf(): CharArray {
+public fun CharArray.copyOf(): CharArray {
     return withType("CharArray", this.asDynamic().slice())
 }
 

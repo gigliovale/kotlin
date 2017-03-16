@@ -128,12 +128,6 @@ public abstract class StackValue extends StackValueBase {
         //if you have it inherit StackValueWithSimpleReceiver
     }
 
-    public void dup(@NotNull InstructionAdapter v, boolean withReceiver) {
-        if (!Type.VOID_TYPE.equals(type)) {
-            AsmUtil.dup(v, type);
-        }
-    }
-
     public void store(@NotNull StackValue value, @NotNull InstructionAdapter v) {
         putReceiver(v, false);
         value.put(value.type, v);
@@ -1691,11 +1685,6 @@ public abstract class StackValue extends StackValueBase {
                     .moveToTopOfStack(hasExtensionReceiver ? type : currentExtensionReceiver.type, v, dispatchReceiver.type.getSize());
         }
 
-        @Override
-        public void dup(@NotNull InstructionAdapter v, boolean withReceiver) {
-            AsmUtil.dup(v, extensionReceiver.type, dispatchReceiver.type);
-        }
-
         @NotNull
         public StackValue getDispatchReceiver() {
             return dispatchReceiver;
@@ -1756,42 +1745,6 @@ public abstract class StackValue extends StackValueBase {
 
         public int receiverSize() {
             return receiver.type.getSize();
-        }
-
-        @Override
-        public void dup(@NotNull InstructionAdapter v, boolean withWriteReceiver) {
-            if (!withWriteReceiver) {
-                super.dup(v, false);
-            }
-            else {
-                int receiverSize = isNonStaticAccess(false) ? receiverSize() : 0;
-                switch (receiverSize) {
-                    case 0:
-                        AsmUtil.dup(v, type);
-                        break;
-
-                    case 1:
-                        if (type.getSize() == 2) {
-                            v.dup2X1();
-                        }
-                        else {
-                            v.dupX1();
-                        }
-                        break;
-
-                    case 2:
-                        if (type.getSize() == 2) {
-                            v.dup2X2();
-                        }
-                        else {
-                            v.dupX2();
-                        }
-                        break;
-
-                    case -1:
-                        throw new UnsupportedOperationException();
-                }
-            }
         }
 
         @Override

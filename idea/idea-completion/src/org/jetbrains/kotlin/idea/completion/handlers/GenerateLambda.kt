@@ -47,7 +47,7 @@ fun insertLambdaTemplate(context: InsertionContext, placeholderRange: TextRange,
 
     // we start template later to not interfere with insertion of tail type
     val commandProcessor = CommandProcessor.getInstance()
-    val commandName = commandProcessor.currentCommandName!!
+    val commandName = commandProcessor.currentCommandName ?: "Insert lambda template"
     val commandGroupId = commandProcessor.currentCommandGroupId
 
     val rangeMarker = context.document.createRangeMarker(placeholderRange)

@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.idea.codeInsight
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
+import org.jetbrains.kotlin.descriptors.impl.TypeAliasConstructorDescriptor
 import org.jetbrains.kotlin.idea.decompiler.navigation.findDecompiledDeclaration
 import org.jetbrains.kotlin.resolve.DescriptorToSourceUtils
 import org.jetbrains.kotlin.utils.addToStdlib.sequenceOfLazyValues
@@ -38,8 +39,16 @@ object DescriptorToSourceUtilsIde {
         return result.filter { element -> result.none { element != it && it.navigationElement == element } }
     }
 
+    private fun getAdditionalReferencedDescriptors(desc: DeclarationDescriptor): Sequence<DeclarationDescriptor> = when(desc) {
+         is TypeAliasConstructorDescriptor -> sequenceOfLazyValues({ desc.underlyingConstructorDescriptor })
+         else -> emptySequence()
+    }
+
     private fun getDeclarationsStream(project: Project, targetDescriptor: DeclarationDescriptor): Sequence<PsiElement> {
-        val effectiveReferencedDescriptors = DescriptorToSourceUtils.getEffectiveReferencedDescriptors(targetDescriptor).asSequence()
+        val effectiveReferencedDescriptors =
+                DescriptorToSourceUtils.getEffectiveReferencedDescriptors(targetDescriptor).asSequence() +
+                getAdditionalReferencedDescriptors(targetDescriptor)
+
         return effectiveReferencedDescriptors.flatMap { effectiveReferenced ->
             // References in library sources should be resolved to corresponding decompiled declarations,
             // therefore we put both source declaration and decompiled declaration to stream, and afterwards we filter it in getAllDeclarations

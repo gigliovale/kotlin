@@ -244,7 +244,7 @@ object CommonArrays {
                         null, PrimitiveType.Boolean, PrimitiveType.Long ->
                             body(Platform.JS) { "return arrayPlusCollection(this, elements)" }
                         else ->
-                            body(Platform.JS) { "return fillFromCollection(this, this.copyOf(size + elements.size), elements)" }
+                            body(Platform.JS) { "return fillFromCollection(this.copyOf(size + elements.size), this.size, elements)" }
                     }
                 }
             }
@@ -294,8 +294,6 @@ object CommonArrays {
             }
 
             inline(Platform.JVM, Inline.Only)
-            inline(Platform.JS, Inline.Yes)
-            annotations(Platform.JS, """@Suppress("NOTHING_TO_INLINE")""")
 
             doc { "Returns new array which is a copy of range of original array." }
             returns("SELF")
@@ -310,8 +308,11 @@ object CommonArrays {
             when (primitive) {
                 PrimitiveType.Char, PrimitiveType.Boolean, PrimitiveType.Long ->
                     body(Platform.JS) { "return withType(\"${primitive}Array\", this.asDynamic().slice(fromIndex, toIndex))" }
-                else ->
+                else -> {
+                    annotations(Platform.JS, """@Suppress("NOTHING_TO_INLINE")""")
+                    inline(Platform.JS, Inline.Yes)
                     body(Platform.JS) { "return this.asDynamic().slice(fromIndex, toIndex)" }
+                }
             }
         }
     }

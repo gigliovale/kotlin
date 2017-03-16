@@ -100,8 +100,8 @@ internal fun <T> arrayPlusCollection(array: dynamic, collection: Collection<T>):
     return result
 }
 
-internal fun <T> fillFromCollection(src: dynamic, dst: dynamic, collection: Collection<T>): dynamic {
-    var index: Int = src.length
+internal fun <T> fillFromCollection(dst: dynamic, startIndex: Int, collection: Collection<T>): dynamic {
+    var index = startIndex
     for (element in collection) dst[index++] = element
     return dst
 }

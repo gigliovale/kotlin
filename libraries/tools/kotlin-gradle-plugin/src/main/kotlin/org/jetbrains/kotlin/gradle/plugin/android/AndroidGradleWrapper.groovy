@@ -28,6 +28,7 @@ import com.android.build.gradle.internal.pipeline.OriginalStream
 import com.android.build.gradle.internal.pipeline.TransformTask
 import com.android.build.gradle.internal.variant.BaseVariantData
 import com.android.builder.model.SourceProvider
+import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.internal.DefaultDomainObjectSet
 import org.gradle.api.tasks.compile.AbstractCompile
@@ -123,6 +124,7 @@ class AndroidGradleWrapper {
   }
 
   static configureJackTask(
+          @NotNull Project project,
           @NotNull Object variantData,
           @NotNull File jillOutputFile,
           @NotNull String kotlinJillTaskName) {
@@ -132,7 +134,11 @@ class AndroidGradleWrapper {
       return
     }
 
-    def jillOutputStream = OriginalStream.builder()
+    def streamBuilder = OriginalStream.metaClass.getMetaMethod("builder", project) ?
+      OriginalStream.builder(project) :
+      OriginalStream.builder()
+
+    def jillOutputStream = streamBuilder
             .addContentType(QualifiedContent.DefaultContentType.CLASSES)
             .addScope(QualifiedContent.Scope.PROJECT)
             .setJar(jillOutputFile)

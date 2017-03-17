@@ -486,9 +486,11 @@ internal open class KotlinAndroidPlugin(
             createSyncOutputTask(project, kotlinTask, javaTask, kotlinAfterJavaTask, variantDataName)
 
             if ((kotlinAfterJavaTask ?: kotlinTask).incremental) {
-                val jarToAarMapping = AndroidGradleWrapper.getJarToAarMapping(variantData)
                 val artifactFile = project.tryGetSingleArtifact(variantData)
-                val artifactDifferenceRegistryProvider = ArtifactDifferenceRegistryProviderAndroidWrapper(kotlinGradleBuildServices.artifactDifferenceRegistryProvider, jarToAarMapping)
+                val artifactDifferenceRegistryProvider = ArtifactDifferenceRegistryProviderAndroidWrapper(
+                        kotlinGradleBuildServices.artifactDifferenceRegistryProvider,
+                        { AndroidGradleWrapper.getJarToAarMapping(variantData) }
+                )
                 configureMultiProjectIncrementalCompilation(project, kotlinTask, javaTask, kotlinAfterJavaTask,
                         artifactDifferenceRegistryProvider, artifactFile)
             }
@@ -514,7 +516,7 @@ internal open class KotlinAndroidPlugin(
                     jillTask.dependsOn(zipTaskName)
                 }
 
-                AndroidGradleWrapper.configureJackTask(variantData, jillOutputFilePath, kotlinJillTaskName)
+                AndroidGradleWrapper.configureJackTask(project, variantData, jillOutputFilePath, kotlinJillTaskName)
             }
         }
     }

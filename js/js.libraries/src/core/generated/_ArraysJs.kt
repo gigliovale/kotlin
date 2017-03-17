@@ -10,6 +10,7 @@ package kotlin.collections
 
 import kotlin.js.*
 import primitiveArrayConcat
+import withType
 import kotlin.comparisons.*
 
 /**

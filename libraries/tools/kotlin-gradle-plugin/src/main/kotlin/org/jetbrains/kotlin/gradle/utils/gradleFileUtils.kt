@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2017 JetBrains s.r.o.
+ * Copyright 2010-2016 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.gradle
+package org.jetbrains.kotlin.gradle.utils
 
-import android.app.Application
-import android.test.ApplicationTestCase
+import org.gradle.api.file.FileCollection
+import java.io.File
 
-class InternalDummyApplicationTest : ApplicationTestCase<Application>(Application::class.java) {
-    init {
-        val dummy = InternalDummy("World")
-        assert("Hello World!" == dummy.greeting) { "Expected: 'Hello World!'. Actual value: ${dummy.greeting}" }
+/**
+ *  Workaround class to provide a [root] file together with a Gradle [FileCollection],
+ *  so that we can get that root afterwards.
+ */
 
-        // Check that the Java sources from the tested variant are available
-        val bar = foo.FooJavaClass()
-    }
-}
+internal class RootedFileCollection(val root: File, fileCollection: FileCollection)
+    : FileCollection by fileCollection

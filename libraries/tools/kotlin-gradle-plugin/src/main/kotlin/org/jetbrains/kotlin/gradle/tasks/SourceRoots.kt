@@ -5,6 +5,7 @@ import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.logging.Logger
 import org.jetbrains.kotlin.com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.kotlin.gradle.plugin.kotlinDebug
+import org.jetbrains.kotlin.gradle.utils.RootedFileCollection
 import org.jetbrains.kotlin.incremental.isJavaFile
 import org.jetbrains.kotlin.incremental.isKotlinFile
 import java.io.File
@@ -78,6 +79,7 @@ internal class FilteringSourceRootsContainer(val filter: (File) -> Boolean = { t
         for (source in sources) {
             when (source) {
                 is SourceDirectorySet -> filteredDirs += source.srcDirs.filter { filter(it) }
+                is RootedFileCollection -> source.root.takeIf(filter)?.let(filteredDirs::add)
                 is File -> if (filter(source)) filteredDirs.add(source)
             }
         }

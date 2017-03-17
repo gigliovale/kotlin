@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.gradle.internal.initKapt
 import org.jetbrains.kotlin.gradle.plugin.android.AndroidGradleWrapper
 import org.jetbrains.kotlin.gradle.tasks.*
 import org.jetbrains.kotlin.incremental.configureMultiProjectIncrementalCompilation
+import org.jetbrains.kotlin.incremental.isKotlinFile
 import org.jetbrains.kotlin.incremental.multiproject.ArtifactDifferenceRegistryProviderAndroidWrapper
 import java.io.File
 import java.net.URL
@@ -458,13 +459,21 @@ internal open class KotlinAndroidPlugin(
                         variantDataName, rootKotlinOptions, subpluginEnvironment, tasksProvider)
             }
 
-            configureSources(kotlinTask, variantData)
-            if (isAndroidTestVariant) {
-                configureSources(kotlinTask, testedVariantData!!)
-            }
+            for (task in listOfNotNull(kotlinTask, kotlinAfterJavaTask)) {
+                configureSources(task, variantData)
 
-            if (kotlinAfterJavaTask != null) {
-                configureSources(kotlinAfterJavaTask, variantData)
+                if (isAndroidTestVariant) {
+                    if (AndroidGradleWrapper.isJackEnabled(variantData)) {
+                        // With Jack enabled, we won't have the Java class files from the tested variant,
+                        // so we have to add the Java sources. But we will have Kotlin classes
+                        // so don't include the Kotlin sources.
+                        configureSources(task, testedVariantData!!, includeKotlin = false)
+                    }
+
+                    // Android Gradle plugin bypasses the Gradle finalizedBy for its tasks in some cases, and
+                    // the Kotlin classes may not be copied for the tested variant. Make sure they are.
+                    kotlinTask.dependsOn(syncOutputTaskName(testedVariantData!!.name))
+                }
             }
             appliedPlugins
                     .flatMap { it.getSubpluginKotlinTasks(project, kotlinTask) }
@@ -485,17 +494,25 @@ internal open class KotlinAndroidPlugin(
         }
     }
 
-    private fun configureSources(compileTask: AbstractCompile, variantData: BaseVariantData<out BaseVariantOutputData>) {
+    private fun configureSources(compileTask: AbstractCompile,
+                                 variantData: BaseVariantData<out BaseVariantOutputData>,
+                                 includeKotlin: Boolean = true) {
         val logger = compileTask.project.logger
 
-        for (provider in variantData.sourceProviders) {
-            val kotlinSourceSet = provider.getConvention(KOTLIN_DSL_NAME) as? KotlinSourceSet ?: continue
-            compileTask.source(kotlinSourceSet.kotlin)
+        if (includeKotlin) {
+            for (provider in variantData.sourceProviders) {
+                val kotlinSourceSet = provider.getConvention(KOTLIN_DSL_NAME) as? KotlinSourceSet ?: continue
+                compileTask.source(kotlinSourceSet.kotlin)
+            }
         }
 
         for (javaSrcDir in AndroidGradleWrapper.getJavaSources(variantData)) {
-            compileTask.source(javaSrcDir)
-            logger.kotlinDebug("Source directory $javaSrcDir was added to kotlin source for ${compileTask.name}")
+            val dir: Any = if (includeKotlin)
+                javaSrcDir else
+                RootedFileCollection(javaSrcDir, compileTask.project.fileTree(javaSrcDir).filter { !it.isKotlinFile() })
+            compileTask.source(dir)
+            logger.kotlinDebug("Source directory $javaSrcDir was added to kotlin source for ${compileTask.name}" +
+                               if (!includeKotlin) ", not including *.kt" else "")
         }
     }
 
@@ -542,6 +559,8 @@ private fun configureJavaTask(kotlinTask: KotlinCompile, javaTask: AbstractCompi
     javaTask.appendClasspathDynamically(kotlinTask.destinationDir!!)
 }
 
+private fun syncOutputTaskName(variantName: String) = "copy${variantName.capitalize()}KotlinClasses"
+
 private fun createSyncOutputTask(
         project: Project,
         kotlinTask: KotlinCompile,
@@ -553,7 +572,7 @@ private fun createSyncOutputTask(
     val kotlinCompile = kotlinAfterJavaTask ?: kotlinTask
     val kotlinDir = kotlinCompile.destinationDir
     val javaDir = javaTask.destinationDir
-    val taskName = "copy${variantName.capitalize()}KotlinClasses"
+    val taskName = syncOutputTaskName(variantName)
 
     val syncTask = project.tasks.create(taskName, SyncOutputTask::class.java)
     syncTask.kotlinOutputDir = kotlinDir

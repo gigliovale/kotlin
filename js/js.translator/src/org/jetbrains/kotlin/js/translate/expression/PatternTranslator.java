@@ -257,7 +257,7 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("number"));
         }
 
-        if (context().getConfig().getConfiguration().getBoolean(JSConfigurationKeys.TYPED_ARRAYS_ENABLED)) {
+        if (ArrayFIF.INSTANCE.typedArraysEnabled(context())) {
             if (KotlinBuiltIns.isPrimitiveArray(type)) {
                 PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
                 assert arrayType != null;

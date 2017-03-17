@@ -15,7 +15,7 @@
  */
 
 @JsName("arrayIterator")
-internal fun arrayIterator(array: dynamic, type: String? = null) = when (type) {
+internal fun arrayIterator(array: dynamic, type: String?) = when (type) {
     null -> {
         val arr: Array<dynamic> = array
         object : Iterator<dynamic> {

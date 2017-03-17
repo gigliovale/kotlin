@@ -19,27 +19,27 @@ Kotlin.isBooleanArray = function (a) {
 };
 
 Kotlin.isByteArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "ByteArray" || a instanceof Int8Array && (!a.$type$ || a.$type$ === "ByteArray")
+    return a instanceof Int8Array && a.$type$ !== "BooleanArray"
 };
 
 Kotlin.isShortArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "ShortArray" || a instanceof Int16Array && (!a.$type$ || a.$type$ === "ShortArray")
+    return a instanceof Int16Array && a.$type$ !== "CharArray"
 };
 
 Kotlin.isCharArray = function (a) {
-    return (Array.isArray(a) || a instanceof Uint16Array) && a.$type$ === "CharArray"
+    return a instanceof Uint16Array && a.$type$ === "CharArray"
 };
 
 Kotlin.isIntArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "IntArray" || a instanceof Int32Array
+    return a instanceof Int32Array
 };
 
 Kotlin.isFloatArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "FloatArray" || a instanceof Float32Array
+    return a instanceof Float32Array
 };
 
 Kotlin.isDoubleArray = function (a) {
-    return Array.isArray(a) && a.$type$ === "DoubleArray" || a instanceof Float64Array
+    return a instanceof Float64Array
 };
 
 Kotlin.isLongArray = function (a) {

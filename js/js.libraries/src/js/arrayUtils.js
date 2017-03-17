@@ -23,7 +23,7 @@ Kotlin.isByteArray = function (a) {
 };
 
 Kotlin.isShortArray = function (a) {
-    return a instanceof Int16Array && a.$type$ !== "CharArray"
+    return a instanceof Int16Array
 };
 
 Kotlin.isCharArray = function (a) {

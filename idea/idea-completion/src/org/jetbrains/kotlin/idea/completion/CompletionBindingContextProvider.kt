@@ -126,7 +126,7 @@ class CompletionBindingContextProvider(project: Project) {
             return CompositeBindingContext.create(listOf(statementContext, prevCompletionData.bindingContext))
         }
 
-        val bindingContext = resolutionFacade.analyze(position.parentsWithSelf.firstIsInstance<KtElement>(), BodyResolveMode.FULL)
+        val bindingContext = resolutionFacade.analyze(position.parentsWithSelf.firstIsInstance<KtElement>(), BodyResolveMode.PARTIAL_FOR_COMPLETION)
         prevCompletionDataCache.value.data = if (block != null && modificationScope != null) {
             val resolutionScope = inStatement.getResolutionScope(bindingContext, resolutionFacade)
             val dataFlowInfo = bindingContext.getDataFlowInfoBefore(inStatement)

@@ -20,21 +20,22 @@ external private fun <T> Array(size: Int): Array<T>
 
 @JsName("newArray")
 fun <T> newArray(size: Int, initValue: T): Array<T> {
-    return fillArray(Array(size), initValue)
-}
-
-private fun <T> fillArray(array: Array<T>, value: T): Array<T> {
-    for (i in 0..array.size - 1) {
-        array[i] = value
+    val result = Array<T>(size)
+    for (i in 0..size - 1) {
+        result[i] = initValue
     }
-    return array;
+    return result;
 }
 
 @JsName("newArrayF")
 fun <T> arrayWithFun(size: Int, init: (Int) -> T): Array<T> {
-    var result = Array<T>(size)
-    for (i in 0..size - 1) {
-        result[i] = init(i)
+    return fillArray(Array<T>(size), init)
+}
+
+@JsName("fillArray")
+fun <T> fillArray(array: Array<T>, init: (Int) -> T): Array<T> {
+    for (i in 0..array.size - 1) {
+        array[i] = init(i)
     }
-    return result
+    return array
 }

@@ -148,7 +148,7 @@ fun box(): String {
         assertTrue(checkExactArrayType(floatArrayOf(0f), floatArray = true))
         assertTrue(checkExactArrayType(doubleArrayOf(0.0), doubleArray = true))
         assertTrue(checkExactArrayType(longArrayOf(0), longArray = true))
-        assertTrue(checkExactArrayType(arrayOf(), array = true))
+        assertTrue(checkExactArrayType(arrayOf<Any?>(), array = true))
     }
 
     return "OK"

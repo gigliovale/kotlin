@@ -113,7 +113,19 @@ object ArrayFIF : CompositeFIF() {
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int,Function1)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 2) { "Array <init>(Int,Function1) expression must have two arguments." }
                 val (size, fn) = arguments
-                castOrCreatePrimitiveArray(context, type, JsAstUtils.invokeKotlinFunction("newArrayF", size, fn))
+                if (typedArraysEnabled(context)) {
+                    val array = setTypeProperty(context, type, if (type !in TYPED_ARRAY_MAP) {
+                        JsNew(JsAstUtils.pureFqn("Array", null), listOf(size))
+                    }
+                    else {
+                        createTypedArray(type, size)
+                    })
+
+                    JsAstUtils.invokeKotlinFunction("fillArray", array, fn)
+                }
+                else {
+                    JsAstUtils.invokeKotlinFunction("newArrayF", size, fn)
+                }
             })
 
             add(pattern(NamePredicate(type.arrayTypeName), "iterator"), intrinsify { receiver, _, context ->

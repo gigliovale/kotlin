@@ -125,6 +125,7 @@ class LazyArguments @JvmOverloads constructor(val list: ArrayList<GeneratedArgum
         if (castTo != null) {
             StackValue.coerce(lastType!!, castTo, v)
         }
+        //TODO: reordering
     }
 
     fun generateDirectlyTo(args: List<GeneratedArgument>, v: InstructionAdapter) {

@@ -96,30 +96,21 @@ class CompletionBindingContextProvider(project: Project) {
 
         val psiElementsBeforeAndAfter = modificationScope?.let { collectPsiElementsBeforeAndAfter(modificationScope, inStatement) }
 
-        fun doNonCachedResolve(): BindingContext {
-            return resolutionFacade.analyze(position.parentsWithSelf.firstIsInstance<KtElement>(), BodyResolveMode.FULL)
-        }
-
         val prevCompletionData = prevCompletionDataCache.value.data
-        val bindingContext = if (prevCompletionData == null) {
+        if (prevCompletionData == null) {
             log("No up-to-date data from previous completion\n")
-            doNonCachedResolve()
         }
         else if (block != prevCompletionData.block) {
             log("Not in the same block\n")
-            doNonCachedResolve()
         }
         else if (prevStatement != prevCompletionData.prevStatement) {
             log("Previous statement is not the same\n")
-            doNonCachedResolve()
         }
         else if (psiElementsBeforeAndAfter != prevCompletionData.psiElementsBeforeAndAfter) {
             log("PSI-tree has changed inside current scope\n")
-            doNonCachedResolve()
         }
         else if (inStatement.isTooComplex()) {
             log("Current statement is too complex to use optimization\n")
-            doNonCachedResolve()
         }
         else {
             log("Statement position is the same - analyzing only one statement:\n${inStatement.text.prependIndent("    ")}\n")
@@ -135,6 +126,7 @@ class CompletionBindingContextProvider(project: Project) {
             return CompositeBindingContext.create(listOf(statementContext, prevCompletionData.bindingContext))
         }
 
+        val bindingContext = resolutionFacade.analyze(position.parentsWithSelf.firstIsInstance<KtElement>(), BodyResolveMode.FULL)
         prevCompletionDataCache.value.data = if (block != null && modificationScope != null) {
             val resolutionScope = inStatement.getResolutionScope(bindingContext, resolutionFacade)
             val dataFlowInfo = bindingContext.getDataFlowInfoBefore(inStatement)

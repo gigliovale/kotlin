@@ -460,13 +460,14 @@ internal open class KotlinAndroidPlugin(
 
             for (task in listOfNotNull(kotlinTask, kotlinAfterJavaTask)) {
                 configureSources(task, variantData)
-
-                if (isAndroidTestVariant) {
-                    // Android Gradle plugin bypasses the Gradle finalizedBy for its tasks in some cases, and
-                    // the Kotlin classes may not be copied for the tested variant. Make sure they are.
-                    kotlinTask.dependsOn(syncOutputTaskName(testedVariantData!!.name))
-                }
             }
+
+            if (isAndroidTestVariant) {
+                // Android Gradle plugin bypasses the Gradle finalizedBy for its tasks in some cases, and
+                // the Kotlin classes may not be copied for the tested variant. Make sure they are.
+                kotlinTask.dependsOn(syncOutputTaskName(testedVariantData!!.name))
+            }
+
             appliedPlugins
                     .flatMap { it.getSubpluginKotlinTasks(project, kotlinTask) }
                     .forEach { configureSources(it, variantData) }

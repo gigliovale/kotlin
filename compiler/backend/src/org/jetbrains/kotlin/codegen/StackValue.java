@@ -1199,7 +1199,7 @@ public abstract class StackValue extends StackValueBase {
             }
 
             LazyArguments lazyArguments = new LazyArguments();
-            genArgs(lazyArguments, false);
+            genArgs(lazyArguments, true);
 
             putImpl(type, v, lazyArguments);
         }
@@ -1257,7 +1257,7 @@ public abstract class StackValue extends StackValueBase {
 
         @Override
         public void genArgs(@NotNull LazyArguments arguments, boolean isRead) {
-            arguments.addParameter(receiver, LazyArgumentKind.DISPATCH_RECEIVER);
+            genReceiver(arguments, isRead);
         }
 
         @Override
@@ -1722,6 +1722,13 @@ public abstract class StackValue extends StackValueBase {
             boolean hasReceiver = isNonStaticAccess(isRead);
             if (hasReceiver || receiver.canHaveSideEffects()) {
                 receiver.put(hasReceiver ? receiver.type : Type.VOID_TYPE, v);
+            }
+        }
+
+        public void genReceiver(@NotNull LazyArguments args, boolean isRead) {
+            boolean hasReceiver = isNonStaticAccess(isRead);
+            if (hasReceiver || receiver.canHaveSideEffects()) {
+                args.addParameter(receiver, hasReceiver ? receiver.type : Type.VOID_TYPE, LazyArgumentKind.DISPATCH_RECEIVER);
             }
         }
 

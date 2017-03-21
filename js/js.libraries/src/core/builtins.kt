@@ -212,7 +212,7 @@ internal fun <T> primitiveArrayConcat(a: T, b: T): T {
 @JsName("booleanArrayOf")
 internal fun booleanArrayOf() = withType("BooleanArray", js("[].slice.call(arguments)"))
 
-@JsName("charArrayOf") // The arguments have to be slice'd here because of Rhino (see https://github.com/mozilla/rhino/pull/297)
+@JsName("charArrayOf") // The arguments have to be slice'd here because of Rhino (see KT-16974)
 internal fun charArrayOf() = withType("CharArray", js("new Uint16Array([].slice.call(arguments))"))
 
 @JsName("longArrayOf")

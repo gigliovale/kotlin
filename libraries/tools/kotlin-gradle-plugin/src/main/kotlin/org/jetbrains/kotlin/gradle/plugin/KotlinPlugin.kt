@@ -273,6 +273,7 @@ internal abstract class AbstractKotlinPlugin(
         project.plugins.apply(JavaPlugin::class.java)
 
         configureSourceSetDefaults(project, javaBasePlugin, javaPluginConvention)
+        configureDefaultVersionsResolutionStrategy(project)
     }
 
     open protected fun configureSourceSetDefaults(
@@ -282,6 +283,17 @@ internal abstract class AbstractKotlinPlugin(
     ) {
         javaPluginConvention.sourceSets?.all { sourceSet ->
             buildSourceSetProcessor(project, javaBasePlugin, sourceSet, kotlinPluginVersion).run()
+        }
+    }
+
+    private fun configureDefaultVersionsResolutionStrategy(project: Project) {
+        project.configurations.all { configuration ->
+            configuration.resolutionStrategy.eachDependency { details ->
+                val requested = details.requested
+                if (requested.group == "org.jetbrains.kotlin" && requested.version.isEmpty()) {
+                    details.useVersion(kotlinPluginVersion)
+                }
+            }
         }
     }
 }

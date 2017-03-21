@@ -428,4 +428,18 @@ class KotlinGradleIT: BaseGradleIT() {
             assertSuccessful()
         }
     }
+
+    @Test
+    fun testOmittedStdlibVersion() {
+        val project = Project("kotlinProject", "2.3")
+        project.setupWorkingDir()
+        File(project.projectDir, "build.gradle").modify {
+            it.replace("kotlin-stdlib:\$kotlin_version", "kotlin-stdlib").apply { check(!equals(it)) }
+        }
+
+        project.build("build") {
+            assertSuccessful()
+            assertContains(":compileKotlin", ":compileTestKotlin")
+        }
+    }
 }

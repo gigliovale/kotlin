@@ -91,21 +91,33 @@ fun StackValue.complexReceiver(codegen: ExpressionCodegen, /*ordered by stack*/v
     val frameMap = codegen.frameMap
     val mark = frameMap.mark()
 
-    val expressionToLocal = hashMapOf<KtExpression, StackValue>()
+    val expressionToLocal = hashMapOf<Any, StackValue>()
+
+    fun GeneratedArgument.needDuplication() = this is GeneratedValueArgument || this.kind == LazyArgumentKind.DISPATCH_RECEIVER || this.kind == LazyArgumentKind.EXTENSION_RECEIVER
 
     //TODO proper inlining
     values[0].list.forEach {
         val isInlinedEverywhere = (it as? GeneratedValueArgument)?.expression?.let { inlineUsageCount.get(it) == isReadOperations.size } ?: false
         if (!isInlinedEverywhere) {
             it.put(v)
-            val needDuplicate = it is GeneratedValueArgument || it.kind == LazyArgumentKind.DISPATCH_RECEIVER || it.kind == LazyArgumentKind.EXTENSION_RECEIVER
-            if (needDuplicate && it.type != Type.VOID_TYPE) {
-                val index = frameMap.enterTemp(it.type)
-                val local = StackValue.local(index, it.type)
-                local.store(StackValue.onStack(it.type), v)
-                local.put(v)
-                if (it is GeneratedValueArgument && it.expression != null) {
-                    expressionToLocal.put(it.expression, local)
+            if (it.needDuplication()) {
+                if (it.type != Type.VOID_TYPE) {
+                    val index = frameMap.enterTemp(it.type)
+                    val local = StackValue.local(index, it.type)
+                    local.store(StackValue.onStack(it.type), v)
+                    local.put(v)
+                    if (it is GeneratedValueArgument && it.expression != null) {
+                        expressionToLocal.put(it.expression, local)
+                    }
+                    else if (it.kind == LazyArgumentKind.DISPATCH_RECEIVER || it.kind == LazyArgumentKind.EXTENSION_RECEIVER) {
+                        //TODO in general case there could be different receivers for getter and setter
+                        expressionToLocal.put(it.kind, local)
+                    }
+                }
+                else {
+                    //TODO in general case there could be different receivers for getter and setter
+                    assert(it.kind == LazyArgumentKind.DISPATCH_RECEIVER || it.kind == LazyArgumentKind.EXTENSION_RECEIVER)
+                    expressionToLocal.put(it.kind, StackValue.none())
                 }
             }
             newArgss[0].addParameter(it.copyWithNewStackValue(StackValue.onStack(it.type)))
@@ -121,8 +133,8 @@ fun StackValue.complexReceiver(codegen: ExpressionCodegen, /*ordered by stack*/v
         val newArgs = newArgss[index + 1]
         it.list.forEach {
             val value =
-                    if (it is GeneratedValueArgument && it.expression != null) {
-                expressionToLocal.getOrElse(it.expression, {it.stackValue})
+                    if (it.needDuplication() && (it !is GeneratedValueArgument ||  it.expression != null)) {
+                expressionToLocal.getOrElse(if (it is GeneratedValueArgument) it.expression!! else it.kind, {it.stackValue})
             }
             else it.stackValue
             value.put(v)

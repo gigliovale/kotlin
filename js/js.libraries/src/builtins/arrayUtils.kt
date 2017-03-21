@@ -41,7 +41,7 @@ fun booleanArray(size: Int, init: ((Int) -> Boolean)?): Array<Boolean> {
 
 @JsName("charArray")
 fun charArray(size: Int, init: ((Int) -> Char)?): Array<Char> {
-    val result = js(" new Uint16Array(size)")
+    val result = js("new Uint16Array(size)")
     result.`$type$` = "CharArray"
     return if (init != null) fillArrayFun(result, init) else result
 }
@@ -50,7 +50,7 @@ fun charArray(size: Int, init: ((Int) -> Char)?): Array<Char> {
 fun longArray(size: Int, init: ((Int) -> Long)?): Array<Long> {
     val result: dynamic = Array<Long>(size)
     result.`$type$` = "LongArray"
-    return if (init != null) fillArrayFun(result, init) else fillArrayVal(result, js("Kotlin.Long.ZERO"))
+    return if (init != null) fillArrayFun(result, init) else fillArrayVal(result, 0L)
 }
 
 private fun <T> fillArrayVal(array: Array<T>, initValue: T): Array<T> {

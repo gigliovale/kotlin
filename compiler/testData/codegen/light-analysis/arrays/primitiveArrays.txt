@@ -1,6 +1,8 @@
 @kotlin.Metadata
 public final class PrimitiveArraysKt {
     public final static @org.jetbrains.annotations.NotNull method box(): java.lang.String
+    public synthetic static method checkExactArrayType$default(p0: java.lang.Object, p1: boolean, p2: boolean, p3: boolean, p4: boolean, p5: boolean, p6: boolean, p7: boolean, p8: boolean, p9: boolean, p10: int, p11: java.lang.Object): boolean
+    public final static method checkExactArrayType(@org.jetbrains.annotations.Nullable p0: java.lang.Object, p1: boolean, p2: boolean, p3: boolean, p4: boolean, p5: boolean, p6: boolean, p7: boolean, p8: boolean, p9: boolean): boolean
     public final static @org.jetbrains.annotations.NotNull method customBooleanArrayOf(@org.jetbrains.annotations.NotNull p0: boolean[]): boolean[]
     public final static @org.jetbrains.annotations.NotNull method customByteArrayOf(@org.jetbrains.annotations.NotNull p0: byte[]): byte[]
     public final static @org.jetbrains.annotations.NotNull method customCharArrayOf(@org.jetbrains.annotations.NotNull p0: char[]): char[]
@@ -17,13 +19,4 @@ public final class PrimitiveArraysKt {
     public final static method eqInt(@org.jetbrains.annotations.NotNull p0: int[], @org.jetbrains.annotations.NotNull p1: int[]): boolean
     public final static method eqLong(@org.jetbrains.annotations.NotNull p0: long[], @org.jetbrains.annotations.NotNull p1: long[]): boolean
     public final static method eqShort(@org.jetbrains.annotations.NotNull p0: short[], @org.jetbrains.annotations.NotNull p1: short[]): boolean
-    public final static method isArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isBooleanArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isByteArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isCharArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isDoubleArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isFloatArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isIntArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isLongArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
-    public final static method isShortArray(@org.jetbrains.annotations.Nullable p0: java.lang.Object): boolean
 }

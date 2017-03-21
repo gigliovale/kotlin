@@ -213,7 +213,7 @@ public final class PatternTranslator extends AbstractTranslator {
         }
 
         if (isArray(type)) {
-            if (ArrayFIF.INSTANCE.typedArraysEnabled(context())) {
+            if (ArrayFIF.typedArraysEnabled(context())) {
                 return namer().isArray();
             }
             else {
@@ -257,7 +257,7 @@ public final class PatternTranslator extends AbstractTranslator {
             return namer().isTypeOf(program().getStringLiteral("number"));
         }
 
-        if (ArrayFIF.INSTANCE.typedArraysEnabled(context())) {
+        if (ArrayFIF.typedArraysEnabled(context())) {
             if (KotlinBuiltIns.isPrimitiveArray(type)) {
                 PrimitiveType arrayType = KotlinBuiltIns.getPrimitiveArrayElementType(type);
                 assert arrayType != null;

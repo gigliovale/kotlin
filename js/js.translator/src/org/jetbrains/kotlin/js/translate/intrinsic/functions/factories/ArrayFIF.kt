@@ -53,37 +53,33 @@ object ArrayFIF : CompositeFIF() {
     @JvmField
     val LENGTH_PROPERTY_INTRINSIC = BuiltInPropertyIntrinsic("length")
 
-    val TYPED_ARRAY_MAP = EnumMap(mapOf(BYTE to "Int8",
-                                        SHORT to "Int16",
-                                        CHAR to "Uint16",
-                                        INT to "Int32",
-                                        FLOAT to "Float32",
-                                        DOUBLE to "Float64"))
-
-    val TYPE_PROPERTY_SET: EnumSet<PrimitiveType> = EnumSet.of(BOOLEAN, CHAR, LONG)
-
+    @JvmStatic
     fun typedArraysEnabled(ctx: TranslationContext) = ctx.config.configuration.getBoolean(JSConfigurationKeys.TYPED_ARRAYS_ENABLED)
 
-    fun castOrCreatePrimitiveArray(ctx: TranslationContext, type: PrimitiveType?, arg: JsExpression): JsExpression {
-        if (type == null) return arg
+    fun castOrCreatePrimitiveArray(ctx: TranslationContext, type: PrimitiveType?, arg: JsArrayLiteral): JsExpression {
+        if (type == null || !typedArraysEnabled(ctx)) return arg
 
-        val arr = if (typedArraysEnabled(ctx) && type in TYPED_ARRAY_MAP) createTypedArray(type, arg) else arg
-
-        return setTypeProperty(ctx, type, arr)
+        if (type in TYPED_ARRAY_MAP) {
+            return createTypedArray(type, arg)
+        }
+        else {
+            return JsAstUtils.invokeKotlinFunction(type.lowerCaseName + "ArrayOf", *arg.expressions.toTypedArray())
+        }
     }
+
+    private val TYPED_ARRAY_MAP = EnumMap(mapOf(BYTE to "Int8",
+                                                SHORT to "Int16",
+                                                INT to "Int32",
+                                                FLOAT to "Float32",
+                                                DOUBLE to "Float64"))
 
     private fun createTypedArray(type: PrimitiveType, arg: JsExpression): JsExpression {
         assert(type in TYPED_ARRAY_MAP)
-        return JsNew(JsNameRef(TYPED_ARRAY_MAP[type] + "Array"), listOf(arg)).apply { sideEffects = SideEffectKind.PURE }
+        return JsNew(JsNameRef(TYPED_ARRAY_MAP[type] + "Array"), listOf(arg))
     }
 
-    private fun setTypeProperty(ctx: TranslationContext, type: PrimitiveType, arg: JsExpression): JsExpression {
-        if (!typedArraysEnabled(ctx) || type !in TYPE_PROPERTY_SET) return arg
-
-        return JsAstUtils.invokeKotlinFunction(type.typeName.asString().toLowerCase() + "ArrayOf", arg).apply {
-            sideEffects = SideEffectKind.PURE
-        }
-    }
+    private val PrimitiveType.lowerCaseName
+        get() = typeName.asString().toLowerCase()
 
     init {
         val arrayName = KotlinBuiltIns.FQ_NAMES.array.shortName()
@@ -100,28 +96,36 @@ object ArrayFIF : CompositeFIF() {
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 1) { "Array <init>(Int) expression must have one argument." }
                 val (size) = arguments
-                val array = when {
-                    type == BOOLEAN -> JsAstUtils.invokeKotlinFunction("newArray", size, JsLiteral.FALSE)
-                    type == LONG -> JsAstUtils.invokeKotlinFunction("newArray", size, JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong()))
-                    typedArraysEnabled(context) -> createTypedArray(type, size)
-                    else -> JsAstUtils.invokeKotlinFunction("newArray", size, JsNumberLiteral.ZERO)
-                }
 
-                setTypeProperty(context, type, array)
+                if (typedArraysEnabled(context)) {
+                    if (type in TYPED_ARRAY_MAP) {
+                        createTypedArray(type, size)
+                    }
+                    else {
+                        JsAstUtils.invokeKotlinFunction("${type.lowerCaseName}Array", size)
+
+                    }
+                }
+                else {
+                    val initValue = when (type) {
+                        BOOLEAN -> JsLiteral.FALSE
+                        LONG -> JsNameRef(Namer.LONG_ZERO, Namer.kotlinLong())
+                        else -> JsNumberLiteral.ZERO
+                    }
+                    JsAstUtils.invokeKotlinFunction("newArray", size, initValue)
+                }
             })
 
             add(pattern(NamePredicate(type.arrayTypeName), "<init>(Int,Function1)"), intrinsify { _, arguments, context ->
                 assert(arguments.size == 2) { "Array <init>(Int,Function1) expression must have two arguments." }
                 val (size, fn) = arguments
                 if (typedArraysEnabled(context)) {
-                    val array = setTypeProperty(context, type, if (type !in TYPED_ARRAY_MAP) {
-                        JsNew(JsAstUtils.pureFqn("Array", null), listOf(size))
+                    if (type in TYPED_ARRAY_MAP) {
+                        JsAstUtils.invokeKotlinFunction("fillArray", createTypedArray(type, size), fn)
                     }
                     else {
-                        createTypedArray(type, size)
-                    })
-
-                    JsAstUtils.invokeKotlinFunction("fillArray", array, fn)
+                        JsAstUtils.invokeKotlinFunction("${type.lowerCaseName}Array", size, fn)
+                    }
                 }
                 else {
                     JsAstUtils.invokeKotlinFunction("newArrayF", size, fn)
@@ -130,7 +134,7 @@ object ArrayFIF : CompositeFIF() {
 
             add(pattern(NamePredicate(type.arrayTypeName), "iterator"), intrinsify { receiver, _, context ->
                 if (typedArraysEnabled(context)) {
-                    JsAstUtils.invokeKotlinFunction("${type.typeName.asString().toLowerCase()}ArrayIterator", receiver!!)
+                    JsAstUtils.invokeKotlinFunction("${type.lowerCaseName}ArrayIterator", receiver!!)
                 }
                 else {
                     JsAstUtils.invokeKotlinFunction("arrayIterator", receiver!!,

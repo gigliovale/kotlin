@@ -210,13 +210,13 @@ internal fun <T> primitiveArrayConcat(a: T, b: T): T {
 }
 
 @JsName("booleanArrayOf")
-internal fun booleanArrayOf(a: dynamic) = withType("BooleanArray", a)
+internal fun booleanArrayOf() = withType("BooleanArray", js("[].slice.call(arguments)"))
 
-@JsName("charArrayOf")
-internal fun charArrayOf(a: dynamic) = withType("CharArray", a)
+@JsName("charArrayOf") // The arguments have to be slice'd here because of Rhino (see https://github.com/mozilla/rhino/pull/297)
+internal fun charArrayOf() = withType("CharArray", js("new Uint16Array([].slice.call(arguments))"))
 
 @JsName("longArrayOf")
-internal fun longArrayOf(a: dynamic) = withType("LongArray", a)
+internal fun longArrayOf() = withType("LongArray", js("[].slice.call(arguments)"))
 
 @JsName("withType")
 internal fun withType(type: String, array: dynamic): dynamic {

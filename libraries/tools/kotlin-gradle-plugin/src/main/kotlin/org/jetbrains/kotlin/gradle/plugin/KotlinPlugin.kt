@@ -11,6 +11,7 @@ import groovy.lang.Closure
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.ProjectConfigurationException
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -383,6 +384,12 @@ internal open class KotlinAndroidPlugin(
         val subpluginEnvironment = loadSubplugins(project)
 
         for (variantData in variantDataList) {
+            if (AndroidGradleWrapper.isJackEnabled(variantData)) {
+                throw ProjectConfigurationException(
+                        "Kotlin Gradle plugin does not support the deprecated Jack toolchain.\n" +
+                        "Disable Jack or revert to Kotlin Gradle plugin version 1.1.1.", null)
+            }
+
             val variantDataName = variantData.name
             logger.kotlinDebug("Process variant [$variantDataName]")
 
@@ -475,19 +482,8 @@ internal open class KotlinAndroidPlugin(
                 configureMultiProjectIncrementalCompilation(project, kotlinTask, javaTask, kotlinAfterJavaTask,
                         artifactDifferenceRegistryProvider, artifactFile)
             }
-
-            if (AndroidGradleWrapper.isJackEnabled(variantData) && showWarningOnJackFound) {
-                project.logger.kotlinWarn(
-                        "Kotlin Gradle plugin does not support the deprecated Jack toolchain. " +
-                        "This build is not reliable and is very likely to fail. " +
-                        "To disable Jack, edit 'build.gradle' and remove the following part:\n" +
-                        "jackOptions { enabled true }")
-                showWarningOnJackFound = false
-            }
         }
     }
-
-    private var showWarningOnJackFound = true
 
     private fun configureSources(compileTask: AbstractCompile, variantData: BaseVariantData<out BaseVariantOutputData>) {
         val logger = compileTask.project.logger

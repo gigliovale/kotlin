@@ -77,12 +77,7 @@ class AndroidGradleWrapper {
 
   @Nullable
   static AbstractCompile getJavaTask(@NotNull Object variantData) {
-      if (isJackEnabled(variantData)) {
-          return getJavacTask(variantData)
-      }
-      else {
-          return getJavaCompile(variantData)
-      }
+    return getJavaCompile(variantData)
   }
 
   @Nullable

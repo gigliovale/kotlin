@@ -111,10 +111,15 @@ abstract class CallGenerator {
             }
         }
 
+        //TODO same in putDirectly
+        val shouldMarkLineNumbers = codegen.isShouldMarkLineNumbers
+        codegen.isShouldMarkLineNumbers = false
         putValueParameters(lazyArguments, v)
 
         val valueParameters = extractValueParameters(lazyArguments)
+
         reorderArgumentsIfNeeded(valueParameters.map { it.declIndex }, callableMethod.valueParameterTypes)
+        codegen.isShouldMarkLineNumbers = shouldMarkLineNumbers
 
         if (!valueParameters.isEmpty()) {
             lazyArguments.list.takeLastWhile { it.kind != LazyArgumentKind.VALUE_PARAMETER }.forEach { putValueIfNeeded(it.type, it.stackValue) }

@@ -547,7 +547,7 @@ public abstract class StackValue extends StackValueBase {
             assert type != null : "Could not map receiver type for " + resolvedCall;
 
             //TODO proper types
-            if (extensionReceiver instanceof SafeCall) {
+            if (extensionReceiver instanceof SafeCall || extensionReceiver instanceof OnStack) {
                 arguments.addParameter(extensionReceiver, type, LazyArgumentKind.EXTENSION_RECEIVER);
                 arguments.addParameter(dispatchReceiver, LazyArgumentKind.DISPATCH_RECEIVER);
             }

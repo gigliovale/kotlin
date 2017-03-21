@@ -85,9 +85,9 @@ sealed class LazyLightClassDataHolder(
                 val memberOrigin = ClsWrapperStubPsiFactory.getMemberOrigin(dummyField)!!
                 val fieldName = dummyField.name!!
                 KtLightFieldImpl.lazy(dummyField, memberOrigin, containingClass) {
-                    clsDelegate.findFieldByName(fieldName, false)!!.apply {
+                    clsDelegate.findFieldByName(fieldName, false)?.apply {
                         assert(this.memberIndex!! == dummyField.memberIndex!!)
-                    }
+                    } ?: dummyField
                 }
             }
         }
@@ -101,9 +101,9 @@ sealed class LazyLightClassDataHolder(
                     val dummyIndex = dummyMethod.memberIndex!!
                     clsDelegate.findMethodsByName(methodName, false).filter {
                         delegateCandidate -> delegateCandidate.memberIndex == dummyIndex
-                    }.single().apply {
+                    }.singleOrNull()?.apply {
                         assert(this.parameterList.parametersCount == dummyMethod.parameterList.parametersCount)
-                    }
+                    } ?: dummyMethod
                 }
             }
         }

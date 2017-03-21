@@ -219,7 +219,7 @@ internal fun charArrayOf() = withType("CharArray", js("new Uint16Array([].slice.
 internal fun longArrayOf() = withType("LongArray", js("[].slice.call(arguments)"))
 
 @JsName("withType")
-internal fun withType(type: String, array: dynamic): dynamic {
+internal inline fun withType(type: String, array: dynamic): dynamic {
     array.`$type$` = type
     return array
 }

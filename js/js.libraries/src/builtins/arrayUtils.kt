@@ -33,24 +33,35 @@ fun <T> fillArrayFun(array: Array<T>, init: (Int) -> T): Array<T> {
 }
 
 @JsName("booleanArray")
-fun booleanArray(size: Int, init: ((Int) -> Boolean)?): Array<Boolean> {
+fun booleanArray(size: Int, init: dynamic): Array<Boolean> {
     val result: dynamic = Array<Boolean>(size)
     result.`$type$` = "BooleanArray"
-    return if (init != null) fillArrayFun(result, init) else fillArrayVal(result, false)
+    return when (init) {
+        null, true -> fillArrayVal(result, false)
+        false -> result
+        else -> fillArrayFun<Boolean>(result, init)
+    }
 }
 
 @JsName("charArray")
-fun charArray(size: Int, init: ((Int) -> Char)?): Array<Char> {
+fun charArray(size: Int, init: dynamic): Array<Char> {
     val result = js("new Uint16Array(size)")
     result.`$type$` = "CharArray"
-    return if (init != null) fillArrayFun(result, init) else result
+    return when (init) {
+        null, true, false -> result // For consistency
+        else -> fillArrayFun<Char>(result, init)
+    }
 }
 
 @JsName("longArray")
-fun longArray(size: Int, init: ((Int) -> Long)?): Array<Long> {
+fun longArray(size: Int, init: dynamic): Array<Long> {
     val result: dynamic = Array<Long>(size)
     result.`$type$` = "LongArray"
-    return if (init != null) fillArrayFun(result, init) else fillArrayVal(result, 0L)
+    return when (init) {
+        null, true -> fillArrayVal(result, 0L)
+        false -> result
+        else -> fillArrayFun<Long>(result, init)
+    }
 }
 
 private fun <T> fillArrayVal(array: Array<T>, initValue: T): Array<T> {

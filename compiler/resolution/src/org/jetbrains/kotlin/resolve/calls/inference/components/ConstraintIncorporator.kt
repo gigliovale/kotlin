@@ -16,7 +16,8 @@
 
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
-import org.jetbrains.kotlin.resolve.calls.inference.CapturedTypeApproximator
+import org.jetbrains.kotlin.resolve.calls.TypeApproximator
+import org.jetbrains.kotlin.resolve.calls.TypeApproximatorConfiguration
 import org.jetbrains.kotlin.resolve.calls.inference.model.*
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.CaptureStatus
@@ -29,7 +30,7 @@ import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
 // todo problem: intersection types in constrains: A <: Number, B <: Inv<A & Any> =>? B <: Inv<out Number & Any>
-class ConstraintIncorporator(val capturedTypeApproximator: CapturedTypeApproximator) {
+class ConstraintIncorporator(val typeApproximator: TypeApproximator) {
 
     interface Context {
         val allTypeVariablesWithConstraints: Collection<VariableWithConstraints>
@@ -110,10 +111,9 @@ class ConstraintIncorporator(val capturedTypeApproximator: CapturedTypeApproxima
             otherConstraint: Constraint,
             position: IncorporationConstraintPosition
     ) {
-        val approximationBounds = when (otherConstraint.kind) {
+        val typeForApproximation = when (otherConstraint.kind) {
             ConstraintKind.EQUALITY -> {
-                val substitutedType = baseConstraint.type.substitute(otherVariable, otherConstraint.type)
-                CapturedTypeApproximator.ApproximationBounds(substitutedType, substitutedType)
+                baseConstraint.type.substitute(otherVariable, otherConstraint.type)
             }
             ConstraintKind.UPPER -> {
                 val newCapturedTypeConstructor = NewCapturedTypeConstructor(TypeProjectionImpl(Variance.OUT_VARIANCE, otherConstraint.type),
@@ -121,10 +121,7 @@ class ConstraintIncorporator(val capturedTypeApproximator: CapturedTypeApproxima
                 val temporaryCapturedType = NewCapturedType(CaptureStatus.FOR_INCORPORATION,
                                                             newCapturedTypeConstructor,
                                                             lowerType = null)
-                val typeForApproximation = baseConstraint.type.substitute(otherVariable, temporaryCapturedType)
-                capturedTypeApproximator.safeApproximateCapturedTypes(typeForApproximation) {
-                    it.captureStatus == CaptureStatus.FOR_INCORPORATION
-                }
+                baseConstraint.type.substitute(otherVariable, temporaryCapturedType)
             }
             ConstraintKind.LOWER -> {
                 val newCapturedTypeConstructor = NewCapturedTypeConstructor(TypeProjectionImpl(Variance.IN_VARIANCE, otherConstraint.type),
@@ -132,18 +129,15 @@ class ConstraintIncorporator(val capturedTypeApproximator: CapturedTypeApproxima
                 val temporaryCapturedType = NewCapturedType(CaptureStatus.FOR_INCORPORATION,
                                                             newCapturedTypeConstructor,
                                                             lowerType = otherConstraint.type)
-                val typeForApproximation = baseConstraint.type.substitute(otherVariable, temporaryCapturedType)
-                capturedTypeApproximator.safeApproximateCapturedTypes(typeForApproximation) {
-                    it.captureStatus == CaptureStatus.FOR_INCORPORATION
-                }
+                baseConstraint.type.substitute(otherVariable, temporaryCapturedType)
             }
         }
 
         if (baseConstraint.kind != ConstraintKind.UPPER) {
-            c.addNewIncorporatedConstraint(approximationBounds.lower, targetVariable.defaultType, position)
+            c.addNewIncorporatedConstraint(approximateCapturedTypes(typeForApproximation, toSuper = false), targetVariable.defaultType, position)
         }
         if (baseConstraint.kind != ConstraintKind.LOWER) {
-            c.addNewIncorporatedConstraint(targetVariable.defaultType, approximationBounds.upper, position)
+            c.addNewIncorporatedConstraint(targetVariable.defaultType, approximateCapturedTypes(typeForApproximation, toSuper = true), position)
         }
     }
 
@@ -151,5 +145,17 @@ class ConstraintIncorporator(val capturedTypeApproximator: CapturedTypeApproxima
         val substitutor = TypeSubstitutor.create(mapOf(typeVariable.freshTypeConstructor to value.asTypeProjection()))
         val type = substitutor.substitute(this, Variance.INVARIANT) ?: error("Impossible to substitute in $this: $typeVariable -> $value")
         return type.unwrap()
+    }
+
+    private fun approximateCapturedTypes(type: UnwrappedType, toSuper: Boolean): UnwrappedType =
+            if (toSuper) typeApproximator.approximateToSuperType(type, CapturedTypesApproximatorConfiguration) ?: type
+            else typeApproximator.approximateToSubType(type, CapturedTypesApproximatorConfiguration) ?: type
+
+
+    private object CapturedTypesApproximatorConfiguration : TypeApproximatorConfiguration.AllFlexibleSameValue() {
+        override val allFlexible get() = true
+        override val capturedType get() = { it: NewCapturedType -> it.captureStatus != CaptureStatus.FOR_INCORPORATION }
+        override val intersection get() = IntersectionStrategy.ALLOWED
+        override val typeVariable: (TypeVariableTypeConstructor) -> Boolean get() = { true }
     }
 }

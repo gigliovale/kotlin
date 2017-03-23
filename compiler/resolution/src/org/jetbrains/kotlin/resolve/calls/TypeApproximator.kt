@@ -40,7 +40,7 @@ open class TypeApproximatorConfiguration {
     open val intersection: IntersectionStrategy = TO_COMMON_SUPERTYPE
 
     open val typeVariable: (TypeVariableTypeConstructor) -> Boolean = { false }
-    open val capturedType: (NewCapturedType) -> Boolean = { false }
+    open val capturedType: (NewCapturedType) -> Boolean = { false } // true means that this type we can leave as is
 
     abstract class AllFlexibleSameValue : TypeApproximatorConfiguration() {
         abstract val allFlexible: Boolean

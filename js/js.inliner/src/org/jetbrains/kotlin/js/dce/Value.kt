@@ -27,6 +27,12 @@ interface Value {
 
     fun getDynamicMember(): Node
 
+    fun getAllMembers(): List<Node>
+
+    fun getMemberIfExists(name: String): Node?
+
+    fun hasMember(name: String): Boolean
+
     fun getParameter(index: Int): Node
 
     fun getReturnValue(): Node

@@ -366,6 +366,7 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
         // We depend on swing (indirectly through PSI or something), so we want to declare headless mode,
         // to avoid accidentally starting the UI thread
         System.setProperty("java.awt.headless", "true");
+        System.setProperty("idea.max.intellisense.filesize", "20000000");
         ExitCode exitCode = doMainNoExit(compiler, args);
         if (exitCode != OK) {
             System.exit(exitCode.getCode());

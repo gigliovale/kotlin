@@ -40,9 +40,7 @@ import com.intellij.openapi.fileTypes.PlainTextFileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.PersistentFSConstants
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.impl.ZipHandler
 import com.intellij.psi.FileContextProvider
@@ -146,10 +144,6 @@ class KotlinCoreEnvironment private constructor(
     private val rootsIndex: JvmDependenciesDynamicCompoundIndex
 
     val configuration: CompilerConfiguration = configuration.copy()
-
-    init {
-        PersistentFSConstants.setMaxIntellisenseFileSize(FileUtilRt.LARGE_FOR_CONTENT_LOADING)
-    }
 
     init {
         val project = projectEnvironment.project
@@ -381,7 +375,7 @@ class KotlinCoreEnvironment private constructor(
                 parentDisposable: Disposable, configuration: CompilerConfiguration, extensionConfigs: List<String>
         ): KotlinCoreEnvironment {
             // Tests are supposed to create a single project and dispose it right after use
-            return KotlinCoreEnvironment(parentDisposable, createApplicationEnvironment(parentDisposable, configuration, extensionConfigs), configuration)
+            return KotlinCoreEnvironment(parentDisposable, createApplicationEnvironment(parentDisposable, configuration, extensionConfigs, true), configuration)
         }
 
         // used in the daemon for jar cache cleanup
@@ -393,7 +387,7 @@ class KotlinCoreEnvironment private constructor(
                     return ourApplicationEnvironment!!
 
                 val parentDisposable = Disposer.newDisposable()
-                ourApplicationEnvironment = createApplicationEnvironment(parentDisposable, configuration, configFilePaths)
+                ourApplicationEnvironment = createApplicationEnvironment(parentDisposable, configuration, configFilePaths, false)
                 ourProjectCount = 0
                 Disposer.register(parentDisposable, Disposable {
                     synchronized (APPLICATION_LOCK) {
@@ -413,10 +407,13 @@ class KotlinCoreEnvironment private constructor(
             }
         }
 
-        private fun createApplicationEnvironment(parentDisposable: Disposable, configuration: CompilerConfiguration, configFilePaths: List<String>): JavaCoreApplicationEnvironment {
+        private fun createApplicationEnvironment(parentDisposable: Disposable,
+                                                 configuration: CompilerConfiguration,
+                                                 configFilePaths: List<String>,
+                                                 unitTestMode: Boolean): JavaCoreApplicationEnvironment {
             Extensions.cleanRootArea(parentDisposable)
             registerAppExtensionPoints()
-            val applicationEnvironment = JavaCoreApplicationEnvironment(parentDisposable)
+            val applicationEnvironment = JavaCoreApplicationEnvironment(parentDisposable, unitTestMode)
 
             for (configPath in configFilePaths) {
                 registerApplicationExtensionPointsAndExtensionsFrom(configuration, configPath)
@@ -451,8 +448,7 @@ class KotlinCoreEnvironment private constructor(
             val app = ApplicationManager.getApplication()
             val parentFile = pluginRoot.parentFile
 
-            if (pluginRoot.isDirectory && app != null && app.isUnitTestMode
-                && FileUtil.toCanonicalPath(parentFile.path).endsWith("out/production")) {
+            if (pluginRoot.isDirectory && app != null && FileUtil.toCanonicalPath(parentFile.path).endsWith("out/production")) {
                 // hack for load extensions when compiler run directly from out directory(e.g. in tests)
                 val srcDir = parentFile.parentFile.parentFile
                 pluginRoot = File(srcDir, "idea/src")

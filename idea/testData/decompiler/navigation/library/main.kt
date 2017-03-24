@@ -3,9 +3,6 @@ package testData.libraries
 public interface SimpleTrait {
 }
 
-public class SimpleClass {
-}
-
 public class SimpleTraitImpl : SimpleTrait {
 }
 

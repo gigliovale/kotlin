@@ -1,2 +1,4 @@
  MainKt.class
-public typealias <1><2>SimpleClassAlias = testData.libraries.SimpleClass
+public typealias <1><3>SimpleClassAlias = testData.libraries.SimpleClass
+ SimpleClass.class
+public final class SimpleClass public <2>constructor() {

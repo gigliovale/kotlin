@@ -33,23 +33,23 @@ object DescriptorToSourceUtilsIde {
 
     // Returns all PSI elements for descriptor. It can find declarations in builtins or decompiled code.
     fun getAllDeclarations(project: Project, targetDescriptor: DeclarationDescriptor): Collection<PsiElement> {
-        val result = getDeclarationsStream(project, targetDescriptor).toHashSet()
+        val result = getDeclarationsStream(project, targetDescriptor).toMutableSet()
         // filter out elements which are navigate to some other element of the result
         // this is needed to avoid duplicated results for references to declaration in same library source file
         return result.filter { element -> result.none { element != it && it.navigationElement == element } }
     }
 
     private fun getAdditionalReferencedDescriptors(desc: DeclarationDescriptor): Sequence<DeclarationDescriptor> = when(desc) {
-         is TypeAliasConstructorDescriptor -> sequenceOfLazyValues({ desc.underlyingConstructorDescriptor })
-         else -> emptySequence()
+        is TypeAliasConstructorDescriptor -> sequenceOf(desc.underlyingConstructorDescriptor, desc)
+        else -> sequenceOf(desc)
     }
 
     private fun getDeclarationsStream(project: Project, targetDescriptor: DeclarationDescriptor): Sequence<PsiElement> {
         val effectiveReferencedDescriptors =
-                DescriptorToSourceUtils.getEffectiveReferencedDescriptors(targetDescriptor).asSequence() +
-                getAdditionalReferencedDescriptors(targetDescriptor)
+                DescriptorToSourceUtils.getEffectiveReferencedDescriptors(targetDescriptor).asSequence()
 
-        return effectiveReferencedDescriptors.flatMap { effectiveReferenced ->
+
+        return effectiveReferencedDescriptors.flatMap(this::getAdditionalReferencedDescriptors).flatMap { effectiveReferenced ->
             // References in library sources should be resolved to corresponding decompiled declarations,
             // therefore we put both source declaration and decompiled declaration to stream, and afterwards we filter it in getAllDeclarations
             sequenceOfLazyValues(

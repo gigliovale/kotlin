@@ -1,2 +1,4 @@
+ SimpleClass.kt
+public class <2>SimpleClass {
  main.kt
-typealias <1><2>SimpleClassAlias = SimpleClass
+typealias <1><3>SimpleClassAlias = SimpleClass

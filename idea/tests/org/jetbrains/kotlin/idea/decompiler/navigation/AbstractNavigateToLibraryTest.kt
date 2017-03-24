@@ -19,11 +19,11 @@ package org.jetbrains.kotlin.idea.decompiler.navigation
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.impl.source.resolve.reference.impl.PsiMultiReference
-import junit.framework.TestCase
 import org.jetbrains.kotlin.idea.navigation.NavigationTestUtils
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.idea.test.*
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
+import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import java.io.File
 import java.util.*
@@ -79,15 +79,10 @@ class NavigationChecker(val file: PsiFile, val referenceTargetChecker: (PsiEleme
         return NavigationTestUtils.getNavigateElementsText(file.project, collectInterestingNavigationElements())
     }
 
-    private fun collectInterestingNavigationElements() =
-            collectInterestingReferences().map {
-                val target = it.resolve()
-                TestCase.assertNotNull(target)
-                target!!.navigationElement
-            }
+    private fun collectInterestingNavigationElements() = collectInterestingReferences().flatten().map { it.navigationElement }
 
-    private fun collectInterestingReferences(): Collection<KtReference> {
-        val referenceContainersToReferences = LinkedHashMap<PsiElement, KtReference>()
+    private fun collectInterestingReferences(): Collection<List<PsiElement>> {
+        val referenceContainersToReferences = LinkedHashMap<PsiElement, List<PsiElement>>()
         for (offset in 0..file.textLength - 1) {
             val ref = file.findReferenceAt(offset)
             val refs = when (ref) {
@@ -101,18 +96,24 @@ class NavigationChecker(val file: PsiFile, val referenceTargetChecker: (PsiEleme
         return referenceContainersToReferences.values
     }
 
-    private fun MutableMap<PsiElement, KtReference>.addReference(ref: KtReference) {
+    private fun MutableMap<PsiElement, List<PsiElement>>.addReference(ref: KtReference) {
         if (containsKey(ref.element)) return
-        val target = ref.resolve() ?: return
 
-        referenceTargetChecker(target)
+        fun interestingTarget(target: PsiElement): Boolean {
+            referenceTargetChecker(target)
 
-        val targetNavPsiFile = target.navigationElement.containingFile ?: return
+            val targetNavPsiFile = target.navigationElement.containingFile ?: return false
 
-        val targetNavFile = targetNavPsiFile.virtualFile ?: return
+            val targetNavFile = targetNavPsiFile.virtualFile ?: return false
+            return !ProjectRootsUtil.isProjectSourceFile(target.project, targetNavFile)
+        }
 
-        if (!ProjectRootsUtil.isProjectSourceFile(target.project, targetNavFile)) {
-            put(ref.element, ref)
+        val targets = ref.multiResolve(false).map { it.element }.toList()
+                .filterIsInstance<KtElement>()
+                .filter(::interestingTarget)
+
+        if (targets.isNotEmpty()) {
+            put(ref.element, targets)
         }
     }
 

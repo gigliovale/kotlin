@@ -6,6 +6,6 @@ typealias CA = C
 
 class D : <caret>CA()
 
-//MULTIRESOLVE true
+//MULTIRESOLVE
 //REF: (test).C
 //REF: (test).CA

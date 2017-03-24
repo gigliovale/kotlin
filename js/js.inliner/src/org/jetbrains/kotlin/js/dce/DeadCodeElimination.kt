@@ -116,6 +116,10 @@ class DeadCodeElimination(private val root: JsStatement) {
         override fun visit(x: JsFunction, ctx: JsContext<in JsNode>): Boolean {
             enterScope(x.collectLocalVariables())
             if (x !in processedFunctions) {
+                val node = x.name?.let { nodes[it] }
+                if (node != null && !hasUsedValues(node)) {
+                    ctx.replaceMe(JsLiteral.NULL)
+                }
                 x.parameters.clear()
                 x.body.statements.clear()
                 return false
@@ -141,7 +145,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                     val lhs = x.arg1
                     if (lhs is JsArrayAccess) {
                         if (shouldRemoveNode(x) && !propertyModificationHasSideEffect(lhs.array, getPossibleStringValues(lhs.index))) {
-                            ctx.replaceMe(exprSequence(accept(lhs.array), accept(lhs.index), x.arg2))
+                            ctx.replaceMe(exprSequence(accept(lhs.array), accept(lhs.index), accept(x.arg2)))
                             return false
                         }
                     }
@@ -198,6 +202,12 @@ class DeadCodeElimination(private val root: JsStatement) {
                 if (!hasSideEffect) {
                     ctx.replaceMe(qualifier?.let { accept(it) } ?: JsLiteral.NULL)
                     return false
+                }
+            }
+            else {
+                val node = nodes[name]
+                if (node != null && !hasUsedValues(node)) {
+                    ctx.replaceMe(JsLiteral.NULL)
                 }
             }
 
@@ -555,7 +565,7 @@ class DeadCodeElimination(private val root: JsStatement) {
             }
             resultNode = createNode(x)
             resultNode.addValue(objectValue)
-            objectValue.getMember(PROTO).addValue(objectValue)
+            objectValue.getMember(PROTO).addValue(this@DeadCodeElimination.objectValue)
         }
 
         override fun visitArray(x: JsArrayLiteral) {
@@ -598,7 +608,6 @@ class DeadCodeElimination(private val root: JsStatement) {
                         value.readProperty(nameRef.ident, newNode)
                     }
                 })
-                resultNode.use()
                 newNode
             }
         }
@@ -926,6 +935,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                 for ((index, argumentNode) in argumentsNodes.withIndex()) {
                     argumentNode.connectTo(value.getParameter(index + 1))
                 }
+                value.getReturnValue().addValue(objectValue)
 
                 processFunctionIfNecessary(value)
                 value.readProperty("prototype", prototypeNode)
@@ -1011,6 +1021,17 @@ class DeadCodeElimination(private val root: JsStatement) {
                 })
             }
         })
+        to.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                if (value != primitiveValue && value.stringConstant == null) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun used() {
+                            this@readProperty.use()
+                        }
+                    })
+                }
+            }
+        })
     }
 
     private fun Value.writeProperty(name: String, newValue: Node) {
@@ -1025,17 +1046,19 @@ class DeadCodeElimination(private val root: JsStatement) {
         val newPropertyDescriptor = ValueImpl(newValue.jsNode, "${newValue.path}#descriptor")
         newValue.connectTo(newPropertyDescriptor.getMember("value"))
 
+        val propertyDescriptorNode = descriptorSupplier()
         newValue.addHandler(object : NodeEventHandler {
             override fun valueAdded(value: Value) {
-                value.addHandler(object : ValueEventHandler {
-                    override fun used() {
-                        this@writeProperty.use()
-                    }
-                })
+                if (value != primitiveValue && value.stringConstant == null) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun used() {
+                            use()
+                        }
+                    })
+                }
             }
         })
 
-        val propertyDescriptorNode = descriptorSupplier()
         propertyDescriptorNode.addValue(newPropertyDescriptor)
         propertyDescriptorNode.addHandler(object : NodeEventHandler {
             override fun valueAdded(value: Value) {
@@ -1081,6 +1104,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
     private fun defer(action: () -> Unit) {
         worklist += action
+        //action()
     }
 
     internal inner class ValueImpl(

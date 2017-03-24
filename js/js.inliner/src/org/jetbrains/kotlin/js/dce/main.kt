@@ -20,6 +20,7 @@ import com.google.gwt.dev.js.rhino.CodePosition
 import com.google.gwt.dev.js.rhino.ErrorReporter
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.kotlin.js.backend.ast.JsProgram
+import org.jetbrains.kotlin.js.inline.util.fixForwardNameReferences
 import org.jetbrains.kotlin.js.parser.parse
 import java.io.File
 
@@ -28,6 +29,7 @@ fun main(args: Array<String>) {
     val code = FileUtil.loadFile(file)
     val program = JsProgram()
     program.globalBlock.statements += parse(code, reporter, program.scope)
+    program.globalBlock.fixForwardNameReferences()
 
     val dce = DeadCodeElimination(program.globalBlock)
     dce.apply()

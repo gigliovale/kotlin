@@ -47,6 +47,9 @@ class DeadCodeElimination(private val root: JsStatement) {
     private val functionApplyValue = ValueImpl(null, "<global>.Function.prototype.apply")
     private val functionCallValue = ValueImpl(null, "<global>.Function.prototype.call")
 
+    private val errorValue = ValueImpl(null, "<global>.Error")
+    private val stringValue = ValueImpl(null, "<global>.String")
+
     companion object {
         private val PROTO = "__proto__"
     }
@@ -59,6 +62,8 @@ class DeadCodeElimination(private val root: JsStatement) {
         globalScope.getMember("Object").addValue(propertyDescriptorOfOneValue(objectValue))
         globalScope.getMember("Function").addValue(propertyDescriptorOfOneValue(functionValue))
         globalScope.getMember("Array").addValue(propertyDescriptorOfOneValue(arrayValue))
+        globalScope.getMember("Error").addValue(propertyDescriptorOfOneValue(errorValue))
+        globalScope.getMember("String").addValue(propertyDescriptorOfOneValue(stringValue))
 
         objectValue.getMember("create").addValue(propertyDescriptorOfOneValue(objectCreateValue))
         objectValue.getMember("defineProperty").addValue(propertyDescriptorOfOneValue(objectDefineProperty))
@@ -67,6 +72,7 @@ class DeadCodeElimination(private val root: JsStatement) {
         functionPrototypeValue.getMember("apply").addValue(propertyDescriptorOfOneValue(functionApplyValue))
         functionPrototypeValue.getMember("call").addValue(propertyDescriptorOfOneValue(functionCallValue))
 
+        stringValue.getReturnValue().addValue(primitiveValue)
 
         enterScope(root)
         root.accept(visitor)
@@ -150,7 +156,7 @@ class DeadCodeElimination(private val root: JsStatement) {
                                 propertyHasSideEffect(globalScopeNode, setOf(lhs.ident), "set")
                             }
                             if (shouldRemoveNode(x) && !hasSideEffect) {
-                                ctx.replaceMe(exprSequence(qualifier ?: JsLiteral.NULL, accept(x.arg2)))
+                                ctx.replaceMe(exprSequence(qualifier?.let { accept(it) } ?: JsLiteral.NULL, accept(x.arg2)))
                                 return false
                             }
                         }
@@ -158,7 +164,13 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
 
                 JsBinaryOperator.AND,
-                JsBinaryOperator.OR -> {}
+                JsBinaryOperator.OR -> {
+                    val arg2 = accept(x.arg2)
+                    if (!hasSideEffect(arg2)) {
+                        ctx.replaceMe(accept(x.arg1))
+                        return false
+                    }
+                }
 
                 else -> {
                     if (shouldRemoveNode(x)) {
@@ -168,7 +180,29 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
             }
 
-            return true
+            x.arg1.accept(eliminatorTraverse)
+            x.arg2.accept(eliminatorTraverse)
+            return false
+        }
+
+        override fun visit(x: JsNameRef, ctx: JsContext<in JsNode>): Boolean {
+            val name = x.name
+            if (name == null || name !in variablesInScope) {
+                val qualifier = x.qualifier
+                val hasSideEffect = if (qualifier != null) {
+                    propertyAccessHasSideEffect(qualifier, setOf(x.ident))
+                }
+                else {
+                    propertyHasSideEffect(globalScopeNode, setOf(x.ident), "get")
+                }
+                if (!hasSideEffect) {
+                    ctx.replaceMe(qualifier?.let { accept(it) } ?: JsLiteral.NULL)
+                    return false
+                }
+            }
+
+            x.qualifier?.accept(eliminatorTraverse)
+            return false
         }
 
         override fun endVisit(x: JsArrayLiteral, ctx: JsContext<in JsNode>) {
@@ -184,12 +218,39 @@ class DeadCodeElimination(private val root: JsStatement) {
         }
 
         override fun visit(x: JsInvocation, ctx: JsContext<in JsNode>): Boolean {
-            if (x.isOnly(objectDefineProperty) && x.arguments.size == 3) {
+            if (x.qualifier.isOnly(objectDefineProperty) && x.arguments.size == 3) {
                 if (shouldRemoveNode(x.arguments[0]) || shouldRemoveNode(x.arguments[2])) {
                     ctx.replaceMe(exprSequence(*x.arguments.map { accept(it) }.toTypedArray()))
                 }
             }
-            return true
+            else if (x.qualifier.isOnly(objectCreateValue)) {
+                if (shouldRemoveNode(x)) {
+                    ctx.replaceMe(exprSequence(*x.arguments.map { accept(it) }.toTypedArray()))
+                }
+            }
+            x.accept(eliminatorTraverse)
+            return false
+        }
+
+        override fun visit(x: JsNew, ctx: JsContext<*>): Boolean {
+            x.accept(eliminatorTraverse)
+            return false
+        }
+
+        override fun visit(x: JsVars.JsVar, ctx: JsContext<in JsNode>): Boolean {
+            if (!hasUsedValues(nodes[x.name]!!)) {
+                ctx.removeMe()
+            }
+            else {
+                x.accept(eliminatorTraverse)
+            }
+            return false
+        }
+
+        override fun endVisit(x: JsVars, ctx: JsContext<in JsNode>) {
+            if (x.isEmpty) {
+                ctx.removeMe()
+            }
         }
 
         override fun visit(x: JsCatch, ctx: JsContext<*>): Boolean {
@@ -213,6 +274,10 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
             }
         }
+
+        override fun visit(x: JsBreak, ctx: JsContext<*>): Boolean = false
+
+        override fun visit(x: JsContinue, ctx: JsContext<*>): Boolean = false
 
         private fun exprSequence(vararg expressions: JsExpression): JsExpression {
             if (expressions.isEmpty()) return JsLiteral.NULL
@@ -248,6 +313,12 @@ class DeadCodeElimination(private val root: JsStatement) {
         private fun JsNode.isOnly(value: Value): Boolean {
             val node = nodeMap[this] ?: return false
             return node.getValues().singleOrNull() == value
+        }
+    }
+
+    private val eliminatorTraverse: JsVisitor = object : RecursiveJsVisitor() {
+        override fun visitFunction(x: JsFunction) {
+            eliminator.accept(x)
         }
     }
 
@@ -310,31 +381,70 @@ class DeadCodeElimination(private val root: JsStatement) {
     private var thisNode: Node = globalScopeNode
     private val visitor = object : RecursiveJsVisitor() {
         override fun visitBinaryExpression(x: JsBinaryOperation) {
-            if (x.operator == JsBinaryOperator.ASG) {
-                handleAssignment(x, x.arg1, x.arg2)
-            }
-            else if (x.operator == JsBinaryOperator.OR) {
-                accept(x.arg1)
-                val first = resultNode
-                accept(x.arg2)
-                val second = resultNode
-                resultNode = createNode(x)
-                first.connectTo(resultNode)
-                second.connectTo(resultNode)
-            }
-            else if (x.operator == JsBinaryOperator.COMMA) {
-                accept(x.arg1)
-                accept(x.arg2)
-                nodeMap[x] = resultNode
-            }
-            else {
-                accept(x.arg1)
-                resultNode.use()
-                accept(x.arg2)
-                resultNode.use()
+            when (x.operator) {
+                JsBinaryOperator.ASG -> handleAssignment(x, x.arg1, x.arg2)
+                JsBinaryOperator.OR -> {
+                    accept(x.arg1)
+                    val first = resultNode
+                    accept(x.arg2)
+                    val second = resultNode
+                    resultNode = createNode(x)
+                    first.connectTo(resultNode)
+                    second.connectTo(resultNode)
+                }
+                JsBinaryOperator.COMMA -> {
+                    accept(x.arg1)
+                    accept(x.arg2)
+                    nodeMap[x] = resultNode
+                }
+                else -> {
+                    accept(x.arg1)
+                    val leftNode = resultNode
+                    resultNode.use()
+                    accept(x.arg2)
+                    val rightNode = resultNode
+                    resultNode.use()
 
-                resultNode = createNode(x)
-                resultNode.addValue(primitiveValue)
+                    if (x.operator == JsBinaryOperator.ADD) {
+                        addCallToFunction(x.arg1, leftNode, "toString")
+                        addCallToFunction(x.arg2, rightNode, "toString")
+                    }
+                    when (x.operator) {
+                        JsBinaryOperator.ADD,
+                        JsBinaryOperator.SUB,
+                        JsBinaryOperator.MUL,
+                        JsBinaryOperator.DIV,
+                        JsBinaryOperator.MOD,
+                        JsBinaryOperator.BIT_AND,
+                        JsBinaryOperator.BIT_OR,
+                        JsBinaryOperator.BIT_XOR,
+                        JsBinaryOperator.SHL,
+                        JsBinaryOperator.SHR,
+                        JsBinaryOperator.SHRU,
+                        JsBinaryOperator.GT,
+                        JsBinaryOperator.LT,
+                        JsBinaryOperator.EQ,
+                        JsBinaryOperator.NEQ,
+                        JsBinaryOperator.ASG_ADD,
+                        JsBinaryOperator.ASG_SUB,
+                        JsBinaryOperator.ASG_MUL,
+                        JsBinaryOperator.ASG_DIV,
+                        JsBinaryOperator.ASG_MOD,
+                        JsBinaryOperator.ASG_BIT_AND,
+                        JsBinaryOperator.ASG_BIT_OR,
+                        JsBinaryOperator.ASG_BIT_XOR,
+                        JsBinaryOperator.ASG_SHL,
+                        JsBinaryOperator.ASG_SHR,
+                        JsBinaryOperator.ASG_SHRU -> {
+                            addCallToFunction(x.arg1, leftNode, "valueOf")
+                            addCallToFunction(x.arg2, rightNode, "valueOf")
+                        }
+                        else -> {}
+                    }
+
+                    resultNode = createNode(x)
+                    resultNode.addValue(primitiveValue)
+                }
             }
         }
 
@@ -500,7 +610,9 @@ class DeadCodeElimination(private val root: JsStatement) {
 
             val indexExpr = x.indexExpression
             val newNode = createNode(x)
+            val indexNode: Node?
             if (indexExpr is JsStringLiteral) {
+                indexNode = null
                 arrayNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
                         value.readProperty(indexExpr.value, newNode)
@@ -509,7 +621,7 @@ class DeadCodeElimination(private val root: JsStatement) {
             }
             else {
                 accept(indexExpr)
-                resultNode.use()
+                indexNode = resultNode
                 arrayNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
                         value.readDynamicProperty(newNode)
@@ -517,6 +629,17 @@ class DeadCodeElimination(private val root: JsStatement) {
                 })
             }
             resultNode = newNode
+
+            newNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun used() {
+                            arrayNode.use()
+                            indexNode?.use()
+                        }
+                    })
+                }
+            })
         }
 
         override fun visitInvocation(invocation: JsInvocation) {
@@ -534,8 +657,13 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
                 else {
                     qualifierNode = createNode(qualifier)
-                    accept(qualifier.qualifier)
-                    receiverNode = resultNode
+                    receiverNode = if (qualifier.qualifier != null) {
+                        accept(qualifier.qualifier)
+                        resultNode
+                    }
+                    else {
+                        globalScopeNode
+                    }
                     receiverNode.addHandler(object : NodeEventHandler {
                         override fun valueAdded(value: Value) {
                             value.readProperty(qualifier.ident, qualifierNode)
@@ -608,9 +736,17 @@ class DeadCodeElimination(private val root: JsStatement) {
                     })
                 }
             })
-            prototypeNode?.use()
 
             resultNode.addValue(objectValue)
+            resultNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    value.addHandler(object : ValueEventHandler {
+                        override fun used() {
+                            prototypeNode?.use()
+                        }
+                    })
+                }
+            })
         }
 
         private fun handleObjectDefineProperty(objectNode: Node, propertyNameNode: Node, descriptorNode: Node) {
@@ -732,6 +868,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun visitString(x: JsStringLiteral) {
             resultNode = createNode(x)
+            resultNode.use()
             resultNode.addValue(ValueImpl(x, "", x.value))
         }
 
@@ -910,6 +1047,22 @@ class DeadCodeElimination(private val root: JsStatement) {
                         processFunctionIfNecessary(setter)
                     }
                 })
+            }
+        })
+    }
+
+    private fun addCallToFunction(jsNode: JsNode, node: Node, functionName: String) {
+        val functionNode = NodeImpl(jsNode, "#call:$functionName")
+        node.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                value.readProperty(functionName, functionNode)
+            }
+        })
+        functionNode.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                value.use()
+                node.connectTo(value.getParameter(0))
+                processFunctionIfNecessary(value)
             }
         })
     }

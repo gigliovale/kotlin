@@ -67,9 +67,6 @@ class DeadCodeElimination(private val root: JsStatement) {
         functionPrototypeValue.getMember("apply").addValue(propertyDescriptorOfOneValue(functionApplyValue))
         functionPrototypeValue.getMember("call").addValue(propertyDescriptorOfOneValue(functionCallValue))
 
-        /*for (globalValue in listOf(globalScope, objectValue, functionValue, arrayValue, functionPrototypeValue)) {
-            spreadGlobalValue(globalValue)
-        }*/
 
         enterScope(root)
         root.accept(visitor)
@@ -92,23 +89,6 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
             }
         }.accept(root)*/
-    }
-
-    private fun spreadGlobalValue(global: Value): Value {
-        global.addHandler(object : ValueEventHandler {
-            override fun memberAdded(name: String, value: Node) {
-                if (value.getValues().isEmpty()) {
-                    value.addValue(spreadGlobalValue(global))
-                }
-            }
-
-            override fun returnValueAdded(value: Node) {
-                if (value.getValues().isEmpty()) {
-                    value.addValue(spreadGlobalValue(global))
-                }
-            }
-        })
-        return global
     }
 
     private val eliminator = object : JsVisitorWithContextImpl() {
@@ -255,7 +235,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         private fun hasSideEffect(expression: JsExpression): Boolean {
             return when (expression) {
-                is JsFunction,
+                is JsFunction -> expression.name != null
                 is JsLiteral.JsThisRef,
                 is JsNullLiteral,
                 is JsNumberLiteral,
@@ -907,6 +887,16 @@ class DeadCodeElimination(private val root: JsStatement) {
     private fun Value.writeProperty(newValue: Node, descriptorSupplier: () -> Node) {
         val newPropertyDescriptor = ValueImpl(newValue.jsNode, "${newValue.path}#descriptor")
         newValue.connectTo(newPropertyDescriptor.getMember("value"))
+
+        newValue.addHandler(object : NodeEventHandler {
+            override fun valueAdded(value: Value) {
+                value.addHandler(object : ValueEventHandler {
+                    override fun used() {
+                        this@writeProperty.use()
+                    }
+                })
+            }
+        })
 
         val propertyDescriptorNode = descriptorSupplier()
         propertyDescriptorNode.addValue(newPropertyDescriptor)

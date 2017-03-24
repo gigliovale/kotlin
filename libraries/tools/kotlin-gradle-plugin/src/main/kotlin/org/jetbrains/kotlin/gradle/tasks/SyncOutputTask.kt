@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.gradle.tasks
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -59,6 +60,8 @@ internal open class SyncOutputTask : DefaultTask() {
     @get:InputFiles
     var kaptClassesDir: File by Delegates.notNull()
 
+    // Marked as input to make Gradle fall back to non-incremental build when it changes.
+    @get:Input
     private val classesDirs: List<File>
             get() = listOf(kotlinOutputDir, kaptClassesDir).filter(File::exists)
 
@@ -99,21 +102,12 @@ internal open class SyncOutputTask : DefaultTask() {
     @TaskAction
     fun execute(inputs: IncrementalTaskInputs): Unit {
         val sourceDirs = classesDirs.joinToString()
-        var useNonIncremental = !inputs.isIncremental
         if (inputs.isIncremental) {
             logger.kotlinDebug { "Incremental copying files from $sourceDirs to $javaOutputDir" }
-            fun processWithFallback(f: InputFileDetails) {
-                if (useNonIncremental) // Already switched to the fallback
-                    return
-                // If kotlin destinationDir has changed, we cannot find the sibling without knowing old classes root
-                if (!processIncrementally(f)) {
-                    useNonIncremental = true
-                }
-            }
-            inputs.outOfDate(::processWithFallback)
-            inputs.removed(::processWithFallback)
+            inputs.outOfDate { processIncrementally(it) }
+            inputs.removed { processIncrementally(it) }
         }
-        if (useNonIncremental) {
+        else {
             logger.kotlinDebug { "Non-incremental copying files from $sourceDirs to $javaOutputDir" }
             processNonIncrementally()
         }
@@ -135,14 +129,14 @@ internal open class SyncOutputTask : DefaultTask() {
 
         for (dir in classesDirs) {
             dir.walkTopDown().forEach {
-                copy(it, it.siblingInJavaDir(baseDir = dir)!!)
+                copy(it, it.siblingInJavaDir(baseDir = dir))
             }
         }
     }
 
-    private fun processIncrementally(input: InputFileDetails): Boolean {
+    private fun processIncrementally(input: InputFileDetails) {
         val fileInKotlinDir = input.file
-        val fileInJavaDir = fileInKotlinDir.siblingInJavaDir() ?: return false
+        val fileInJavaDir = fileInKotlinDir.siblingInJavaDir()
 
         if (input.isRemoved) {
             // file was removed in kotlin dir, remove from java as well
@@ -152,7 +146,6 @@ internal open class SyncOutputTask : DefaultTask() {
             // copy modified or added file from kotlin to java
             copy(fileInKotlinDir, fileInJavaDir)
         }
-        return true
     }
 
     private fun remove(fileInJavaDir: File) {
@@ -179,8 +172,8 @@ internal open class SyncOutputTask : DefaultTask() {
         }
     }
 
-    private fun File.siblingInJavaDir(baseDir: File? = null): File? {
-        val base = baseDir ?: classesDirs.find { isAncestor(it, this, true) } ?: return null
+    private fun File.siblingInJavaDir(baseDir: File? = null): File {
+        val base = baseDir ?: classesDirs.find { isAncestor(it, this, true) }!!
         return File(javaOutputDir, this.relativeTo(base).path)
     }
 }

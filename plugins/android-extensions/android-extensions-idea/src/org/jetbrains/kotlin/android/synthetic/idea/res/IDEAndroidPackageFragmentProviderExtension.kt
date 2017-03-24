@@ -16,38 +16,20 @@
 
 package org.jetbrains.kotlin.android.synthetic.idea.res
 
-import com.android.tools.idea.gradle.facet.AndroidGradleFacet
-import com.android.tools.idea.gradle.parser.GradleBuildFile
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleServiceManager
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiManager
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.android.synthetic.res.AndroidLayoutXmlFileManager
 import org.jetbrains.kotlin.android.synthetic.res.AndroidPackageFragmentProviderExtension
 import org.jetbrains.kotlin.idea.caches.resolve.ModuleSourceInfo
-import org.jetbrains.plugins.groovy.lang.psi.GroovyFile
 
-class IDEAndroidPackageFragmentProviderExtension(val project: Project) : AndroidPackageFragmentProviderExtension() {
-    private val psiManager = PsiManager.getInstance(project)
+class IDEAndroidPackageFragmentProviderExtension : AndroidPackageFragmentProviderExtension() {
 
     override fun getLayoutXmlFileManager(project: Project, moduleInfo: ModuleInfo?): AndroidLayoutXmlFileManager? {
         val moduleSourceInfo = moduleInfo as? ModuleSourceInfo ?: return null
         val module = moduleSourceInfo.module
-        if (!isAndroidExtensionsEnabled(module) && !isTestMode(module)) return null
+        if (AndroidFacet.getInstance(module) == null) return null
         return ModuleServiceManager.getService(module, AndroidLayoutXmlFileManager::class.java)
-    }
-
-    private fun isTestMode(module: Module): Boolean {
-        return ApplicationManager.getApplication().isUnitTestMode && AndroidFacet.getInstance(module) != null
-    }
-
-    private fun isAndroidExtensionsEnabled(module: Module): Boolean {
-        val androidGradleFacet = AndroidGradleFacet.getInstance(module) ?: return false
-        val buildFile = androidGradleFacet.gradleModel?.buildFile ?: return false
-        val buildGroovyFile = psiManager.findFile(buildFile) as? GroovyFile ?: return false
-        return GradleBuildFile.getPlugins(buildGroovyFile).contains("kotlin-android-extensions")
     }
 }

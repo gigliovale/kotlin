@@ -252,6 +252,12 @@ public class QuickDocProviderTestGenerated extends AbstractQuickDocProviderTest 
         doTest(fileName);
     }
 
+    @TestMetadata("OnTypeAliasConstructor.kt")
+    public void testOnTypeAliasConstructor() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/OnTypeAliasConstructor.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("Samples.kt")
     public void testSamples() throws Exception {
         String fileName = KotlinTestUtils.navigationMetadata("idea/testData/editor/quickDoc/Samples.kt");

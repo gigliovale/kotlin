@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.idea
 
 import com.google.common.html.HtmlEscapers
+import com.intellij.codeInsight.documentation.DocumentationManager
 import com.intellij.codeInsight.documentation.DocumentationManagerUtil
 import com.intellij.codeInsight.javadoc.JavaDocInfoGeneratorFactory
 import com.intellij.lang.documentation.AbstractDocumentationProvider
@@ -160,8 +161,19 @@ class KotlinQuickDocumentationProvider : AbstractDocumentationProvider() {
             else if (element is KtDeclaration) {
                 return renderKotlinDeclaration(element, quickNavigation)
             }
-            else if (element is KtNameReferenceExpression && element.getReferencedName() == "it") {
-                return renderKotlinImplicitLambdaParameter(element, quickNavigation)
+            else if (element is KtNameReferenceExpression) {
+                if (element.getReferencedName() == "it")
+                    return renderKotlinImplicitLambdaParameter(element, quickNavigation)
+                else {
+                    val target = element.mainReference.multiResolve(false).map { it.element }.firstOrNull()
+                    if (target != null) {
+                        val provider = DocumentationManager.getProviderFromElement(target, originalElement)
+                        return if (quickNavigation)
+                            provider.getQuickNavigateInfo(target, originalElement)
+                        else
+                            provider.generateDoc(target, originalElement)
+                    }
+                }
             }
             else if (element is KtLightDeclaration<*, *>) {
                 val origin = element.kotlinOrigin ?: return null

@@ -25,8 +25,6 @@ interface Value {
 
     fun getMember(name: String): Node
 
-    fun getDynamicMember(): Node
-
     fun getAllMembers(): List<Node>
 
     fun getMemberIfExists(name: String): Node?
@@ -43,5 +41,7 @@ interface Value {
 
     fun use()
 
-    val stringConstant: String?
+    val isDynamic: Boolean
+
+    fun makeDynamic()
 }

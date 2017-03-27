@@ -31,7 +31,11 @@ interface Node {
 
     fun addHandler(handler: NodeEventHandler)
 
+    val isUsed: Boolean
+
     fun use()
 
-    val isUsed: Boolean
+    val isDynamic: Boolean
+
+    fun makeDynamic()
 }

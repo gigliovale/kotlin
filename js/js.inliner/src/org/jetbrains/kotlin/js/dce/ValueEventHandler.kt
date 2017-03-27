@@ -17,8 +17,6 @@
 package org.jetbrains.kotlin.js.dce
 
 interface ValueEventHandler {
-    fun dynamicMemberAdded(value: Node) {}
-
     fun memberAdded(name: String, value: Node) {}
 
     fun parameterAdded(index: Int, value: Node) {}

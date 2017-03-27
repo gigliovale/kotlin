@@ -6,7 +6,7 @@ import org.junit.runners.Parameterized.Parameter
 import org.junit.runners.Parameterized.Parameters
 
 @RunWith(Parameterized::class)
-open class BaseMultiGradleVersionIT : BaseGradleIT() {
+abstract class BaseMultiGradleVersionIT : BaseGradleIT() {
     @Parameter lateinit var gradleVersion: String
 
     companion object {

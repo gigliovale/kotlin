@@ -23,7 +23,6 @@ import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.JavaCodeFragment;
 import com.intellij.psi.JavaPsiFacade;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -34,7 +33,6 @@ import com.intellij.refactoring.classMembers.MemberInfoChange;
 import com.intellij.refactoring.move.MoveCallback;
 import com.intellij.refactoring.move.MoveHandler;
 import com.intellij.refactoring.ui.RefactoringDialog;
-import com.intellij.ui.ReferenceEditorComboWithBrowseButton;
 import kotlin.collections.CollectionsKt;
 import kotlin.jvm.functions.Function1;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +44,7 @@ import org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinMemberInfo;
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinMemberSelectionPanel;
 import org.jetbrains.kotlin.idea.refactoring.memberInfo.KotlinMemberSelectionTable;
 import org.jetbrains.kotlin.idea.refactoring.move.moveDeclarations.*;
+import org.jetbrains.kotlin.idea.refactoring.ui.KotlinTypeReferenceEditorComboWithBrowseButton;
 import org.jetbrains.kotlin.psi.*;
 
 import javax.swing.*;
@@ -62,7 +61,7 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
     private JPanel mainPanel;
     private JTextField originalClassField;
     private JPanel membersInfoPanel;
-    private ReferenceEditorComboWithBrowseButton targetClassChooser;
+    private KotlinTypeReferenceEditorComboWithBrowseButton targetClassChooser;
     private JCheckBox openInEditorCheckBox;
     private JPanel targetClassChooserPanel;
     private KotlinMemberSelectionTable memberTable;
@@ -96,7 +95,7 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
         originalClassField.setText(originalClass.getFqName().asString());
 
         //noinspection ConstantConditions
-        targetClassChooser = new ReferenceEditorComboWithBrowseButton(
+        targetClassChooser = new KotlinTypeReferenceEditorComboWithBrowseButton(
                 new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
@@ -148,9 +147,7 @@ public class MoveKotlinNestedClassesDialog extends RefactoringDialog {
                     }
                 },
                 initialTargetClass.getFqName().asString(),
-                myProject,
-                true,
-                JavaCodeFragment.VisibilityChecker.PROJECT_SCOPE_VISIBLE,
+                originalClass,
                 RECENTS_KEY);
         targetClassChooser.getChildComponent().getDocument().addDocumentListener(
                 new DocumentAdapter() {

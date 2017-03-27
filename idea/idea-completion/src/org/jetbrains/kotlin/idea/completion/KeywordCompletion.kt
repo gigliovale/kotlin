@@ -159,6 +159,7 @@ object KeywordCompletion {
             CommentFilter(),
             ParentFilter(ClassFilter(KtLiteralStringTemplateEntry::class.java)),
             ParentFilter(ClassFilter(KtConstantExpression::class.java)),
+            ParentFilter(ClassFilter(KtTypeElement::class.java)),
             LeftNeighbour(TextFilter(".")),
             LeftNeighbour(TextFilter("?."))
     ))

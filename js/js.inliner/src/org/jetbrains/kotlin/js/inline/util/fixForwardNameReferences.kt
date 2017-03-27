@@ -63,10 +63,12 @@ fun JsNode.fixForwardNameReferences() {
 
         override fun visitNameRef(nameRef: JsNameRef) {
             super.visitNameRef(nameRef)
-            val ident = nameRef.ident
-            val name = currentScope[ident]
-            if (name != null) {
-                nameRef.name = name
+            if (nameRef.qualifier == null) {
+                val ident = nameRef.ident
+                val name = currentScope[ident]
+                if (name != null) {
+                    nameRef.name = name
+                }
             }
         }
 

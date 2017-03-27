@@ -43,6 +43,7 @@ class DeadCodeElimination(private val root: JsStatement) {
     private val primitiveValue = ValueImpl(null, "<primitive>")
     private val objectCreateValue = ValueImpl(null, "<global>.Object.create")
     private val objectDefineProperty = ValueImpl(null, "<global>.Object.defineProperty")
+    private val objectGetOwnPropertyDescriptor = ValueImpl(null, "<global>.Object.getOwnPropertyDescriptor")
 
     private val functionApplyValue = ValueImpl(null, "<global>.Function.prototype.apply")
     private val functionCallValue = ValueImpl(null, "<global>.Function.prototype.call")
@@ -67,6 +68,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         objectValue.getMember("create").addValue(propertyDescriptorOfOneValue(objectCreateValue))
         objectValue.getMember("defineProperty").addValue(propertyDescriptorOfOneValue(objectDefineProperty))
+        objectValue.getMember("getOwnPropertyDescriptor").addValue(propertyDescriptorOfOneValue(objectGetOwnPropertyDescriptor))
 
         functionValue.getMember("prototype").addValue(propertyDescriptorOfOneValue(functionPrototypeValue))
         functionPrototypeValue.getMember("apply").addValue(propertyDescriptorOfOneValue(functionApplyValue))
@@ -161,8 +163,14 @@ class DeadCodeElimination(private val root: JsStatement) {
                             }
                             if (shouldRemoveNode(x) && !hasSideEffect) {
                                 ctx.replaceMe(exprSequence(qualifier?.let { accept(it) } ?: JsLiteral.NULL, accept(x.arg2)))
-                                return false
                             }
+                            else if (qualifier != null && shouldRemoveNode(qualifier)) {
+                                ctx.replaceMe(accept(x.arg2))
+                            }
+                            else {
+                                x.arg2 = accept(x.arg2)
+                            }
+                            return false
                         }
                     }
                 }
@@ -234,6 +242,11 @@ class DeadCodeElimination(private val root: JsStatement) {
                 }
             }
             else if (x.qualifier.isOnly(objectCreateValue)) {
+                if (shouldRemoveNode(x)) {
+                    ctx.replaceMe(exprSequence(*x.arguments.map { accept(it) }.toTypedArray()))
+                }
+            }
+            else if (x.qualifier.isOnly(objectGetOwnPropertyDescriptor)) {
                 if (shouldRemoveNode(x)) {
                     ctx.replaceMe(exprSequence(*x.arguments.map { accept(it) }.toTypedArray()))
                 }
@@ -704,6 +717,11 @@ class DeadCodeElimination(private val root: JsStatement) {
                             }
                             newNode.addValue(primitiveValue)
                         }
+                        objectGetOwnPropertyDescriptor -> {
+                            if (argumentsNodes.size >= 2) {
+                                handleObjectGetOwnPropertyDescriptor(argumentsNodes[0], argumentsNodes[1], newNode)
+                            }
+                        }
                         functionCallValue -> {
                             handleFunctionCall(receiverNode, argumentsNodes.getOrNull(0), argumentsNodes.drop(1), newNode)
                         }
@@ -771,22 +789,43 @@ class DeadCodeElimination(private val root: JsStatement) {
             propertyNameNode.addHandler(object : NodeEventHandler {
                 override fun valueAdded(value: Value) {
                     val propertyName = value
-                    if (primitiveValue !in propertyNameNode.getValues()) {
-                        val name = propertyName.stringConstant
-                        if (name == null) {
-                            objectNode.addHandler(object : NodeEventHandler {
-                                override fun valueAdded(value: Value) {
-                                    value.getDynamicMember().addValue(descriptor)
-                                }
-                            })
-                        }
-                        else {
-                            objectNode.addHandler(object : NodeEventHandler {
-                                override fun valueAdded(value: Value) {
-                                    value.getMember(name).addValue(descriptor)
-                                }
-                            })
-                        }
+                    val name = propertyName.stringConstant
+                    if (name == null) {
+                        objectNode.addHandler(object : NodeEventHandler {
+                            override fun valueAdded(value: Value) {
+                                value.getDynamicMember().addValue(descriptor)
+                            }
+                        })
+                    }
+                    else {
+                        objectNode.addHandler(object : NodeEventHandler {
+                            override fun valueAdded(value: Value) {
+                                value.getMember(name).addValue(descriptor)
+                            }
+                        })
+                    }
+                }
+            })
+        }
+
+        private fun handleObjectGetOwnPropertyDescriptor(objectNode: Node, propertyNameNode: Node, resultNode: Node) {
+            propertyNameNode.addHandler(object : NodeEventHandler {
+                override fun valueAdded(value: Value) {
+                    val propertyName = value
+                    val name = propertyName.stringConstant
+                    if (name == null) {
+                        objectNode.addHandler(object : NodeEventHandler {
+                            override fun valueAdded(value: Value) {
+                                value.getDynamicMember().connectTo(resultNode)
+                            }
+                        })
+                    }
+                    else {
+                        objectNode.addHandler(object : NodeEventHandler {
+                            override fun valueAdded(value: Value) {
+                                value.getMember(name).connectTo(resultNode)
+                            }
+                        })
                     }
                 }
             })
@@ -1023,13 +1062,12 @@ class DeadCodeElimination(private val root: JsStatement) {
         })
         to.addHandler(object : NodeEventHandler {
             override fun valueAdded(value: Value) {
-                if (value != primitiveValue && value.stringConstant == null) {
-                    value.addHandler(object : ValueEventHandler {
-                        override fun used() {
-                            this@readProperty.use()
-                        }
-                    })
-                }
+                value.addHandler(object : ValueEventHandler {
+                    override fun used() {
+                        this@readProperty.use()
+                        propertyDescriptorNode.use()
+                    }
+                })
             }
         })
     }
@@ -1047,17 +1085,6 @@ class DeadCodeElimination(private val root: JsStatement) {
         newValue.connectTo(newPropertyDescriptor.getMember("value"))
 
         val propertyDescriptorNode = descriptorSupplier()
-        newValue.addHandler(object : NodeEventHandler {
-            override fun valueAdded(value: Value) {
-                if (value != primitiveValue && value.stringConstant == null) {
-                    value.addHandler(object : ValueEventHandler {
-                        override fun used() {
-                            use()
-                        }
-                    })
-                }
-            }
-        })
 
         propertyDescriptorNode.addValue(newPropertyDescriptor)
         propertyDescriptorNode.addHandler(object : NodeEventHandler {

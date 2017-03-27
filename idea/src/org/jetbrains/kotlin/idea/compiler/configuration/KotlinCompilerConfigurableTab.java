@@ -55,8 +55,6 @@ import org.jetbrains.kotlin.idea.facet.KotlinFacet;
 import org.jetbrains.kotlin.idea.util.application.ApplicationUtilsKt;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -152,13 +150,6 @@ public class KotlinCompilerConfigurableTab implements SearchableConfigurable, Co
         setupFileChooser(labelForOutputDirectory, outputDirectory,
                          "Choose Output Directory",
                          false);
-
-        copyRuntimeFilesCheckBox.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(@NotNull ChangeEvent e) {
-                updateOutputDirEnabled();
-            }
-        });
 
         fillModuleKindList();
         fillJvmVersionList();
@@ -293,7 +284,7 @@ public class KotlinCompilerConfigurableTab implements SearchableConfigurable, Co
     }
 
     private void updateOutputDirEnabled() {
-        if (isEnabled) {
+        if (isEnabled && copyRuntimeFilesCheckBox != null) {
             outputDirectory.setEnabled(copyRuntimeFilesCheckBox.isSelected());
             labelForOutputDirectory.setEnabled(copyRuntimeFilesCheckBox.isSelected());
         }
@@ -604,7 +595,6 @@ public class KotlinCompilerConfigurableTab implements SearchableConfigurable, Co
     public void setEnabled(boolean value) {
         isEnabled = value;
         UIUtil.setEnabled(getContentPane(), value, true);
-        updateOutputDirEnabled();
     }
 
     public CommonCompilerArguments getCommonCompilerArguments() {
@@ -637,5 +627,16 @@ public class KotlinCompilerConfigurableTab implements SearchableConfigurable, Co
 
     public void setCompilerSettings(CompilerSettings compilerSettings) {
         this.compilerSettings = compilerSettings;
+    }
+
+    private void createUIComponents() {
+        // Workaround: ThreeStateCheckBox doesn't send suitable notification on state change
+        copyRuntimeFilesCheckBox = new ThreeStateCheckBox() {
+            @Override
+            public void setState(State state) {
+                super.setState(state);
+                updateOutputDirEnabled();
+            }
+        };
     }
 }

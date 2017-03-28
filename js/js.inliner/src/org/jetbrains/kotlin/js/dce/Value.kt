@@ -16,10 +16,13 @@
 
 package org.jetbrains.kotlin.js.dce
 
+import org.jetbrains.kotlin.js.backend.ast.JsFunction
 import org.jetbrains.kotlin.js.backend.ast.JsNode
 
 interface Value {
     val jsNode: JsNode?
+
+    val jsFunction: JsFunction?
 
     val path: String
 

@@ -49,6 +49,8 @@ class DeadCodeElimination(private val root: JsStatement) {
     private val errorValue = ValueImpl(null, null, "<global>.Error")
     private val stringValue = ValueImpl(null, null, "<global>.String")
 
+    private val tmp = mutableListOf<Node>()
+
     companion object {
         private val PROTO = "__proto__"
     }
@@ -570,6 +572,9 @@ class DeadCodeElimination(private val root: JsStatement) {
             }
             else {
                 accept(qualifier)
+                if (nameRef.toString() == "this.c") {
+                    tmp += resultNode
+                }
                 val newNode = createNode(nameRef)
                 resultNode.addHandler(object : NodeEventHandler {
                     override fun valueAdded(value: Value) {
@@ -1197,6 +1202,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun connectTo(other: Node) {
             other.makeDynamic()
+            other.addValue(dynamicValue)
         }
 
         override fun addHandler(handler: NodeEventHandler) {

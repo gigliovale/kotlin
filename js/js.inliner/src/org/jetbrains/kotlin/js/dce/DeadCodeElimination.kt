@@ -176,8 +176,6 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         private fun shouldRemoveAssignTarget(expr: JsExpression): Boolean {
             if (!shouldRemoveNode(expr)) return false
-            val node = nodeMap[expr]
-            if (node != null && (node.isDynamic || node.getValues().any { it.isDynamic })) return false
             if (expr is JsNameRef) {
                 val qualifier = expr.qualifier
                 if (qualifier != null && !shouldRemoveAssignTarget(qualifier)) return false
@@ -190,7 +188,7 @@ class DeadCodeElimination(private val root: JsStatement) {
             if (name == null || name !in variablesInScope) {
                 if (shouldRemoveNode(x)) {
                     val qualifier = x.qualifier
-                    ctx.replaceMe(qualifier?.let { accept(it) } ?: JsLiteral.NULL)
+                    ctx.replaceMe(exprSequence(qualifier?.let { accept(it) } ?: JsLiteral.NULL, JsLiteral.NULL))
                     return false
                 }
             }
@@ -713,6 +711,10 @@ class DeadCodeElimination(private val root: JsStatement) {
                 override fun used() {
                     prototypeNode?.use()
                 }
+
+                override fun becameDynamic() {
+                    prototypeNode?.makeDynamic()
+                }
             })
             resultNode.addValue(value)
         }
@@ -1003,7 +1005,6 @@ class DeadCodeElimination(private val root: JsStatement) {
             val members = this.members ?: mutableMapOf<String, NodeImpl>().also { this.members = it }
             return members.getOrPut(name) {
                 NodeImpl(jsNode, "$path.$name").also { newNode ->
-                    defer { handlers?.toList()?.forEach { it.memberAdded(name, newNode) } }
                     if (isDynamic) {
                         newNode.makeDynamic()
                         if (isUsed) {
@@ -1033,7 +1034,8 @@ class DeadCodeElimination(private val root: JsStatement) {
                 list[index] = param
                 defer { handlers?.toList()?.forEach { it.parameterAdded(index, param) } }
                 if (isDynamic) {
-                    param.use()
+                    param.makeDynamic()
+                    param.addValue(dynamicValue)
                 }
             }
         }
@@ -1049,12 +1051,6 @@ class DeadCodeElimination(private val root: JsStatement) {
             val list = handlers ?: mutableListOf<ValueEventHandler>().also { handlers = it }
             list += handler
 
-            members?.let {
-                for ((name, value) in it.toList()) {
-                    defer { handler.memberAdded(name, value) }
-                }
-            }
-
             parameters?.let {
                 for ((index, param) in it.toList().withIndex()) {
                     if (param != null) {
@@ -1069,6 +1065,10 @@ class DeadCodeElimination(private val root: JsStatement) {
 
             if (isUsed) {
                 defer { handler.used() }
+            }
+
+            if (isDynamic) {
+                defer { handler.becameDynamic() }
             }
         }
 
@@ -1100,9 +1100,13 @@ class DeadCodeElimination(private val root: JsStatement) {
                 isDynamic = true
                 for (parameter in parameters?.toList().orEmpty()) {
                     parameter?.makeDynamic()
+                    parameter?.addValue(dynamicValue)
                 }
                 for (member in members?.values?.toList().orEmpty()) {
                     member.makeDynamic()
+                }
+                for (handler in handlers?.toList().orEmpty()) {
+                    handler.becameDynamic()
                 }
 
                 if (isUsed) {
@@ -1227,6 +1231,7 @@ class DeadCodeElimination(private val root: JsStatement) {
 
         override fun addHandler(handler: ValueEventHandler) {
             handler.used()
+            handler.becameDynamic()
         }
 
         override val isUsed: Boolean = true

@@ -187,6 +187,7 @@ object LightClassLazinessChecker {
         }
 
         // collect method class results on light members that should not trigger exact context evaluation
+        val classInfo = classInfo(lightClass)
         val fieldsToInfo = lightClass.fields.asList().keysToMap { fieldInfo(it) }
         val methodsToInfo = lightClass.methods.asList().keysToMap { methodInfo(it) }
 
@@ -199,7 +200,7 @@ object LightClassLazinessChecker {
         // still running code above to catch possible exceptions
         if (lazinessMode == Mode.NoConsistency) return
 
-        assertEquals(lightClass.clsDelegate.methods.names(), lightClass.methods.names())
+        assertEquals(classInfo(lightClass.clsDelegate), classInfo)
         assertEquals(lightClass.clsDelegate.fields.names(), lightClass.fields.names())
 
         // check collected data against delegates which should contain correct data
@@ -213,7 +214,14 @@ object LightClassLazinessChecker {
         }
     }
 
-    private fun Array<out PsiMember>.names() = mapTo(LinkedHashSet()) { it.name }
+    private data class ClassInfo(
+            val fieldNames: Collection<String>,
+            val methodNames: Collection<String>
+    )
+
+    private fun classInfo(psiClass: PsiClass) = with(psiClass) {
+        ClassInfo(fields.names(), methods.names())
+    }
 
     private data class FieldInfo(
             val name: String,
@@ -240,6 +248,8 @@ object LightClassLazinessChecker {
                 isConstructor, method.parameterList.parametersCount, isVarArgs
         )
     }
+
+    private fun Array<out PsiMember>.names() = mapTo(LinkedHashSet()) { it.name!! }
 }
 
 private fun String.removeLinesStartingWith(prefix: String): String {

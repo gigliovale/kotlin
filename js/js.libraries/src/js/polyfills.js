@@ -31,3 +31,8 @@ if (typeof String.prototype.endsWith === "undefined") {
         return lastIndex !== -1 && lastIndex === position;
     };
 }
+if (typeof ArrayBuffer.isView === "undefined") {
+    ArrayBuffer.isView = function(a) {
+        return a && a.__proto__ && a.__proto__.__proto__ === Int8Array.prototype.__proto__ || false;
+    };
+}

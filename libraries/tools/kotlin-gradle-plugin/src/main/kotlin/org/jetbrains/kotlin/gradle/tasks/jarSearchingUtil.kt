@@ -20,7 +20,9 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.initialization.dsl.ScriptHandler
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlugin
 import java.io.File
+import java.net.URLClassLoader
 import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.zip.ZipFile
@@ -55,9 +57,24 @@ private fun findJarByClass(klass: Class<*>): File? {
 }
 
 private fun findKotlinCompilerJar(project: Project, compilerClassName: String): File? {
-    val filesToCheck = findPotentialCompilerJars(project)
+    val filesToCheck = sequenceOf(getCompilerFromClassLoader()) +
+                       Sequence { findPotentialCompilerJars(project).iterator() } //call the body only when queried
     val entryToFind = compilerClassName.replace(".", "/") + ".class"
-    return filesToCheck.firstOrNull { it.hasEntry(entryToFind) }
+    return filesToCheck.filterNotNull().firstOrNull { it.hasEntry(entryToFind) }
+}
+
+private val pluginJarNameRegex = ".*kotlin-gradle-plugin-(.*)\\.jar".toRegex()
+
+private fun getCompilerFromClassLoader(): File? {
+    val urlClassLoader = KotlinPlugin::class.java.classLoader as? URLClassLoader ?: return null
+    val gradlePluginPath = urlClassLoader.urLs.asSequence()
+                                   .mapNotNull { pluginJarNameRegex.matchEntire(it.toString()) }
+                                   .firstOrNull() ?: return null
+    val pluginJarVersion = gradlePluginPath.groupValues[1]
+    return urlClassLoader.urLs
+            .firstOrNull { it.toString().endsWith("kotlin-compiler-embeddable-$pluginJarVersion.jar") }
+            ?.let { File(it.toURI()) }
+            ?.takeIf(File::exists)
 }
 
 private fun findPotentialCompilerJars(project: Project): Iterable<File> {

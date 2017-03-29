@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtPsiFactory
 import org.jetbrains.kotlin.serialization.js.ModuleKind
+import org.jetbrains.kotlin.serialization.js.PackagesWithHeaderMetadata
 import org.jetbrains.kotlin.test.InTextDirectivesUtils
 import org.jetbrains.kotlin.test.KotlinTestUtils
 import org.jetbrains.kotlin.test.KotlinTestUtils.TestFileFactory
@@ -241,7 +242,8 @@ abstract class BasicBoxTest(
                 TranslationUnit.BinaryAst(FileUtil.loadFileBytes(astFile))
             }
 
-            val recompiledConfig = createConfig(module, dependencies, multiModule, serializedMetadata)
+            val headerFile = File(incrementalDir, HEADER_FILE)
+            val recompiledConfig = createConfig(module, dependencies, multiModule, Pair(headerFile, serializedMetadata))
             val recompiledOutputFile = File(outputFile.parentFile, outputFile.nameWithoutExtension + "-recompiled.js")
 
             translateFiles(allTranslationUnits, recompiledOutputFile, recompiledConfig)
@@ -307,6 +309,10 @@ abstract class BasicBoxTest(
             }
         }
 
+        translationResult.metadataHeader?.let {
+            FileUtil.writeToFile(File(incrementalDir, HEADER_FILE), it)
+        }
+
         processJsProgram(translationResult.program, units.filterIsInstance<TranslationUnit.SourceFile>().map { it.file })
     }
 
@@ -327,8 +333,7 @@ abstract class BasicBoxTest(
     private fun createPsiFiles(fileNames: List<String>): List<KtFile> = fileNames.map(this::createPsiFile)
 
     private fun createConfig(
-            module: TestModule, dependencies: List<String>, multiModule: Boolean,
-            additionalMetadata: List<File>?
+            module: TestModule, dependencies: List<String>, multiModule: Boolean, additionalMetadata: Pair<File, List<File>>?
     ): JsConfig {
         val configuration = environment.configuration.copy()
 
@@ -350,7 +355,10 @@ abstract class BasicBoxTest(
         configuration.put(JSConfigurationKeys.SOURCE_MAP, hasFilesToRecompile)
 
         if (additionalMetadata != null) {
-            configuration.put(JSConfigurationKeys.FALLBACK_METADATA, additionalMetadata.map { FileUtil.loadFileBytes(it) })
+            val metadata = PackagesWithHeaderMetadata(
+                    FileUtil.loadFileBytes(additionalMetadata.first),
+                    additionalMetadata.second.map { FileUtil.loadFileBytes(it) })
+            configuration.put(JSConfigurationKeys.FALLBACK_METADATA, metadata)
         }
 
         if (typedArraysEnabled) {
@@ -441,6 +449,7 @@ abstract class BasicBoxTest(
         private val RECOMPILE_PATTERN = Pattern.compile("^// *RECOMPILE *$", Pattern.MULTILINE)
         private val AST_EXTENSION = "jsast"
         private val METADATA_EXTENSION = "jsmeta"
+        private val HEADER_FILE = "header.$METADATA_EXTENSION"
 
         const val KOTLIN_TEST_INTERNAL = "\$kotlin_test_internal\$"
     }

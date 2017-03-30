@@ -26,13 +26,33 @@ import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.utils.DO_NOTHING_2
 
+fun captureFromExpression(type: UnwrappedType): UnwrappedType? = when (type) {
+    is SimpleType -> captureFromExpression(type)
+    // i.e. if there is nothing to capture -- no changes, if there is something -- use lowerBound as base type
+    is FlexibleType -> captureFromExpression(type.lowerBound)
+}
+
+fun captureFromExpression(type: SimpleType): UnwrappedType? {
+    val typeConstructor = type.constructor
+    if (typeConstructor is IntersectionTypeConstructor) {
+        var changed = false
+        val capturedSupertypes = typeConstructor.supertypes.map {
+            captureFromExpression(it.unwrap())?.apply { changed = true } ?: it.unwrap()
+        }
+        if (!changed) return null
+        return intersectTypes(capturedSupertypes).makeNullableAsSpecified(type.isMarkedNullable)
+    }
+    return captureFromArguments(type, CaptureStatus.FROM_EXPRESSION)
+}
+
+// this function suppose that input type is simple classifier type
 fun captureFromArguments(
         type: SimpleType,
         status: CaptureStatus,
         acceptNewCapturedType: ((argumentIndex: Int, NewCapturedType) -> Unit) = DO_NOTHING_2
-): SimpleType {
+): SimpleType? {
     val arguments = type.arguments
-    if (arguments.all { it.projectionKind == Variance.INVARIANT }) return type
+    if (arguments.all { it.projectionKind == Variance.INVARIANT }) return null
 
     val newArguments = arguments.map {
         projection ->

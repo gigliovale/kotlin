@@ -249,7 +249,7 @@ object NewKotlinTypeChecker : KotlinTypeChecker {
         var result: MutableList<SimpleType>? = null
 
         anySupertype(baseType, { false }) {
-            val current = captureFromArguments(it, CaptureStatus.FOR_SUBTYPING)
+            val current = captureFromArguments(it, CaptureStatus.FOR_SUBTYPING) ?: it
 
             if (current.constructor == constructor) {
                 if (result == null) {

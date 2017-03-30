@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.tower.isSuccess
 import org.jetbrains.kotlin.types.UnwrappedType
+import org.jetbrains.kotlin.types.checker.captureFromExpression
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.utils.SmartList
@@ -198,6 +199,9 @@ internal fun checkExpressionArgument(
         expectedType: UnwrappedType,
         isReceiver: Boolean
 ): CallDiagnostic? {
+    // todo run this approximation only once for call
+    val capturedExpressionType = expressionArgument.type.let { captureFromExpression(it) ?: it }
+
     fun unstableSmartCastOrSubtypeError(
             unstableType: UnwrappedType?, expectedType: UnwrappedType, position: ArgumentConstraintPosition
     ): CallDiagnostic? {
@@ -206,20 +210,20 @@ internal fun checkExpressionArgument(
                 return UnstableSmartCast(expressionArgument, unstableType)
             }
         }
-        csBuilder.addSubtypeConstraint(expressionArgument.type, expectedType, position)
+        csBuilder.addSubtypeConstraint(capturedExpressionType, expectedType, position)
         return null
     }
 
     val expectedNullableType = expectedType.makeNullableAsSpecified(true)
     val position = ArgumentConstraintPosition(expressionArgument)
     if (expressionArgument.isSafeCall) {
-        if (!csBuilder.addSubtypeConstraintIfCompatible(expressionArgument.type, expectedNullableType, position)) {
+        if (!csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedNullableType, position)) {
             return unstableSmartCastOrSubtypeError(expressionArgument.unstableType, expectedNullableType, position)?.let { return it }
         }
         return null
     }
 
-    if (!csBuilder.addSubtypeConstraintIfCompatible(expressionArgument.type, expectedType, position)) {
+    if (!csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedType, position)) {
         if (!isReceiver) {
             return unstableSmartCastOrSubtypeError(expressionArgument.unstableType, expectedType, position)?.let { return it }
         }
@@ -228,11 +232,11 @@ internal fun checkExpressionArgument(
         if (unstableType != null && csBuilder.addSubtypeConstraintIfCompatible(unstableType, expectedType, position)) {
             return UnstableSmartCast(expressionArgument, unstableType)
         }
-        else if (csBuilder.addSubtypeConstraintIfCompatible(expressionArgument.type, expectedNullableType, position)) {
+        else if (csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedNullableType, position)) {
             return UnsafeCallError(expressionArgument)
         }
         else {
-            csBuilder.addSubtypeConstraint(expressionArgument.type, expectedType, position)
+            csBuilder.addSubtypeConstraint(capturedExpressionType, expectedType, position)
             return null
         }
     }
@@ -252,18 +256,20 @@ internal fun checkSubCallArgument(
 
     csBuilder.addInnerCall(resolvedCall)
 
+    // todo run this approximation only once for call
+    val currentReturnType = resolvedCall.currentReturnType.let { captureFromExpression(it) ?: it  }
     if (subCallArgument.isSafeCall) {
-        csBuilder.addSubtypeConstraint(resolvedCall.currentReturnType, expectedNullableType, position)
+        csBuilder.addSubtypeConstraint(currentReturnType, expectedNullableType, position)
         return null
     }
 
-    if (isReceiver && !csBuilder.addSubtypeConstraintIfCompatible(resolvedCall.currentReturnType, expectedType, position) &&
-        csBuilder.addSubtypeConstraintIfCompatible(resolvedCall.currentReturnType, expectedNullableType, position)
+    if (isReceiver && !csBuilder.addSubtypeConstraintIfCompatible(currentReturnType, expectedType, position) &&
+        csBuilder.addSubtypeConstraintIfCompatible(currentReturnType, expectedNullableType, position)
     ) {
         return UnsafeCallError(subCallArgument)
     }
 
-    csBuilder.addSubtypeConstraint(resolvedCall.currentReturnType, expectedType, position)
+    csBuilder.addSubtypeConstraint(currentReturnType, expectedType, position)
     return null
 }
 

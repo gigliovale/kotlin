@@ -80,16 +80,18 @@ class J2kPostProcessor(private val formatCode: Boolean) : PostProcessor {
 
         if (formatCode) {
             run(EDT) {
-                val codeStyleManager = CodeStyleManager.getInstance(file.project)
-                if (rangeMarker != null) {
-                    if (rangeMarker.isValid) {
-                        codeStyleManager.reformatRange(file, rangeMarker.startOffset, rangeMarker.endOffset)
+                runWriteAction {
+                    val codeStyleManager = CodeStyleManager.getInstance(file.project)
+                    if (rangeMarker != null) {
+                        if (rangeMarker.isValid) {
+                            codeStyleManager.reformatRange(file, rangeMarker.startOffset, rangeMarker.endOffset)
+                        }
                     }
+                    else {
+                        codeStyleManager.reformat(file)
+                    }
+                    Unit
                 }
-                else {
-                    codeStyleManager.reformat(file)
-                }
-                Unit
             }
         }
     }

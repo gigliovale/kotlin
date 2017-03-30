@@ -414,6 +414,12 @@ public class BytecodeTextTestGenerated extends AbstractBytecodeTextTest {
         doTest(fileName);
     }
 
+    @TestMetadata("transitiveGotos.kt")
+    public void testTransitiveGotos() throws Exception {
+        String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/bytecodeText/transitiveGotos.kt");
+        doTest(fileName);
+    }
+
     @TestMetadata("compiler/testData/codegen/bytecodeText/argumentOrder")
     @TestDataPath("$PROJECT_ROOT")
     @RunWith(JUnit3RunnerWithInners.class)

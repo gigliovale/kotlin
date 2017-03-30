@@ -23,7 +23,7 @@ import org.jetbrains.kotlin.codegen.optimization.boxing.RedundantBoxingMethodTra
 import org.jetbrains.kotlin.codegen.optimization.boxing.RedundantCoercionToUnitTransformer;
 import org.jetbrains.kotlin.codegen.optimization.captured.CapturedVarsOptimizationMethodTransformer;
 import org.jetbrains.kotlin.codegen.optimization.common.UtilKt;
-import org.jetbrains.kotlin.codegen.optimization.nullCheck.RedundantNullCheckV2MethodTransformer;
+import org.jetbrains.kotlin.codegen.optimization.nullCheck.RedundantNullCheckMethodTransformer;
 import org.jetbrains.kotlin.codegen.optimization.transformer.MethodTransformer;
 import org.jetbrains.org.objectweb.asm.MethodVisitor;
 import org.jetbrains.org.objectweb.asm.tree.MethodNode;
@@ -33,16 +33,21 @@ public class OptimizationMethodVisitor extends TransformationMethodVisitor {
 
     private static final MethodTransformer MANDATORY_METHOD_TRANSFORMER = new FixStackWithLabelNormalizationMethodTransformer();
 
-    private static final MethodTransformer[] OPTIMIZATION_TRANSFORMERS = new MethodTransformer[] {
-            new CapturedVarsOptimizationMethodTransformer(),
-            new RedundantNullCheckV2MethodTransformer(),
-            new RedundantCheckCastEliminationMethodTransformer(),
-            new RedundantBoxingMethodTransformer(),
-            new RedundantCoercionToUnitTransformer(),
-            new DeadCodeEliminationMethodTransformer(),
-            new RedundantGotoMethodTransformer(),
-            new RedundantNopsCleanupMethodTransformer()
-    };
+    private static final MethodTransformer OPTIMIZATION_METHOD_TRANSFORMER =
+            new CompositeMethodTransformer(
+                    new CapturedVarsOptimizationMethodTransformer(),
+                    new RedundantNullCheckMethodTransformer(),
+                    new RedundantCheckCastEliminationMethodTransformer(),
+                    new RedundantBoxingMethodTransformer(),
+                    new RedundantCoercionToUnitTransformer(),
+                    new RepeatUntilFixPointMethodTransformer(
+                            new LabelNormalizationMethodTransformer(),
+                            new TransitiveGotoMethodTransformer(),
+                            new RedundantGotoMethodTransformer(),
+                            new DeadCodeEliminationMethodTransformer(),
+                            new RedundantNopsCleanupMethodTransformer()
+                    )
+            );
 
     private final boolean disableOptimization;
 
@@ -63,9 +68,7 @@ public class OptimizationMethodVisitor extends TransformationMethodVisitor {
     protected void performTransformations(@NotNull MethodNode methodNode) {
         MANDATORY_METHOD_TRANSFORMER.transform("fake", methodNode);
         if (canBeOptimized(methodNode) && !disableOptimization) {
-            for (MethodTransformer transformer : OPTIMIZATION_TRANSFORMERS) {
-                transformer.transform("fake", methodNode);
-            }
+            OPTIMIZATION_METHOD_TRANSFORMER.transform("fake", methodNode);
         }
         UtilKt.prepareForEmitting(methodNode);
     }

@@ -17,15 +17,9 @@
 package org.jetbrains.kotlin.codegen.optimization
 
 import org.jetbrains.kotlin.codegen.optimization.fixStack.FixStackMethodTransformer
-import org.jetbrains.kotlin.codegen.optimization.transformer.MethodTransformer
-import org.jetbrains.org.objectweb.asm.tree.MethodNode
 
-class FixStackWithLabelNormalizationMethodTransformer : MethodTransformer() {
-    private val labelNormalization = LabelNormalizationMethodTransformer()
-    private val fixStack = FixStackMethodTransformer()
-
-    override fun transform(internalClassName: String, methodNode: MethodNode) {
-        labelNormalization.transform(internalClassName, methodNode)
-        fixStack.transform(internalClassName, methodNode)
-    }
-}
+class FixStackWithLabelNormalizationMethodTransformer :
+        CompositeMethodTransformer(
+                LabelNormalizationMethodTransformer(),
+                FixStackMethodTransformer()
+        )

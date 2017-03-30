@@ -383,6 +383,9 @@ public class InlineCodegenUtil {
     @NotNull
     public static String getInsnText(@Nullable AbstractInsnNode node) {
         if (node == null) return "<null>";
+        if (node.getType() == AbstractInsnNode.JUMP_INSN) {
+            return getInsnOpcodeText(node);
+        }
         Textifier textifier = new Textifier();
         node.accept(new TraceMethodVisitor(textifier));
         StringWriter sw = new StringWriter();

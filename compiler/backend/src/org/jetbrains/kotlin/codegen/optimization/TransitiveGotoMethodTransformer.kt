@@ -16,38 +16,38 @@
 
 package org.jetbrains.kotlin.codegen.optimization
 
-import org.jetbrains.kotlin.codegen.optimization.common.isMeaningful
+import org.jetbrains.kotlin.codegen.optimization.common.asSequence
 import org.jetbrains.kotlin.codegen.optimization.transformer.MethodTransformer
+import org.jetbrains.kotlin.utils.SmartSet
 import org.jetbrains.org.objectweb.asm.Opcodes
 import org.jetbrains.org.objectweb.asm.tree.AbstractInsnNode
 import org.jetbrains.org.objectweb.asm.tree.JumpInsnNode
 import org.jetbrains.org.objectweb.asm.tree.LabelNode
 import org.jetbrains.org.objectweb.asm.tree.MethodNode
 
-class RedundantGotoMethodTransformer : MethodTransformer() {
+class TransitiveGotoMethodTransformer : MethodTransformer() {
     override fun transform(internalClassName: String, methodNode: MethodNode) {
-        val insns = methodNode.instructions.toArray().apply { reverse() }
-        val insnsToRemove = arrayListOf<AbstractInsnNode>()
-
-        val currentLabels = hashSetOf<LabelNode>()
-        for (insn in insns) {
-            if (insn.isMeaningful) {
-                if (insn.opcode == Opcodes.GOTO && (insn as JumpInsnNode).label in currentLabels) {
-                    insnsToRemove.add(insn)
-                }
-                else {
-                    currentLabels.clear()
-                }
-                continue
-            }
-
-            if (insn is LabelNode) {
-                currentLabels.add(insn)
+        methodNode.instructions.asSequence().forEach { insn ->
+            if (insn is JumpInsnNode) {
+                insn.label = computeTargetLabel(insn)
             }
         }
+    }
 
-        for (insnToRemove in insnsToRemove) {
-            methodNode.instructions.remove(insnToRemove)
+    private fun computeTargetLabel(insn: JumpInsnNode): LabelNode =
+            computeTargetLabelRec(insn, SmartSet.create<AbstractInsnNode>())
+
+    private fun computeTargetLabelRec(current: JumpInsnNode, visited: MutableSet<AbstractInsnNode>): LabelNode {
+        val jumpsTo = current.label.next
+        return when {
+            jumpsTo == null ->
+                throw AssertionError("Jump to undefined label")
+            jumpsTo in visited ->
+                throw AssertionError("Cyclic GOTOs generated")
+            jumpsTo is JumpInsnNode && jumpsTo.opcode == Opcodes.GOTO ->
+                computeTargetLabelRec(jumpsTo, visited.apply { add(current) })
+            else ->
+                current.label
         }
     }
 }

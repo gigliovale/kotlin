@@ -57,6 +57,7 @@ import org.jetbrains.kotlin.types.expressions.DoubleColonExpressionResolver
 import org.jetbrains.kotlin.types.expressions.DoubleColonLHS
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingContext
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
+import org.jetbrains.kotlin.utils.addToStdlib.firstNotNullResult
 import java.util.*
 
 class PSICallResolver(
@@ -69,7 +70,8 @@ class PSICallResolver(
         private val syntheticScopes: SyntheticScopes,
         private val astResolverComponents: CallContextComponents,
         private val astToResolvedCallTransformer: ASTToResolvedCallTransformer,
-        private val astCallResolver: ASTCallResolver
+        private val astCallResolver: ASTCallResolver,
+        private val typeApproximator: TypeApproximator
 ) {
     val useNewInference = USE_NEW_INFERENCE
 
@@ -81,7 +83,7 @@ class PSICallResolver(
     ) : OverloadResolutionResults<D> {
         val astCall = toASTCall(context, resolutionKind.astKind, context.call, name, tracingStrategy)
         val scopeTower = ASTScopeTower(context)
-        val lambdaAnalyzer = LambdaAnalyzerImpl(expressionTypingServices, context.trace)
+        val lambdaAnalyzer = LambdaAnalyzerImpl(expressionTypingServices, context.trace, typeApproximator)
 
         val callContext = CallContext(astResolverComponents, scopeTower, astCall, lambdaAnalyzer)
         val factoryProviderForInvoke = FactoryProviderForInvoke(context, callContext)
@@ -100,9 +102,11 @@ class PSICallResolver(
             resolutionCandidates: Collection<ResolutionCandidate<D>>,
             tracingStrategy: TracingStrategy
     ): OverloadResolutionResults<D> {
-        val astCall = toASTCall(context, ASTCallKind.FUNCTION, context.call, GIVEN_CANDIDATES_NAME, tracingStrategy)
+        val dispatchReceiver = resolutionCandidates.firstNotNullResult { it.dispatchReceiver }
+
+        val astCall = toASTCall(context, ASTCallKind.FUNCTION, context.call, GIVEN_CANDIDATES_NAME, tracingStrategy, dispatchReceiver)
         val scopeTower = ASTScopeTower(context)
-        val lambdaAnalyzer = LambdaAnalyzerImpl(expressionTypingServices, context.trace)
+        val lambdaAnalyzer = LambdaAnalyzerImpl(expressionTypingServices, context.trace, typeApproximator)
         val callContext = CallContext(astResolverComponents, scopeTower, astCall, lambdaAnalyzer)
 
         val givenCandidates = resolutionCandidates.map {
@@ -308,9 +312,10 @@ class PSICallResolver(
             astCallKind: ASTCallKind,
             oldCall: Call,
             name: Name,
-            tracingStrategy: TracingStrategy
+            tracingStrategy: TracingStrategy,
+            forcedExplicitReceiver: Receiver? = null
     ): ASTCallImpl {
-        val resolvedExplicitReceiver = resolveExplicitReceiver(context, oldCall.explicitReceiver, oldCall.isSafeCall())
+        val resolvedExplicitReceiver = resolveExplicitReceiver(context, forcedExplicitReceiver?: oldCall.explicitReceiver, oldCall.isSafeCall())
         val resolvedTypeArguments = resolveTypeArguments(context, oldCall.typeArguments)
 
         // this is hack for special calls. Note that special call has only arguments in parenthesis.

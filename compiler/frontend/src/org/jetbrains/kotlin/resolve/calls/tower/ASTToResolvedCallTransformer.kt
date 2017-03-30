@@ -194,7 +194,12 @@ class ASTToResolvedCallTransformer(
             reported = false
             diagnostic.report(diagnosticReporter)
             if (!reported && REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC) {
-                trace.report(Errors.NEW_INFERENCE_DIAGNOSTIC.on(diagnosticReporter.psiAstCall.psiCall.callElement, "Missing diagnostic: $diagnostic"))
+                if (diagnostic.candidateApplicability.isSuccess) {
+                    trace.report(Errors.NEW_INFERENCE_DIAGNOSTIC.on(diagnosticReporter.psiAstCall.psiCall.callElement, "Missing diagnostic: $diagnostic"))
+                }
+                else {
+                    trace.report(Errors.NEW_INFERENCE_ERROR.on(diagnosticReporter.psiAstCall.psiCall.callElement, "Missing diagnostic: $diagnostic"))
+                }
             }
         }
     }

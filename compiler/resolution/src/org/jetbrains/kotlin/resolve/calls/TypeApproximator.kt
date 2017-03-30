@@ -68,12 +68,16 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
 
     // null means that this input type is the result, i.e. input type not contains not-allowed kind of types
     // type <: resultType
-    fun approximateToSuperType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? =
-            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::upperBound, referenceApproximateToSuperType)
+    fun approximateToSuperType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? {
+        if (type is TypeUtils.SpecialType) return null
+        return approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::upperBound, referenceApproximateToSuperType)
+    }
 
     // resultType <: type
-    fun approximateToSubType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? =
-            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::lowerBound, referenceApproximateToSubType)
+    fun approximateToSubType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? {
+        if (type is TypeUtils.SpecialType) return null
+        return approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::lowerBound, referenceApproximateToSubType)
+    }
 
     // comments for case bound = upperBound, approximateTo = toSuperType
     private fun approximateTo(

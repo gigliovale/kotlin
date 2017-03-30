@@ -25,6 +25,8 @@ import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.psiUtil.lastBlockStatementOrThis
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.LambdaAnalyzer
+import org.jetbrains.kotlin.resolve.calls.TypeApproximator
+import org.jetbrains.kotlin.resolve.calls.TypeApproximatorConfiguration
 import org.jetbrains.kotlin.resolve.calls.context.ContextDependency
 import org.jetbrains.kotlin.resolve.calls.model.ASTCall
 import org.jetbrains.kotlin.resolve.calls.model.CallArgument
@@ -38,7 +40,8 @@ import org.jetbrains.kotlin.types.expressions.KotlinTypeInfo
 
 class LambdaAnalyzerImpl(
         val expressionTypingServices: ExpressionTypingServices,
-        val trace: BindingTrace
+        val trace: BindingTrace,
+        val typeApproximator: TypeApproximator
 ): LambdaAnalyzer {
 
     override fun analyzeAndGetRelatedCalls(
@@ -58,8 +61,10 @@ class LambdaAnalyzerImpl(
         val expectedType = createFunctionType(builtIns, Annotations.EMPTY, receiverType, parameters, null,
                            expectedReturnType ?: TypeUtils.NO_EXPECTED_TYPE)
 
+        val approximatesExpectedType = typeApproximator.approximateToSubType(expectedType, TypeApproximatorConfiguration.LocalDeclaration) ?: expectedType
+
         val actualContext = outerCallContext.replaceBindingTrace(trace).
-                replaceContextDependency(ContextDependency.DEPENDENT).replaceExpectedType(expectedType)
+                replaceContextDependency(ContextDependency.DEPENDENT).replaceExpectedType(approximatesExpectedType)
 
 
         val functionTypeInfo = expressionTypingServices.getTypeInfo(expression, actualContext)

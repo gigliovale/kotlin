@@ -24,6 +24,7 @@ import com.intellij.psi.stubs.StubIndex
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.resolve.jvm.KotlinJavaPsiFacade
 
 object PackageIndexUtil {
     @JvmStatic fun getSubPackageFqNames(
@@ -48,6 +49,10 @@ object PackageIndexUtil {
             searchScope: GlobalSearchScope,
             project: Project
     ): Boolean {
+
+        if(KotlinJavaPsiFacade.getInstance(project).findPackage(packageFqName.asString(), searchScope) != null)
+            return true
+
         val subpackagesIndex = SubpackagesIndexService.getInstance(project)
         if (!subpackagesIndex.packageExists(packageFqName)) {
             return false

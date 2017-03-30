@@ -53,6 +53,7 @@ open class TypeApproximatorConfiguration {
     object LocalDeclaration : AllFlexibleSameValue() {
         override val allFlexible get() = true
         override val intersection get() = ALLOWED
+        override val errorType get() = true
     }
 
     object PublicDeclaration : AllFlexibleSameValue() {
@@ -61,15 +62,18 @@ open class TypeApproximatorConfiguration {
 }
 
 class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCalculator) {
+    private val referenceApproximateToSuperType = this::approximateToSuperType
+    private val referenceApproximateToSubType = this::approximateToSubType
+
 
     // null means that this input type is the result, i.e. input type not contains not-allowed kind of types
     // type <: resultType
     fun approximateToSuperType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? =
-            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::upperBound, this::approximateToSuperType)
+            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::upperBound, referenceApproximateToSuperType)
 
     // resultType <: type
     fun approximateToSubType(type: UnwrappedType, conf: TypeApproximatorConfiguration): UnwrappedType? =
-            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::lowerBound, this::approximateToSubType)
+            approximateTo(NewKotlinTypeChecker.transformToNewType(type), conf, FlexibleType::lowerBound, referenceApproximateToSubType)
 
     // comments for case bound = upperBound, approximateTo = toSuperType
     private fun approximateTo(
@@ -103,20 +107,22 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
                      * I.e. for every type B such as L_2 <: B, L_1 <: B. For example B = L_2.
                      */
 
-                    val lowerResult = approximateTo(type.bound(), conf)
-                    val upperResult = approximateTo(type.bound(), conf)
+                    val lowerResult = approximateTo(type.lowerBound, conf)
+                    val upperResult = approximateTo(type.upperBound, conf)
                     if (lowerResult == null && upperResult == null) return null
 
                     /**
                      * If C <: L..U then C <: L.
                      * inputType.lower <: lowerResult => inputType.lower <: lowerResult?.lowerIfFlexible()
                      * i.e. this type is correct. We use this type, because this type more flexible.
+                     *
+                     * If U_1 <: U_2.lower .. U_2.upper, then we know only that U_1 <: U_2.upper.
                      */
                     return FlexibleTypeImpl(lowerResult?.lowerIfFlexible() ?: type.lowerBound,
                                             upperResult?.upperIfFlexible() ?: type.upperBound)
                 }
                 else {
-                    return approximateTo(type.bound(), conf)
+                    return type.bound().let { approximateTo(it, conf) ?: it }
                 }
             }
         }
@@ -132,11 +138,11 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
         }
 
         var thereIsApproximation = false
-        val newSupertypes = typeConstructor.supertypes.map {
-            val newSuperType = if (toSuper) approximateToSuperType(it.unwrap(), conf) else approximateToSubType(it.unwrap(), conf)
-            if (newSuperType != null) {
+        val newTypes = typeConstructor.supertypes.map {
+            val newType = if (toSuper) approximateToSuperType(it.unwrap(), conf) else approximateToSubType(it.unwrap(), conf)
+            if (newType != null) {
                 thereIsApproximation = true
-                newSuperType
+                newType
             } else it.unwrap()
         }
 
@@ -147,12 +153,13 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
          * For other case -- it's impossible to find some type except Nothing as subType for intersection type.
          */
         val baseResult = when (conf.intersection) {
-            ALLOWED -> if (!thereIsApproximation) null else intersectTypes(newSupertypes)
-            TO_FIRST -> if (toSuper) newSupertypes.first() else type.defaultResult(toSuper = false)
-            TO_COMMON_SUPERTYPE -> if (toSuper) commonSupertypeCalculator(newSupertypes) else type.defaultResult(toSuper = false)
+            ALLOWED -> if (!thereIsApproximation) return null else intersectTypes(newTypes)
+            TO_FIRST -> if (toSuper) newTypes.first() else return type.defaultResult(toSuper = false)
+            // commonSupertypeCalculator should handle flexible types correctly
+            TO_COMMON_SUPERTYPE -> if (toSuper) commonSupertypeCalculator(newTypes) else return type.defaultResult(toSuper = false)
         }
 
-        return if (type.isMarkedNullable) baseResult?.makeNullableAsSpecified(true) else baseResult
+        return if (type.isMarkedNullable) baseResult.makeNullableAsSpecified(true) else baseResult
     }
 
     private fun approximateCapturedType(type: NewCapturedType, conf: TypeApproximatorConfiguration, toSuper: Boolean): UnwrappedType? {
@@ -170,12 +177,11 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
              * But. If such bounds contains some unauthorized types, then we cannot leave this captured type "as is".
              * And we cannot create new capture type, because meaning of new captured type is not clear.
              * So, we will just approximate such types
+             *
+             * todo handle flexible types
              */
-            if (approximateToSuperType(baseSubType, conf) == null && approximateToSubType(baseSubType, conf) == null) {
+            if (approximateToSuperType(baseSuperType, conf) == null && approximateToSubType(baseSubType, conf) == null) {
                 return null
-            }
-            else {
-                return type.defaultResult(toSuper)
             }
         }
         val baseResult = if (toSuper) approximateToSuperType(baseSuperType, conf) ?: baseSuperType else approximateToSubType(baseSubType, conf) ?: baseSubType
@@ -213,7 +219,6 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
         }
 
         if (typeConstructor is TypeVariableTypeConstructor) {
-            // todo replace via filter
             return if (conf.typeVariable(typeConstructor)) null else type.defaultResult(toSuper)
         }
 
@@ -275,7 +280,13 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
                 Variance.INVARIANT -> {
                     if (!toSuper) {
                         // Inv<Foo> cannot be approximated to subType
-                        if (approximateToSuperType(argumentType, conf) == null) continue@loop else return type.defaultResult(toSuper)
+                        val toSubType = approximateToSubType(argumentType, conf) ?: continue@loop
+
+                        // Inv<Foo!> is supertype for Inv<Foo?>
+                        if (!NewKotlinTypeChecker.equalTypes(argumentType, toSubType)) return type.defaultResult(toSuper)
+
+                        newArguments[index] = argumentType.asTypeProjection()
+                        continue@loop
                     }
 
                     /**

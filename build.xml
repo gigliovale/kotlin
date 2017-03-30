@@ -121,6 +121,38 @@
         <include name="plugins/annotation-collector/src"/>
     </dirset>
 
+    <dirset id="compilerSources.dirset.kjs" dir="${basedir}/">
+        <include name="core/descriptors/src"/>
+        <include name="core/deserialization/src"/>
+        <include name="core/util.runtime/src"/>
+        <include name="compiler/backend-common/src"/>
+
+        <!--<include name="compiler/cli/src/org/jetbrains/kotlin/cli/jvm/compiler/EnvironmentConfigFiles.java"/>-->
+        <!--<include name="compiler/cli/src/org/jetbrains/kotlin/cli/jvm/compiler/KotlinCoreEnvironment.kt"/>-->
+        <!--<include name="compiler/frontend.java/src/org/jetbrains/kotlin/config/JVMConfigurationKeys.java"/>-->
+        <!--<include name="compiler/frontend.java/src/org/jetbrains/kotlin/config/ContentRoots.kt"/>-->
+
+        <!--<include name="compiler/cli/src"/>-->
+        <!--<include name="compiler/cli/cli-common/src"/>-->
+
+
+        <include name="compiler/cli/cli-js/src"/>
+
+        <include name="compiler/serialization/src"/>
+        <include name="compiler/container/src"/>
+        <include name="compiler/frontend/src"/>
+        <include name="compiler/resolution/src"/>
+        <include name="compiler/util/src"/>
+        <include name="js/js.ast/src"/>
+        <include name="js/js.translator/src"/>
+        <include name="js/js.frontend/src"/>
+        <include name="js/js.inliner/src"/>
+        <include name="js/js.parser/src"/>
+        <include name="js/js.serializer/src"/>
+
+        <!--<include name="compiler/plugin-api/src"/>-->
+    </dirset>
+
     <property name="idea.out" value="${basedir}/out/production"/>
     <patternset id="compilerClassesFromIDEA.fileset">
         <include name="frontend/**"/>
@@ -160,6 +192,10 @@
 
     <path id="compilerSources.path">
         <dirset refid="compilerSources.dirset"/>
+    </path>
+
+    <path id="compilerSources.path.kjs">
+        <dirset refid="compilerSources.dirset.kjs"/>
     </path>
 
     <macrodef name="cleandir">
@@ -471,7 +507,6 @@
                 <attribute name="Implementation-Vendor" value="${manifest.impl.vendor}"/>
                 <attribute name="Implementation-Title" value="${manifest.impl.title.kotlin.javascript.stdlib}"/>
                 <attribute name="Implementation-Version" value="${build.number}"/>
-                <attribute name="Specification-Title" value="${manifest.spec.title.kotlin.javascript.lib}"/>
             </manifest>
         </jar>
         <copy file="${kotlin-home}/lib/kotlin-stdlib-js.jar" tofile="${kotlin-home}/lib/kotlin-jslib.jar" />
@@ -605,6 +640,108 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="pack-compiler2">
+        <attribute name="jarfile"/>
+        <attribute name="compress" default="true"/>
+
+        <sequential>
+            <fileset dir="${output}/classes/compiler" id="aaa">
+
+                <exclude name="org/jetbrains/kotlin/asJava/**"/>
+                <exclude name="org/jetbrains/kotlin/annotation/**"/>
+                <exclude name="org/jetbrains/kotlin/build/**"/>
+                <exclude name="org/jetbrains/kotlin/frontend/java/**"/>
+
+                <!--<exclude name="org/jetbrains/kotlin/backend/**"/>-->
+                <exclude name="org/jetbrains/kotlin/backend/jvm/**"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/Lower*"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/AbstractClosureAnnotator*"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/lower/**"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/*Pass*"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/BackendContext*"/>
+                <exclude name="org/jetbrains/kotlin/backend/common/descriptors/SharedVariablesManager*"/>
+
+                <exclude name="org/jetbrains/kotlin/cli/jvm/compiler/KotlinToJVMBytecodeCompiler*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/compiler/CliLightClassGenerationSupport*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/compiler/KotlinCliJavaFileManagerImpl*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/BundledCompilerPlugins*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/K2JVMCompiler*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/PluginCliParser*"/>
+                <exclude name="org/jetbrains/kotlin/cli/jvm/repl/**"/>
+                <exclude name="org/jetbrains/kotlin/cli/metadata/**"/>
+                <!--<exclude name="org/jetbrains/kotlin/cli/common/messages/AnalyzerWithCompilerReport*"/>-->
+                <exclude name="org/jetbrains/kotlin/cli/common/repl/**"/>
+
+                <exclude name="org/jetbrains/kotlin/compiler/**"/>
+                <exclude name="org/jetbrains/kotlin/codegen/**"/>
+                <exclude name="org/jetbrains/kotlin/daemon/**"/>
+                <exclude name="org/jetbrains/kotlin/fileClasses/**"/>
+
+                <!--referenced from parser, lexer, psi ast-->
+                <!--<exclude name="org/jetbrains/kotlin/idea/**"/>-->
+                <!--<exclude name="org/jetbrains/kotlin/kdoc/**"/>-->
+
+                <!--<exclude name="org/jetbrains/kotlin/incremental/**"/>-->
+                <exclude name="org/jetbrains/kotlin/inline/**"/>
+                <exclude name="org/jetbrains/kotlin/ir/**"/>
+                <exclude name="org/jetbrains/kotlin/synthetic/**"/>
+                <exclude name="org/jetbrains/kotlin/resolve/jvm/**"/>
+                <!--<exclude name="org/jetbrains/kotlin/load/**"/>-->
+                <exclude name="org/jetbrains/kotlin/load/java/**"/>
+                <!--<exclude name="org/jetbrains/kotlin/modules/**"/>-->
+                <!--<exclude name="org/jetbrains/kotlin/platform/**"/>-->
+                <exclude name="org/jetbrains/kotlin/preprocessor/**"/>
+                <!--<exclude name="org/jetbrains/kotlin/progress/**"/>-->
+                <!--<exclude name="org/jetbrains/kotlin/serialization/**"/>-->
+                <exclude name="org/jetbrains/kotlin/serialization/jvm/**"/>
+                <exclude name="org/jetbrains/kotlin/psi2ir/**"/>
+
+                <!--<include name="org/jetbrains/kotlin/backend/common/**"/>-->
+                <!--<include name="org/jetbrains/kotlin/load/kotlin/ModuleVisibilityManager*"/>-->
+            </fileset>
+
+            <!--<echo message="${toString:aaa}" />-->
+
+            <jar jarfile="@{jarfile}" compress="@{compress}" duplicate="preserve">
+                <fileset refid="aaa" />
+
+                <fileset dir="${output}/builtins">
+                    <include name="kotlin/**"/>
+                </fileset>
+                <fileset dir="${basedir}/core/descriptor.loader.java/src" includes="META-INF/services/**"/>
+                <fileset dir="${basedir}/compiler/frontend.java/src" includes="META-INF/services/**"/>
+                <fileset dir="${basedir}/compiler/backend/src" includes="META-INF/services/**"/>
+                <fileset dir="${basedir}/compiler/cli/src" includes="META-INF/services/**"/>
+                <fileset dir="${basedir}/resources" includes="kotlinManifest.properties"/>
+
+                <fileset dir="idea/src">
+                    <include name="META-INF/extensions/common.xml"/>
+                    <include name="META-INF/extensions/kotlin2jvm.xml"/>
+                    <include name="META-INF/extensions/kotlin2js.xml"/>
+                </fileset>
+
+                <zipgroupfileset dir="${basedir}/lib" includes="*.jar"/>
+                <zipgroupfileset dir="${basedir}/ideaSDK/core" includes="*.jar" excludes="util.jar"/>
+                <zipfileset src="${idea.sdk}/lib/jna-platform.jar"/>
+                <zipfileset src="${idea.sdk}/lib/oromatcher.jar"/>
+                <zipfileset src="${idea.sdk}/jps/jps-model.jar"/>
+                <zipfileset src="${dependencies}/jline.jar"/>
+                <zipfileset src="${protobuf.jar}"/>
+
+                <manifest>
+                    <attribute name="Built-By" value="${manifest.impl.vendor}"/>
+
+                    <attribute name="Implementation-Vendor" value="${manifest.impl.vendor}"/>
+                    <attribute name="Implementation-Title" value="${manifest.impl.title.kotlin.compiler}"/>
+                    <attribute name="Implementation-Version" value="${build.number}"/>
+
+                    <!--<attribute name="Class-Path" value="${compiler.manifest.class.path}"/>-->
+                    <!--<attribute name="Main-Class" value="org.jetbrains.kotlin.cli.jvm.K2JVMCompiler"/>-->
+                </manifest>
+            </jar>
+        </sequential>
+    </macrodef>
+
     <target name="compiler-quick">
         <delete dir="${output}/classes/compiler"/>
         <copy todir="${output}/classes/compiler">
@@ -644,6 +781,88 @@
         </sequential>
 
         <pack-compiler-for-maven/>
+    </target>
+
+    <target name="compiler.4">
+        <cleandir dir="${output}/classes/compiler"/>
+
+        <javac2 destdir="${output}/classes/compiler" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false"
+                source="${java.target}" target="${java.target}">
+            <withKotlin modulename="kotlin-compiler">
+                <compilerarg value="-version"/>
+            </withKotlin>
+            <skip pattern="kotlin/Metadata"/>
+            <src refid="compilerSources.path"/>
+            <classpath refid="classpath"/>
+        </javac2>
+
+        <delete includeEmptyDirs="true">
+            <fileset dir="${output}/classes/compiler">
+                <include name="ir" />
+            </fileset>
+        </delete>
+
+        <pack-compiler2 jarfile="${output}/kotlin-compiler-before-shrink4.jar"/>
+
+        <delete file="${kotlin-home}/lib/kotlin-compiler4.jar" failonerror="false"/>
+
+        <copy file="${output}/kotlin-compiler-before-shrink4.jar"
+              tofile="${kotlin-home}/lib/kotlin-compiler4.jar"
+              unless:true="${shrink}" />
+
+        <!--<sequential if:true="${shrink}">-->
+            <!--<shrink configuration="${basedir}/compiler/compiler.pro"/>-->
+        <!--</sequential>-->
+
+        <!--<pack-compiler-for-maven/>-->
+    </target>
+
+    <target name="compiler.kjs">
+        <cleandir dir="${output}/classes/compiler"/>
+
+        <javac2 destdir="${output}/classes/compiler" debug="true" debuglevel="lines,vars,source" includeAntRuntime="false"
+                source="${java.target}" target="${java.target}">
+            <withKotlin modulename="kotlin-compiler">
+                <compilerarg value="-version"/>
+            </withKotlin>
+            <skip pattern="kotlin/Metadata"/>
+            <src refid="compilerSources.path.kjs"/>
+            <classpath refid="classpath"/>
+        </javac2>
+
+        <pack-compiler jarfile="${output}/kotlin-compiler-before-shrink3.jar"/>
+
+        <delete file="${kotlin-home}/lib/kotlin-compiler3.jar" failonerror="false"/>
+
+        <copy file="${output}/kotlin-compiler-before-shrink3.jar"
+              tofile="${kotlin-home}/lib/kotlin-compiler3.jar" />
+
+        <!--<sequential if:true="${shrink}">-->
+            <!--<shrink configuration="${basedir}/compiler/compiler.pro"/>-->
+        <!--</sequential>-->
+
+        <!--<pack-compiler-for-maven/>-->
+    </target>
+
+    <target name="shrink-compiler" >
+        <delete file="${kotlin-home}/lib/kotlin-compiler.jar" failonerror="false"/>
+        <shrink configuration="${basedir}/compiler/compiler.pro"/>
+    </target>
+
+    <target name="shrink-compiler2" >
+        <delete file="${kotlin-home}/lib/kotlin-compiler2.jar" failonerror="false"/>
+        <shrink configuration="${basedir}/compiler/compiler2.pro"/>
+    </target>
+
+    <target name="shrink-compiler3" >
+        <delete file="${kotlin-home}/lib/kotlin-compiler3.jar" failonerror="false"/>
+        <shrink configuration="${basedir}/compiler/compiler3.pro"/>
+    </target>
+
+    <target name="shrink-compiler4" >
+        <delete file="${output}/kotlin-compiler-before-shrink4.jar" failonerror="false"/>
+        <pack-compiler2 jarfile="${output}/kotlin-compiler-before-shrink4.jar" />
+        <shrink configuration="${basedir}/compiler/compiler4.pro"/>
     </target>
 
     <macrodef name="shrink">

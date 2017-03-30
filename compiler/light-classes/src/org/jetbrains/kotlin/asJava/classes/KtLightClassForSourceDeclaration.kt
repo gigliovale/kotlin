@@ -22,6 +22,7 @@ import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.Key
 import com.intellij.psi.*
 import com.intellij.psi.impl.java.stubs.PsiJavaFileStub
+import com.intellij.psi.impl.light.LightClassReference
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.IStubElementType
@@ -55,6 +56,8 @@ import org.jetbrains.kotlin.psi.debugText.getDebugText
 import org.jetbrains.kotlin.psi.psiUtil.getElementTextWithContext
 import org.jetbrains.kotlin.psi.stubs.KotlinClassOrObjectStub
 import org.jetbrains.kotlin.resolve.DescriptorUtils
+import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
+import org.jetbrains.kotlin.utils.ifEmpty
 import java.util.*
 import javax.swing.Icon
 
@@ -175,12 +178,7 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
 
     override fun getName(): String? = classOrObject.nameAsName?.asString()
 
-    private val _modifierList: PsiModifierList by lazyPub {
-        object : KtLightModifierListWithExplicitModifiers(this@KtLightClassForSourceDeclaration, computeModifiers()) {
-            override val delegate: PsiAnnotationOwner
-                get() = this@KtLightClassForSourceDeclaration.delegate.modifierList!!
-        }
-    }
+    private val _modifierList: PsiModifierList by lazyPub { KtLightModifierListWithExplicitModifiers(this@KtLightClassForSourceDeclaration, computeModifiers()) }
 
     override fun getModifierList(): PsiModifierList? = _modifierList
 
@@ -275,17 +273,7 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
     override fun isValid(): Boolean = classOrObject.isValid
 
     override fun isInheritor(baseClass: PsiClass, checkDeep: Boolean): Boolean {
-        val qualifiedName: String?
-        if (baseClass is KtLightClassForSourceDeclaration) {
-            val baseDescriptor = baseClass.getDescriptor()
-            qualifiedName = if (baseDescriptor != null) DescriptorUtils.getFqName(baseDescriptor).asString() else null
-        }
-        else {
-            qualifiedName = baseClass.qualifiedName
-        }
-
-        val thisDescriptor = getDescriptor()
-        return qualifiedName != null && thisDescriptor != null && checkSuperTypeByFQName(thisDescriptor, qualifiedName, checkDeep)
+        return LightClassGenerationSupport.getInstance(project).isInheritor(this, baseClass, checkDeep)
     }
 
     @Throws(IncorrectOperationException::class)
@@ -411,6 +399,14 @@ abstract class KtLightClassForSourceDeclaration(protected val classOrObject: KtC
         }
 
         private val LOG = Logger.getInstance(KtLightClassForSourceDeclaration::class.java)
+    }
+
+    override fun getSupers(): Array<PsiClass> {
+        val descriptor = LightClassGenerationSupport.getInstance(project).resolveToDescriptor(classOrObject) as? ClassDescriptor ?: return clsDelegate.supers
+        return descriptor.typeConstructor.supertypes.map {
+            val classFqName = it.constructor.declarationDescriptor?.fqNameUnsafe?.asString() ?: return clsDelegate.supers
+            JavaPsiFacade.getInstance(project).findClass(classFqName, resolveScope) as? PsiClass
+        }.filterNotNull().ifEmpty<PsiClass, Collection<PsiClass>> {  JavaPsiFacade.getInstance(project).findClass(CommonClassNames.JAVA_LANG_OBJECT, resolveScope)!!.let(::listOf) }.toTypedArray()
     }
 
     override val originKind: LightClassOriginKind

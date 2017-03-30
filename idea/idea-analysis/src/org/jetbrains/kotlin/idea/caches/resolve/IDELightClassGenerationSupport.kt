@@ -44,6 +44,8 @@ import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.KtLightClassForDeco
 import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.LazyLightClassDataHolder
 import org.jetbrains.kotlin.idea.decompiler.classFile.KtClsFile
 import org.jetbrains.kotlin.idea.decompiler.navigation.SourceNavigationHelper
+import org.jetbrains.kotlin.idea.references.KtSimpleNameReference
+import org.jetbrains.kotlin.idea.search.PsiBasedClassResolver
 import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.idea.stubindex.KotlinSourceFilterScope.Companion.sourceAndClassFiles
 import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
@@ -303,6 +305,38 @@ class IDELightClassGenerationSupport(private val project: Project) : LightClassG
         }
         javaFileStub.psi = fakeFile
         return fakeFile.classes.single() as ClsClassImpl
+    }
+
+    override fun isInheritor(lightClass: KtLightClass, baseClass: PsiClass, checkDeep: Boolean): Boolean {
+        if (lightClass is KtLightClassForSourceDeclaration) {
+            if (!checkDeep) {
+                val isInheritorByPsi = isInheritorByPsi(baseClass, lightClass)
+                if (isInheritorByPsi != null) return isInheritorByPsi
+                return baseClass in lightClass.supers
+            }
+
+        }
+        // TODO_R:
+        return lightClass.clsDelegate.isInheritor(baseClass, checkDeep)
+    }
+
+    private fun isInheritorByPsi(baseClass: PsiClass, lightClass: KtLightClassForSourceDeclaration): Boolean? {
+        val basedClassResolver = PsiBasedClassResolver(baseClass)
+        entries@ for (it in lightClass.kotlinOrigin.superTypeListEntries) {
+            val reference: KtSimpleNameExpression =
+                    when (it) {
+                        is KtSuperTypeCallEntry -> it.calleeExpression.constructorReferenceExpression
+                        is KtDelegatedSuperTypeEntry -> it.typeAsUserType?.referenceExpression
+                        is KtSuperTypeEntry -> it.typeAsUserType?.referenceExpression
+                        else -> TODO()
+                    } ?: continue@entries
+            when (basedClassResolver.canBeTargetReference(reference)) {
+                true -> return true
+                false -> continue@entries
+                null -> return null
+            }
+        }
+        return false
     }
 }
 

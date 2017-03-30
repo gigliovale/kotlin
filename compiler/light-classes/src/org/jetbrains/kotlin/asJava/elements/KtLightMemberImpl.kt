@@ -32,6 +32,7 @@ import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.KtDeclaration
+import org.jetbrains.kotlin.psi.KtModifierList
 import org.jetbrains.kotlin.psi.KtNamedDeclaration
 
 abstract class KtLightMemberImpl<out D : PsiMember>(
@@ -100,9 +101,11 @@ internal fun getMemberOrigin(member: PsiMember): LightMemberOriginForDeclaration
 class KtLightModifierList(
         private val owner: KtLightMember<*>,
         private val dummyDelegate: PsiModifierList?
-) : LightElement(owner.manager, KotlinLanguage.INSTANCE), PsiModifierList {
-    private val clsDelegate by lazyPub { owner.clsDelegate.modifierList!! }
-    private val _annotations by lazyPub { computeAnnotations(this, clsDelegate) }
+) : LightElement(owner.manager, KotlinLanguage.INSTANCE), PsiModifierList, KtLightElement<KtModifierList, PsiModifierList> {
+    override val clsDelegate by lazyPub { owner.clsDelegate.modifierList!! }
+    private val _annotations by lazyPub { computeAnnotations(this) }
+    override val kotlinOrigin: KtModifierList?
+        get() = owner.kotlinOrigin?.modifierList
 
     override fun hasModifierProperty(name: String): Boolean {
         if (dummyDelegate != null) {
@@ -122,7 +125,7 @@ class KtLightModifierList(
     override fun checkSetModifierProperty(name: String, value: Boolean) = clsDelegate.checkSetModifierProperty(name, value)
     override fun addAnnotation(qualifiedName: String) = clsDelegate.addAnnotation(qualifiedName)
     override fun getApplicableAnnotations(): Array<out PsiAnnotation> = annotations
-    override fun getAnnotations(): Array<out PsiAnnotation> = _annotations.value
+    override fun getAnnotations(): Array<out PsiAnnotation> = _annotations.toTypedArray()
     override fun findAnnotation(qualifiedName: String) = annotations.firstOrNull { it.qualifiedName == qualifiedName }
     override fun getParent() = owner
     override fun getText(): String? = ""

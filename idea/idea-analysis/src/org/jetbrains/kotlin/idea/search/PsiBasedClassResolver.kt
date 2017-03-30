@@ -93,7 +93,7 @@ class PsiBasedClassResolver(private val targetClassFqName: String) {
         }
 
         if (forceAmbiguity) {
-            return null
+//            return null
         }
 
         if (isQualifiedReferenceToTarget(ref)) {

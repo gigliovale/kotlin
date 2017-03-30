@@ -60,6 +60,10 @@ import kotlin.properties.Delegates
  * To mitigate this, CliLightClassGenerationSupport hold a trace that is shared between the analyzer and JetLightClasses
  */
 class CliLightClassGenerationSupport(project: Project) : LightClassGenerationSupport(), CodeAnalyzerInitializer {
+    override fun isInheritor(lightClass: KtLightClass, baseClass: PsiClass, checkDeep: Boolean): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     private val psiManager = PsiManager.getInstance(project)
     private var bindingContext: BindingContext by Delegates.notNull()
     private var module: ModuleDescriptor by Delegates.notNull()

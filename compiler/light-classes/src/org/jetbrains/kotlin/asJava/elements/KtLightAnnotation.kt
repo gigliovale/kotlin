@@ -19,7 +19,7 @@ package org.jetbrains.kotlin.asJava.elements
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.*
-import com.intellij.util.IncorrectOperationException
+import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.kotlin.asJava.LightClassGenerationSupport
 import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -34,10 +34,14 @@ import org.jetbrains.kotlin.resolve.source.getPsi
 import org.jetbrains.kotlin.types.TypeUtils
 
 class KtLightAnnotation(
-        override val clsDelegate: PsiAnnotation,
+        private val qualifiedName: String,
         override val kotlinOrigin: KtAnnotationEntry,
-        private val owner: PsiAnnotationOwner
-) : PsiAnnotation by clsDelegate, KtLightElement<KtAnnotationEntry, PsiAnnotation> {
+        private val parent: KtLightElement<*, *>,
+        computeDelegate: () -> PsiAnnotation
+) : PsiAnnotation, KtLightElement<KtAnnotationEntry, PsiAnnotation>, LightElement(kotlinOrigin.manager, KotlinLanguage.INSTANCE) {
+
+    override val clsDelegate by lazyPub(computeDelegate)
+
     open inner class LightExpressionValue<out D : PsiExpression>(
             val delegate: D,
             private val parent: PsiElement
@@ -150,9 +154,7 @@ class KtLightAnnotation(
     override fun isPhysical() = true
 
     override fun getName() = null
-    override fun setName(newName: String) = throw IncorrectOperationException()
-
-    override fun getOwner() = owner
+    override fun getOwner() = parent as? PsiAnnotationOwner
 
     override fun findAttributeValue(name: String?) = clsDelegate.findAttributeValue(name)?.let { wrapAnnotationValue(it, this) }
     override fun findDeclaredAttributeValue(name: String?) = clsDelegate.findDeclaredAttributeValue(name)?.let { wrapAnnotationValue(it, this) }
@@ -160,7 +162,7 @@ class KtLightAnnotation(
     override fun getText() = kotlinOrigin.text ?: ""
     override fun getTextRange() = kotlinOrigin.textRange ?: TextRange.EMPTY_RANGE
 
-    override fun getParent() = owner as? PsiElement
+    override fun getParent() = parent
 
     override fun getLanguage() = KotlinLanguage.INSTANCE
 
@@ -177,4 +179,15 @@ class KtLightAnnotation(
     }
 
     override fun hashCode() = kotlinOrigin.hashCode()
+
+    override fun <T : PsiAnnotationMemberValue?> setDeclaredAttributeValue(attributeName: String?, value: T?): T
+            = clsDelegate.setDeclaredAttributeValue(attributeName, value)
+
+    override fun getNameReferenceElement() = clsDelegate.nameReferenceElement
+
+    override fun getQualifiedName() = qualifiedName
+
+    override fun getMetaData() = clsDelegate.metaData
+
+    override fun getParameterList() = clsDelegate.parameterList
 }

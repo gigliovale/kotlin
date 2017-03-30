@@ -75,6 +75,8 @@ abstract class LightClassGenerationSupport {
 
     abstract fun findFilesForFacade(facadeFqName: FqName, scope: GlobalSearchScope): Collection<KtFile>
 
+    abstract fun isInheritor(lightClass: KtLightClass, baseClass: PsiClass, checkDeep: Boolean): Boolean
+
     companion object {
         @JvmStatic fun getInstance(project: Project): LightClassGenerationSupport {
             return ServiceManager.getService(project, LightClassGenerationSupport::class.java)

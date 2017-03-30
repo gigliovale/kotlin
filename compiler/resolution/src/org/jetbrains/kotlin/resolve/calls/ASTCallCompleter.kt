@@ -163,7 +163,8 @@ class ASTCallCompleter(
     }
 
     private fun SimpleResolutionCandidate.toCompletedCall(substitutor: TypeSubstitutor): CompletedCall.Simple {
-        val resultingDescriptor = descriptorWithFreshTypes.substitute(substitutor)!!
+        val resultingDescriptor = if (descriptorWithFreshTypes.typeParameters.isNotEmpty()) descriptorWithFreshTypes.substitute(substitutor)!! else descriptorWithFreshTypes
+
         val typeArguments = descriptorWithFreshTypes.typeParameters.map { substitutor.safeSubstitute(it.defaultType, Variance.INVARIANT).unwrap() }
 
         val status = computeStatus(this, resultingDescriptor)

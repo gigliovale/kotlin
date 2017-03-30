@@ -28,9 +28,8 @@ import org.jetbrains.kotlin.resolve.calls.inference.components.ResultTypeResolve
 import org.jetbrains.kotlin.resolve.calls.model.CallDiagnostic
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedLambdaArgument
 import org.jetbrains.kotlin.resolve.calls.tower.isSuccess
-import org.jetbrains.kotlin.types.TypeConstructor
-import org.jetbrains.kotlin.types.TypeSubstitutor
-import org.jetbrains.kotlin.types.UnwrappedType
+import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
 import org.jetbrains.kotlin.types.typeUtil.contains
 import java.util.*
 
@@ -240,5 +239,17 @@ class NewConstraintSystemImpl(val callComponents: CallContextComponents):
     override fun buildCurrentSubstitutor(): TypeSubstitutor {
         checkState(State.COMPLETION)
         return storage.buildCurrentSubstitutor()
+    }
+
+    override fun buildResultingSubstitutor(): TypeSubstitutor {
+        checkState(State.COMPLETION)
+        val currentSubstitutorMap = storage.fixedTypeVariables.entries.associate {
+            it.key to it.value.asTypeProjection()
+        }
+        val uninferredSubstitutorMap = storage.notFixedTypeVariables.entries.associate { (freshTypeConstructor, typeVariable) ->
+            freshTypeConstructor to ErrorUtils.createErrorTypeWithCustomConstructor("Uninferred type", typeVariable.typeVariable.freshTypeConstructor).asTypeProjection()
+        }
+
+        return TypeConstructorSubstitution.createByConstructorsMap(currentSubstitutorMap + uninferredSubstitutorMap).buildSubstitutor()
     }
 }

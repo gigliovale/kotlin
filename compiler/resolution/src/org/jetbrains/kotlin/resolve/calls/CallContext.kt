@@ -37,6 +37,8 @@ val USE_NEW_INFERENCE =
         true
 //        false
 
+val REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC = false
+
 val GIVEN_CANDIDATES_NAME = Name.special("<given candidates>")
 
 class CallContextComponents(

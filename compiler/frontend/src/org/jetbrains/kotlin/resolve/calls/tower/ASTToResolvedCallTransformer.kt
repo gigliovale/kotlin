@@ -18,15 +18,14 @@ package org.jetbrains.kotlin.resolve.calls.tower
 
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.diagnostics.Diagnostic
+import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.psi.Call
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.calls.ArgumentTypeResolver
-import org.jetbrains.kotlin.resolve.calls.BaseResolvedCall
-import org.jetbrains.kotlin.resolve.calls.CompletedCall
-import org.jetbrains.kotlin.resolve.calls.DiagnosticReporterByTrackingStrategy
+import org.jetbrains.kotlin.resolve.calls.*
 import org.jetbrains.kotlin.resolve.calls.callResolverUtil.getEffectiveExpectedType
 import org.jetbrains.kotlin.resolve.calls.callUtil.isFakeElement
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
@@ -181,10 +180,22 @@ class ASTToResolvedCallTransformer(
             trace: BindingTrace,
             completedCall: CompletedCall.Simple
     ) {
-        val diagnosticReporter = DiagnosticReporterByTrackingStrategy(constantExpressionEvaluator, context, trace,
+        var reported = false
+        val reportTrackedTrace = object : BindingTrace by trace {
+            override fun report(diagnostic: Diagnostic) {
+                trace.report(diagnostic)
+                reported = true
+            }
+        }
+
+        val diagnosticReporter = DiagnosticReporterByTrackingStrategy(constantExpressionEvaluator, context, reportTrackedTrace,
                                                                       completedCall.astCall.psiAstCall)
         for (diagnostic in completedCall.resolutionStatus.diagnostics) {
+            reported = false
             diagnostic.report(diagnosticReporter)
+            if (!reported && REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC) {
+                trace.report(Errors.NEW_INFERENCE_DIAGNOSTIC.on(diagnosticReporter.psiAstCall.psiCall.callElement, "Missing diagnostic: $diagnostic"))
+            }
         }
     }
 }

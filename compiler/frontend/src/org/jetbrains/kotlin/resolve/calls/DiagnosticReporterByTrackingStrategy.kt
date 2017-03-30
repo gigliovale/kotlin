@@ -160,6 +160,13 @@ class DiagnosticReporterByTrackingStrategy(
                     trace.report(UPPER_BOUND_VIOLATED.on(typeArgumentReference, constraintError.upperType, constraintError.lowerType))
                 }
             }
+            CapturedTypeFromSubtyping::class.java -> {
+                val capturedError = diagnostic as CapturedTypeFromSubtyping
+                (capturedError.position as? ArgumentConstraintPosition)?.let {
+                    val expression = it.argument.psiExpression ?: return
+                    trace.report(NEW_INFERENCE_ERROR.on(expression, "Capture type from subtyping ${capturedError.constraintType} for variable ${capturedError.typeVariable}"))
+                }
+            }
         }
     }
 

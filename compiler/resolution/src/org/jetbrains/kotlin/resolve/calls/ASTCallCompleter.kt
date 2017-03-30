@@ -99,6 +99,7 @@ class ASTCallCompleter(
         val innerCalls: List<BaseResolvedCall.OnlyResolvedCall>
         val hasContradiction: Boolean
         fun buildCurrentSubstitutor(): TypeSubstitutor
+        fun buildResultingSubstitutor(): TypeSubstitutor
         val lambdaArguments: List<ResolvedLambdaArgument>
 
         // type can be proper if it not contains not fixed type variables
@@ -143,7 +144,7 @@ class ASTCallCompleter(
             c: Context,
             candidate: NewResolutionCandidate
     ): BaseResolvedCall.CompletedResolvedCall {
-        val currentSubstitutor = c.buildCurrentSubstitutor()
+        val currentSubstitutor = c.buildResultingSubstitutor()
         val completedCall = candidate.toCompletedCall(currentSubstitutor)
         val competedCalls = c.innerCalls.map {
             it.candidate.toCompletedCall(currentSubstitutor)

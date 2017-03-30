@@ -56,7 +56,8 @@ abstract class AbstractIdeLightClassTest : KotlinLightCodeInsightFixtureTestCase
         myFixture.configureByFiles(*testFiles.toTypedArray())
 
         val ktFile = myFixture.file as KtFile
-        testLightClass(testDataPath, { LightClassTestCommon.removeEmptyDefaultImpls(it) }) { fqName ->
+        val testData = File(testDataPath)
+        testLightClass(KotlinTestUtils.replaceExtension(testData, "java"), testData, { LightClassTestCommon.removeEmptyDefaultImpls(it) }, { fqName ->
             val tracker = LightClassLazinessChecker.Tracker(fqName)
             project.withServiceRegistered<StubComputationTracker, PsiClass?>(tracker) {
                 findClass(fqName, ktFile, project)?.apply {
@@ -65,7 +66,7 @@ abstract class AbstractIdeLightClassTest : KotlinLightCodeInsightFixtureTestCase
                     PsiElementChecker.checkPsiElementStructure(this)
                 }
             }
-        }
+        })
     }
 
     private fun lazinessModeByFileText(testDataPath: String): LightClassLazinessChecker.Mode {
@@ -97,17 +98,22 @@ abstract class AbstractIdeCompiledLightClassTest : KotlinDaemonAnalyzerTestCase(
     private fun libName() = "libFor" + getTestName(false)
 
     fun doTest(testDataPath: String) {
-        testLightClass(testDataPath, { it }) {
+        val testDataFile = File(testDataPath)
+        val expectedFile = KotlinTestUtils.replaceExtension(
+                testDataFile, "compiled.java"
+        ).let { if (it.exists()) it else KotlinTestUtils.replaceExtension(testDataFile, "java") }
+        testLightClass(expectedFile, testDataFile, { it }, {
             findClass(it, null, project)?.apply {
                 PsiElementChecker.checkPsiElementStructure(this)
             }
-        }
+        })
     }
 }
 
-private fun testLightClass(testDataPath: String, normalize: (String) -> String, findLightClass: (String) -> PsiClass?) {
+private fun testLightClass(expected: File, testData: File, normalize: (String) -> String, findLightClass: (String) -> PsiClass?) {
     LightClassTestCommon.testLightClass(
-            File(testDataPath),
+            expected,
+            testData,
             findLightClass,
             normalizeText = { text ->
                 //NOTE: ide and compiler differ in names generated for parameters with unspecified names
@@ -243,10 +249,17 @@ object LightClassLazinessChecker {
 
     private fun methodInfo(method: PsiMethod) = with(method) {
         MethodInfo(
-                name, PsiModifier.MODIFIERS.asList().filter { modifierList.hasModifierProperty(it) },
+                name, relevantModifiers(),
                 isConstructor, method.parameterList.parametersCount, isVarArgs
         )
     }
+
+    private fun PsiMethod.relevantModifiers()
+            = when { containingClass!!.isInterface ->
+        PsiModifier.MODIFIERS.filter { it != PsiModifier.ABSTRACT && it != PsiModifier.DEFAULT }
+        else -> PsiModifier.MODIFIERS.asList()
+    }.filter { modifierList.hasModifierProperty(it) }
+
 
     private fun Array<out PsiMember>.names() = mapTo(LinkedHashSet()) { it.name!! }
 }

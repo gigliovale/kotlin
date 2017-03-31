@@ -425,9 +425,9 @@ class KotlinCoreEnvironment private constructor(
         // made public for Upsource
         @JvmStatic fun registerProjectServices(projectEnvironment: JavaCoreProjectEnvironment) {
             with (projectEnvironment.project) {
-                val kotlinScriptDefinitionProvider = KotlinScriptDefinitionProvider()
-                registerService(KotlinScriptDefinitionProvider::class.java, kotlinScriptDefinitionProvider)
-                registerService(KotlinScriptExternalImportsProvider::class.java, KotlinScriptExternalImportsProvider(projectEnvironment.project, kotlinScriptDefinitionProvider))
+//                val kotlinScriptDefinitionProvider = KotlinScriptDefinitionProvider()
+//                registerService(KotlinScriptDefinitionProvider::class.java, kotlinScriptDefinitionProvider)
+//                registerService(KotlinScriptExternalImportsProvider::class.java, KotlinScriptExternalImportsProvider(projectEnvironment.project, kotlinScriptDefinitionProvider))
 //                registerService(KotlinJavaPsiFacade::class.java, KotlinJavaPsiFacade(this))
 //                registerService(KtLightClassForFacade.FacadeStubCache::class.java, KtLightClassForFacade.FacadeStubCache(this))
             }

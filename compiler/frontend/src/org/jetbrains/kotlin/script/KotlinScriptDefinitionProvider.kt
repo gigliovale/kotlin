@@ -69,7 +69,7 @@ class KotlinScriptDefinitionProvider {
     companion object {
         @JvmStatic
         fun getInstance(project: Project): KotlinScriptDefinitionProvider =
-                ServiceManager.getService(project, KotlinScriptDefinitionProvider::class.java)
+                KotlinScriptDefinitionProvider()
     }
 }
 

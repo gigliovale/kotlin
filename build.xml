@@ -153,6 +153,38 @@
         <!--<include name="compiler/plugin-api/src"/>-->
     </dirset>
 
+    <dirset id="compilerClassesFromIDEA.fileset.kjs" dir="${basedir}/">
+        <include name="descriptors/**"/>
+        <include name="deserialization/**"/>
+        <include name="util.runtime/**"/>
+        <include name="backend-common/**"/>
+
+        <!--<include name="compiler/cli/src/org/jetbrains/kotlin/cli/jvm/compiler/EnvironmentConfigFiles.java"/>-->
+        <!--<include name="compiler/cli/src/org/jetbrains/kotlin/cli/jvm/compiler/KotlinCoreEnvironment.kt"/>-->
+        <!--<include name="compiler/frontend.java/src/org/jetbrains/kotlin/config/JVMConfigurationKeys.java"/>-->
+        <!--<include name="compiler/frontend.java/src/org/jetbrains/kotlin/config/ContentRoots.kt"/>-->
+
+        <!--<include name="compiler/cli/src"/>-->
+        <!--<include name="compiler/cli/cli-common/src"/>-->
+
+
+        <include name="cli-js/**"/>
+
+        <include name="serialization/**"/>
+        <include name="container/**"/>
+        <include name="frontend/**"/>
+        <include name="resolution/**"/>
+        <include name="util/**"/>
+        <include name="js.ast/**"/>
+        <include name="js.translator/**"/>
+        <include name="js.frontend/**"/>
+        <include name="js.inliner/**"/>
+        <include name="js.parser/**"/>
+        <include name="js.serializer/**"/>
+
+        <!--<include name="compiler/plugin-api/src"/>-->
+    </dirset>
+
     <property name="idea.out" value="${basedir}/out/production"/>
     <patternset id="compilerClassesFromIDEA.fileset">
         <include name="frontend/**"/>
@@ -606,10 +638,10 @@
                 <fileset dir="${output}/builtins">
                     <include name="kotlin/**"/>
                 </fileset>
-                <fileset dir="${basedir}/core/descriptor.loader.java/src" includes="META-INF/services/**"/>
-                <fileset dir="${basedir}/compiler/frontend.java/src" includes="META-INF/services/**"/>
-                <fileset dir="${basedir}/compiler/backend/src" includes="META-INF/services/**"/>
-                <fileset dir="${basedir}/compiler/cli/src" includes="META-INF/services/**"/>
+                <!--<fileset dir="${basedir}/core/descriptor.loader.java/src" includes="META-INF/services/**"/>-->
+                <!--<fileset dir="${basedir}/compiler/frontend.java/src" includes="META-INF/services/**"/>-->
+                <!--<fileset dir="${basedir}/compiler/backend/src" includes="META-INF/services/**"/>-->
+                <!--<fileset dir="${basedir}/compiler/cli/src" includes="META-INF/services/**"/>-->
                 <fileset dir="${basedir}/resources" includes="kotlinManifest.properties"/>
 
                 <fileset dir="idea/src">
@@ -633,8 +665,8 @@
                     <attribute name="Implementation-Title" value="${manifest.impl.title.kotlin.compiler}"/>
                     <attribute name="Implementation-Version" value="${build.number}"/>
 
-                    <attribute name="Class-Path" value="${compiler.manifest.class.path}"/>
-                    <attribute name="Main-Class" value="org.jetbrains.kotlin.cli.jvm.K2JVMCompiler"/>
+                    <!--<attribute name="Class-Path" value="${compiler.manifest.class.path}"/>-->
+                    <!--<attribute name="Main-Class" value="org.jetbrains.kotlin.cli.jvm.K2JVMCompiler"/>-->
                 </manifest>
             </jar>
         </sequential>
@@ -834,8 +866,8 @@
 
         <delete file="${kotlin-home}/lib/kotlin-compiler3.jar" failonerror="false"/>
 
-        <copy file="${output}/kotlin-compiler-before-shrink3.jar"
-              tofile="${kotlin-home}/lib/kotlin-compiler3.jar" />
+        <!--<copy file="${output}/kotlin-compiler-before-shrink3.jar"-->
+              <!--tofile="${kotlin-home}/lib/kotlin-compiler3.jar" />-->
 
         <!--<sequential if:true="${shrink}">-->
             <!--<shrink configuration="${basedir}/compiler/compiler.pro"/>-->
@@ -854,7 +886,7 @@
         <shrink configuration="${basedir}/compiler/compiler2.pro"/>
     </target>
 
-    <target name="shrink-compiler3" >
+    <target name="shrink-compiler3">
         <delete file="${kotlin-home}/lib/kotlin-compiler3.jar" failonerror="false"/>
         <shrink configuration="${basedir}/compiler/compiler3.pro"/>
     </target>

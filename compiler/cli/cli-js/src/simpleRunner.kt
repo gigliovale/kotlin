@@ -28,6 +28,7 @@ import org.jetbrains.kotlin.config.CommonConfigurationKeys
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.extensions.PreprocessedFileCreator
 import org.jetbrains.kotlin.idea.KotlinFileType
+import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.js.config.JsConfig
 import org.jetbrains.kotlin.js.facade.K2JSTranslator
 import org.jetbrains.kotlin.js.facade.MainCallParameters
@@ -47,9 +48,12 @@ fun main(args: Array<String>) {
     val configuration = CompilerConfiguration()
 
     configuration.put(CommonConfigurationKeys.MODULE_NAME, "TEST")
+    val libraries = args[0]
+    val sources = args.drop(1).toList()
+    configuration.put(JSConfigurationKeys.LIBRARIES, libraries.split(":").filter(String::isNotEmpty))
 
     val env = KotlinCoreEnvironment.createForProduction(rootDisposable, configuration, JS_CONFIG_FILES)
-    val ktFiles = getKtFiles(env.project, args.toList()) {}
+    val ktFiles = getKtFiles(env.project, sources) {}
     env.addSourceFiles(ktFiles)
 
     val tr = K2JSTranslator(JsConfig(env.project, env.configuration))

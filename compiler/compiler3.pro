@@ -127,19 +127,21 @@ messages/**)
 #    public static void main(java.lang.String[]);
 #}
 
--keep class com.intellij.openapi.util.Disposer { public *; }
+#-keep class com.intellij.openapi.util.Disposer { public *; }
 -keep class org.picocontainer.Disposable { public *; }
 -keep class org.picocontainer.Startable { public *; }
-
--keep class org.jetbrains.kotlin.config.KotlinSourceRoot { public *; }
-
--keep class org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment { *; }
--keep class org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles {
-    #public static ** JS_CONFIG_FILES;
-    *;
-}
-
--keep class org.jetbrains.kotlin.js.config.JsConfig { public *; }
--keep class org.jetbrains.kotlin.js.facade.K2JSTranslator { public *; }
+#
+#-keep class org.jetbrains.kotlin.config.KotlinSourceRoot { public *; }
+#
+#-keep class org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment { *; }
+#-keep class org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles {
+#    #public static ** JS_CONFIG_FILES;
+#    *;
+#}
+#
+#-keep class org.jetbrains.kotlin.js.config.JsConfig { public *; }
+#-keep class org.jetbrains.kotlin.js.facade.K2JSTranslator { public *; }
 
 #-keep class org.jetbrains.kotlin.config.JVMConfigurationKeys { public *;}
+
+-keep class org.jetbrains.kotlin.js.cli.SimpleRunnerKt { public *;}

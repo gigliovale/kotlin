@@ -22,6 +22,20 @@
 META-INF/services/**,META-INF/native/**,META-INF/extensions/**,META-INF/MANIFEST.MF,
 messages/**)
 
+-injars '<bootstrap.runtime>'
+#-injars '<bootstrap.reflect>'(
+#!META-INF/maven**,!META-INF/services/**,
+#**.class,**.properties,**.kt,**.kotlin_*,**.jnilib,**.so,**.dll,
+#META-INF/native/**,META-INF/extensions/**,META-INF/MANIFEST.MF,
+#messages/**)
+-injars '<bootstrap.script.runtime>'
+
+#(!META-INF/maven**,
+#**.class,**.properties,**.kt,**.kotlin_*,**.jnilib,**.so,**.dll,
+#META-INF/services/**,META-INF/native/**,META-INF/extensions/**,META-INF/MANIFEST.MF,
+#messages/**)
+
+
 -outjars '<kotlin-home>/lib/kotlin-compiler3.jar'
 
 -dontnote **
@@ -50,11 +64,13 @@ messages/**)
 -dontwarn org.apache.xerces.util.**
 -dontwarn org.w3c.dom.ElementTraversal
 
+-dontwarn kotlin.reflect.**
+
 -libraryjars '<rtjar>'
 -libraryjars '<jssejar>'
--libraryjars '<bootstrap.runtime>'
+#-libraryjars '<bootstrap.runtime>'
 -libraryjars '<bootstrap.reflect>'
--libraryjars '<bootstrap.script.runtime>'
+#-libraryjars '<bootstrap.script.runtime>'
 
 -dontoptimize
 -dontobfuscate

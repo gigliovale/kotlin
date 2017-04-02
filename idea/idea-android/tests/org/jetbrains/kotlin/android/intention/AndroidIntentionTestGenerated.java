@@ -44,6 +44,12 @@ public class AndroidIntentionTestGenerated extends AbstractAndroidIntentionTest 
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("idea/testData/android/intention/implementParcelable"), Pattern.compile("^([\\w\\-_]+)\\.kt$"), TargetBackend.ANY, true);
         }
 
+        @TestMetadata("allNullableTypes.kt")
+        public void testAllNullableTypes() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/android/intention/implementParcelable/allNullableTypes.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("allTypes.kt")
         public void testAllTypes() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/android/intention/implementParcelable/allTypes.kt");

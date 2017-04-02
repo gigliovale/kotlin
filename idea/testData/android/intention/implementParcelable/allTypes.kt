@@ -37,6 +37,7 @@ class <caret>MyData {
     var field7: Float = 0.0f
     var field8: Double = 0.0
     var field9: Boolean = false
+    var field10: CharSequence = ""
 
     var goodArray: Array<BaseParcelable> = emptyArray()
     var badArray: Array<Parcelable> = emptyArray()
@@ -44,7 +45,7 @@ class <caret>MyData {
     var goodList: List<BaseParcelable> = emptyList()
     var badList: List<Parcelable> = emptyList()
 
-    var parcelableProperty: SuperParcelable
+    var parcelableProperty: BaseParcelable
     val uninitializedVal: Int
 
     val fieldWIthGetter: Int

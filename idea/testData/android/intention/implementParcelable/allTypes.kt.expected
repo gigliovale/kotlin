@@ -37,6 +37,7 @@ class MyData(parcel: Parcel) : Parcelable {
     var field7: Float = 0.0f
     var field8: Double = 0.0
     var field9: Boolean = false
+    var field10: CharSequence = ""
 
     var goodArray: Array<BaseParcelable> = emptyArray()
     var badArray: Array<Parcelable> = emptyArray()
@@ -44,7 +45,7 @@ class MyData(parcel: Parcel) : Parcelable {
     var goodList: List<BaseParcelable> = emptyList()
     var badList: List<Parcelable> = emptyList()
 
-    var parcelableProperty: SuperParcelable
+    var parcelableProperty: BaseParcelable
     val uninitializedVal: Int
 
     val fieldWIthGetter: Int
@@ -70,10 +71,11 @@ class MyData(parcel: Parcel) : Parcelable {
         field7 = parcel.readFloat()
         field8 = parcel.readDouble()
         field9 = parcel.readByte() != 0.toByte()
+        field10 = parcel.readString()
         goodArray = parcel.createTypedArray(BaseParcelable)
         goodList = parcel.createTypedArrayList(BaseParcelable)
+        parcelableProperty = parcel.readParcelable(BaseParcelable::class.java.classLoader)
         uninitializedVal = parcel.readInt()
-        fieldWithCustomGetterAndSetter = parcel.readInt()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -86,10 +88,11 @@ class MyData(parcel: Parcel) : Parcelable {
         parcel.writeFloat(field7)
         parcel.writeDouble(field8)
         parcel.writeByte(if (field9) 1 else 0)
+        parcel.writeString(field10.toString())
         parcel.writeTypedArray(goodArray, flags)
         parcel.writeTypedList(goodList)
+        parcel.writeParcelable(parcelableProperty, flags)
         parcel.writeInt(uninitializedVal)
-        parcel.writeInt(fieldWithCustomGetterAndSetter)
     }
 
     override fun describeContents(): Int {

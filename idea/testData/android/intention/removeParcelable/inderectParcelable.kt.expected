@@ -23,6 +23,6 @@ open class BaseParcelable(parcel: Parcel) : Parcelable {
     }
 }
 
-class MyData {
+class MyData : BaseParcelable(parcel) {
 
 }

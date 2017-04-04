@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.renderer.render
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTraceContext
 import org.jetbrains.kotlin.resolve.ImportPath
-import org.jetbrains.kotlin.resolve.hasAlias
+import org.jetbrains.kotlin.resolve.getText
 import org.jetbrains.kotlin.resolve.lazy.FileScopeProvider
 import org.jetbrains.kotlin.resolve.scopes.ImportingScope
 import org.jetbrains.kotlin.resolve.scopes.utils.findClassifier
@@ -256,11 +256,7 @@ class OptimizedImportsBuilder(
 
             for (importPath in importsToGenerate) {
                 append("import ")
-                append(importPath.pathStr)
-                if (importPath.hasAlias) {
-                    append("=")
-                    append(importPath.alias!!.render())
-                }
+                append(importPath.getText())
                 append("\n")
             }
         }

@@ -49,7 +49,7 @@ object ImportPathComparator : Comparator<ImportPath> {
     }
 
     private fun isJavaOrKotlinStdlibImport(path: ImportPath): Boolean {
-        val s = path.pathStr
+        val s = path.fqName.asString()
         return s.startsWith("java.") || s.startsWith("javax.")|| s.startsWith("kotlin.")
     }
 }

@@ -19,7 +19,6 @@ package org.jetbrains.kotlin.psi.debugText
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.resolve.hasAlias
 
 // invoke this instead of getText() when you need debug text to identify some place in PSI without storing the element itself
 // this is need to avoid unnecessary file parses
@@ -56,8 +55,7 @@ private object DebugTextBuildingVisitor : KtVisitor<String, Unit>() {
 
     override fun visitImportDirective(importDirective: KtImportDirective, data: Unit?): String? {
         val importPath = importDirective.importPath ?: return "import <invalid>"
-        val aliasStr = if (importPath.hasAlias) " as " + importPath.alias!!.asString() else ""
-        return "import ${importPath.pathStr}" + aliasStr
+        return "import $importPath"
     }
 
     override fun visitImportList(importList: KtImportList, data: Unit?): String? {

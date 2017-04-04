@@ -33,6 +33,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.TargetPlatform
+import org.jetbrains.kotlin.resolve.getText
 
 @JvmOverloads
 fun KtPsiFactory(project: Project?, markGenerated: Boolean = true): KtPsiFactory = KtPsiFactory(project!!, markGenerated)
@@ -401,12 +402,7 @@ class KtPsiFactory @JvmOverloads constructor(private val project: Project, val m
         }
 
         val importDirectiveBuilder = StringBuilder("import ")
-        importDirectiveBuilder.append(importPath.pathStr)
-
-        val alias = importPath.alias
-        if (alias != null) {
-            importDirectiveBuilder.append(" as ").append(alias.asString())
-        }
+        importDirectiveBuilder.append(importPath.getText())
 
         val file = createFile(importDirectiveBuilder.toString())
         return file.importDirectives.first()

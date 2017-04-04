@@ -29,7 +29,7 @@ import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
 import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtPsiUtil
-import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.ImportingScope
@@ -87,7 +87,7 @@ class LazyImportResolver(
         directive: KtImportDirective ->
 
         qualifiedExpressionResolver.processImportReference(
-                directive, moduleDescriptor, traceForImportResolve, excludedImportNames, packageFragment
+                directive, moduleDescriptor, traceForImportResolve, excludedImportNames, packageFragment, directive.suppressDiagnosticsInDebugMode()
         )
     }
 

@@ -26,9 +26,10 @@ import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.stubs.KotlinImportDirectiveStub;
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes;
+import org.jetbrains.kotlin.resolve.Import;
 import org.jetbrains.kotlin.resolve.ImportPath;
 
-public class KtImportDirective extends KtElementImplStub<KotlinImportDirectiveStub> {
+public class KtImportDirective extends KtElementImplStub<KotlinImportDirectiveStub> implements Import {
 
     public KtImportDirective(@NotNull ASTNode node) {
         super(node);
@@ -82,6 +83,7 @@ public class KtImportDirective extends KtElementImplStub<KotlinImportDirectiveSt
         return aliasNameNode.getText();
     }
 
+    @Override
     public boolean isAllUnder() {
         KotlinImportDirectiveStub stub = getStub();
         if (stub != null) {
@@ -164,5 +166,24 @@ public class KtImportDirective extends KtElementImplStub<KotlinImportDirectiveSt
         else {
             throw new IllegalArgumentException("Can't construct name for: " + expression.getClass().toString());
         }
+    }
+
+    @Nullable
+    @Override
+    public FqName getFqName() {
+        return getImportedFqName();
+    }
+
+    @Nullable
+    @Override
+    public Name getAlias() {
+        String name = getAliasName();
+        return name != null ? Name.identifier(name) : null;
+    }
+
+    @Nullable
+    @Override
+    public KtImportDirective getImportDirective() {
+        return this;
     }
 }

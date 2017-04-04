@@ -18,12 +18,15 @@ package org.jetbrains.kotlin.resolve
 
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.renderer.render
 
 interface Import {
     val isAllUnder: Boolean
     val fqName: FqName?
     val alias: Name?
+
+    val importDirective: KtImportDirective?
 }
 
 val Import.hasAlias get() = alias != null
@@ -45,6 +48,7 @@ data class ImportPath @JvmOverloads constructor(
         override val fqName: FqName,
         override val isAllUnder: Boolean,
         override val alias: Name? = null): Import {
+    override val importDirective: KtImportDirective? = null
 
     override fun toString(): String = getText()
 

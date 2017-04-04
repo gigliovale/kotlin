@@ -22,10 +22,10 @@ import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation
 import org.jetbrains.kotlin.incremental.components.LookupLocation
+import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.codeFragmentUtil.suppressDiagnosticsInDebugMode
 import org.jetbrains.kotlin.psi.psiUtil.getTopmostParentQualifiedExpressionForSelector
 import org.jetbrains.kotlin.resolve.calls.CallExpressionElement
 import org.jetbrains.kotlin.resolve.calls.checkers.UnderscoreUsageChecker
@@ -169,27 +169,46 @@ class QualifiedExpressionResolver {
         return result.asReversed() to hasError
     }
 
+    fun Import.asQualifierPartList(): List<QualifierPart>? {
+        val directive = importDirective
+        if (directive != null) {
+            return directive.importedReference?.asQualifierPartList()
+        }
+
+        return fqName?.pathSegments()?.map {
+            object : QualifierPart {
+                override val name: Name = it
+                override val expression: KtSimpleNameExpression
+                    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+                override val typeArguments: KtTypeArgumentList? get() = null
+                override val location: LookupLocation get() = NoLookupLocation.FROM_SYNTHETIC_SCOPE
+            }
+        }
+    }
+
     fun processImportReference(
-            importDirective: KtImportDirective,
+            import: Import,
             moduleDescriptor: ModuleDescriptor,
             trace: BindingTrace,
             excludedImportNames: Collection<FqName>,
-            packageFragmentForVisibilityCheck: PackageFragmentDescriptor?
+            packageFragmentForVisibilityCheck: PackageFragmentDescriptor?,
+            suppressDiagnosticsInDebugMode: Boolean
     ): ImportingScope? { // null if some error happened
-        val importedReference = importDirective.importedReference ?: return null
-        val path = importedReference.asQualifierPartList()
+        val path = import.asQualifierPartList() ?: return null
         val lastPart = path.lastOrNull() ?: return null
         val packageFragmentForCheck =
                 when {
-                    importDirective.suppressDiagnosticsInDebugMode() -> null
+                    suppressDiagnosticsInDebugMode -> null
                     packageFragmentForVisibilityCheck is DeclarationDescriptorWithSource && packageFragmentForVisibilityCheck.source == SourceElement.NO_SOURCE -> {
+                        val importDirective = import.importDirective ?: error("Get absent import directive") // TODO
                         PackageFragmentWithCustomSource(packageFragmentForVisibilityCheck, KotlinSourceElement(importDirective.containingKtFile))
                     }
                     else -> packageFragmentForVisibilityCheck
                 }
 
-        if (importDirective.isAllUnder) {
-            val packageOrClassDescriptor = resolveToPackageOrClass(path, moduleDescriptor, trace, packageFragmentForCheck,
+        if (import.isAllUnder) {
+            val packageOrClassDescriptor = resolveToPackageOrClass(path,
+                                                                   moduleDescriptor, trace, packageFragmentForCheck,
                                                                    scopeForFirstPart = null, position = QualifierPosition.IMPORT) ?: return null
 
             if (packageOrClassDescriptor is ClassDescriptor && packageOrClassDescriptor.kind.isSingleton) {
@@ -200,19 +219,19 @@ class QualifiedExpressionResolver {
             return AllUnderImportScope(packageOrClassDescriptor, excludedImportNames)
         }
         else {
-            return processSingleImport(moduleDescriptor, trace, importDirective, path, lastPart, packageFragmentForCheck)
+            return processSingleImport(moduleDescriptor, trace, import, path, lastPart, packageFragmentForCheck)
         }
     }
 
     private fun processSingleImport(
             moduleDescriptor: ModuleDescriptor,
             trace: BindingTrace,
-            importDirective: KtImportDirective,
+            import: Import,
             path: List<QualifierPart>,
             lastPart: QualifierPart,
             packageFragmentForVisibilityCheck: PackageFragmentDescriptor?
     ): ImportingScope? {
-        val aliasName = KtPsiUtil.getAliasName(importDirective)
+        val aliasName = import.alias
         if (aliasName == null) {
             // import kotlin.
             resolveToPackageOrClass(path, moduleDescriptor, trace, packageFragmentForVisibilityCheck, scopeForFirstPart = null, position = QualifierPosition.IMPORT)
@@ -311,6 +330,7 @@ class QualifiedExpressionResolver {
             override val typeArguments: KtTypeArgumentList? = null
     ) : QualifierPart {
         constructor (expression: KtSimpleNameExpression) : this(expression.getReferencedNameAsName(), expression)
+
         override val location = KotlinLookupLocation(expression)
     }
 

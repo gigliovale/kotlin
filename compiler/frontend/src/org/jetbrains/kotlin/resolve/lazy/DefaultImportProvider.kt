@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.isChildOf
 import org.jetbrains.kotlin.name.isSubpackageOf
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
-import org.jetbrains.kotlin.psi.KtImportsFactory
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -36,13 +35,12 @@ class DefaultImportScopeProvider(
         private val moduleDescriptor: ModuleDescriptor,
         private val qualifiedExpressionResolver: QualifiedExpressionResolver,
         private val bindingTrace: BindingTrace,
-        private val ktImportsFactory: KtImportsFactory,
         private val platformToKotlinClassMap: PlatformToKotlinClassMap,
         private val defaultImportProvider: DefaultImportProvider,
         private val languageVersionSettings: LanguageVersionSettings
 ) {
     private val defaultImports by storageManager.createLazyValue {
-        ktImportsFactory.createImportDirectives(defaultImportProvider.defaultImports)
+        defaultImportProvider.defaultImports
     }
 
     private val tempTrace  by storageManager.createLazyValue {

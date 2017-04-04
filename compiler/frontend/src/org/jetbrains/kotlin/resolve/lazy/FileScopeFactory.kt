@@ -24,7 +24,6 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtImportsFactory
 import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -46,7 +45,6 @@ class FileScopeFactory(
         private val moduleDescriptor: ModuleDescriptor,
         private val qualifiedExpressionResolver: QualifiedExpressionResolver,
         private val bindingTrace: BindingTrace,
-        private val ktImportsFactory: KtImportsFactory,
         private val platformToKotlinClassMap: PlatformToKotlinClassMap,
         private val defaultImportScopeProvider: DefaultImportScopeProvider,
         private val languageVersionSettings: LanguageVersionSettings
@@ -114,9 +112,9 @@ class FileScopeFactory(
 
             val extraImportsFromScriptProviders = file.originalFile.virtualFile?.let {  vFile ->
                 val scriptExternalDependencies = getScriptExternalDependencies(vFile, file.project)
-                ktImportsFactory.createImportDirectives(scriptExternalDependencies?.imports?.map { ImportPath.fromString(it) }.orEmpty())
+                scriptExternalDependencies?.imports?.map { ImportPath.fromString(it) }
             } ?: emptyList()
-            val extraImportsFiltered = extraImportsFromScriptProviders.filter { it.isAllUnder || it.importedFqName !in aliasImportFqNamesNames }
+            val extraImportsFiltered = extraImportsFromScriptProviders.filter { it.isAllUnder || it.fqName !in aliasImportFqNamesNames }
 
 //            val allImplicitImports = defaultImports concat extraImportsFromScriptProviders
 //

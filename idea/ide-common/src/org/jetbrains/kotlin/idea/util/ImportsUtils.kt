@@ -27,14 +27,15 @@ import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.bindingContextUtil.getReferenceTargets
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.descriptorUtil.getImportableDescriptor
+import org.jetbrains.kotlin.resolve.hasAlias
 import org.jetbrains.kotlin.types.KotlinType
 import java.util.*
 
 object ImportPathComparator : Comparator<ImportPath> {
     override fun compare(import1: ImportPath, import2: ImportPath): Int {
         // alias imports placed last
-        if (import1.hasAlias() != import2.hasAlias()) {
-            return if (import1.hasAlias()) +1 else -1
+        if (import1.hasAlias != import2.hasAlias) {
+            return if (import1.hasAlias) +1 else -1
         }
 
         // standard library imports last

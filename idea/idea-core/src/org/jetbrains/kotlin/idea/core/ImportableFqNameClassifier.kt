@@ -16,13 +16,13 @@
 
 package org.jetbrains.kotlin.idea.core
 
-import org.jetbrains.kotlin.builtins.DefaultBuiltIns
 import org.jetbrains.kotlin.idea.util.ImportInsertHelper
 import org.jetbrains.kotlin.load.java.components.JavaAnnotationMapper
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.resolve.ImportPath
+import org.jetbrains.kotlin.resolve.hasAlias
 import java.util.*
 
 class ImportableFqNameClassifier(private val file: KtFile) {
@@ -38,7 +38,7 @@ class ImportableFqNameClassifier(private val file: KtFile) {
             if (importPath.isAllUnder) {
                 allUnderImports.add(fqName)
             }
-            else if (!importPath.hasAlias()) {
+            else if (!importPath.hasAlias) {
                 preciseImports.add(fqName)
                 preciseImportPackages.add(fqName.parent())
             } else {

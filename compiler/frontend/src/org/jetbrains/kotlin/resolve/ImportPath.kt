@@ -18,9 +18,27 @@ package org.jetbrains.kotlin.resolve
 
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.renderer.*
+import org.jetbrains.kotlin.renderer.render
 
-data class ImportPath @JvmOverloads constructor(val fqName: FqName, val isAllUnder: Boolean, val alias: Name? = null) {
+interface Import {
+    val isAllUnder: Boolean
+    val fqName: FqName?
+    val alias: Name?
+}
+
+val Import.hasAlias get() = alias != null
+val Import.importedName: Name? get() {
+    if (!isAllUnder) {
+        return alias ?: fqName?.shortName()
+    }
+
+    return null
+}
+
+data class ImportPath @JvmOverloads constructor(
+        override val fqName: FqName,
+        override val isAllUnder: Boolean,
+        override val alias: Name? = null): Import {
 
     val pathStr: String
         get() = fqName.toUnsafe().render() + if (isAllUnder) ".*" else ""
@@ -28,19 +46,6 @@ data class ImportPath @JvmOverloads constructor(val fqName: FqName, val isAllUnd
     override fun toString(): String {
         return pathStr + if (alias != null) " as " + alias.asString() else ""
     }
-
-    fun hasAlias(): Boolean {
-        return alias != null
-    }
-
-    val importedName: Name?
-        get() {
-            if (!isAllUnder) {
-                return alias ?: fqName.shortName()
-            }
-
-            return null
-        }
 
     companion object {
         @JvmStatic fun fromString(pathStr: String): ImportPath {

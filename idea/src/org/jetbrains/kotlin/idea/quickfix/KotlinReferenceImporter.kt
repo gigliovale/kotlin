@@ -34,6 +34,7 @@ import org.jetbrains.kotlin.psi.KtSimpleNameExpression
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.elementsInRange
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
+import org.jetbrains.kotlin.resolve.importedName
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 
 class KotlinReferenceImporter : ReferenceImporter {

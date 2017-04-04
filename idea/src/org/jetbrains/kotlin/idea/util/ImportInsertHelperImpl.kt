@@ -36,6 +36,8 @@ import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.ImportPath
 import org.jetbrains.kotlin.resolve.descriptorUtil.getImportableDescriptor
+import org.jetbrains.kotlin.resolve.hasAlias
+import org.jetbrains.kotlin.resolve.importedName
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.lazy.DefaultImportProvider
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
@@ -187,7 +189,7 @@ class ImportInsertHelperImpl(private val project: Project) : ImportInsertHelper(
 
             val importsFromPackage = imports.count {
                 val path = it.importPath
-                path != null && !path.isAllUnder && !path.hasAlias() && path.fqName.parent() == containerFqName
+                path != null && !path.isAllUnder && !path.hasAlias && path.fqName.parent() == containerFqName
             }
             val nameCountToUseStar = if (target.containingDeclaration is ClassDescriptor)
                 codeStyleSettings.NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS

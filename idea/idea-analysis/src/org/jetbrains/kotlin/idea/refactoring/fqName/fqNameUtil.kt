@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.asJava.namedUnwrappedElement
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import org.jetbrains.kotlin.resolve.ImportPath
+import org.jetbrains.kotlin.resolve.hasAlias
 
 /**
  * Returns FqName for given declaration (either Java or Kotlin)
@@ -44,14 +45,14 @@ fun PsiElement.getKotlinFqName(): FqName? {
 
 fun FqName.isImported(importPath: ImportPath, skipAliasedImports: Boolean = true): Boolean {
     return when {
-        skipAliasedImports && importPath.hasAlias() -> false
+        skipAliasedImports && importPath.hasAlias -> false
         importPath.isAllUnder && !isRoot -> importPath.fqName == this.parent()
         else -> importPath.fqName == this
     }
 }
 
 fun ImportPath.isImported(alreadyImported: ImportPath): Boolean {
-    return if (isAllUnder || hasAlias()) this == alreadyImported else fqName.isImported(alreadyImported)
+    return if (isAllUnder || hasAlias) this == alreadyImported else fqName.isImported(alreadyImported)
 }
 
 private fun ImportPath.isImported(imports: Iterable<ImportPath>): Boolean = imports.any { isImported(it) }

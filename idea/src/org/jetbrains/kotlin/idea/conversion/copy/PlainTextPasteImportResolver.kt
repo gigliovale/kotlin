@@ -33,6 +33,8 @@ import org.jetbrains.kotlin.platform.JavaToKotlinClassMap
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtImportDirective
+import org.jetbrains.kotlin.resolve.hasAlias
+import org.jetbrains.kotlin.resolve.importedName
 import java.util.*
 
 
@@ -73,7 +75,7 @@ class PlainTextPasteImportResolver(val dataForConversion: DataForConversion, val
         fun tryConvertKotlinImport(importDirective: KtImportDirective) {
             val importPath = importDirective.importPath
             val importedReference = importDirective.importedReference
-            if (importPath != null && !importPath.hasAlias() && importedReference is KtDotQualifiedExpression) {
+            if (importPath != null && !importPath.hasAlias && importedReference is KtDotQualifiedExpression) {
                 val receiver = importedReference
                         .receiverExpression
                         .referenceExpression()

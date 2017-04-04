@@ -21,6 +21,7 @@ import com.intellij.util.SmartList
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.diagnostics.Errors
 import org.jetbrains.kotlin.incremental.KotlinLookupLocation
+import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.*
@@ -141,9 +142,10 @@ class QualifiedExpressionResolver {
         }
 
         if (qualifierPartList.size == 1) {
-            val (name, simpleName) = qualifierPartList.single()
-            val descriptor = scope.findClassifier(name, KotlinLookupLocation(simpleName))
-            storeResult(trace, simpleName, descriptor, ownerDescriptor, position = QualifierPosition.TYPE, isQualifier = true)
+            val part = qualifierPartList.single()
+            val name = part.name
+            val descriptor = scope.findClassifier(name, part.location)
+            storeResult(trace, part.expression, descriptor, ownerDescriptor, position = QualifierPosition.TYPE, isQualifier = true)
             return TypeQualifierResolutionResult(qualifierPartList, descriptor)
         }
 
@@ -157,7 +159,7 @@ class QualifiedExpressionResolver {
         while (userType != null) {
             val referenceExpression = userType.referenceExpression
             if (referenceExpression != null) {
-                result.add(QualifierPart(referenceExpression.getReferencedNameAsName(), referenceExpression, userType.typeArgumentList))
+                result.add(QualifierPartImpl(referenceExpression.getReferencedNameAsName(), referenceExpression, userType.typeArgumentList))
             }
             else {
                 hasError = true
@@ -272,12 +274,12 @@ class QualifiedExpressionResolver {
 
         fun addQualifierPart(expression: KtExpression?): Boolean {
             if (expression is KtSimpleNameExpression) {
-                result.add(QualifierPart(expression))
+                result.add(QualifierPartImpl(expression))
                 return true
             }
             if (doubleColonLHS && expression is KtCallExpression && expression.isWithoutValueArguments) {
                 val simpleName = expression.calleeExpression as KtSimpleNameExpression
-                result.add(QualifierPart(simpleName.getReferencedNameAsName(), simpleName, expression.typeArgumentList))
+                result.add(QualifierPartImpl(simpleName.getReferencedNameAsName(), simpleName, expression.typeArgumentList))
                 return true
             }
             return false
@@ -296,14 +298,20 @@ class QualifiedExpressionResolver {
         return result.asReversed()
     }
 
-    data class QualifierPart(
-            val name: Name,
-            val expression: KtSimpleNameExpression,
-            val typeArguments: KtTypeArgumentList? = null
-    ) {
-        constructor (expression: KtSimpleNameExpression) : this(expression.getReferencedNameAsName(), expression)
+    interface QualifierPart {
+        val name: Name
+        val expression: KtSimpleNameExpression
+        val typeArguments: KtTypeArgumentList?
+        val location: LookupLocation
+    }
 
-        val location = KotlinLookupLocation(expression)
+    data class QualifierPartImpl(
+            override val name: Name,
+            override val expression: KtSimpleNameExpression,
+            override val typeArguments: KtTypeArgumentList? = null
+    ) : QualifierPart {
+        constructor (expression: KtSimpleNameExpression) : this(expression.getReferencedNameAsName(), expression)
+        override val location = KotlinLookupLocation(expression)
     }
 
 
@@ -509,13 +517,13 @@ class QualifiedExpressionResolver {
         //  qualified expression 'a.b.c.d': qualifier parts == ['a', 'b', 'c']
 
         val qualifierParts = arrayListOf<QualifierPart>()
-        qualifierParts.add(QualifierPart(firstReceiver))
+        qualifierParts.add(QualifierPartImpl(firstReceiver))
 
         for (qualifiedExpression in qualifiedExpressions.dropLast(skipLast)) {
             if (qualifiedExpression !is KtDotQualifiedExpression) break
             val selector = qualifiedExpression.selectorExpression
             if (selector !is KtSimpleNameExpression) break
-            qualifierParts.add(QualifierPart(selector))
+            qualifierParts.add(QualifierPartImpl(selector))
         }
 
         return qualifierParts
@@ -548,8 +556,8 @@ class QualifiedExpressionResolver {
             trace: BindingTrace,
             position: QualifierPosition
     ) {
-        path.foldRight(packageView) { (_, expression), currentView ->
-            storeResult(trace, expression, currentView, shouldBeVisibleFrom = null, position = position)
+        path.foldRight(packageView) { part, currentView ->
+            storeResult(trace, part.expression, currentView, shouldBeVisibleFrom = null, position = position)
             currentView.containingDeclaration
             ?: error("Containing Declaration must be not null for package with fqName: ${currentView.fqName}, " +
                      "path: ${path.joinToString()}, packageView fqName: ${packageView.fqName}")

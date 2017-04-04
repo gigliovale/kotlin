@@ -726,7 +726,8 @@ class TypeResolver(
                         Math.min(classifierChainLastIndex + 1, reversedQualifierParts.size),
                         reversedQualifierParts.size)
 
-        for ((_, _, typeArguments) in nonClassQualifierParts) {
+        for (part in nonClassQualifierParts) {
+            val typeArguments = part.typeArguments
             if (typeArguments != null) {
                 c.trace.report(TYPE_ARGUMENTS_NOT_ALLOWED.on(typeArguments, "here"))
                 return null

@@ -119,8 +119,8 @@ class QualifiedExpressionResolver {
         return TypeQualifierResolutionResult(qualifierPartList, classifier)
     }
 
-    private fun checkNotEnumEntry(descriptor: DeclarationDescriptor?, trace: BindingTrace, expression: KtSimpleNameExpression) {
-        if (descriptor != null && DescriptorUtils.isEnumEntry(descriptor)) {
+    private fun checkNotEnumEntry(descriptor: DeclarationDescriptor?, trace: BindingTrace, expression: KtSimpleNameExpression?) {
+        if (expression != null && descriptor != null && DescriptorUtils.isEnumEntry(descriptor)) {
             val qualifiedParent = expression.getTopmostParentQualifiedExpressionForSelector()
             if (qualifiedParent == null || qualifiedParent.parent !is KtDoubleColonExpression) {
                 trace.report(Errors.ENUM_ENTRY_AS_TYPE.on(expression))
@@ -175,15 +175,7 @@ class QualifiedExpressionResolver {
             return directive.importedReference?.asQualifierPartList()
         }
 
-        return fqName?.pathSegments()?.map {
-            object : QualifierPart {
-                override val name: Name = it
-                override val expression: KtSimpleNameExpression
-                    get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-                override val typeArguments: KtTypeArgumentList? get() = null
-                override val location: LookupLocation get() = NoLookupLocation.FROM_SYNTHETIC_SCOPE
-            }
-        }
+        return fqName?.pathSegments()?.map { SyntheticQualifierPart(it) }
     }
 
     fun processImportReference(
@@ -212,7 +204,10 @@ class QualifiedExpressionResolver {
                                                                    scopeForFirstPart = null, position = QualifierPosition.IMPORT) ?: return null
 
             if (packageOrClassDescriptor is ClassDescriptor && packageOrClassDescriptor.kind.isSingleton) {
-                trace.report(Errors.CANNOT_ALL_UNDER_IMPORT_FROM_SINGLETON.on(lastPart.expression, packageOrClassDescriptor)) // todo report on star
+                val expression = lastPart.expression
+                if (expression != null) {
+                    trace.report(Errors.CANNOT_ALL_UNDER_IMPORT_FROM_SINGLETON.on(expression, packageOrClassDescriptor)) // todo report on star
+                }
                 return null
             }
 
@@ -269,7 +264,7 @@ class QualifiedExpressionResolver {
             is PackageViewDescriptor -> {
                 val packageDescriptor = moduleDescriptor.getPackage(packageOrClassDescriptor.fqName.child(lastName))
                 if (!packageDescriptor.isEmpty()) {
-                    trace.report(Errors.PACKAGE_CANNOT_BE_IMPORTED.on(lastPart.expression))
+                    lastPart.expression?.let { trace.report(Errors.PACKAGE_CANNOT_BE_IMPORTED.on(it)) }
                     descriptors.add(packageOrClassDescriptor)
                 }
             }
@@ -279,7 +274,7 @@ class QualifiedExpressionResolver {
                 descriptors.addAll(memberScope.getContributedFunctions(lastName, lastPart.location))
                 descriptors.addAll(memberScope.getContributedVariables(lastName, lastPart.location))
                 if (descriptors.isNotEmpty()) {
-                    trace.report(Errors.CANNOT_BE_IMPORTED.on(lastPart.expression, lastName))
+                    lastPart.expression?.let { trace.report(Errors.CANNOT_BE_IMPORTED.on(it, lastName)) }
                 }
             }
 
@@ -319,9 +314,15 @@ class QualifiedExpressionResolver {
 
     interface QualifierPart {
         val name: Name
-        val expression: KtSimpleNameExpression
+        val expression: KtSimpleNameExpression?
         val typeArguments: KtTypeArgumentList?
         val location: LookupLocation
+    }
+
+    class SyntheticQualifierPart(override val name: Name) : QualifierPart {
+        override val expression: KtSimpleNameExpression? get() = null
+        override val typeArguments: KtTypeArgumentList? get() = null
+        override val location: LookupLocation get() = NoLookupLocation.FROM_SYNTHETIC_SCOPE
     }
 
     data class QualifierPartImpl(
@@ -367,12 +368,13 @@ class QualifiedExpressionResolver {
         }
 
         val firstPart = path.first()
+        val firstPartExpression = firstPart.expression
 
         if (position == QualifierPosition.EXPRESSION) {
             // In expression position, value wins against classifier (and package).
             // If we see a function or variable (possibly ambiguous),
             // tell resolver we have no qualifier and let it perform the context-dependent resolution.
-            if (scopeForFirstPart != null && isValue != null && isValue(firstPart.expression)) {
+            if (scopeForFirstPart != null && isValue != null && firstPartExpression != null && isValue(firstPartExpression)) {
                 return Pair(null, 0)
             }
         }
@@ -380,7 +382,7 @@ class QualifiedExpressionResolver {
         val classifierDescriptor = scopeForFirstPart?.findClassifier(firstPart.name, firstPart.location)
 
         if (classifierDescriptor != null) {
-            storeResult(trace, firstPart.expression, classifierDescriptor, shouldBeVisibleFrom, position)
+            storeResult(trace, firstPartExpression, classifierDescriptor, shouldBeVisibleFrom, position)
         }
 
         val (prefixDescriptor, nextIndexAfterPrefix) =
@@ -586,12 +588,14 @@ class QualifiedExpressionResolver {
 
     private fun storeResult(
             trace: BindingTrace,
-            referenceExpression: KtSimpleNameExpression,
+            referenceExpression: KtSimpleNameExpression?,
             descriptors: Collection<DeclarationDescriptor>,
             shouldBeVisibleFrom: DeclarationDescriptor?,
             position: QualifierPosition,
             isQualifier: Boolean = true
     ) {
+        if (referenceExpression == null) return
+
         if (descriptors.size > 1) {
             val visibleDescriptors = descriptors.filter { isVisible(it, shouldBeVisibleFrom, position) }
             if (visibleDescriptors.isEmpty()) {
@@ -612,12 +616,14 @@ class QualifiedExpressionResolver {
 
     private fun storeResult(
             trace: BindingTrace,
-            referenceExpression: KtSimpleNameExpression,
+            referenceExpression: KtSimpleNameExpression?,
             descriptor: DeclarationDescriptor?,
             shouldBeVisibleFrom: DeclarationDescriptor?,
             position: QualifierPosition,
             isQualifier: Boolean = true
     ): Qualifier? {
+        if (referenceExpression == null) return null
+
         if (descriptor == null) {
             trace.report(Errors.UNRESOLVED_REFERENCE.on(referenceExpression, referenceExpression))
             return null

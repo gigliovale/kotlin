@@ -26,9 +26,9 @@ import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 
 class KotlinSourceFilterScope private constructor(
         delegate: GlobalSearchScope,
-        private val includeProjectSourceFiles: Boolean,
-        private val includeLibrarySourceFiles: Boolean,
-        private val includeClassFiles: Boolean,
+        val includeProjectSourceFiles: Boolean,
+        val includeLibrarySourceFiles: Boolean,
+        val includeClassFiles: Boolean,
         private val includeScriptDependencies: Boolean,
         private val project: Project
 ) : DelegatingGlobalSearchScope(delegate) {
@@ -37,6 +37,8 @@ class KotlinSourceFilterScope private constructor(
 
     //NOTE: avoid recomputing in potentially bottleneck 'contains' method
     private val isJsProjectRef = Ref<Boolean?>(null)
+
+    val isSourceAndClassFiles = includeProjectSourceFiles && !includeLibrarySourceFiles && !includeClassFiles && !includeScriptDependencies
 
     override fun getProject() = project
 

@@ -40,6 +40,9 @@
     <component>
       <implementation-class>org.jetbrains.kotlin.idea.project.KotlinCodeBlockModificationListener</implementation-class>
     </component>
+    <component>
+      <implementation-class>org.jetbrains.kotlin.idea.stubindex.PackageIndexUtilCacheModificationListener</implementation-class>
+    </component>
   </project-components>
 
   <application-components>
@@ -310,6 +313,12 @@
 
     <projectService serviceInterface="org.jetbrains.kotlin.idea.kdoc.SampleResolutionService"
                     serviceImplementation="org.jetbrains.kotlin.idea.kdoc.IdeSampleResolutionService"/>
+
+    <projectService serviceImplementation="org.jetbrains.kotlin.idea.stubindex.PackageIndexUtilCacheService"/>
+
+    <projectService serviceImplementation="org.jetbrains.kotlin.idea.stubindex.PackageModificationTracker"/>
+
+    <projectService serviceImplementation="org.jetbrains.kotlin.idea.stubindex.FileLocationModificationTracker"/>
 
     <errorHandler implementation="org.jetbrains.kotlin.idea.reporter.KotlinReportSubmitter"/>
 

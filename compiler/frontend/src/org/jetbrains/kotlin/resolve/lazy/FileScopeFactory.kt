@@ -24,12 +24,8 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.platform.PlatformToKotlinClassMap
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtImportDirective
 import org.jetbrains.kotlin.psi.KtImportsFactory
-import org.jetbrains.kotlin.resolve.BindingTrace
-import org.jetbrains.kotlin.resolve.ImportPath
-import org.jetbrains.kotlin.resolve.QualifiedExpressionResolver
-import org.jetbrains.kotlin.resolve.TemporaryBindingTrace
+import org.jetbrains.kotlin.resolve.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
 import org.jetbrains.kotlin.resolve.scopes.ImportingScope
@@ -94,12 +90,12 @@ class FileScopeFactory(
                 allUnderImportResolver.forceResolveAllImports()
             }
 
-            override fun forceResolveImport(importDirective: KtImportDirective) {
-                if (importDirective.isAllUnder) {
-                    allUnderImportResolver.forceResolveImport(importDirective)
+            override fun forceResolveImport(import: Import) {
+                if (import.isAllUnder) {
+                    allUnderImportResolver.forceResolveImport(import)
                 }
                 else {
-                    explicitImportResolver.forceResolveImport(importDirective)
+                    explicitImportResolver.forceResolveImport(import)
                 }
             }
         }

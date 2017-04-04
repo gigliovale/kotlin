@@ -144,8 +144,9 @@ class CodeFragmentAnalyzer(
         }
 
         val importScopes = importList.imports.mapNotNull {
-            qualifierResolver.processImportReference(it, resolveSession.moduleDescriptor, resolveSession.trace,
-                                                     excludedImportNames = emptyList(), packageFragmentForVisibilityCheck = null)
+            qualifierResolver.processImportReference(
+                    it, resolveSession.moduleDescriptor, resolveSession.trace,
+                    excludedImportNames = emptyList(), packageFragmentForVisibilityCheck = null, suppressDiagnosticsInDebugMode = true)
         }
 
         return scopeForContextElement.addImportingScopes(importScopes) to dataFlowInfo

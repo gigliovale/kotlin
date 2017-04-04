@@ -202,8 +202,9 @@ class FileScopeFactory(
         return FilteredDelegationImportingScope(parent, delegate, filteredFqNames)
     }
 
-    private class DelegationImportingScope(val _parent: ImportingScope?, delegate: ImportingScope) : ImportingScope by delegate {
+    private class DelegationImportingScope(val _parent: ImportingScope?, val delegate: ImportingScope) : ImportingScope by delegate {
         override val parent: ImportingScope? get() = _parent
+        override fun toString(): String = "Delegate to $delegate"
     }
 
     private class FilteredDelegationImportingScope(

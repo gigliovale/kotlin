@@ -163,8 +163,8 @@ class LazyImportResolver(
             val imports = indexedImports.importsForName(name)
 
             var target: D? = null
-            for (directive in imports) {
-                val resolved = descriptorSelector(getImportScope(directive), name) ?: continue
+            for (import in imports) {
+                val resolved = descriptorSelector(getImportScope(import), name) ?: continue
                 if (target != null && target != resolved) return null // ambiguity
                 target = resolved
             }

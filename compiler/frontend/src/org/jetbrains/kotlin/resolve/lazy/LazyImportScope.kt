@@ -111,11 +111,11 @@ class LazyImportResolver(
             forceResolveImport(import)
             val scope = importedScopesProvider(import)
 
-            val alias = import.alias
-            if (scope != null && alias != null) {
+            val importedName = import.importedName
+            if (scope != null && importedName != null) {
                 val location = import.importDirective?.let { KotlinLookupLocation(import.importDirective!!) } ?: NoLookupLocation.FROM_SYNTHETIC_SCOPE
-                if (scope.getContributedClassifier(alias, location) != null) {
-                    explicitClassImports.put(alias, import)
+                if (scope.getContributedClassifier(importedName, location) != null) {
+                    explicitClassImports.put(importedName, import)
                 }
             }
 

@@ -226,8 +226,8 @@ class QualifiedExpressionResolver {
             lastPart: QualifierPart,
             packageFragmentForVisibilityCheck: PackageFragmentDescriptor?
     ): ImportingScope? {
-        val aliasName = import.alias
-        if (aliasName == null) {
+        val importedName = import.importedName
+        if (importedName == null) {
             // import kotlin.
             resolveToPackageOrClass(path, moduleDescriptor, trace, packageFragmentForVisibilityCheck, scopeForFirstPart = null, position = QualifierPosition.IMPORT)
             return null
@@ -240,7 +240,7 @@ class QualifiedExpressionResolver {
 
         val packageOrClassDescriptor = (resolvedDescriptor as? TypeAliasDescriptor)?.let { it.classDescriptor ?: return null } ?: resolvedDescriptor
 
-        return LazyExplicitImportScope(packageOrClassDescriptor, packageFragmentForVisibilityCheck, lastPart.name, aliasName) {
+        return LazyExplicitImportScope(packageOrClassDescriptor, packageFragmentForVisibilityCheck, lastPart.name, importedName) {
             candidates ->
 
             if (candidates.isNotEmpty()) {

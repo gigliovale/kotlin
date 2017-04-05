@@ -21,56 +21,83 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.codeStyle.CodeStyleManager
-import org.jetbrains.kotlin.psi.KtParameter
-import org.jetbrains.kotlin.psi.KtParameterList
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.lexer.KtTokens
+import org.jetbrains.kotlin.psi.*
+import org.jetbrains.kotlin.psi.psiUtil.allChildren
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 
-class ChopParameterListIntention : SelfTargetingOffsetIndependentIntention<KtParameterList>(
-        KtParameterList::class.java,
-        "Put parameters on separate lines"
-), LowPriorityAction {
-    override fun isApplicableTo(element: KtParameterList): Boolean {
-        val parameters = element.parameters
-        if (parameters.size <= 1) return false
-        if (parameters.dropLast(1).all { hasLineBreakAfter(it) }) return false
+abstract class AbstractChopListIntention<TList : KtElement, TElement : KtElement>(
+        private val listClass: Class<TList>,
+        private val elementClass: Class<TElement>,
+        text: String
+) : SelfTargetingOffsetIndependentIntention<TList>(listClass, text), LowPriorityAction {
+
+    override fun isApplicableTo(element: TList): Boolean {
+        val elements = element.elements()
+        if (elements.size <= 1) return false
+        if (elements.dropLast(1).all { hasLineBreakAfter(it) }) return false
         return true
     }
 
-    override fun applyTo(element: KtParameterList, editor: Editor?) {
-        val project = element.project
+    override fun applyTo(list: TList, editor: Editor?) {
+        val project = list.project
         val document = editor!!.document
-        val startOffset = element.startOffset
+        val startOffset = list.startOffset
 
-        if (!hasLineBreakAfter(element.parameters.last())) {
-            element.rightParenthesis?.startOffset?.let { document.insertString(it, "\n") }
+        val elements = list.elements()
+        if (!hasLineBreakAfter(elements.last())) {
+            val rpar = list.allChildren.lastOrNull { it.node.elementType == KtTokens.RPAR }
+            rpar?.startOffset?.let { document.insertString(it, "\n") }
         }
 
-        for (parameter in element.parameters.asReversed()) {
-            if (!hasLineBreakBefore(parameter)) {
-                document.insertString(parameter.startOffset, "\n")
+        for (element in elements.asReversed()) {
+            if (!hasLineBreakBefore(element)) {
+                document.insertString(element.startOffset, "\n")
             }
         }
 
         val documentManager = PsiDocumentManager.getInstance(project)
         documentManager.commitDocument(document)
         val psiFile = documentManager.getPsiFile(document)!!
-        val newParameterList = psiFile.findElementAt(startOffset)!!.getStrictParentOfType<KtParameterList>()!!
-        CodeStyleManager.getInstance(project).adjustLineIndent(psiFile, newParameterList.textRange)
+        val newList = PsiTreeUtil.getParentOfType(psiFile.findElementAt(startOffset)!!, listClass)!!
+        CodeStyleManager.getInstance(project).adjustLineIndent(psiFile, newList.textRange)
     }
 
-    private fun hasLineBreakAfter(parameter: KtParameter): Boolean {
-        return parameter
+    private fun hasLineBreakAfter(element: TElement): Boolean {
+        return element
                 .siblings(withItself = false)
-                .takeWhile { it !is KtParameter }
+                .takeWhile { !elementClass.isInstance(it) }
                 .any { it is PsiWhiteSpace && it.textContains('\n') }
     }
 
-    private fun hasLineBreakBefore(parameter: KtParameter): Boolean {
-        return parameter
+    private fun hasLineBreakBefore(element: TElement): Boolean {
+        return element
                 .siblings(withItself = false, forward = false)
-                .takeWhile { it !is KtParameter }
+                .takeWhile { !elementClass.isInstance(it) }
                 .any { it is PsiWhiteSpace && it.textContains('\n') }
+    }
+
+    private fun TList.elements(): List<TElement> {
+        return allChildren
+                .filter { elementClass.isInstance(it) }
+                .map {
+                    @Suppress("UNCHECKED_CAST")
+                    it as TElement
+                }
+                .toList()
     }
 }
+
+class ChopParameterListIntention : AbstractChopListIntention<KtParameterList, KtParameter>(
+        KtParameterList::class.java,
+        KtParameter::class.java,
+        "Put parameters on separate lines"
+)
+
+class ChopArgumentListIntention : AbstractChopListIntention<KtValueArgumentList, KtValueArgument>(
+        KtValueArgumentList::class.java,
+        KtValueArgument::class.java,
+        "Put arguments on separate lines"
+)

@@ -52,6 +52,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.*
 import org.jetbrains.kotlin.types.DeferredType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.UnwrappedType
+import org.jetbrains.kotlin.types.checker.prepareArgumentTypeRegardingCaptureTypes
 import org.jetbrains.kotlin.types.expressions.ControlStructureTypingUtils.ControlStructureDataFlowInfo
 import org.jetbrains.kotlin.types.expressions.DoubleColonExpressionResolver
 import org.jetbrains.kotlin.types.expressions.DoubleColonLHS
@@ -298,7 +299,9 @@ class PSICallResolver(
                                    error("Unexpected call : ${callForVariable.baseCall.psiCall}")
 
             val temporaryTrace = TemporaryBindingTrace.create(context.trace, "Context for resolve candidate")
-            val variableReceiver = ExpressionReceiver.create(calleeExpression, variable.descriptorWithFreshTypes.returnType!!, temporaryTrace.bindingContext)
+            val baseType = variable.descriptorWithFreshTypes.returnType!!.unwrap()
+            val preparedType = prepareArgumentTypeRegardingCaptureTypes(baseType) ?: baseType
+            val variableReceiver = ExpressionReceiver.create(calleeExpression, preparedType, temporaryTrace.bindingContext)
 
             temporaryTrace.record(BindingContext.REFERENCE_TARGET, calleeExpression, variable.descriptorWithFreshTypes)
             val dataFlowValue = DataFlowValueFactory.createDataFlowValue(variableReceiver, temporaryTrace.bindingContext, context.scope.ownerDescriptor)
@@ -360,7 +363,22 @@ class PSICallResolver(
                 null -> null
                 is QualifierReceiver -> QualifierReceiverCallArgument(oldReceiver) // todo report warning if isSafeCall
                 is ReceiverValue -> {
-                    val detailedReceiver = context.transformToReceiverWithSmartCastInfo(oldReceiver)
+                    var receiverToTransform: ReceiverValue = oldReceiver
+                    val newType = prepareArgumentTypeRegardingCaptureTypes(oldReceiver.type.unwrap())
+
+                    if (newType != null) {
+                        when (oldReceiver) {
+                            is ExpressionReceiver -> {
+                                receiverToTransform = ExpressionReceiver.create(oldReceiver.expression, newType, context.trace.bindingContext)
+                            }
+                            is TransientReceiver -> {
+                                receiverToTransform = TransientReceiver(newType)
+                            }
+                            else -> throw IllegalStateException("Unexpected receiver type: ${oldReceiver.javaClass.canonicalName}")
+                        }
+                    }
+
+                    val detailedReceiver = context.transformToReceiverWithSmartCastInfo(receiverToTransform)
                     ReceiverExpressionArgument(detailedReceiver, isSafeCall)
                 }
                 else -> error("Incorrect receiver: $oldReceiver")

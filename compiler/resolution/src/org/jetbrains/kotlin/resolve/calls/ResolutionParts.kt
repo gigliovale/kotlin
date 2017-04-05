@@ -51,9 +51,9 @@ internal object CheckVisibility : ResolutionPart {
         val invisibleMember = Visibilities.findInvisibleMember(receiverValue, candidateDescriptor, containingDescriptor) ?: return emptyList()
 
         if (dispatchReceiverArgument is ExpressionArgument) {
-            val smartCastReceiver = getReceiverValueWithSmartCast(receiverValue, dispatchReceiverArgument.type)
+            val smartCastReceiver = getReceiverValueWithSmartCast(receiverValue, dispatchReceiverArgument.stableType)
             if (Visibilities.findInvisibleMember(smartCastReceiver, candidateDescriptor, containingDescriptor) == null) {
-                return listOf(SmartCastDiagnostic(dispatchReceiverArgument, dispatchReceiverArgument.type))
+                return listOf(SmartCastDiagnostic(dispatchReceiverArgument, dispatchReceiverArgument.stableType))
             }
         }
 

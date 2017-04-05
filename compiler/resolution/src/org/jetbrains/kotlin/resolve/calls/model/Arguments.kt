@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,8 @@ interface SimpleCallArgument : CallArgument, ReceiverCallArgument {
     val isSafeCall: Boolean
 }
 
-interface ExpressionArgument : SimpleCallArgument {
-    val type: UnwrappedType // with all smart casts if stable
+interface ExpressionArgument : SimpleCallArgument
 
-    val unstableType: UnwrappedType? // if expression is not stable and has smart casts, then we create this type
-}
 
 interface SubCallArgument : SimpleCallArgument {
     val resolvedCall: BaseResolvedCall.OnlyResolvedCall

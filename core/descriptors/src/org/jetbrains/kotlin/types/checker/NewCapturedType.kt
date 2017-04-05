@@ -26,6 +26,25 @@ import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.utils.DO_NOTHING_2
 
+// if input type is capturedType, then we approximate it to UpperBound
+// null means that type should be leaved as is
+fun prepareArgumentTypeRegardingCaptureTypes(argumentType: UnwrappedType): UnwrappedType? {
+    val simpleType = NewKotlinTypeChecker.transformToNewType(argumentType.lowerIfFlexible())
+    if (simpleType.constructor is IntersectionTypeConstructor){
+        var changed = false
+        val preparedSuperTypes = simpleType.constructor.supertypes.map {
+            prepareArgumentTypeRegardingCaptureTypes(it.unwrap())?.apply { changed = true } ?: it.unwrap()
+        }
+        if (!changed) return null
+        return intersectTypes(preparedSuperTypes).makeNullableAsSpecified(simpleType.isMarkedNullable)
+    }
+    if (simpleType is NewCapturedType) {
+        // todo may be we should respect flexible capture types also...
+        return simpleType.constructor.supertypes.takeIf { it.isNotEmpty() }?.let(::intersectTypes) ?: argumentType.builtIns.nullableAnyType
+    }
+    return captureFromExpression(simpleType)
+}
+
 fun captureFromExpression(type: UnwrappedType): UnwrappedType? = when (type) {
     is SimpleType -> captureFromExpression(type)
     // i.e. if there is nothing to capture -- no changes, if there is something -- use lowerBound as base type

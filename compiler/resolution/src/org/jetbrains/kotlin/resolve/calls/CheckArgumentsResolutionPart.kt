@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.tower.isSuccess
 import org.jetbrains.kotlin.types.UnwrappedType
-import org.jetbrains.kotlin.types.checker.captureFromExpression
+import org.jetbrains.kotlin.types.checker.intersectWrappedTypes
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.types.typeUtil.supertypes
 import org.jetbrains.kotlin.utils.SmartList
@@ -200,7 +200,7 @@ internal fun checkExpressionArgument(
         isReceiver: Boolean
 ): CallDiagnostic? {
     // todo run this approximation only once for call
-    val capturedExpressionType = expressionArgument.type.let { captureFromExpression(it) ?: it }
+    val argumentType = expressionArgument.stableType
 
     fun unstableSmartCastOrSubtypeError(
             unstableType: UnwrappedType?, expectedType: UnwrappedType, position: ArgumentConstraintPosition
@@ -210,20 +210,20 @@ internal fun checkExpressionArgument(
                 return UnstableSmartCast(expressionArgument, unstableType)
             }
         }
-        csBuilder.addSubtypeConstraint(capturedExpressionType, expectedType, position)
+        csBuilder.addSubtypeConstraint(argumentType, expectedType, position)
         return null
     }
 
     val expectedNullableType = expectedType.makeNullableAsSpecified(true)
     val position = ArgumentConstraintPosition(expressionArgument)
     if (expressionArgument.isSafeCall) {
-        if (!csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedNullableType, position)) {
+        if (!csBuilder.addSubtypeConstraintIfCompatible(argumentType, expectedNullableType, position)) {
             return unstableSmartCastOrSubtypeError(expressionArgument.unstableType, expectedNullableType, position)?.let { return it }
         }
         return null
     }
 
-    if (!csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedType, position)) {
+    if (!csBuilder.addSubtypeConstraintIfCompatible(argumentType, expectedType, position)) {
         if (!isReceiver) {
             return unstableSmartCastOrSubtypeError(expressionArgument.unstableType, expectedType, position)?.let { return it }
         }
@@ -232,17 +232,32 @@ internal fun checkExpressionArgument(
         if (unstableType != null && csBuilder.addSubtypeConstraintIfCompatible(unstableType, expectedType, position)) {
             return UnstableSmartCast(expressionArgument, unstableType)
         }
-        else if (csBuilder.addSubtypeConstraintIfCompatible(capturedExpressionType, expectedNullableType, position)) {
+        else if (csBuilder.addSubtypeConstraintIfCompatible(argumentType, expectedNullableType, position)) {
             return UnsafeCallError(expressionArgument)
         }
         else {
-            csBuilder.addSubtypeConstraint(capturedExpressionType, expectedType, position)
+            csBuilder.addSubtypeConstraint(argumentType, expectedType, position)
             return null
         }
     }
 
     return null
 }
+
+// if expression is not stable and has smart casts, then we create this type
+private val ExpressionArgument.unstableType: UnwrappedType?
+    get() {
+        if (receiver.isStable || receiver.possibleTypes.isEmpty()) return null
+        return intersectWrappedTypes(receiver.possibleTypes + receiver.receiverValue.type)
+    }
+
+// with all smart casts if stable
+internal val ExpressionArgument.stableType: UnwrappedType
+    get() {
+        if (!receiver.isStable || receiver.possibleTypes.isEmpty()) return receiver.receiverValue.type.unwrap()
+        return intersectWrappedTypes(receiver.possibleTypes + receiver.receiverValue.type)
+    }
+
 
 internal fun checkSubCallArgument(
         csBuilder: ConstraintSystemBuilder,
@@ -256,8 +271,8 @@ internal fun checkSubCallArgument(
 
     csBuilder.addInnerCall(resolvedCall)
 
-    // todo run this approximation only once for call
-    val currentReturnType = resolvedCall.currentReturnType.let { captureFromExpression(it) ?: it  }
+    // subArgument cannot has stable smartcast
+    val currentReturnType = subCallArgument.receiver.receiverValue.type.unwrap()
     if (subCallArgument.isSafeCall) {
         csBuilder.addSubtypeConstraint(currentReturnType, expectedNullableType, position)
         return null

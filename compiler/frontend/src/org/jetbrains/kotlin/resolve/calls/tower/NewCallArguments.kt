@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.resolve.scopes.receivers.ExpressionReceiver
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
 import org.jetbrains.kotlin.resolve.scopes.receivers.TransientReceiver
 import org.jetbrains.kotlin.types.UnwrappedType
-import org.jetbrains.kotlin.types.checker.intersectWrappedTypes
+import org.jetbrains.kotlin.types.checker.prepareArgumentTypeRegardingCaptureTypes
 import org.jetbrains.kotlin.types.expressions.KotlinTypeInfo
 
 class SimpleTypeArgumentImpl(
@@ -68,10 +68,8 @@ class ParseErrorArgument(
         override val dataFlowInfoAfterThisArgument: DataFlowInfo,
         builtIns: KotlinBuiltIns
 ): ExpressionArgument, PSICallArgument() {
-    override val type: UnwrappedType = builtIns.nothingType
-    override val receiver = ReceiverValueWithSmartCastInfo(TransientReceiver(type), emptySet(), isStable = true)
+    override val receiver = ReceiverValueWithSmartCastInfo(TransientReceiver(builtIns.nothingType), emptySet(), isStable = true)
 
-    override val unstableType: UnwrappedType? get() = null
     override val isSafeCall: Boolean get() = false
 
     override val isSpread: Boolean get() = valueArgument.getSpreadElement() != null
@@ -138,21 +136,6 @@ class ExpressionArgumentImpl(
     override val isSpread: Boolean get() = valueArgument.getSpreadElement() != null
     override val argumentName: Name? get() = valueArgument.getArgumentName()?.asName
     override val isSafeCall: Boolean get() = false
-
-    override val type: UnwrappedType
-    override val unstableType: UnwrappedType?
-
-    init {
-        val collectedType = intersectWrappedTypes(receiver.possibleTypes + receiver.receiverValue.type)
-        if (receiver.isStable) {
-            unstableType = null
-            type = collectedType
-        }
-        else {
-            unstableType = collectedType
-            type = receiver.receiverValue.type.unwrap()
-        }
-    }
 }
 
 internal fun createSimplePSICallArgument(
@@ -164,8 +147,11 @@ internal fun createSimplePSICallArgument(
     val onlyResolvedCall = ktExpression.getCall(context.trace.bindingContext)?.let {
         context.trace.bindingContext.get(BindingContext.ONLY_RESOLVED_CALL, it)
     }
+    val baseType = onlyResolvedCall?.currentReturnType ?: typeInfo.type?.unwrap() ?: return null
+    val preparedType = prepareArgumentTypeRegardingCaptureTypes(baseType) ?: baseType
+
     val receiverToCast = context.transformToReceiverWithSmartCastInfo(
-            ExpressionReceiver.create(ktExpression, typeInfo.type?.unwrap() ?: return null, context.trace.bindingContext)
+            ExpressionReceiver.create(ktExpression, preparedType, context.trace.bindingContext)
     )
 
     return if (onlyResolvedCall == null) {

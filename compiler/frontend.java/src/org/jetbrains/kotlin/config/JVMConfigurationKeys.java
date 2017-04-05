@@ -107,4 +107,7 @@ public class JVMConfigurationKeys {
 
     public static final CompilerConfigurationKey<Boolean> IR =
             CompilerConfigurationKey.create("IR");
+
+    public static final CompilerConfigurationKey<Boolean> USE_JAVAC =
+            CompilerConfigurationKey.create("use javac");
 }

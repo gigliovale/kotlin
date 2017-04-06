@@ -37,7 +37,7 @@ val USE_NEW_INFERENCE =
         true
 //        false
 
-val REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC = false
+val REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC = true
 
 val GIVEN_CANDIDATES_NAME = Name.special("<given candidates>")
 

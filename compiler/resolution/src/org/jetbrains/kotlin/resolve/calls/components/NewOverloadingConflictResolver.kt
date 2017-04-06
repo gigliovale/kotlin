@@ -36,8 +36,9 @@ class NewOverloadingConflictResolver(
         builtIns,
         specificityComparator,
         {
-            (it as? VariableAsFunctionResolutionCandidate)?.invokeCandidate?.descriptorWithFreshTypes ?:
-            (it as SimpleResolutionCandidate).descriptorWithFreshTypes
+            // todo investigate
+            (it as? VariableAsFunctionResolutionCandidate)?.invokeCandidate?.candidateDescriptor ?:
+            (it as SimpleResolutionCandidate).candidateDescriptor
         },
         { SimpleConstraintSystemImpl(callComponents) },
         Companion::createFlatSignature,
@@ -70,7 +71,6 @@ class NewOverloadingConflictResolver(
             return FlatSignature.create(candidate,
                                         originalDescriptor,
                                         numDefaults,
-                                        listOfNotNull(originalDescriptor.extensionReceiverParameter?.type) +
                                         simpleCandidate.astCall.argumentsInParenthesis.map { valueArgumentToParameterType[it] } +
                                         listOfNotNull(simpleCandidate.astCall.externalArgument?.let { valueArgumentToParameterType[it] })
             )

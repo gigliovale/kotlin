@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImpl
 import org.jetbrains.kotlin.resolve.calls.inference.model.SimpleConstraintSystemConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.model.TypeVariableFromCallableDescriptor
+import org.jetbrains.kotlin.resolve.calls.inference.substitute
 import org.jetbrains.kotlin.resolve.calls.model.ASTCall
 import org.jetbrains.kotlin.resolve.calls.model.CallArgument
 import org.jetbrains.kotlin.resolve.calls.model.ReceiverCallArgument
@@ -46,7 +47,13 @@ class SimpleConstraintSystemImpl(callComponents: CallContextComponents) : Simple
 
             it.defaultType.constructor to variable.defaultType.asTypeProjection()
         }
-        return TypeConstructorSubstitution.createByConstructorsMap(substitutionMap).buildSubstitutor()
+        val substitutor = TypeConstructorSubstitution.createByConstructorsMap(substitutionMap).buildSubstitutor()
+        for (typeParameter in typeParameters) {
+            for (upperBound in typeParameter.upperBounds) {
+                addSubtypeConstraint(substitutor.substitute(typeParameter.defaultType), substitutor.substitute(upperBound.unwrap()))
+            }
+        }
+        return substitutor
     }
 
     override fun addSubtypeConstraint(subType: UnwrappedType, superType: UnwrappedType) {
@@ -54,6 +61,8 @@ class SimpleConstraintSystemImpl(callComponents: CallContextComponents) : Simple
     }
 
     override fun hasContradiction() = csBuilder.hasContradiction
+
+    override val captureFromArgument get() = true
 
     private object ThrowableASTCall : ASTCall {
         override val callKind: ASTCallKind get() = throw UnsupportedOperationException()

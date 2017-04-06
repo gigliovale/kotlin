@@ -20,9 +20,7 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
 import org.jetbrains.kotlin.resolve.scopes.receivers.TransientReceiver
-import org.jetbrains.kotlin.types.UnwrappedType
-import org.jetbrains.kotlin.types.checker.intersectWrappedTypes
-import org.jetbrains.kotlin.utils.addToStdlib.check
+import org.jetbrains.kotlin.types.checker.prepareArgumentTypeRegardingCaptureTypes
 
 
 class FakeArgumentForCallableReference(
@@ -33,7 +31,7 @@ class FakeArgumentForCallableReference(
     override val argumentName: Name? get() = null
 }
 
-class ReceiverExpressionArgument(
+class ReceiverExpressionArgument private constructor(
         override val receiver: ReceiverValueWithSmartCastInfo,
         override val isSafeCall: Boolean = false,
         val isVariableReceiverForInvoke: Boolean = false
@@ -41,6 +39,22 @@ class ReceiverExpressionArgument(
     override val isSpread: Boolean get() = false
     override val argumentName: Name? get() = null
     override fun toString() = "$receiver" + if(isSafeCall) "?" else ""
+
+    companion object {
+        // we create ReceiverArgument and fix capture types
+        operator fun invoke(
+                receiver: ReceiverValueWithSmartCastInfo,
+                   isSafeCall: Boolean = false,
+                   isVariableReceiverForInvoke: Boolean = false
+        ): ReceiverExpressionArgument {
+            val newType = prepareArgumentTypeRegardingCaptureTypes(receiver.receiverValue.type.unwrap())
+            val newReceiver = if (newType != null) {
+                ReceiverValueWithSmartCastInfo(receiver.receiverValue.replaceType(newType), receiver.possibleTypes, receiver.isStable)
+            } else receiver
+
+            return ReceiverExpressionArgument(newReceiver, isSafeCall, isVariableReceiverForInvoke)
+        }
+    }
 }
 
 class EmptyLabeledReturn(builtIns: KotlinBuiltIns) : ExpressionArgument {

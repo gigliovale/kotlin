@@ -88,7 +88,7 @@ class ASTCallResolver(
         val resolutionCandidates = givenCandidates.map {
             SimpleResolutionCandidate(callContext,
                                       if (it.dispatchReceiver == null) ExplicitReceiverKind.NO_EXPLICIT_RECEIVER else ExplicitReceiverKind.DISPATCH_RECEIVER,
-                                      it.dispatchReceiver?.let { ReceiverExpressionArgument(it) }, // no captured types inside dispatch receiver
+                                      it.dispatchReceiver?.let { ReceiverExpressionArgument(it) },
                                       null,
                                       it.descriptor,
                                       listOf()

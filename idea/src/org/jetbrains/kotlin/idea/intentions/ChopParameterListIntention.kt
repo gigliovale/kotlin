@@ -94,7 +94,12 @@ class ChopParameterListIntention : AbstractChopListIntention<KtParameterList, Kt
         KtParameterList::class.java,
         KtParameter::class.java,
         "Put parameters on separate lines"
-)
+) {
+    override fun isApplicableTo(element: KtParameterList): Boolean {
+        if (element.parent is KtFunctionLiteral) return false
+        return super.isApplicableTo(element)
+    }
+}
 
 class ChopArgumentListIntention : AbstractChopListIntention<KtValueArgumentList, KtValueArgument>(
         KtValueArgumentList::class.java,

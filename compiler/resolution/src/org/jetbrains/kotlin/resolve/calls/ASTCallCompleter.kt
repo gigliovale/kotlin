@@ -23,14 +23,20 @@ import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
 import org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector
 import org.jetbrains.kotlin.resolve.calls.inference.components.FixationOrderCalculator
 import org.jetbrains.kotlin.resolve.calls.inference.components.ResultTypeResolver
-import org.jetbrains.kotlin.resolve.calls.inference.model.*
+import org.jetbrains.kotlin.resolve.calls.inference.model.ExpectedTypeConstraintPosition
+import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
+import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
+import org.jetbrains.kotlin.resolve.calls.inference.model.NotEnoughInformationForTypeParameter
 import org.jetbrains.kotlin.resolve.calls.inference.returnTypeOrNothing
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateApplicability
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateStatus
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
-import org.jetbrains.kotlin.types.*
+import org.jetbrains.kotlin.types.TypeSubstitutor
+import org.jetbrains.kotlin.types.TypeUtils
+import org.jetbrains.kotlin.types.UnwrappedType
+import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
@@ -44,6 +50,9 @@ interface LambdaAnalyzer {
             parameters: List<UnwrappedType>,
             expectedReturnType: UnwrappedType? // null means, that return type is not proper i.e. it depends on some type variables
     ): List<CallArgument>
+
+    // todo this is hack for some client which try to read ResolvedCall from trace before all calls completed
+    fun bindStubResolvedCallForCandidate(candidate: NewResolutionCandidate)
 }
 
 sealed class CompletedCall {
@@ -122,6 +131,7 @@ class ASTCallCompleter(
             expectedType: UnwrappedType?,
             lambdaAnalyzer: LambdaAnalyzer
     ): BaseResolvedCall {
+        lambdaAnalyzer.bindStubResolvedCallForCandidate(candidate)
         val topLevelCall =
                 if (candidate is VariableAsFunctionResolutionCandidate) {
                     candidate.invokeCandidate

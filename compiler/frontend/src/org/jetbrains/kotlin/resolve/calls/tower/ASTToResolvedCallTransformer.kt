@@ -60,15 +60,44 @@ class ASTToResolvedCallTransformer(
             trace: BindingTrace? // if trace is not null then all information will be reported to this trace
     ): ResolvedCall<D> {
         if (baseResolvedCall is BaseResolvedCall.CompletedResolvedCall) {
-            baseResolvedCall.allInnerCalls.forEach { transformAndReportCompletedCall<D>(it, context, trace) }
-            return transformAndReportCompletedCall(baseResolvedCall.completedCall, context, trace)
+            val allResolvedCalls = baseResolvedCall.allInnerCalls.mapTo(ArrayList<ResolvedCall<*>>()) { transformAndReportCompletedCall<CallableDescriptor>(it, context, trace) }
+            val result = transformAndReportCompletedCall<D>(baseResolvedCall.completedCall, context, trace)
+            allResolvedCalls.add(result)
+
+            val callCheckerContext = CallCheckerContext(context, languageFeatureSettings)
+            for (resolvedCall in allResolvedCalls) {
+                runCallCheckers(resolvedCall, callCheckerContext)
+            }
+
+            return result
         }
 
         val onlyResolvedCall = (baseResolvedCall as BaseResolvedCall.OnlyResolvedCall)
         trace?.record(BindingContext.ONLY_RESOLVED_CALL, onlyResolvedCall.candidate.astCall.psiAstCall.psiCall, onlyResolvedCall)
 
-        return StubOnlyResolvedCall(onlyResolvedCall.candidate.lastCall)
+        return createStubResolvedCallAndWriteItToTrace(onlyResolvedCall.candidate, trace)
     }
+
+    fun <D : CallableDescriptor> createStubResolvedCallAndWriteItToTrace(candidate: NewResolutionCandidate, trace: BindingTrace?): ResolvedCall<D> {
+        val result = when (candidate) {
+            is VariableAsFunctionResolutionCandidate -> {
+                val variableStub = StubOnlyResolvedCall<VariableDescriptor>(candidate.resolvedVariable)
+                val invokeStub = StubOnlyResolvedCall<FunctionDescriptor>(candidate.invokeCandidate)
+                StubOnlyVariableAsFunctionCall(variableStub, invokeStub) as ResolvedCall<D>
+            }
+            is SimpleResolutionCandidate -> {
+                StubOnlyResolvedCall<D>(candidate)
+            }
+        }
+        if (trace != null) {
+            val tracing = candidate.astCall.psiAstCall.tracingStrategy
+
+            tracing.bindReference(trace, result)
+            tracing.bindResolvedCall(trace, result)
+        }
+        return result
+    }
+
 
     private fun <D : CallableDescriptor> transformAndReportCompletedCall(
             completedCall: CompletedCall,
@@ -95,12 +124,11 @@ class ASTToResolvedCallTransformer(
                 (resolvedCall as ResolvedCall<D>)
             }
         }
-        runCallCheckers(resolvedCall, context)
 
         return resolvedCall
     }
 
-    private fun runCallCheckers(resolvedCall: ResolvedCall<*>, context: BasicCallResolutionContext) {
+    private fun runCallCheckers(resolvedCall: ResolvedCall<*>, callCheckerContext: CallCheckerContext) {
         val calleeExpression = if (resolvedCall is VariableAsFunctionResolvedCall)
             resolvedCall.variableCall.call.calleeExpression
         else
@@ -109,9 +137,12 @@ class ASTToResolvedCallTransformer(
                 if (calleeExpression != null && !calleeExpression.isFakeElement) calleeExpression
                 else resolvedCall.call.callElement
 
-        val callCheckerContext = CallCheckerContext(context, languageFeatureSettings)
         for (callChecker in callCheckers) {
             callChecker.check(resolvedCall, reportOn, callCheckerContext)
+
+            if (resolvedCall is VariableAsFunctionResolvedCall) {
+                callChecker.check(resolvedCall.variableCall, reportOn, callCheckerContext)
+            }
         }
     }
 
@@ -344,3 +375,8 @@ class StubOnlyResolvedCall<D : CallableDescriptor>(val candidate: SimpleResoluti
         get() = candidate.argumentMappingByOriginal
     override val astCall: ASTCall get() = candidate.astCall
 }
+
+class StubOnlyVariableAsFunctionCall(
+        override val variableCall: StubOnlyResolvedCall<VariableDescriptor>,
+        override val functionCall: StubOnlyResolvedCall<FunctionDescriptor>
+) : VariableAsFunctionResolvedCall, ResolvedCall<FunctionDescriptor> by functionCall

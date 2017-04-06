@@ -1432,7 +1432,7 @@
               maxmemory="400m"
               taskname="gradle-runtime">
             <classpath>
-                <pathelement location="${basedir}/libraries/gradle/wrapper/gradle-wrapper.jar"/>
+                <pathelement location="${basedir}/gradle/wrapper/gradle-wrapper.jar"/>
             </classpath>
             <arg line="clean" />
             <arg line="dist" />

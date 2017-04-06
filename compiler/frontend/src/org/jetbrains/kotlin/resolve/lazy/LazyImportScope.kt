@@ -56,15 +56,14 @@ class ExplicitImportsIndexed(allImports: Collection<Import>) : IndexedImports {
         val builder = ImmutableListMultimap.builder<Name, Import>()
 
         for (import in imports) {
-            val path = import.fqName ?: continue // parse error
-            val importedName = path.shortName()
+            val importedName = import.importedName ?: continue // parse error
             builder.put(importedName, import)
         }
 
         builder.build()
     }
 
-    override fun importsForName(name: Name) = nameToDirectives.get(name)
+    override fun importsForName(name: Name): List<Import> = nameToDirectives.get(name)
 }
 
 interface ImportResolver {

@@ -20,6 +20,8 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.initialization.dsl.ScriptHandler
+import org.jetbrains.kotlin.gradle.plugin.AbstractKotlinPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlugin
 import java.io.File
 import java.net.URLClassLoader
@@ -57,22 +59,22 @@ private fun findJarByClass(klass: Class<*>): File? {
 }
 
 private fun findKotlinCompilerJar(project: Project, compilerClassName: String): File? {
-    val filesToCheck = sequenceOf(getCompilerFromClassLoader()) +
+    val pluginVersion = pluginVersionFromAppliedPlugin(project)
+
+    val filesToCheck = sequenceOf(pluginVersion?.let(::getCompilerFromClassLoader)) +
                        Sequence { findPotentialCompilerJars(project).iterator() } //call the body only when queried
     val entryToFind = compilerClassName.replace(".", "/") + ".class"
     return filesToCheck.filterNotNull().firstOrNull { it.hasEntry(entryToFind) }
 }
 
-private val pluginJarNameRegex = ".*kotlin-gradle-plugin-(.*)\\.jar".toRegex()
+private fun pluginVersionFromAppliedPlugin(project: Project) =
+        project.plugins.filterIsInstance<KotlinBasePluginWrapper>().firstOrNull()?.kotlinPluginVersion ?:
+        project.plugins.filterIsInstance<AbstractKotlinPlugin>().firstOrNull()?.kotlinPluginVersion
 
-private fun getCompilerFromClassLoader(): File? {
+private fun getCompilerFromClassLoader(pluginVersion: String): File? {
     val urlClassLoader = KotlinPlugin::class.java.classLoader as? URLClassLoader ?: return null
-    val gradlePluginPath = urlClassLoader.urLs.asSequence()
-                                   .mapNotNull { pluginJarNameRegex.matchEntire(it.toString()) }
-                                   .firstOrNull() ?: return null
-    val pluginJarVersion = gradlePluginPath.groupValues[1]
     return urlClassLoader.urLs
-            .firstOrNull { it.toString().endsWith("kotlin-compiler-embeddable-$pluginJarVersion.jar") }
+            .firstOrNull { it.toString().endsWith("kotlin-compiler-embeddable-$pluginVersion.jar") }
             ?.let { File(it.toURI()) }
             ?.takeIf(File::exists)
 }

@@ -24,6 +24,6 @@
     <orderEntry type="module" module-name="builtins-serializer" />
     <orderEntry type="module" module-name="script.runtime" />
     <orderEntry type="module" module-name="frontend.script" />
-    <orderEntry type="module" module-name="javac" />
+    <orderEntry type="module" module-name="javac-wrapper" />
   </component>
 </module>

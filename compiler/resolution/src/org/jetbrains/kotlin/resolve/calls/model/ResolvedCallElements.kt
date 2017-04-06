@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValue
+import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.SimpleType
 import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.typeUtil.builtIns
@@ -87,6 +88,8 @@ fun ASTCall.getExplicitExtensionReceiver(explicitReceiverKind: ExplicitReceiverK
 
 class MockReceiverForCallableReference(val lhsOrDeclaredType: UnwrappedType) : ReceiverValue {
     override fun getType() = lhsOrDeclaredType
+
+    override fun replaceType(newType: KotlinType) = MockReceiverForCallableReference(newType.unwrap())
 }
 
 val ChosenCallableReferenceDescriptor.dispatchNotBoundReceiver : UnwrappedType?

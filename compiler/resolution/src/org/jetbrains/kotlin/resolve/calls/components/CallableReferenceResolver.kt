@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,7 @@ class CallableReferenceResolver(
         parameterTypes.addIfNotNull(functionReference.extensionNotBoundReceiver)
 
         // (A, B, C) -> Int if A -- receiver, then B & C -- parameters
+        // here parameterTypes contains only receivers, all parameters will be added later
         val argumentCount = functionType?.arguments?.let { it.size - parameterTypes.size - 1 }?.check { it >= 0 }
         val (parameters, mapping) = createFakeArgumentsAndMapArguments(functionReference, argumentCount)
         parameterTypes.addAll(parameters)

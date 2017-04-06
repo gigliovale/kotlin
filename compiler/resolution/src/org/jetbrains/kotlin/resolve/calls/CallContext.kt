@@ -64,7 +64,7 @@ class SimpleCandidateFactory(val callContext: CallContext): CandidateFactory<Sim
             fromResolution: ReceiverValueWithSmartCastInfo?
     ): SimpleCallArgument? =
             explicitReceiver as? SimpleCallArgument ?: // qualifier receiver cannot be safe
-            fromResolution?.let { ReceiverExpressionArgument(it, isSafeCall = false) } // only explicit receiver can be smart cast
+            fromResolution?.let { ReceiverExpressionArgument(it, isSafeCall = false) } // todo smartcast implicit this
 
     override fun createCandidate(
             towerCandidate: CandidateWithBoundDispatchReceiver,

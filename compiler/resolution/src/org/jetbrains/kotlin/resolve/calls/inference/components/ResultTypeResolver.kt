@@ -17,6 +17,8 @@
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.resolve.calls.TypeApproximator
+import org.jetbrains.kotlin.resolve.calls.TypeApproximatorConfiguration
 import org.jetbrains.kotlin.resolve.calls.components.CommonSupertypeCalculator
 import org.jetbrains.kotlin.resolve.calls.inference.components.FixationOrderCalculator.ResolveDirection
 import org.jetbrains.kotlin.resolve.calls.inference.model.Constraint
@@ -27,7 +29,10 @@ import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.intersectTypes
 import java.util.*
 
-class ResultTypeResolver(val commonSupertypeCalculator: CommonSupertypeCalculator) {
+class ResultTypeResolver(
+        val commonSupertypeCalculator: CommonSupertypeCalculator,
+        val typeApproximator: TypeApproximator
+) {
     interface Context {
         fun isProperType(type: UnwrappedType): Boolean
     }
@@ -38,11 +43,31 @@ class ResultTypeResolver(val commonSupertypeCalculator: CommonSupertypeCalculato
         if (direction == ResolveDirection.TO_SUBTYPE || direction == ResolveDirection.UNKNOWN) {
             val lowerConstraints = variableWithConstraints.constraints.filter { it.kind == ConstraintKind.LOWER && c.isProperType(it.type) }
             if (lowerConstraints.isNotEmpty()) {
-                return commonSupertypeCalculator(convertLowerTypesWithKnowledgeOfNumberTypes(lowerConstraints))
+                val commonSupertype = commonSupertypeCalculator(convertLowerTypesWithKnowledgeOfNumberTypes(lowerConstraints))
+                /**
+                 *
+                 * fun <T> Array<out T>.intersect(other: Iterable<T>) {
+                 *      val set = toMutableSet()
+                 *      set.retainAll(other)
+                 * }
+                 * fun <X> Array<out X>.toMutableSet(): MutableSet<X> = ...
+                 * fun <Y> MutableCollection<in Y>.retainAll(elements: Iterable<Y>) {}
+                 *
+                 * Here, when we solve type system for `toMutableSet` we have the following constrains:
+                 * Array<C(out T)> <: Array<out X> => C(out X) <: T.
+                 * If we fix it to T = C(out X) then return type of `toMutableSet()` will be `MutableSet<C(out X)>`
+                 * and type of variable `set` will be `MutableSet<out T>` and the following line will have contradiction.
+                 *
+                 * To fix this problem when we fix variable, we will approximate captured types before fixation.
+                 *
+                 * todo: may be for TO_SUPER direction we should do the same
+                 */
+
+                return typeApproximator.approximateToSuperType(commonSupertype, TypeApproximatorConfiguration.CapturedTypesApproximation) ?: commonSupertype
             }
         }
 
-        // direction == TO_LOWER or there is no LOWER bounds
+        // direction == TO_SUPER or there is no LOWER bounds
         val upperConstraints = variableWithConstraints.constraints.filter { it.kind == ConstraintKind.UPPER && c.isProperType(it.type) }
         if (upperConstraints.isNotEmpty()) {
             return intersectTypes(upperConstraints.map { it.type })

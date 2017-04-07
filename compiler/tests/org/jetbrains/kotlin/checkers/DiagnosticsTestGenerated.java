@@ -9976,6 +9976,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("flexibleTypesAsUpperBound.kt")
+            public void testFlexibleTypesAsUpperBound() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/flexibleTypesAsUpperBound.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("functionPlaceholderError.kt")
             public void testFunctionPlaceholderError() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/functionPlaceholderError.kt");

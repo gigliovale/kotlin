@@ -140,6 +140,12 @@ public class CompilerLightClassTestGenerated extends AbstractCompilerLightClassT
             doTest(fileName);
         }
 
+        @TestMetadata("InlineOnly.kt")
+        public void testInlineOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/compilationErrors/InlineOnly.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("PrivateInTrait.kt")
         public void testPrivateInTrait() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/compilationErrors/PrivateInTrait.kt");

@@ -16,6 +16,9 @@
 
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
+import org.jetbrains.kotlin.builtins.KotlinBuiltIns
+import org.jetbrains.kotlin.resolve.calls.TypeApproximator
+import org.jetbrains.kotlin.resolve.calls.TypeApproximatorConfiguration
 import org.jetbrains.kotlin.resolve.calls.inference.model.*
 import org.jetbrains.kotlin.resolve.calls.model.CallDiagnostic
 import org.jetbrains.kotlin.types.FlexibleType
@@ -28,7 +31,7 @@ import org.jetbrains.kotlin.types.checker.NewKotlinTypeChecker
 import org.jetbrains.kotlin.types.typeUtil.contains
 import java.util.*
 
-class ConstraintInjector(val constraintIncorporator: ConstraintIncorporator) {
+class ConstraintInjector(val constraintIncorporator: ConstraintIncorporator, val typeApproximator: TypeApproximator) {
     private val ALLOWED_DEPTH_DELTA_FOR_INCORPORATION = 3
 
     interface Context {
@@ -119,24 +122,44 @@ class ConstraintInjector(val constraintIncorporator: ConstraintIncorporator) {
         override fun addLowerConstraint(typeVariable: TypeConstructor, subType: UnwrappedType) =
                 addConstraint(typeVariable, subType, ConstraintKind.LOWER)
 
+        private fun isCapturedTypeFromSubtyping(type: UnwrappedType): Boolean {
+            val captureStatus = (type as? NewCapturedType)?.captureStatus
+            assert(captureStatus != CaptureStatus.FOR_INCORPORATION) {
+                "Captured type for incorporation shouldn't escape from incorporation: $type\n" + renderBaseConstraint()
+            }
+            return captureStatus != null && captureStatus != CaptureStatus.FROM_EXPRESSION
+        }
+
         private fun addConstraint(typeVariableConstructor: TypeConstructor, type: UnwrappedType, kind: ConstraintKind) {
             val typeVariable = c.allTypeVariables[typeVariableConstructor]
                                ?: error("Should by type variableConstructor: $typeVariableConstructor. ${c.allTypeVariables.values}")
 
-            if (type.contains {
-                val captureStatus = (it as? NewCapturedType)?.captureStatus
-                assert(captureStatus != CaptureStatus.FOR_INCORPORATION) {
-                    "Captured type for incorporation shouldn't escape from incorporation: $type\n" + renderBaseConstraint()
+            var targetType = type
+            if (type.contains(this::isCapturedTypeFromSubtyping)) {
+                // TypeVariable <: type -> if TypeVariable <: subType => TypeVariable <: type
+                if (kind == ConstraintKind.UPPER) {
+                    val subType = typeApproximator.approximateToSubType(type, TypeApproximatorConfiguration.SubtypeCapturedTypesApproximation)
+                    if (subType != null && !KotlinBuiltIns.isNothingOrNullableNothing(subType)) {
+                        targetType = subType
+                    }
                 }
-                captureStatus != null && captureStatus != CaptureStatus.FROM_EXPRESSION
-            }) {
-                c.addError(CapturedTypeFromSubtyping(typeVariable, type, position))
-                return
+
+                if (kind == ConstraintKind.LOWER) {
+                    val superType = typeApproximator.approximateToSuperType(type, TypeApproximatorConfiguration.SubtypeCapturedTypesApproximation)
+                    if (superType != null && !KotlinBuiltIns.isAnyOrNullableAny(superType)) { // todo rethink error reporting for Any cases
+                        targetType = superType
+                    }
+                }
+
+                if (targetType === type) {
+                    c.addError(CapturedTypeFromSubtyping(typeVariable, type, position))
+                    return
+                }
             }
 
-            if (!c.isAllowedType(type)) return
+            if (!c.isAllowedType(targetType)) return
 
-            val newConstraint = Constraint(kind, type, position)
+            val newConstraint = Constraint(kind, targetType, position)
             possibleNewConstraints.add(typeVariable to newConstraint)
         }
 

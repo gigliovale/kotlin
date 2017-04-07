@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.codegen.optimization.captured
 
 import org.jetbrains.kotlin.builtins.PrimitiveType
+import org.jetbrains.kotlin.codegen.optimization.common.InsnSequence
 import org.jetbrains.kotlin.codegen.optimization.common.removeEmptyCatchBlocks
 import org.jetbrains.kotlin.codegen.optimization.common.removeUnusedLocalVariables
 import org.jetbrains.kotlin.codegen.optimization.fixStack.peek
@@ -63,6 +64,7 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
         val stackInsns: MutableCollection<AbstractInsnNode> = LinkedHashSet()
         val getFieldInsns: MutableCollection<FieldInsnNode> = LinkedHashSet()
         val putFieldInsns: MutableCollection<FieldInsnNode> = LinkedHashSet()
+        var cleanVarInstruction: VarInsnNode? = null
 
         fun canRewrite(): Boolean =
                 !hazard &&
@@ -218,10 +220,9 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
         }
 
         private fun rewrite() {
-            for (refValue in refValues) {
-                if (!refValue.canRewrite()) continue
-
-                rewriteRefValue(refValue)
+            refValues.filter { it.canRewrite() }.apply {
+                forEach { refValue -> refValue.cleanVarInstruction = methodNode.instructions.findCleanInstruction(refValue) }
+                forEach { refValue -> rewriteRefValue(refValue) }
             }
 
             methodNode.removeEmptyCatchBlocks()
@@ -248,7 +249,30 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
                 capturedVar.putFieldInsns.forEach {
                     set(it, VarInsnNode(capturedVar.valueType.getOpcode(Opcodes.ISTORE), capturedVar.localVarIndex))
                 }
+
+                //after visiting block codegen tries to delete all allocated references:
+                // see ExpressionCodegen.addLeaveTaskToRemoveLocalVariableFromFrameMap
+                capturedVar.cleanVarInstruction?.let {
+                    remove(it.previous)
+                    remove(it)
+                }
             }
+        }
+
+        private fun InsnList.findCleanInstruction(capturedVar: CapturedVarDescriptor): VarInsnNode? {
+            val cleanInstuctions = capturedVar.astoreInsns.firstOrNull()?.let {
+                val index = it.`var`
+                InsnSequence(this).filterIsInstance<VarInsnNode>().filter {
+                    it.`var` == index
+                }.filter {
+                    it.previous?.opcode == Opcodes.ACONST_NULL
+                }.filter {
+                    val operationIndex = indexOf(it)
+                    val localVariableNode = capturedVar.localVar!!
+                    indexOf(localVariableNode.start) < operationIndex && operationIndex < indexOf(localVariableNode.end)
+                }
+            }
+            return cleanInstuctions?.singleOrNull()
         }
     }
 }

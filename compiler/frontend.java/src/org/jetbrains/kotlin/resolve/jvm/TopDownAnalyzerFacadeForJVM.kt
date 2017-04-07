@@ -145,7 +145,7 @@ object TopDownAnalyzerFacadeForJVM {
                 }
                 else null
 
-        val useJavac = configuration.getBoolean(JVMConfigurationKeys.USE_JAVAC)
+        val useJavac = true
 
         val dependencyModule = if (separateModules) {
             val dependenciesContext = ContextForNewModule(

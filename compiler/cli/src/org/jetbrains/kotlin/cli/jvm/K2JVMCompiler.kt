@@ -223,21 +223,14 @@ class K2JVMCompiler : CLICompiler<K2JVMCompilerArguments>() {
     private fun registerJavacIfNeeded(environment: KotlinCoreEnvironment,
                                       arguments: K2JVMCompilerArguments,
                                       messageCollector: MessageCollector) {
-        if (arguments.useJavac) {
-            environment.configuration.put(JVMConfigurationKeys.USE_JAVAC, true)
-            environment.registerJavac(messageCollector = messageCollector,
-                                      arguments = arguments.javacArguments)
-        } else {
-            environment.configuration.put(JVMConfigurationKeys.USE_JAVAC, false)
-        }
+        environment.configuration.put(JVMConfigurationKeys.USE_JAVAC, true)
+        environment.registerJavac(messageCollector = messageCollector,
+                                  arguments = arguments.javacArguments)
     }
 
     private fun compileJavaFilesIfNeeded(environment: KotlinCoreEnvironment,
                                          arguments: K2JVMCompilerArguments): Boolean  {
-        if (arguments.useJavac) {
-            return JavacWrapper.getInstance(environment.project).use { it.compile() }
-        }
-        return true
+        return JavacWrapper.getInstance(environment.project).use { it.compile() }
     }
 
     private fun createEnvironmentWithScriptingSupport(rootDisposable: Disposable,

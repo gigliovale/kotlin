@@ -212,6 +212,12 @@ public class IdeLightClassTestGenerated extends AbstractIdeLightClassTest {
             KotlinTestUtils.assertAllTestsPresentByMetadata(this.getClass(), new File("compiler/testData/asJava/lightClasses/ideRegression"), Pattern.compile("^([^.]+)\\.kt$"), TargetBackend.ANY, true);
         }
 
+        @TestMetadata("AllInlineOnly.kt")
+        public void testAllInlineOnly() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/ideRegression/AllInlineOnly.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("OverridingFinalInternal.kt")
         public void testOverridingFinalInternal() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/asJava/lightClasses/ideRegression/OverridingFinalInternal.kt");

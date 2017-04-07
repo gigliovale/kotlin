@@ -164,6 +164,11 @@ class MultifileClassCodegenImpl(
             generateMultifileFacadeClass()
         }
 
+        if (state.classBuilderMode == ClassBuilderMode.LIGHT_CLASSES) {
+            // force generation of a class even if it's empty
+            classBuilder.delegate
+        }
+
         done()
     }
 

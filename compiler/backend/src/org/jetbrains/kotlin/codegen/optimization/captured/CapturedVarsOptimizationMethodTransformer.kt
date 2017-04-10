@@ -58,6 +58,7 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
 
         var initCallInsn: MethodInsnNode? = null
         var localVar: LocalVariableNode? = null
+        var originalLocalVarIndex = -1
         var localVarIndex = -1
         val astoreInsns: MutableCollection<VarInsnNode> = LinkedHashSet()
         val aloadInsns: MutableCollection<VarInsnNode> = LinkedHashSet()
@@ -70,6 +71,7 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
                 !hazard &&
                 initCallInsn != null &&
                 localVar != null &&
+                originalLocalVarIndex >= 0 &&
                 localVarIndex >= 0
 
         override fun onUseAsTainted() {
@@ -191,6 +193,7 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
 
                 if (descriptor.localVar == null) {
                     descriptor.localVar = localVar
+                    descriptor.originalLocalVarIndex = localVar.index
                 }
                 else {
                     descriptor.hazard = true
@@ -216,14 +219,13 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
                     refValue.hazard = true
                     continue
                 }
+
+                refValue.cleanVarInstruction = methodNode.instructions.findCleanInstruction(refValue)
             }
         }
 
         private fun rewrite() {
-            refValues.filter { it.canRewrite() }.apply {
-                forEach { refValue -> refValue.cleanVarInstruction = methodNode.instructions.findCleanInstruction(refValue) }
-                forEach { refValue -> rewriteRefValue(refValue) }
-            }
+            refValues.filter { it.canRewrite() }.forEach { refValue -> rewriteRefValue(refValue) }
 
             methodNode.removeEmptyCatchBlocks()
             methodNode.removeUnusedLocalVariables()
@@ -260,19 +262,17 @@ class CapturedVarsOptimizationMethodTransformer : MethodTransformer() {
         }
 
         private fun InsnList.findCleanInstruction(capturedVar: CapturedVarDescriptor): VarInsnNode? {
-            val cleanInstuctions = capturedVar.astoreInsns.firstOrNull()?.let {
-                val index = it.`var`
-                InsnSequence(this).filterIsInstance<VarInsnNode>().filter {
-                    it.`var` == index
-                }.filter {
-                    it.previous?.opcode == Opcodes.ACONST_NULL
-                }.filter {
-                    val operationIndex = indexOf(it)
-                    val localVariableNode = capturedVar.localVar!!
-                    indexOf(localVariableNode.start) < operationIndex && operationIndex < indexOf(localVariableNode.end)
-                }
-            }
-            return cleanInstuctions?.singleOrNull()
+            val cleanInstuctions =
+                    InsnSequence(this).filterIsInstance<VarInsnNode>().filter {
+                        it.`var` == capturedVar.originalLocalVarIndex
+                    }.filter {
+                        it.previous?.opcode == Opcodes.ACONST_NULL
+                    }.filter {
+                        val operationIndex = indexOf(it)
+                        val localVariableNode = capturedVar.localVar!!
+                        operationIndex in indexOf(localVariableNode.start)..indexOf(localVariableNode.end)
+                    }
+            return cleanInstuctions.singleOrNull()
         }
     }
 }

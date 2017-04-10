@@ -26,9 +26,9 @@ import org.jetbrains.kotlin.idea.util.ProjectRootsUtil
 
 class KotlinSourceFilterScope private constructor(
         delegate: GlobalSearchScope,
-        val includeProjectSourceFiles: Boolean,
-        val includeLibrarySourceFiles: Boolean,
-        val includeClassFiles: Boolean,
+        private val includeProjectSourceFiles: Boolean,
+        private val includeLibrarySourceFiles: Boolean,
+        private val includeClassFiles: Boolean,
         private val includeScriptDependencies: Boolean,
         private val project: Project
 ) : DelegatingGlobalSearchScope(delegate) {
@@ -37,8 +37,6 @@ class KotlinSourceFilterScope private constructor(
 
     //NOTE: avoid recomputing in potentially bottleneck 'contains' method
     private val isJsProjectRef = Ref<Boolean?>(null)
-
-    val isSourceAndClassFiles = includeProjectSourceFiles && !includeLibrarySourceFiles && !includeClassFiles && !includeScriptDependencies
 
     override fun getProject() = project
 
@@ -53,6 +51,32 @@ class KotlinSourceFilterScope private constructor(
     override fun toString(): String {
         return "KotlinSourceFilterScope(delegate=$myBaseScope src=$includeProjectSourceFiles libSrc=$includeLibrarySourceFiles " +
                "cls=$includeClassFiles script=$includeScriptDependencies)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as KotlinSourceFilterScope
+
+        if (includeProjectSourceFiles != other.includeProjectSourceFiles) return false
+        if (includeLibrarySourceFiles != other.includeLibrarySourceFiles) return false
+        if (includeClassFiles != other.includeClassFiles) return false
+        if (includeScriptDependencies != other.includeScriptDependencies) return false
+        if (project != other.project) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + includeProjectSourceFiles.hashCode()
+        result = 31 * result + includeLibrarySourceFiles.hashCode()
+        result = 31 * result + includeClassFiles.hashCode()
+        result = 31 * result + includeScriptDependencies.hashCode()
+        result = 31 * result + project.hashCode()
+        return result
     }
 
     companion object {

@@ -263,7 +263,7 @@ internal class KotlinCommonSourceSetProcessor(
 internal abstract class AbstractKotlinPlugin(
         val tasksProvider: KotlinTasksProvider,
         val kotlinSourceSetProvider: KotlinSourceSetProvider,
-        val kotlinPluginVersion: String
+        protected val kotlinPluginVersion: String
 ) : Plugin<Project> {
     internal abstract fun buildSourceSetProcessor(project: Project, javaBasePlugin: JavaBasePlugin, sourceSet: SourceSet, kotlinPluginVersion: String): KotlinSourceSetProcessor<*>
 

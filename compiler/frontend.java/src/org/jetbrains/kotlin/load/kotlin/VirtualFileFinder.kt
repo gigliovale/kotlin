@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.load.java.structure.JavaClass
 import org.jetbrains.kotlin.load.java.structure.impl.JavaClassImpl
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.utils.sure
-import org.jetbrains.kotlin.wrappers.trees.computeClassId
 
 abstract class VirtualFileFinder : KotlinClassFinder {
     abstract fun findVirtualFileWithHeader(classId: ClassId): VirtualFile?

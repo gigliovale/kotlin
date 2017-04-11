@@ -836,12 +836,6 @@ public class QuickFixTestGenerated extends AbstractQuickFixTest {
             doTest(fileName);
         }
 
-        @TestMetadata("plusOperatorWithTypeMismatch.kt")
-        public void testPlusOperatorWithTypeMismatch() throws Exception {
-            String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/plusOperatorWithTypeMismatch.kt");
-            doTest(fileName);
-        }
-
         @TestMetadata("sAMConstructorFromLambda.kt")
         public void testSAMConstructorFromLambda() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("idea/testData/quickfix/autoImports/sAMConstructorFromLambda.kt");

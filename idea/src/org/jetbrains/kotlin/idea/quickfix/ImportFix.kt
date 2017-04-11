@@ -54,6 +54,7 @@ import org.jetbrains.kotlin.idea.project.TargetPlatformDetector
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.idea.util.CallTypeAndReceiver
 import org.jetbrains.kotlin.idea.util.getResolutionScope
+import org.jetbrains.kotlin.idea.util.receiverTypes
 import org.jetbrains.kotlin.incremental.components.NoLookupLocation
 import org.jetbrains.kotlin.js.resolve.JsPlatform
 import org.jetbrains.kotlin.name.FqName
@@ -74,6 +75,7 @@ import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
 import org.jetbrains.kotlin.resolve.scopes.ExplicitImportsScope
 import org.jetbrains.kotlin.resolve.scopes.utils.addImportingScope
 import org.jetbrains.kotlin.resolve.scopes.utils.collectFunctions
+import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.util.OperatorNameConventions
 import java.util.*
 
@@ -287,6 +289,7 @@ internal class ImportFix(expression: KtSimpleNameExpression) : OrdinaryImportFix
     private fun collectMemberCandidates(
             name: String,
             callTypeAndReceiver: CallTypeAndReceiver<*, *>,
+            bindingContext: BindingContext,
             indicesHelper: KotlinIndicesHelper
     ): List<DeclarationDescriptor> {
 
@@ -299,9 +302,18 @@ internal class ImportFix(expression: KtSimpleNameExpression) : OrdinaryImportFix
 
         indicesHelper.getKotlinEnumsByName(name).filterTo(result, filterByCallType)
 
+        val resolutionFacade = element.getResolutionFacade()
+        val actualReceiverTypes =
+                callTypeAndReceiver.receiverTypes(bindingContext, element, resolutionFacade.moduleDescriptor, resolutionFacade, false).orEmpty()
+
         val processor = { descriptor: CallableDescriptor ->
             if (descriptor.canBeReferencedViaImport() && filterByCallType(descriptor)) {
-                result.add(descriptor)
+                val extensionReceiverType = descriptor.extensionReceiverParameter?.type
+
+                if ((actualReceiverTypes.isEmpty() && extensionReceiverType == null) ||
+                    (extensionReceiverType != null && actualReceiverTypes.any { it.isSubtypeOf(extensionReceiverType) })) {
+                    result.add(descriptor)
+                }
             }
         }
 
@@ -328,7 +340,7 @@ internal class ImportFix(expression: KtSimpleNameExpression) : OrdinaryImportFix
             bindingContext: BindingContext,
             indicesHelper: KotlinIndicesHelper
     ): List<DeclarationDescriptor> {
-        return super.fillCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper) + collectMemberCandidates(name, callTypeAndReceiver, indicesHelper)
+        return super.fillCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper) + collectMemberCandidates(name, callTypeAndReceiver, bindingContext, indicesHelper)
     }
 
     companion object MyFactory : Factory() {

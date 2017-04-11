@@ -92,7 +92,7 @@ class LauncherScriptTest : TestCaseWithTmpdir() {
                 pathToTestFile("kt"),
                 "-d", tmpdir.path,
                 expectedStderr = File(pathToTestFile("out")).readText().normalize(),
-                expectedExitCode = ExitCode.COMPILATION_ERROR
+                expectedExitCode = ExitCode.COMPILATION_ERROR.code
         )
 
         resetDefaultCharset(old)

@@ -22,14 +22,13 @@ import org.jetbrains.kotlin.resolve.calls.CallContextComponents
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
 import org.jetbrains.kotlin.resolve.calls.inference.NewConstraintSystem
 import org.jetbrains.kotlin.resolve.calls.inference.buildCurrentSubstitutor
-import org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector
-import org.jetbrains.kotlin.resolve.calls.inference.components.FixationOrderCalculator
-import org.jetbrains.kotlin.resolve.calls.inference.components.ResultTypeResolver
+import org.jetbrains.kotlin.resolve.calls.inference.components.*
 import org.jetbrains.kotlin.resolve.calls.model.CallDiagnostic
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedLambdaArgument
 import org.jetbrains.kotlin.resolve.calls.tower.isSuccess
-import org.jetbrains.kotlin.types.*
-import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
+import org.jetbrains.kotlin.types.ErrorUtils
+import org.jetbrains.kotlin.types.TypeConstructor
+import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.typeUtil.contains
 import java.util.*
 
@@ -126,7 +125,7 @@ class NewConstraintSystemImpl(val callComponents: CallContextComponents):
         return fixedVariables
     }
 
-    override fun simplify(): TypeSubstitutor {
+    override fun simplify(): NewTypeSubstitutor {
         checkState(State.BUILDING)
 
         var fixedVariables = getVariablesForFixation()
@@ -236,20 +235,20 @@ class NewConstraintSystemImpl(val callComponents: CallContextComponents):
         return !type.contains { storage.notFixedTypeVariables.containsKey(it.constructor) }
     }
 
-    override fun buildCurrentSubstitutor(): TypeSubstitutor {
+    override fun buildCurrentSubstitutor(): NewTypeSubstitutor {
         checkState(State.COMPLETION)
         return storage.buildCurrentSubstitutor()
     }
 
-    override fun buildResultingSubstitutor(): TypeSubstitutor {
+    override fun buildResultingSubstitutor(): NewTypeSubstitutor {
         checkState(State.COMPLETION)
         val currentSubstitutorMap = storage.fixedTypeVariables.entries.associate {
-            it.key to it.value.asTypeProjection()
+            it.key to it.value
         }
         val uninferredSubstitutorMap = storage.notFixedTypeVariables.entries.associate { (freshTypeConstructor, typeVariable) ->
-            freshTypeConstructor to ErrorUtils.createErrorTypeWithCustomConstructor("Uninferred type", typeVariable.typeVariable.freshTypeConstructor).asTypeProjection()
+            freshTypeConstructor to ErrorUtils.createErrorTypeWithCustomConstructor("Uninferred type", typeVariable.typeVariable.freshTypeConstructor)
         }
 
-        return TypeConstructorSubstitution.createByConstructorsMap(currentSubstitutorMap + uninferredSubstitutorMap).buildSubstitutor()
+        return NewTypeSubstitutorByConstructorMap(currentSubstitutorMap + uninferredSubstitutorMap)
     }
 }

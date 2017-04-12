@@ -22,21 +22,21 @@ import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
 import org.jetbrains.kotlin.resolve.calls.inference.components.ConstraintInjector
 import org.jetbrains.kotlin.resolve.calls.inference.components.FixationOrderCalculator
+import org.jetbrains.kotlin.resolve.calls.inference.components.NewTypeSubstitutor
 import org.jetbrains.kotlin.resolve.calls.inference.components.ResultTypeResolver
 import org.jetbrains.kotlin.resolve.calls.inference.model.ExpectedTypeConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
 import org.jetbrains.kotlin.resolve.calls.inference.model.NotEnoughInformationForTypeParameter
 import org.jetbrains.kotlin.resolve.calls.inference.returnTypeOrNothing
+import org.jetbrains.kotlin.resolve.calls.inference.substitute
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateApplicability
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateStatus
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
-import org.jetbrains.kotlin.types.TypeSubstitutor
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.UnwrappedType
-import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
@@ -107,8 +107,8 @@ class ASTCallCompleter(
     interface Context {
         val innerCalls: List<BaseResolvedCall.OnlyResolvedCall>
         val hasContradiction: Boolean
-        fun buildCurrentSubstitutor(): TypeSubstitutor
-        fun buildResultingSubstitutor(): TypeSubstitutor
+        fun buildCurrentSubstitutor(): NewTypeSubstitutor
+        fun buildResultingSubstitutor(): NewTypeSubstitutor
         val lambdaArguments: List<ResolvedLambdaArgument>
 
         // type can be proper if it not contains not fixed type variables
@@ -162,7 +162,7 @@ class ASTCallCompleter(
         return BaseResolvedCall.CompletedResolvedCall(completedCall, competedCalls)
     }
 
-    private fun NewResolutionCandidate.toCompletedCall(substitutor: TypeSubstitutor): CompletedCall {
+    private fun NewResolutionCandidate.toCompletedCall(substitutor: NewTypeSubstitutor): CompletedCall {
         if (this is VariableAsFunctionResolutionCandidate) {
             val variable = resolvedVariable.toCompletedCall(substitutor)
             val invoke = invokeCandidate.toCompletedCall(substitutor)
@@ -172,10 +172,10 @@ class ASTCallCompleter(
         return (this as SimpleResolutionCandidate).toCompletedCall(substitutor)
     }
 
-    private fun SimpleResolutionCandidate.toCompletedCall(substitutor: TypeSubstitutor): CompletedCall.Simple {
+    private fun SimpleResolutionCandidate.toCompletedCall(substitutor: NewTypeSubstitutor): CompletedCall.Simple {
         val resultingDescriptor = if (descriptorWithFreshTypes.typeParameters.isNotEmpty()) descriptorWithFreshTypes.substitute(substitutor)!! else descriptorWithFreshTypes
 
-        val typeArguments = descriptorWithFreshTypes.typeParameters.map { substitutor.safeSubstitute(it.defaultType, Variance.INVARIANT).unwrap() }
+        val typeArguments = descriptorWithFreshTypes.typeParameters.map { substitutor.safeSubstitute(it.defaultType) }
 
         val status = computeStatus(this, resultingDescriptor)
         return CompletedCall.Simple(astCall, candidateDescriptor, resultingDescriptor, status, explicitReceiverKind,
@@ -288,7 +288,7 @@ class ASTCallCompleter(
 
     private fun analyzeLambda(c: Context, lambdaAnalyzer: LambdaAnalyzer, topLevelCallContext: CallContext, lambda: ResolvedLambdaArgument) {
         val currentSubstitutor = c.buildCurrentSubstitutor()
-        fun substitute(type: UnwrappedType) = currentSubstitutor.safeSubstitute(type, Variance.INVARIANT).unwrap()
+        fun substitute(type: UnwrappedType) = currentSubstitutor.safeSubstitute(type)
 
         val receiver = lambda.receiver?.let(::substitute)
         val parameters = lambda.parameters.map(::substitute)

@@ -17,6 +17,7 @@
 package org.jetbrains.kotlin.resolve.calls.inference
 
 import org.jetbrains.kotlin.resolve.calls.BaseResolvedCall
+import org.jetbrains.kotlin.resolve.calls.inference.components.NewTypeSubstitutor
 import org.jetbrains.kotlin.resolve.calls.inference.model.ConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.model.NewTypeVariable
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedLambdaArgument
@@ -43,5 +44,5 @@ interface ConstraintSystemBuilder {
      * This function removes variables for which we know exact type.
      * @return substitutor from typeVariable to result
      */
-    fun simplify(): TypeSubstitutor
+    fun simplify(): NewTypeSubstitutor
 }

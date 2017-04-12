@@ -216,7 +216,7 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
         }
 
         if (type.arguments.isNotEmpty()) {
-            return approximateParameterizeType(type, conf, toSuper)
+            return approximateParametrizedType(type, conf, toSuper)
         }
 
         val typeConstructor = type.constructor
@@ -247,7 +247,7 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
                 Variance.INVARIANT -> throw AssertionError("Incorrect variance $effectiveVariance")
             }
 
-    private fun approximateParameterizeType(type: SimpleType, conf: TypeApproximatorConfiguration, toSuper: Boolean): SimpleType? {
+    private fun approximateParametrizedType(type: SimpleType, conf: TypeApproximatorConfiguration, toSuper: Boolean): SimpleType? {
         val parameters = type.constructor.parameters
         val arguments = type.arguments
         if (parameters.size != arguments.size) {

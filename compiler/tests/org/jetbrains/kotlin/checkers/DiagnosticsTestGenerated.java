@@ -10096,6 +10096,12 @@ public class DiagnosticsTestGenerated extends AbstractDiagnosticsTest {
                 doTest(fileName);
             }
 
+            @TestMetadata("nullableTypeArgumentWithNotNullUpperBound.kt")
+            public void testNullableTypeArgumentWithNotNullUpperBound() throws Exception {
+                String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/nullableTypeArgumentWithNotNullUpperBound.kt");
+                doTest(fileName);
+            }
+
             @TestMetadata("nullableUpperBound.kt")
             public void testNullableUpperBound() throws Exception {
                 String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/diagnostics/tests/inference/nullableUpperBound.kt");

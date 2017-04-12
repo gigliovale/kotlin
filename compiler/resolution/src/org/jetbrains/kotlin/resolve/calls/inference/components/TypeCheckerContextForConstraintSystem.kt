@@ -62,14 +62,7 @@ abstract class TypeCheckerContextForConstraintSystem : TypeCheckerContext(errorT
         val typeVariable = typeVariable.upperIfFlexible()
 
         if (typeVariable.isMarkedNullable) {
-            // todo: investigate. Seems like we do something incorrect
-            // Actually, create intersect types is more correct way here. But now it doesn't work, because TypeSubstitutor works incorrectly.
-            // Example: Array<out T!> T = S & Any => Array<out S & Any>. This happens because of TypeConstructorSubstitution.get(KotlinType)
-//            addLowerConstraint(typeVariable.constructor, intersectTypes(listOf(subType, subType.builtIns.anyType)))
-
-            val correctedSubType = intersectTypes(listOf(subType, subType.builtIns.anyType)).takeIf { it.constructor !is IntersectionTypeConstructor } ?: subType
-
-            addLowerConstraint(typeVariable.constructor, correctedSubType)
+            addLowerConstraint(typeVariable.constructor, intersectTypes(listOf(subType, subType.builtIns.anyType)))
         }
         else {
             addLowerConstraint(typeVariable.constructor, subType)

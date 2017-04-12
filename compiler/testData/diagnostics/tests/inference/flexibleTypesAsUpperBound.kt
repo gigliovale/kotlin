@@ -1,6 +1,7 @@
 // FILE: 1.kt
 fun <S> Array<S>.plus(): Array<S> {
     val result = Arrays.copyOf(this, 3)
+    // result type is Array<(out) (S&Any)!>!
     return result
 }
 

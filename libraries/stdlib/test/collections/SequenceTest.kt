@@ -176,6 +176,28 @@ public class SequenceTest {
         assertEquals("(0, 0), (1, 2), (1, 2), (2, 4), (3, 6), (5, 10), (8, 16), (13, 26), (21, 42), (34, 68), ...", pairStr)
     }
 
+    @Test fun zipPairs2() {
+        val list1 = mutableListOf<Int>()
+        val seq1 = fibonacci().onEach { list1.add(it) }
+        val list2 = mutableListOf<Int>()
+        val seq2 = fibonacci().map { i -> i*2 }.onEach { list2.add(it) }
+        val list3 = mutableListOf<Pair<Int, Int>>()
+        val zipSeq = (seq1 zip seq2).onEach { list3.add(it) }
+
+        val pairStr = zipSeq.joinToString(limit = 10)
+        try {
+            assertEquals("(0, 0), (1, 2), (1, 2), (2, 4), (3, 6), (5, 10), (8, 16), (13, 26), (21, 42), (34, 68), ...", pairStr)
+        }
+        catch (e: Throwable) {
+            println("seq1: $list1")
+            println("seq2: $list2")
+            println("zipSeq: $list3")
+            println("zipSeq.first: ${list3.map { it.first }}")
+            println("zipSeq.component1: ${list3.map { it.component1() }}")
+            throw e
+        }
+    }
+
     @Test fun toStringJoinsNoMoreThanTheFirstTenElements() {
         assertEquals("0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...", fibonacci().joinToString(limit = 10))
         assertEquals("13, 21, 34, 55, 89, 144, 233, 377, 610, 987, ...", fibonacci().filter { it > 10 }.joinToString(limit = 10))

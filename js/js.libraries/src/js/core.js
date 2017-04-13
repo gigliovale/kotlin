@@ -27,7 +27,7 @@ Kotlin.equals = function (obj1, obj2) {
         return obj2 !== obj2;
     }
 
-    if (typeof obj1 == "object" && typeof obj1.equals === "function") {
+    if (typeof obj1 === "object" && typeof obj1.equals === "function") {
         return obj1.equals(obj2);
     }
 
@@ -38,13 +38,14 @@ Kotlin.hashCode = function (obj) {
     if (obj == null) {
         return 0;
     }
-    if ("function" == typeof obj.hashCode) {
+    if ("function" === typeof obj.hashCode) {
         return obj.hashCode();
     }
     var objType = typeof obj;
-    if ("object" == objType || "function" == objType) {
+    if ("object" === objType || "function" === objType) {
         return getObjectHashCode(obj);
-    } else if ("number" == objType) {
+    }
+    else if ("number" === objType) {
         if ((obj | 0) === obj) {
             return obj | 0;
         }
@@ -52,7 +53,8 @@ Kotlin.hashCode = function (obj) {
             arrayForDoubleConversion[0] = obj;
             return (arrayForIntegerConversion[lowerIntegerIndex] * 31 | 0) + arrayForIntegerConversion[upperIntegerIndex] | 0;
         }
-    } if ("boolean" == objType) {
+    }
+    if ("boolean" === objType) {
         return Number(obj)
     }
 

@@ -17,12 +17,14 @@
 package org.jetbrains.kotlin.resolve.calls
 
 import org.jetbrains.kotlin.resolve.calls.TypeApproximatorConfiguration.IntersectionStrategy.*
-import org.jetbrains.kotlin.resolve.calls.components.CommonSupertypeCalculator
 import org.jetbrains.kotlin.resolve.calls.inference.model.TypeVariableTypeConstructor
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.*
 import org.jetbrains.kotlin.types.checker.CaptureStatus.*
-import org.jetbrains.kotlin.types.typeUtil.*
+import org.jetbrains.kotlin.types.typeUtil.asTypeProjection
+import org.jetbrains.kotlin.types.typeUtil.builtIns
+import org.jetbrains.kotlin.types.typeUtil.isNothing
+import org.jetbrains.kotlin.types.typeUtil.isNullableAny
 
 
 open class TypeApproximatorConfiguration {
@@ -72,7 +74,7 @@ open class TypeApproximatorConfiguration {
     object CapturedTypesApproximation : TypeApproximatorConfiguration.AbstractCapturedTypesApproximation(FROM_EXPRESSION)
 }
 
-class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCalculator) {
+class TypeApproximator {
     private val referenceApproximateToSuperType = this::approximateToSuperType
     private val referenceApproximateToSubType = this::approximateToSubType
 
@@ -175,7 +177,7 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
             ALLOWED -> if (!thereIsApproximation) return null else intersectTypes(newTypes)
             TO_FIRST -> if (toSuper) newTypes.first() else return type.defaultResult(toSuper = false)
             // commonSupertypeCalculator should handle flexible types correctly
-            TO_COMMON_SUPERTYPE -> if (toSuper) commonSupertypeCalculator(newTypes) else return type.defaultResult(toSuper = false)
+            TO_COMMON_SUPERTYPE -> if (toSuper) NewCommonSuperTypeCalculator.commonSuperType(newTypes) else return type.defaultResult(toSuper = false)
         }
 
         return if (type.isMarkedNullable) baseResult.makeNullableAsSpecified(true) else baseResult

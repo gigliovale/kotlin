@@ -16,6 +16,7 @@
 
 package org.jetbrains.kotlin.incremental
 
+import org.jetbrains.kotlin.build.GeneratedJavaStub
 import org.jetbrains.kotlin.build.GeneratedJvmClass
 import org.jetbrains.kotlin.incremental.snapshots.FileSnapshotMap
 import org.jetbrains.kotlin.incremental.storage.BasicStringMap
@@ -32,16 +33,25 @@ class GradleIncrementalCacheImpl(
 ) : IncrementalCacheImpl<TargetId>(targetDataRoot, targetOutputDir, target) {
     companion object {
         private val SOURCES_TO_CLASSFILES = "sources-to-classfiles"
+        private val SOURCES_TO_KAPT_STUBS = "sources-to-kapt-stubs"
         private val GENERATED_SOURCE_SNAPSHOTS = "generated-source-snapshot"
         private val SOURCE_SNAPSHOTS = "source-snapshot"
     }
 
     internal val sourceToClassfilesMap = registerMap(SourceToClassfilesMap(SOURCES_TO_CLASSFILES.storageFile))
+    internal val sourceToJavaStubsMap = registerMap(SourceToClassfilesMap(SOURCES_TO_KAPT_STUBS.storageFile))
     internal val generatedSourceSnapshotMap = registerMap(FileSnapshotMap(GENERATED_SOURCE_SNAPSHOTS.storageFile))
     internal val sourceSnapshotMap = registerMap(FileSnapshotMap(SOURCE_SNAPSHOTS.storageFile))
 
-    fun removeClassfilesBySources(sources: Iterable<File>): Unit =
-            sources.forEach { sourceToClassfilesMap.remove(it) }
+    fun removeClassfilesBySources(sources: Iterable<File>) = sources.forEach {
+        sourceToClassfilesMap.remove(it)
+        sourceToJavaStubsMap.remove(it)
+    }
+
+    override fun saveFileToCache(javaStub: GeneratedJavaStub<TargetId>): CompilationResult {
+        javaStub.sourceFiles.forEach { sourceToJavaStubsMap.add(it, javaStub.outputFile) }
+        return super.saveFileToCache(javaStub)
+    }
 
     override fun saveFileToCache(generatedClass: GeneratedJvmClass<TargetId>): CompilationResult {
         generatedClass.sourceFiles.forEach { sourceToClassfilesMap.add(it, generatedClass.outputFile) }

@@ -40,6 +40,8 @@ class ResultTypeResolver(
     fun findResultType(c: Context, variableWithConstraints: VariableWithConstraints, direction: ResolveDirection): UnwrappedType? {
         findResultIfThereIsEqualsConstraint(c, variableWithConstraints, allowedFixToNotProperType = false)?.let { return it }
 
+        val builtIns = variableWithConstraints.typeVariable.freshTypeConstructor.builtIns
+
         if (direction == ResolveDirection.TO_SUBTYPE || direction == ResolveDirection.UNKNOWN) {
             val lowerConstraints = variableWithConstraints.constraints.filter { it.kind == ConstraintKind.LOWER && c.isProperType(it.type) }
             if (lowerConstraints.isNotEmpty()) {
@@ -66,6 +68,8 @@ class ResultTypeResolver(
             }
         }
 
+        if (direction == ResolveDirection.TO_SUBTYPE) return builtIns.nothingType
+
         // direction == TO_SUPER or there is no LOWER bounds
         val upperConstraints = variableWithConstraints.constraints.filter { it.kind == ConstraintKind.UPPER && c.isProperType(it.type) }
         if (upperConstraints.isNotEmpty()) {
@@ -74,7 +78,7 @@ class ResultTypeResolver(
             return typeApproximator.approximateToSubType(upperType, TypeApproximatorConfiguration.CapturedTypesApproximation) ?: upperType
         }
 
-        return null
+        return return builtIns.anyType
     }
 
     fun findResultIfThereIsEqualsConstraint(

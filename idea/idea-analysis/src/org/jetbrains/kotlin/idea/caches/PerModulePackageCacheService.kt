@@ -16,9 +16,10 @@
 
 package org.jetbrains.kotlin.idea.caches
 
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.util.SimpleModificationTracker
+import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
@@ -26,12 +27,12 @@ import com.intellij.openapi.vfs.newvfs.events.*
 import com.intellij.psi.impl.PsiTreeChangeEventImpl
 import com.intellij.psi.impl.PsiTreeChangePreprocessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.CachedValue
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.kotlin.analyzer.ModuleInfo
 import org.jetbrains.kotlin.idea.caches.resolve.ModuleSourceInfo
 import org.jetbrains.kotlin.idea.caches.resolve.getModuleInfoByVirtualFile
 import org.jetbrains.kotlin.idea.caches.resolve.getNullableModuleInfo
+import org.jetbrains.kotlin.idea.stubindex.PackageIndexUtil
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtPackageDirective
@@ -78,24 +79,46 @@ class KotlinPackageStatementPsiTreeChangePreprocessor : PsiTreeChangePreprocesso
     }
 }
 
-object PerModulePackageCacheService {
+class PerModulePackageCacheService {
 
-    val PER_MODULE_PACKAGE_CACHE = Key.create<ConcurrentMap<ModuleInfo, CachedValue<Set<FqName>>>>("per_module_package_cache")
+    val cache = ContainerUtil.createConcurrentWeakMap<ModuleInfo, Ref<ConcurrentMap<FqName, Boolean>>>()
 
-    val moduleModificationTrackers = ContainerUtil.createConcurrentWeakMap<ModuleInfo, SimpleModificationTracker>()
+    companion object {
 
-    fun getModificationTracker(moduleInfo: ModuleInfo): SimpleModificationTracker = moduleModificationTrackers.getOrPut(moduleInfo, ::SimpleModificationTracker)
+        val PER_MODULE_PACKAGE_CACHE = Key.create<ConcurrentMap<ModuleInfo, Ref<ConcurrentMap<FqName, Boolean>>>>("per_module_package_cache")
+
+        internal fun notifyPackageChange(file: KtFile): Unit {
+            (file.getNullableModuleInfo() as? ModuleSourceInfo)?.let { onChangeInModuleSource(it, file.project) }
+        }
+
+        internal fun onChangeInModuleSource(moduleSourceInfo: ModuleSourceInfo, project: Project) = with(getInstance(project)) {
+            cache[moduleSourceInfo]?.set(null)
+        }
+
+        internal fun notifyPackageChange(file: VirtualFile, project: Project): Unit {
+            (getModuleInfoByVirtualFile(project, file) as? ModuleSourceInfo)?.let { onChangeInModuleSource(it, project) }
+        }
+
+        fun getInstance(project: Project): PerModulePackageCacheService = ServiceManager.getService(project, PerModulePackageCacheService::class.java)
+
+        fun packageExists(packageFqName: FqName, moduleInfo: ModuleSourceInfo, project: Project): Boolean = with(getInstance(project)) {
+            val module = moduleInfo.module
+
+            // Module own cache is a view on global cache. Since global cache based on WeakReferences when module
+            // gets disposed this soft map will be disposed too, leading to drop soft refs on ModuleInfo's, and then to
+            // disposing global cache entry
+            val moduleOwnCache = module.getUserData(PerModulePackageCacheService.PER_MODULE_PACKAGE_CACHE) ?: run {
+                ContainerUtil.createConcurrentSoftMap<ModuleInfo, Ref<ConcurrentMap<FqName, Boolean>>>()
+                        .apply { module.putUserData(PerModulePackageCacheService.PER_MODULE_PACKAGE_CACHE, this) }
+            }
+            val cached = moduleOwnCache.getOrPut(moduleInfo) { cache.getOrPut(moduleInfo) { Ref() } }
+                    .apply { if (isNull) set(ContainerUtil.createConcurrentSoftMap<FqName, Boolean>()) }
+                    .get()
 
 
-    internal fun notifyPackageChange(file: KtFile): Unit {
-        (file.getNullableModuleInfo() as? ModuleSourceInfo)?.let(this::onChangeInModuleSource)
-    }
-
-    internal fun onChangeInModuleSource(moduleSourceInfo: ModuleSourceInfo) {
-        moduleModificationTrackers[moduleSourceInfo]?.incModificationCount()
-    }
-
-    internal fun notifyPackageChange(file: VirtualFile, project: Project): Unit {
-        (getModuleInfoByVirtualFile(project, file) as? ModuleSourceInfo)?.let(this::onChangeInModuleSource)
+            return cached.getOrPut(packageFqName) {
+                PackageIndexUtil.packageExists(packageFqName, moduleInfo.contentScope(), project)
+            }
+        }
     }
 }

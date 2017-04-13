@@ -314,6 +314,8 @@
     <projectService serviceInterface="org.jetbrains.kotlin.idea.kdoc.SampleResolutionService"
                     serviceImplementation="org.jetbrains.kotlin.idea.kdoc.IdeSampleResolutionService"/>
 
+    <projectService serviceImplementation="org.jetbrains.kotlin.idea.caches.PerModulePackageCacheService"/>
+
     <errorHandler implementation="org.jetbrains.kotlin.idea.reporter.KotlinReportSubmitter"/>
 
     <internalFileTemplate name="Kotlin File"/>

@@ -30,13 +30,14 @@ internal open class GradleCompilerServicesFacadeImpl(
 
     override fun report(category: Int, severity: Int, message: String?, attachment: Serializable?) {
         val reportCategory = ReportCategory.fromCode(category)
+        val messageLocationOrNull = attachment as? CompilerMessageLocation
 
         when (reportCategory) {
             ReportCategory.OUTPUT_MESSAGE -> {
-                compilerMessageCollector.report(CompilerMessageSeverity.OUTPUT, message!!)
+                compilerMessageCollector.report(CompilerMessageSeverity.OUTPUT, message!!, messageLocationOrNull)
             }
             ReportCategory.EXCEPTION -> {
-                compilerMessageCollector.report(CompilerMessageSeverity.EXCEPTION, message!!)
+                compilerMessageCollector.report(CompilerMessageSeverity.EXCEPTION, message!!, messageLocationOrNull)
             }
             ReportCategory.COMPILER_MESSAGE -> {
                 val compilerSeverity = when (ReportSeverity.fromCode(severity)) {
@@ -46,8 +47,8 @@ internal open class GradleCompilerServicesFacadeImpl(
                     ReportSeverity.DEBUG -> CompilerMessageSeverity.LOGGING
                     else -> throw IllegalStateException("Unexpected compiler message report severity $severity")
                 }
-                if (message != null && attachment is CompilerMessageLocation?) {
-                    compilerMessageCollector.report(compilerSeverity, message, attachment)
+                if (message != null) {
+                    compilerMessageCollector.report(compilerSeverity, message, messageLocationOrNull)
                 }
                 else {
                     reportUnexpectedMessage(category, severity, message, attachment)

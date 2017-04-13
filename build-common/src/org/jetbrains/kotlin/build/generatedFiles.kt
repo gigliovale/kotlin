@@ -37,4 +37,10 @@ class GeneratedJvmClass<Target> (
     }
 }
 
+class GeneratedJavaStub<Target>(
+        target: Target,
+        sourceFiles: Collection<File>,
+        outputFile: File
+) : GeneratedFile<Target>(target, sourceFiles, outputFile)
+
 fun File.isModuleMappingFile() = extension == ModuleMapping.MAPPING_FILE_EXT && parentFile.name == "META-INF"

@@ -37,10 +37,7 @@ import org.jetbrains.jps.model.JpsProject
 import org.jetbrains.jps.model.java.JpsJavaClasspathKind
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.module.JpsModule
-import org.jetbrains.kotlin.build.GeneratedFile
-import org.jetbrains.kotlin.build.GeneratedJvmClass
-import org.jetbrains.kotlin.build.JvmBuildMetaInfo
-import org.jetbrains.kotlin.build.isModuleMappingFile
+import org.jetbrains.kotlin.build.*
 import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageLocation
 import org.jetbrains.kotlin.cli.common.messages.CompilerMessageSeverity
@@ -509,8 +506,11 @@ class KotlinBuilder : ModuleLevelBuilder(BuilderCategory.SOURCE_PROCESSOR) {
                     chunk.targets.filter { it.outputDir?.let { outputFile.startsWith(it) } ?: false }.singleOrNull() ?:
                     representativeTarget
 
-            if (outputFile.name.endsWith(".class")) {
+            if (outputFile.extension == "class") {
                 result.add(GeneratedJvmClass(target, sourceFiles, outputFile))
+            }
+            else if (outputFile.extension == "java") {
+                result.add(GeneratedJavaStub(target, sourceFiles, outputFile))
             }
             else {
                 result.add(GeneratedFile<ModuleBuildTarget>(target, sourceFiles, outputFile))

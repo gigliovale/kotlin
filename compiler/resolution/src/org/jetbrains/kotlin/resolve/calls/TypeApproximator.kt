@@ -76,6 +76,10 @@ class TypeApproximator(private val commonSupertypeCalculator: CommonSupertypeCal
     private val referenceApproximateToSuperType = this::approximateToSuperType
     private val referenceApproximateToSubType = this::approximateToSubType
 
+    fun approximateDeclarationType(baseType: KotlinType, local: Boolean): UnwrappedType {
+        val configuration = if (local) TypeApproximatorConfiguration.LocalDeclaration else TypeApproximatorConfiguration.PublicDeclaration
+        return approximateToSuperType(baseType.unwrap(), configuration) ?: baseType.unwrap()
+    }
 
     // null means that this input type is the result, i.e. input type not contains not-allowed kind of types
     // type <: resultType

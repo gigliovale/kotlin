@@ -26,6 +26,8 @@ import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.isFlexible
 import org.jetbrains.kotlin.types.typeUtil.isSubtypeOf
 import org.jetbrains.kotlin.utils.newLinkedHashSetWithExpectedSize
+import org.jetbrains.kotlin.types.checker.NewCapturedTypeConstructor
+import org.jetbrains.kotlin.types.typeUtil.contains
 import java.util.*
 
 internal class DelegatingDataFlowInfo private constructor(
@@ -331,7 +333,7 @@ internal class DelegatingDataFlowInfo private constructor(
             for (value in typeInfo.keys()) {
                 for (type in typeInfo[value]) {
                     // Remove original type (see also KT-10666)
-                    if (value.type == type) {
+                    if (value.type == type || type.contains { it.constructor is NewCapturedTypeConstructor }) {
                         toDelete.put(value, type)
                     }
                 }

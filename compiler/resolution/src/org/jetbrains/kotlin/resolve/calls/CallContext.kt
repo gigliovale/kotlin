@@ -93,7 +93,7 @@ enum class ASTCallKind(vararg resolutionPart: ResolutionPart) {
             CheckOperatorResolutionPart,
             NoTypeArguments,
             NoArguments,
-            CreteDescriptorWithFreshTypeVariables,
+            CreateDescriptorWithFreshTypeVariables,
             CheckExplicitReceiverKindConsistency,
             CheckReceivers
     ),
@@ -102,7 +102,7 @@ enum class ASTCallKind(vararg resolutionPart: ResolutionPart) {
             CheckVisibility,
             MapTypeArguments,
             MapArguments,
-            CreteDescriptorWithFreshTypeVariables,
+            CreateDescriptorWithFreshTypeVariables,
             CheckExplicitReceiverKindConsistency,
             CheckReceivers,
             CheckArguments

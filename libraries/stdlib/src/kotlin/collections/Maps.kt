@@ -550,7 +550,7 @@ public operator fun <K, V> Map<out K, V>.plus(pairs: Array<out Pair<K, V>>): Map
  * Those [pairs] with unique keys are iterated in the end in the order of [pairs] sequence.
  */
 public operator fun <K, V> Map<out K, V>.plus(pairs: Sequence<Pair<K, V>>): Map<K, V>
-        = LinkedHashMap(this).apply { putAll(pairs) }.optimizeReadOnlyMap()
+        = LinkedHashMap<K, V>(this).apply { putAll(pairs) }.optimizeReadOnlyMap()
 
 /**
  * Creates a new read-only map by replacing or adding entries to this map from another [map].
@@ -679,7 +679,7 @@ public inline operator fun <K, V> MutableMap<K, V>.minusAssign(keys: Sequence<K>
 
 
 // do not expose for now @PublishedApi
-internal fun <K, V> Map<K, V>.optimizeReadOnlyMap() = when (size) {
+internal fun <K, V> Map<K, V>.optimizeReadOnlyMap(): Map<K, V> = when (size) {
     0 -> emptyMap()
     1 -> toSingletonMapOrSelf()
     else -> this

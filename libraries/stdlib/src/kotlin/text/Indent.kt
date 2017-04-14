@@ -63,10 +63,10 @@ public fun String.trimIndent(): String = replaceIndent("")
 public fun String.replaceIndent(newIndent: String = ""): String {
     val lines = lines()
 
-    val minCommonIndent = lines
-            .filter(String::isNotBlank)
-            .map(String::indentWidth)
-            .min() ?: 0
+    val minCommonIndent: Int = lines
+            .filter { it.isNotBlank() }
+                                  .map { it.indentWidth() }
+                                  .min() ?: 0
 
     return lines.reindent(length + newIndent.length * lines.size, getIndentFunction(newIndent), { line -> line.drop(minCommonIndent) })
 }

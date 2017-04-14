@@ -42,7 +42,6 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.expressions.DataFlowAnalyzer
-import org.jetbrains.kotlin.utils.addToStdlib.check
 import java.util.*
 
 
@@ -340,7 +339,7 @@ class NewResolvedCallImpl<D : CallableDescriptor>(
     override fun getExplicitReceiverKind(): ExplicitReceiverKind = completedCall.explicitReceiverKind
 
     override fun getTypeArguments(): Map<TypeParameterDescriptor, KotlinType> {
-        val typeParameters = candidateDescriptor.typeParameters.check { it.isNotEmpty() } ?: return emptyMap()
+        val typeParameters = candidateDescriptor.typeParameters.takeIf { it.isNotEmpty() } ?: return emptyMap()
 
         val result = HashMap<TypeParameterDescriptor, UnwrappedType>()
         for ((parameter, argument) in typeParameters.zip(completedCall.typeArguments)) {

@@ -40,7 +40,6 @@ import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
 import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
 
 interface LambdaAnalyzer {
     fun analyzeAndGetRelatedCalls(
@@ -183,7 +182,7 @@ class ASTCallCompleter(
     }
 
     private fun computeStatus(candidate: SimpleResolutionCandidate, resultingDescriptor: CallableDescriptor): ResolutionCandidateStatus {
-        val smartCasts = reportSmartCasts(candidate, resultingDescriptor).check { it.isNotEmpty() } ?: return candidate.status
+        val smartCasts = reportSmartCasts(candidate, resultingDescriptor).takeIf { it.isNotEmpty() } ?: return candidate.status
         return ResolutionCandidateStatus(candidate.status.diagnostics + smartCasts)
     }
 
@@ -206,7 +205,7 @@ class ASTCallCompleter(
         val smartCastDiagnostic = createSmartCastDiagnostic(receiver, expectedType) ?: return null
 
         // todo may be we have smart cast to Int?
-        return smartCastDiagnostic.check {
+        return smartCastDiagnostic.takeIf {
             candidate.status.diagnostics.filterIsInstance<UnsafeCallError>().none {
                 it.receiver == receiver
             }
@@ -292,7 +291,7 @@ class ASTCallCompleter(
 
         val receiver = lambda.receiver?.let(::substitute)
         val parameters = lambda.parameters.map(::substitute)
-        val expectedType = lambda.returnType.check { c.canBeProper(it) }?.let(::substitute)
+        val expectedType = lambda.returnType.takeIf { c.canBeProper(it) }?.let(::substitute)
         val callsFromLambda = lambdaAnalyzer.analyzeAndGetRelatedCalls(topLevelCallContext.astCall, lambda.argument, receiver, parameters, expectedType)
         lambda.analyzed = true
 

@@ -32,7 +32,6 @@ import org.jetbrains.kotlin.types.typeUtil.immediateSupertypes
 import org.jetbrains.kotlin.types.typeUtil.isUnit
 import org.jetbrains.kotlin.types.upperIfFlexible
 import org.jetbrains.kotlin.utils.addIfNotNull
-import org.jetbrains.kotlin.utils.addToStdlib.check
 import java.util.*
 
 
@@ -103,11 +102,11 @@ class CallableReferenceResolver(
 
         // (A, B, C) -> Int if A -- receiver, then B & C -- parameters
         // here parameterTypes contains only receivers, all parameters will be added later
-        val argumentCount = functionType?.arguments?.let { it.size - parameterTypes.size - 1 }?.check { it >= 0 }
+        val argumentCount = functionType?.arguments?.let { it.size - parameterTypes.size - 1 }?.takeIf { it >= 0 }
         val (parameters, mapping) = createFakeArgumentsAndMapArguments(functionReference, argumentCount)
         parameterTypes.addAll(parameters)
 
-        val unitExpectedType = functionType?.let(KotlinType::getReturnTypeFromFunctionType)?.check { it.upperIfFlexible().isUnit() }
+        val unitExpectedType = functionType?.let(KotlinType::getReturnTypeFromFunctionType)?.takeIf { it.upperIfFlexible().isUnit() }
         // coercion to unit
         val returnType = unitExpectedType ?: functionReference.candidate.descriptor.returnType
                          ?: ErrorUtils.createErrorType("Error return type")

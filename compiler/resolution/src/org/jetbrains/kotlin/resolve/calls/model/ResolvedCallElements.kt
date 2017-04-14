@@ -27,7 +27,6 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.SimpleType
 import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.typeUtil.builtIns
-import org.jetbrains.kotlin.utils.addToStdlib.check
 
 
 sealed class ArgumentWithPostponeResolution {
@@ -60,8 +59,8 @@ class ResolvedPropertyReference(
         val argument: ChosenCallableReferenceDescriptor,
         val reflectionType: UnwrappedType
 ) {
-    val boundDispatchReceiver: ReceiverValue? get() = argument.candidate.dispatchReceiver?.receiverValue?.check { it !is MockReceiverForCallableReference }
-    val boundExtensionReceiver: ReceiverValue? get() = argument.extensionReceiver?.check { it !is MockReceiverForCallableReference }
+    val boundDispatchReceiver: ReceiverValue? get() = argument.candidate.dispatchReceiver?.receiverValue?.takeIf { it !is MockReceiverForCallableReference }
+    val boundExtensionReceiver: ReceiverValue? get() = argument.extensionReceiver?.takeIf { it !is MockReceiverForCallableReference }
 }
 
 class ResolvedFunctionReference(
@@ -70,8 +69,8 @@ class ResolvedFunctionReference(
         val reflectionType: UnwrappedType,
         val argumentsMapping: ArgumentsToParametersMapper.ArgumentMapping?
 ) {
-    val boundDispatchReceiver: ReceiverValue? get() = argument.candidate.dispatchReceiver?.receiverValue?.check { it !is MockReceiverForCallableReference }
-    val boundExtensionReceiver: ReceiverValue? get() = argument.extensionReceiver?.check { it !is MockReceiverForCallableReference }
+    val boundDispatchReceiver: ReceiverValue? get() = argument.candidate.dispatchReceiver?.receiverValue?.takeIf { it !is MockReceiverForCallableReference }
+    val boundExtensionReceiver: ReceiverValue? get() = argument.extensionReceiver?.takeIf { it !is MockReceiverForCallableReference }
 }
 
 

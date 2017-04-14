@@ -20,7 +20,6 @@ import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.*
 import org.jetbrains.kotlin.types.typeUtil.builtIns
 import org.jetbrains.kotlin.types.typeUtil.contains
-import org.jetbrains.kotlin.utils.addToStdlib.check
 
 abstract class TypeCheckerContextForConstraintSystem : TypeCheckerContext(errorTypeEqualsToAnything = true, allowedTypeVariable = false) {
 
@@ -106,7 +105,7 @@ abstract class TypeCheckerContextForConstraintSystem : TypeCheckerContext(errorT
         // TODO: may be we lose flexibility here
         val subIntersectionTypes = (subType.constructor as IntersectionTypeConstructor).supertypes.map { it.lowerIfFlexible() }
 
-        val typeVariables = subIntersectionTypes.filter(this::isMyTypeVariable).check { it.isNotEmpty() } ?: return null
+        val typeVariables = subIntersectionTypes.filter(this::isMyTypeVariable).takeIf { it.isNotEmpty() } ?: return null
         val notTypeVariables = subIntersectionTypes.filterNot(this::isMyTypeVariable)
 
         // todo: may be we can do better then that.

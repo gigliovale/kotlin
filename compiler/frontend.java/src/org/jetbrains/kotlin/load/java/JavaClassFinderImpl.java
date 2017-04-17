@@ -19,6 +19,7 @@ package org.jetbrains.kotlin.load.java;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiPackage;
+import com.intellij.psi.impl.file.impl.JavaFileManager;
 import com.intellij.psi.search.DelegatingGlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,7 @@ import org.jetbrains.kotlin.name.ClassId;
 import org.jetbrains.kotlin.name.FqName;
 import org.jetbrains.kotlin.resolve.BindingTrace;
 import org.jetbrains.kotlin.resolve.CodeAnalyzerInitializer;
+import org.jetbrains.kotlin.resolve.jvm.KotlinCliJavaFileManager;
 import org.jetbrains.kotlin.resolve.jvm.KotlinJavaPsiFacade;
 import org.jetbrains.kotlin.resolve.lazy.KotlinCodeAnalyzer;
 

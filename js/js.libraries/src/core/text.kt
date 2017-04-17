@@ -30,37 +30,70 @@ public class StringBuilder(content: String = "") : Appendable, CharSequence {
 
     private var string: String = content
 
-    override val length: Int
-        get() = string.asDynamic().length
+    override val length: Int get() = string.length
 
     override fun get(index: Int): Char = string[index]
 
-    override fun subSequence(start: Int, end: Int): CharSequence = string.substring(start, end)
+    override fun subSequence(startIndex: Int, endIndex: Int): CharSequence = string.substring(startIndex, endIndex)
+    public fun substring(startIndex: Int, endIndex: Int = length): String = string.substring(startIndex, endIndex)
 
-    override fun append(c: Char): StringBuilder {
-        string += c
-        return this
+    override fun append(c: Char): StringBuilder = apply { string += c }
+    override fun append(csq: CharSequence?): StringBuilder = append(csq.toString())
+    override fun append(csq: CharSequence?, start: Int, end: Int): StringBuilder = append(csq.toString().subSequence(start, end))
+
+    public fun append(obj: Any?): StringBuilder = append(obj.toString())
+    public fun append(str: String): StringBuilder = apply { string += str }
+    public fun append(chars: CharArray): StringBuilder = append(stringFromChars(chars))
+    public fun append(chars: CharArray, offset: Int, count: Int): StringBuilder =
+            append(stringFromChars(chars, offset, count))
+
+    public fun insert(index: Int, str: String) = if (index == length) append(str) else replace(index, index, str)
+    public fun insert(index: Int, obj: Any?) = insert(index, obj.toString())
+    public fun insert(index: Int, csq: CharSequence?, startIndex: Int, endIndex: Int) =
+            insert(index, csq.toString().substring(startIndex, endIndex))
+    public fun insert(index: Int, chars: CharArray) = insert(index, stringFromChars(chars))
+    public fun insert(index: Int, chars: CharArray, offset: Int, count: Int) =
+            insert(index, stringFromChars(chars, offset, count))
+
+
+
+
+    public fun delete(startIndex: Int, endIndex: Int): StringBuilder = apply {
+        // TODO: check range
+        string = string.substring(0, startIndex) + string.substring(endIndex, string.length)
+    }
+    public fun deleteCharAt(index: Int): StringBuilder = delete(index, index + 1)
+
+    public fun replace(startIndex: Int, endIndex: Int, str: String): StringBuilder = apply {
+        // TODO: check range
+        string = string.substring(0, startIndex) + str + string.substring(endIndex, string.length)
     }
 
-    override fun append(csq: CharSequence?): StringBuilder {
-        string += csq.toString()
-        return this
+    public fun setCharAt(index: Int, char: Char): Unit {
+        replace(index, index + 1, char.toString())
     }
 
-    override fun append(csq: CharSequence?, start: Int, end: Int): StringBuilder {
-        string += csq.toString().substring(start, end)
-        return this
-    }
 
-    fun append(obj: Any?): StringBuilder {
-        string += obj.toString()
-        return this
-    }
-
-    fun reverse(): StringBuilder {
-        string = string.asDynamic().split("").reverse().join("")
-        return this
+    public fun reverse(): StringBuilder = apply {
+        var result = ""
+        var index = string.length
+        while (--index >= 0) {
+            result += string[index]
+        }
+        string = result
     }
 
     override fun toString(): String = string
+
+
+    // TODO: provide as string constructors
+    private fun stringFromChars(chars: CharArray): String = chars.asDynamic().join("")
+    private fun stringFromChars(chars: CharArray, offset: Int, count: Int): String {
+        // TODO: check range
+        var result = ""
+        for (i in offset..offset + count - 1) {
+            result += chars[i]
+        }
+        return result
+    }
 }

@@ -21,25 +21,6 @@ import org.jetbrains.kotlin.config.TargetPlatformKind
 
 class MultiModuleLineMarkerTest : AbstractMultiModuleLineMarkerTest() {
 
-    private fun doTest(vararg platforms: TargetPlatformKind<*>) {
-        val commonModule = module("common")
-        commonModule.createFacet(TargetPlatformKind.Common)
-
-        for (platform in platforms) {
-            val path = when (platform) {
-                is TargetPlatformKind.Jvm -> "jvm"
-                is TargetPlatformKind.JavaScript -> "js"
-                else -> error("Unsupported platform: $platform")
-            }
-            val platformModule = module(path)
-            platformModule.createFacet(platform)
-            platformModule.enableMultiPlatform()
-            platformModule.addDependency(commonModule)
-        }
-
-        checkHighlightingInAllFiles()
-    }
-
     fun testFromCommonToJvmHeader() {
         doTest(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6])
     }

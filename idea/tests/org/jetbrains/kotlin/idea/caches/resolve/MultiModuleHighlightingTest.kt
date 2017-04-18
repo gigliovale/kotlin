@@ -66,34 +66,6 @@ class MultiModuleHighlightingTest : AbstractMultiModuleHighlightingTest() {
     class MultiPlatform : AbstractMultiModuleHighlightingTest() {
         override val testPath get() = super.testPath + "multiplatform/"
 
-        private fun doTest(
-                vararg platforms: TargetPlatformKind<*>,
-                withStdlibCommon: Boolean = false,
-                configureModule: (Module, TargetPlatformKind<*>) -> Unit = { _, _ -> },
-                useFullJdk: Boolean = false
-        ) {
-            val commonModule = module("common", useFullJdk = useFullJdk)
-            commonModule.createFacet(TargetPlatformKind.Common)
-            if (withStdlibCommon) {
-                commonModule.addLibrary(ForTestCompileRuntime.stdlibCommonForTests())
-            }
-
-            for (platform in platforms) {
-                val path = when (platform) {
-                    is TargetPlatformKind.Jvm -> "jvm"
-                    is TargetPlatformKind.JavaScript -> "js"
-                    else -> error("Unsupported platform: $platform")
-                }
-                val platformModule = module(path, useFullJdk = useFullJdk)
-                platformModule.createFacet(platform)
-                platformModule.enableMultiPlatform()
-                platformModule.addDependency(commonModule)
-                configureModule(platformModule, platform)
-            }
-
-            checkHighlightingInAllFiles()
-        }
-
         fun testBasic() {
             doTest(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6])
         }

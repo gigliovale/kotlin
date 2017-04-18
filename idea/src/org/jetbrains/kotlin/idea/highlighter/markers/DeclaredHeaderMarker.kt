@@ -39,14 +39,14 @@ fun ModuleDescriptor.commonModuleOrNull(): ModuleDescriptor? {
     }
 }
 
-private val ModuleDescriptor.sourceKind: SourceKind
+internal val ModuleDescriptor.sourceKind: SourceKind
     get() = when (getCapability(ModuleInfo.Capability)) {
         is ModuleProductionSourceInfo -> SourceKind.PRODUCTION
         is ModuleTestSourceInfo -> SourceKind.TEST
         else -> SourceKind.NONE
     }
 
-private enum class SourceKind { NONE, PRODUCTION, TEST }
+internal enum class SourceKind { NONE, PRODUCTION, TEST }
 
 fun ModuleDescriptor.hasDeclarationOf(descriptor: MemberDescriptor) = declarationOf(descriptor) != null
 

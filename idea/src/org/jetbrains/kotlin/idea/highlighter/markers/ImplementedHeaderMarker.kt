@@ -43,7 +43,7 @@ fun getPlatformImplementationTooltip(declaration: KtDeclaration): String? {
     val commonModuleDescriptor = declaration.containingKtFile.findModuleDescriptor()
 
     val platformModulesWithImplementation = commonModuleDescriptor.allImplementingModules.filter {
-        it.hasImplementationsOf(descriptor)
+        commonModuleDescriptor.sourceKind == it.sourceKind && it.hasImplementationsOf(descriptor)
     }
     if (platformModulesWithImplementation.isEmpty()) return null
 

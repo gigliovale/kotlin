@@ -3151,6 +3151,10 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         StackValue result = StackValue.local(0, type);
         boolean inStartConstructorContext = cur instanceof ConstructorContext;
         while (cur != null) {
+            if (!cur.hasThisDescriptor()) {
+                return result;
+            }
+
             ClassDescriptor thisDescriptor = cur.getThisDescriptor();
 
             if (!isSuper && thisDescriptor == calleeContainingClass) {

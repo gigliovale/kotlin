@@ -109,6 +109,8 @@ interface ModuleSourceInfo : IdeaModuleInfo {
 data class ModuleProductionSourceInfo(override val module: Module) : ModuleSourceInfo {
     override val name = Name.special("<production sources for module ${module.name}>")
 
+    override val renderableName get() = module.name
+
     override fun contentScope(): GlobalSearchScope = ModuleProductionSourceScope(module)
 
     override fun dependencies() = module.cached(CachedValueProvider {
@@ -121,6 +123,8 @@ data class ModuleProductionSourceInfo(override val module: Module) : ModuleSourc
 //TODO: (module refactoring) do not create ModuleTestSourceInfo when there are no test roots for module
 data class ModuleTestSourceInfo(override val module: Module) : ModuleSourceInfo {
     override val name = Name.special("<test sources for module ${module.name}>")
+
+    override val renderableName get() = module.name + " (test)"
 
     override fun contentScope(): GlobalSearchScope = ModuleTestSourceScope(module)
 

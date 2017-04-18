@@ -217,8 +217,7 @@ class KotlinDebuggerCaches(project: Project) {
     }
 
     data class CompiledDataDescriptor(
-            val bytecodes: ByteArray,
-            val additionalClasses: List<Pair<String, ByteArray>>,
+            val classes: List<Pair<String, ByteArray>>,
             val sourcePosition: SourcePosition,
             val parameters: ParametersDescriptor
     )

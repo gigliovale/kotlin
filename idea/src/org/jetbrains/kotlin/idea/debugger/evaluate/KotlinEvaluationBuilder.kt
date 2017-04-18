@@ -78,6 +78,7 @@ import org.jetbrains.kotlin.serialization.deserialization.findClassAcrossModuleD
 import org.jetbrains.org.objectweb.asm.*
 import org.jetbrains.org.objectweb.asm.Opcodes.ASM5
 import org.jetbrains.org.objectweb.asm.Type
+import org.jetbrains.org.objectweb.asm.tree.ClassNode
 import org.jetbrains.org.objectweb.asm.tree.MethodNode
 import java.util.*
 
@@ -134,14 +135,27 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                 isCompiledDataFromCache = false
                 extractAndCompile(fragment, position, context)
             }
-            val result = runEval4j(context, compiledData)
+
+            if (compiledData.classes.isNotEmpty()) {
+                loadClasses(context, compiledData.classes)
+            }
+
+            val result = evaluateWithCompilation(context, compiledData) ?: runEval4j(context, compiledData)
 
             // If bytecode was taken from cache and exception was thrown - recompile bytecode and run eval4j again
             if (isCompiledDataFromCache && result is ExceptionThrown && result.kind == ExceptionThrown.ExceptionKind.BROKEN_CODE) {
+                if (compiledData.classes.isNotEmpty()) {
+                    loadClasses(context, compiledData.classes)
+                }
+
                 return runEval4j(context, extractAndCompile(codeFragment, sourcePosition, context)).toJdiValue(context)
             }
 
-            return result.toJdiValue(context)
+            return if (result is InterpreterResult) {
+                result.toJdiValue(context)
+            } else {
+                result
+            }
         }
         catch(e: EvaluateException) {
             throw e
@@ -217,10 +231,9 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
                 }
             }
 
-            val additionalFiles = outputFiles.drop(1).map { getClassName(it.relativePath) to it.asByteArray() }
+            val additionalFiles = outputFiles.map { getClassName(it.relativePath) to it.asByteArray() }
 
             return CompiledDataDescriptor(
-                    outputFiles.first().asByteArray(),
                     additionalFiles,
                     sourcePosition,
                     parametersDescriptor)
@@ -230,15 +243,55 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
             return fileName.substringBeforeLast(".class").replace("/", ".")
         }
 
+        private fun evaluateWithCompilation(context: EvaluationContextImpl, compiledData: CompiledDataDescriptor): Any? {
+            val vm = context.debugProcess.virtualMachineProxy.virtualMachine
+            val classLoader = context.classLoader ?: return null
+            val mainClassBytecode = compiledData.classes[0].second
+
+            val mainClassAsmNode = ClassNode().apply { ClassReader(mainClassBytecode).accept(this, ClassReader.EXPAND_FRAMES) }
+            val mainClassJdiName = mainClassAsmNode.name.replace('/', '.')
+            assert(mainClassAsmNode.methods.size == 1)
+
+            val methodToInvoke = mainClassAsmNode.methods[0]
+            assert(methodToInvoke.parameters == null || methodToInvoke.parameters.isEmpty())
+
+            val mainClass = context.classLoader?.visibleClasses()?.firstOrNull { clazz ->
+                clazz.name() == mainClassJdiName
+            } as? ClassType ?: return null
+
+            try {
+                val thread = context.suspendContext.thread?.threadReference!!
+                val invokePolicy = context.suspendContext.getInvokePolicy()
+                val eval = JDIEval(vm, classLoader, thread, invokePolicy)
+
+                return vm.executeWithBreakpointsDisabled {
+                    // Prepare the main class
+                    eval.loadClass(Type.getObjectType(mainClassAsmNode.name), classLoader)
+
+                    val argumentTypes = Type.getArgumentTypes(methodToInvoke.desc)
+                    val args = context.getArgumentsForEval4j(compiledData.parameters, argumentTypes)
+                            .zip(argumentTypes)
+                            .map { (value, type) ->
+                                // Make argument type classes prepared for sure
+                                eval.loadClass(type, classLoader)
+                                boxOrUnboxArgumentIfNeeded(eval, value, type).asJdiValue(vm, type)
+                            }
+
+                    mainClass.invokeMethod(thread, mainClass.methods().single(), args, invokePolicy)
+                }
+            } catch (e: Throwable) {
+                LOG.debug("Unable to evaluate expression with compilation", e)
+                return null
+            }
+        }
+
         private fun runEval4j(context: EvaluationContextImpl, compiledData: CompiledDataDescriptor): InterpreterResult {
             val virtualMachine = context.debugProcess.virtualMachineProxy.virtualMachine
-
-            if (compiledData.additionalClasses.isNotEmpty()) {
-                loadClasses(context, compiledData.additionalClasses)
-            }
-
             var resultValue: InterpreterResult? = null
-            ClassReader(compiledData.bytecodes).accept(object : ClassVisitor(ASM5) {
+
+            val mainClassBytecode = compiledData.classes[0].second
+
+            ClassReader(mainClassBytecode).accept(object : ClassVisitor(ASM5) {
                 override fun visitMethod(access: Int, name: String, desc: String, signature: String?, exceptions: Array<out String>?): MethodVisitor? {
                     if (name == GENERATED_FUNCTION_NAME) {
                         val argumentTypes = Type.getArgumentTypes(desc)
@@ -246,22 +299,18 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
 
                         return object : MethodNode(Opcodes.ASM5, access, name, desc, signature, exceptions) {
                             override fun visitEnd() {
-                                val allRequests = virtualMachine.eventRequestManager().breakpointRequests() +
-                                                  virtualMachine.eventRequestManager().classPrepareRequests()
-                                allRequests.forEach { it.disable() }
+                                virtualMachine.executeWithBreakpointsDisabled {
+                                    val eval = JDIEval(virtualMachine,
+                                                       context.classLoader,
+                                                       context.suspendContext.thread?.threadReference!!,
+                                                       context.suspendContext.getInvokePolicy())
 
-                                val eval = JDIEval(virtualMachine,
-                                                   context.classLoader,
-                                                   context.suspendContext.thread?.threadReference!!,
-                                                   context.suspendContext.getInvokePolicy())
-
-                                resultValue = interpreterLoop(
-                                        this,
-                                        makeInitialFrame(this, args.zip(argumentTypes).map { boxOrUnboxArgumentIfNeeded(eval, it.first, it.second) }),
-                                        eval
-                                )
-
-                                allRequests.forEach { it.enable() }
+                                    resultValue = interpreterLoop(
+                                            this,
+                                            makeInitialFrame(this, args.zip(argumentTypes).map { boxOrUnboxArgumentIfNeeded(eval, it.first, it.second) }),
+                                            eval
+                                    )
+                                }
                             }
                         }
                     }
@@ -271,6 +320,17 @@ class KotlinEvaluator(val codeFragment: KtCodeFragment, val sourcePosition: Sour
             }, 0)
 
             return resultValue ?: throw IllegalStateException("resultValue is null: cannot find method " + GENERATED_FUNCTION_NAME)
+        }
+
+        private inline fun <T> VirtualMachine.executeWithBreakpointsDisabled(block: () -> T): T {
+            val allRequests = eventRequestManager().breakpointRequests() + eventRequestManager().classPrepareRequests()
+
+            try {
+                allRequests.forEach { it.disable() }
+                return block()
+            } finally {
+                allRequests.forEach { it.enable() }
+            }
         }
 
         private fun boxOrUnboxArgumentIfNeeded(eval: JDIEval, argumentValue: Value, parameterType: Type): Value {

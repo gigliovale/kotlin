@@ -60,8 +60,16 @@ private fun defineClasses(
         process: DebugProcess,
         classLoader: ClassLoaderReference
 ) {
-    val lambdaSuperclasses = LAMBDA_SUPERCLASSES.map { it.name to it.bytes }
-    for ((className, bytes) in lambdaSuperclasses + classes) {
+    val classesToLoad = if (classes.size == 1) {
+        // No need in loading lambda superclass if there're no lambdas
+        classes
+    }
+    else {
+        val lambdaSuperclasses = LAMBDA_SUPERCLASSES.map { it.name to it.bytes }
+        lambdaSuperclasses + classes
+    }
+
+    for ((className, bytes) in classesToLoad) {
         val patchedBytes = CompilingEvaluatorUtils.changeSuperToMagicAccessor(bytes)
         ClassLoadingUtils.defineClass(className, patchedBytes, context, process, classLoader)
     }

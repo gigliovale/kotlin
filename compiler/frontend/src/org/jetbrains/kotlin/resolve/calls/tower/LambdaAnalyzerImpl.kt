@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.FunctionDescriptorImpl
 import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.psiUtil.lastBlockStatementOrThis
 import org.jetbrains.kotlin.resolve.BindingContext
@@ -97,11 +96,14 @@ class LambdaAnalyzerImpl(
     }
 
     override fun completeLambdaReturnType(lambdaArgument: ResolvedLambdaArgument, returnType: KotlinType) {
-        val ktLambda = lambdaArgument.argument.psiExpression as? KtLambdaExpression ?:
-                       throw AssertionError("No lambda expression for resolved lambda argument")
-        val functionDescriptor = trace.bindingContext.get(BindingContext.FUNCTION, ktLambda.functionLiteral) as? FunctionDescriptorImpl ?:
+        val psiCallArgument = lambdaArgument.argument.psiCallArgument
+        val ktFunction = when (psiCallArgument) {
+            is LambdaArgumentImpl -> psiCallArgument.ktLambdaExpression.functionLiteral
+            is FunctionExpressionImpl -> psiCallArgument.ktFunction
+            else -> throw AssertionError("Unexpected psiCallArgument for resolved lambda argument: $psiCallArgument")
+        }
+        val functionDescriptor = trace.bindingContext.get(BindingContext.FUNCTION, ktFunction) as? FunctionDescriptorImpl ?:
                                  throw AssertionError("No function descriptor for resolved lambda argument")
         functionDescriptor.setReturnType(returnType)
-        listOf(1, 2, 3).map { it}
     }
 }

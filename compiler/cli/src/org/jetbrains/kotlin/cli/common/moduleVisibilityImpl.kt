@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.cli.common
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
+import jdk.nashorn.internal.AssertsEnabled
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.load.kotlin.ModuleVisibilityManager
 import org.jetbrains.kotlin.load.kotlin.getSourceElement
@@ -42,6 +43,8 @@ class ModuleVisibilityHelperImpl : ModuleVisibilityHelper {
         }
 
         val moduleVisibilityManager = ModuleVisibilityManager.SERVICE.getInstance(project)
+        if (!moduleVisibilityManager.enabled) return true
+
         moduleVisibilityManager.friendPaths.forEach {
             if (isContainedByCompiledPartOfOurModule(what, File(it))) return true
         }
@@ -82,7 +85,7 @@ class ModuleVisibilityHelperImpl : ModuleVisibilityHelper {
    At the moment, there is no proper support for module infrastructure in the compiler.
    So we add try to remember given list of interdependent modules and use it for checking visibility.
  */
-class CliModuleVisibilityManagerImpl() : ModuleVisibilityManager, Disposable {
+class CliModuleVisibilityManagerImpl(override val enabled: Boolean) : ModuleVisibilityManager, Disposable {
     override val chunk: MutableList<Module> = arrayListOf()
     override val friendPaths: MutableList <String> = arrayListOf()
 

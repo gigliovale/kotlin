@@ -167,7 +167,10 @@ class KotlinCoreEnvironment private constructor(
         }
 
         project.registerService(DeclarationProviderFactoryService::class.java, CliDeclarationProviderFactoryService(sourceFiles))
-        project.registerService(ModuleVisibilityManager::class.java, CliModuleVisibilityManagerImpl())
+
+        // A temporary hack to disable JVM-specific internal visibility module handling when not needed
+        val nonJvmPlatform = configuration.getList(JVMConfigurationKeys.CONTENT_ROOTS).isEmpty()
+        project.registerService(ModuleVisibilityManager::class.java, CliModuleVisibilityManagerImpl(nonJvmPlatform))
 
         registerProjectServicesForCLI(projectEnvironment)
         registerProjectServices(projectEnvironment)

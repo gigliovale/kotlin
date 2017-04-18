@@ -42,6 +42,8 @@ class ModuleVisibilityHelperImpl : ModuleVisibilityHelper {
         }
 
         val moduleVisibilityManager = ModuleVisibilityManager.SERVICE.getInstance(project)
+        if (moduleVisibilityManager.disabled) return true
+
         moduleVisibilityManager.friendPaths.forEach {
             if (isContainedByCompiledPartOfOurModule(what, File(it))) return true
         }
@@ -82,7 +84,7 @@ class ModuleVisibilityHelperImpl : ModuleVisibilityHelper {
    At the moment, there is no proper support for module infrastructure in the compiler.
    So we add try to remember given list of interdependent modules and use it for checking visibility.
  */
-class CliModuleVisibilityManagerImpl() : ModuleVisibilityManager, Disposable {
+class CliModuleVisibilityManagerImpl(override val disabled: Boolean) : ModuleVisibilityManager, Disposable {
     override val chunk: MutableList<Module> = arrayListOf()
     override val friendPaths: MutableList <String> = arrayListOf()
 

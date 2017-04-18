@@ -32,6 +32,8 @@ interface ModuleVisibilityManager {
     val friendPaths: Collection<String>
     fun addModule(module: Module)
     fun addFriendPath(path: String)
+    val disabled
+        get() = false
 
     object SERVICE {
         @JvmStatic fun getInstance(project: Project): ModuleVisibilityManager =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1353,7 +1353,8 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
         CallableMethod delegateConstructorCallable = typeMapper.mapToCallableMethod(delegateConstructor, false);
         CallableMethod callable = typeMapper.mapToCallableMethod(constructorDescriptor, false);
 
-        List<JvmMethodParameterSignature> delegatingParameters = delegateConstructorCallable.getValueParameters();
+        List<JvmMethodParameterSignature> delegatingParameters = refineParametersKindsToMatchReceiver(
+                delegateConstructorCallable.getValueParameters(), delegationConstructorCall);
         List<JvmMethodParameterSignature> parameters = callable.getValueParameters();
 
         ArgumentGenerator argumentGenerator;
@@ -1372,6 +1373,38 @@ public class ImplementationBodyCodegen extends ClassBodyCodegen {
 
         codegen.invokeMethodWithArguments(
                 delegateConstructorCallable, delegationConstructorCall, StackValue.none(), codegen.defaultCallGenerator, argumentGenerator);
+    }
+
+    /*
+    * Here we'd like to handle the following situation:
+    *
+    * class A {
+    *   open inner class B
+    * }
+    *
+    * fun A.foo() {
+    *   class Local : A.B()
+    * }
+    *
+    * After mapping signature of constructor `A.B`, it will have special parameter that corresponds to `A` with kind `outer`
+    * But its kind can depend on the place of constructor call. For instance, in the example above, its kind will be `receiver`
+    *
+    * */
+    private List<JvmMethodParameterSignature> refineParametersKindsToMatchReceiver(
+            @NotNull List<JvmMethodParameterSignature> delegatingParameters,
+            @NotNull ResolvedCall<ConstructorDescriptor> delegationConstructorCall
+    ) {
+        ReceiverValue receiver = delegationConstructorCall.getDispatchReceiver();
+        if (!(receiver instanceof ExtensionReceiver)) return delegatingParameters;
+
+        Type receiverType = typeMapper.mapType(receiver.getType());
+
+        return CollectionsKt.map(delegatingParameters, parameter -> {
+            if (parameter.getKind() == JvmMethodParameterKind.OUTER && parameter.getAsmType().equals(receiverType)) {
+                return new JvmMethodParameterSignature(receiverType, JvmMethodParameterKind.RECEIVER);
+            }
+            return parameter;
+        });
     }
 
     private boolean isSameClassConstructor(@Nullable ConstructorDescriptor delegatingConstructor) {

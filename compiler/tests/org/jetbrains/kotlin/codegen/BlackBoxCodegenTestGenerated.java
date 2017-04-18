@@ -10307,6 +10307,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("kt11902.kt")
+        public void testKt11902() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/kt11902.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("kt2700.kt")
         public void testKt2700() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/kt2700.kt");
@@ -10343,6 +10349,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("kt9859.kt")
+        public void testKt9859() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/kt9859.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("localClass.kt")
         public void testLocalClass() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClass.kt");
@@ -10352,6 +10364,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("localClassCaptureExtensionReceiver.kt")
         public void testLocalClassCaptureExtensionReceiver() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassCaptureExtensionReceiver.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localClassExtendsInnerClassWithDispatchReceiver.kt")
+        public void testLocalClassExtendsInnerClassWithDispatchReceiver() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassExtendsInnerClassWithDispatchReceiver.kt");
             doTest(fileName);
         }
 
@@ -10367,6 +10385,24 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("localClassInheritanceInsideDeepExtensionFunction.kt")
+        public void testLocalClassInheritanceInsideDeepExtensionFunction() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassInheritanceInsideDeepExtensionFunction.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localClassInheritsInnerClassInsideNested.kt")
+        public void testLocalClassInheritsInnerClassInsideNested() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassInheritsInnerClassInsideNested.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localClassInheritsInnerWithClosure.kt")
+        public void testLocalClassInheritsInnerWithClosure() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassInheritsInnerWithClosure.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("localDataClass.kt")
         public void testLocalDataClass() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localDataClass.kt");
@@ -10376,6 +10412,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
         @TestMetadata("localExtendsInnerAndReferencesOuterMember.kt")
         public void testLocalExtendsInnerAndReferencesOuterMember() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localExtendsInnerAndReferencesOuterMember.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localObjectExtendsInnerClassWithDispatchReceiver.kt")
+        public void testLocalObjectExtendsInnerClassWithDispatchReceiver() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localObjectExtendsInnerClassWithDispatchReceiver.kt");
             doTest(fileName);
         }
 

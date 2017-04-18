@@ -35,6 +35,7 @@ import org.jetbrains.kotlin.resolve.calls.tasks.ExplicitReceiverKind
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateApplicability
 import org.jetbrains.kotlin.resolve.calls.tower.ResolutionCandidateStatus
 import org.jetbrains.kotlin.resolve.scopes.receivers.ReceiverValueWithSmartCastInfo
+import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.checker.KotlinTypeChecker
@@ -52,6 +53,8 @@ interface LambdaAnalyzer {
 
     // todo this is hack for some client which try to read ResolvedCall from trace before all calls completed
     fun bindStubResolvedCallForCandidate(candidate: NewResolutionCandidate)
+
+    fun completeLambdaReturnType(lambdaArgument: ResolvedLambdaArgument, returnType: KotlinType)
 }
 
 sealed class CompletedCall {
@@ -122,8 +125,8 @@ class ASTCallCompleter(
         fun getBuilder(): ConstraintSystemBuilder
     }
 
-    fun transformWhenAmbiguity(candidate: NewResolutionCandidate): BaseResolvedCall =
-            toCompletedBaseResolvedCall(candidate.lastCall.constraintSystem.asCallCompleterContext(), candidate)
+    fun transformWhenAmbiguity(candidate: NewResolutionCandidate, lambdaAnalyzer: LambdaAnalyzer): BaseResolvedCall =
+            toCompletedBaseResolvedCall(candidate.lastCall.constraintSystem.asCallCompleterContext(), candidate, lambdaAnalyzer)
 
     fun completeCallIfNecessary(
             candidate: NewResolutionCandidate,
@@ -143,7 +146,7 @@ class ASTCallCompleter(
             val c = candidate.lastCall.constraintSystem.asCallCompleterContext()
 
             topLevelCall.competeCall(c, lambdaAnalyzer)
-            return toCompletedBaseResolvedCall(c, candidate)
+            return toCompletedBaseResolvedCall(c, candidate, lambdaAnalyzer)
         }
 
         return BaseResolvedCall.OnlyResolvedCall(candidate)
@@ -151,12 +154,16 @@ class ASTCallCompleter(
 
     private fun toCompletedBaseResolvedCall(
             c: Context,
-            candidate: NewResolutionCandidate
+            candidate: NewResolutionCandidate,
+            lambdaAnalyzer: LambdaAnalyzer
     ): BaseResolvedCall.CompletedResolvedCall {
         val currentSubstitutor = c.buildResultingSubstitutor()
         val completedCall = candidate.toCompletedCall(currentSubstitutor)
         val competedCalls = c.innerCalls.map {
             it.candidate.toCompletedCall(currentSubstitutor)
+        }
+        c.lambdaArguments.forEach {
+            lambdaAnalyzer.completeLambdaReturnType(it, currentSubstitutor.safeSubstitute(it.returnType))
         }
         return BaseResolvedCall.CompletedResolvedCall(completedCall, competedCalls)
     }

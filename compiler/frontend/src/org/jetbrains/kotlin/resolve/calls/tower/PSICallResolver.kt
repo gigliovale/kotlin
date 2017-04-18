@@ -124,7 +124,9 @@ class PSICallResolver(
         val expectedType = context.expectedType.unwrap()
 
         return if (context.contextDependency == ContextDependency.DEPENDENT) {
-            assert(expectedType == TypeUtils.NO_EXPECTED_TYPE)
+            assert(TypeUtils.noExpectedType(expectedType)) {
+                "Should have no expected type, got: $expectedType"
+            }
             null
         }
         else {
@@ -422,8 +424,8 @@ class PSICallResolver(
 
         val lambdaArgument: PSICallArgument? = when (ktExpression) {
             is KtLambdaExpression ->
-                LambdaArgumentIml(outerCallContext, valueArgument, startDataFlowInfo, ktExpression, argumentName,
-                                  resolveParametersTypes(outerCallContext, ktExpression.functionLiteral))
+                LambdaArgumentImpl(outerCallContext, valueArgument, startDataFlowInfo, ktExpression, argumentName,
+                                   resolveParametersTypes(outerCallContext, ktExpression.functionLiteral))
             is KtNamedFunction -> {
                 val receiverType = resolveType(outerCallContext, ktExpression.receiverTypeReference)
                 val parametersTypes = resolveParametersTypes(outerCallContext, ktExpression) ?: emptyArray()

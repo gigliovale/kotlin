@@ -16,16 +16,14 @@
 
 package org.jetbrains.kotlin.resolve.calls.inference.components
 
-import org.jetbrains.kotlin.resolve.calls.inference.model.Constraint
-import org.jetbrains.kotlin.resolve.calls.inference.model.ConstraintKind
-import org.jetbrains.kotlin.resolve.calls.inference.model.LambdaTypeVariable
-import org.jetbrains.kotlin.resolve.calls.inference.model.VariableWithConstraints
+import org.jetbrains.kotlin.resolve.calls.inference.model.*
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedLambdaArgument
 import org.jetbrains.kotlin.types.*
 import org.jetbrains.kotlin.types.checker.NewKotlinTypeChecker
 import org.jetbrains.kotlin.types.checker.isIntersectionType
 import org.jetbrains.kotlin.utils.DFS
 import org.jetbrains.kotlin.utils.SmartList
+import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 
 private typealias Variable = VariableWithConstraints
@@ -71,7 +69,7 @@ class FixationOrderCalculator {
                 }
             }
 
-            for (typeVariable in c.notFixedTypeVariables.values) {
+            for (typeVariable in c.notFixedTypeVariables.values.sortByTypeVariable()) {
                 DFS.doDfs(typeVariable, DFS.Neighbors(this::getEdges), DFS.VisitedWithSet<Variable>(), handler)
             }
             return handler.result().toList()
@@ -113,8 +111,14 @@ class FixationOrderCalculator {
 
         private fun getEdges(variable: Variable): List<Variable> {
             val direction = directions[variable] ?: ResolveDirection.UNKNOWN
-            return get12Edges(variable, direction).map(NodeWithDirection::variableWithConstraints) + get0Edges(variable)
+            val sorted12Edges = get12Edges(variable, direction).map(NodeWithDirection::variableWithConstraints).sortByTypeVariable()
+            val sorted0Edges = get0Edges(variable).sortByTypeVariable()
+            return sorted12Edges + sorted0Edges
         }
+
+        private fun Collection<Variable>.sortByTypeVariable() =
+                // TODO hack, provide some reasonable stable order
+                sortedBy { it.typeVariable.toString() }
 
         /**
          * Now we use only priority 0 and {1, 2}.
@@ -146,17 +150,31 @@ class FixationOrderCalculator {
 
         private fun get0Edges(variable: Variable): List<Variable> {
             val typeVariable = variable.typeVariable
-            if (typeVariable !is LambdaTypeVariable || typeVariable.kind != LambdaTypeVariable.Kind.RETURN_TYPE) return emptyList()
+            return SmartList<Variable>().also { result ->
+                typeVariable.takeLambdaResultTypeVariable()?.let { lambdaResultTypeVariable ->
+                    val resolvedLambdaArgument = c.lambdaArguments.find { it.argument == lambdaResultTypeVariable.lambdaArgument } ?:
+                                                 error("Missing resolved lambda argument for ${lambdaResultTypeVariable.lambdaArgument}")
 
-            val resolvedLambdaArgument = c.lambdaArguments.find { it.argument == typeVariable.lambdaArgument } ?:
-                                         error("Missing resolved lambda argument for ${typeVariable.lambdaArgument}")
+                    for (lambdaTypeVariable in resolvedLambdaArgument.myTypeVariables) {
+                        if (lambdaTypeVariable.kind == LambdaTypeVariable.Kind.RETURN_TYPE) continue
+                        result.addIfNotNull(c.notFixedTypeVariables[lambdaTypeVariable.freshTypeConstructor])
+                    }
+                }
 
-            return resolvedLambdaArgument.myTypeVariables.mapNotNull {
-                if (it.kind == LambdaTypeVariable.Kind.RETURN_TYPE) return@mapNotNull null
-                c.notFixedTypeVariables[it.freshTypeConstructor]
+                for (constraint in variable.constraints) {
+                    if (constraint.kind == ConstraintKind.UPPER) continue
+                    val variableWithConstraints = c.notFixedTypeVariables[constraint.type.constructor] ?: continue
+                    variableWithConstraints.typeVariable.takeLambdaResultTypeVariable()?.let { lambdaResultTypeVariable ->
+                        if (typeVariable !is LambdaTypeVariable || typeVariable.lambdaArgument != lambdaResultTypeVariable.lambdaArgument) {
+                            result.add(variableWithConstraints)
+                        }
+                    }
+                }
             }
         }
 
+        private fun NewTypeVariable.takeLambdaResultTypeVariable(): LambdaTypeVariable? =
+                if (this is LambdaTypeVariable && this.kind == LambdaTypeVariable.Kind.RETURN_TYPE) this else null
 
         private fun UnwrappedType.visitType(startDirection: ResolveDirection, action: (variable: Variable, direction: ResolveDirection) -> Unit) =
                 when (this) {

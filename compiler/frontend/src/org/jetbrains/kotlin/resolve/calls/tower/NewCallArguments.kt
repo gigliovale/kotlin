@@ -79,7 +79,7 @@ class ParseErrorArgument(
         get() = dataFlowInfoAfterThisArgument
 }
 
-class LambdaArgumentIml(
+class LambdaArgumentImpl(
         val outerCallContext: BasicCallResolutionContext,
         override val valueArgument: ValueArgument,
         override val dataFlowInfoBeforeThisArgument: DataFlowInfo,

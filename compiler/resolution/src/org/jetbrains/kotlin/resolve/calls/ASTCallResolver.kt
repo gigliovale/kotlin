@@ -76,7 +76,7 @@ class ASTCallResolver(
         }
 
         return maximallySpecificCandidates.map {
-            astCallCompleter.transformWhenAmbiguity(it)
+            astCallCompleter.transformWhenAmbiguity(it, callContext.lambdaAnalyzer)
         }
     }
 

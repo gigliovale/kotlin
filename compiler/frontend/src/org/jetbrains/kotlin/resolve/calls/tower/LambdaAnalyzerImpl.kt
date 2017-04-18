@@ -21,9 +21,12 @@ import org.jetbrains.kotlin.builtins.getReturnTypeFromFunctionType
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.descriptors.impl.FunctionDescriptorImpl
 import org.jetbrains.kotlin.psi.KtExpression
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.psiUtil.lastBlockStatementOrThis
+import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.BindingTrace
 import org.jetbrains.kotlin.resolve.calls.LambdaAnalyzer
 import org.jetbrains.kotlin.resolve.calls.TypeApproximator
@@ -32,6 +35,7 @@ import org.jetbrains.kotlin.resolve.calls.context.ContextDependency
 import org.jetbrains.kotlin.resolve.calls.model.*
 import org.jetbrains.kotlin.resolve.calls.util.CallMaker
 import org.jetbrains.kotlin.resolve.descriptorUtil.builtIns
+import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.UnwrappedType
 import org.jetbrains.kotlin.types.expressions.ExpressionTypingServices
@@ -52,9 +56,9 @@ class LambdaAnalyzerImpl(
             expectedReturnType: UnwrappedType?
     ): List<CallArgument> {
         val psiCallArgument = lambdaArgument.psiCallArgument
-        val outerCallContext = (psiCallArgument as? LambdaArgumentIml)?.outerCallContext ?:
+        val outerCallContext = (psiCallArgument as? LambdaArgumentImpl)?.outerCallContext ?:
                                (psiCallArgument as FunctionExpressionImpl).outerCallContext
-        val expression: KtExpression = (psiCallArgument as? LambdaArgumentIml)?.ktLambdaExpression ?:
+        val expression: KtExpression = (psiCallArgument as? LambdaArgumentImpl)?.ktLambdaExpression ?:
                                (psiCallArgument as FunctionExpressionImpl).ktFunction
 
         val builtIns = outerCallContext.scope.ownerDescriptor.builtIns
@@ -74,7 +78,7 @@ class LambdaAnalyzerImpl(
         val lastExpressionTypeInfo = KotlinTypeInfo(lastExpressionType, functionTypeInfo.dataFlowInfo)
 
         val lastExpression: KtExpression?
-        if (psiCallArgument is LambdaArgumentIml) {
+        if (psiCallArgument is LambdaArgumentImpl) {
             lastExpression = psiCallArgument.ktLambdaExpression.bodyExpression?.statements?.lastOrNull()
         }
         else {
@@ -90,5 +94,14 @@ class LambdaAnalyzerImpl(
 
     override fun bindStubResolvedCallForCandidate(candidate: NewResolutionCandidate) {
         astToResolvedCallTransformer.createStubResolvedCallAndWriteItToTrace<CallableDescriptor>(candidate, trace)
+    }
+
+    override fun completeLambdaReturnType(lambdaArgument: ResolvedLambdaArgument, returnType: KotlinType) {
+        val ktLambda = lambdaArgument.argument.psiExpression as? KtLambdaExpression ?:
+                       throw AssertionError("No lambda expression for resolved lambda argument")
+        val functionDescriptor = trace.bindingContext.get(BindingContext.FUNCTION, ktLambda.functionLiteral) as? FunctionDescriptorImpl ?:
+                                 throw AssertionError("No function descriptor for resolved lambda argument")
+        functionDescriptor.setReturnType(returnType)
+        listOf(1, 2, 3).map { it}
     }
 }

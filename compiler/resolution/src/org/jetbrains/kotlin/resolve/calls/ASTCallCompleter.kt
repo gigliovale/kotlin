@@ -43,7 +43,7 @@ import org.jetbrains.kotlin.utils.SmartList
 import org.jetbrains.kotlin.utils.addIfNotNull
 
 interface LambdaAnalyzer {
-    fun analyzeAndGetRelatedCalls(
+    fun analyzeAndGetLambdaResultArguments(
             topLevelCall: ASTCall,
             lambdaArgument: LambdaArgument,
             receiverType: UnwrappedType?,
@@ -301,10 +301,10 @@ class ASTCallCompleter(
         val receiver = lambda.receiver?.let(::substitute)
         val parameters = lambda.parameters.map(::substitute)
         val expectedType = lambda.returnType.takeIf { c.canBeProper(it) }?.let(::substitute)
-        val callsFromLambda = lambdaAnalyzer.analyzeAndGetRelatedCalls(topLevelCallContext.astCall, lambda.argument, receiver, parameters, expectedType)
         lambda.analyzed = true
+        lambda.resultArguments = lambdaAnalyzer.analyzeAndGetLambdaResultArguments(topLevelCallContext.astCall, lambda.argument, receiver, parameters, expectedType)
 
-        for (innerCall in callsFromLambda) {
+        for (innerCall in lambda.resultArguments) {
             CheckArguments.checkArgument(topLevelCallContext, c.getBuilder(), innerCall, lambda.returnType)
         }
 //            when (innerCall) {

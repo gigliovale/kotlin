@@ -297,7 +297,7 @@ class AnnotationProcessingManager(
         if (originalProcessorPath != null)
             javaTask.logger.warn("Processor path was modified by kapt. Previous value = $originalProcessorPath")
 
-        val newPath = javaTask.project.files(path, originalProcessorPath)
+        val newPath = javaTask.project.files(path + (originalProcessorPath ?: emptyList()))
         setPath(javaTask.options, newPath)
         true
     } catch (_: NoSuchMethodException) {

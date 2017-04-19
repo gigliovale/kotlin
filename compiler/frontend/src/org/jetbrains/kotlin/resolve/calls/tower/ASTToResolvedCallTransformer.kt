@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.resolve.calls.callResolverUtil.getEffectiveExpectedT
 import org.jetbrains.kotlin.resolve.calls.callUtil.isFakeElement
 import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import org.jetbrains.kotlin.resolve.calls.checkers.CallCheckerContext
+import org.jetbrains.kotlin.resolve.calls.components.isVararg
 import org.jetbrains.kotlin.resolve.calls.context.BasicCallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.context.CallPosition
 import org.jetbrains.kotlin.resolve.calls.model.*
@@ -239,7 +240,7 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
     abstract val astCall: ASTCall
 
     private var argumentToParameterMap: Map<ValueArgument, ArgumentMatchImpl>? = null
-    private val _valueArguments: Map<ValueParameterDescriptor, ResolvedValueArgument> by lazy(this::createValueArguments)
+    private val _valueArguments: Map<ValueParameterDescriptor, ResolvedValueArgument> by lazy { createValueArguments() }
 
     override fun getCall(): Call = astCall.psiAstCall.psiCall
 
@@ -303,22 +304,28 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
         return result
     }
 
-    private fun createValueArguments(): Map<ValueParameterDescriptor, ResolvedValueArgument> {
-        val result = HashMap<ValueParameterDescriptor, ResolvedValueArgument>()
-        for (parameter in candidateDescriptor.valueParameters) {
-            val resolvedCallArgument = argumentMappingByOriginal[parameter.original] ?: continue
-            val valueArgument = when (resolvedCallArgument) {
-                ResolvedCallArgument.DefaultArgument -> DefaultValueArgument.DEFAULT
-                is ResolvedCallArgument.SimpleArgument -> ExpressionValueArgument(resolvedCallArgument.callArgument.psiCallArgument.valueArgument)
-                is ResolvedCallArgument.VarargArgument -> VarargValueArgument().apply {
-                    resolvedCallArgument.arguments.map { it.psiCallArgument.valueArgument }.forEach(this::addArgument)
+    private fun createValueArguments(): Map<ValueParameterDescriptor, ResolvedValueArgument> =
+            HashMap<ValueParameterDescriptor, ResolvedValueArgument>().also { result ->
+                for (parameter in resultingDescriptor.valueParameters) {
+                    val resolvedCallArgument = argumentMappingByOriginal[parameter.original] ?: continue
+                    val valueArgument = when (resolvedCallArgument) {
+                        ResolvedCallArgument.DefaultArgument ->
+                            DefaultValueArgument.DEFAULT
+                        is ResolvedCallArgument.SimpleArgument -> {
+                            val valueArgument = resolvedCallArgument.callArgument.psiCallArgument.valueArgument
+                            if (parameter.isVararg)
+                                VarargValueArgument().apply { addArgument(valueArgument) }
+                            else
+                                ExpressionValueArgument(valueArgument)
+                        }
+                        is ResolvedCallArgument.VarargArgument ->
+                            VarargValueArgument().apply {
+                                resolvedCallArgument.arguments.map { it.psiCallArgument.valueArgument }.forEach { addArgument(it) }
+                            }
+                    }
+                    result[parameter] = valueArgument
                 }
             }
-            result[parameter] = valueArgument
-        }
-
-        return result
-    }
 }
 
 class NewResolvedCallImpl<D : CallableDescriptor>(

@@ -239,7 +239,7 @@ open class KotlinCompile : AbstractKotlinCompile<K2JVMCompilerArguments>(), Kotl
         val reporter = GradleICReporter(project.rootProject.projectDir)
 
         val environment = when {
-            !incremental -> GradleCompilerEnvironment(compilerJar, messageCollector, outputItemCollector, args)
+            true -> GradleCompilerEnvironment(compilerJar, messageCollector, outputItemCollector, args)
             else -> {
                 logger.warn(USING_INCREMENTAL_COMPILATION_MESSAGE)
                 GradleIncrementalCompilerEnvironment(compilerJar, changedFiles, reporter, taskBuildDirectory,

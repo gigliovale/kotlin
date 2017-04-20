@@ -22,7 +22,6 @@ import kotlin.io.FilesKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil;
-import org.jetbrains.kotlin.load.java.JvmAbi;
 import org.jetbrains.kotlin.psi.KtDeclaration;
 import org.jetbrains.kotlin.psi.KtFile;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
@@ -30,9 +29,10 @@ import org.jetbrains.kotlin.psi.KtProperty;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 
 import java.io.File;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jetbrains.kotlin.codegen.TestUtilsKt.clearReflectionCache;
 
 public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
 
@@ -42,35 +42,14 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
         blackBox();
     }
 
-
-    @NotNull
-    protected static List<String> findJavaSourcesInDirectory(@NotNull File directory) {
-        List<String> javaFilePaths = new ArrayList<>(1);
-
-        FileUtil.processFilesRecursively(directory, file -> {
-            if (file.isFile() && FilesKt.getExtension(file).equals(JavaFileType.DEFAULT_EXTENSION)) {
-                javaFilePaths.add(file.getPath());
-            }
-            return true;
-        });
-
-        return javaFilePaths;
-    }
-
     protected void blackBox() {
         // If there are many files, the first 'box(): String' function will be executed.
         GeneratedClassLoader generatedClassLoader = generateAndCreateClassLoader();
         for (KtFile firstFile : myFiles.getPsiFiles()) {
             String className = getFacadeFqName(firstFile);
             if (className == null) continue;
-            Class<?> aClass = getGeneratedClass(generatedClassLoader, className);
             try {
-                Method method = getBoxMethodOrNull(aClass);
-                if (method != null) {
-                    String r = (String) method.invoke(null);
-                    assertEquals("OK", r);
-                    return;
-                }
+                callBoxMethodAndCheckResult(generatedClassLoader, className, false);
             }
             catch (Throwable e) {
                 System.out.println(generateToText());
@@ -82,19 +61,6 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
         }
     }
 
-    private static void clearReflectionCache(@NotNull ClassLoader classLoader) {
-        try {
-            Class<?> klass = classLoader.loadClass(JvmAbi.REFLECTION_FACTORY_IMPL.asSingleFqName().asString());
-            Method method = klass.getDeclaredMethod("clearCaches");
-            method.invoke(null);
-        }
-        catch (ClassNotFoundException e) {
-            // This is OK for a test without kotlin-reflect in the dependencies
-        }
-        catch (Exception e) {
-            throw ExceptionUtilsKt.rethrow(e);
-        }
-    }
 
     @Nullable
     private static String getFacadeFqName(@NotNull KtFile firstFile) {
@@ -104,24 +70,5 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
             }
         }
         return null;
-    }
-
-    private static Class<?> getGeneratedClass(GeneratedClassLoader generatedClassLoader, String className) {
-        try {
-            return generatedClassLoader.loadClass(className);
-        }
-        catch (ClassNotFoundException e) {
-            fail("No class file was generated for: " + className);
-        }
-        return null;
-    }
-
-    private static Method getBoxMethodOrNull(Class<?> aClass) {
-        try {
-            return aClass.getMethod("box");
-        }
-        catch (NoSuchMethodException e){
-            return null;
-        }
     }
 }

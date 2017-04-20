@@ -43,6 +43,7 @@ import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
 import org.jetbrains.kotlin.types.expressions.DataFlowAnalyzer
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class ASTToResolvedCallTransformer(
@@ -293,16 +294,15 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
     private fun argumentToParameterMap(
             resultingDescriptor: CallableDescriptor,
             valueArguments: Map<ValueParameterDescriptor, ResolvedValueArgument>
-    ): Map<ValueArgument, ArgumentMatchImpl> {
-        val result = HashMap<ValueArgument, ArgumentMatchImpl>()
-        for (parameter in resultingDescriptor.valueParameters) {
-            val resolvedArgument = valueArguments[parameter.original] ?: continue
-            for (arguments in resolvedArgument.arguments) {
-                result[arguments] = ArgumentMatchImpl(parameter)
+    ): Map<ValueArgument, ArgumentMatchImpl> =
+            HashMap<ValueArgument, ArgumentMatchImpl>().also { result ->
+                for (parameter in resultingDescriptor.valueParameters) {
+                    val resolvedArgument = valueArguments[parameter] ?: continue
+                    for (arguments in resolvedArgument.arguments) {
+                        result[arguments] = ArgumentMatchImpl(parameter).apply { recordMatchStatus(ArgumentMatchStatus.SUCCESS) }
+                    }
+                }
             }
-        }
-        return result
-    }
 
     private fun createValueArguments(): Map<ValueParameterDescriptor, ResolvedValueArgument> =
             HashMap<ValueParameterDescriptor, ResolvedValueArgument>().also { result ->

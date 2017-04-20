@@ -16,11 +16,11 @@
 
 package org.jetbrains.kotlin.resolve.calls
 
-val USE_NEW_INFERENCE =
+const val USE_NEW_INFERENCE =
         true
 //        false
 
-val REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC =
+const val REPORT_MISSING_NEW_INFERENCE_DIAGNOSTIC =
         false
 //        true
 

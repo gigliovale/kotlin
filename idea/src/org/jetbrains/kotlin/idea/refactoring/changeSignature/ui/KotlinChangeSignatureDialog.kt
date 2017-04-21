@@ -53,7 +53,6 @@ import org.jetbrains.kotlin.idea.refactoring.changeSignature.*
 import org.jetbrains.kotlin.idea.refactoring.changeSignature.KotlinMethodDescriptor.Kind
 import org.jetbrains.kotlin.idea.refactoring.validateElement
 import org.jetbrains.kotlin.psi.*
-import org.jetbrains.kotlin.psi.psiUtil.parents
 import org.jetbrains.kotlin.psi.psiUtil.parentsWithSelf
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.lazy.BodyResolveMode
@@ -407,7 +406,7 @@ class KotlinChangeSignatureDialog(
             }
         }
 
-        private fun getTypeCodeFragmentContext(startFrom: PsiElement): KtElement {
+        fun getTypeCodeFragmentContext(startFrom: PsiElement): KtElement {
             return startFrom.parentsWithSelf.mapNotNull {
                 when {
                     it is KtNamedFunction -> it.bodyExpression ?: it.valueParameterList
@@ -440,7 +439,7 @@ class KotlinChangeSignatureDialog(
             return KotlinChangeSignatureProcessor(project, changeInfo, commandName)
         }
 
-        private fun PsiCodeFragment?.getTypeInfo(isCovariant: Boolean, forPreview: Boolean): KotlinTypeInfo {
+        fun PsiCodeFragment?.getTypeInfo(isCovariant: Boolean, forPreview: Boolean): KotlinTypeInfo {
             if (this !is KtTypeCodeFragment) return KotlinTypeInfo(isCovariant)
 
             val typeRef = getContentElement()

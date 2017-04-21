@@ -1,0 +1,1 @@
+<error descr="[HEADER_WITHOUT_IMPLEMENTATION] Header declaration 'boo' has no implementation in module jvm_base for JVM">header fun boo(b: String)</error>

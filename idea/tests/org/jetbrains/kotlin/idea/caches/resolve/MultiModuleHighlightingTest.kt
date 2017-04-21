@@ -89,6 +89,25 @@ class MultiModuleHighlightingTest : AbstractMultiModuleHighlightingTest() {
             doMultiPlatformTest(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6])
         }
 
+        fun testTransitive() {
+            val commonModule = module("common")
+            commonModule.createFacet(TargetPlatformKind.Common)
+
+            val platformBaseModule = module("jvm_base")
+            platformBaseModule.createFacet(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6])
+            platformBaseModule.enableMultiPlatform()
+            platformBaseModule.addDependency(commonModule)
+
+            val platformUserModule = module("jvm_user")
+            platformUserModule.createFacet(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6])
+            platformUserModule.enableMultiPlatform()
+            platformUserModule.addDependency(platformBaseModule)
+            // ? Should it be here ?
+            platformUserModule.addDependency(commonModule)
+
+            checkHighlightingInAllFiles()
+        }
+
         fun testCatchHeaderExceptionInPlatformModule() {
             doMultiPlatformTest(TargetPlatformKind.Jvm[JvmTarget.JVM_1_6], withStdlibCommon = true)
         }

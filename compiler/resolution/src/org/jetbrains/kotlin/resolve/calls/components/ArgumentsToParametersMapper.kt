@@ -28,6 +28,10 @@ import java.util.*
 class ArgumentsToParametersMapper {
 
     data class ArgumentMapping(
+            // This map should be ordered by arguments as written, e.g.:
+            //      fun foo(a: Int, b: Int) {}
+            //      foo(b = bar(), a = qux())
+            // parameterToCallArgumentMap.values() should be [ 'bar()', 'foo()' ]
             val parameterToCallArgumentMap: Map<ValueParameterDescriptor, ResolvedCallArgument>,
             val diagnostics: List<CallDiagnostic>
     )
@@ -60,7 +64,7 @@ class ArgumentsToParametersMapper {
     }
 
     private class CallArgumentProcessor(val descriptor: CallableDescriptor) {
-        val result: MutableMap<ValueParameterDescriptor, ResolvedCallArgument> = HashMap()
+        val result: MutableMap<ValueParameterDescriptor, ResolvedCallArgument> = LinkedHashMap()
         private var state = State.POSITION_ARGUMENTS
 
         private val parameters: List<ValueParameterDescriptor> get() = descriptor.valueParameters

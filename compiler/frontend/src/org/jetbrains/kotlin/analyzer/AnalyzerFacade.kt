@@ -162,6 +162,7 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
                 analyzerFacade: (M) -> AnalyzerFacade<P>,
                 modulesContent: (M) -> ModuleContent,
                 platformParameters: P,
+                languageSettingsProvider: LanguageSettingsProvider = LanguageSettingsProvider.Default,
                 targetEnvironment: TargetEnvironment = CompilerEnvironment,
                 builtIns: (M) -> KotlinBuiltIns = { DefaultBuiltIns.Instance },
                 delegateResolver: ResolverForProject<M> = EmptyResolverForProject(),
@@ -215,7 +216,7 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
                     val content = modulesContent(module)
                     analyzerFacade(module).createResolverForModule(
                             module, descriptor, projectContext.withModule(descriptor), modulesContent(module),
-                            platformParameters, targetEnvironment, resolverForProject,
+                            platformParameters, targetEnvironment, resolverForProject, languageSettingsProvider,
                             packagePartProviderFactory(module, content)
                     )
                 }
@@ -236,6 +237,7 @@ abstract class AnalyzerFacade<in P : PlatformAnalysisParameters> {
             platformParameters: P,
             targetEnvironment: TargetEnvironment,
             resolverForProject: ResolverForProject<M>,
+            languageSettingsProvider: LanguageSettingsProvider,
             packagePartProvider: PackagePartProvider
     ): ResolverForModule
 

@@ -366,14 +366,14 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
 
     private fun createValueArguments(): Map<ValueParameterDescriptor, ResolvedValueArgument> =
             HashMap<ValueParameterDescriptor, ResolvedValueArgument>().also { result ->
-                for (parameter in resultingDescriptor.valueParameters) {
-                    val resolvedCallArgument = argumentMappingByOriginal[parameter.original] ?: continue
-                    val valueArgument = when (resolvedCallArgument) {
+                for ((originalParameter, resolvedCallArgument) in argumentMappingByOriginal) {
+                    val resultingParameter = resultingDescriptor.valueParameters[originalParameter.index]
+                    result[resultingParameter] = when (resolvedCallArgument) {
                         ResolvedCallArgument.DefaultArgument ->
                             DefaultValueArgument.DEFAULT
                         is ResolvedCallArgument.SimpleArgument -> {
                             val valueArgument = resolvedCallArgument.callArgument.psiCallArgument.valueArgument
-                            if (parameter.isVararg)
+                            if (resultingParameter.isVararg)
                                 VarargValueArgument().apply { addArgument(valueArgument) }
                             else
                                 ExpressionValueArgument(valueArgument)
@@ -383,7 +383,6 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
                                 resolvedCallArgument.arguments.map { it.psiCallArgument.valueArgument }.forEach { addArgument(it) }
                             }
                     }
-                    result[parameter] = valueArgument
                 }
             }
 }

@@ -19,6 +19,8 @@ package org.jetbrains.kotlin.cli.common.messages;
 import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.cli.common.Usage;
+import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments;
 
 public class XmlMessageRenderer implements MessageRenderer {
     @Override
@@ -46,6 +48,11 @@ public class XmlMessageRenderer implements MessageRenderer {
 
     private static String e(String str) {
         return StringUtil.escapeXml(str);
+    }
+
+    @Override
+    public String renderUsage(@NotNull CommonCompilerArguments arguments) {
+        return render(CompilerMessageSeverity.STRONG_WARNING, Usage.render(arguments), null);
     }
 
     @Override

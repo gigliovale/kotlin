@@ -65,22 +65,6 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
         return exec(errStream, Services.EMPTY, MessageRenderer.PLAIN_FULL_PATHS, args);
     }
 
-    @Nullable
-    private A parseArguments(@NotNull MessageCollector messageCollector, @NotNull String[] args) {
-        try {
-            A arguments = createArguments();
-            parseArguments(args, arguments);
-            return arguments;
-        }
-        catch (IllegalArgumentException e) {
-            throw e;
-        }
-        catch (Throwable t) {
-            messageCollector.report(EXCEPTION, OutputMessageUtil.renderException(t), null);
-            return null;
-        }
-    }
-
     // Used in kotlin-maven-plugin (KotlinCompileMojoBase) and in kotlin-gradle-plugin (KotlinJvmOptionsImpl, KotlinJsOptionsImpl)
     public void parseArguments(@NotNull String[] args, @NotNull A arguments) {
         ParseCommandLineArgumentsKt.parseCommandLineArguments(args, arguments);
@@ -102,23 +86,8 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
     ) {
         K2JVMCompiler.Companion.resetInitStartTime();
 
-        MessageCollector parseArgumentsCollector = new PrintingMessageCollector(errStream, messageRenderer, false);
-        A arguments;
-        try {
-            arguments = parseArguments(parseArgumentsCollector, args);
-            if (arguments == null) return INTERNAL_ERROR;
-        }
-        catch (IllegalArgumentException e) {
-            parseArgumentsCollector.report(ERROR, e.getMessage(), null);
-            parseArgumentsCollector.report(INFO, "Use -help for more information", null);
-            return COMPILATION_ERROR;
-        }
-
-        if (arguments.help || arguments.extraHelp) {
-            Usage.print(errStream, arguments);
-            return OK;
-        }
-
+        A arguments = createArguments();
+        ParseCommandLineArgumentsKt.parseCommandLineArguments(args, arguments);
         MessageCollector collector = new PrintingMessageCollector(errStream, messageRenderer, arguments.verbose);
 
         try {
@@ -127,6 +96,19 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
             }
 
             errStream.print(messageRenderer.renderPreamble());
+
+            String errorMessage = ParseCommandLineArgumentsKt.validateArguments(arguments.errors);
+            if (errorMessage != null) {
+                collector.report(ERROR, errorMessage, null);
+                collector.report(INFO, "Use -help for more information", null);
+                return COMPILATION_ERROR;
+            }
+
+            if (arguments.help || arguments.extraHelp) {
+                errStream.print(messageRenderer.renderUsage(arguments));
+                return OK;
+            }
+
             return exec(collector, services, arguments);
         }
         finally {

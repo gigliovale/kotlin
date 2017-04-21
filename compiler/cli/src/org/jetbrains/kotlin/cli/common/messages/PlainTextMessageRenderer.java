@@ -23,6 +23,8 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.internal.CLibrary;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.cli.common.Usage;
+import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -156,6 +158,11 @@ public abstract class PlainTextMessageRenderer implements MessageRenderer {
 
     @Nullable
     protected abstract String getPath(@NotNull CompilerMessageLocation location);
+
+    @Override
+    public String renderUsage(@NotNull CommonCompilerArguments arguments) {
+        return Usage.render(arguments);
+    }
 
     @Override
     public String renderConclusion() {

@@ -18,6 +18,7 @@ package org.jetbrains.kotlin.cli.common.messages;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.cli.common.arguments.CommonCompilerArguments;
 import org.jetbrains.kotlin.utils.fileUtils.FileUtilsKt;
 
 import java.io.File;
@@ -55,6 +56,8 @@ public interface MessageRenderer {
     String renderPreamble();
 
     String render(@NotNull CompilerMessageSeverity severity, @NotNull String message, @Nullable CompilerMessageLocation location);
+
+    String renderUsage(@NotNull CommonCompilerArguments arguments);
 
     String renderConclusion();
 }

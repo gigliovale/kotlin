@@ -355,7 +355,7 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
             resultingDescriptor: CallableDescriptor,
             valueArguments: Map<ValueParameterDescriptor, ResolvedValueArgument>
     ): Map<ValueArgument, ArgumentMatchImpl> =
-            HashMap<ValueArgument, ArgumentMatchImpl>().also { result ->
+            LinkedHashMap<ValueArgument, ArgumentMatchImpl>().also { result ->
                 for (parameter in resultingDescriptor.valueParameters) {
                     val resolvedArgument = valueArguments[parameter] ?: continue
                     for (arguments in resolvedArgument.arguments) {
@@ -365,7 +365,7 @@ sealed class NewAbstractResolvedCall<D : CallableDescriptor>(): ResolvedCall<D> 
             }
 
     private fun createValueArguments(): Map<ValueParameterDescriptor, ResolvedValueArgument> =
-            HashMap<ValueParameterDescriptor, ResolvedValueArgument>().also { result ->
+            LinkedHashMap<ValueParameterDescriptor, ResolvedValueArgument>().also { result ->
                 for ((originalParameter, resolvedCallArgument) in argumentMappingByOriginal) {
                     val resultingParameter = resultingDescriptor.valueParameters[originalParameter.index]
                     result[resultingParameter] = when (resolvedCallArgument) {

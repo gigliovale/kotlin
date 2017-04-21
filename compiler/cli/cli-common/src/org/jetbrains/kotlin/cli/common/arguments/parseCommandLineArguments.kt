@@ -50,7 +50,7 @@ data class ArgumentParseErrors(
 )
 
 // Parses arguments in the passed [result] object, or throws an [IllegalArgumentException] with the message to be displayed to the user
-fun <A : CommonCompilerArguments> parseCommandLineArguments(args: Array<String>, result: A) {
+fun <A : CommonCompilerArguments> parseCommandLineArguments(args: Array<out String>, result: A) {
     data class ArgumentField(val field: Field, val argument: Argument)
 
     val fields = result::class.java.fields.mapNotNull { field ->

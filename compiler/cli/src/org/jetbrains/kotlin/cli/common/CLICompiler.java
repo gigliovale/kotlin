@@ -91,7 +91,7 @@ public abstract class CLICompiler<A extends CommonCompilerArguments> {
     }
 
     @NotNull
-    protected abstract A createArguments();
+    public abstract A createArguments();
 
     @NotNull
     private ExitCode exec(

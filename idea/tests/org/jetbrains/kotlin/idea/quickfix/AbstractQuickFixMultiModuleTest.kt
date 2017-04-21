@@ -27,7 +27,6 @@ import junit.framework.ComparisonFailure
 import junit.framework.TestCase
 import org.jetbrains.kotlin.idea.inspections.findExistingEditor
 import org.jetbrains.kotlin.idea.project.PluginJetFilesProvider
-import org.jetbrains.kotlin.idea.refactoring.createKotlinFile
 import org.jetbrains.kotlin.idea.stubs.AbstractMultiModuleTest
 import org.jetbrains.kotlin.idea.test.DirectiveBasedActionUtils
 import org.jetbrains.kotlin.idea.test.PluginTestCaseBase
@@ -77,14 +76,18 @@ abstract class AbstractQuickFixMultiModuleTest : AbstractMultiModuleTest() {
                 if (actionShouldBeAvailable) {
                     val testDirectory = File(testPath)
                     val projectDirectory = File("$testPath${getTestName(true)}")
+
                     for (moduleDirectory in projectDirectory.listFiles()) {
-                        for (file in moduleDirectory.listFiles()) {
+                        for (file in moduleDirectory.walkTopDown()) {
                             if (!file.path.endsWith(".after")) continue
                             try {
+                                val packageName = file.readLines().find { it.startsWith("package") }?.substringAfter(" ") ?: "<root>"
                                 val editedFile = allFilesInProject.find {
-                                    it.name.toLowerCase() == file.name.removeSuffix(".after").toLowerCase()
+                                    it.name.toLowerCase() == file.name.removeSuffix(".after").toLowerCase() &&
+                                    it.packageFqName.toString() == packageName
                                 } ?: allFilesInProject.mapNotNull {
-                                    it.containingDirectory?.findFile(file.name.removeSuffix(".after"))
+                                    val candidate = it.containingDirectory?.findFile(file.name.removeSuffix(".after")) as? KtFile
+                                    if (candidate?.packageFqName?.toString() == packageName) candidate else null
                                 }.single()
                                 setActiveEditor(editedFile.findExistingEditor() ?: createEditor(editedFile.virtualFile))
                                 checkResultByFile(file.relativeTo(testDirectory).path)

@@ -32,9 +32,6 @@ fun clearReflectionCache(classLoader: ClassLoader) {
     catch (e: ClassNotFoundException) {
         // This is OK for a test without kotlin-reflect in the dependencies
     }
-    catch (e: Exception) {
-        throw rethrow(e)
-    }
 }
 
 
@@ -43,10 +40,8 @@ fun getGeneratedClass(classLoader: ClassLoader, className: String): Class<*> {
         return classLoader.loadClass(className)
     }
     catch (e: ClassNotFoundException) {
-        TestCase.fail("No class file was generated for: " + className)
+        error("No class file was generated for: " + className)
     }
-
-    return null!!
 }
 
 fun getBoxMethodOrNull(aClass: Class<*>): Method? {

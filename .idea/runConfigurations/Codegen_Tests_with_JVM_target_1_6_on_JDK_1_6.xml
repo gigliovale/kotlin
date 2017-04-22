@@ -13,7 +13,7 @@
     <option name="MAIN_CLASS_NAME" value="org.jetbrains.kotlin.codegen.CodegenJdkCommonTestSuite" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="class" />
-    <option name="VM_PARAMETERS" value="-Dkotlin.test.default.jvm.target=1.6 -Dkotlin.test.box.in.separate.process=5100 -Dkotlin.test.java.compilation.target=1.6 -ea -XX:+HeapDumpOnOutOfMemoryError -Xmx1024m -XX:+UseCodeCacheFlushing -XX:ReservedCodeCacheSize=128m -Djna.nosys=true" />
+    <option name="VM_PARAMETERS" value="-Dkotlin.test.default.jvm.target=1.6 -Dkotlin.test.box.in.separate.process.port=5100 -Dkotlin.test.java.compilation.target=1.6 -ea -XX:+HeapDumpOnOutOfMemoryError -Xmx1024m -XX:+UseCodeCacheFlushing -XX:ReservedCodeCacheSize=128m -Djna.nosys=true" />
     <option name="PARAMETERS" value="" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ENV_VARIABLES" />

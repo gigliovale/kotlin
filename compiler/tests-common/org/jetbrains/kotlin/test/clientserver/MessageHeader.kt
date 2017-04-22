@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.clientserver
+package org.jetbrains.kotlin.test.clientserver
 
-/**
- * Created by mike on 20.04.17.
- */
 enum class MessageHeader {
     NEW_TEST,
     CLASS_PATH,

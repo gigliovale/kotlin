@@ -38,7 +38,7 @@ import org.jetbrains.kotlin.cli.common.output.outputUtils.OutputUtilsKt;
 import org.jetbrains.kotlin.cli.jvm.compiler.EnvironmentConfigFiles;
 import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreEnvironment;
 import org.jetbrains.kotlin.cli.jvm.config.JvmContentRootsKt;
-import org.jetbrains.kotlin.clientserver.TestProxy;
+import org.jetbrains.kotlin.test.clientserver.TestProxy;
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime;
 import org.jetbrains.kotlin.config.*;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil;
@@ -86,7 +86,7 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
     private static final String DEFAULT_TEST_FILE_NAME = "a_test";
     public static final String DEFAULT_JVM_TARGET_FOR_TEST = "kotlin.test.default.jvm.target";
     public static final String JAVA_COMPILATION_TARGET = "kotlin.test.java.compilation.target";
-    public static final String RUN_BOX_TEST_IN_SEPARATE_PROCESS = "kotlin.test.box.in.separate.process";
+    public static final String RUN_BOX_TEST_IN_SEPARATE_PROCESS_PORT = "kotlin.test.box.in.separate.process.port";
 
     protected KotlinCoreEnvironment myEnvironment;
     protected CodegenTestFiles myFiles;
@@ -95,8 +95,8 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
 
     protected ConfigurationKind configurationKind = ConfigurationKind.JDK_ONLY;
     private final String defaultJvmTarget = System.getProperty(DEFAULT_JVM_TARGET_FOR_TEST);
-    protected final String boxInSeparateProcess = System.getProperty(RUN_BOX_TEST_IN_SEPARATE_PROCESS);
-    private static final String javaCompilationTarget = System.getProperty(JAVA_COMPILATION_TARGET);
+    private final String boxInSeparateProcessPort = System.getProperty(RUN_BOX_TEST_IN_SEPARATE_PROCESS_PORT);
+    private final String javaCompilationTarget = System.getProperty(JAVA_COMPILATION_TARGET);
 
     protected final void createEnvironmentWithMockJdkAndIdeaAnnotations(
             @NotNull ConfigurationKind configurationKind,
@@ -707,7 +707,7 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
         assertTrue("Can't find box method in " + aClass,method != null || !failIfNoBox);
         if (method != null) {
             String result;
-            if (boxInSeparateProcess != null) {
+            if (boxInSeparateProcessPort != null) {
                 result = invokeBoxInSeparateProcess(classLoader, aClass);
             }
             else {
@@ -727,6 +727,6 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
             classPath.add(0, outDir.toURI().toURL());
         }
 
-        return new TestProxy(Integer.valueOf(boxInSeparateProcess), aClass.getCanonicalName(), classPath).runTest();
+        return new TestProxy(Integer.valueOf(boxInSeparateProcessPort), aClass.getCanonicalName(), classPath).runTest();
     }
 }

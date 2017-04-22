@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.clientserver
+package org.jetbrains.kotlin.test.clientserver
 
 import org.jetbrains.kotlin.utils.rethrow
+import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.Socket
@@ -37,17 +38,14 @@ class TestProxy(val serverPort: Int, val testClass: String, val classPath: List<
 
                 output.writeObject(MessageHeader.CLASS_PATH)
                 //filter out jdk libs
-                val resultClassPath = classPath.filter {
-                    it.file.contains("dist") || !(it.file.contains("jre") || it.file.contains("jdk"))
-                }.toTypedArray()
-                output.writeObject(resultClassPath)
+                output.writeObject(filterOutJdkJars(classPath).toTypedArray())
 
                 val message = input.readObject() as MessageHeader
                 if (message == MessageHeader.RESULT) {
                     input.readObject() as String
                 }
                 else if (message == MessageHeader.ERROR) {
-                    throw rethrow(input.readObject() as Exception)
+                    throw input.readObject() as Exception
                 }
                 else {
                     fail("Unknown message: $message")
@@ -56,6 +54,14 @@ class TestProxy(val serverPort: Int, val testClass: String, val classPath: List<
                 output.close()
                 input.close()
             }
+        }
+    }
+
+    fun filterOutJdkJars(classPath: List<URL>): List<URL> {
+        val javaHome = System.getProperty("java.home")
+        val javaFolder = File(javaHome)
+        return classPath.filterNot {
+            File(it.file).startsWith(javaFolder)
         }
     }
 }

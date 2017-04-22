@@ -16,13 +16,14 @@
 
 package org.jetbrains.kotlin.codegen
 
-import org.jetbrains.kotlin.clientserver.Server
+import org.jetbrains.kotlin.test.clientserver.TestProcessServer
 import org.jetbrains.kotlin.codegen.forTestCompile.ForTestCompileRuntime
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.runner.RunWith
 import org.junit.runners.Suite
 import java.io.File
+import kotlin.test.assertNotNull
 
 /**
  * This suite is used to run java codegen tests under jdk 1.6, 1.8 and 9
@@ -43,7 +44,7 @@ object CodegenJdkCommonTestSuite {
     @BeforeClass
     @JvmStatic
     fun setUp() {
-        val boxInSeparateProcessPort = System.getProperty(CodegenTestCase.RUN_BOX_TEST_IN_SEPARATE_PROCESS)
+        val boxInSeparateProcessPort = System.getProperty(CodegenTestCase.RUN_BOX_TEST_IN_SEPARATE_PROCESS_PORT)
         if (boxInSeparateProcessPort != null) {
             val classpath = "out/test/tests-common" +
                             File.pathSeparatorChar +
@@ -52,9 +53,11 @@ object CodegenJdkCommonTestSuite {
                             ForTestCompileRuntime.kotlinTestJarForTests()
 
             val jdk16 = System.getenv("JDK_16")
+            assertNotNull(jdk16, "Please specify JDK_16 system property to run codegen test in separate process")
+
             val builder = ProcessBuilder(
                     jdk16 + "bin/java", "-cp", classpath,
-                    Server::class.java.name, boxInSeparateProcessPort
+                    TestProcessServer::class.java.name, boxInSeparateProcessPort
             )
             println("Starting separate process to run test: " + builder.command().joinToString())
             builder.inheritIO()

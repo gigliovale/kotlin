@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.jetbrains.kotlin.clientserver
+package org.jetbrains.kotlin.test.clientserver
 
 import org.jetbrains.kotlin.codegen.getBoxMethodOrNull
 import org.jetbrains.kotlin.codegen.getGeneratedClass
@@ -28,20 +28,20 @@ import java.net.URLClassLoader
 import java.util.concurrent.Executors
 
 //Use only JDK 1.6 compatible api
-object Server {
+object TestProcessServer {
 
     val executor = Executors.newFixedThreadPool(1)!!
 
     @JvmStatic
     fun main(args: Array<String>) {
-        System.out.println("Starting server...")
+        val portNumber = args[0].toInt()
+        println("Starting server on port $portNumber...")
 
-        val portNumber = Integer.parseInt(args[0])
         val serverSocket = ServerSocket(portNumber)
         try {
             while (true) {
                 val clientSocket = serverSocket.accept()
-                System.out.println("Socket established...")
+                println("Socket established...")
                 executor.execute(ServerTest(clientSocket))
             }
         }

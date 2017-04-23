@@ -1689,9 +1689,15 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
         if (putThis) {
             ClassDescriptor captureThis = closure.getCaptureThis();
             if (captureThis != null) {
-                StackValue thisOrOuter = generateThisOrOuter(captureThis, false);
-                assert !isPrimitive(thisOrOuter.type) : "This or outer should be non primitive: " + thisOrOuter.type;
-                callGenerator.putCapturedValueOnStack(thisOrOuter, thisOrOuter.type, paramIndex++);
+                if (hasEqualExtensionReceiver(captureThis, context.getFunctionDescriptor())) {
+                    StackValue receiver = generateExtensionReceiver(context.getFunctionDescriptor());
+                    callGenerator.putCapturedValueOnStack(receiver, receiver.type, paramIndex++);
+                }
+                else {
+                    StackValue thisOrOuter = generateThisOrOuter(captureThis, false);
+                    assert !isPrimitive(thisOrOuter.type) : "This or outer should be non primitive: " + thisOrOuter.type;
+                    callGenerator.putCapturedValueOnStack(thisOrOuter, thisOrOuter.type, paramIndex++);
+                }
             }
         }
 
@@ -1735,6 +1741,16 @@ public class ExpressionCodegen extends KtVisitor<StackValue, StackValue> impleme
                 callGenerator.putCapturedValueOnStack(continuationValue, continuationValue.type, paramIndex++);
             }
         }
+    }
+
+    private boolean hasEqualExtensionReceiver(@NotNull ClassDescriptor classDescriptor, @NotNull FunctionDescriptor functionDescriptor) {
+        ReceiverParameterDescriptor extensionReceiverParameter = functionDescriptor.getExtensionReceiverParameter();
+        if (extensionReceiverParameter == null) return false;
+
+        Type classDescriptorType = typeMapper.mapType(classDescriptor);
+        Type extensionReceiverType = typeMapper.mapType(extensionReceiverParameter.getType());
+
+        return classDescriptorType.equals(extensionReceiverType);
     }
 
     @NotNull

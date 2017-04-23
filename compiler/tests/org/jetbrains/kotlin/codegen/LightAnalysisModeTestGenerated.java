@@ -10403,6 +10403,18 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
             doTest(fileName);
         }
 
+        @TestMetadata("localClassInsideOuterClass.kt")
+        public void testLocalClassInsideOuterClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassInsideOuterClass.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localClassInsideSameOuterClass.kt")
+        public void testLocalClassInsideSameOuterClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localClassInsideSameOuterClass.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("localDataClass.kt")
         public void testLocalDataClass() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localDataClass.kt");
@@ -10418,6 +10430,12 @@ public class LightAnalysisModeTestGenerated extends AbstractLightAnalysisModeTes
         @TestMetadata("localObjectExtendsInnerClassWithDispatchReceiver.kt")
         public void testLocalObjectExtendsInnerClassWithDispatchReceiver() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localObjectExtendsInnerClassWithDispatchReceiver.kt");
+            doTest(fileName);
+        }
+
+        @TestMetadata("localObjectInsideOuterClass.kt")
+        public void testLocalObjectInsideOuterClass() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/localClasses/localObjectInsideOuterClass.kt");
             doTest(fileName);
         }
 

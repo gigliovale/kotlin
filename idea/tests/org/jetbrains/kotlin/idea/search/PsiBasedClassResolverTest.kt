@@ -108,6 +108,9 @@ class PsiBasedClassResolverTest : KotlinLightCodeInsightFixtureTestCaseBase() {
                                                                           fileText) as KtFile
         val index = fileText.indexOf(marker)
         val ref = file.findElementAt(index + marker.indexOf("Test"))!!.getParentOfType<KtSimpleNameExpression>(false)!!
-        return resolver.canBeTargetReference(ref)
+        // TODO: rewrite tests
+        val canBeTargetReference = resolver.canBeTargetReference(ref)
+        canBeTargetReference.ifSure { return it }
+        return null
     }
 }

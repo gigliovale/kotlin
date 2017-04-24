@@ -1,0 +1,60 @@
+apply plugin: 'kotlin'
+
+configureJvmProject(project)
+configurePublishing(project)
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://repository.jetbrains.com/utils' }
+}
+
+dependencies {
+    compile project(':kotlin-gradle-plugin-api')
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
+
+    compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
+}
+
+def allopenOriginalSrc = "$kotlinRoot/plugins/allopen/allopen-cli/src"
+def allopenTargetSrc = file("$buildDir/allopen-target-src")
+
+task copyAllopenSources(type: Copy) {
+    from allopenOriginalSrc
+    from sourceSets.main.kotlin.srcDirs
+    into allopenTargetSrc
+}
+
+task replaceIdeaPackage(type: DefaultTask)
+replaceIdeaPackage.doFirst {
+    ant.replaceregexp(
+            match: '(?<!\\.)com\\.intellij',
+            replace: 'org.jetbrains.kotlin.com.intellij',
+            flags: 'g',
+            byline: true) {
+        fileset(dir: allopenTargetSrc)
+    }
+}
+replaceIdeaPackage.dependsOn copyAllopenSources
+
+sourceSets {
+    generated {
+        compileClasspath += sourceSets.main.compileClasspath
+        kotlin {
+            srcDirs.clear()
+            srcDir allopenTargetSrc
+        }
+    }
+}
+
+compileKotlin.onlyIf { false }
+compileGeneratedKotlin.dependsOn replaceIdeaPackage
+jar.dependsOn generatedClasses
+jar.dependsOn -= classes
+
+jar {
+    from sourceSets.generated.output.classesDir
+    from(files("$allopenOriginalSrc/META-INF/")) { into "META-INF" }
+}

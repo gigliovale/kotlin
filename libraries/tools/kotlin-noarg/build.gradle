@@ -1,0 +1,60 @@
+apply plugin: 'kotlin'
+
+configureJvmProject(project)
+configurePublishing(project)
+
+repositories {
+    mavenLocal()
+    jcenter()
+    maven { url 'http://repository.jetbrains.com/utils' }
+}
+
+dependencies {
+    compile project(':kotlin-gradle-plugin-api')
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compileOnly "org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version"
+
+    compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
+}
+
+def noargOriginalSrc = "$kotlinRoot/plugins/noarg/noarg-cli/src"
+def noargTargetSrc = file("$buildDir/noarg-target-src")
+
+task copyNoargSources(type: Copy) {
+    from noargOriginalSrc
+    from sourceSets.main.kotlin.srcDirs
+    into noargTargetSrc
+}
+
+task replaceIdeaPackage(type: DefaultTask)
+replaceIdeaPackage.doFirst {
+    ant.replaceregexp(
+            match: '(?<!\\.)com\\.intellij',
+            replace: 'org.jetbrains.kotlin.com.intellij',
+            flags: 'g',
+            byline: true) {
+        fileset(dir: noargTargetSrc)
+    }
+}
+replaceIdeaPackage.dependsOn copyNoargSources
+
+sourceSets {
+    generated {
+        compileClasspath += sourceSets.main.compileClasspath
+        kotlin {
+            srcDirs.clear()
+            srcDir noargTargetSrc
+        }
+    }
+}
+
+compileKotlin.onlyIf { false }
+compileGeneratedKotlin.dependsOn replaceIdeaPackage
+jar.dependsOn generatedClasses
+jar.dependsOn -= classes
+
+jar {
+    from sourceSets.generated.output.classesDir
+    from(files("$noargOriginalSrc/META-INF/")) { into "META-INF" }
+}

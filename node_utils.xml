@@ -122,9 +122,8 @@
 
     <target name="run-nodejs-tests" description="Run JS backend tests in node.js" depends="download-nodejs-and-npm">
         <npm command="install" dir="js/js.translator/testData" />
-        <exec executable="node_modules/mocha/bin/mocha" dir="js/js.translator/testData" failonerror="true">
-            <arg value="--reporter"/>
-            <arg value="mocha-teamcity-reporter"/>
-        </exec>
+        <npm command="run" dir="js/js.translator/testData">
+            <arg value="test"/>
+        </npm>
     </target>
 </project>

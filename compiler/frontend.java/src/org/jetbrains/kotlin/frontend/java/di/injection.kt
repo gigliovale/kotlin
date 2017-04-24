@@ -23,7 +23,6 @@ import org.jetbrains.kotlin.config.JvmTarget
 import org.jetbrains.kotlin.config.LanguageFeature
 import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.container.*
-import org.jetbrains.kotlin.context.LazyResolveToken
 import org.jetbrains.kotlin.context.ModuleContext
 import org.jetbrains.kotlin.descriptors.ModuleDescriptor
 import org.jetbrains.kotlin.descriptors.PackagePartProvider
@@ -87,8 +86,7 @@ fun createContainerForLazyResolveWithJava(
         packagePartProvider: PackagePartProvider,
         jvmTarget: JvmTarget,
         languageVersionSettings: LanguageVersionSettings,
-        useBuiltInsProvider: Boolean,
-        useLazyResolve: Boolean
+        useBuiltInsProvider: Boolean
 ): StorageComponentContainer = createContainer("LazyResolveWithJava", JvmPlatform) {
     configureModule(moduleContext, JvmPlatform, jvmTarget, bindingTrace)
     configureJavaTopDownAnalysis(moduleContentScope, moduleContext.project, lookupTracker)
@@ -105,10 +103,6 @@ fun createContainerForLazyResolveWithJava(
     }
 
     targetEnvironment.configure(this)
-
-    if (useLazyResolve) {
-        useImpl<LazyResolveToken>()
-    }
 }.apply {
     get<JavaClassFinderImpl>().initialize(bindingTrace, get<KotlinCodeAnalyzer>())
 }
@@ -127,7 +121,7 @@ fun createContainerForTopDownAnalyzerForJvm(
 ): ComponentProvider = createContainerForLazyResolveWithJava(
         moduleContext, bindingTrace, declarationProviderFactory, moduleContentScope, moduleClassResolver,
         CompilerEnvironment, lookupTracker, packagePartProvider, jvmTarget, languageVersionSettings,
-        useBuiltInsProvider = true, useLazyResolve = false
+        useBuiltInsProvider = true
 )
 
 

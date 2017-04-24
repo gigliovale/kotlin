@@ -10517,6 +10517,12 @@ public class BlackBoxCodegenTestGenerated extends AbstractBlackBoxCodegenTest {
             doTest(fileName);
         }
 
+        @TestMetadata("internal.kt")
+        public void testInternal() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/mangling/internal.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("internalOverride.kt")
         public void testInternalOverride() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/box/mangling/internalOverride.kt");

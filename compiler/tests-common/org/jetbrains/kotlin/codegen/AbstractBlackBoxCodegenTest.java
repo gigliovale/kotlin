@@ -16,9 +16,6 @@
 
 package org.jetbrains.kotlin.codegen;
 
-import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.openapi.util.io.FileUtil;
-import kotlin.io.FilesKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.fileClasses.JvmFileClassUtil;
@@ -29,10 +26,12 @@ import org.jetbrains.kotlin.psi.KtProperty;
 import org.jetbrains.kotlin.utils.ExceptionUtilsKt;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.jetbrains.kotlin.codegen.TestUtilsKt.clearReflectionCache;
+import static org.jetbrains.kotlin.codegen.TestUtilsKt.getBoxMethodOrNull;
+import static org.jetbrains.kotlin.codegen.TestUtilsKt.getGeneratedClass;
 
 public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
 
@@ -48,8 +47,13 @@ public abstract class AbstractBlackBoxCodegenTest extends CodegenTestCase {
         for (KtFile firstFile : myFiles.getPsiFiles()) {
             String className = getFacadeFqName(firstFile);
             if (className == null) continue;
+            Class<?> aClass = getGeneratedClass(generatedClassLoader, className);
             try {
-                callBoxMethodAndCheckResult(generatedClassLoader, className, false);
+                Method method = getBoxMethodOrNull(aClass);
+                if (method != null) {
+                    callBoxMethodAndCheckResult(generatedClassLoader, className);
+                    return;
+                }
             }
             catch (Throwable e) {
                 System.out.println(generateToText());

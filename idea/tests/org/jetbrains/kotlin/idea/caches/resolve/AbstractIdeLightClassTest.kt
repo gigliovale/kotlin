@@ -28,8 +28,7 @@ import org.jetbrains.kotlin.asJava.builder.LightClassConstructionContext
 import org.jetbrains.kotlin.asJava.builder.StubComputationTracker
 import org.jetbrains.kotlin.asJava.classes.KtLightClass
 import org.jetbrains.kotlin.asJava.classes.KtLightClassForSourceDeclaration
-import org.jetbrains.kotlin.asJava.elements.KtLightField
-import org.jetbrains.kotlin.asJava.elements.KtLightMethod
+import org.jetbrains.kotlin.asJava.elements.*
 import org.jetbrains.kotlin.idea.KotlinDaemonAnalyzerTestCase
 import org.jetbrains.kotlin.idea.caches.resolve.LightClassLazinessChecker.Tracker.Level.*
 import org.jetbrains.kotlin.idea.caches.resolve.lightClasses.IDELightClassConstructionContext
@@ -45,6 +44,7 @@ import org.jetbrains.kotlin.utils.keysToMap
 import org.junit.Assert
 import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 abstract class AbstractIdeLightClassTest : KotlinLightCodeInsightFixtureTestCase() {
     fun doTest(testDataPath: String) {
@@ -219,15 +219,31 @@ object LightClassLazinessChecker {
             for ((field, lightFieldInfo) in fieldsToInfo) {
                 val delegate = (field as KtLightField).clsDelegate
                 assertEquals(fieldInfo(delegate), lightFieldInfo)
+                checkAnnotationConsistency(field)
             }
             for ((method, lightMethodInfo) in methodsToInfo) {
                 val delegate = (method as KtLightMethod).clsDelegate
                 assertEquals(methodInfo(delegate, lazinessMode), lightMethodInfo)
+                checkAnnotationConsistency(method)
+                method.parameterList.parameters.forEach {
+                    checkAnnotationConsistency(it as KtLightParameter)
+                }
             }
 
             assertEquals(classInfo(lightClass.clsDelegate), classInfo)
 
             innerClasses.forEach(LazinessInfo::checkConsistency)
+        }
+    }
+
+    private fun checkAnnotationConsistency(modifierListOwner: KtLightElement<*, PsiModifierListOwner>) {
+        modifierListOwner.clsDelegate.modifierList?.annotations?.forEach { delegateAnnotation ->
+            val qualifiedName = delegateAnnotation.qualifiedName!!
+            val lightAnnotation = (modifierListOwner as? PsiModifierListOwner)!!.modifierList?.findAnnotation(qualifiedName)
+            assertNotNull(lightAnnotation, "$modifierListOwner is missing annotation ${delegateAnnotation.qualifiedName}")
+            if (lightAnnotation is KtLightAbstractAnnotation) {
+                assertEquals(delegateAnnotation, lightAnnotation.clsDelegate)
+            }
         }
     }
 
@@ -247,6 +263,8 @@ object LightClassLazinessChecker {
     )
 
     private fun fieldInfo(field: PsiField) = with(field) {
+        modifierList?.annotations // check getting annotations list doesn't trigger exact resolve
+
         FieldInfo(
                 name!!, PsiModifier.MODIFIERS.asList().filter { modifierList!!.hasModifierProperty(it) }
         )
@@ -261,6 +279,8 @@ object LightClassLazinessChecker {
     )
 
     private fun methodInfo(method: PsiMethod, lazinessMode: Mode) = with(method) {
+        modifierList.annotations // check getting annotations list doesn't trigger exact resolve
+
         MethodInfo(
                 name, relevantModifiers(lazinessMode),
                 isConstructor, method.parameterList.parametersCount, isVarArgs

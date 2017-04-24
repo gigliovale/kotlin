@@ -13,11 +13,11 @@ def kotlinVersion = project.version
 dependencies {
     testCompile project(':kotlin-gradle-plugin')
     testCompile project(':kotlin-gradle-plugin').sourceSets.test.output
+    testCompile project(':kotlin-gradle-subplugin-example')
+    testCompile project(':kotlin-allopen')
 
-    testCompile "org.jetbrains.kotlin:kotlin-gradle-subplugin-example:$kotlin_version" // todo transform to gradle project
     testCompile "org.jetbrains.kotlin:annotation-processor-example:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version" //todo change to project
     testCompile "org.jetbrains.kotlin:kotlin-build-common-test:$kotlin_version"
 
     testCompile 'org.jetbrains.kotlin:gradle-api:2.2'

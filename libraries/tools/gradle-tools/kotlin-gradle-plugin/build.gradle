@@ -59,6 +59,10 @@ processResources {
     expand(project.properties)
 }
 
+jar {
+    from compileGroovy.destinationDir
+}
+
 test.executable = "${JDK_18}/bin/java"
 
 dokka {

@@ -700,21 +700,24 @@ public abstract class CodegenTestCase extends KtUsefulTestCase {
         throw new UnsupportedOperationException("Multi-file test cases are not supported in this test");
     }
 
-    protected void callBoxMethodAndCheckResult(URLClassLoader classLoader, String className, Boolean failIfNoBox)
+    protected void callBoxMethodAndCheckResult(URLClassLoader classLoader, String className)
             throws IOException, InvocationTargetException, IllegalAccessException {
         Class<?> aClass = getGeneratedClass(classLoader, className);
         Method method = getBoxMethodOrNull(aClass);
-        assertTrue("Can't find box method in " + aClass,method != null || !failIfNoBox);
-        if (method != null) {
-            String result;
-            if (boxInSeparateProcessPort != null) {
-                result = invokeBoxInSeparateProcess(classLoader, aClass);
-            }
-            else {
-                result = (String) method.invoke(null);
-            }
-            assertEquals("OK", result);
+        assertTrue("Can't find box method in " + aClass,method != null);
+        callBoxMethodAndCheckResult(classLoader, aClass, method);
+    }
+
+    protected void callBoxMethodAndCheckResult(URLClassLoader classLoader, Class<?> aClass, Method method)
+            throws IOException, IllegalAccessException, InvocationTargetException {
+        String result;
+        if (boxInSeparateProcessPort != null) {
+            result = invokeBoxInSeparateProcess(classLoader, aClass);
         }
+        else {
+            result = (String) method.invoke(null);
+        }
+        assertEquals("OK", result);
     }
 
     @NotNull

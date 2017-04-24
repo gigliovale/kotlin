@@ -86,7 +86,7 @@ public abstract class AbstractCompileKotlinAgainstKotlinTest extends CodegenTest
     }
 
     private void invokeBox(@NotNull String className) throws Exception {
-        callBoxMethodAndCheckResult(createGeneratedClassLoader(), className, true);
+        callBoxMethodAndCheckResult(createGeneratedClassLoader(), className);
     }
 
     @NotNull

@@ -7,7 +7,10 @@ repositories {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlin_version"
+    compile project(':kotlin-gradle-plugin-api')
+    // Use this dependency instead when building apart from the other modules:
+    // compile "org.jetbrains.kotlin:kotlin-gradle-plugin-api:$kotlin_version"
+
     compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

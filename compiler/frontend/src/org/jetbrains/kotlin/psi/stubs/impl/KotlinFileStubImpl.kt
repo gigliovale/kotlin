@@ -49,6 +49,6 @@ open class KotlinFileStubImpl(
 
     override fun findImportsByAlias(alias: String): List<KotlinImportDirectiveStub> {
         val importList = childrenStubs.firstOrNull { it.stubType == KtStubElementTypes.IMPORT_LIST } ?: return emptyList()
-        return importList.childrenStubs.filterIsInstance<KotlinImportDirectiveStub>().filter { it.getAliasName() == alias }
+        return importList.childrenStubs.filterIsInstance<KotlinImportDirectiveStub>().filter { it.getAlias()?.getName() == alias }
     }
 }

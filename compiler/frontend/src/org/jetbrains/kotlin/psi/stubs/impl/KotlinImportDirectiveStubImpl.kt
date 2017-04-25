@@ -21,14 +21,15 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.util.io.StringRef
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtImportDirective
+import org.jetbrains.kotlin.psi.stubs.KotlinImportAliasStub
 import org.jetbrains.kotlin.psi.stubs.KotlinImportDirectiveStub
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
+import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 class KotlinImportDirectiveStubImpl(
         parent: StubElement<PsiElement>,
         private val isAllUnder: Boolean,
         private val importedFqName: StringRef?,
-        private val aliasName: StringRef?,
         private val isValid: Boolean
 ) : KotlinStubBaseImpl<KtImportDirective>(parent, KtStubElementTypes.IMPORT_DIRECTIVE), KotlinImportDirectiveStub {
     override fun isAllUnder(): Boolean = isAllUnder
@@ -38,6 +39,7 @@ class KotlinImportDirectiveStubImpl(
         return if (fqNameString != null) FqName(fqNameString) else null
     }
 
-    override fun getAliasName(): String? = StringRef.toString(aliasName)
+    override fun getAlias() = childrenStubs.firstIsInstanceOrNull<KotlinImportAliasStub>()
+
     override fun isValid(): Boolean = isValid
 }

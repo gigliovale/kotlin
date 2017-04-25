@@ -35,8 +35,8 @@ import org.jetbrains.kotlin.js.JavaScript;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -109,15 +109,8 @@ public class K2JSCompilerMojo extends KotlinCompileMojoBase<K2JSCompilerArgument
 
         arguments.sourceMap = sourceMap;
 
-        Set<String> collector = getOutputDirectoriesCollector();
-
         if (outputFile != null) {
-            collector.add(new File(outputFile).getParent());
-        }
-        if (metaInfo) {
-            String output = com.google.common.base.Objects.firstNonNull(outputFile, ""); // fqname here because of J8 compatibility issues
-            String metaFile = StringsKt.substringBeforeLast(output, JavaScript.DOT_EXTENSION, output) + KotlinJavascriptMetadataUtils.META_JS_SUFFIX;
-            collector.add(new File(metaFile).getParent());
+            getOutputDirectoriesCollector().put(output, new File(outputFile).getParent());
         }
     }
 
@@ -145,7 +138,7 @@ public class K2JSCompilerMojo extends KotlinCompileMojoBase<K2JSCompilerArgument
             }
         }
 
-        for (String path : getOutputDirectoriesCollector()) {
+        for (String path : getOutputDirectoriesCollector().values()) {
             File file = new File(path);
 
             if (file.exists() && LibraryUtils.isKotlinJavascriptLibrary(file)) {
@@ -177,12 +170,12 @@ public class K2JSCompilerMojo extends KotlinCompileMojoBase<K2JSCompilerArgument
     }
 
     @SuppressWarnings("unchecked")
-    private Set<String> getOutputDirectoriesCollector() {
+    protected Map<String, String> getOutputDirectoriesCollector() {
         lock.lock();
         try {
-            Set<String> collector = (Set<String>) getPluginContext().get(OUTPUT_DIRECTORIES_COLLECTOR_PROPERTY_NAME);
+            Map<String, String> collector = (Map<String, String>) getPluginContext().get(OUTPUT_DIRECTORIES_COLLECTOR_PROPERTY_NAME);
             if (collector == null) {
-                collector = new ConcurrentSkipListSet<String>();
+                collector = new ConcurrentSkipListMap<String, String>();
                 getPluginContext().put(OUTPUT_DIRECTORIES_COLLECTOR_PROPERTY_NAME, collector);
             }
 

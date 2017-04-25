@@ -125,7 +125,7 @@ public class JsConfig {
     }
 
     private boolean checkLibFilesAndReportErrors(
-            @NotNull List<String> libraries,
+            @NotNull Collection<String> libraries,
             @NotNull JsConfig.Reporter report,
             @Nullable Function2<VirtualFile, String, Unit> action
     ) {
@@ -231,30 +231,40 @@ public class JsConfig {
         if (initialized) return;
 
         if (!getLibraries().isEmpty()) {
-            Set<String> friendSet = new HashSet<>(getFriends());
-
-            Function2<VirtualFile, String, Unit> action = (file, path) -> {
-                String libraryPath = PathUtil.getLocalPath(file);
-                assert libraryPath != null : "libraryPath for " + file + " should not be null";
-                List<KotlinJavascriptMetadata> metaList = KotlinJavascriptMetadataUtils.loadMetadata(libraryPath);
-                metadata.addAll(metaList);
-                if (friendSet.contains(path)) {
-                    friends.addAll(metaList);
-                }
-
-                return Unit.INSTANCE;
-            };
-
-            boolean hasErrors = checkLibFilesAndReportErrors(new Reporter() {
+            JsConfig.Reporter reporter = new Reporter() {
                 @Override
                 public void error(@NotNull String message) {
                     throw new IllegalStateException(message);
                 }
-            }, action);
+            };
+
+            boolean hasErrors = checkLibFilesAndReportErrors(getFriends(), reporter, (file, path) -> {
+                List<KotlinJavascriptMetadata> metaList = loadMetadata(file, "friendPath");
+                metadata.addAll(metaList);
+                friends.addAll(metaList);
+
+                return Unit.INSTANCE;
+            });
+
+
+            hasErrors |= checkLibFilesAndReportErrors(CollectionsKt.subtract(getLibraries(), getFriends()), reporter, (file, path) -> {
+                metadata.addAll(loadMetadata(file, "libraryPath"));
+
+
+                return Unit.INSTANCE;
+            });
+
             assert !hasErrors : "hasErrors should be false";
         }
 
         initialized = true;
+    }
+
+    @NotNull
+    private static List<KotlinJavascriptMetadata> loadMetadata(@NotNull VirtualFile file, @NotNull String name) {
+        String libraryPath = PathUtil.getLocalPath(file);
+        assert libraryPath != null : name + " for " + file + " should not be null";
+        return  KotlinJavascriptMetadataUtils.loadMetadata(libraryPath);
     }
 
     private final IdentityHashMap<KotlinJavascriptMetadata, JsModuleDescriptor<ModuleDescriptorImpl>> factoryMap = new IdentityHashMap<>();

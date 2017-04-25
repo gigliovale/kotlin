@@ -15,7 +15,7 @@ class IncrementalCompilationMultiProjectIT : BaseGradleIT() {
 
     private fun androidBuildOptions() =
             BuildOptions(withDaemon = true,
-                    androidHome = File("../../../dependencies/android-sdk-for-tests"),
+                    androidHome = File("../../../dependencies/androidSDK"),
                     androidGradlePluginVersion = ANDROID_GRADLE_PLUGIN_VERSION,
                     incremental = true)
 

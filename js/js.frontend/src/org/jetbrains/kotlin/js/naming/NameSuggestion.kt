@@ -280,39 +280,33 @@ class NameSuggestion {
 
             val containingDeclaration = descriptor.containingDeclaration
             return when (containingDeclaration) {
-                is PackageFragmentDescriptor -> {
-                    if (effectiveVisibility.isPublicAPI) {
-                        mangledAndStable()
-                    }
-                    else if (effectiveVisibility == Visibilities.INTERNAL) {
-                        mangledInternal()
-                    }
-                    else {
-                        regularAndUnstable()
-                    }
+                is PackageFragmentDescriptor -> when {
+                    effectiveVisibility.isPublicAPI -> mangledAndStable()
+
+                    effectiveVisibility == Visibilities.INTERNAL -> mangledInternal()
+
+                    else -> regularAndUnstable()
                 }
-                is ClassDescriptor -> {
-                    return when {
-                        // valueOf() is created in the library with a mangled name for every enum class
-                        descriptor is FunctionDescriptor && descriptor.isEnumValueOfMethod() -> mangledAndStable()
+                is ClassDescriptor -> when {
+                    // valueOf() is created in the library with a mangled name for every enum class
+                    descriptor is FunctionDescriptor && descriptor.isEnumValueOfMethod() -> mangledAndStable()
 
-                        // Make all public declarations stable
-                        effectiveVisibility == Visibilities.PUBLIC -> mangledAndStable()
+                    // Make all public declarations stable
+                    effectiveVisibility == Visibilities.PUBLIC -> mangledAndStable()
 
-                        descriptor is CallableMemberDescriptor && descriptor.isOverridableOrOverrides -> mangledAndStable()
+                    descriptor is CallableMemberDescriptor && descriptor.isOverridableOrOverrides -> mangledAndStable()
 
-                        // Make all protected declarations of non-final public classes stable
-                        effectiveVisibility == Visibilities.PROTECTED &&
+                    // Make all protected declarations of non-final public classes stable
+                    effectiveVisibility == Visibilities.PROTECTED &&
                         !containingDeclaration.isFinalClass &&
                         containingDeclaration.visibility.isPublicAPI -> mangledAndStable()
 
-                        effectiveVisibility == Visibilities.INTERNAL -> mangledInternal()
+                    effectiveVisibility == Visibilities.INTERNAL -> mangledInternal()
 
-                        // Mangle (but make unstable) all non-public API of public classes
-                        containingDeclaration.visibility.isPublicAPI && !containingDeclaration.isFinalClass -> mangledPrivate()
+                    // Mangle (but make unstable) all non-public API of public classes
+                    containingDeclaration.visibility.isPublicAPI && !containingDeclaration.isFinalClass -> mangledPrivate()
 
-                        else -> regularAndUnstable()
-                    }
+                    else -> regularAndUnstable()
                 }
                 else -> {
                     assert(containingDeclaration is CallableMemberDescriptor) {

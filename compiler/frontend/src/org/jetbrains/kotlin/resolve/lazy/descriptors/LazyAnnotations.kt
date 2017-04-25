@@ -113,6 +113,15 @@ class LazyAnnotationDescriptor(
         c.trace.record(BindingContext.ANNOTATION, annotationEntry, this)
     }
 
+    private val source = annotationEntry.toSourceElement()
+
+    val scope = if (c.scope.ownerDescriptor is PackageFragmentDescriptor) {
+        LexicalScope.Empty(c.scope, FileDescriptorForVisibilityChecks(source, c.scope.ownerDescriptor))
+    }
+    else {
+        c.scope
+    }
+
     private val type = c.storageManager.createLazyValue {
         c.annotationResolver.resolveAnnotationType(
                 scope,
@@ -123,15 +132,6 @@ class LazyAnnotationDescriptor(
 
     private val valueArguments = c.storageManager.createLazyValue {
         computeValueArguments()
-    }
-
-    private val source = annotationEntry.toSourceElement()
-
-    val scope = if (c.scope.ownerDescriptor is PackageFragmentDescriptor) {
-        LexicalScope.Empty(c.scope, FileDescriptorForVisibilityChecks(source, c.scope.ownerDescriptor))
-    }
-    else {
-        c.scope
     }
 
     override fun getType() = type()

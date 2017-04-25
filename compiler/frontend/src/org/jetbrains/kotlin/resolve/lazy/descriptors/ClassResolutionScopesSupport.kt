@@ -42,10 +42,6 @@ class ClassResolutionScopesSupport(
         scopeWithGenerics(getOuterScope())
     }
 
-    val scopeForConstructorHeaderResolution: () -> LexicalScope = storageManager.createLazyValue {
-        scopeWithGenerics(inheritanceScopeWithMe())
-    }
-
     private val inheritanceScopeWithoutMe: () -> LexicalScope = storageManager.createLazyValue(onRecursion = createThrowingLexicalScope) {
         classDescriptor.getAllSuperclassesWithoutAny().asReversed().fold(getOuterScope()) { scope, currentClass ->
             createInheritanceScope(parent = scope, ownerDescriptor = classDescriptor, classDescriptor = currentClass)
@@ -54,6 +50,10 @@ class ClassResolutionScopesSupport(
 
     private val inheritanceScopeWithMe: () -> LexicalScope = storageManager.createLazyValue(onRecursion = createThrowingLexicalScope) {
         createInheritanceScope(parent = inheritanceScopeWithoutMe(), ownerDescriptor = classDescriptor, classDescriptor = classDescriptor)
+    }
+
+    val scopeForConstructorHeaderResolution: () -> LexicalScope = storageManager.createLazyValue {
+        scopeWithGenerics(inheritanceScopeWithMe())
     }
 
     val scopeForCompanionObjectHeaderResolution: () -> LexicalScope = storageManager.createLazyValue(onRecursion = createThrowingLexicalScope) {

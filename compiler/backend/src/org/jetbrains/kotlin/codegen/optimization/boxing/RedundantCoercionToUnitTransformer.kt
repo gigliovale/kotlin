@@ -46,13 +46,13 @@ class RedundantCoercionToUnitTransformer : MethodTransformer() {
                     }
                 }
 
+        private val insnList = methodNode.instructions
+
         private val REPLACE_WITH_NOP = Transformation { insnList.replaceNodeGetNext(it, createRemovableNopInsn()) }
         private val REPLACE_WITH_POP1 = Transformation { insnList.replaceNodeGetNext(it, InsnNode(Opcodes.POP)) }
         private val REPLACE_WITH_POP2 = Transformation { insnList.replaceNodeGetNext(it, InsnNode(Opcodes.POP2)) }
         private val INSERT_POP1_AFTER = Transformation { insnList.insert(it, InsnNode(Opcodes.POP)) }
         private val INSERT_POP2_AFTER = Transformation { insnList.insert(it, InsnNode(Opcodes.POP2)) }
-
-        private val insnList = methodNode.instructions
 
         private val insns = insnList.toArray()
 

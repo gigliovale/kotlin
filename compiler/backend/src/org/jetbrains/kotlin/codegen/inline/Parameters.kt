@@ -29,12 +29,12 @@ internal class Parameters(val parameters: List<ParameterInfo>) : Iterable<Parame
     val realParametersSizeOnStack: Int
         get() = argsSizeOnStack - capturedParametersSizeOnStack
 
-    val capturedParametersSizeOnStack by lazy {
-        captured.sumBy { it.type.size }
-    }
-
     val captured by lazy {
         parameters.filterIsInstance<CapturedParamInfo>()
+    }
+
+    val capturedParametersSizeOnStack by lazy {
+        captured.sumBy { it.type.size }
     }
 
     init {

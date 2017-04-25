@@ -16,7 +16,7 @@ abstract class AbstractKotlinAndroidGradleTests(
 ) : BaseGradleIT() {
 
     override fun defaultBuildOptions() =
-            super.defaultBuildOptions().copy(androidHome = File("../../../dependencies/android-sdk-for-tests"),
+            super.defaultBuildOptions().copy(androidHome = File("../../../dependencies/androidSDK"),
                                              androidGradlePluginVersion = androidGradlePluginVersion)
 
     @Test
@@ -219,7 +219,7 @@ abstract class AbstractKotlinAndroidWithJackGradleTests(
     fun getEnvJDK_18() = System.getenv()["JDK_18"]
 
     override fun defaultBuildOptions() =
-            super.defaultBuildOptions().copy(androidHome = File("../../../dependencies/android-sdk-for-tests"),
+            super.defaultBuildOptions().copy(androidHome = File("../../../dependencies/androidSDK"),
                     androidGradlePluginVersion = androidGradlePluginVersion, javaHome = File(getEnvJDK_18()))
 
     @Test

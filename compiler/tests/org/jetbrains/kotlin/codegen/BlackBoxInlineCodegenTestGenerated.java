@@ -2483,6 +2483,12 @@ public class BlackBoxInlineCodegenTestGenerated extends AbstractBlackBoxInlineCo
             doTest(fileName);
         }
 
+        @TestMetadata("kt17591.kt")
+        public void testKt17591() throws Exception {
+            String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/boxInline/stackOnReturn/kt17591.kt");
+            doTest(fileName);
+        }
+
         @TestMetadata("mixedTypesOnStack1.kt")
         public void testMixedTypesOnStack1() throws Exception {
             String fileName = KotlinTestUtils.navigationMetadata("compiler/testData/codegen/boxInline/stackOnReturn/mixedTypesOnStack1.kt");

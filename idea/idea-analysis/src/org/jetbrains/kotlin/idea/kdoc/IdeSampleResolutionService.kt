@@ -23,9 +23,7 @@ import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.resolveToDescriptorIfAny
 import org.jetbrains.kotlin.idea.resolve.ResolutionFacade
-import org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex
-import org.jetbrains.kotlin.idea.stubindex.KotlinFunctionShortNameIndex
-import org.jetbrains.kotlin.idea.stubindex.PackageIndexUtil
+import org.jetbrains.kotlin.idea.stubindex.*
 import org.jetbrains.kotlin.incremental.components.LookupLocation
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -41,14 +39,14 @@ class IdeSampleResolutionService(val project: Project) : SampleResolutionService
 
     override fun resolveSample(context: BindingContext, fromDescriptor: DeclarationDescriptor, resolutionFacade: ResolutionFacade, qualifiedName: List<String>): Collection<DeclarationDescriptor> {
 
-        val allScope = GlobalSearchScope.projectScope(project)
+        val scope = KotlinSourceFilterScope.projectAndLibrariesSources(GlobalSearchScope.projectScope(project), project)
 
         val shortName = qualifiedName.lastOrNull() ?: return emptyList()
 
         val targetFqName = FqName.fromSegments(qualifiedName)
 
-        val functions = KotlinFunctionShortNameIndex.getInstance().get(shortName, project, allScope).asSequence()
-        val classes = KotlinClassShortNameIndex.getInstance().get(shortName, project, allScope).asSequence()
+        val functions = KotlinFunctionShortNameIndex.getInstance().get(shortName, project, scope).asSequence()
+        val classes = KotlinClassShortNameIndex.getInstance().get(shortName, project, scope).asSequence()
 
         val descriptors = (functions + classes)
                 .filter { it.fqName == targetFqName }
@@ -57,41 +55,30 @@ class IdeSampleResolutionService(val project: Project) : SampleResolutionService
         if (descriptors.isNotEmpty())
             return descriptors
 
-        if (!targetFqName.isRoot && PackageIndexUtil.packageExists(targetFqName, GlobalSearchScope.allScope(project), project))
-            return listOf(GlobalSyntheticPackageViewDescriptor(targetFqName, project))
+        if (!targetFqName.isRoot && PackageIndexUtil.packageExists(targetFqName, scope, project))
+            return listOf(GlobalSyntheticPackageViewDescriptor(targetFqName, project, scope))
         return emptyList()
     }
 }
 
+private fun shouldNotBeCalled(): Nothing = throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
 
-private class GlobalSyntheticPackageViewDescriptor(override val fqName: FqName, private val project: Project) : PackageViewDescriptor {
+private class GlobalSyntheticPackageViewDescriptor(override val fqName: FqName, private val project: Project, private val scope: GlobalSearchScope) : PackageViewDescriptor {
     override fun getContainingDeclaration(): PackageViewDescriptor? =
-            if (fqName.isOneSegmentFQN()) null else GlobalSyntheticPackageViewDescriptor(fqName.parent(), project)
+            if (fqName.isOneSegmentFQN()) null else GlobalSyntheticPackageViewDescriptor(fqName.parent(), project, scope)
 
-
-    private val allScope = GlobalSearchScope.allScope(project)
 
     override val memberScope: MemberScope = object : MemberScope {
 
-        override fun getContributedVariables(name: Name, location: LookupLocation): Collection<PropertyDescriptor> {
-            throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-        }
+        override fun getContributedVariables(name: Name, location: LookupLocation): Collection<PropertyDescriptor> = shouldNotBeCalled()
 
-        override fun getContributedFunctions(name: Name, location: LookupLocation): Collection<SimpleFunctionDescriptor> {
-            throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-        }
+        override fun getContributedFunctions(name: Name, location: LookupLocation): Collection<SimpleFunctionDescriptor> = shouldNotBeCalled()
 
-        override fun getFunctionNames(): Set<Name> {
-            throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-        }
+        override fun getFunctionNames(): Set<Name> = shouldNotBeCalled()
 
-        override fun getVariableNames(): Set<Name> {
-            throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-        }
+        override fun getVariableNames(): Set<Name> = shouldNotBeCalled()
 
-        override fun getContributedClassifier(name: Name, location: LookupLocation): ClassifierDescriptor? {
-            throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-        }
+        override fun getContributedClassifier(name: Name, location: LookupLocation): ClassifierDescriptor? = shouldNotBeCalled()
 
         override fun printScopeStructure(p: Printer) {
             p.printIndent()
@@ -99,51 +86,48 @@ private class GlobalSyntheticPackageViewDescriptor(override val fqName: FqName, 
         }
 
 
-        fun getClassesByNameFilter(nameFilter: (Name) -> Boolean) = KotlinClassShortNameIndex.getInstance()
+        fun getClassesByNameFilter(nameFilter: (Name) -> Boolean) = KotlinFullClassNameIndex.getInstance()
                 .getAllKeys(project)
                 .asSequence()
-                .filter { nameFilter(Name.identifier(it)) }
-                .flatMap { KotlinClassShortNameIndex.getInstance()[it, project, allScope].asSequence() }
-                .filter { it.fqName?.isChildOf(fqName) == true }
+                .filter { it.startsWith(fqName.asString()) }
+                .map(::FqName)
+                .filter { it.isChildOf(fqName) }
+                .filter { nameFilter(it.shortName()) }
+                .flatMap { KotlinFullClassNameIndex.getInstance()[it.asString(), project, scope].asSequence() }
                 .map { it.resolveToDescriptorIfAny() }
 
-        fun getFunctionsByNameFilter(nameFilter: (Name) -> Boolean) = KotlinFunctionShortNameIndex.getInstance()
+        fun getFunctionsByNameFilter(nameFilter: (Name) -> Boolean) = KotlinTopLevelFunctionFqnNameIndex.getInstance()
                 .getAllKeys(project)
                 .asSequence()
-                .filter { nameFilter(Name.identifier(it)) }
-                .flatMap { KotlinFunctionShortNameIndex.getInstance()[it, project, allScope].asSequence() }
-                .filter { it.fqName?.isChildOf(fqName) == true }
+                .filter { it.startsWith(fqName.asString()) }
+                .map(::FqName)
+                .filter { it.isChildOf(fqName) }
+                .filter { nameFilter(it.shortName()) }
+                .flatMap { KotlinTopLevelFunctionFqnNameIndex.getInstance()[it.asString(), project, scope].asSequence() }
                 .map { it.resolveToDescriptorIfAny() }
 
         fun getSubpackages(nameFilter: (Name) -> Boolean) =
-                PackageIndexUtil.getSubPackageFqNames(fqName, allScope, project, nameFilter).map {
-                    GlobalSyntheticPackageViewDescriptor(it, project)
-                }
+                PackageIndexUtil.getSubPackageFqNames(fqName, scope, project, nameFilter)
+                        .map { GlobalSyntheticPackageViewDescriptor(it, project, scope) }
 
-        override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean): Collection<DeclarationDescriptor> {
-            return (getClassesByNameFilter(nameFilter)
-                    + getFunctionsByNameFilter(nameFilter)
-                    + getSubpackages(nameFilter)).filterIsInstance<DeclarationDescriptor>().toList()
-        }
+        override fun getContributedDescriptors(kindFilter: DescriptorKindFilter, nameFilter: (Name) -> Boolean): Collection<DeclarationDescriptor>
+                = (getClassesByNameFilter(nameFilter)
+                   + getFunctionsByNameFilter(nameFilter)
+                   + getSubpackages(nameFilter)).filterNotNull().toList()
 
     }
     override val module: ModuleDescriptor
-        get() = throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
+        get() = shouldNotBeCalled()
     override val fragments: List<PackageFragmentDescriptor>
-        get() = throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
+        get() = shouldNotBeCalled()
 
     override fun getOriginal() = this
 
-    private val name = fqName.shortName()
-    override fun getName(): Name = name
+    override fun getName(): Name = fqName.shortName()
 
-    override fun <R : Any?, D : Any?> accept(visitor: DeclarationDescriptorVisitor<R, D>?, data: D): R {
-        throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-    }
+    override fun <R : Any?, D : Any?> accept(visitor: DeclarationDescriptorVisitor<R, D>?, data: D): R = shouldNotBeCalled()
 
-    override fun acceptVoid(visitor: DeclarationDescriptorVisitor<Void, Void>?) {
-        throw UnsupportedOperationException("Synthetic PVD for KDoc link resolution")
-    }
+    override fun acceptVoid(visitor: DeclarationDescriptorVisitor<Void, Void>?) = shouldNotBeCalled()
 
     override val annotations = Annotations.EMPTY
 }

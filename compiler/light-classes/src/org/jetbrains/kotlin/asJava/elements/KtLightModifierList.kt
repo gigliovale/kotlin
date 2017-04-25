@@ -24,10 +24,7 @@ import org.jetbrains.kotlin.asJava.classes.lazyPub
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.idea.KotlinLanguage
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtDeclaration
-import org.jetbrains.kotlin.psi.KtModifierList
-import org.jetbrains.kotlin.psi.KtModifierListOwner
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameUnsafe
 import org.jetbrains.kotlin.resolve.source.getPsi
 
@@ -79,7 +76,10 @@ private fun computeAnnotations(lightModifierList: KtLightModifierList<*>): List<
 private fun lightAnnotationsForEntries(lightModifierList: KtLightModifierList<*>): List<KtLightAnnotationForSourceEntry> {
     val lightModifierListOwner = lightModifierList.parent
     val annotatedKtDeclaration = lightModifierListOwner.kotlinOrigin as? KtDeclaration
-    if (annotatedKtDeclaration == null || !annotatedKtDeclaration.isValid) return emptyList()
+
+    if (annotatedKtDeclaration == null || !annotatedKtDeclaration.isValid || !hasAnnotationsInSource(annotatedKtDeclaration)) {
+        return emptyList()
+    }
 
     return getAnnotationDescriptors(annotatedKtDeclaration, lightModifierListOwner).map { descriptor ->
         val annotationFqName = descriptor.type.constructor.declarationDescriptor?.fqNameUnsafe?.asString() ?: return emptyList()
@@ -99,4 +99,16 @@ private fun getAnnotationDescriptors(declaration: KtDeclaration?, lightOwner: Kt
         else -> descriptor
     } ?: return emptyList()
     return annotatedDescriptor.annotations.getAllAnnotations().map { it.annotation }
+}
+
+private fun hasAnnotationsInSource(declaration: KtDeclaration): Boolean {
+    if (declaration.annotationEntries.isNotEmpty()) {
+        return true
+    }
+
+    if (declaration is KtProperty) {
+        return declaration.accessors.any { hasAnnotationsInSource(it) }
+    }
+
+    return false
 }

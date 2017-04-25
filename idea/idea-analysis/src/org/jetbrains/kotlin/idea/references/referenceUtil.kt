@@ -22,6 +22,8 @@ import org.jetbrains.kotlin.builtins.isExtensionFunctionType
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
 import org.jetbrains.kotlin.descriptors.PropertyDescriptor
 import org.jetbrains.kotlin.idea.caches.resolve.analyze
+import org.jetbrains.kotlin.idea.caches.resolve.resolveImportReference
+import org.jetbrains.kotlin.idea.codeInsight.DescriptorToSourceUtilsIde
 import org.jetbrains.kotlin.idea.imports.canBeReferencedViaImport
 import org.jetbrains.kotlin.idea.intentions.OperatorToFunctionIntention
 import org.jetbrains.kotlin.idea.kdoc.KDocReference
@@ -84,14 +86,25 @@ fun PsiReference.matchesTarget(candidateTarget: PsiElement): Boolean {
         }
     }
 
+    val element = element
     val targets = unwrappedTargets
+
+    if (candidateTarget is KtImportAlias && element is KtSimpleNameExpression && element.getReferencedName() == candidateTarget.name) {
+        val project = candidateTarget.project
+        val importDirective = candidateTarget.importDirective ?: return false
+        val importedFqName = importDirective.importedFqName ?: return false
+        val importedDescriptors = importDirective.containingKtFile.resolveImportReference(importedFqName)
+        val importableTargets = targets.mapNotNull {
+            if (it is KtConstructor<*>) it.containingClassOrObject else it
+        }
+        return importedDescriptors.any { DescriptorToSourceUtilsIde.getAnyDeclaration(project, it) in importableTargets }
+    }
 
     val manager = candidateTarget.manager
     if (targets.any { manager.areElementsEquivalent(unwrappedCandidate, it) }) {
         return true
     }
 
-    val element = element
     if (element is KtLabelReferenceExpression) {
         val labelParent = (element.parent as? KtContainerNode)?.parent
         when (labelParent) {

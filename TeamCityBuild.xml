@@ -137,11 +137,12 @@
     <macrodef name="print-file-size-statistic">
         <attribute name="path"/>
         <attribute name="file-name"/>
+        <attribute name="key" default="@{file-name} size"/>
 
         <sequential>
             <local name="file.size"/>
             <length file="@{path}/@{file-name}" property="file.size"/>
-            <print-statistic key="@{file-name} size" value="${file.size}"/>
+            <print-statistic key="@{key}" value="${file.size}"/>
         </sequential>
     </macrodef>
 
@@ -151,8 +152,9 @@
 
         <print-file-size-statistic path="${kotlin-home}/lib" file-name="kotlin-stdlib-js.jar"/>
         <print-file-size-statistic path="${js.stdlib.output.dir}" file-name="kotlin.js"/>
-        <print-file-size-statistic path="${js.stdlib.output.dir}" file-name="${compiled.stdlib.meta.js}"/>
-        <print-file-size-statistic path="${js.stdlib.output.dir}" file-name="${compiled.stdlib.js}"/>
+        <print-file-size-statistic path="${js.stdlib.output.dir}" file-name="kotlin-test.js"/>
+        <print-file-size-statistic path="${basedir}/libraries/stdlib/js/build/classes/main" file-name="kotlin.meta.js"/>
+        <print-file-size-statistic path="${basedir}/libraries/stdlib/js/build/classes/main" file-name="kotlin.js" key="kotlin.js - compiled part size"/>
     </target>
 
     <target name="post_build" depends="zipArtifacts, revertTemplateFiles, printStatistics, remove_internal_artifacts, dont_remove_internal_artifacts"/>

@@ -1,5 +1,5 @@
 import java.io.*;
-import org.mozilla.javascript.tools.shell.Main;
+import org.mozilla.javascript.tools.shell.*;
 
 File file = new File(basedir, "target/js/test-js-accessToInternal.js");
 if (!file.exists() || !file.isFile()) {
@@ -17,4 +17,8 @@ Main.main(new String[] {
         "-f", basePath + "/target/js/kotlin.js",
         "-f", basePath + "/target/js/test-js-accessToInternal.js",
         "-f", basePath + "/target/test-js/test-js-accessToInternal-tests.js",
-        "-f", basePath + "/check.js"})
+        "-f", basePath + "/check.js"});
+
+// Reset the Rhino context
+Main.global = new Global();
+true;

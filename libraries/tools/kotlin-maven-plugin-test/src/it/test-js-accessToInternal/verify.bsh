@@ -1,5 +1,5 @@
 import java.io.*;
-import org.mozilla.javascript.tools.shell.*;
+import javax.script.*;
 
 File file = new File(basedir, "target/js/test-js-accessToInternal.js");
 if (!file.exists() || !file.isFile()) {
@@ -12,13 +12,9 @@ if (!testFile.exists() || !testFile.isFile()) {
 }
 
 String basePath = basedir.getPath();
-Main.main(new String[] {
-        "-O", "-1",
-        "-f", basePath + "/target/js/kotlin.js",
-        "-f", basePath + "/target/js/test-js-accessToInternal.js",
-        "-f", basePath + "/target/test-js/test-js-accessToInternal-tests.js",
-        "-f", basePath + "/check.js"});
+ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 
-// Reset the Rhino context
-Main.global = new Global();
-true;
+engine.eval(new FileReader(basePath + "/target/js/kotlin.js"));
+engine.eval(new FileReader(basePath + "/target/js/test-js-accessToInternal.js"));
+engine.eval(new FileReader(basePath + "/target/test-js/test-js-accessToInternal-tests.js"));
+engine.eval(new FileReader(basePath + "/check.js"));

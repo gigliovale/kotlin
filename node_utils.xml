@@ -44,6 +44,7 @@
 
         <move file="${dependencies}/${node.full.name}" tofile="${dependencies}/node"/>
         <delete dir="${dependencies}/${node.full.name}"/>
+        <delete file="${node.tar.gz}"/>
 
         <sequential if:set="isWindows">
             <get src="${url.node.exe}" dest="${node.exe}" usetimestamp="true"/>

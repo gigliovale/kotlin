@@ -289,14 +289,14 @@ class SerializerCodegenImpl(
             propVar += propertyType.size
         }
     }
-
+    
     // todo: move to StackValue?
     private fun InstructionAdapter.stackValueDefault(type: Type) {
         when (type.sort) {
-            Type.BOOLEAN, Type.BYTE, Type.SHORT, Type.CHAR, Type.INT -> iconst(0)
-            Type.LONG -> lconst(0)
-            Type.FLOAT -> fconst(0f)
-            Type.DOUBLE -> dconst(0.0)
+            BOOLEAN, BYTE, SHORT, CHAR, INT -> iconst(0)
+            LONG -> lconst(0)
+            FLOAT -> fconst(0f)
+            DOUBLE -> dconst(0.0)
             else -> aconst(null)
         }
     }
@@ -375,17 +375,17 @@ class SerializerCodegenImpl(
 
     fun getSerialTypeInfo(property: SerializableProperty, type: Type): SerialTypeInfo {
         when (type.sort) {
-            Type.BOOLEAN, Type.BYTE, Type.SHORT, Type.INT, Type.LONG, Type.FLOAT, Type.DOUBLE, Type.CHAR -> {
+            BOOLEAN, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, CHAR -> {
                 val name = type.className
                 return SerialTypeInfo(property, type, Character.toUpperCase(name[0]) + name.substring(1))
             }
-            Type.ARRAY -> {
+            ARRAY -> {
                 // check for explicit serialization annotation on this property
                 var serializer = property.serializer.toClassDescriptor
                 if (serializer == null) {
                     // no explicit serializer for this property. Select strategy by element type
                     when (type.elementType.sort) {
-                        Type.OBJECT, Type.ARRAY -> {
+                        OBJECT, ARRAY -> {
                             // reference elements
                             serializer = property.module.findClassAcrossModuleDependencies(referenceArraySerializerId)
                         }
@@ -395,7 +395,7 @@ class SerializerCodegenImpl(
                 return SerialTypeInfo(property, Type.getType("Ljava/lang/Object;"),
                                       if (property.type.isMarkedNullable) "Nullable" else "", serializer)
             }
-            Type.OBJECT -> {
+            OBJECT -> {
                 // check for explicit serialization annotation on this property
                 var serializer = property.serializer.toClassDescriptor
                 if (serializer == null) {
@@ -411,7 +411,7 @@ class SerializerCodegenImpl(
                 return SerialTypeInfo(property, Type.getType("Ljava/lang/Object;"),
                                       if (property.type.isMarkedNullable) "Nullable" else "", serializer)
             }
-            else -> throw AssertionError() // should not happen
+            else -> throw AssertionError("Unexpected sort  for $type") // should not happen
         }
     }
 

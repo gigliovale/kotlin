@@ -112,6 +112,7 @@
         <module>tools/kotlin-maven-allopen</module>
         <module>tools/kotlin-noarg</module>
         <module>tools/kotlin-maven-noarg</module>
+        <module>tools/kotlin-serialization</module>
 
         <module>tools/kotlin-script-util</module>
         <module>tools/kotlin-gradle-plugin</module>

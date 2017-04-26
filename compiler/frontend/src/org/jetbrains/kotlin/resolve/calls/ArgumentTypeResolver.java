@@ -265,7 +265,7 @@ public class ArgumentTypeResolver {
 
         if (overloadResolutionResults == null) return null;
 
-        if (overloadResolutionResults.isSingleResult()) {
+        if (overloadResolutionResults.isSuccess()) {
             ResolvedCall<?> resolvedCall =
                     OverloadResolutionResultsUtil.getResultingCall(overloadResolutionResults, context.contextDependency);
             if (resolvedCall == null) return null;

@@ -738,7 +738,9 @@ class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
             override fun isCanceled(): Boolean {
                 val messages = buildResult.getMessages(BuildMessage.Kind.INFO)
                 for (i in checkFromIndex..messages.size - 1) {
-                    if (messages[i].messageText.startsWith("Kotlin version")) return true
+                    if (messages[i].messageText.matches("kotlinc-jvm .+ \\(JRE .+\\)".toRegex())) {
+                        return true
+                    }
                 }
 
                 checkFromIndex = messages.size
@@ -749,8 +751,6 @@ class KotlinJpsBuildTest : AbstractKotlinJpsBuildTestCase() {
         touch("src/Bar.kt").apply()
         buildCustom(canceledStatus, TestProjectBuilderLogger(), buildResult)
         assertCanceled(buildResult)
-
-        assertFilesNotExistInOutput(module, "foo/Bar.class")
     }
 
     fun testFileDoesNotExistWarning() {

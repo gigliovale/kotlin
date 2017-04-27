@@ -150,12 +150,12 @@ public class KotlinJavaPsiFacade {
         return null;
     }
 
-    @NotNull
+    @Nullable
     private static JavaClass createJavaClass(@NotNull ClassId classId, @NotNull PsiClass psiClass) {
         JavaClassImpl javaClass = new JavaClassImpl(psiClass);
         FqName fqName = classId.asSingleFqName();
         if (!fqName.equals(javaClass.getFqName())) {
-            throw new IllegalStateException("Requested " + fqName + ", got " + javaClass.getFqName());
+            return null;
         }
 
         if (psiClass instanceof KtLightClassMarker) {

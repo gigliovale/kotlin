@@ -18,20 +18,28 @@ package org.jetbrains.kotlin.cli.jvm.index
 
 import com.intellij.ide.highlighter.JavaClassFileType
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.impl.source.tree.ElementType
+import com.intellij.psi.tree.IElementType
 import com.intellij.util.containers.IntArrayList
 import gnu.trove.THashMap
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import java.util.*
+import kotlin.collections.ArrayList
 
 // speeds up finding files/classes in classpath/java source roots
 // NOT THREADSAFE, needs to be adapted/removed if we want compiler to be multithreaded
 // the main idea of this class is for each package to store roots which contains it to avoid excessive file system traversal
 class JvmDependenciesIndexImpl(_roots: List<JavaRoot>): JvmDependenciesIndex {
     //these fields are computed based on _roots passed to constructor which are filled in later
-    private val roots: List<JavaRoot> by lazy { _roots.toList() }
+    private val roots: List<JavaRoot> by lazy { _roots.filter { it.file.isDirectory }.toList() }
+
+    private val singleJavaFileRoots: List<JavaRoot> by lazy { _roots.filter { !it.file.isDirectory }.toList() }
 
     private val maxIndex: Int
         get() = roots.size
@@ -108,6 +116,74 @@ class JvmDependenciesIndexImpl(_roots: List<JavaRoot>): JvmDependenciesIndex {
                     search(FindClassRequest(classId, acceptedRootTypes), findClassGivenDirectory)
                 }
             }
+        }
+    }
+
+    override fun findJavaSourceClass(classId: ClassId): VirtualFile? =
+            singleJavaFileRoots.find { root -> classId in root.computeClassIds() }?.file
+
+    override fun findJavaSourceClasses(packageFqName: FqName): List<ClassId> =
+            singleJavaFileRoots.flatMap { root -> root.computeClassIds() }.filter { it.packageFqName == packageFqName }
+
+    // TODO: cache
+    private fun JavaRoot.computeClassIds(): List<ClassId> {
+        val file = file.also { assert(!file.isDirectory) { "Should not be a directory: $file" } }
+        return JavaSourceClassIdReader(file).readClassIds()
+    }
+
+    private class JavaSourceClassIdReader(file: VirtualFile) {
+        private val lexer = JavaLexer(LanguageLevel.JDK_1_9)
+        private var braceBalance = 0
+
+        init {
+            lexer.start(String(file.contentsToByteArray()))
+        }
+
+        private fun at(type: IElementType): Boolean = lexer.tokenType == type
+
+        private fun end(): Boolean = lexer.tokenType == null
+
+        private fun advance() {
+            if (at(ElementType.LBRACE)) braceBalance++
+            else if (at(ElementType.RBRACE)) braceBalance--
+            lexer.advance()
+        }
+
+        private fun tokenText(): String = lexer.tokenText
+
+        private fun atClass(): Boolean = at(ElementType.CLASS_KEYWORD) && braceBalance == 0
+
+        fun readClassIds(): List<ClassId> {
+            var packageFqName = FqName.ROOT
+            while (!end() && !at(ElementType.PACKAGE_KEYWORD) && !atClass()) {
+                advance()
+            }
+            if (at(ElementType.PACKAGE_KEYWORD)) {
+                val packageName = StringBuilder()
+                while (!end() && !at(ElementType.SEMICOLON)) {
+                    if (at(ElementType.IDENTIFIER) || at(ElementType.DOT)) {
+                        packageName.append(tokenText())
+                    }
+                    advance()
+                }
+                packageFqName = FqName(packageName.toString())
+            }
+
+            val result = ArrayList<ClassId>(1)
+
+            while (true) {
+                while (!end() && !atClass()) {
+                    advance()
+                }
+                if (end()) break
+                while (!end() && !at(ElementType.IDENTIFIER)) {
+                    advance()
+                }
+                if (!at(ElementType.IDENTIFIER)) break
+                result.add(ClassId(packageFqName, Name.identifier(tokenText())))
+            }
+
+            return result
         }
     }
 

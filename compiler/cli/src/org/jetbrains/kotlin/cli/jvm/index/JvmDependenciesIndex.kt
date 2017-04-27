@@ -30,6 +30,11 @@ interface JvmDependenciesIndex {
             findClassGivenDirectory: (VirtualFile, JavaRoot.RootType) -> T?
     ): T?
 
+    // TODO comment
+    fun findJavaSourceClass(classId: ClassId): VirtualFile?
+
+    fun findJavaSourceClasses(packageFqName: FqName): List<ClassId>
+
     fun traverseDirectoriesInPackage(
             packageFqName: FqName,
             acceptedRootTypes: Set<JavaRoot.RootType> = JavaRoot.SourceAndBinary,

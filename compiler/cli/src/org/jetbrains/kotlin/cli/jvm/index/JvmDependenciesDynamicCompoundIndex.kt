@@ -51,6 +51,14 @@ class JvmDependenciesDynamicCompoundIndex : JvmDependenciesIndex {
         indices.asSequence().mapNotNull { it.findClass(classId, acceptedRootTypes, findClassGivenDirectory) }.firstOrNull()
     }
 
+    override fun findJavaSourceClass(classId: ClassId): VirtualFile? = lock.read {
+        indices.asSequence().mapNotNull { it.findJavaSourceClass(classId) }.firstOrNull()
+    }
+
+    override fun findJavaSourceClasses(packageFqName: FqName): List<ClassId> = lock.read {
+        indices.flatMap { it.findJavaSourceClasses(packageFqName) }
+    }
+
     override fun traverseDirectoriesInPackage(
             packageFqName: FqName,
             acceptedRootTypes: Set<JavaRoot.RootType>,

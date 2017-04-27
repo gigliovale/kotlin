@@ -289,7 +289,8 @@ class KotlinCoreEnvironment private constructor(
                 return if (root.file.isFile) findJarRoot(root) else findLocalDirectory(root)
             }
             is JavaSourceRoot -> {
-                return if (root.file.isDirectory) findLocalDirectory(root) else null
+                // TODO: rename to findLocalFile?
+                return findLocalDirectory(root)
             }
             else -> throw IllegalStateException("Unexpected root: $root")
         }

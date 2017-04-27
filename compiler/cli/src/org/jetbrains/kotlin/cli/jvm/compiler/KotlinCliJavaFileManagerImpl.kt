@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.jvm.KotlinCliJavaFileManager
 import org.jetbrains.kotlin.util.PerformanceCounter
+import org.jetbrains.kotlin.utils.addIfNotNull
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -64,6 +65,7 @@ class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJ
             index.findClass(classId) { dir, type ->
                 findVirtualFileGivenPackage(dir, relativeClassName, type)
             }
+            ?: index.findJavaSourceClass(classId)
         }?.takeIf { it in searchScope }
     }
 
@@ -153,6 +155,7 @@ class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJ
                 // traverse all
                 true
             }
+            result.addIfNotNull(index.findJavaSourceClass(classId)?.takeIf { it in scope }?.findPsiClassInVirtualFile(relativeClassName))
             if (result.isNotEmpty()) {
                 return@time result.toTypedArray()
             }
@@ -169,6 +172,7 @@ class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJ
             //abort on first found
             false
         }
+        found = found or index.findJavaSourceClasses(packageFqName).isNotEmpty()
         if (found) {
             return PsiPackageImpl(myPsiManager, packageName)
         }
@@ -215,6 +219,11 @@ class KotlinCliJavaFileManagerImpl(private val myPsiManager: PsiManager) : CoreJ
 
             true
         })
+
+        for (classId in index.findJavaSourceClasses(packageFqName)) {
+            assert(!classId.isNestedClass) { "ClassId of a single .java source class should not be nested: $classId" }
+            result.add(classId.shortClassName.asString())
+        }
 
         return result
     }

@@ -7,7 +7,7 @@ class Test {
         val t = object {
             fun some() {
                 // See KT-13597
-                a = "12"
+                <!CAPTURED_VAL_INITIALIZATION!>a<!> = "12"
             }
         }
 
@@ -52,7 +52,7 @@ class Test4 {
     init {
         exec {
             // See KT-14381
-            a = "12"
+            <!CAPTURED_VAL_INITIALIZATION!>a<!> = "12"
         }
         a = "34"
     }

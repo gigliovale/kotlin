@@ -78,7 +78,6 @@ interface KotlinImportAliasStub : StubElement<KtImportAlias> {
 interface KotlinImportDirectiveStub : StubElement<KtImportDirective> {
     fun isAllUnder(): Boolean
     fun getImportedFqName(): FqName?
-    fun getAlias(): KotlinImportAliasStub?
     fun isValid(): Boolean
 }
 

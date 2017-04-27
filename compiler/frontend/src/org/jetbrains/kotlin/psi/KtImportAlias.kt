@@ -36,7 +36,7 @@ class KtImportAlias : KtElementImplStub<KotlinImportAliasStub>, PsiNameIdentifie
     val importDirective: KtImportDirective?
         get() = parent as? KtImportDirective
 
-    override fun getName() = nameIdentifier?.text
+    override fun getName() = stub?.getName() ?: nameIdentifier?.text
 
     override fun setName(name: String): PsiElement {
         nameIdentifier?.replace(KtPsiFactory(this).createNameIdentifier(name))

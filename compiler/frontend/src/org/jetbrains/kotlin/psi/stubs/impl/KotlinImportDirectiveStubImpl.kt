@@ -21,10 +21,8 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.util.io.StringRef
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtImportDirective
-import org.jetbrains.kotlin.psi.stubs.KotlinImportAliasStub
 import org.jetbrains.kotlin.psi.stubs.KotlinImportDirectiveStub
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
-import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 
 class KotlinImportDirectiveStubImpl(
         parent: StubElement<PsiElement>,
@@ -38,8 +36,6 @@ class KotlinImportDirectiveStubImpl(
         val fqNameString = StringRef.toString(importedFqName)
         return if (fqNameString != null) FqName(fqNameString) else null
     }
-
-    override fun getAlias() = childrenStubs.firstIsInstanceOrNull<KotlinImportAliasStub>()
 
     override fun isValid(): Boolean = isValid
 }

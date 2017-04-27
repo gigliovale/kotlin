@@ -87,7 +87,7 @@ fun PsiReference.matchesTarget(candidateTarget: PsiElement): Boolean {
             if (candidateTarget !is KtNamedFunction && candidateTarget !is KtParameter && candidateTarget !is PsiMethod) return false
         }
         is KtSimpleNameReference -> {
-            if (unwrappedCandidate is PsiMethod && !canBePsiMethodReference()) return false
+            if (unwrappedCandidate is PsiMethod && !canBePsiMethodReference(unwrappedCandidate)) return false
         }
     }
 
@@ -134,9 +134,16 @@ fun PsiReference.matchesTarget(candidateTarget: PsiElement): Boolean {
     return false
 }
 
-fun KtSimpleNameReference.canBePsiMethodReference(): Boolean {
+private fun KtSimpleNameReference.canBePsiMethodReference(candidateMethod: PsiMethod): Boolean {
     // NOTE: Accessor references are handled separately, see SyntheticPropertyAccessorReference
-    if (element == (element.parent as? KtCallExpression)?.calleeExpression) return true
+    val ktCallExpression = element.parent as? KtCallExpression
+    val calleeExpression = ktCallExpression?.calleeExpression
+    if (ktCallExpression != null && element == calleeExpression) {
+        val psiParametersCount = candidateMethod.parameterList.parametersCount
+        val refArgumentsCount = ktCallExpression.valueArguments.size
+
+        return psiParametersCount == refArgumentsCount
+    }
 
     val callableReference = element.getParentOfTypeAndBranch<KtCallableReferenceExpression> { callableReference }
     if (callableReference != null) return true
@@ -153,10 +160,10 @@ fun KtSimpleNameReference.canBePsiMethodReference(): Boolean {
 }
 
 private fun PsiElement.isConstructorOf(unwrappedCandidate: PsiElement) =
-    // call to Java constructor
+        // call to Java constructor
         (this is PsiMethod && isConstructor && containingClass == unwrappedCandidate) ||
         // call to Kotlin constructor
-    (this is KtConstructor<*> && getContainingClassOrObject() == unwrappedCandidate)
+        (this is KtConstructor<*> && getContainingClassOrObject() == unwrappedCandidate)
 
 fun AbstractKtReference<out KtExpression>.renameImplicitConventionalCall(newName: String?): KtExpression {
     if (newName == null) return expression

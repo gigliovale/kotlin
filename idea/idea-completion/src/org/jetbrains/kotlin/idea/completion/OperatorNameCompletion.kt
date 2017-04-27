@@ -39,16 +39,14 @@ object OperatorNameCompletion {
             INVOKE to "(...)"
     )
 
-    fun buildLookupElement(opName: Name): LookupElement {
+    private fun buildLookupElement(opName: Name): LookupElement {
         val element = LookupElementBuilder.create(opName)
 
         val symbol =
                 (OperatorConventions.getOperationSymbolForName(opName) as? KtSingleValueToken)?.value ?:
                 additionalOperatorPresentation[opName]
 
-        if(symbol != null)
-            return element.withTypeText(symbol)
-
+        if (symbol != null) return element.withTypeText(symbol)
         return element
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2015 JetBrains s.r.o.
+ * Copyright 2010-2017 JetBrains s.r.o.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public data class MatchGroup(public val value: String, public val range: IntRang
  */
 public class Regex
 @PublishedApi
-internal constructor(private @Transient var nativePattern: Pattern) : Serializable {
+internal constructor(private val nativePattern: Pattern) : Serializable {
 
 
     /** Creates a regular expression from the specified [pattern] string and the default options.  */
@@ -112,7 +112,6 @@ internal constructor(private @Transient var nativePattern: Pattern) : Serializab
     public val pattern: String
         get() = nativePattern.pattern()
 
-    @Transient
     private var _options: Set<RegexOption>? = null
     /** The set of options that were used to create this regular expression.  */
     public val options: Set<RegexOption> get() = _options ?: fromInt<RegexOption>(nativePattern.flags()).also { _options = it }
@@ -205,19 +204,17 @@ internal constructor(private @Transient var nativePattern: Pattern) : Serializab
      */
     public fun toPattern(): Pattern = nativePattern
 
-    private fun readObject(`in`: java.io.ObjectInputStream) {
-        val pattern = `in`.readUTF()
-        val flags = `in`.readInt()
-        nativePattern = Pattern.compile(pattern, flags)
+    private fun writeReplace(): Any = Serialized(nativePattern.pattern(), nativePattern.flags())
+
+    private class Serialized(val pattern: String, val flags: Int) : Serializable {
+        companion object {
+            private const val serialVersionUID: Long = 0L
+        }
+
+        private fun readResolve(): Any = Regex(Pattern.compile(pattern, flags))
     }
 
-    private fun writeObject(out: java.io.ObjectOutputStream) {
-        out.writeUTF(nativePattern.pattern())
-        out.writeInt(nativePattern.flags())
-    }
     companion object {
-        private const val serialVersionUID: Long = 1L
-
         /** Returns a literal regex for the specified [literal] string. */
         public fun fromLiteral(literal: String): Regex = literal.toRegex(RegexOption.LITERAL)
         /** Returns a literal pattern for the specified [literal] string. */

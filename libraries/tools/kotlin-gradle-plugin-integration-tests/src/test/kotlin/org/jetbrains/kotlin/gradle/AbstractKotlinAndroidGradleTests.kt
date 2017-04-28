@@ -16,7 +16,7 @@ abstract class AbstractKotlinAndroidGradleTests(
 ) : BaseGradleIT() {
 
     override fun defaultBuildOptions() =
-            super.defaultBuildOptions().copy(androidHome = File("../../../../dependencies/android-sdk-for-tests"),
+            super.defaultBuildOptions().copy(androidHome = File("../../../dependencies/android-sdk-for-tests"),
                                              androidGradlePluginVersion = androidGradlePluginVersion)
 
     @Test

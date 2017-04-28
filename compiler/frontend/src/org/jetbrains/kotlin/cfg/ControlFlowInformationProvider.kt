@@ -359,19 +359,6 @@ class ControlFlowInformationProvider private constructor(
         }
     }
 
-    private fun getDeclarationDescriptor(declaration: KtDeclaration?): DeclarationDescriptor? {
-        val descriptor = trace.get(BindingContext.DECLARATION_TO_DESCRIPTOR,
-                                   (declaration as? KtClassInitializer)?.containingDeclaration ?: declaration)
-        return if (descriptor is ClassDescriptor && declaration is KtClassInitializer) {
-            // For a class primary constructor, we cannot directly get ConstructorDescriptor by KtClassInitializer,
-            // so we have to do additional conversion: KtClassInitializer -> KtClassOrObject -> ClassDescriptor -> ConstructorDescriptor
-            descriptor.unsubstitutedPrimaryConstructor
-        }
-        else {
-            descriptor
-        }
-    }
-
     private fun isCapturedWrite(
             variableDescriptor: VariableDescriptor,
             writeValueInstruction: WriteValueInstruction
@@ -379,10 +366,10 @@ class ControlFlowInformationProvider private constructor(
         val containingDeclarationDescriptor = variableDescriptor.containingDeclaration
         // Do not consider top-level properties
         if (containingDeclarationDescriptor is PackageFragmentDescriptor) return false
-        var parentDeclaration = getElementParentDeclaration(writeValueInstruction.element, initAllowed = true)
+        var parentDeclaration = getElementParentDeclaration(writeValueInstruction.element)
         var fromChildMember = false
         while (true) {
-            val parentDescriptor = getDeclarationDescriptor(parentDeclaration)
+            val parentDescriptor = getDeclarationDescriptorIncludingConstructors(trace.bindingContext, parentDeclaration)
             if (parentDescriptor == containingDeclarationDescriptor) {
                 return false
             }
@@ -394,7 +381,7 @@ class ControlFlowInformationProvider private constructor(
                 // initializers, non-local functions (including secondary constructors)
                 // count here the same as its owner
                 fromChildMember = parentDeclaration is KtFunction
-                parentDeclaration = getElementParentDeclaration(parentDeclaration, initAllowed = true)
+                parentDeclaration = getElementParentDeclaration(parentDeclaration)
             }
             else {
                 return true
@@ -1051,10 +1038,22 @@ class ControlFlowInformationProvider private constructor(
 
     companion object {
 
-        // Should return KtDeclarationWithBody or KtClassOrObject
-        fun getElementParentDeclaration(element: KtElement, initAllowed: Boolean = false) =
-                if (!initAllowed) getParentOfType(element, KtDeclarationWithBody::class.java, KtClassOrObject::class.java)
-                else getParentOfType(element, KtDeclarationWithBody::class.java, KtClassOrObject::class.java, KtClassInitializer::class.java)
+        // Should return KtDeclarationWithBody, KtClassOrObject, or KtClassInitializer
+        fun getElementParentDeclaration(element: KtElement) =
+                getParentOfType(element, KtDeclarationWithBody::class.java, KtClassOrObject::class.java, KtClassInitializer::class.java)
+
+        fun getDeclarationDescriptorIncludingConstructors(context: BindingContext, declaration: KtDeclaration?): DeclarationDescriptor? {
+            val descriptor = context.get(DECLARATION_TO_DESCRIPTOR,
+                                       (declaration as? KtClassInitializer)?.containingDeclaration ?: declaration)
+            return if (descriptor is ClassDescriptor && declaration is KtClassInitializer) {
+                // For a class primary constructor, we cannot directly get ConstructorDescriptor by KtClassInitializer,
+                // so we have to do additional conversion: KtClassInitializer -> KtClassOrObject -> ClassDescriptor -> ConstructorDescriptor
+                descriptor.unsubstitutedPrimaryConstructor
+            }
+            else {
+                descriptor
+            }
+        }
 
         private fun isUsedAsResultOfLambda(usages: List<Instruction>): Boolean {
             for (usage in usages) {

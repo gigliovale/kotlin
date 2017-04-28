@@ -30,6 +30,9 @@
                         <goals>
                             <goal>js</goal>
                         </goals>
+                        <configuration>
+                            <output>${project.basedir}/customOutput/</output>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>test-compile</id>

@@ -7,10 +7,14 @@ FILE /innerClassWithDelegatingConstructor.kt
         INSTANCE_INITIALIZER_CALL classDescriptor='Outer'
     CLASS CLASS Inner
       $new: VALUE_PARAMETER this@Inner: Inner
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Outer
       CONSTRUCTOR public constructor Inner(x: kotlin.Int)
         $outer: VALUE_PARAMETER this@Outer: Outer
         VALUE_PARAMETER value-parameter x: kotlin.Int
         BLOCK_BODY
+          SET_FIELD '`this$0`: Outer' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+            value: GET_VAR 'this@Outer: Outer' type=Outer origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
           INSTANCE_INITIALIZER_CALL classDescriptor='Inner'
       PROPERTY public final val x: kotlin.Int
@@ -26,8 +30,12 @@ FILE /innerClassWithDelegatingConstructor.kt
       CONSTRUCTOR public constructor Inner()
         $outer: VALUE_PARAMETER this@Outer: Outer
         BLOCK_BODY
+          SET_FIELD '`this$0`: Outer' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+            value: GET_VAR 'this@Outer: Outer' type=Outer origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Inner(Int)'
-            $this: GET_VAR 'this@Outer: Outer' type=Outer origin=null
+            $this: GET_FIELD '`this$0`: Outer' type=Outer origin=null
+              receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
             x: CONST Int type=kotlin.Int value='0'
       FUN FAKE_OVERRIDE public open override fun equals(other: kotlin.Any?): kotlin.Boolean
       FUN FAKE_OVERRIDE public open override fun hashCode(): kotlin.Int

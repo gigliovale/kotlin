@@ -25,7 +25,9 @@ import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi2ir.getOuterClassForInnerClass
 import org.jetbrains.kotlin.psi2ir.intermediate.VariableLValue
+import org.jetbrains.kotlin.psi2ir.isEffectivelyInner
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.descriptorUtil.getSuperClassOrAny
@@ -108,7 +110,8 @@ class BodyGenerator(
             if (this is IrReturn || this is IrErrorExpression || this is IrThrow)
                 this
             else {
-                generateReturnExpression(startOffset, endOffset, this) }
+                generateReturnExpression(startOffset, endOffset, this)
+            }
 
 
     private fun generateReturnExpression(startOffset: Int, endOffset: Int, returnValue: IrExpression): IrReturnImpl {
@@ -119,10 +122,11 @@ class BodyGenerator(
                             returnValue)
     }
 
-
     fun generateSecondaryConstructorBody(ktConstructor: KtSecondaryConstructor): IrBody {
+        val classDescriptor = getOrFail(BindingContext.CONSTRUCTOR, ktConstructor).containingDeclaration as ClassDescriptor
         val irBlockBody = IrBlockBodyImpl(ktConstructor.startOffset, ktConstructor.endOffset)
 
+        generateOuterInstanceFieldInitialization(irBlockBody, classDescriptor)
         generateDelegatingConstructorCall(irBlockBody, ktConstructor)
 
         ktConstructor.bodyExpression?.let { ktBody ->
@@ -166,11 +170,12 @@ class BodyGenerator(
             loopTable[expression]
 
     fun generatePrimaryConstructorBody(ktClassOrObject: KtClassOrObject): IrBody {
+        val classDescriptor = (scopeOwner as ClassConstructorDescriptor).containingDeclaration
         val irBlockBody = IrBlockBodyImpl(ktClassOrObject.startOffset, ktClassOrObject.endOffset)
 
+        generateOuterInstanceFieldInitialization(irBlockBody, classDescriptor)
         generateSuperConstructorCall(irBlockBody, ktClassOrObject)
 
-        val classDescriptor = (scopeOwner as ClassConstructorDescriptor).containingDeclaration
         irBlockBody.statements.add(IrInstanceInitializerCallImpl(ktClassOrObject.startOffset, ktClassOrObject.endOffset,
                                                                  context.symbolTable.referenceClass(classDescriptor)))
 
@@ -178,19 +183,46 @@ class BodyGenerator(
     }
 
     fun generateSecondaryConstructorBodyWithNestedInitializers(ktConstructor: KtSecondaryConstructor): IrBody {
-        val irBlockBody = IrBlockBodyImpl(ktConstructor.startOffset, ktConstructor.endOffset)
+        val classDescriptor = getOrFail(BindingContext.CONSTRUCTOR, ktConstructor).containingDeclaration as ClassDescriptor
+        val startOffset = ktConstructor.startOffset
+        val endOffset = ktConstructor.endOffset
 
+        val irBlockBody = IrBlockBodyImpl(startOffset, endOffset)
+
+        generateOuterInstanceFieldInitialization(irBlockBody, classDescriptor)
         generateDelegatingConstructorCall(irBlockBody, ktConstructor)
 
-        val classDescriptor = getOrFail(BindingContext.CONSTRUCTOR, ktConstructor).containingDeclaration as ClassDescriptor
-        irBlockBody.statements.add(IrInstanceInitializerCallImpl(ktConstructor.startOffset, ktConstructor.endOffset,
-                                                                 context.symbolTable.referenceClass(classDescriptor)))
+        irBlockBody.statements.add(
+                IrInstanceInitializerCallImpl(
+                        startOffset, endOffset,
+                        context.symbolTable.referenceClass(classDescriptor)
+                )
+        )
 
         ktConstructor.bodyExpression?.let { ktBody ->
             createStatementGenerator().generateStatements(ktBody.statements, irBlockBody)
         }
 
         return irBlockBody
+    }
+
+    private fun generateOuterInstanceFieldInitialization(irBlockBody: IrBlockBodyImpl, classDescriptor: ClassDescriptor) {
+        if (!classDescriptor.isEffectivelyInner()) return
+
+        val startOffset = irBlockBody.startOffset
+        val endOffset = irBlockBody.endOffset
+
+        val outerClassDescriptor = classDescriptor.getOuterClassForInnerClass() ?:
+                                   throw AssertionError("No outer class for $classDescriptor")
+        val outerInstanceFieldSymbol = context.symbolTable.getOuterInstanceField(classDescriptor)
+        val thisSymbol = context.symbolTable.referenceValueParameter(classDescriptor.thisAsReceiverParameter)
+        val outerSymbol = context.symbolTable.FIXME_referenceValueParameterOrNull(outerClassDescriptor.thisAsReceiverParameter) ?: return
+
+        irBlockBody.statements.add(IrSetFieldImpl(
+                startOffset, endOffset, outerInstanceFieldSymbol,
+                IrGetValueImpl(startOffset, endOffset, thisSymbol, null),
+                IrGetValueImpl(startOffset, endOffset, outerSymbol, null)
+        ))
     }
 
     private fun generateSuperConstructorCall(irBlockBody: IrBlockBodyImpl, ktClassOrObject: KtClassOrObject) {

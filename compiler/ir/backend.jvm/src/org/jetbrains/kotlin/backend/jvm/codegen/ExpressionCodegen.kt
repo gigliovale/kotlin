@@ -40,6 +40,7 @@ import org.jetbrains.kotlin.resolve.jvm.AsmTypes.JAVA_THROWABLE_TYPE
 import org.jetbrains.kotlin.resolve.jvm.AsmTypes.OBJECT_TYPE
 import org.jetbrains.kotlin.synthetic.SyntheticJavaPropertyDescriptor
 import org.jetbrains.kotlin.types.KotlinType
+import org.jetbrains.kotlin.utils.addToStdlib.assertedCast
 import org.jetbrains.kotlin.utils.addToStdlib.firstIsInstanceOrNull
 import org.jetbrains.org.objectweb.asm.Label
 import org.jetbrains.org.objectweb.asm.Type
@@ -202,22 +203,30 @@ class ExpressionCodegen(
 
     private fun generateCall(expression: IrMemberAccessExpression, superQualifier: ClassDescriptor?, data: BlockInfo): StackValue {
         val callable = resolveToCallable(expression, superQualifier != null)
+        val calleeDescriptor = expression.descriptor
+
         if (callable is IrIntrinsicFunction) {
             return callable.invoke(mv, this, data)
-        } else {
-            val receiver = expression.dispatchReceiver
-            receiver?.apply {
-                gen(receiver, callable.dispatchReceiverType!!, data)
+        }
+        else {
+            expression.dispatchReceiver?.let { receiver ->
+                val dispatchReceiverType = when (calleeDescriptor) {
+                    is ClassConstructorDescriptor ->
+                        typeMapper.mapType(expression.descriptor.dispatchReceiverParameter!!.type)
+                    else ->
+                        callable.dispatchReceiverType!!
+                }
+                gen(receiver, dispatchReceiverType, data)
             }
 
             expression.extensionReceiver?.apply {
                 gen(this, callable.extensionReceiverType!!, data)
             }
 
-            val args = expression.descriptor.valueParameters.mapIndexed { i, valueParameterDescriptor ->
-                           expression.getValueArgument(i) ?:
-                           if (valueParameterDescriptor.hasDefaultValue()) DefaultArg(i) else Vararg(i)
-                       }
+            val args = calleeDescriptor.valueParameters.mapIndexed { i, valueParameterDescriptor ->
+                expression.getValueArgument(i) ?:
+                if (valueParameterDescriptor.hasDefaultValue()) DefaultArg(i) else Vararg(i)
+            }
 
             val defaultMask = DefaultCallArgs(callable.valueParameterTypes.size)
             args.forEachIndexed { i, expression ->
@@ -238,12 +247,12 @@ class ExpressionCodegen(
             }
 
 
-            if (!defaultMask.generateOnStackIfNeeded(mv, expression.descriptor is ConstructorDescriptor)) {
+            if (!defaultMask.generateOnStackIfNeeded(mv, calleeDescriptor is ConstructorDescriptor)) {
                 callable.genInvokeInstruction(mv)
             } else {
                 (callable as CallableMethod).genInvokeDefaultInstruction(mv)
             }
-            val returnType = expression.descriptor.returnType
+            val returnType = calleeDescriptor.returnType
             if (returnType != null && KotlinBuiltIns.isNothing(returnType)) {
                 mv.aconst(null)
                 mv.athrow()
@@ -870,26 +879,37 @@ class ExpressionCodegen(
         get() = StackValue.onStack(this.asmType)
 
     private fun resolveToCallable(irCall: IrMemberAccessExpression, isSuper: Boolean): Callable {
-        val intrinsic = intrinsics.getIntrinsic(irCall.descriptor.original as CallableMemberDescriptor)
-        if (intrinsic != null) {
-            return intrinsic.toCallable(irCall, typeMapper.mapSignatureSkipGeneric(irCall.descriptor as FunctionDescriptor), classCodegen.context)
+        intrinsics.getIntrinsic(irCall.descriptor.original as CallableMemberDescriptor)?.let { intrinsic ->
+            val signature = typeMapper.mapSignatureSkipGeneric(irCall.descriptor as FunctionDescriptor)
+            return intrinsic.toCallable(irCall, signature, classCodegen.context)
         }
 
-        var descriptor = irCall.descriptor
-        if (descriptor is TypeAliasConstructorDescriptor) {
-            //TODO where is best to unwrap?
-            descriptor = descriptor.underlyingConstructorDescriptor
-        }
-        if (descriptor is CallableMemberDescriptor && JvmCodegenUtil.getDirectMember(descriptor) is SyntheticJavaPropertyDescriptor) {
-            val propertyDescriptor = JvmCodegenUtil.getDirectMember(descriptor) as SyntheticJavaPropertyDescriptor
-            if (descriptor is PropertyGetterDescriptor) {
-                descriptor = propertyDescriptor.getMethod
+        return typeMapper.mapToCallableMethod(unwrapFunctionDescriptor(irCall.descriptor), isSuper)
+    }
+
+    private fun unwrapFunctionDescriptor(descriptor: CallableDescriptor): FunctionDescriptor {
+        return when (descriptor) {
+            is TypeAliasConstructorDescriptor ->
+                descriptor.underlyingConstructorDescriptor
+            is CallableMemberDescriptor -> {
+                val directMember = JvmCodegenUtil.getDirectMember(descriptor)
+                if (directMember is SyntheticJavaPropertyDescriptor) {
+                    if (descriptor is PropertyGetterDescriptor) {
+                        directMember.getMethod
+                    }
+                    else {
+                        directMember.setMethod!!
+                    }
+                }
+                else {
+                    descriptor.assertedCast { "Unexpected callable: $descriptor" }
+                }
             }
-            else {
-                descriptor = propertyDescriptor.setMethod!!
-            }
+            is FunctionDescriptor ->
+                descriptor
+            else ->
+                throw AssertionError("Unexpected callable: $descriptor")
         }
-        return typeMapper.mapToCallableMethod(descriptor as FunctionDescriptor, isSuper)
     }
 
     private val KotlinType.asmType: Type

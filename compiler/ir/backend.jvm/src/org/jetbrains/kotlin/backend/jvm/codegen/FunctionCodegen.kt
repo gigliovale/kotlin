@@ -110,13 +110,22 @@ fun createFrameMapWithReceivers(
     val frameMap = FrameMap()
     if (!isStatic) {
         val descriptorForThis =
-                if (function is ClassConstructorDescriptor)
-                    function.containingDeclaration.thisAsReceiverParameter
-                else
-                    function.dispatchReceiverParameter
+                when (function) {
+                    is ClassConstructorDescriptor ->
+                        function.containingDeclaration.thisAsReceiverParameter
+                    else ->
+                        function.dispatchReceiverParameter
+                }
 
         frameMap.enter(descriptorForThis, AsmTypes.OBJECT_TYPE)
     }
+
+    if (function is ClassConstructorDescriptor) {
+        function.dispatchReceiverParameter?.let { outerClassInstanceParameter ->
+            frameMap.enter(outerClassInstanceParameter, AsmTypes.OBJECT_TYPE)
+        }
+    }
+
 
     for (parameter in signature.valueParameters) {
         if (parameter.kind == JvmMethodParameterKind.RECEIVER) {

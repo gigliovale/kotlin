@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
 import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.symbols.impl.*
+import org.jetbrains.kotlin.psi2ir.isEffectivelyInner
 
 class SymbolTable {
     private abstract class SymbolTableBase<D : DeclarationDescriptor, B : IrSymbolOwner, S : IrBindableSymbol<D, B>> {
@@ -158,6 +159,8 @@ class SymbolTable {
     private val variableSymbolTable = ScopedSymbolTable<VariableDescriptor, IrVariable, IrVariableSymbol>()
     private val scopedSymbolTables = listOf(typeParameterSymbolTable, valueParameterSymbolTable, variableSymbolTable)
 
+    private val outerInstanceForClass = HashMap<ClassDescriptor, IrFieldSymbol>()
+
     fun declareFile(fileEntry: SourceManager.FileEntry, packageFragmentDescriptor: PackageFragmentDescriptor): IrFile =
             IrFileImpl(fileEntry, IrFileSymbolImpl(packageFragmentDescriptor))
 
@@ -265,6 +268,10 @@ class SymbolTable {
                 throw AssertionError("Undefined parameter referenced: $descriptor\n${valueParameterSymbolTable.dump()}")
             }
 
+    @Deprecated("Fix me: KT-17632")
+    fun FIXME_referenceValueParameterOrNull(descriptor: ParameterDescriptor): IrValueParameterSymbol? =
+            valueParameterSymbolTable.referenced(descriptor) { return null }
+
     val unboundValueParameters: Set<IrValueParameterSymbol> get() = valueParameterSymbolTable.unboundSymbols
 
     fun declareVariable(startOffset: Int, endOffset: Int, origin: IrDeclarationOrigin, descriptor: VariableDescriptor): IrVariable =
@@ -325,6 +332,20 @@ class SymbolTable {
                 else ->
                     throw IllegalArgumentException("Unexpected classifier descriptor: $classifier")
             }
+
+    fun declareOuterInstanceField(startOffset: Int, endOffset: Int, origin: IrDeclarationOrigin, outerInstanceFieldDescriptor: PropertyDescriptor): IrField {
+        val containingClass = outerInstanceFieldDescriptor.containingDeclaration as ClassDescriptor
+        assert(containingClass.isEffectivelyInner()) { "Containing class for outer instance field should be inner: $containingClass" }
+        val field = declareField(startOffset, endOffset, origin, outerInstanceFieldDescriptor)
+        outerInstanceForClass[containingClass] = field.symbol
+        return field
+    }
+
+    fun getOuterInstanceField(classDescriptor: ClassDescriptor): IrFieldSymbol =
+            if (classDescriptor.isEffectivelyInner())
+                outerInstanceForClass[classDescriptor]!!
+            else
+                throw IllegalArgumentException("Not an inner class: $classDescriptor")
 }
 
 inline fun <T> SymbolTable.withScope(owner: DeclarationDescriptor, block: () -> T): T {

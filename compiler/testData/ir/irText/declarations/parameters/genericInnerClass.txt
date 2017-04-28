@@ -9,9 +9,13 @@ FILE /genericInnerClass.kt
     CLASS CLASS Inner
       $new: VALUE_PARAMETER this@Inner: Inner<T2, T1>
       TYPE_PARAMETER <T2>
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Outer<T1>
       CONSTRUCTOR public constructor Inner<T2>()
         $outer: VALUE_PARAMETER this@Outer: Outer<T1>
         BLOCK_BODY
+          SET_FIELD '`this$0`: Outer<T1>' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@Inner: Inner<T2, T1>' type=Outer<T1>.Inner<T2> origin=null
+            value: GET_VAR 'this@Outer: Outer<T1>' type=Outer<T1> origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
           INSTANCE_INITIALIZER_CALL classDescriptor='Inner'
       FUN public final fun foo(x1: T1, x2: T2): kotlin.Unit

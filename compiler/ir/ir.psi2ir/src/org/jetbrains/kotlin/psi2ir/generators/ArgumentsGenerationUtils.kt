@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi2ir.getOuterClassForInnerClass
 import org.jetbrains.kotlin.psi2ir.intermediate.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
@@ -56,8 +57,7 @@ fun StatementGenerator.generateReceiver(startOffset: Int, endOffset: Int, receiv
                     if (shouldGenerateReceiverAsSingletonReference(receiverClassDescriptor))
                         generateSingletonReference(receiverClassDescriptor, startOffset, endOffset, receiver.type)
                     else
-                        IrGetValueImpl(startOffset, endOffset,
-                                       context.symbolTable.referenceValueParameter(receiverClassDescriptor.thisAsReceiverParameter))
+                        generateThisOrOuterReference(receiverClassDescriptor, startOffset, endOffset)
                 }
                 is ThisClassReceiver ->
                     generateThisOrSuperReceiver(receiver, receiver.classDescriptor)
@@ -80,6 +80,28 @@ fun StatementGenerator.generateReceiver(startOffset: Int, endOffset: Int, receiv
             else
                 OnceExpressionValue(receiverExpression)
         }
+
+fun StatementGenerator.generateThisOrOuterReference(receiverClassDescriptor: ClassDescriptor, startOffset: Int, endOffset: Int): IrExpression {
+    val thisClass = scopeOwner as? ClassDescriptor ?:
+                    DescriptorUtils.getContainingClass(scopeOwner) ?:
+                    throw AssertionError("No 'this' in current scope, owner: $scopeOwner")
+
+    var currentClass = thisClass
+
+    var result: IrExpression = IrGetValueImpl(
+            startOffset, endOffset,
+            context.symbolTable.referenceValueParameter(thisClass.thisAsReceiverParameter)
+    )
+    while (currentClass != receiverClassDescriptor) {
+        val outerInstanceFieldSymbol = context.symbolTable.getOuterInstanceField(currentClass)
+        result = IrGetFieldImpl(startOffset, endOffset, outerInstanceFieldSymbol, result)
+
+        currentClass = currentClass.getOuterClassForInnerClass() ?:
+                       throw AssertionError("Class $receiverClassDescriptor is not an outer class of $thisClass")
+    }
+
+    return result
+}
 
 fun StatementGenerator.generateSingletonReference(descriptor: ClassDescriptor, startOffset: Int, endOffset: Int, type: KotlinType): IrDeclarationReference =
         when {

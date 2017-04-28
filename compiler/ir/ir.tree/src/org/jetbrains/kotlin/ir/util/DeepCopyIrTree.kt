@@ -94,6 +94,7 @@ open class DeepCopyIrTree : IrElementTransformerVoid() {
                     mapClassDeclaration(declaration.descriptor),
                     declaration.declarations.map { it.transform() }
             ).apply {
+                newInstanceReceiver = newInstanceReceiver?.transform()
                 transformTypeParameters(declaration, descriptor.declaredTypeParameters)
             }
 

@@ -29,9 +29,13 @@ FILE /class.kt
     CLASS CLASS TestInner
       $new: VALUE_PARAMETER this@TestInner: TestInner<T2, T0>
       TYPE_PARAMETER <T2>
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Test<T0>
       CONSTRUCTOR public constructor TestInner<T2>()
         $outer: VALUE_PARAMETER this@Test: Test<T0>
         BLOCK_BODY
+          SET_FIELD '`this$0`: Test<T0>' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@TestInner: TestInner<T2, T0>' type=Test<T0>.TestInner<T2> origin=null
+            value: GET_VAR 'this@Test: Test<T0>' type=Test<T0> origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
           INSTANCE_INITIALIZER_CALL classDescriptor='TestInner'
       FUN FAKE_OVERRIDE public open override fun equals(other: kotlin.Any?): kotlin.Boolean

@@ -75,9 +75,13 @@ FILE /initBlock.kt
           message: CONST String type=kotlin.String value='1'
     CLASS CLASS TestInner
       $new: VALUE_PARAMETER this@TestInner: TestInner
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Test5
       CONSTRUCTOR public constructor TestInner()
         $outer: VALUE_PARAMETER this@Test5: Test5
         BLOCK_BODY
+          SET_FIELD '`this$0`: Test5' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@TestInner: TestInner' type=Test5.TestInner origin=null
+            value: GET_VAR 'this@Test5: Test5' type=Test5 origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
           INSTANCE_INITIALIZER_CALL classDescriptor='TestInner'
       ANONYMOUS_INITIALIZER TestInner

@@ -53,10 +53,14 @@ FILE /constructor.kt
     CLASS CLASS TestInner
       $new: VALUE_PARAMETER this@TestInner: TestInner<Z>
       TYPE_PARAMETER <Z>
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Test2
       CONSTRUCTOR public constructor TestInner<Z>(z: Z)
         $outer: VALUE_PARAMETER this@Test2: Test2
         VALUE_PARAMETER value-parameter z: Z
         BLOCK_BODY
+          SET_FIELD '`this$0`: Test2' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@TestInner: TestInner<Z>' type=Test2.TestInner<Z> origin=null
+            value: GET_VAR 'this@Test2: Test2' type=Test2 origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
           INSTANCE_INITIALIZER_CALL classDescriptor='TestInner'
       PROPERTY public final val z: Z
@@ -74,9 +78,13 @@ FILE /constructor.kt
         VALUE_PARAMETER value-parameter z: Z
         VALUE_PARAMETER value-parameter i: kotlin.Int
         BLOCK_BODY
+          SET_FIELD '`this$0`: Test2' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@TestInner: TestInner<Z>' type=Test2.TestInner<Z> origin=null
+            value: GET_VAR 'this@Test2: Test2' type=Test2 origin=null
           DELEGATING_CONSTRUCTOR_CALL 'constructor TestInner(Z)'
             <Z>: Z
-            $this: GET_VAR 'this@Test2: Test2' type=Test2 origin=null
+            $this: GET_FIELD '`this$0`: Test2' type=Test2 origin=null
+              receiver: GET_VAR 'this@TestInner: TestInner<Z>' type=Test2.TestInner<Z> origin=null
             z: GET_VAR 'value-parameter z: Z' type=Z origin=null
       FUN FAKE_OVERRIDE public open override fun equals(other: kotlin.Any?): kotlin.Boolean
       FUN FAKE_OVERRIDE public open override fun hashCode(): kotlin.Int

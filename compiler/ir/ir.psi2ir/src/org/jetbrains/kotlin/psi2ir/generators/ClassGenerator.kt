@@ -18,16 +18,20 @@ package org.jetbrains.kotlin.psi2ir.generators
 
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.annotations.Annotations
+import org.jetbrains.kotlin.descriptors.impl.PropertyDescriptorImpl
 import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrPropertyImpl
 import org.jetbrains.kotlin.ir.descriptors.IrImplementingDelegateDescriptorImpl
 import org.jetbrains.kotlin.ir.expressions.impl.*
 import org.jetbrains.kotlin.ir.expressions.mapValueParameters
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtDelegatedSuperTypeEntry
 import org.jetbrains.kotlin.psi.KtEnumEntry
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
+import org.jetbrains.kotlin.psi2ir.getOuterClassForInnerClass
 import org.jetbrains.kotlin.renderer.ClassifierNamePolicy
 import org.jetbrains.kotlin.renderer.DescriptorRenderer
 import org.jetbrains.kotlin.renderer.DescriptorRendererModifier
@@ -35,6 +39,7 @@ import org.jetbrains.kotlin.renderer.OverrideRenderingPolicy
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.DescriptorUtils
 import org.jetbrains.kotlin.resolve.scopes.DescriptorKindFilter
+import org.jetbrains.kotlin.utils.addIfNotNull
 import org.jetbrains.kotlin.utils.addToStdlib.safeAs
 import java.lang.AssertionError
 import java.util.*
@@ -42,24 +47,21 @@ import java.util.*
 class ClassGenerator(declarationGenerator: DeclarationGenerator) : DeclarationGeneratorExtension(declarationGenerator) {
     fun generateClass(ktClassOrObject: KtClassOrObject): IrClass {
         val descriptor = getOrFail(BindingContext.CLASS, ktClassOrObject)
+        val startOffset = ktClassOrObject.startOffset
+        val endOffset = ktClassOrObject.endOffset
 
         return context.symbolTable.declareClass(
-                ktClassOrObject.startOffset, ktClassOrObject.endOffset,
+                startOffset, endOffset,
                 IrDeclarationOrigin.DEFINED,
                 descriptor
         ).buildWithScope { irClass ->
-            if (irClass.descriptor.canHaveInitializersWithInstanceReference()) {
-                irClass.newInstanceReceiver = context.symbolTable.declareValueParameter(
-                        ktClassOrObject.startOffset, ktClassOrObject.endOffset,
-                        IrDeclarationOrigin.NEW_INSTANCE_RECEIVER,
-                        irClass.descriptor.thisAsReceiverParameter
-                )
-            }
+            irClass.newInstanceReceiver = createNewInstanceReceiverValueParameter(descriptor, startOffset, endOffset)
+
+            irClass.declarations.addIfNotNull(createOuterClassInstanceField(descriptor, startOffset, endOffset))
 
             declarationGenerator.generateTypeParameterDeclarations(irClass, descriptor.declaredTypeParameters)
 
-            val irPrimaryConstructor = generatePrimaryConstructor(irClass, ktClassOrObject)
-            if (irPrimaryConstructor != null) {
+            generatePrimaryConstructor(irClass, ktClassOrObject)?.let { irPrimaryConstructor ->
                 generateDeclarationsForPrimaryConstructorParameters(irClass, irPrimaryConstructor, ktClassOrObject)
             }
 
@@ -77,6 +79,46 @@ class ClassGenerator(declarationGenerator: DeclarationGenerator) : DeclarationGe
                 generateAdditionalMembersForEnumClass(irClass)
             }
         }
+    }
+
+    private fun createNewInstanceReceiverValueParameter(descriptor: ClassDescriptor, startOffset: Int, endOffset: Int): IrValueParameter? =
+            if (!descriptor.canHaveInitializersWithInstanceReference())
+                null
+            else
+                context.symbolTable.declareValueParameter(
+                        startOffset, endOffset,
+                        IrDeclarationOrigin.NEW_INSTANCE_RECEIVER,
+                        descriptor.thisAsReceiverParameter
+                )
+
+    private fun createOuterClassInstanceField(descriptor: ClassDescriptor, startOffset: Int, endOffset: Int): IrField? {
+        val outerClassDescriptor = descriptor.getOuterClassForInnerClass() ?: return null
+
+        val outerInstanceFieldDescriptor = PropertyDescriptorImpl.create(
+                descriptor,
+                Annotations.EMPTY,
+                Modality.FINAL,
+                Visibilities.PROTECTED,
+                false,
+                Name.identifier("this$0"),
+                CallableMemberDescriptor.Kind.SYNTHESIZED,
+                descriptor.source,
+                false, false, false, false, false, false
+        ).apply {
+            setType(
+                    outerClassDescriptor.defaultType,
+                    emptyList<TypeParameterDescriptor>(),
+                    descriptor.thisAsReceiverParameter,
+                    null as ReceiverParameterDescriptor?
+            )
+            initialize(null, null)
+        }
+
+        return context.symbolTable.declareOuterInstanceField(
+                startOffset, endOffset,
+                IrDeclarationOrigin.IR_OUTER_INSTANCE_FIELD,
+                outerInstanceFieldDescriptor
+        )
     }
 
     private fun ClassDescriptor.canHaveInitializersWithInstanceReference(): Boolean =

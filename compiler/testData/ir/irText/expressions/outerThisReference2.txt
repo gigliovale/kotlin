@@ -1,0 +1,61 @@
+FILE /outerThisReference2.kt
+  CLASS CLASS Outer
+    $new: VALUE_PARAMETER this@Outer: Outer
+    CONSTRUCTOR public constructor Outer(x: kotlin.String)
+      VALUE_PARAMETER value-parameter x: kotlin.String
+      BLOCK_BODY
+        DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+        INSTANCE_INITIALIZER_CALL classDescriptor='Outer'
+    PROPERTY public final val x: kotlin.String
+      FIELD PROPERTY_BACKING_FIELD public final val x: kotlin.String
+        EXPRESSION_BODY
+          GET_VAR 'value-parameter x: String' type=kotlin.String origin=INITIALIZE_PROPERTY_FROM_PARAMETER
+      FUN DEFAULT_PROPERTY_ACCESSOR public final fun <get-x>(): kotlin.String
+        $this: VALUE_PARAMETER this@Outer: Outer
+        BLOCK_BODY
+          RETURN type=kotlin.Nothing from='<get-x>(): String'
+            GET_FIELD 'x: String' type=kotlin.String origin=null
+              receiver: GET_VAR 'this@Outer: Outer' type=Outer origin=null
+    CLASS CLASS Inner
+      $new: VALUE_PARAMETER this@Inner: Inner
+      FIELD IR_OUTER_INSTANCE_FIELD protected final val `this$0`: Outer
+      CONSTRUCTOR public constructor Inner(y: kotlin.String)
+        $outer: VALUE_PARAMETER this@Outer: Outer
+        VALUE_PARAMETER value-parameter y: kotlin.String
+        BLOCK_BODY
+          SET_FIELD '`this$0`: Outer' type=kotlin.Unit origin=null
+            receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+            value: GET_VAR 'this@Outer: Outer' type=Outer origin=null
+          DELEGATING_CONSTRUCTOR_CALL 'constructor Any()'
+          INSTANCE_INITIALIZER_CALL classDescriptor='Inner'
+      PROPERTY public final val y: kotlin.String
+        FIELD PROPERTY_BACKING_FIELD public final val y: kotlin.String
+          EXPRESSION_BODY
+            GET_VAR 'value-parameter y: String' type=kotlin.String origin=INITIALIZE_PROPERTY_FROM_PARAMETER
+        FUN DEFAULT_PROPERTY_ACCESSOR public final fun <get-y>(): kotlin.String
+          $this: VALUE_PARAMETER this@Inner: Inner
+          BLOCK_BODY
+            RETURN type=kotlin.Nothing from='<get-y>(): String'
+              GET_FIELD 'y: String' type=kotlin.String origin=null
+                receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+      PROPERTY public final val z: kotlin.String
+        FIELD PROPERTY_BACKING_FIELD public final val z: kotlin.String
+          EXPRESSION_BODY
+            CALL 'plus(Any?): String' type=kotlin.String origin=PLUS
+              $this: CALL '<get-x>(): String' type=kotlin.String origin=GET_PROPERTY
+                $this: GET_FIELD '`this$0`: Outer' type=Outer origin=null
+                  receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+              other: CALL '<get-y>(): String' type=kotlin.String origin=GET_PROPERTY
+                $this: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+        FUN DEFAULT_PROPERTY_ACCESSOR public final fun <get-z>(): kotlin.String
+          $this: VALUE_PARAMETER this@Inner: Inner
+          BLOCK_BODY
+            RETURN type=kotlin.Nothing from='<get-z>(): String'
+              GET_FIELD 'z: String' type=kotlin.String origin=null
+                receiver: GET_VAR 'this@Inner: Inner' type=Outer.Inner origin=null
+      FUN FAKE_OVERRIDE public open override fun equals(other: kotlin.Any?): kotlin.Boolean
+      FUN FAKE_OVERRIDE public open override fun hashCode(): kotlin.Int
+      FUN FAKE_OVERRIDE public open override fun toString(): kotlin.String
+    FUN FAKE_OVERRIDE public open override fun equals(other: kotlin.Any?): kotlin.Boolean
+    FUN FAKE_OVERRIDE public open override fun hashCode(): kotlin.Int
+    FUN FAKE_OVERRIDE public open override fun toString(): kotlin.String

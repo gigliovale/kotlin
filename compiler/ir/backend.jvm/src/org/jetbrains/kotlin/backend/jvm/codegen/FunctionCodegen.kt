@@ -122,7 +122,7 @@ fun createFrameMapWithReceivers(
 
     if (function is ClassConstructorDescriptor) {
         function.dispatchReceiverParameter?.let { outerClassInstanceParameter ->
-            frameMap.enter(outerClassInstanceParameter, AsmTypes.OBJECT_TYPE)
+            frameMap.enter(outerClassInstanceParameter, state.typeMapper.mapType(outerClassInstanceParameter))
         }
     }
 
@@ -136,6 +136,9 @@ fun createFrameMapWithReceivers(
             else {
                 frameMap.enterTemp(parameter.asmType)
             }
+        }
+        else if (parameter.kind == JvmMethodParameterKind.OUTER) {
+            continue
         }
         else if (parameter.kind != JvmMethodParameterKind.VALUE) {
             frameMap.enterTemp(parameter.asmType)

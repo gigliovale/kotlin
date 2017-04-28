@@ -46,14 +46,8 @@ compileGroovy.dependsOn.remove("compileJava")
 
 def groovyClassesDir = file("${buildDir}/mainGroovyClasses")
 compileGroovy.destinationDir = groovyClassesDir
-
-compileKotlin.inputs.file(groovyClassesDir)
-compileKotlin.doFirst {
-    sourceSets.main.compileClasspath += files(groovyClassesDir)
-}
-compileKotlin.doLast {
-    sourceSets.main.compileClasspath -= files(groovyClassesDir)
-}
+sourceSets.main.compileClasspath += files(groovyClassesDir)
+compileGroovy.classpath = sourceSets.main.compileClasspath - files(groovyClassesDir)
 
 processResources {
     expand(project.properties)

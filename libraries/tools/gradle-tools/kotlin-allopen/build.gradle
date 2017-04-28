@@ -18,7 +18,7 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
 }
 
-def originalSrc = "$kotlinRoot/plugins/allopen/allopen-cli/src"
+def originalSrc = "$kotlin_root/plugins/allopen/allopen-cli/src"
 def targetSrc = file("$buildDir/allopen-target-src")
 
 task preprocessSources(type: Copy) {

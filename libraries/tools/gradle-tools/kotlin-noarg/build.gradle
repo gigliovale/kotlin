@@ -24,7 +24,7 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
 }
 
-def originalSrc = "$kotlinRoot/plugins/noarg/noarg-cli/src"
+def originalSrc = "$kotlin_rootoot/plugins/noarg/noarg-cli/src"
 def targetSrc = file("$buildDir/noarg-target-src")
 
 task preprocessSources(type: Copy) {

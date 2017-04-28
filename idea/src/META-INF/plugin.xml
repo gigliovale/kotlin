@@ -2151,7 +2151,7 @@
     <psi.clsCustomNavigationPolicy implementation="org.jetbrains.kotlin.idea.core.script.dependencies.ScriptDependencySourceNavigationPolicyForJavaClasses"/>
     <resolveScopeProvider implementation="org.jetbrains.kotlin.idea.core.script.dependencies.KotlinScriptResolveScopeProvider"/>
 
-    <codeInsight.intention.uastModificationsRegistry language="kotlin" implementationClass="org.jetbrains.kotlin.idea.intentions.KotlinUastModificationsRegistry"/>
+    <codeInsight.intention.commonChangeModifiers language="kotlin" implementationClass="org.jetbrains.kotlin.idea.intentions.KotlinJavaMappedChangeModifiers"/>
   </extensions>
 
   <extensions defaultExtensionNs="org.jetbrains.uast">

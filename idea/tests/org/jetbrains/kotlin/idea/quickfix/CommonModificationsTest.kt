@@ -16,8 +16,7 @@
 
 package org.jetbrains.kotlin.idea.quickfix
 
-import com.intellij.codeInsight.intention.UastChangeModifiers
-import com.intellij.codeInsight.intention.UastModificationsRegistry
+import com.intellij.codeInsight.intention.CommonChangeModifiers
 import com.intellij.lang.Language
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.psi.PsiModifier
@@ -28,7 +27,7 @@ import org.jetbrains.uast.UastContext
 import org.jetbrains.uast.convert
 
 
-class UastOperationsTest : LightPlatformCodeInsightFixtureTestCase() {
+class CommonModificationsTest : LightPlatformCodeInsightFixtureTestCase() {
 
     fun testMakeNotFinal() {
         myFixture.configureByText("foo.kt", """
@@ -82,11 +81,8 @@ class UastOperationsTest : LightPlatformCodeInsightFixtureTestCase() {
         return uastLanguagePlugin.convert<UDeclaration>(elementAtCaret, null)
     }
 
-    private val uastModificationsRegistry: UastModificationsRegistry
-        get() = UastModificationsRegistry.forLanguage(Language.findLanguageByID("kotlin")!!)!!
-
-    private val uastChangeModifiers: UastChangeModifiers
-        get() = uastModificationsRegistry.modificationSupport(UastChangeModifiers.modificationKey)!!
+    private val uastChangeModifiers: CommonChangeModifiers
+        get() = CommonChangeModifiers.forLanguage(Language.findLanguageByID("kotlin")!!)
 
 }
 

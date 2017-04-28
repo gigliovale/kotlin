@@ -16,10 +16,7 @@
 
 package org.jetbrains.kotlin.idea.intentions
 
-import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.codeInsight.intention.UastChangeModifiers
-import com.intellij.codeInsight.intention.UastModificationKey
-import com.intellij.codeInsight.intention.UastModificationsRegistry
+import com.intellij.codeInsight.intention.*
 import com.intellij.psi.PsiModifier
 import org.jetbrains.kotlin.asJava.elements.KtLightElement
 import org.jetbrains.kotlin.idea.quickfix.AddModifierFix
@@ -29,18 +26,7 @@ import org.jetbrains.kotlin.psi.KtModifierListOwner
 import org.jetbrains.uast.UDeclaration
 
 
-class KotlinUastModificationsRegistry : UastModificationsRegistry() {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> modificationSupport(modificationKey: UastModificationKey<T>): T? =
-            when (modificationKey) {
-                UastChangeModifiers.modificationKey -> KotlinJavaMappedChangeModifiers()
-                else -> null
-            } as T?
-
-}
-
-class KotlinJavaMappedChangeModifiers : UastChangeModifiers() {
+class KotlinJavaMappedChangeModifiers : CommonChangeModifiers() {
     override fun changeModifier(declaration: UDeclaration, modifier: String, shouldPresent: Boolean): IntentionAction? {
         val kModifierOwner = (declaration.psi as? KtLightElement<*, *>?)?.kotlinOrigin as? KtModifierListOwner?
                              ?: throw IllegalArgumentException("$declaration is expected to contain KtLightElement with KtModifierListOwner")

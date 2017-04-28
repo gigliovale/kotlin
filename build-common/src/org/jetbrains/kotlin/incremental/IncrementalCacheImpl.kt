@@ -23,7 +23,6 @@ import com.intellij.util.io.BooleanDataDescriptor
 import com.intellij.util.io.EnumeratorStringDescriptor
 import gnu.trove.THashSet
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.kotlin.build.GeneratedJavaStub
 import org.jetbrains.kotlin.build.GeneratedJvmClass
 import org.jetbrains.kotlin.config.IncrementalCompilation
 import org.jetbrains.kotlin.incremental.ChangeInfo.MembersChanged
@@ -153,10 +152,6 @@ open class IncrementalCacheImpl<Target>(
         protoMap.process(jvmClassName, file.readBytes(), emptyArray<String>(), isPackage = false, checkChangesIsOpenPart = false)
         dirtyOutputClassesMap.notDirty(MODULE_MAPPING_FILE_NAME)
         sourceFiles.forEach { sourceToClassesMap.add(it, jvmClassName) }
-        return CompilationResult.NO_CHANGES
-    }
-
-    open fun saveFileToCache(javaStub: GeneratedJavaStub<Target>): CompilationResult {
         return CompilationResult.NO_CHANGES
     }
 

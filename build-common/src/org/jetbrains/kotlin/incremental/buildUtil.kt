@@ -122,7 +122,6 @@ fun<Target> updateIncrementalCaches(
         val ic = getIncrementalCache(generatedFile.target)
         when {
             generatedFile is GeneratedJvmClass<Target> -> changesInfo += ic.saveFileToCache(generatedFile)
-            generatedFile is GeneratedJavaStub<Target> -> changesInfo += ic.saveFileToCache(generatedFile)
             generatedFile.outputFile.isModuleMappingFile() -> changesInfo += ic.saveModuleMappingToCache(generatedFile.sourceFiles, generatedFile.outputFile)
         }
     }
@@ -165,12 +164,11 @@ fun<Target> OutputItemsCollectorImpl.generatedFiles(
                 outputItem.sourceFiles.firstOrNull()?.let { sourceToTarget[it] } ?:
                 targets.filter { getOutputDir(it)?.let { outputItem.outputFile.startsWith(it) } ?: false }.singleOrNull() ?:
                 representativeTarget
-        if (outputItem.outputFile.extension == "class")
-            GeneratedJvmClass(target, outputItem.sourceFiles, outputItem.outputFile)
-        else if (outputItem.outputFile.extension == "java")
-            GeneratedJavaStub(target, outputItem.sourceFiles, outputItem.outputFile)
-        else
-            GeneratedFile(target, outputItem.sourceFiles, outputItem.outputFile)
+
+        when (outputItem.outputFile.extension) {
+            "class" -> GeneratedJvmClass(target, outputItem.sourceFiles, outputItem.outputFile)
+            else -> GeneratedFile(target, outputItem.sourceFiles, outputItem.outputFile)
+        }
     }
 }
 

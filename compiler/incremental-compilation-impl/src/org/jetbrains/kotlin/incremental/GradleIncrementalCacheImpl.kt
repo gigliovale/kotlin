@@ -16,7 +16,6 @@
 
 package org.jetbrains.kotlin.incremental
 
-import org.jetbrains.kotlin.build.GeneratedJavaStub
 import org.jetbrains.kotlin.build.GeneratedJvmClass
 import org.jetbrains.kotlin.incremental.snapshots.FileSnapshotMap
 import org.jetbrains.kotlin.incremental.storage.BasicStringMap
@@ -46,11 +45,6 @@ class GradleIncrementalCacheImpl(
     fun removeClassfilesBySources(sources: Iterable<File>) = sources.forEach {
         sourceToClassfilesMap.remove(it)
         sourceToJavaStubsMap.remove(it)
-    }
-
-    override fun saveFileToCache(javaStub: GeneratedJavaStub<TargetId>): CompilationResult {
-        javaStub.sourceFiles.forEach { sourceToJavaStubsMap.add(it, javaStub.outputFile) }
-        return super.saveFileToCache(javaStub)
     }
 
     override fun saveFileToCache(generatedClass: GeneratedJvmClass<TargetId>): CompilationResult {

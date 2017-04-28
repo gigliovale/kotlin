@@ -16,7 +16,7 @@
 
 package org.jetbrains.kotlin.idea.quickfix
 
-import com.intellij.codeInsight.intention.CommonChangeModifiers
+import com.intellij.codeInsight.intention.CommonModifications
 import com.intellij.lang.Language
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.psi.PsiModifier
@@ -36,7 +36,7 @@ class CommonModificationsTest : LightPlatformCodeInsightFixtureTestCase() {
         }
         """)
 
-        myFixture.launchAction(uastChangeModifiers.changeModifier(uastElementAtCaret(myFixture), PsiModifier.FINAL, false )!!)
+        myFixture.launchAction(uastChangeModifiers.createChangeModifierAction(uastElementAtCaret(myFixture), PsiModifier.FINAL, false )!!)
         myFixture.checkResult("""
         class Foo {
             open fun bar(){}
@@ -51,7 +51,7 @@ class CommonModificationsTest : LightPlatformCodeInsightFixtureTestCase() {
         }
         """)
 
-        myFixture.launchAction(uastChangeModifiers.changeModifier(uastElementAtCaret(myFixture), PsiModifier.PRIVATE, true )!!)
+        myFixture.launchAction(uastChangeModifiers.createChangeModifierAction(uastElementAtCaret(myFixture), PsiModifier.PRIVATE, true )!!)
         myFixture.checkResult("""
         private class Foo {
             fun bar(){}
@@ -66,7 +66,7 @@ class CommonModificationsTest : LightPlatformCodeInsightFixtureTestCase() {
         }
         """.trim())
 
-        myFixture.launchAction(uastChangeModifiers.changeModifier(uastElementAtCaret(myFixture), PsiModifier.PRIVATE, false )!!)
+        myFixture.launchAction(uastChangeModifiers.createChangeModifierAction(uastElementAtCaret(myFixture), PsiModifier.PRIVATE, false )!!)
         myFixture.checkResult("""
         class Foo {
             fun bar(){}
@@ -81,8 +81,8 @@ class CommonModificationsTest : LightPlatformCodeInsightFixtureTestCase() {
         return uastLanguagePlugin.convert<UDeclaration>(elementAtCaret, null)
     }
 
-    private val uastChangeModifiers: CommonChangeModifiers
-        get() = CommonChangeModifiers.forLanguage(Language.findLanguageByID("kotlin")!!)
+    private val uastChangeModifiers: CommonModifications
+        get() = CommonModifications.forLanguage(Language.findLanguageByID("kotlin")!!)
 
 }
 

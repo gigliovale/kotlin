@@ -33,12 +33,10 @@ class GradleIncrementalCacheImpl(
 ) : IncrementalCacheImpl<TargetId>(targetDataRoot, targetOutputDir, target) {
     companion object {
         private val SOURCE_TO_OUTPUT_FILES = "source-to-output"
-        private val GENERATED_SOURCE_SNAPSHOTS = "generated-source-snapshot"
         private val SOURCE_SNAPSHOTS = "source-snapshot"
     }
 
     internal val sourceToOutputMap = registerMap(SourceToOutputFilesMap(SOURCE_TO_OUTPUT_FILES.storageFile))
-    internal val generatedSourceSnapshotMap = registerMap(FileSnapshotMap(GENERATED_SOURCE_SNAPSHOTS.storageFile))
     internal val sourceSnapshotMap = registerMap(FileSnapshotMap(SOURCE_SNAPSHOTS.storageFile))
 
     // generatedFiles can contain multiple entries with the same source file

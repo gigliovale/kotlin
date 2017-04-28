@@ -16,16 +16,17 @@
 
 // a package is omitted to get declarations directly under the module
 
-external private fun <T> Array(size: Int): Array<T>
+@PublishedApi
+external internal fun <T> Array(size: Int): Array<T>
 
 @JsName("newArray")
 fun <T> newArray(size: Int, initValue: T) = fillArrayVal(Array<T>(size), initValue)
 
 @JsName("newArrayF")
-fun <T> arrayWithFun(size: Int, init: (Int) -> T) = fillArrayFun(Array<T>(size), init)
+inline fun <T> arrayWithFun(size: Int, init: (Int) -> T) = fillArrayFun(Array<T>(size), init)
 
 @JsName("fillArray")
-fun <T> fillArrayFun(array: Array<T>, init: (Int) -> T): Array<T> {
+inline fun <T> fillArrayFun(array: Array<T>, init: (Int) -> T): Array<T> {
     for (i in 0..array.size - 1) {
         array[i] = init(i)
     }
@@ -33,36 +34,50 @@ fun <T> fillArrayFun(array: Array<T>, init: (Int) -> T): Array<T> {
 }
 
 @JsName("booleanArray")
-fun booleanArray(size: Int, init: dynamic): Array<Boolean> {
-    val result: dynamic = Array<Boolean>(size)
-    result.`$type$` = "BooleanArray"
-    return when (init) {
-        null, true -> fillArrayVal(result, false)
-        false -> result
-        else -> fillArrayFun<Boolean>(result, init)
+fun booleanArray(size: Int, init: Boolean = true): Array<Boolean> {
+    val result = newBooleanArray(size)
+    if (init) {
+        fillArrayVal(result, false)
     }
+    return result
 }
+
+@JsName("booleanArrayF")
+inline fun booleanArrayWithFun(size: Int, init: (Int) -> Boolean) = fillArrayFun(newBooleanArray(size), init)
 
 @JsName("charArray")
 @Suppress("UNUSED_PARAMETER")
-fun charArray(size: Int, init: dynamic): Array<Char> {
+fun charArray(size: Int): Array<Char> {
     val result = js("new Uint16Array(size)")
     result.`$type$` = "CharArray"
-    return when (init) {
-        null, true, false -> result // For consistency
-        else -> fillArrayFun<Char>(result, init)
-    }
+    return result
 }
 
+@JsName("charArrayF")
+inline fun charArrayWithFun(size: Int, init: (Int) -> Char) = fillArrayFun(charArray(size), init)
+
 @JsName("longArray")
-fun longArray(size: Int, init: dynamic): Array<Long> {
+fun longArray(size: Int, init: Boolean = true): Array<Long> {
+    val result: dynamic = newLongArray(size)
+    if (init) {
+        fillArrayVal(result, 0L)
+    }
+    return result
+}
+
+@JsName("longArrayF")
+inline fun longArrayWithFun(size: Int, init: (Int) -> Boolean) = fillArrayFun(newLongArray(size), init)
+
+inline fun newBooleanArray(size: Int): dynamic {
+    val result: dynamic = Array<Boolean>(size)
+    result.`$type$` = "BooleanArray"
+    return result
+}
+
+inline fun newLongArray(size: Int): dynamic {
     val result: dynamic = Array<Long>(size)
     result.`$type$` = "LongArray"
-    return when (init) {
-        null, true -> fillArrayVal(result, 0L)
-        false -> result
-        else -> fillArrayFun<Long>(result, init)
-    }
+    return result
 }
 
 private fun <T> fillArrayVal(array: Array<T>, initValue: T): Array<T> {

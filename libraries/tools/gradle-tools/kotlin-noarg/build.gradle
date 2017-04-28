@@ -3,6 +3,12 @@ apply plugin: 'kotlin'
 configureJvmProject(project)
 configurePublishing(project)
 
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.fork = false
+}
+
 repositories {
     mavenLocal()
     jcenter()
@@ -18,43 +24,19 @@ dependencies {
     compileOnly 'org.jetbrains.kotlin:gradle-api:1.6'
 }
 
-def noargOriginalSrc = "$kotlinRoot/plugins/noarg/noarg-cli/src"
-def noargTargetSrc = file("$buildDir/noarg-target-src")
+def originalSrc = "$kotlinRoot/plugins/noarg/noarg-cli/src"
+def targetSrc = file("$buildDir/noarg-target-src")
 
-task copyNoargSources(type: Copy) {
-    from noargOriginalSrc
-    from sourceSets.main.kotlin.srcDirs
-    into noargTargetSrc
+task preprocessSources(type: Copy) {
+    from originalSrc
+    into targetSrc
+    filter { it.replaceAll('(?<!\\.)com\\.intellij', 'org.jetbrains.kotlin.com.intellij') }
 }
 
-task replaceIdeaPackage(type: DefaultTask)
-replaceIdeaPackage.doFirst {
-    ant.replaceregexp(
-            match: '(?<!\\.)com\\.intellij',
-            replace: 'org.jetbrains.kotlin.com.intellij',
-            flags: 'g',
-            byline: true) {
-        fileset(dir: noargTargetSrc)
-    }
-}
-replaceIdeaPackage.dependsOn copyNoargSources
+sourceSets.main.java.srcDirs += targetSrc
 
-sourceSets {
-    generated {
-        compileClasspath += sourceSets.main.compileClasspath
-        kotlin {
-            srcDirs.clear()
-            srcDir noargTargetSrc
-        }
-    }
-}
-
-compileKotlin.onlyIf { false }
-compileGeneratedKotlin.dependsOn replaceIdeaPackage
-jar.dependsOn generatedClasses
-jar.dependsOn -= classes
+compileKotlin.dependsOn preprocessSources
 
 jar {
-    from sourceSets.generated.output.classesDir
-    from(files("$noargOriginalSrc/META-INF/")) { into "META-INF" }
+    from(targetSrc) { include("META-INF/**") }
 }
